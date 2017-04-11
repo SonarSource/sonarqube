@@ -40,6 +40,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.util.Validation;
@@ -71,16 +72,18 @@ public class UserUpdater {
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final System2 system2;
+  private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationCreation organizationCreation;
   private final DefaultGroupFinder defaultGroupFinder;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2,
+  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.system2 = system2;
+    this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationCreation = organizationCreation;
     this.defaultGroupFinder = defaultGroupFinder;
@@ -114,8 +117,7 @@ public class UserUpdater {
     existingUser.setLocal(true);
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
-    addDefaultGroup(dbSession, existingUser);
-    addUserToDefaultOrganization(dbSession, existingUser);
+    addUserToDefaultOrganizationAndDefaultGroup(dbSession, existingUser);
     dbSession.commit();
   }
 
@@ -345,8 +347,7 @@ public class UserUpdater {
     long now = system2.now();
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
-    addDefaultGroup(dbSession, userDto);
-    addUserToDefaultOrganization(dbSession, userDto);
+    addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
     organizationCreation.createForUser(dbSession, userDto);
     dbSession.commit();
     userIndexer.index(userDto.getLogin());
@@ -378,6 +379,23 @@ public class UserUpdater {
       .build());
   }
 
+  private static boolean isUserAlreadyMemberOfDefaultGroup(GroupDto defaultGroup, List<GroupDto> userGroups) {
+    return userGroups.stream().anyMatch(group -> defaultGroup.getId().equals(group.getId()));
+  }
+
+  private void addUserToDefaultOrganizationAndDefaultGroup(DbSession dbSession, UserDto userDto) {
+    if (organizationFlags.isEnabled(dbSession)) {
+      return;
+    }
+    addUserToDefaultOrganization(dbSession, userDto);
+    addDefaultGroup(dbSession, userDto);
+  }
+
+  private void addUserToDefaultOrganization(DbSession dbSession, UserDto userDto) {
+    String defOrgUuid = defaultOrganizationProvider.get().getUuid();
+    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto().setOrganizationUuid(defOrgUuid).setUserId(userDto.getId()));
+  }
+
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {
     String defOrgUuid = defaultOrganizationProvider.get().getUuid();
     List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
@@ -386,14 +404,5 @@ public class UserUpdater {
       return;
     }
     dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(defaultGroup.getId()));
-  }
-
-  private static boolean isUserAlreadyMemberOfDefaultGroup(GroupDto defaultGroup, List<GroupDto> userGroups) {
-    return userGroups.stream().anyMatch(group -> defaultGroup.getId().equals(group.getId()));
-  }
-
-  private void addUserToDefaultOrganization(DbSession dbSession, UserDto userDto) {
-    String defOrgUuid = defaultOrganizationProvider.get().getUuid();
-    dbClient.organizationMemberDao().insert(dbSession, new OrganizationMemberDto().setOrganizationUuid(defOrgUuid).setUserId(userDto.getId()));
   }
 }
