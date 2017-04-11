@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -39,6 +38,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.sonar.api.utils.Paging.forPageIndex;
@@ -60,11 +60,13 @@ public class SearchAction implements UserGroupsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final GroupWsSupport groupWsSupport;
+  private final DefaultGroupFinder defaultGroupFinder;
 
-  public SearchAction(DbClient dbClient, UserSession userSession, GroupWsSupport groupWsSupport) {
+  public SearchAction(DbClient dbClient, UserSession userSession, GroupWsSupport groupWsSupport, DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.groupWsSupport = groupWsSupport;
+    this.defaultGroupFinder = defaultGroupFinder;
   }
 
   @Override
@@ -101,14 +103,14 @@ public class SearchAction implements UserGroupsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = groupWsSupport.findOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION_KEY));
       userSession.checkLoggedIn().checkPermission(ADMINISTER, organization);
-      Optional<Integer> defaultGroupId = groupWsSupport.findDefaultGroupId(dbSession, organization);
+      GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid());
 
       int limit = dbClient.groupDao().countByQuery(dbSession, organization.getUuid(), query);
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(limit);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(dbSession, organization.getUuid(), query, options.getOffset(), pageSize);
       List<Integer> groupIds = groups.stream().map(GroupDto::getId).collect(MoreCollectors.toList(groups.size()));
       Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(dbSession, groupIds);
-      writeProtobuf(buildResponse(groups, userCountByGroup, fields, paging, defaultGroupId), request, response);
+      writeProtobuf(buildResponse(groups, userCountByGroup, fields, paging, defaultGroup), request, response);
     }
   }
 
@@ -123,10 +125,10 @@ public class SearchAction implements UserGroupsWsAction {
     return fields;
   }
 
-  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields, Paging paging, Optional<Integer> defaultGroupId) {
+  private static SearchWsResponse buildResponse(List<GroupDto> groups, Map<String, Integer> userCountByGroup, Set<String> fields, Paging paging, GroupDto defaultGroup) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     groups.forEach(group -> responseBuilder
-      .addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields, defaultGroupId.isPresent() && defaultGroupId.get().equals(group.getId()))));
+      .addGroups(toWsGroup(group, userCountByGroup.get(group.getName()), fields, defaultGroup.getId().equals(group.getId()))));
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
       .setPageSize(paging.pageSize())

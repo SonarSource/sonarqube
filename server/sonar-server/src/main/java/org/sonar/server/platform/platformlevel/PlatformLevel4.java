@@ -207,6 +207,7 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.UsersWsModule;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
 import org.sonar.server.usertoken.UserTokenModule;
 import org.sonar.server.util.TypeValidationModule;
@@ -354,6 +355,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // groups
       UserGroupsModule.class,
       DefaultGroupCreatorImpl.class,
+      DefaultGroupFinder.class,
 
       // permissions
       DefaultTemplatesResolverImpl.class,

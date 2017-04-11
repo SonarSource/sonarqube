@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +43,7 @@ public class UserGroupsWsTest {
   public void setUp() {
     GroupWsSupport wsSupport = mock(GroupWsSupport.class);
     WsTester tester = new WsTester(new UserGroupsWs(
-      new SearchAction(mock(DbClient.class), mock(UserSession.class), wsSupport),
+      new SearchAction(mock(DbClient.class), mock(UserSession.class), wsSupport, mock(DefaultGroupFinder.class)),
       new CreateAction(mock(DbClient.class), mock(UserSession.class), wsSupport)));
     controller = tester.controller("api/user_groups");
   }
