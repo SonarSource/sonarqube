@@ -201,6 +201,16 @@ public class RemoveMemberActionTest {
   }
 
   @Test
+  public void remove_from_default_organization_group() {
+    GroupDto defaultGroup = db.users().insertDefaultGroup(organization, "default");
+    db.users().insertMember(defaultGroup, user);
+
+    call(organization.getKey(), user.getLogin());
+
+    assertThat(dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, user.getId())).isEmpty();
+  }
+
+  @Test
   public void remove_from_org_properties() {
     OrganizationDto anotherOrganization = db.organizations().insert();
     ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
