@@ -84,12 +84,8 @@ public class System2Test {
   }
 
   @Test
-  public void testIsJavaAtLeast17() {
-    if (SystemUtils.IS_JAVA_1_6) {
-      assertThat(System2.INSTANCE.isJavaAtLeast17()).isFalse();
-    } else {
-      assertThat(System2.INSTANCE.isJavaAtLeast17()).isTrue();
-    }
+  public void isJavaAtLeast17_always_returns_true() {
+    assertThat(System2.INSTANCE.isJavaAtLeast17()).isTrue();
   }
 
   @Test
