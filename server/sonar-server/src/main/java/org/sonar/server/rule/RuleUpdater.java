@@ -83,7 +83,7 @@ public class RuleUpdater {
     // validate only the changes, not all the rule fields
     apply(update, rule, userSession);
     update(dbSession, rule);
-    updateParameters(dbSession, update, rule);
+    updateParameters(dbSession, organization, update, rule);
     dbSession.commit();
 
     RuleKey ruleKey = rule.getKey();
@@ -215,7 +215,7 @@ public class RuleUpdater {
       .isEquals();
   }
 
-  private void updateParameters(DbSession dbSession, RuleUpdate update, RuleDto rule) {
+  private void updateParameters(DbSession dbSession, OrganizationDto organization, RuleUpdate update, RuleDto rule) {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = rule;
       Integer templateId = customRule.getTemplateId();
@@ -228,14 +228,14 @@ public class RuleUpdater {
       List<String> paramKeys = newArrayList();
 
       // Load active rules and its parameters in cache
-      Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule = getActiveRuleParamsByActiveRule(dbSession, customRule);
+      Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule = getActiveRuleParamsByActiveRule(dbSession, organization, customRule);
       // Browse custom rule parameters to create, update or delete them
       deleteOrUpdateParameters(dbSession, update, customRule, paramKeys, activeRuleParamsByActiveRule);
     }
   }
 
-  private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, RuleDto customRule) {
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, customRule.getId());
+  private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, OrganizationDto organization, RuleDto customRule) {
+    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, organization, customRule.getId());
     Map<Integer, ActiveRuleDto> activeRuleById = from(activeRuleDtos).uniqueIndex(ActiveRuleDto::getId);
     List<Integer> activeRuleIds = Lists.transform(activeRuleDtos, ActiveRuleDto::getId);
     List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);

@@ -153,8 +153,8 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbTester.getSession(), activeRule2);
     dbSession.commit();
 
-    assertThat(underTest.selectByRuleId(dbSession, rule1.getId())).extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey());
-    assertThat(underTest.selectByRuleId(dbSession, rule3.getId())).isEmpty();
+    assertThat(underTest.selectByRuleId(dbSession, organization, rule1.getId())).extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey());
+    assertThat(underTest.selectByRuleId(dbSession, organization, rule3.getId())).isEmpty();
   }
 
   @Test
@@ -167,9 +167,9 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule3);
     dbSession.commit();
 
-    assertThat(underTest.selectByRuleIds(dbSession, Collections.singletonList(rule1.getId())))
+    assertThat(underTest.selectByRuleIds(dbSession, organization.getUuid(), Collections.singletonList(rule1.getId())))
       .extracting("key").containsOnly(activeRule1.getKey(), activeRule3.getKey());
-    assertThat(underTest.selectByRuleIds(dbSession, newArrayList(rule1.getId(), rule2.getId())))
+    assertThat(underTest.selectByRuleIds(dbSession, organization.getUuid(), newArrayList(rule1.getId(), rule2.getId())))
       .extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey(), activeRule3.getKey());
   }
 
@@ -552,7 +552,7 @@ public class ActiveRuleDaoTest {
 
     dbSession.commit();
 
-    underTest.deleteParamsByRuleParam(dbSession, rule1.getId(), rule1Param1.getName());
+    underTest.deleteParamsByRuleParamOfAllOrganizations(dbSession, rule1.getId(), rule1Param1.getName());
     dbSession.commit();
 
     assertThat(underTest.selectParamByKeyAndName(activeRule1.getKey(), activeRuleParam1.getKey(), dbSession)).isNull();
@@ -573,7 +573,7 @@ public class ActiveRuleDaoTest {
 
     dbSession.commit();
 
-    underTest.deleteParamsByRuleParam(dbSession, rule1.getId(), "unknown");
+    underTest.deleteParamsByRuleParamOfAllOrganizations(dbSession, rule1.getId(), "unknown");
   }
 
   @Test

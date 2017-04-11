@@ -369,7 +369,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 2. Assert ActiveRule with MINOR severity
-    assertThat(tester.get(ActiveRuleDao.class).selectByRuleId(session, rule0.getId()).get(0).getSeverityString()).isEqualTo("MINOR");
+    assertThat(tester.get(ActiveRuleDao.class).selectByRuleId(session, organization, rule0.getId()).get(0).getSeverityString()).isEqualTo("MINOR");
     assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery()
       .setQProfileKey(profile.getKey())
       .setKey(rule0.getKey().toString())

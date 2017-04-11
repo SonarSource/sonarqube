@@ -82,7 +82,16 @@
     where qp.kee=#{id}
   </select>
 
-  <select id="selectByRuleId" parameterType="Integer" resultType="ActiveRule">
+  <select id="selectByRuleId" parameterType="map" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    WHERE a.rule_id=#{ruleId, jdbcType=BIGINT}
+    AND qp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByRuleIdOfAllOrganizations" parameterType="Integer" resultType="ActiveRule">
     SELECT
     <include refid="activeRuleKeyColumns"/>
     FROM active_rules a
@@ -100,13 +109,7 @@
     <foreach collection="ruleIds" item="ruleId" separator="," open="(" close=")">
       #{ruleId}
     </foreach>
-  </select>
-
-  <select id="selectAll" parameterType="map" resultType="ActiveRule">
-    select
-    <include refid="activeRuleKeyColumns"/>
-    from active_rules a
-    <include refid="activeRuleKeyJoin"/>
+    AND qp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <!-- Parameters -->
