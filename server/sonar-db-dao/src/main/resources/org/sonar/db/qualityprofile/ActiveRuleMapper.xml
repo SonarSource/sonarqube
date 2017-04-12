@@ -194,7 +194,9 @@
     select p.kee as "key", count(ar.id) as "value"
     from active_rules ar
     inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules r on r.id = ar.rule_id
     where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    and r.status != 'REMOVED'
     group by p.kee
   </select>
 
@@ -212,8 +214,10 @@
     select p.kee as "key", count(ar.id) as "value"
     from active_rules ar
     inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules r on r.id = ar.rule_id
     where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and ar.inheritance = #{inheritance, jdbcType=VARCHAR}
+    and r.status != 'REMOVED'
     group by p.kee
   </select>
 </mapper>
