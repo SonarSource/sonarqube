@@ -37,6 +37,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -72,7 +73,7 @@ public class SearchMembersActionTest {
   private DefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
   private UserIndexer indexer = new UserIndexer(dbClient, es.client());
 
-  private WsActionTester ws = new WsActionTester(new SearchMembersAction(dbClient, new UserIndex(es.client()), organizationProvider, userSession));
+  private WsActionTester ws = new WsActionTester(new SearchMembersAction(dbClient, new UserIndex(es.client()), organizationProvider, userSession, new AvatarResolverImpl()));
 
   private SearchMembersWsRequest request = new SearchMembersWsRequest();
 
@@ -259,19 +260,6 @@ public class SearchMembersActionTest {
   }
 
   @Test
-  public void json_example() {
-    UserDto user1 = db.users().insertUser(u -> u.setLogin("ada.lovelace").setName("Ada Lovelace").setEmail("ada@lovelace.com"));
-    db.organizations().addMember(db.getDefaultOrganization(), user1);
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("grace.hopper").setName("Grace Hopper").setEmail("grace@hopper.com"));
-    db.organizations().addMember(db.getDefaultOrganization(), user2);
-    indexAllUsers();
-
-    String result = ws.newRequest().execute().getInput();
-
-    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
-  }
-
-  @Test
   public void fail_if_organization_is_unknown() {
     request.setOrganization("ORGA 42");
 
@@ -299,6 +287,19 @@ public class SearchMembersActionTest {
     expectedException.expectMessage("Query length must be greater than or equal to 2");
 
     call();
+  }
+
+  @Test
+  public void json_example() {
+    UserDto user1 = db.users().insertUser(u -> u.setLogin("ada.lovelace").setName("Ada Lovelace").setEmail("ada@lovelace.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), user1);
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("grace.hopper").setName("Grace Hopper").setEmail("grace@hopper.com"));
+    db.organizations().addMember(db.getDefaultOrganization(), user2);
+    indexAllUsers();
+
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test

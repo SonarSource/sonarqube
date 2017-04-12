@@ -22,10 +22,7 @@ package org.sonar.server.organization.ws;
 
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
-import com.google.common.hash.Hashing;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -41,6 +38,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
@@ -62,12 +60,14 @@ public class SearchMembersAction implements OrganizationsWsAction {
   private final UserIndex userIndex;
   private final DefaultOrganizationProvider organizationProvider;
   private final UserSession userSession;
+  private final AvatarResolver avatarResolver;
 
-  public SearchMembersAction(DbClient dbClient, UserIndex userIndex, DefaultOrganizationProvider organizationProvider, UserSession userSession) {
+  public SearchMembersAction(DbClient dbClient, UserIndex userIndex, DefaultOrganizationProvider organizationProvider, UserSession userSession, AvatarResolver avatarResolver) {
     this.dbClient = dbClient;
     this.userIndex = userIndex;
     this.organizationProvider = organizationProvider;
     this.userSession = userSession;
+    this.avatarResolver = avatarResolver;
   }
 
   @Override
@@ -121,7 +121,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
     }
   }
 
-  private static SearchMembersWsResponse buildResponse(List<UserDto> users, Common.Paging wsPaging, @Nullable Multiset<String> groupCountByLogin) {
+  private SearchMembersWsResponse buildResponse(List<UserDto> users, Common.Paging wsPaging, @Nullable Multiset<String> groupCountByLogin) {
     SearchMembersWsResponse.Builder response = SearchMembersWsResponse.newBuilder();
 
     User.Builder wsUser = User.newBuilder();
@@ -132,7 +132,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
           .clear()
           .setLogin(login)
           .setName(userDto.getName());
-        setNullable(userDto.getEmail(), text -> wsUser.setAvatar(hash(text)));
+        setNullable(userDto.getEmail(), text -> wsUser.setAvatar(avatarResolver.create(userDto)));
         setNullable(groupCountByLogin, count -> wsUser.setGroupCount(groupCountByLogin.count(login)));
         return wsUser;
       })
@@ -162,10 +162,6 @@ public class SearchMembersAction implements OrganizationsWsAction {
     checkArgument(pageSize <= SearchOptions.MAX_LIMIT, "Page size must lower than or equal to %s", SearchOptions.MAX_LIMIT);
 
     return new SearchOptions().setPage(request.mandatoryParamAsInt(Param.PAGE), pageSize);
-  }
-
-  private static String hash(String text) {
-    return Hashing.md5().hashString(text.toLowerCase(Locale.ENGLISH), StandardCharsets.UTF_8).toString();
   }
 
   private static Common.Paging buildWsPaging(Request request, SearchResult<UserDoc> searchResults) {
