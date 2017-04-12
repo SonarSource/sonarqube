@@ -20,6 +20,7 @@
 
 package org.sonar.ce.cluster;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
@@ -42,7 +43,8 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
 
   private final ClientConfig hzConfig;
 
-  private HazelcastInstance hzInstance;
+  @VisibleForTesting
+  protected HazelcastInstance hzInstance;
 
   public HazelcastClientWrapperImpl(Settings settings) {
     boolean clusterEnabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);

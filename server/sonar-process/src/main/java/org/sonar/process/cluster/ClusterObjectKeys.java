@@ -23,9 +23,10 @@ package org.sonar.process.cluster;
 /**
  * This class holds all object keys accessible via Hazelcast
  */
-public class ClusterObjectKeys {
+public final class ClusterObjectKeys {
 
   private ClusterObjectKeys() {
+    // Holder for clustered objects
   }
 
   /**

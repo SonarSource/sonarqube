@@ -23,6 +23,8 @@ package org.sonar.ce.cluster;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
+import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.core.HazelcastInstance;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -205,6 +207,19 @@ public class HazelcastClientWrapperImplTest {
       assertThat(hzClient.getMap("TEST3")).containsExactly(
         entry("a", Arrays.asList("123", "456"))
       );
+    } finally {
+      hzClient.stop();
+    }
+  }
+
+  @Test
+  public void configuration_tweaks_of_hazelcast_must_be_present() {
+    try {
+      hzClient.start();
+      HazelcastClientInstanceImpl realClient = ((HazelcastClientProxy) hzClient.hzInstance).client;
+      assertThat(realClient.getClientConfig().getProperty("hazelcast.tcp.join.port.try.count")).isEqualTo("10");
+      assertThat(realClient.getClientConfig().getProperty("hazelcast.phone.home.enabled")).isEqualTo("false");
+      assertThat(realClient.getClientConfig().getProperty("hazelcast.logging.type")).isEqualTo("slf4j");
     } finally {
       hzClient.stop();
     }

@@ -56,7 +56,7 @@ public class HazelcastCluster implements AutoCloseable {
   private final String operationalProcessListenerUUID;
   private final String clientListenerUUID;
 
-  final HazelcastInstance hzInstance;
+  protected final HazelcastInstance hzInstance;
 
   private HazelcastCluster(Config hzConfig) {
     // Create the Hazelcast instance

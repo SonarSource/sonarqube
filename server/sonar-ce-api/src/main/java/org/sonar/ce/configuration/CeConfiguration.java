@@ -27,8 +27,8 @@ public interface CeConfiguration {
   int getWorkerCount();
 
   /**
-   * The delay in milliseconds before calling another {@link org.sonar.server.computation.taskprocessor.CeWorkerCallable}
-   * when previous one had nothing to do.
+   * The delay in millisecond before a {@link CeWorker} shall try and find a task
+   * to process when it's previous execution had nothing to do.
    */
   long getQueuePollingDelay();
 

@@ -22,9 +22,7 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.ce.log.CeLogging;
 import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.UuidFactoryImpl;

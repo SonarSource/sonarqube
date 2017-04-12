@@ -210,8 +210,6 @@ public class HazelcastClusterTest {
     }
   }
 
-
-
   @Test
   public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
@@ -281,6 +279,17 @@ public class HazelcastClusterTest {
     @Override
     protected void append(E eventObject) {
       events.add(eventObject);
+    }
+  }
+
+
+  @Test
+  public void configuration_tweaks_of_hazelcast_must_be_present() {
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(new ClusterProperties(newClusterSettings()))) {
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.tcp.join.port.try.count")).isEqualTo("10");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.phone.home.enabled")).isEqualTo("false");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.logging.type")).isEqualTo("slf4j");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.socket.bind.any")).isEqualTo("false");
     }
   }
 }
