@@ -18,6 +18,7 @@
             uuid="uuid_1"
             uuid_path="NOT_USED"
             root_uuid="uuid_root"
+            project_uuid="uuid_root"
             kee="foo"
             enabled="1"
             scope="FIL"

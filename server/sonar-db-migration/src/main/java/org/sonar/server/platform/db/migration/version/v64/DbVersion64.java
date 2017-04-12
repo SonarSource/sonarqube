@@ -45,7 +45,6 @@ public class DbVersion64 implements DbVersion {
       .add(1615, "Create table RULES_METADATA", CreateRulesMetadata.class)
       .add(1616, "Populate table RULES_METADATA", PopulateRulesMetadata.class)
       .add(1617, "Drop metadata columns from RULES", DropMetadataColumnsFromRules.class)
-
       // ensure the index is made unique even on existing 6.4-SNAPSHOT instances (such as next or the developer machines)
       .add(1618, "Make index on ORGANIZATIONS.KEE unique", org.sonar.server.platform.db.migration.version.v63.MakeIndexOnOrganizationsKeeUnique.class)
       .add(1619, "Restore 'sonar-users' group", RestoreSonarUsersGroups.class)
@@ -60,6 +59,7 @@ public class DbVersion64 implements DbVersion {
       .add(1628, "Add columns CE_QUEUE.WORKER_UUID and EXECUTION_COUNT", AddCeQueueWorkerUuidAndExecutionCount.class)
       .add(1629, "Make CE_QUEUE.EXECUTION_COUNT not nullable", MakeCeQueueExecutionCountNotNullable.class)
       .add(1630, "Add columns CE_ACTIVITY.WORKER_UUID and EXECUTION_COUNT", AddCeActivityWorkerUuidAndExecutionCount.class)
-      .add(1631, "Make columns CE_ACTIVITY.EXECUTION_COUNT not nullable", MakeCeActivityExecutionCountNotNullable.class);
+      .add(1631, "Make columns CE_ACTIVITY.EXECUTION_COUNT not nullable", MakeCeActivityExecutionCountNotNullable.class)
+      .add(1632, "Make PROJECTS.PROJECT_UUID not nullable", MakeProjectUuidNotNullable.class);
   }
 }
