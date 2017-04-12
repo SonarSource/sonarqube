@@ -33,7 +33,7 @@ it('render code', () => {
   const selectedIssueLocation = { from: 6, to: 9, line: 3, flowIndex: 0, locationIndex: 0 };
   const wrapper = shallow(
     <LineCode
-      highlightedSymbol="sym1"
+      highlightedSymbols={['sym1']}
       issueKeys={['issue-1', 'issue-2']}
       issueLocations={issueLocations}
       line={line}
@@ -61,7 +61,7 @@ it('should handle empty location message', () => {
   const selectedIssueLocation = { from: 6, to: 9, line: 3, flowIndex: 0, locationIndex: 0 };
   const wrapper = shallow(
     <LineCode
-      highlightedSymbol="sym1"
+      highlightedSymbols={['sym1']}
       issueKeys={['issue-1', 'issue-2']}
       issueLocations={issueLocations}
       line={line}

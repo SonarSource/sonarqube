@@ -46,7 +46,7 @@ type Props = {
   duplicationsCount: number,
   filtered: boolean | null,
   highlighted: boolean,
-  highlightedSymbol: string | null,
+  highlightedSymbols: Array<string>,
   issueLocations: Array<LinearIssueLocation>,
   issues: Array<string>,
   line: SourceLine,
@@ -60,7 +60,7 @@ type Props = {
   onIssuesClose: (SourceLine) => void,
   onSCMClick: (SourceLine, HTMLElement) => void,
   onLocationSelect: (flowIndex: number, locationIndex: number) => void,
-  onSymbolClick: (string) => void,
+  onSymbolClick: (Array<string>) => void,
   openIssues: boolean,
   previousLine?: SourceLine,
   selectedIssue: string | null,
@@ -136,7 +136,7 @@ export default class Line extends React.PureComponent {
             </td>}
 
           <LineCode
-            highlightedSymbol={this.props.highlightedSymbol}
+            highlightedSymbols={this.props.highlightedSymbols}
             issueKeys={this.props.issues}
             issueLocations={this.props.issueLocations}
             line={line}

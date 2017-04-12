@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { intersection } from 'lodash';
 import Line from './components/Line';
 import { translate } from '../../helpers/l10n';
 import type { Duplication, SourceLine } from './types';
@@ -48,7 +49,7 @@ export default class SourceViewerCode extends React.PureComponent {
     hasSourcesAfter: boolean,
     hasSourcesBefore: boolean,
     highlightedLine: number | null,
-    highlightedSymbol: string | null,
+    highlightedSymbols: Array<string>,
     issues: Array<Issue>,
     issuesByLine: { [number]: Array<string> },
     issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
@@ -68,7 +69,7 @@ export default class SourceViewerCode extends React.PureComponent {
     onLineClick: (SourceLine, HTMLElement) => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
     onLocationSelect: (flowIndex: number, locationIndex: number) => void,
-    onSymbolClick: (string) => void,
+    onSymbolClick: (Array<string>) => void,
     openIssuesByLine: { [number]: boolean },
     selectedIssue: string | null,
     selectedIssueLocation: IndexedIssueLocation | null,
@@ -124,11 +125,11 @@ export default class SourceViewerCode extends React.PureComponent {
 
     // for the following properties pass null if the line for sure is not impacted
     const symbolsForLine = this.props.symbolsByLine[line.line] || [];
-    const { highlightedSymbol } = this.props;
-    const optimizedHighlightedSymbol = highlightedSymbol != null &&
-      symbolsForLine.includes(highlightedSymbol)
-      ? highlightedSymbol
-      : null;
+    const { highlightedSymbols } = this.props;
+    let optimizedHighlightedSymbols = intersection(symbolsForLine, highlightedSymbols);
+    if (!optimizedHighlightedSymbols.length) {
+      optimizedHighlightedSymbols = EMPTY_ARRAY;
+    }
 
     const optimizedSelectedIssue = selectedIssue != null && issuesForLine.includes(selectedIssue)
       ? selectedIssue
@@ -155,7 +156,7 @@ export default class SourceViewerCode extends React.PureComponent {
         duplicationsCount={duplicationsCount}
         filtered={filtered}
         highlighted={line.line === this.props.highlightedLine}
-        highlightedSymbol={optimizedHighlightedSymbol}
+        highlightedSymbols={optimizedHighlightedSymbols}
         issueLocations={this.getIssueLocationsForLine(line)}
         issues={issuesForLine}
         key={line.line}

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+import { flatten } from 'lodash';
 import { splitByTokens } from './highlight';
 import { getLinearLocations, getIssueLocations } from './issueLocations';
 import type { Issue } from '../../issue/types';
@@ -149,12 +150,13 @@ export const symbolsByLine = (sources: Array<SourceLine>) => {
   const index = {};
   sources.forEach(line => {
     const tokens = splitByTokens(line.code);
-    index[line.line] = tokens
-      .map(token => {
-        const key = token.className.match(/sym-\d+/);
-        return key && key[0];
+    const symbols = flatten(
+      tokens.map(token => {
+        const keys = token.className.match(/sym-\d+/g);
+        return keys != null ? keys : [];
       })
-      .filter(key => key);
+    );
+    index[line.line] = symbols.filter(key => key);
   });
   return index;
 };

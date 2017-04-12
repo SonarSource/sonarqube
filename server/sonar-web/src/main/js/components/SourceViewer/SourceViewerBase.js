@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { uniqBy } from 'lodash';
+import { intersection, uniqBy } from 'lodash';
 import SourceViewerHeader from './SourceViewerHeader';
 import SourceViewerCode from './SourceViewerCode';
 import SourceViewerIssueLocations from './SourceViewerIssueLocations';
@@ -91,7 +91,7 @@ type State = {
   duplicatedFiles?: Array<{ key: string }>,
   hasSourcesAfter: boolean,
   highlightedLine: number | null,
-  highlightedSymbol: string | null,
+  highlightedSymbols: Array<string>,
   issues?: Array<Issue>,
   issuesByLine: { [number]: Array<string> },
   issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
@@ -143,7 +143,7 @@ export default class SourceViewerBase extends React.Component {
       duplicationsByLine: {},
       hasSourcesAfter: false,
       highlightedLine: props.highlightedLine || null,
-      highlightedSymbol: null,
+      highlightedSymbols: [],
       issuesByLine: {},
       issueLocationsByLine: {},
       issueSecondaryLocationsByIssueByLine: {},
@@ -477,10 +477,12 @@ export default class SourceViewerBase extends React.Component {
     this.displayLinePopup(line.line, element);
   };
 
-  handleSymbolClick = (symbol: string) => {
-    this.setState(prevState => ({
-      highlightedSymbol: prevState.highlightedSymbol === symbol ? null : symbol
-    }));
+  handleSymbolClick = (symbols: Array<string>) => {
+    this.setState(state => {
+      const shouldDisable = intersection(state.highlightedSymbols, symbols).length > 0;
+      const highlightedSymbols = shouldDisable ? [] : symbols;
+      return { highlightedSymbols };
+    });
   };
 
   handleSCMClick = (line: SourceLine, element: HTMLElement) => {
@@ -544,7 +546,7 @@ export default class SourceViewerBase extends React.Component {
         hasSourcesAfter={this.state.hasSourcesAfter}
         filterLine={this.props.filterLine}
         highlightedLine={this.state.highlightedLine}
-        highlightedSymbol={this.state.highlightedSymbol}
+        highlightedSymbols={this.state.highlightedSymbols}
         issues={this.state.issues}
         issuesByLine={this.state.issuesByLine}
         issueLocationsByLine={this.state.issueLocationsByLine}
