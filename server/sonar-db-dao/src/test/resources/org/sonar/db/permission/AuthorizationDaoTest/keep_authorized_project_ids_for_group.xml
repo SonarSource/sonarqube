@@ -19,6 +19,7 @@
             uuid="DEFG"
             uuid_path="NOT_USED"
             root_uuid="DEFG"
+            project_uuid="DEFG"
             module_uuid="[null]"
             enabled="[true]"/>
   <projects organization_uuid="org1"
@@ -27,6 +28,7 @@
             uuid="EFGH"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
+            project_uuid="EFGH"
             module_uuid="[null]"
             enabled="[true]"/>
 
