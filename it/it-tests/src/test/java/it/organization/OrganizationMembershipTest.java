@@ -83,6 +83,13 @@ public class OrganizationMembershipTest {
   }
 
   @Test
+  public void new_user_should_not_become_member_of_default_organization() throws Exception {
+    String login = createUser();
+
+    verifyMembership(login, "default-organization", false);
+  }
+
+  @Test
   public void add_and_remove_member() throws Exception {
     String organizationKey = createOrganization();
     String login = createUser();
