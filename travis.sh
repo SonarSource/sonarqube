@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+./scripts/setupRamdisk.sh
+
 function installPhantomJs {
   echo "Setup PhantomJS 2.1"
   mkdir -p ~/phantomjs
@@ -139,8 +141,8 @@ BUILD)
   export MAVEN_OPTS="-Xmx1G -Xms128m"
   MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
 
-  if [ "$TRAVIS_BRANCH" == "test/dr/travis-premium-vms" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    echo 'Build and analyze test/dr/travis-premium-vms'
+  if [ "$TRAVIS_BRANCH" == "test/tv/ramfs" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    echo 'Build and analyze test/tv/ramfs'
 
     # Fetch all commit history so that SonarQube has exact blame information
     # for issue auto-assignment
