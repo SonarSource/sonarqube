@@ -31,11 +31,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.organization.SearchMembersWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.user.GroupsRequest;
 import pageobjects.Navigation;
 import pageobjects.organization.MembersPage;
 import util.user.UserRule;
@@ -127,7 +129,7 @@ public class OrganizationMembershipTest {
     verifyMembership(login, organizationKey, true);
 
     userRule.deactivateUsers(login);
-    verifyMembership(login, organizationKey, false);
+    verifyOrganizationMembership(login, organizationKey, false);
   }
 
   @Test
@@ -254,11 +256,28 @@ public class OrganizationMembershipTest {
   }
 
   private void verifyMembership(String login, String organizationKey, boolean isMember) {
+    verifyOrganizationMembership(login, organizationKey, isMember);
+    verifyMembersGroupMembership(login, organizationKey, isMember);
+  }
+
+  private void verifyOrganizationMembership(String login, String organizationKey, boolean isMember) {
     List<Organizations.User> users = adminClient.organizations().searchMembers(new SearchMembersWsRequest()
       .setQuery(login)
       .setSelected("selected")
-      .setOrganization(organizationKey)).getUsersList();
+      .setOrganization(organizationKey))
+      .getUsersList();
     assertThat(users).hasSize(isMember ? 1 : 0);
+  }
+
+  private void verifyMembersGroupMembership(String login, String organizationKey, boolean isMember) {
+    List<WsUsers.GroupsWsResponse.Group> groups = adminClient.users().groups(GroupsRequest.builder()
+      .setLogin(login)
+      .setOrganization(organizationKey)
+      .setQuery("Members")
+      .setSelected("selected")
+      .build())
+      .getGroupsList();
+    assertThat(groups).hasSize(isMember ? 1 : 0);
   }
 
   private static String createOrganization() {
