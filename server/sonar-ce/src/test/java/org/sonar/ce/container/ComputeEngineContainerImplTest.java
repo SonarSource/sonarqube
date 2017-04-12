@@ -19,21 +19,29 @@
  */
 package org.sonar.ce.container;
 
+import com.hazelcast.core.HazelcastInstance;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.cluster.HazelcastClientWrapperImpl;
+import org.sonar.ce.cluster.HazelcastTestHelper;
+import org.sonar.ce.CeDistributedInformationImpl;
+import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -49,6 +57,7 @@ import static org.sonar.process.ProcessProperties.PATH_TEMP;
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
   private static final int COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION = CONTAINER_ITSELF + 1;
+  private static final String CLUSTER_NAME = "test";
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -63,19 +72,36 @@ public class ComputeEngineContainerImplTest {
   }
 
   @Test
-  public void real_start() throws IOException {
-    Properties properties = ProcessProperties.defaults();
-    File homeDir = tempFolder.newFolder();
-    File dataDir = new File(homeDir, "data");
-    File tmpDir = new File(homeDir, "tmp");
-    properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
-    properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
-    properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
-    properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
-    properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
-    properties.setProperty(DatabaseProperties.PROP_URL, ((BasicDataSource) dbTester.database().getDataSource()).getUrl());
-    properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
-    properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
+  public void real_start_with_cluster() throws IOException {
+    int port = NetworkUtils.freePort();
+    HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster(CLUSTER_NAME, port);
+
+    Properties properties = getProperties();
+    properties.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
+    properties.setProperty(ProcessProperties.CLUSTER_LOCALENDPOINT, String.format("%s:%d", hzInstance.getCluster().getLocalMember().getAddress().getHost(), port));
+    properties.setProperty(ProcessProperties.CLUSTER_NAME, CLUSTER_NAME);
+
+    // required persisted properties
+    insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
+    insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date()));
+
+    underTest
+      .start(new Props(properties));
+
+    MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
+    assertThat(
+      picoContainer.getComponentAdapters().stream()
+        .map(ComponentAdapter::getComponentImplementation)
+        .collect(Collectors.toList())
+    ).contains((Class) HazelcastClientWrapperImpl.class,
+      (Class) CeDistributedInformationImpl.class
+    );
+    underTest.stop();
+  }
+
+  @Test
+  public void real_start_without_cluster() throws IOException {
+    Properties properties = getProperties();
 
     // required persisted properties
     insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
@@ -88,7 +114,7 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getComponentAdapters())
       .hasSize(
         CONTAINER_ITSELF
-          + 75 // level 4
+          + 76 // level 4
           + 4 // content of CeConfigurationModule
           + 4 // content of CeQueueModule
           + 3 // content of CeHttpModule
@@ -114,12 +140,37 @@ public class ComputeEngineContainerImplTest {
         + 57 // content of CorePropertyDefinitions
         + 1 // content of CePropertyDefinitions
     );
+    assertThat(
+      picoContainer.getComponentAdapters().stream()
+        .map(ComponentAdapter::getComponentImplementation)
+        .collect(Collectors.toList())
+    ).doesNotContain((Class) HazelcastClientWrapperImpl.class,
+      (Class) CeDistributedInformationImpl.class
+    ).contains(
+      (Class) StandaloneCeDistributedInformation.class
+    );
     assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
     underTest.stop();
 
     assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
     assertThat(picoContainer.getLifecycleState().isStopped()).isFalse();
     assertThat(picoContainer.getLifecycleState().isDisposed()).isTrue();
+  }
+
+  private Properties getProperties() throws IOException {
+    Properties properties = ProcessProperties.defaults();
+    File homeDir = tempFolder.newFolder();
+    File dataDir = new File(homeDir, "data");
+    File tmpDir = new File(homeDir, "tmp");
+    properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
+    properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
+    properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
+    properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
+    properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
+    properties.setProperty(DatabaseProperties.PROP_URL, ((BasicDataSource) dbTester.database().getDataSource()).getUrl());
+    properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
+    properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
+    return properties;
   }
 
   private void insertProperty(String key, String value) {

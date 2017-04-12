@@ -44,6 +44,7 @@ import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.cleaning.CeCleaningModule;
+import org.sonar.ce.cluster.HazelcastClientWrapperImpl;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
@@ -52,6 +53,8 @@ import org.sonar.ce.queue.PurgeCeActivities;
 import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;
+import org.sonar.ce.CeDistributedInformationImpl;
+import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
@@ -175,6 +178,18 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
     this.level4 = level3.createChild();
     this.level4.add(level4Components());
+
+    // TODO refactoring levelXComponents()
+    if (props.valueAsBoolean("sonar.cluster.enabled")) {
+      this.level4.add(
+        HazelcastClientWrapperImpl.class,
+        CeDistributedInformationImpl.class
+      );
+    } else {
+      this.level4.add(
+        StandaloneCeDistributedInformation.class
+      );
+    }
     configureFromModules(this.level4);
     ServerExtensionInstaller extensionInstaller = this.level4.getComponentByType(ServerExtensionInstaller.class);
     extensionInstaller.installExtensions(this.level4);
