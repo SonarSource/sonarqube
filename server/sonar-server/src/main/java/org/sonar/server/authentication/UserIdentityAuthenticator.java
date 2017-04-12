@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
@@ -39,6 +40,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
@@ -56,12 +58,15 @@ public class UserIdentityAuthenticator {
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final OrganizationFlags organizationFlags;
   private final DefaultGroupFinder defaultGroupFinder;
 
-  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, DefaultGroupFinder defaultGroupFinder) {
+  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, DefaultOrganizationProvider defaultOrganizationProvider, OrganizationFlags organizationFlags,
+    DefaultGroupFinder defaultGroupFinder) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.organizationFlags = organizationFlags;
     this.defaultGroupFinder = defaultGroupFinder;
   }
 
@@ -157,14 +162,20 @@ public class UserIdentityAuthenticator {
   }
 
   private void removeGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToRemove, Map<String, GroupDto> groupsByName) {
-    GroupDto defaultGroup = defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationProvider.get().getUuid());
+    Optional<GroupDto> defaultGroup = getDefaultGroup(dbSession);
     groupsToRemove.stream().map(groupsByName::get)
       .filter(Objects::nonNull)
-      // user should always be member of sonar-users group
-      .filter(group -> !group.getId().equals(defaultGroup.getId()))
+      // user should be member of default group only when organizations are disabled, as the IdentityProvider API doesn't handle yet
+      // organizations
+      .filter(group -> !defaultGroup.isPresent() || !group.getId().equals(defaultGroup.get().getId()))
       .forEach(groupDto -> {
         LOGGER.debug("Removing group '{}' from user '{}'", groupDto.getName(), userDto.getLogin());
         dbClient.userGroupDao().delete(dbSession, groupDto.getId(), userDto.getId());
       });
   }
+
+  private Optional<GroupDto> getDefaultGroup(DbSession dbSession) {
+    return organizationFlags.isEnabled(dbSession) ? Optional.empty() : Optional.of(defaultGroupFinder.findDefaultGroup(dbSession, defaultOrganizationProvider.get().getUuid()));
+  }
+
 }

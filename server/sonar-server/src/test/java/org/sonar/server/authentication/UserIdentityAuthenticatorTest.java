@@ -21,7 +21,6 @@ package org.sonar.server.authentication;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -87,16 +86,12 @@ public class UserIdentityAuthenticatorTest {
     defaultOrganizationProvider,
     organizationCreation,
     new DefaultGroupFinder(db.getDbClient()));
-  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, new DefaultGroupFinder(db.getDbClient()));
-  private GroupDto defaultGroup;
-
-  @Before
-  public void setUp() throws Exception {
-    defaultGroup = db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
-  }
+  private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
+    new DefaultGroupFinder(db.getDbClient()));
 
   @Test
   public void authenticate_new_user() throws Exception {
+    organizationFlags.setEnabled(true);
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
 
     UserDto user = db.users().selectUserByLogin(USER_LOGIN).get();
@@ -108,30 +103,47 @@ public class UserIdentityAuthenticatorTest {
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isRoot()).isFalse();
 
-    checkGroupMembership(user, defaultGroup);
+    checkGroupMembership(user);
   }
 
   @Test
   public void authenticate_new_user_with_groups() throws Exception {
+    organizationFlags.setEnabled(true);
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
 
     authenticate(USER_LOGIN, "group1", "group2", "group3");
 
     Optional<UserDto> user = db.users().selectUserByLogin(USER_LOGIN);
-    checkGroupMembership(user.get(), group1, group2, defaultGroup);
+    checkGroupMembership(user.get(), group1, group2);
   }
 
   @Test
-  public void authenticate_new_user_and_force_default_group() throws Exception {
+  public void authenticate_new_user_and_force_default_group_when_organizations_are_disabled() throws Exception {
+    organizationFlags.setEnabled(false);
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto defaultGroup = insertDefaultGroup();
     db.users().insertMember(group1, user);
     db.users().insertMember(defaultGroup, user);
 
     authenticate(user.getLogin(), "group1");
 
     checkGroupMembership(user, group1, defaultGroup);
+  }
+
+  @Test
+  public void does_not_force_default_group_when_authenticating_new_user_if_organizations_are_enabled() throws Exception {
+    organizationFlags.setEnabled(true);
+    UserDto user = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto defaultGroup = insertDefaultGroup();
+    db.users().insertMember(group1, user);
+    db.users().insertMember(defaultGroup, user);
+
+    authenticate(user.getLogin(), "group1");
+
+    checkGroupMembership(user, group1);
   }
 
   @Test
@@ -157,6 +169,7 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void authenticate_existing_disabled_user() throws Exception {
+    organizationFlags.setEnabled(true);
     db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(false)
@@ -178,21 +191,22 @@ public class UserIdentityAuthenticatorTest {
 
   @Test
   public void authenticate_existing_user_and_add_new_groups() throws Exception {
+    organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
       .setName("John"));
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
-    db.users().insertMember(defaultGroup, user);
 
     authenticate(USER_LOGIN, "group1", "group2", "group3");
 
-    checkGroupMembership(user, group1, group2, defaultGroup);
+    checkGroupMembership(user, group1, group2);
   }
 
   @Test
   public void authenticate_existing_user_and_remove_groups() throws Exception {
+    organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
@@ -201,18 +215,19 @@ public class UserIdentityAuthenticatorTest {
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
-    db.users().insertMember(defaultGroup, user);
 
     authenticate(USER_LOGIN, "group1");
 
-    checkGroupMembership(user, group1, defaultGroup);
+    checkGroupMembership(user, group1);
   }
 
   @Test
-  public void authenticate_existing_user_and_remove_all_groups_expect_default() throws Exception {
+  public void authenticate_existing_user_and_remove_all_groups_expect_default_when_organizations_are_disabled() throws Exception {
+    organizationFlags.setEnabled(false);
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
+    GroupDto defaultGroup = insertDefaultGroup();
     db.users().insertMember(group1, user);
     db.users().insertMember(group2, user);
     db.users().insertMember(defaultGroup, user);
@@ -223,13 +238,27 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
+  public void does_not_force_default_group_when_authenticating_existing_user_when_organizations_are_enabled() throws Exception {
+    organizationFlags.setEnabled(true);
+    UserDto user = db.users().insertUser();
+    GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
+    GroupDto defaultGroup = insertDefaultGroup();
+    db.users().insertMember(group1, user);
+    db.users().insertMember(defaultGroup, user);
+
+    authenticate(user.getLogin(), "group1");
+
+    checkGroupMembership(user, group1);
+  }
+
+  @Test
   public void ignore_groups_on_non_default_organizations() throws Exception {
+    organizationFlags.setEnabled(true);
     OrganizationDto org = db.organizations().insert();
     UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
       .setName("John"));
-    db.users().insertMember(defaultGroup, user);
     String groupName = "a-group";
     GroupDto groupInDefaultOrg = db.users().insertGroup(db.getDefaultOrganization(), groupName);
     GroupDto groupInOrg = db.users().insertGroup(org, groupName);
@@ -242,7 +271,7 @@ public class UserIdentityAuthenticatorTest {
       .setGroups(newHashSet(groupName))
       .build(), IDENTITY_PROVIDER, Source.sso());
 
-    checkGroupMembership(user, groupInDefaultOrg, defaultGroup);
+    checkGroupMembership(user, groupInDefaultOrg);
   }
 
   @Test
@@ -287,5 +316,9 @@ public class UserIdentityAuthenticatorTest {
 
   private void checkGroupMembership(UserDto user, GroupDto... expectedGroups) {
     assertThat(db.users().selectGroupIdsOfUser(user)).containsOnly(stream(expectedGroups).map(GroupDto::getId).collect(Collectors.toList()).toArray(new Integer[] {}));
+  }
+
+  private GroupDto insertDefaultGroup() {
+    return db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
   }
 }
