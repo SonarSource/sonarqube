@@ -35,7 +35,7 @@
             b_path="[null]"
             b_qualifier="[null]"
   />
-  ²
+
 
   <!-- **************** First sub project **************** -->
   <projects organization_uuid="org1"
@@ -154,7 +154,7 @@
             name="Struts UI"
             uuid="E"
             uuid_path="A.E."
-            project_uuid="[null]"
+            project_uuid="A"
             module_uuid="[null]"
             module_uuid_path=".E."
             scope="PRJ"
@@ -193,7 +193,7 @@
             root_uuid="E"
             uuid="F"
             uuid_path="A.E.F."
-            project_uuid="[null]"
+            project_uuid="E"
             module_uuid="[null]"
             module_uuid_path=".E."
             description="[null]"
@@ -229,7 +229,7 @@
             root_uuid="E"
             uuid="G"
             uuid_path="A.E.F.G."
-            project_uuid="[null]"
+            project_uuid="E"
             module_uuid="[null]"
             module_uuid_path=".E."
             description="[null]"
@@ -263,7 +263,7 @@
             name="Foo Struts Core"
             uuid="H"
             uuid_path="H."
-            project_uuid="[null]"
+            project_uuid="A"
             module_uuid="[null]"
             module_uuid_path=".H."
             scope="PRJ"

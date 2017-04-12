@@ -5,6 +5,7 @@
             uuid_path="NOT_USED"
             enabled="[true]"
             root_uuid="P1"
+            project_uuid="P1"
             created_at="[null]"
             long_name="[null]"
             scope="PRJ"

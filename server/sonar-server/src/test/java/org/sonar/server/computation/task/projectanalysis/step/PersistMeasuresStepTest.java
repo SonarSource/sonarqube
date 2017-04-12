@@ -385,7 +385,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setKey(key)
       .setUuid(uuid)
       .setUuidPath(uuid + ".")
-      .setRootUuid(uuid);
+      .setRootUuid(uuid)
+      .setProjectUuid(uuid);
     dbClient.componentDao().insert(dbTester.getSession(), componentDto);
     return componentDto;
   }
