@@ -11,6 +11,7 @@
             uuid="ABCD"
             uuid_path="NOT_USED"
             root_uuid="ABCD"
+            project_uuid="ABCD"
             id="1"
             kee="ROOT_KEY"
             name="project"/>

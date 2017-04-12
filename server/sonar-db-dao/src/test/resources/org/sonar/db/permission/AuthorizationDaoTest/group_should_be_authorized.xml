@@ -24,6 +24,7 @@
             id="301"
             kee="pj-w-snapshot:package"
             root_uuid="DEFG"
+            project_uuid="DEFG"
             uuid="ABCD"
             uuid_path="NOT_USED"
             module_uuid="DEFG"/>
@@ -31,6 +32,7 @@
             id="302"
             kee="pj-w-snapshot:file"
             root_uuid="DEFG"
+            project_uuid="DEFG"
             uuid="BCDE"
             uuid_path="NOT_USED"
             module_uuid="DEFG"/>
@@ -38,6 +40,7 @@
             id="303"
             kee="pj-w-snapshot:other"
             root_uuid="DEFG"
+            project_uuid="DEFG"
             uuid="CDEF"
             uuid_path="NOT_USED"
             module_uuid="DEFG"/>
@@ -47,6 +50,7 @@
             uuid="DEFG"
             uuid_path="NOT_USED"
             root_uuid="DEFG"
+            project_uuid="DEFG"
             module_uuid="[null]"/>
   <projects organization_uuid="org1"
             id="400"
@@ -54,6 +58,7 @@
             uuid="EFGH"
             uuid_path="NOT_USED"
             root_uuid="EFGH"
+            project_uuid="EFGH"
             module_uuid="[null]"/>
 
 </dataset>
