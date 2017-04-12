@@ -19,18 +19,20 @@
  */
 package org.sonar.api.rules;
 
-import com.google.common.base.Function;
-import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import javax.annotation.Nonnull;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toList;
 
 public enum RuleType {
   CODE_SMELL(1), BUG(2), VULNERABILITY(3);
 
-  private static final Set<String> ALL_NAMES = from(Arrays.asList(values())).transform(ToName.INSTANCE).toSet();
+  private static final Set<String> ALL_NAMES = unmodifiableSet(new LinkedHashSet<>(stream(values())
+    .map(Enum::name)
+    .collect(toList())));
 
   private final int dbConstant;
 
@@ -57,15 +59,6 @@ public enum RuleType {
       }
     }
     throw new IllegalArgumentException(format("Unsupported type value : %d", dbConstant));
-  }
-
-  private enum ToName implements Function<RuleType, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull RuleType input) {
-      return input.name();
-    }
   }
 
 }

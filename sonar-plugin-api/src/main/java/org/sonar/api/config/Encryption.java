@@ -19,14 +19,12 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.collect.ImmutableMap;
-
-import javax.annotation.Nullable;
-
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 
 /**
  * @since 3.0
@@ -43,9 +41,9 @@ public final class Encryption {
 
   public Encryption(@Nullable String pathToSecretKey) {
     aesCipher = new AesCipher(pathToSecretKey);
-    ciphers = ImmutableMap.of(
-      BASE64_ALGORITHM, new Base64Cipher(),
-      AES_ALGORITHM, aesCipher);
+    ciphers = new HashMap<>();
+    ciphers.put(BASE64_ALGORITHM, new Base64Cipher());
+    ciphers.put(AES_ALGORITHM, aesCipher);
   }
 
   public void setPathToSecretKey(@Nullable String pathToSecretKey) {

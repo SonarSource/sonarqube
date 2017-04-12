@@ -20,7 +20,6 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +35,7 @@ import org.sonar.api.rule.RuleKey;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -137,7 +137,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   @Override
   public List<Flow> flows() {
     return this.flows.stream()
-      .<Flow>map(l -> () -> ImmutableList.copyOf(l))
+      .<Flow>map(l -> () -> unmodifiableList(new ArrayList<>(l)))
       .collect(toList());
   }
 

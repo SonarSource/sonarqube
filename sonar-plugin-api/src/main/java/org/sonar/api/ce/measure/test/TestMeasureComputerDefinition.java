@@ -19,7 +19,7 @@
  */
 package org.sonar.api.ce.measure.test;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.ce.measure.MeasureComputer;
@@ -28,6 +28,7 @@ import org.sonar.api.measures.Metric;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 
 public class TestMeasureComputerDefinition implements MeasureComputer.MeasureComputerDefinition {
@@ -36,8 +37,8 @@ public class TestMeasureComputerDefinition implements MeasureComputer.MeasureCom
   private final Set<String> outputMetrics;
 
   private TestMeasureComputerDefinition(MeasureComputerDefinitionBuilderImpl builder) {
-    this.inputMetricKeys = ImmutableSet.copyOf(builder.inputMetricKeys);
-    this.outputMetrics = ImmutableSet.copyOf(builder.outputMetrics);
+    this.inputMetricKeys = unmodifiableSet(new HashSet<>(asList(builder.inputMetricKeys)));
+    this.outputMetrics = unmodifiableSet(new HashSet<>(asList(builder.outputMetrics)));
   }
 
   @Override

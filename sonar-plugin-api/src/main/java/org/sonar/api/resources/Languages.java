@@ -19,10 +19,10 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
@@ -44,7 +44,7 @@ public class Languages {
 
   private static final Logger LOG = Loggers.get(Languages.class);
 
-  private final Map<String, Language> map = Maps.newLinkedHashMap();
+  private final Map<String, Language> map = new LinkedHashMap<>();
 
   /**
    * Creates a list of languages

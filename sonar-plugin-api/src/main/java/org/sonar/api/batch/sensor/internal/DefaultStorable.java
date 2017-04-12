@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import static java.util.Objects.requireNonNull;
+
 public abstract class DefaultStorable {
 
   protected final transient SensorStorage storage;
@@ -38,7 +40,7 @@ public abstract class DefaultStorable {
   }
 
   public final void save() {
-    Preconditions.checkNotNull(this.storage, "No persister on this object");
+    requireNonNull(this.storage, "No persister on this object");
     Preconditions.checkState(!saved, "This object was already saved");
     doSave();
     this.saved = true;

@@ -19,13 +19,13 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.KeyValueFormat;
 
@@ -47,9 +47,9 @@ public final class CoverageMeasuresBuilder {
   private int totalCoveredLines = 0;
   private int totalConditions = 0;
   private int totalCoveredConditions = 0;
-  private SortedMap<Integer, Integer> hitsByLine = Maps.newTreeMap();
-  private SortedMap<Integer, Integer> conditionsByLine = Maps.newTreeMap();
-  private SortedMap<Integer, Integer> coveredConditionsByLine = Maps.newTreeMap();
+  private SortedMap<Integer, Integer> hitsByLine = new TreeMap<>();
+  private SortedMap<Integer, Integer> conditionsByLine = new TreeMap<>();
+  private SortedMap<Integer, Integer> coveredConditionsByLine = new TreeMap<>();
 
   private CoverageMeasuresBuilder() {
     // use the factory

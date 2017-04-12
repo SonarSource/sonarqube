@@ -24,7 +24,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
+
 
 /**
  * @since 4.2
@@ -57,7 +58,7 @@ public final class RuleParamType {
 
   private RuleParamType(String type, boolean multiple, String... values) {
     this.type = type;
-    this.values = newArrayList(values);
+    this.values = asList(values);
     StringBuilder sb = new StringBuilder();
     sb.append(type);
     if (multiple) {

@@ -29,7 +29,7 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class TestIssue implements Issue {
@@ -163,12 +163,12 @@ public class TestIssue implements Issue {
     }
 
     private static String validateKey(String key) {
-      checkNotNull(key, "key cannot be null");
+      requireNonNull(key, "key cannot be null");
       return key;
     }
 
     private static RuleKey validateRuleKey(RuleKey ruleKey) {
-      checkNotNull(ruleKey, "ruleKey cannot be null");
+      requireNonNull(ruleKey, "ruleKey cannot be null");
       return ruleKey;
     }
 
@@ -178,19 +178,19 @@ public class TestIssue implements Issue {
     }
 
     private static String validateSeverity(String severity) {
-      checkNotNull(severity, "severity cannot be null");
+      requireNonNull(severity, "severity cannot be null");
       checkArgument(Severity.ALL.contains(severity), String.format("severity '%s' is invalid", severity));
       return severity;
     }
 
     private static String validateStatus(String status) {
-      checkNotNull(status, "status cannot be null");
+      requireNonNull(status, "status cannot be null");
       checkArgument(org.sonar.api.issue.Issue.STATUSES.contains(status), String.format("status '%s' is invalid", status));
       return status;
     }
 
     private static RuleType validateType(RuleType type) {
-      checkNotNull(type, "type cannot be null");
+      requireNonNull(type, "type cannot be null");
       return type;
     }
 

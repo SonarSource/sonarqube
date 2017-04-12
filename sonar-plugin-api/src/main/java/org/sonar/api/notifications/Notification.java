@@ -19,13 +19,11 @@
  */
 package org.sonar.api.notifications;
 
-import com.google.common.collect.Maps;
-
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.io.Serializable;
-import java.util.Map;
 
 /**
  * This class represents a notification that will be delivered to users. This is a general concept and it has no
@@ -43,7 +41,7 @@ public class Notification implements Serializable {
   private static final String DEFAULT_MESSAGE_KEY = "default_message";
 
   private final String type;
-  private final Map<String, String> fields = Maps.newHashMap();
+  private final Map<String, String> fields = new HashMap<>();
 
   /**
    * <p>

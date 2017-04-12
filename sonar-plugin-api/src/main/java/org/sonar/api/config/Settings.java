@@ -19,9 +19,7 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -342,8 +340,8 @@ public abstract class Settings {
    */
   public String[] getStringLines(String key) {
     String value = getString(key);
-    if (Strings.isNullOrEmpty(value)) {
-      return ArrayUtils.EMPTY_STRING_ARRAY;
+    if (StringUtils.isEmpty(value)) {
+      return new String[0];
     }
     return value.split("\r?\n|\r", -1);
   }
@@ -392,7 +390,7 @@ public abstract class Settings {
         }
       }
 
-      String escapedValue = Joiner.on(',').join(escaped);
+      String escapedValue = escaped.stream().collect(Collectors.joining(","));
       text = trim(escapedValue);
     }
     return setProperty(key, text);

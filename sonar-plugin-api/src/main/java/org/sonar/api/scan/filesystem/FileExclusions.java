@@ -19,14 +19,12 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import com.google.common.collect.ObjectArrays;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.config.Settings;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Configuration of file inclusions and exclusions.
@@ -52,14 +50,11 @@ public class FileExclusions {
   }
 
   private String[] inclusions(String propertyKey) {
-    String[] patterns = sanitize(settings.getStringArray(propertyKey));
-    List<String> list = new ArrayList<>();
-    for (String pattern : patterns) {
-      if (!"**/*".equals(pattern) && !"file:**/*".equals(pattern)) {
-        list.add(pattern);
-      }
-    }
-    return list.toArray(new String[list.size()]);
+    return Arrays.stream(settings.getStringArray(propertyKey))
+      .map(StringUtils::trim)
+      .filter(s -> !"**/*".equals(s))
+      .filter(s -> !"file:**/*".equals(s))
+      .toArray(String[]::new);
   }
 
   public String[] sourceExclusions() {
@@ -73,13 +68,8 @@ public class FileExclusions {
   private String[] exclusions(String globalExclusionsProperty, String exclusionsProperty) {
     String[] globalExclusions = settings.getStringArray(globalExclusionsProperty);
     String[] exclusions = settings.getStringArray(exclusionsProperty);
-    return sanitize(ObjectArrays.concat(globalExclusions, exclusions, String.class));
-  }
-
-  private static String[] sanitize(String[] patterns) {
-    for (int i = 0; i < patterns.length; i++) {
-      patterns[i] = StringUtils.trim(patterns[i]);
-    }
-    return patterns;
+    return Stream.concat(Arrays.stream(globalExclusions), Arrays.stream(exclusions))
+      .map(StringUtils::trim)
+      .toArray(String[]::new);
   }
 }

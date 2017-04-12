@@ -28,20 +28,21 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Add features missing in org.apache.commons.lang.reflect.FieldUtils
+ * Add features missing in {@code org.apache.commons.lang.reflect.FieldUtils}.
  *
  * @since 2.14
  */
 public final class FieldUtils2 {
   private FieldUtils2() {
+    // only statics
   }
 
   /**
-   * Get accessible <code>Field</code> breaking scope if requested. Superclasses/interfaces are considered.
+   * Get accessible {@code Field} breaking scope if requested. Superclasses/interfaces are considered.
    *
    * @param clazz       the class to reflect, must not be null
-   * @param forceAccess whether to break scope restrictions using the <code>setAccessible</code> method.
-   *                    <code>False</code> only matches public fields.
+   * @param forceAccess whether to break scope restrictions using the {@code setAccessible} method.
+   *                    {@code False} only matches public fields.
    */
   public static List<Field> getFields(Class clazz, boolean forceAccess) {
     List<Field> result = new ArrayList<>();
@@ -50,7 +51,7 @@ public final class FieldUtils2 {
       for (Field declaredField : c.getDeclaredFields()) {
         if (!Modifier.isPublic(declaredField.getModifiers())) {
           if (forceAccess) {
-            declaredField.setAccessible(true);// NOSONAR only works from sufficiently privileged code
+            declaredField.setAccessible(true);
           } else {
             continue;
           }

@@ -19,20 +19,21 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @since 2.14
@@ -47,7 +48,7 @@ public class ResourceTypeTree {
   private final ResourceType root;
 
   private ResourceTypeTree(Builder builder) {
-    this.types = ImmutableList.copyOf(builder.types);
+    this.types = unmodifiableList(new ArrayList<>(builder.types));
     this.relations = ImmutableListMultimap.copyOf(builder.relations);
     this.root = builder.root;
   }
@@ -65,12 +66,10 @@ public class ResourceTypeTree {
   }
 
   public List<String> getLeaves() {
-    return ImmutableList.copyOf(Collections2.filter(relations.values(), new Predicate<String>() {
-      @Override
-      public boolean apply(String qualifier) {
-        return relations.get(qualifier).isEmpty();
-      }
-    }));
+    return unmodifiableList(relations.values()
+      .stream()
+      .filter(qualifier -> relations.get(qualifier).isEmpty())
+      .collect(Collectors.toList()));
   }
 
   @Override
@@ -91,16 +90,16 @@ public class ResourceTypeTree {
     }
 
     public Builder addType(ResourceType type) {
-      Preconditions.checkNotNull(type);
-      Preconditions.checkArgument(!types.contains(type), String.format("%s is already registered", type.getQualifier()));
+      requireNonNull(type);
+      checkArgument(!types.contains(type), String.format("%s is already registered", type.getQualifier()));
       types.add(type);
       return this;
     }
 
     public Builder addRelations(String parentQualifier, String... childrenQualifiers) {
-      Preconditions.checkNotNull(parentQualifier);
-      Preconditions.checkNotNull(childrenQualifiers);
-      Preconditions.checkArgument(childrenQualifiers.length > 0, "childrenQualifiers can't be empty");
+      requireNonNull(parentQualifier);
+      requireNonNull(childrenQualifiers);
+      checkArgument(childrenQualifiers.length > 0, "childrenQualifiers can't be empty");
       relations.putAll(parentQualifier, Arrays.asList(childrenQualifiers));
       return this;
     }

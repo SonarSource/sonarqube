@@ -71,6 +71,7 @@ public class DebtRemediationFunctionTest {
 
   @Test
   public void test_to_string() throws Exception {
-    assertThat(DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5)).toString()).isNotNull();
+    assertThat(DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5)).toString())
+      .isEqualTo("DebtRemediationFunction{type=LINEAR_OFFSET, coefficient=Duration[durationInMinutes=10], offset=Duration[durationInMinutes=5]}");
   }
 }

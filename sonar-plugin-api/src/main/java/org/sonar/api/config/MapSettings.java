@@ -19,10 +19,11 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static java.util.Collections.unmodifiableMap;
 
 /**
  * In-memory map-based implementation of {@link Settings}. It must be used
@@ -61,7 +62,7 @@ public class MapSettings extends Settings {
 
   @Override
   public Map<String, String> getProperties() {
-    return ImmutableMap.copyOf(props);
+    return unmodifiableMap(props);
   }
 
   /**

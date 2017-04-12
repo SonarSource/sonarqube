@@ -19,12 +19,9 @@
  */
 package org.sonar.api.batch.rule;
 
-import com.google.common.annotations.Beta;
-
 /**
  * @since 4.2
  */
-@Beta
 public interface RuleParam {
   String key();
   String description();

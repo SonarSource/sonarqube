@@ -20,16 +20,13 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +50,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
@@ -381,7 +383,7 @@ public interface RulesDefinition {
    * Instantiated by core but not by plugins, except for their tests.
    */
   class Context {
-    private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
+    private final Map<String, Repository> repositoriesByKey = new HashMap<>();
 
     /**
      * New builder for {@link org.sonar.api.server.rule.RulesDefinition.Repository}.
@@ -408,7 +410,7 @@ public interface RulesDefinition {
     }
 
     public List<Repository> repositories() {
-      return ImmutableList.copyOf(repositoriesByKey.values());
+      return unmodifiableList(new ArrayList<>(repositoriesByKey.values()));
     }
 
     /**
@@ -417,7 +419,7 @@ public interface RulesDefinition {
      */
     @Deprecated
     public List<ExtendedRepository> extendedRepositories(String repositoryKey) {
-      return Collections.emptyList();
+      return emptyList();
     }
 
     /**
@@ -426,7 +428,7 @@ public interface RulesDefinition {
      */
     @Deprecated
     public List<ExtendedRepository> extendedRepositories() {
-      return Collections.emptyList();
+      return emptyList();
     }
 
     private void registerRepository(NewRepositoryImpl newRepository) {
@@ -468,7 +470,7 @@ public interface RulesDefinition {
     private final String key;
     private String language;
     private String name;
-    private final Map<String, NewRule> newRules = Maps.newHashMap();
+    private final Map<String, NewRule> newRules = new HashMap<>();
 
     private NewRepositoryImpl(Context context, String key, String language) {
       this.context = context;
@@ -570,7 +572,7 @@ public interface RulesDefinition {
         newRule.validate();
         ruleBuilder.put(newRule.key, new Rule(this, newRule));
       }
-      this.rulesByKey = ImmutableMap.copyOf(ruleBuilder);
+      this.rulesByKey = unmodifiableMap(ruleBuilder);
     }
 
     @Override
@@ -596,7 +598,7 @@ public interface RulesDefinition {
 
     @Override
     public List<Rule> rules() {
-      return ImmutableList.copyOf(rulesByKey.values());
+      return unmodifiableList(new ArrayList<>(rulesByKey.values()));
     }
 
     @Override
@@ -674,7 +676,7 @@ public interface RulesDefinition {
     private DebtRemediationFunction debtRemediationFunction;
     private String gapDescription;
     private final Set<String> tags = Sets.newTreeSet();
-    private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
+    private final Map<String, NewParam> paramsByKey = new HashMap<>();
     private final DebtRemediationFunctions functions;
     private boolean activatedByDefault;
 
@@ -898,10 +900,10 @@ public interface RulesDefinition {
     }
 
     private void validate() {
-      if (Strings.isNullOrEmpty(name)) {
+      if (isEmpty(name)) {
         throw new IllegalStateException(format("Name of rule %s is empty", this));
       }
-      if (Strings.isNullOrEmpty(htmlDescription) && Strings.isNullOrEmpty(markdownDescription)) {
+      if (isEmpty(htmlDescription) && isEmpty(markdownDescription)) {
         throw new IllegalStateException(format("One of HTML description or Markdown description must be defined for rule %s", this));
       }
     }
@@ -1040,7 +1042,7 @@ public interface RulesDefinition {
     }
 
     public List<Param> params() {
-      return ImmutableList.copyOf(params.values());
+      return unmodifiableList(new ArrayList<>(params.values()));
     }
 
     public Set<String> tags() {
@@ -1118,7 +1120,7 @@ public interface RulesDefinition {
      * Empty default value will be converted to null. Max length is 4000 characters.
      */
     public NewParam setDefaultValue(@Nullable String s) {
-      this.defaultValue = Strings.emptyToNull(s);
+      this.defaultValue = defaultIfEmpty(s, null);
       return this;
     }
   }

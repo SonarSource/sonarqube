@@ -19,9 +19,9 @@
  */
 package org.sonar.api.issue;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 /**
  * @since 3.6
@@ -43,5 +43,5 @@ public interface DefaultTransitions {
   /**
    * @since 4.4
    */
-  List<String> ALL = ImmutableList.of(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE);
+  List<String> ALL = asList(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, WONT_FIX, CLOSE);
 }

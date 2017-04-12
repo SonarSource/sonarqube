@@ -19,13 +19,12 @@
  */
 package org.sonar.api.utils;
 
+import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 /**
  * Runtime exception for "functional" error. It aims to be displayed to end-users, without any technical information
@@ -57,13 +56,13 @@ public class MessageException extends RuntimeException {
   private MessageException(@Nullable String message, @Nullable String l10nKey, @Nullable Object[] l10nParams) {
     super(message);
     this.l10nKey = l10nKey;
-    this.l10nParams = l10nParams == null ? Collections.emptyList() : Collections.unmodifiableCollection(newArrayList(l10nParams));
+    this.l10nParams = l10nParams == null ? emptyList() : asList(l10nParams);
   }
 
   private MessageException(String message, Throwable cause) {
     super(message, cause);
     l10nKey = null;
-    l10nParams = Collections.emptyList();
+    l10nParams = emptyList();
   }
 
   public static MessageException of(String message, Throwable cause) {

@@ -19,18 +19,17 @@
  */
 package org.sonar.api.batch.rule.internal;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.RuleParam;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.concurrent.Immutable;
-
-import java.util.Collection;
-import java.util.Map;
 
 @Immutable
 public class DefaultRule implements Rule {
@@ -55,11 +54,11 @@ public class DefaultRule implements Rule {
     this.internalKey = newRule.internalKey;
     this.status = newRule.status;
 
-    ImmutableMap.Builder<String, RuleParam> builder = ImmutableMap.builder();
+    Map<String, RuleParam> builder = new HashMap<>();
     for (NewRuleParam newRuleParam : newRule.params.values()) {
       builder.put(newRuleParam.key, new DefaultRuleParam(newRuleParam));
     }
-    params = builder.build();
+    params = Collections.unmodifiableMap(builder);
   }
 
   @Override

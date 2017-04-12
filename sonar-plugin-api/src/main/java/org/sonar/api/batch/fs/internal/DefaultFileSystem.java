@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import java.io.File;
@@ -36,7 +35,6 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -175,7 +173,9 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public Iterable<File> files(FilePredicate predicate) {
     doPreloadFiles();
-    return Iterables.transform(inputFiles(predicate), InputFile::file);
+    return () -> StreamSupport.stream(inputFiles(predicate).spliterator(), false)
+      .map(InputFile::file)
+      .iterator();
   }
 
   @Override

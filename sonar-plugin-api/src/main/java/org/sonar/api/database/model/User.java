@@ -19,8 +19,6 @@
  */
 package org.sonar.api.database.model;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 
 /**
@@ -78,6 +76,11 @@ public class User extends BaseIdentifiable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    StringBuilder sb = new StringBuilder("User{");
+    sb.append("login='").append(login).append('\'');
+    sb.append(", name='").append(name).append('\'');
+    sb.append(", email='").append(email).append('\'');
+    sb.append('}');
+    return sb.toString();
   }
 }

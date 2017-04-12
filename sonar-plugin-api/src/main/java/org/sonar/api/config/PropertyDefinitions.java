@@ -19,7 +19,6 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -111,7 +110,7 @@ public final class PropertyDefinitions {
       categories.put(definition.key(), new Category(category));
       String subcategory = StringUtils.defaultIfBlank(definition.subCategory(), category);
       subcategories.put(definition.key(), new SubCategory(subcategory));
-      if (!Strings.isNullOrEmpty(definition.deprecatedKey()) && !definition.deprecatedKey().equals(definition.key())) {
+      if (!StringUtils.isEmpty(definition.deprecatedKey()) && !definition.deprecatedKey().equals(definition.key())) {
         deprecatedKeys.put(definition.deprecatedKey(), definition.key());
       }
     }

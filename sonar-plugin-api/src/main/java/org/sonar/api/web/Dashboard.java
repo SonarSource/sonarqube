@@ -21,8 +21,8 @@ package org.sonar.api.web;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -171,7 +171,7 @@ public final class Dashboard {
 
     Widget(String id) {
       this.id = id;
-      this.properties = Maps.newHashMap();
+      this.properties = new HashMap<>();
     }
 
     public Widget setProperty(String key, String value) {
