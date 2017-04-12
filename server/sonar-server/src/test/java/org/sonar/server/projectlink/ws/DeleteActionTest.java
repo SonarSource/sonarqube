@@ -154,7 +154,8 @@ public class DeleteActionTest {
       .setUuid(projectUuid)
       .setKey(projectKey)
       .setUuidPath("")
-      .setRootUuid(""));
+      .setRootUuid("")
+      .setProjectUuid(""));
   }
 
   private ComponentDto insertProject() {

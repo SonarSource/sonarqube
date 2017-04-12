@@ -13,7 +13,8 @@
             name="project"
             uuid="ABCD"
             uuid_path="NOT_USED"
-            root_uuid="ABCD"/>
+            root_uuid="ABCD"
+            project_uuid="ABCD"/>
 
   <!-- 2008-11-11 -->
   <!-- Version 0.9 -->
