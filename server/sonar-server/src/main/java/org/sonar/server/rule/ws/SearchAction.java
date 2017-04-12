@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
 import java.util.ArrayList;
@@ -147,7 +148,7 @@ public class SearchAction implements RulesWsAction {
         "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
         "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
         "</ul>")
-      .setPossibleValues(OPTIONAL_FIELDS);
+      .setPossibleValues(Ordering.natural().sortedCopy(OPTIONAL_FIELDS));
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
     paramFields.setExampleValue(format("%s,%s", it.next(), it.next()));
 
