@@ -84,10 +84,7 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
     if (!qualityProfileKey.equals(activeRuleKey.qualityProfileKey)) {
       return false;
     }
-    if (!ruleKey.equals(activeRuleKey.ruleKey)) {
-      return false;
-    }
-    return true;
+    return ruleKey.equals(activeRuleKey.ruleKey);
   }
 
   @Override

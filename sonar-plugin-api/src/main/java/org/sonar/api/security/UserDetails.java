@@ -19,8 +19,6 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.base.MoreObjects;
-
 /**
  * This class is not intended to be subclassed by clients.
  *
@@ -32,9 +30,6 @@ public final class UserDetails {
   private String name = "";
   private String email = "";
   private String userId = "";
-
-  public UserDetails() {
-  }
 
   public void setEmail(String email) {
     this.email = email;
@@ -68,10 +63,11 @@ public final class UserDetails {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("name", name)
-      .add("email", email)
-      .add("userId", userId)
-      .toString();
+    StringBuilder sb = new StringBuilder("UserDetails{");
+    sb.append("name='").append(name).append('\'');
+    sb.append(", email='").append(email).append('\'');
+    sb.append(", userId='").append(userId).append('\'');
+    sb.append('}');
+    return sb.toString();
   }
 }

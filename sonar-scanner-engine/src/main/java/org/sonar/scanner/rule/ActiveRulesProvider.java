@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.rule;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -57,19 +56,15 @@ public class ActiveRulesProvider extends ProviderAdapter {
     Collection<String> qProfileKeys = getKeys(qProfiles);
     Map<RuleKey, LoadedActiveRule> loadedRulesByKey = new HashMap<>();
 
-    try {
-      for (String qProfileKey : qProfileKeys) {
-        Collection<LoadedActiveRule> qProfileRules;
-        qProfileRules = load(loader, qProfileKey);
+    for (String qProfileKey : qProfileKeys) {
+      Collection<LoadedActiveRule> qProfileRules;
+      qProfileRules = load(loader, qProfileKey);
 
-        for (LoadedActiveRule r : qProfileRules) {
-          if (!loadedRulesByKey.containsKey(r.getRuleKey())) {
-            loadedRulesByKey.put(r.getRuleKey(), r);
-          }
+      for (LoadedActiveRule r : qProfileRules) {
+        if (!loadedRulesByKey.containsKey(r.getRuleKey())) {
+          loadedRulesByKey.put(r.getRuleKey(), r);
         }
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Error loading active rules", e);
     }
 
     return transform(loadedRulesByKey.values());
@@ -99,7 +94,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return builder.build();
   }
 
-  private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey) throws IOException {
+  private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey) {
     return loader.load(qProfileKey);
   }
 

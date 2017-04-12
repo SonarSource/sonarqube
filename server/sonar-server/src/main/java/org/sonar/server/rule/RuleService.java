@@ -41,10 +41,6 @@ public class RuleService {
     this.index = index;
   }
 
-  public RuleQuery newRuleQuery() {
-    return new RuleQuery();
-  }
-
   /**
    * List all tags, including system tags, defined on rules
    */

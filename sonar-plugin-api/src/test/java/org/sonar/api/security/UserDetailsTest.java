@@ -74,6 +74,6 @@ public class UserDetailsTest {
     userDetails.setEmail("foo@example.com");
     userDetails.setUserId("foo@example");
 
-    assertThat(userDetails.toString()).isEqualTo("UserDetails{name=foo, email=foo@example.com, userId=foo@example}");
+    assertThat(userDetails.toString()).isEqualTo("UserDetails{name='foo', email='foo@example.com', userId='foo@example'}");
   }
 }

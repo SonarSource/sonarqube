@@ -44,14 +44,6 @@ public class QualityProfileDto extends Dto<String> {
   private Long userUpdatedAt;
   private boolean isDefault;
 
-  /**
-   * @deprecated use {@link #createFor(String)}
-   */
-  @Deprecated
-  public QualityProfileDto() {
-
-  }
-
   public String getOrganizationUuid() {
     return organizationUuid;
   }

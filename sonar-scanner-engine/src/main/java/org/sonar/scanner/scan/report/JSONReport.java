@@ -120,13 +120,10 @@ public class JSONReport implements Reporter {
       writeJsonRules(json, ruleKeys);
       writeUsers(json, userLogins);
       json.endObject();
-
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to write JSON report", e);
     }
   }
 
-  private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> logins) throws IOException {
+  private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> logins) {
     json.name("issues").beginArray();
     for (TrackedIssue issue : getIssues()) {
       if (issue.resolution() == null) {
@@ -166,14 +163,14 @@ public class JSONReport implements Reporter {
   private DefaultInputModule getModule(InputComponent component) {
     if (component.isFile()) {
       return (DefaultInputModule) inputComponentTree.getParent(inputComponentTree.getParent(component));
-    } else if (component instanceof InputDir) {
-      return (DefaultInputModule) inputComponentTree.getParent(component);
-    } else {
-      return (DefaultInputModule) component;
     }
+    if (component instanceof InputDir) {
+      return (DefaultInputModule) inputComponentTree.getParent(component);
+    }
+    return (DefaultInputModule) component;
   }
 
-  private void writeJsonComponents(JsonWriter json) throws IOException {
+  private void writeJsonComponents(JsonWriter json) {
     json.name("components").beginArray();
     // Dump modules
     writeJsonModuleComponents(json, rootModule);
@@ -213,7 +210,7 @@ public class JSONReport implements Reporter {
     }
   }
 
-  private void writeJsonRules(JsonWriter json, Set<RuleKey> ruleKeys) throws IOException {
+  private void writeJsonRules(JsonWriter json, Set<RuleKey> ruleKeys) {
     json.name("rules").beginArray();
     for (RuleKey ruleKey : ruleKeys) {
       json
@@ -227,7 +224,7 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private static void writeUsers(JsonWriter json, Collection<String> userLogins) throws IOException {
+  private static void writeUsers(JsonWriter json, Collection<String> userLogins) {
     json.name("users").beginArray();
 
     // for compatiblity with programs that parse the json report. We no longer get the name for logins.
