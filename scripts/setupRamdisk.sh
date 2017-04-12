@@ -24,14 +24,12 @@ pushd /mnt/ramdisk
 printf "${RED}move build and cached directories to ramdisk${NC}\n"
 time sudo mv $HOME/build /mnt/ramdisk
 time sudo mv $HOME/.m2 /mnt/ramdisk
-time sudo mv $HOME/.sonar /mnt/ramdisk
 time sudo mv $HOME/jvm /mnt/ramdisk
 time sudo mv $HOME/maven /mnt/ramdisk
 time sudo mv $HOME/phantomjs /mnt/ramdisk
 printf "${RED}create links to ramdisked directories${NC}\n"
 sudo ln -s /mnt/ramdisk/build $HOME/build
 sudo ln -s /mnt/ramdisk/.m2 $HOME/.m2
-sudo ln -s /mnt/ramdisk/.sonar $HOME/.sonar
 sudo ln -s /mnt/ramdisk/jvm $HOME/jvm
 sudo ln -s /mnt/ramdisk/maven $HOME/maven
 sudo ln -s /mnt/ramdisk/phantomjs $HOME/phantomjs
