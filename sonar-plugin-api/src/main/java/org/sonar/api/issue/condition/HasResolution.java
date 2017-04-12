@@ -19,22 +19,23 @@
  */
 package org.sonar.api.issue.condition;
 
-import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.issue.Issue;
 
-import java.util.Set;
+import static java.util.Arrays.asList;
 
 /**
  * @since 3.6
  */
-@Beta
 public class HasResolution implements Condition {
 
   private final Set<String> resolutions;
 
   public HasResolution(String first, String... others) {
-    this.resolutions = ImmutableSet.<String>builder().add(first).add(others).build();
+    this.resolutions = new HashSet<>();
+    this.resolutions.add(first);
+    this.resolutions.addAll(asList(others));
   }
 
   @Override

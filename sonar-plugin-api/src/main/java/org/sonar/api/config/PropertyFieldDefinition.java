@@ -20,13 +20,14 @@
 package org.sonar.api.config;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
+
+import static java.util.Arrays.asList;
 
 /**
  * @since 3.3
@@ -57,8 +58,7 @@ public final class PropertyFieldDefinition {
         .indicativeSize(field.indicativeSize())
         .type(field.type())
         .options(field.options())
-        .build()
-        );
+        .build());
     }
     return definitions;
   }
@@ -141,18 +141,18 @@ public final class PropertyFieldDefinition {
     }
 
     public Builder options(String... options) {
-      this.options.addAll(ImmutableList.copyOf(options));
+      this.options.addAll(asList(options));
       return this;
     }
 
     public Builder options(List<String> options) {
-      this.options.addAll(ImmutableList.copyOf(options));
+      this.options.addAll(options);
       return this;
     }
 
     public PropertyFieldDefinition build() {
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must be set");
+      Preconditions.checkArgument(!StringUtils.isEmpty(key), "Key must be set");
+      Preconditions.checkArgument(!StringUtils.isEmpty(name), "Name must be set");
       return new PropertyFieldDefinition(this);
     }
   }

@@ -19,14 +19,10 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -46,8 +42,12 @@ import org.sonar.api.server.ServerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.FLOAT;
 import static org.sonar.api.PropertyType.INTEGER;
@@ -93,7 +93,7 @@ import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 @ExtensionPoint
 public final class PropertyDefinition {
 
-  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.MODULE, Qualifiers.SUBVIEW);
+  private static final Set<String> SUPPORTED_QUALIFIERS = unmodifiableSet(new LinkedHashSet<>(asList(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.MODULE, Qualifiers.SUBVIEW)));
 
   private String key;
   private String defaultValue;
@@ -147,7 +147,7 @@ public final class PropertyDefinition {
       .description(annotation.description())
       .category(annotation.category())
       .type(annotation.type())
-      .options(Arrays.asList(annotation.options()))
+      .options(asList(annotation.options()))
       .multiValues(annotation.multiValues())
       .propertySetKey(annotation.propertySetKey())
       .fields(PropertyFieldDefinition.create(annotation.fields()))
@@ -332,7 +332,7 @@ public final class PropertyDefinition {
 
   @Override
   public String toString() {
-    if (StringUtils.isEmpty(propertySetKey)) {
+    if (isEmpty(propertySetKey)) {
       return key;
     }
     return new StringBuilder().append(propertySetKey).append('|').append(key).toString();
@@ -504,7 +504,7 @@ public final class PropertyDefinition {
     }
 
     private static void addQualifiers(List<String> target, String first, String... rest) {
-      Stream.concat(Stream.of(first), Arrays.stream(rest)).peek(PropertyDefinition.Builder::validateQualifier).forEach(target::add);
+      Stream.concat(Stream.of(first), stream(rest)).peek(PropertyDefinition.Builder::validateQualifier).forEach(target::add);
     }
 
     private static void addQualifiers(List<String> target, List<String> qualifiers) {
@@ -525,12 +525,13 @@ public final class PropertyDefinition {
     }
 
     public Builder options(String first, String... rest) {
-      this.options.addAll(Lists.asList(first, rest));
+      this.options.add(first);
+      stream(rest).forEach(o -> options.add(o));
       return this;
     }
 
     public Builder options(List<String> options) {
-      this.options.addAll(ImmutableList.copyOf(options));
+      this.options.addAll(options);
       return this;
     }
 
@@ -549,12 +550,13 @@ public final class PropertyDefinition {
     }
 
     public Builder fields(PropertyFieldDefinition first, PropertyFieldDefinition... rest) {
-      this.fields.addAll(Lists.asList(first, rest));
+      this.fields.add(first);
+      this.fields.addAll(asList(rest));
       return this;
     }
 
     public Builder fields(List<PropertyFieldDefinition> fields) {
-      this.fields.addAll(ImmutableList.copyOf(fields));
+      this.fields.addAll(fields);
       return this;
     }
 
@@ -582,7 +584,7 @@ public final class PropertyDefinition {
     }
 
     public PropertyDefinition build() {
-      checkArgument(!Strings.isNullOrEmpty(key), "Key must be set");
+      checkArgument(!isEmpty(key), "Key must be set");
       fixType(key, type);
       checkArgument(onQualifiers.isEmpty() || onlyOnQualifiers.isEmpty(), "Cannot define both onQualifiers and onlyOnQualifiers");
       checkArgument(!hidden || (onQualifiers.isEmpty() && onlyOnQualifiers.isEmpty()), "Cannot be hidden and defining qualifiers on which to display");

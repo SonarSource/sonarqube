@@ -19,13 +19,11 @@
  */
 package org.sonar.api.issue.condition;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.issue.Issue;
 
 /**
  * @since 3.6
  */
-@Beta
 public class NotCondition implements Condition {
   private final Condition condition;
 

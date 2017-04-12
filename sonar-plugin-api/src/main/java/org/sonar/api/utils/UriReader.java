@@ -23,12 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,7 +46,7 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 public class UriReader {
 
-  private final Map<String, SchemeProcessor> processorsByScheme = Maps.newHashMap();
+  private final Map<String, SchemeProcessor> processorsByScheme = new HashMap<>();
 
   public UriReader(SchemeProcessor[] processors) {
     List<SchemeProcessor> allProcessors = Lists.asList(new FileProcessor(), processors);

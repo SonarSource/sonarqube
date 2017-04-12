@@ -19,7 +19,6 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.annotations.Beta;
 import java.io.Serializable;
 import java.util.Date;
 import javax.annotation.CheckForNull;
@@ -612,7 +611,6 @@ public class Measure<G extends Serializable> implements Serializable {
    * @since 2.14
    */
   @CheckForNull
-  @Beta
   public Integer getPersonId() {
     return personId;
   }
@@ -620,7 +618,6 @@ public class Measure<G extends Serializable> implements Serializable {
   /**
    * @since 2.14
    */
-  @Beta
   public Measure<G> setPersonId(@Nullable Integer i) {
     this.personId = i;
     return this;

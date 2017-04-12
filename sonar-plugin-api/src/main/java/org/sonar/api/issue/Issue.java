@@ -19,7 +19,6 @@
  */
 package org.sonar.api.issue;
 
-import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -29,6 +28,8 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
+
+import static java.util.Arrays.asList;
 
 /**
  * @since 3.6
@@ -67,14 +68,14 @@ public interface Issue extends Serializable {
    */
   String RESOLUTION_WONT_FIX = "WONTFIX";
 
-  List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_WONT_FIX, RESOLUTION_FIXED, RESOLUTION_REMOVED);
+  List<String> RESOLUTIONS = asList(RESOLUTION_FALSE_POSITIVE, RESOLUTION_WONT_FIX, RESOLUTION_FIXED, RESOLUTION_REMOVED);
 
   /**
    * Return all available statuses
    *
    * @since 4.4
    */
-  List<String> STATUSES = ImmutableList.of(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED);
+  List<String> STATUSES = asList(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED);
 
   /**
    * Unique generated key. It looks like "d2de809c-1512-4ae2-9f34-f5345c9f1a13".

@@ -19,18 +19,16 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
-import org.sonar.api.scan.issue.filter.IssueFilter;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Issue filter used to ignore issues created on lines commented with the tag "NOSONAR".
@@ -43,7 +41,7 @@ import java.util.Set;
  */
 public class NoSonarFilter implements IssueFilter {
 
-  private final Map<String, Set<Integer>> noSonarLinesByResource = Maps.newHashMap();
+  private final Map<String, Set<Integer>> noSonarLinesByResource = new HashMap<>();
 
   /**
    * @deprecated since 5.0 use {@link #noSonarInFile(InputFile, Set)}

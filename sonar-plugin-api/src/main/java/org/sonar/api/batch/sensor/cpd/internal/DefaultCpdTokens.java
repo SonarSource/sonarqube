@@ -19,8 +19,7 @@
  */
 package org.sonar.api.batch.sensor.cpd.internal;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
@@ -32,12 +31,14 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.duplications.internal.pmd.TokensLine;
 
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   private final Settings settings;
-  private final ImmutableList.Builder<TokensLine> result = ImmutableList.builder();
+  private final ArrayList<TokensLine> result = new ArrayList<>();
   private InputFile inputFile;
   private int startLine = Integer.MIN_VALUE;
   private int startIndex = 0;
@@ -87,7 +88,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
     if (excluded) {
       return this;
     }
-    Preconditions.checkState(lastRange == null || lastRange.end().compareTo(range.start()) <= 0,
+    checkState(lastRange == null || lastRange.end().compareTo(range.start()) <= 0,
       "Tokens of file %s should be provided in order.\nPrevious token: %s\nLast token: %s", inputFile, lastRange, range);
 
     String value = image;
@@ -106,10 +107,10 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   }
 
   public List<TokensLine> getTokenLines() {
-    return result.build();
+    return unmodifiableList(new ArrayList<>(result));
   }
 
-  private static void addNewTokensLine(ImmutableList.Builder<TokensLine> result, int startUnit, int endUnit, int startLine, StringBuilder sb) {
+  private static void addNewTokensLine(List<TokensLine> result, int startUnit, int endUnit, int startLine, StringBuilder sb) {
     if (sb.length() != 0) {
       result.add(new TokensLine(startUnit, endUnit, startLine, sb.toString()));
       sb.setLength(0);
@@ -118,7 +119,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
   @Override
   protected void doSave() {
-    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkState(inputFile != null, "Call onFile() first");
     if (excluded) {
       return;
     }
@@ -127,6 +128,6 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   }
 
   private void checkInputFileNotNull() {
-    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkState(inputFile != null, "Call onFile() first");
   }
 }

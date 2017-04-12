@@ -20,18 +20,19 @@
 package org.sonar.server.util;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ClassLoaderUtils {
 
@@ -62,7 +63,7 @@ public class ClassLoaderUtils {
     String jarPath = null;
     JarFile jar = null;
     try {
-      Collection<String> paths = Lists.newArrayList();
+      Collection<String> paths = new ArrayList<>();
       URL root = classLoader.getResource(rootPath);
       if (root != null) {
         checkJarFile(root);
@@ -78,7 +79,7 @@ public class ClassLoaderUtils {
         }
         // strip out only the JAR file
         jarPath = root.getPath().substring(5, root.getPath().indexOf('!'));
-        jar = new JarFile(URLDecoder.decode(jarPath, CharEncoding.UTF_8));
+        jar = new JarFile(URLDecoder.decode(jarPath, UTF_8.name()));
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {
           String name = entries.nextElement().getName();

@@ -19,9 +19,6 @@
  */
 package org.sonar.api.design;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.resources.Resource;
 import org.sonar.graph.Edge;
 
@@ -114,35 +111,37 @@ public class Dependency implements Edge<Resource> {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof Dependency)) {
-      return false;
-    }
-    if (this == obj) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    Dependency other = (Dependency) obj;
-    return new EqualsBuilder()
-      .append(from, other.from)
-      .append(to, other.to)
-      .isEquals();
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Dependency that = (Dependency) o;
+    if (!from.equals(that.from)) {
+      return false;
+    }
+    return to.equals(that.to);
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37)
-      .append(from)
-      .append(to)
-      .toHashCode();
+    int result = from.hashCode();
+    result = 31 * result + to.hashCode();
+    return result;
   }
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this)
-      .append("from", from)
-      .append("to", to)
-      .append("weight", weight)
-      .append("usage", usage)
-      .toString();
+    StringBuilder sb = new StringBuilder("Dependency{");
+    sb.append("from=").append(from);
+    sb.append(", to=").append(to);
+    sb.append(", usage='").append(usage).append('\'');
+    sb.append(", weight=").append(weight);
+    sb.append(", parent=").append(parent);
+    sb.append(", id=").append(id);
+    sb.append('}');
+    return sb.toString();
   }
 }

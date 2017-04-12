@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.collect.Iterables;
+import java.util.stream.StreamSupport;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
 
@@ -34,7 +34,9 @@ public abstract class AbstractFilePredicate implements OptimizedFilePredicate {
 
   @Override
   public Iterable<InputFile> filter(Iterable<InputFile> target) {
-    return Iterables.filter(target, this::apply);
+    return () -> StreamSupport.stream(target.spliterator(), false)
+      .filter(this::apply)
+      .iterator();
   }
 
   @Override

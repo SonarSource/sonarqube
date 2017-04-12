@@ -19,11 +19,6 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -33,6 +28,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class LocalizedMessages extends ResourceBundle {
 
@@ -91,17 +88,17 @@ public class LocalizedMessages extends ResourceBundle {
   }
 
   /*
-    * (non-Javadoc)
-    *
-    * @see java.util.ResourceBundle#handleGetObject(java.lang.String)
-    */
+   * (non-Javadoc)
+   *
+   * @see java.util.ResourceBundle#handleGetObject(java.lang.String)
+   */
   @Override
   protected Object handleGetObject(String key) {
     for (ResourceBundle b : bundles) {
       try {
         return b.getObject(key);
       } catch (MissingResourceException mre) {
-        // iterate 
+        // iterate
       }
     }
     throw new MissingResourceException(null, null, key);
@@ -116,7 +113,10 @@ public class LocalizedMessages extends ResourceBundle {
     // Constructor
     {
       for (ResourceBundle b : bundles) {
-        keys.addAll(Lists.newArrayList(Iterators.forEnumeration(b.getKeys())));
+        Enumeration<String> bundleKeys = b.getKeys();
+        while (bundleKeys.hasMoreElements()) {
+          keys.add(bundleKeys.nextElement());
+        }
       }
       i = keys.iterator();
     }

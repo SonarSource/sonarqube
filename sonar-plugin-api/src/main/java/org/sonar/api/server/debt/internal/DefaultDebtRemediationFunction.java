@@ -136,6 +136,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     return result;
   }
 
+  
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(DebtRemediationFunction.class)

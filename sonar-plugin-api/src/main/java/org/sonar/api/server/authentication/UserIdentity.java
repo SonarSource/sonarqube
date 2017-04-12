@@ -19,19 +19,16 @@
  */
 package org.sonar.api.server.authentication;
 
-import com.google.common.base.Predicate;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.user.UserGroupValidation;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.FluentIterable.from;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.api.user.UserGroupValidation.validateGroupName;
 
 /**
  * User information provided by the Identity Provider to be register into the platform.
@@ -170,8 +167,8 @@ public final class UserIdentity {
      * @since 5.5
      */
     public Builder setGroups(Set<String> groups) {
-      checkNotNull(groups, "Groups cannot be null, please don't use this method if groups should not be synchronized.");
-      from(groups).filter(ValidateGroupName.INSTANCE).toList();
+      requireNonNull(groups, "Groups cannot be null, please don't use this method if groups should not be synchronized.");
+      groups.forEach(UserGroupValidation::validateGroupName);
       this.groupsProvided = true;
       this.groups = groups;
       return this;
@@ -202,16 +199,6 @@ public final class UserIdentity {
 
     private static void validateEmail(@Nullable String email) {
       checkArgument(email == null || email.length() <= 100, "User email size is too big (100 characters max)");
-    }
-  }
-
-  private enum ValidateGroupName implements Predicate<String> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull String input) {
-      validateGroupName(input);
-      return true;
     }
   }
 }

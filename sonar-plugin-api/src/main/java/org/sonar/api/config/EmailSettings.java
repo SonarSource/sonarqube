@@ -19,14 +19,13 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
+import static java.util.Arrays.asList;
 import static org.sonar.api.CoreProperties.CATEGORY_GENERAL;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
@@ -97,14 +96,15 @@ public class EmailSettings {
   }
 
   private String get(String key, String defaultValue) {
-    return MoreObjects.firstNonNull(settings.getString(key), defaultValue);
+    String value = settings.getString(key);
+    return value != null ? value : defaultValue;
   }
 
   /**
    * @since 6.1
    */
   public static List<PropertyDefinition> definitions() {
-    return ImmutableList.of(
+    return asList(
       PropertyDefinition.builder(SMTP_HOST)
         .name("SMTP host")
         .description("For example \"smtp.gmail.com\". Leave blank to disable email sending.")

@@ -19,11 +19,11 @@
  */
 package org.sonar.api.platform;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
-import javax.annotation.Nullable;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @since 3.2
@@ -38,8 +38,8 @@ public interface NewUserHandler {
     private String email;
 
     private Context(String login, String name, @Nullable String email) {
-      Preconditions.checkNotNull(login);
-      Preconditions.checkNotNull(name);
+      requireNonNull(login);
+      requireNonNull(name);
       this.login = login;
       this.name = name;
       this.email = email;

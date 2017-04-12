@@ -20,9 +20,9 @@
 package org.sonar.api.rules;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -35,6 +35,9 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
 
 public class Rule {
 
@@ -63,7 +66,7 @@ public class Rule {
    *
    * @since 3.6
    */
-  private static final Set<String> STATUS_LIST = ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
+  private static final Set<String> STATUS_LIST = unmodifiableSet(new LinkedHashSet<>(asList(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED)));
 
   private Integer id;
 

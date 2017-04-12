@@ -19,26 +19,27 @@
  */
 package org.sonar.api.issue.condition;
 
-import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableSet;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.issue.Issue;
 
-import java.util.Set;
+import static java.util.Arrays.asList;
 
 /**
  * @since 3.6
  */
-@Beta
 public class HasStatus implements Condition {
 
-  private final Set<String> status;
+  private final Set<String> statuses;
 
   public HasStatus(String first, String... others) {
-    this.status = ImmutableSet.<String>builder().add(first).add(others).build();
+    this.statuses = new HashSet<>();
+    this.statuses.add(first);
+    this.statuses.addAll(asList(others));
   }
 
   @Override
   public boolean matches(Issue issue) {
-    return issue.status() != null && status.contains(issue.status());
+    return issue.status() != null && statuses.contains(issue.status());
   }
 }

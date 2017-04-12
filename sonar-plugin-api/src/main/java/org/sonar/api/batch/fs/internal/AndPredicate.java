@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem.Index;
 import org.sonar.api.batch.fs.InputFile;
@@ -91,7 +90,6 @@ class AndPredicate extends AbstractFilePredicate {
     return result;
   }
 
-  @VisibleForTesting
   Collection<OptimizedFilePredicate> predicates() {
     return predicates;
   }

@@ -20,9 +20,8 @@
 package org.sonar.api.server.ws.internal;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -31,10 +30,10 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Fake implementation of {@link org.sonar.api.server.ws.Request} used
@@ -43,8 +42,8 @@ import static java.util.Collections.singletonList;
  */
 public class SimpleGetRequest extends Request {
 
-  private final Map<String, String> params = Maps.newHashMap();
-  private final Map<String, Part> parts = Maps.newHashMap();
+  private final Map<String, String> params = new HashMap<>();
+  private final Map<String, Part> parts = new HashMap<>();
   private String mediaType = "application/json";
   private String path;
 
@@ -59,7 +58,7 @@ public class SimpleGetRequest extends Request {
   }
 
   public SimpleGetRequest setMediaType(String mediaType) {
-    checkNotNull(mediaType);
+    requireNonNull(mediaType);
     this.mediaType = mediaType;
     return this;
   }
@@ -87,7 +86,7 @@ public class SimpleGetRequest extends Request {
     if (value == null) {
       return null;
     }
-    return Lists.newArrayList(Splitter.on(',').omitEmptyStrings().trimResults().split(value));
+    return Splitter.on(',').omitEmptyStrings().trimResults().splitToList(value);
   }
 
   @Override

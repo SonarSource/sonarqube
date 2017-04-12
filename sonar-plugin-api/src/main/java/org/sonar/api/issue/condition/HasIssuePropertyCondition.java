@@ -19,21 +19,21 @@
  */
 package org.sonar.api.issue.condition;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * @since 3.6
  */
-@Beta
 public final class HasIssuePropertyCondition implements Condition {
 
   private final String propertyKey;
 
   public HasIssuePropertyCondition(String propertyKey) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(propertyKey));
+    Preconditions.checkArgument(!isEmpty(propertyKey));
     this.propertyKey = propertyKey;
   }
 
@@ -43,6 +43,6 @@ public final class HasIssuePropertyCondition implements Condition {
 
   @Override
   public boolean matches(Issue issue) {
-    return !Strings.isNullOrEmpty(issue.attribute(propertyKey));
+    return !StringUtils.isEmpty(issue.attribute(propertyKey));
   }
 }

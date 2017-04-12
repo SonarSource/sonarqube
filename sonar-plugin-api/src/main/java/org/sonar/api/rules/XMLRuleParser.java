@@ -21,21 +21,18 @@ package org.sonar.api.rules;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
@@ -45,6 +42,8 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @since 2.3
@@ -57,16 +56,11 @@ public final class XMLRuleParser {
   private static final Map<String, String> TYPE_MAP = typeMapWithDeprecatedValues();
 
   public List<Rule> parse(File file) {
-    Reader reader = null;
-    try {
-      reader = new InputStreamReader(FileUtils.openInputStream(file), CharEncoding.UTF_8);
+    try (Reader reader = new InputStreamReader(FileUtils.openInputStream(file), UTF_8)) {
       return parse(reader);
 
     } catch (IOException e) {
       throw new SonarException("Fail to load the file: " + file, e);
-
-    } finally {
-      Closeables.closeQuietly(reader);
     }
   }
 
@@ -74,16 +68,11 @@ public final class XMLRuleParser {
    * Warning : the input stream is closed in this method
    */
   public List<Rule> parse(InputStream input) {
-    Reader reader = null;
-    try {
-      reader = new InputStreamReader(input, CharEncoding.UTF_8);
+    try (Reader reader = new InputStreamReader(input, UTF_8)) {
       return parse(reader);
 
     } catch (IOException e) {
       throw new SonarException("Fail to load the xml stream", e);
-
-    } finally {
-      Closeables.closeQuietly(reader);
     }
   }
 
@@ -128,7 +117,7 @@ public final class XMLRuleParser {
       rule.setSeverity(RulePriority.valueOf(StringUtils.trim(priorityAttribute)));
     }
 
-    List<String> tags = Lists.newArrayList();
+    List<String> tags = new ArrayList<>();
     SMInputCursor cursor = ruleC.childElementCursor();
 
     while (cursor.getNext() != null) {
@@ -200,13 +189,13 @@ public final class XMLRuleParser {
         param.setDefaultValue(propText);
       }
     }
-    if (Strings.isNullOrEmpty(param.getKey())) {
+    if (StringUtils.isEmpty(param.getKey())) {
       throw new SonarException("Node <key> is missing in <param>");
     }
   }
 
   private static Map<String, String> typeMapWithDeprecatedValues() {
-    Map<String, String> map = Maps.newHashMap();
+    Map<String, String> map = new HashMap<>();
     map.put("i", PropertyType.INTEGER.name());
     map.put("s", PropertyType.STRING.name());
     map.put("b", PropertyType.BOOLEAN.name());

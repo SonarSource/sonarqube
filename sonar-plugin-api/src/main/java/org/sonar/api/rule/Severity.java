@@ -19,9 +19,9 @@
  */
 package org.sonar.api.rule;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 /**
  * @since 3.6
@@ -37,7 +37,7 @@ public final class Severity {
   /**
    * All the supported severity values, ordered from {@link #INFO} to {@link #BLOCKER}.
    */
-  public static final List<String> ALL = ImmutableList.of(INFO, MINOR, MAJOR, CRITICAL, BLOCKER);
+  public static final List<String> ALL = asList(INFO, MINOR, MAJOR, CRITICAL, BLOCKER);
 
   private Severity() {
     // utility

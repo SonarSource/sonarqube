@@ -19,12 +19,12 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @see SecurityRealm
@@ -46,7 +46,7 @@ public abstract class Authenticator {
     private HttpServletRequest request;
 
     public Context(@Nullable String username, @Nullable String password, HttpServletRequest request) {
-      Preconditions.checkNotNull(request);
+      requireNonNull(request);
       this.request = request;
       this.username = username;
       this.password = password;

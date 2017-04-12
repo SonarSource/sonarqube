@@ -20,11 +20,13 @@
 package org.sonar.api.resources;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * <p>Experimental extension to declare types of resources.
@@ -60,7 +62,7 @@ public class ResourceType {
     this.qualifier = builder.qualifier;
     this.iconPath = builder.iconPath;
     this.hasSourceCode = builder.hasSourceCode;
-    this.properties = Maps.newHashMap(builder.properties);
+    this.properties = new HashMap<>(builder.properties);
   }
 
   /**
@@ -91,7 +93,7 @@ public class ResourceType {
   }
 
   public boolean hasProperty(String key) {
-    Preconditions.checkNotNull(key);
+    requireNonNull(key);
     return properties.containsKey(key);
   }
 
@@ -102,7 +104,7 @@ public class ResourceType {
    * @since 3.0
    */
   public String getStringProperty(String key) {
-    Preconditions.checkNotNull(key);
+    requireNonNull(key);
     return properties.get(key);
   }
 
@@ -113,7 +115,7 @@ public class ResourceType {
    * @since 3.0
    */
   public boolean getBooleanProperty(String key) {
-    Preconditions.checkNotNull(key);
+    requireNonNull(key);
     String value = properties.get(key);
     return value != null && Boolean.parseBoolean(value);
   }
@@ -145,7 +147,7 @@ public class ResourceType {
    * Creates a new {@link Builder}
    */
   public static Builder builder(String qualifier) {
-    Preconditions.checkNotNull(qualifier);
+    requireNonNull(qualifier);
     Preconditions.checkArgument(qualifier.length() <= 10, "Qualifier is limited to 10 characters");
     return new Builder(qualifier);
   }
@@ -157,7 +159,7 @@ public class ResourceType {
     private String qualifier;
     private String iconPath;
     private boolean hasSourceCode = false;
-    private final Map<String, String> properties = Maps.newHashMap();
+    private final Map<String, String> properties = new HashMap<>();
 
     /**
      * Creates a new {@link Builder}
@@ -198,8 +200,8 @@ public class ResourceType {
      * @since 3.0
      */
     public Builder setProperty(String key, String value) {
-      Preconditions.checkNotNull(key);
-      Preconditions.checkNotNull(value);
+      requireNonNull(key);
+      requireNonNull(value);
       properties.put(key, value);
       return this;
     }
@@ -215,7 +217,7 @@ public class ResourceType {
      * Creates an instance of {@link ResourceType} based on all information given to the builder.
      */
     public ResourceType build() {
-      if (Strings.isNullOrEmpty(iconPath)) {
+      if (isEmpty(iconPath)) {
         iconPath = "/images/q/" + qualifier + ".png";
       }
       return new ResourceType(this);

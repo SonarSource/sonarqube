@@ -20,6 +20,7 @@
 package org.sonar.api.web;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import org.sonar.api.server.ServerSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * @since 3.1
@@ -59,8 +61,8 @@ public abstract class ServletFilter implements Filter {
     private final Predicate<String>[] exclusionPredicates;
 
     private UrlPattern(Builder builder) {
-      this.inclusions = ImmutableList.copyOf(builder.inclusions);
-      this.exclusions = ImmutableList.copyOf(builder.exclusions);
+      this.inclusions = unmodifiableList(new ArrayList<>(builder.inclusions));
+      this.exclusions = unmodifiableList(new ArrayList<>(builder.exclusions));
       if (builder.inclusionPredicates.isEmpty()) {
         // because Stream#anyMatch() returns false if stream is empty
         this.inclusionPredicates = new Predicate[] {s -> true};

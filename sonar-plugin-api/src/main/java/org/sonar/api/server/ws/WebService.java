@@ -22,15 +22,14 @@ package org.sonar.api.server.ws;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -52,6 +51,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -100,7 +100,7 @@ import static java.util.Objects.requireNonNull;
 public interface WebService extends Definable<WebService.Context> {
 
   class Context {
-    private final Map<String, Controller> controllers = Maps.newHashMap();
+    private final Map<String, Controller> controllers = new HashMap<>();
 
     /**
      * Create a new controller.
@@ -139,7 +139,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final String path;
     private String description;
     private String since;
-    private final Map<String, NewAction> actions = Maps.newHashMap();
+    private final Map<String, NewAction> actions = new HashMap<>();
 
     private NewController(Context context, String path) {
       if (StringUtils.isBlank(path)) {
@@ -254,7 +254,7 @@ public interface WebService extends Definable<WebService.Context> {
     private boolean post = false;
     private boolean isInternal = false;
     private RequestHandler handler;
-    private Map<String, NewParam> newParams = Maps.newHashMap();
+    private Map<String, NewParam> newParams = new HashMap<>();
     private URL responseExample = null;
     private List<Change> changelog = new ArrayList<>();
 
@@ -337,7 +337,7 @@ public interface WebService extends Definable<WebService.Context> {
      * @since 6.4
      */
     public NewAction setChangelog(Change... changes) {
-      this.changelog = Arrays.stream(requireNonNull(changes))
+      this.changelog = stream(requireNonNull(changes))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
 
@@ -776,7 +776,8 @@ public interface WebService extends Definable<WebService.Context> {
 
     private final String paramValue;
 
-    private static final Map<String, SelectionMode> BY_VALUE = Maps.uniqueIndex(asList(values()), input -> input.paramValue);
+    private static final Map<String, SelectionMode> BY_VALUE = stream(values())
+      .collect(Collectors.toMap(v -> v.paramValue, v -> v));
 
     SelectionMode(String paramValue) {
       this.paramValue = paramValue;

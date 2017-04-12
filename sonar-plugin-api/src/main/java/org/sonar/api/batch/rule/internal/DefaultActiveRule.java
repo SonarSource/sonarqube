@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch.rule.internal;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -40,7 +41,7 @@ public class DefaultActiveRule implements ActiveRule {
     this.internalKey = newActiveRule.internalKey;
     this.templateRuleKey = newActiveRule.templateRuleKey;
     this.ruleKey = newActiveRule.ruleKey;
-    this.params = ImmutableMap.copyOf(newActiveRule.params);
+    this.params = Collections.unmodifiableMap(new HashMap<>(newActiveRule.params));
     this.language = newActiveRule.language;
     this.createdAt = newActiveRule.createdAt;
   }

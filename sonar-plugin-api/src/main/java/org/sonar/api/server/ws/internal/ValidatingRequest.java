@@ -32,9 +32,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
 /**
@@ -56,7 +56,7 @@ public abstract class ValidatingRequest extends Request {
 
   @Override
   public LocalConnector localConnector() {
-    checkNotNull(localConnector, "Local connector has not been set");
+    requireNonNull(localConnector, "Local connector has not been set");
     return localConnector;
   }
 
