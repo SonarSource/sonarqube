@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -145,7 +144,7 @@ public class HtmlReport implements Reporter {
     }
   }
 
-  void copyDependencies(File toDir) throws URISyntaxException, IOException {
+  private void copyDependencies(File toDir) throws IOException {
     File target = new File(toDir, "issuesreport_files");
     FileUtils.forceMkdir(target);
 

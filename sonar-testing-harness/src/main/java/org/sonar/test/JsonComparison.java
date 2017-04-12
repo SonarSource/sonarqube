@@ -175,10 +175,7 @@ class JsonComparison {
         return false;
       }
     }
-    if (!remainingActual.isEmpty()) {
-      return false;
-    }
-    return true;
+    return remainingActual.isEmpty();
   }
 
   private boolean compareObjects(JSONObject expectedMap, JSONObject actualMap) {
@@ -203,7 +200,7 @@ class JsonComparison {
   }
 
   @CheckForNull
-  static Date tryParseDate(String s) {
+  private static Date tryParseDate(String s) {
     try {
       return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
     } catch (ParseException ignored) {

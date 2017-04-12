@@ -51,14 +51,6 @@ public class RuleQuery {
   private String internalKey;
   private String ruleKey;
 
-  /**
-   * TODO should not be public
-   *
-   * @see org.sonar.server.rule.RuleService#newRuleQuery()
-   */
-  public RuleQuery() {
-  }
-
   @CheckForNull
   public String getQProfileKey() {
     return qProfileKey;

@@ -45,10 +45,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private RuleType type;
   private Map<String, String> attributes;
 
-  public DefaultIssueBuilder() {
-
-  }
-
   public DefaultIssueBuilder componentKey(String componentKey) {
     this.componentKey = componentKey;
     return this;

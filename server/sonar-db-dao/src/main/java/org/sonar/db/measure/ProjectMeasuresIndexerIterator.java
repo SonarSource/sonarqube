@@ -84,7 +84,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   private final Map<Long, String> metricKeysByIds;
   private final Iterator<Project> projects;
 
-  private ProjectMeasuresIndexerIterator(PreparedStatement measuresStatement, Map<Long, String> metricKeysByIds, List<Project> projects) throws SQLException {
+  private ProjectMeasuresIndexerIterator(PreparedStatement measuresStatement, Map<Long, String> metricKeysByIds, List<Project> projects) {
     this.measuresStatement = measuresStatement;
     this.metricKeysByIds = metricKeysByIds;
     this.projects = projects.iterator();
