@@ -22,6 +22,7 @@
             id="301"
             kee="pj-w-snapshot:package"
             root_uuid="EDFG"
+            project_uuid="EDFG"
             uuid="ABCD"
             uuid_path="NOT_USED"
             module_uuid="EDFG"/>
@@ -29,6 +30,7 @@
             id="302"
             kee="pj-w-snapshot:file"
             root_uuid="EDFG"
+            project_uuid="EDFG"
             uuid="BCDE"
             uuid_path="NOT_USED"
             module_uuid="EDFG"/>
@@ -36,6 +38,7 @@
             id="303"
             kee="pj-w-snapshot:other"
             root_uuid="EDFG"
+            project_uuid="EDFG"
             uuid="CDEF"
             uuid_path="NOT_USED"
             module_uuid="EDFG"/>
@@ -45,6 +48,7 @@
             uuid="EDFG"
             uuid_path="NOT_USED"
             root_uuid="EDFG"
+            project_uuid="EDFG"
             module_uuid="[null]"/>
   <projects organization_uuid="org1"
             id="400"

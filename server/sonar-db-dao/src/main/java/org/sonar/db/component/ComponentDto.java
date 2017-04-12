@@ -92,6 +92,9 @@ public class ComponentDto implements Component {
    * - on file: UUID="4" PROJECT_UUID="1"
    * - on view: UUID="5" PROJECT_UUID="5"
    * - on sub-view: UUID="6" PROJECT_UUID="5"
+   *
+   *
+   *
   */
   private String projectUuid;
 

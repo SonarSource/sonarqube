@@ -6,6 +6,7 @@
             uuid_path="NOT_USED"
             enabled="[true]"
             root_uuid="uuid_1"
+            project_uuid="uuid_1"
             long_name="[null]"
             scope="PRJ"
             qualifier="TRK"

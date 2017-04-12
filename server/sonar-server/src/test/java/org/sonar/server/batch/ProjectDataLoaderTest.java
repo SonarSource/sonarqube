@@ -112,6 +112,7 @@ public class ProjectDataLoaderTest {
         .setUuid(uuid)
         .setUuidPath(uuid + ".")
         .setRootUuid(uuid)
+        .setProjectUuid(uuid)
         .setScope(scope)
         .setQualifier(qualifier)
         .setKey(key));
