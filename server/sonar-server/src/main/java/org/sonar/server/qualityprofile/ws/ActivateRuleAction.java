@@ -36,6 +36,7 @@ import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY;
@@ -69,7 +70,7 @@ public class ActivateRuleAction implements QProfileWsAction {
       .setSince("4.4");
 
     activate.createParam(PARAM_PROFILE_KEY)
-      .setDescription("Key of Quality profile, can be obtained through <code>api/profiles/list</code>")
+      .setDescription("Key of Quality profile, can be obtained through <code>api/qualityprofiles/search</code>")
       .setRequired(true)
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
@@ -79,12 +80,12 @@ public class ActivateRuleAction implements QProfileWsAction {
       .setExampleValue("squid:AvoidCycles");
 
     activate.createParam(PARAM_SEVERITY)
-      .setDescription(String.format("Severity. Ignored if parameter %s is true.", PARAM_RESET))
+      .setDescription(format("Severity. Ignored if parameter %s is true.", PARAM_RESET))
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAM_PARAMS)
-      .setDescription(String.format("Parameters as semi-colon list of <key>=<value>, for example " +
-        "'<code>params=key1=v1;key2=v2</code>'. Ignored if parameter %s is true.", PARAM_RESET));
+      .setDescription(format("Parameters as semi-colon list of <key>=<value>. Ignored if parameter %s is true.", PARAM_RESET))
+    .setExampleValue("params=key1=v1;key2=v2");
 
     activate.createParam(PARAM_RESET)
       .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile " +

@@ -59,7 +59,7 @@ public class DeactivateRuleAction implements QProfileWsAction {
       .setSince("4.4");
 
     deactivate.createParam(PARAM_PROFILE_KEY)
-      .setDescription("Key of Quality profile, can be obtained through <code>api/profiles/list</code>")
+      .setDescription("Key of Quality profile, can be obtained through <code>api/qualityprofiles/search</code>")
       .setRequired(true)
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
