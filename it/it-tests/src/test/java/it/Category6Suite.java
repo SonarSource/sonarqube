@@ -24,12 +24,14 @@ import it.organization.IssueAssignTest;
 import it.organization.OrganizationMembershipTest;
 import it.organization.OrganizationQualityProfilesPageTest;
 import it.organization.OrganizationTest;
+import it.user.OrganizationIdentityProviderTest;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import static java.util.Collections.emptyMap;
+import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 /**
@@ -37,17 +39,18 @@ import static util.ItUtils.xooPlugin;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // organization
-  OrganizationTest.class,
-  OrganizationMembershipTest.class,
   IssueAssignTest.class,
-  OrganizationQualityProfilesPageTest.class
+  OrganizationIdentityProviderTest.class,
+  OrganizationMembershipTest.class,
+  OrganizationQualityProfilesPageTest.class,
+  OrganizationTest.class
 })
 public class Category6Suite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
+    .addPlugin(pluginArtifact("base-auth-plugin"))
     .build();
 
   @BeforeClass
