@@ -85,6 +85,7 @@ public class CharsetDetectorTest {
 
     CharsetDetector detector = new CharsetDetector(filePath, StandardCharsets.UTF_8);
     assertThat(detector.run()).isFalse();
+    assertThat(detector.charset()).isEqualTo(StandardCharsets.UTF_8);
   }
 
   private Charset detectCharset(Path file, Charset defaultEncoding) {
