@@ -53,9 +53,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.protocol.input.ScannerInput;
-import org.sonar.scanner.protocol.input.ScannerInput.User;
-import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 @Properties({
@@ -75,12 +72,11 @@ public class JSONReport implements Reporter {
   private final IssueCache issueCache;
   private final InputComponentStore componentStore;
   private final DefaultInputModule rootModule;
-  private final UserRepositoryLoader userRepository;
   private final InputModuleHierarchy moduleHierarchy;
   private final InputComponentTree inputComponentTree;
 
   public JSONReport(InputModuleHierarchy moduleHierarchy, Settings settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
-    DefaultInputModule rootModule, InputComponentStore componentStore, UserRepositoryLoader userRepository, InputComponentTree inputComponentTree) {
+    DefaultInputModule rootModule, InputComponentStore componentStore, InputComponentTree inputComponentTree) {
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.fileSystem = fileSystem;
@@ -89,7 +85,6 @@ public class JSONReport implements Reporter {
     this.issueCache = issueCache;
     this.rootModule = rootModule;
     this.componentStore = componentStore;
-    this.userRepository = userRepository;
     this.inputComponentTree = inputComponentTree;
   }
 
@@ -232,15 +227,15 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private void writeUsers(JsonWriter json, Collection<String> userLogins) throws IOException {
-    Collection<User> users = userRepository.load(userLogins);
-
+  private static void writeUsers(JsonWriter json, Collection<String> userLogins) throws IOException {
     json.name("users").beginArray();
-    for (ScannerInput.User user : users) {
+
+    // for compatiblity with programs that parse the json report. We no longer get the name for logins.
+    for (String user : userLogins) {
       json
         .beginObject()
-        .prop("login", user.getLogin())
-        .prop("name", user.getName())
+        .prop("login", user)
+        .prop("name", user)
         .endObject();
     }
     json.endArray();

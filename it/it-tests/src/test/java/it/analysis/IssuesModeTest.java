@@ -360,7 +360,7 @@ public class IssuesModeTest {
         userNameByLogin.put(login, name);
       }
     }
-    assertThat(userNameByLogin.get("julien")).isEqualTo("Julien H");
+    assertThat(userNameByLogin.get("julien")).isEqualTo("julien");
 
     for (Object issueJson : (JSONArray) obj.get("issues")) {
       JSONObject jsonObject = (JSONObject) issueJson;

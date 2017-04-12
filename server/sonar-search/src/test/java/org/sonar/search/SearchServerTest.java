@@ -54,7 +54,7 @@ public class SearchServerTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private int port = NetworkUtils.freePort();
+  private int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
   private Client client;
   private SearchServer underTest;
 

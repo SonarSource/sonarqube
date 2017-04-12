@@ -20,6 +20,7 @@
 package org.sonar.application.config;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -56,7 +57,7 @@ public class JdbcSettingsTest {
 
     assertThat(underTest.resolveProviderAndEnforceNonnullJdbcUrl(props))
       .isEqualTo(Provider.H2);
-    assertThat(props.nonNullValue(JDBC_URL)).isEqualTo("jdbc:h2:tcp://localhost:9092/sonar");
+    assertThat(props.nonNullValue(JDBC_URL)).isEqualTo(String.format("jdbc:h2:tcp://%s:9092/sonar", InetAddress.getLoopbackAddress().getHostAddress()));
   }
 
   @Test

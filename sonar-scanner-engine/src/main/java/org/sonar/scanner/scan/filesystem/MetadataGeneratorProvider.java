@@ -23,10 +23,12 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
 
 @ScannerSide
 public class MetadataGeneratorProvider extends ProviderAdapter {
-  public MetadataGenerator provide(DefaultInputModule inputModule, StatusDetectionFactory statusDetectionFactory, FileMetadata fileMetadata) {
-    return new MetadataGenerator(inputModule, statusDetectionFactory.create(), fileMetadata);
+  public MetadataGenerator provide(DefaultInputModule inputModule, StatusDetectionFactory statusDetectionFactory, FileMetadata fileMetadata,
+    IssueExclusionsLoader exclusionsScanner) {
+    return new MetadataGenerator(inputModule, statusDetectionFactory.create(), fileMetadata, exclusionsScanner);
   }
 }

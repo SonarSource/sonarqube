@@ -20,6 +20,8 @@
 package org.sonar.application.config;
 
 import java.io.File;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -33,6 +35,7 @@ import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.process.ProcessProperties.JDBC_EMBEDDED_PORT;
@@ -99,18 +102,25 @@ public class JdbcSettings implements Consumer<Props> {
     Pattern pattern = Pattern.compile("jdbc:(\\w+):.+");
     Matcher matcher = pattern.matcher(url);
     if (!matcher.find()) {
-      throw new MessageException(String.format("Bad format of JDBC URL: %s", url));
+      throw new MessageException(format("Bad format of JDBC URL: %s", url));
     }
     String key = matcher.group(1);
     try {
       return Provider.valueOf(StringUtils.upperCase(key));
     } catch (IllegalArgumentException e) {
-      throw new MessageException(String.format("Unsupported JDBC driver provider: %s", key));
+      throw new MessageException(format("Unsupported JDBC driver provider: %s", key));
     }
   }
 
   private static String buildH2JdbcUrl(int embeddedDatabasePort) {
-    return "jdbc:h2:tcp://localhost:" + embeddedDatabasePort + "/sonar";
+    InetAddress ip = InetAddress.getLoopbackAddress();
+    String host;
+    if (ip instanceof Inet6Address) {
+      host = "[" + ip.getHostAddress() + "]";
+    } else {
+      host = ip.getHostAddress();
+    }
+    return format("jdbc:h2:tcp://%s:%d/sonar", host, embeddedDatabasePort);
   }
 
   void checkUrlParameters(Provider provider, String url) {
@@ -145,7 +155,7 @@ public class JdbcSettings implements Consumer<Props> {
 
   private static void checkRequiredParameter(String url, String val) {
     if (!url.contains(val)) {
-      throw new MessageException(String.format("JDBC URL must have the property '%s'", val));
+      throw new MessageException(format("JDBC URL must have the property '%s'", val));
     }
   }
 

@@ -49,8 +49,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.scanner.protocol.input.ScannerInput;
-import org.sonar.scanner.repository.user.UserRepositoryLoader;
 import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
@@ -73,13 +71,11 @@ public class JSONReportTest {
   Rules rules = mock(Rules.class);
   Settings settings = new MapSettings();
   IssueCache issueCache = mock(IssueCache.class);
-  private UserRepositoryLoader userRepository;
   private InputModuleHierarchy moduleHierarchy;
 
   @Before
   public void before() throws Exception {
     moduleHierarchy = mock(InputModuleHierarchy.class);
-    userRepository = mock(UserRepositoryLoader.class);
     File projectBaseDir = temp.newFolder();
     fs = new DefaultFileSystem(projectBaseDir.toPath());
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
@@ -115,7 +111,7 @@ public class JSONReportTest {
     RulesBuilder builder = new RulesBuilder();
     builder.add(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles");
     rules = builder.build();
-    jsonReport = new JSONReport(moduleHierarchy, settings, fs, server, rules, issueCache, rootModule, inputComponentStore, userRepository, inputComponentTree);
+    jsonReport = new JSONReport(moduleHierarchy, settings, fs, server, rules, issueCache, rootModule, inputComponentStore, inputComponentTree);
   }
 
   @Test
@@ -137,8 +133,6 @@ public class JSONReportTest {
     issue.setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"));
     issue.setNew(false);
     when(issueCache.all()).thenReturn(Collections.singleton(issue));
-    ScannerInput.User user = ScannerInput.User.newBuilder().setLogin("simon").setName("Simon").build();
-    when(userRepository.load(Collections.singleton("simon"))).thenReturn(Collections.singleton(user));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

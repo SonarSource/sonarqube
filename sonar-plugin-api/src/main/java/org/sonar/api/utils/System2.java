@@ -93,6 +93,15 @@ public class System2 {
   }
 
   /**
+   * Shortcut for {@code System{@link #setProperty(String, String)}}
+   * @since 6.4
+   */
+  public System2 setProperty(String key, String value) {
+    System.setProperty(key, value);
+    return this;
+  }
+
+  /**
    * Shortcut for {@link System#getenv()}
    */
   public Map<String, String> envVariables() {
@@ -117,9 +126,11 @@ public class System2 {
   /**
    * True if Java 7 or Java 8 runtime environment
    * @since 4.3
+   * @deprecated in 6.4. Java 8+ is required, so this method always returns {@code true}.
    */
+  @Deprecated
   public boolean isJavaAtLeast17() {
-    return SystemUtils.isJavaVersionAtLeast(1.7f);
+    return true;
   }
 
   public void println(String obj) {

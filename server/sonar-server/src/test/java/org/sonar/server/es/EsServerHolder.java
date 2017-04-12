@@ -38,16 +38,16 @@ public class EsServerHolder {
 
   private static EsServerHolder HOLDER = null;
   private final String clusterName;
+  private final InetAddress address;
   private final int port;
-  private final String hostName;
   private final File homeDir;
   private final SearchServer server;
 
-  private EsServerHolder(SearchServer server, String clusterName, int port, String hostName, File homeDir) {
+  private EsServerHolder(SearchServer server, String clusterName, InetAddress address, int port, File homeDir) {
     this.server = server;
     this.clusterName = clusterName;
+    this.address = address;
     this.port = port;
-    this.hostName = hostName;
     this.homeDir = homeDir;
   }
 
@@ -59,8 +59,8 @@ public class EsServerHolder {
     return port;
   }
 
-  public String getHostName() {
-    return hostName;
+  public InetAddress getAddress() {
+    return address;
   }
 
   public SearchServer getServer() {
@@ -98,18 +98,18 @@ public class EsServerHolder {
       homeDir.mkdir();
 
       String clusterName = "testCluster";
-      String hostName = "127.0.0.1";
-      int port = NetworkUtils.freePort();
+      InetAddress address = InetAddress.getLoopbackAddress();
+      int port = NetworkUtils.getNextAvailablePort(address);
 
       Properties properties = new Properties();
       properties.setProperty(ProcessProperties.CLUSTER_NAME, clusterName);
       properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(port));
-      properties.setProperty(ProcessProperties.SEARCH_HOST, hostName);
+      properties.setProperty(ProcessProperties.SEARCH_HOST, address.getHostAddress());
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
       properties.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, homeDir.getAbsolutePath());
       SearchServer server = new SearchServer(new Props(properties));
       server.start();
-      HOLDER = new EsServerHolder(server, clusterName, port, hostName, homeDir);
+      HOLDER = new EsServerHolder(server, clusterName, address, port, homeDir);
     }
     HOLDER.reset();
     return HOLDER;

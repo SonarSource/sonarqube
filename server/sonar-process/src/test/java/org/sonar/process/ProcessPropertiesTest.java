@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import java.net.InetAddress;
 import java.util.Properties;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProcessPropertiesTest {
 
   @Test
-  public void init_defaults() {
+  public void completeDefaults_adds_default_values() {
     Props props = new Props(new Properties());
     ProcessProperties.completeDefaults(props);
 
@@ -37,7 +38,7 @@ public class ProcessPropertiesTest {
   }
 
   @Test
-  public void do_not_override_existing_properties() {
+  public void completeDefaults_does_not_override_existing_properties() {
     Properties p = new Properties();
     p.setProperty("sonar.jdbc.username", "angela");
     Props props = new Props(p);
@@ -47,7 +48,20 @@ public class ProcessPropertiesTest {
   }
 
   @Test
-  public void use_random_port_if_zero() {
+  public void completeDefaults_set_default_elasticsearch_port_and_bind_address() throws Exception{
+    Properties p = new Properties();
+    Props props = new Props(p);
+    ProcessProperties.completeDefaults(props);
+
+    String address = props.value("sonar.search.host");
+    assertThat(address).isNotEmpty();
+    assertThat(InetAddress.getByName(address).isLoopbackAddress()).isTrue();
+
+    assertThat(props.valueAsInt("sonar.search.port")).isEqualTo(9001);
+  }
+
+  @Test
+  public void completeDefaults_sets_the_port_of_elasticsearch_if_value_is_zero() {
     Properties p = new Properties();
     p.setProperty("sonar.search.port", "0");
     Props props = new Props(p);

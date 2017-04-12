@@ -105,7 +105,7 @@ public class ServerTester extends ExternalResource {
       esServerHolder = EsServerHolder.get();
       properties.setProperty(ProcessProperties.CLUSTER_NAME, esServerHolder.getClusterName());
       properties.setProperty(ProcessProperties.SEARCH_PORT, String.valueOf(esServerHolder.getPort()));
-      properties.setProperty(ProcessProperties.SEARCH_HOST, String.valueOf(esServerHolder.getHostName()));
+      properties.setProperty(ProcessProperties.SEARCH_HOST, esServerHolder.getAddress().getHostAddress());
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
       properties.setProperty(ProcessProperties.PATH_DATA, new File(homeDir, "data").getAbsolutePath());
       File temporaryFolderIn = createTemporaryFolderIn();

@@ -258,6 +258,6 @@ public class IssueExclusionsTest {
   private void checkAnalysisFails(String... properties) {
     BuildResult buildResult = scan(properties);
     assertThat(buildResult.getStatus()).isNotEqualTo(0);
-    assertThat(buildResult.getLogs().indexOf("SonarException")).isGreaterThan(0);
+    assertThat(buildResult.getLogs().indexOf("IllegalStateException")).isGreaterThan(0);
   }
 }

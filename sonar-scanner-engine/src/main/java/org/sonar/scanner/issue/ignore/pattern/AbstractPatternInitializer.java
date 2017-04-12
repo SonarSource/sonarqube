@@ -26,14 +26,13 @@ import org.sonar.api.config.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 @ScannerSide
 public abstract class AbstractPatternInitializer {
-
   private Settings settings;
-
   private List<IssuePattern> multicriteriaPatterns;
 
   protected AbstractPatternInitializer(Settings settings) {
@@ -57,8 +56,6 @@ public abstract class AbstractPatternInitializer {
     return !multicriteriaPatterns.isEmpty();
   }
 
-  public abstract void initializePatternsForPath(String relativePath, String componentKey);
-
   @VisibleForTesting
   protected final void initPatterns() {
     // Patterns Multicriteria
@@ -71,8 +68,9 @@ public abstract class AbstractPatternInitializer {
       String lineRange = "*";
       String[] fields = new String[] {resourceKeyPattern, ruleKeyPattern, lineRange};
       PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);
-      IssuePattern pattern = new IssuePattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
-      PatternDecoder.decodeRangeOfLines(pattern, firstNonNull(lineRange, "*"));
+      Set<LineRange> rangeOfLines = PatternDecoder.decodeRangeOfLines(firstNonNull(lineRange, "*"));
+      IssuePattern pattern = new IssuePattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"), rangeOfLines);
+
       multicriteriaPatterns.add(pattern);
     }
   }

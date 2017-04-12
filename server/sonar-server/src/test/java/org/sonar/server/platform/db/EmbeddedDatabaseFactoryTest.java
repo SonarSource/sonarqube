@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.System2;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -30,7 +31,8 @@ import static org.mockito.Mockito.verify;
 
 public class EmbeddedDatabaseFactoryTest {
 
-  Settings settings = new MapSettings();
+  private Settings settings = new MapSettings();
+  private System2 system2 = mock(System2.class);
 
   @Test
   public void should_start_and_stop_tcp_h2_database() {
@@ -38,7 +40,7 @@ public class EmbeddedDatabaseFactoryTest {
 
     EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 
-    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings) {
+    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings, system2) {
       @Override
       EmbeddedDatabase createEmbeddedDatabase() {
         return embeddedDatabase;
@@ -57,7 +59,7 @@ public class EmbeddedDatabaseFactoryTest {
 
     EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 
-    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings) {
+    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings, system2) {
       @Override
       EmbeddedDatabase createEmbeddedDatabase() {
         return embeddedDatabase;
