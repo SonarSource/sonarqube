@@ -33,8 +33,6 @@ import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.annotation.CheckForNull;
-
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
@@ -58,13 +56,17 @@ public class CharsetDetector {
         return true;
       }
 
-      return detectCharset();
+      if (detectCharset()) {
+        return true;
+      }
+
+      detectedCharset = defaultEncoding;
+      return false;
     } catch (IOException e) {
       throw new IllegalStateException("Unable to read file " + filePath.toAbsolutePath().toString(), e);
     }
   }
 
-  @CheckForNull
   public Charset charset() {
     assertRun();
     return detectedCharset;
@@ -90,7 +92,6 @@ public class CharsetDetector {
     return false;
   }
 
-  @CheckForNull
   private boolean detectCharset() throws IOException {
     stream.mark(BYTES_TO_DECODE);
     byte[] buf = new byte[BYTES_TO_DECODE];
