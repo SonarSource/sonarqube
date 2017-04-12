@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
@@ -70,6 +69,7 @@ public class ActiveRuleDaoTest {
   private RuleDefinitionDto rule1 = RuleTesting.newRule(RuleTesting.XOO_X1);
   private RuleDefinitionDto rule2 = RuleTesting.newRule(RuleTesting.XOO_X2);
   private RuleDefinitionDto rule3 = RuleTesting.newRule(RuleTesting.XOO_X3);
+  private RuleDefinitionDto removedRule = RuleTesting.newRule().setStatus(RuleStatus.REMOVED);
 
   private RuleParamDto rule1Param1;
   private RuleParamDto rule1Param2;
@@ -94,6 +94,7 @@ public class ActiveRuleDaoTest {
     dbTester.rules().insert(rule1);
     dbTester.rules().insert(rule2);
     dbTester.rules().insert(rule3);
+    dbTester.rules().insert(removedRule);
 
     rule1Param1 = new RuleParamDto()
       .setName("param1")
@@ -187,8 +188,6 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void select_by_profile_ignore_removed_rules() throws Exception {
-    RuleDefinitionDto removedRule = RuleTesting.newRule(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
-    dbTester.rules().insert(removedRule);
     ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();
@@ -604,6 +603,16 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
+  public void countActiveRulesByProfileKey_ignores_removed_rules() {
+    dbTester.qualityProfiles().activateRule(profile1, rule1);
+    dbTester.qualityProfiles().activateRule(profile1, removedRule);
+
+    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
+
+    assertThat(counts).containsExactly(entry(profile1.getKey(), 1L));
+  }
+
+  @Test
   public void test_countActiveRulesForRuleStatusByProfileKey_for_a_specified_organization() {
     RuleDefinitionDto betaRule1 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA)).getDefinition();
     RuleDefinitionDto betaRule2 = dbTester.rules().insertRule(RuleTesting.newRuleDto().setStatus(RuleStatus.BETA)).getDefinition();
@@ -653,5 +662,15 @@ public class ActiveRuleDaoTest {
     Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
 
     assertThat(counts).isEmpty();
+  }
+
+  @Test
+  public void countActiveRulesForInheritanceByProfileKey_ignores_removed_rules() {
+    dbTester.qualityProfiles().activateRule(profile1, rule1, ar -> ar.setInheritance(ActiveRuleDto.OVERRIDES));
+    dbTester.qualityProfiles().activateRule(profile1, removedRule, ar -> ar.setInheritance(ActiveRuleDto.OVERRIDES));
+
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+
+    assertThat(counts).containsOnly(entry(profile1.getKey(), 1L));
   }
 }

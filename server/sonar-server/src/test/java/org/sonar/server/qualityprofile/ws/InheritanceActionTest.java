@@ -144,6 +144,76 @@ public class InheritanceActionTest {
   }
 
   @Test
+  public void inheritance_parent_child() throws Exception {
+    RuleDefinitionDto rule1 = dbTester.rules().insert();
+    ruleIndexer.index(organization, rule1.getKey());
+
+    RuleDefinitionDto rule2 = dbTester.rules().insert();
+    ruleIndexer.index(organization, rule1.getKey());
+
+    RuleDefinitionDto rule3 = dbTester.rules().insert();
+    ruleIndexer.index(organization, rule1.getKey());
+
+    QualityProfileDto parent = dbTester.qualityProfiles().insert(organization);
+    dbTester.qualityProfiles().activateRule(parent, rule1);
+    dbTester.qualityProfiles().activateRule(parent, rule2);
+    int parentRules = 2;
+
+    QualityProfileDto child = dbTester.qualityProfiles().insert(organization, q -> q.setParentKee(parent.getKee()));
+    dbTester.qualityProfiles().activateRule(child, rule3);
+    int childRules = 1;
+
+    activeRuleIndexer.index();
+
+    String response = wsActionTester.newRequest()
+      .setMethod("GET")
+      .setParam("profileKey", child.getKey())
+      .execute()
+      .getInput();
+
+    JsonAssert.assertJson(response).isSimilarTo("" +
+      "{" +
+      "  \"profile\":" + generateJsonProfile(child, childRules) +
+      "}");
+
+    JsonAssert.assertJson(response).isSimilarTo("" +
+      "{" +
+      "  \"ancestors\":[" + generateJsonProfile(parent, parentRules) + "]" +
+      "}");
+  }
+
+  @Test
+  public void inheritance_ignores_removed_rules() throws Exception {
+    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
+    ruleIndexer.index(organization, rule.getKey());
+
+    QualityProfileDto profile = dbTester.qualityProfiles().insert(organization);
+    dbTester.qualityProfiles().activateRule(profile, rule);
+    int activeRules = 0;
+
+    activeRuleIndexer.index();
+
+    String response = wsActionTester.newRequest()
+      .setMethod("GET")
+      .setParam("profileKey", profile.getKey())
+      .execute()
+      .getInput();
+
+    JsonAssert.assertJson(response).isSimilarTo("" +
+      "{" +
+      "  \"profile\":" + generateJsonProfile(profile, activeRules) +
+      "}");
+  }
+
+  private String generateJsonProfile(QualityProfileDto child, int numberOfRules) {
+    return "" +
+      "{" +
+      "  \"key\":\"" + child.getKey() + "\"," +
+      "  \"activeRuleCount\":" + numberOfRules +
+      "}";
+  }
+
+  @Test
   public void inheritance_no_family() throws Exception {
     // Simple profile, no parent, no child
     QualityProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");

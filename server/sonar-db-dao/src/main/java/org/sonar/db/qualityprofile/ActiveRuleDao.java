@@ -190,6 +190,9 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
+  /**
+   * Active rule on removed rule are NOT taken into account
+   */
   public Map<String, Long> countActiveRulesByProfileKey(DbSession dbSession, OrganizationDto organization) {
     return KeyLongValue.toMap(
       mapper(dbSession).countActiveRulesByProfileKey(organization.getUuid()));
@@ -200,6 +203,9 @@ public class ActiveRuleDao implements Dao {
       mapper(dbSession).countActiveRulesForRuleStatusByProfileKey(organization.getUuid(), ruleStatus));
   }
 
+  /**
+   * Active rule on removed rule are NOT taken into account
+   */
   public Map<String, Long> countActiveRulesForInheritanceByProfileKey(DbSession dbSession, OrganizationDto organization, String inheritance) {
     return KeyLongValue.toMap(
       mapper(dbSession).countActiveRulesForInheritanceByProfileKey(organization.getUuid(), inheritance));
