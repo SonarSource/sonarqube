@@ -47,6 +47,11 @@ message SearchMembersWsResponse {
   repeated User users = 2;
 }
 
+// WS api/organizations/add_member
+message AddMemberWsResponse {
+  optional User user = 1;
+}
+
 message Organization {
   optional string key = 1;
   optional string name = 2;

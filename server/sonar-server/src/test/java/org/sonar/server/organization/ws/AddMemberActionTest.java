@@ -20,7 +20,10 @@
 
 package org.sonar.server.organization.ws;
 
+import com.google.common.base.Throwables;
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +42,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -47,17 +51,18 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 
 import static java.lang.String.format;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class AddMemberActionTest {
   @Rule
@@ -72,36 +77,8 @@ public class AddMemberActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client()), new DefaultGroupFinder(dbClient)));
-
-  @Test
-  public void definition() {
-    WebService.Action definition = ws.getDef();
-
-    assertThat(definition.key()).isEqualTo("add_member");
-    assertThat(definition.since()).isEqualTo("6.4");
-    assertThat(definition.isPost()).isTrue();
-    assertThat(definition.isInternal()).isTrue();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("organization", "login");
-
-    WebService.Param organization = definition.param("organization");
-    assertThat(organization.isRequired()).isTrue();
-
-    WebService.Param login = definition.param("login");
-    assertThat(login.isRequired()).isTrue();
-  }
-
-  @Test
-  public void no_content_http_204_returned() {
-    OrganizationDto organization = db.organizations().insert();
-    db.users().insertDefaultGroup(organization, "default");
-    UserDto user = db.users().insertUser();
-
-    TestResponse result = call(organization.getKey(), user.getLogin());
-
-    assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
-    assertThat(result.getInput()).isEmpty();
-  }
+  private WsActionTester ws = new WsActionTester(
+    new AddMemberAction(dbClient, userSession, new UserIndexer(dbClient, es.client()), new DefaultGroupFinder(dbClient), new AvatarResolverImpl()));
 
   @Test
   public void add_member_in_db_and_user_index() {
@@ -159,6 +136,38 @@ public class AddMemberActionTest {
     call(organization.getKey(), user.getLogin());
 
     assertMember(organization.getUuid(), user.getId());
+  }
+
+  @Test
+  public void return_user_info() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser(u -> u.setEmail("john@smith.com"));
+
+    AddMemberWsResponse result = call(organization.getKey(), user.getLogin());
+
+    assertThat(result.getUser().getLogin()).isEqualTo(user.getLogin());
+    assertThat(result.getUser().getName()).isEqualTo(user.getName());
+    assertThat(result.getUser().getAvatar()).isEqualTo("b0d8c6e5ea589e6fc3d3e08afb1873bb");
+    assertThat(result.getUser().getGroupCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void return_user_info_even_when_user_is_already_member_of_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser(u -> u.setEmail("john@smith.com"));
+    IntStream.range(0, 3)
+      .mapToObj(i -> db.users().insertGroup(organization))
+      .forEach(g -> db.users().insertMembers(g, user));
+    db.organizations().addMember(organization, user);
+
+    AddMemberWsResponse result = call(organization.getKey(), user.getLogin());
+
+    assertThat(result.getUser().getLogin()).isEqualTo(user.getLogin());
+    assertThat(result.getUser().getName()).isEqualTo(user.getName());
+    assertThat(result.getUser().getAvatar()).isEqualTo("b0d8c6e5ea589e6fc3d3e08afb1873bb");
+    assertThat(result.getUser().getGroupCount()).isEqualTo(3);
   }
 
   @Test
@@ -221,12 +230,44 @@ public class AddMemberActionTest {
     call(organization.getKey(), user.getLogin());
   }
 
-  private TestResponse call(@Nullable String organizationKey, @Nullable String login) {
-    TestRequest request = ws.newRequest();
+  @Test
+  public void json_example() {
+    OrganizationDto organization = db.organizations().insert();
+    db.users().insertDefaultGroup(organization, "default");
+    UserDto user = db.users().insertUser(u -> u.setLogin("ada.lovelace").setName("Ada Lovelace").setEmail("ada@lovelace.com"));
+
+    String result = ws.newRequest().setParam(PARAM_ORGANIZATION, organization.getKey()).setParam("login", user.getLogin()).execute().getInput();
+
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("add_member");
+    assertThat(definition.since()).isEqualTo("6.4");
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("organization", "login");
+
+    WebService.Param organization = definition.param("organization");
+    assertThat(organization.isRequired()).isTrue();
+
+    WebService.Param login = definition.param("login");
+    assertThat(login.isRequired()).isTrue();
+  }
+
+  private AddMemberWsResponse call(@Nullable String organizationKey, @Nullable String login) {
+    TestRequest request = ws.newRequest().setMediaType(MediaTypes.PROTOBUF);
     setNullable(organizationKey, o -> request.setParam(PARAM_ORGANIZATION, o));
     setNullable(login, l -> request.setParam("login", l));
-
-    return request.execute();
+    try {
+      return AddMemberWsResponse.parseFrom(request.execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   private void assertMember(String organizationUuid, int userId) {

@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client.organization;
 
 import javax.annotation.Nullable;
+import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 import org.sonarqube.ws.Organizations.SearchMembersWsResponse;
 import org.sonarqube.ws.Organizations.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
@@ -89,12 +90,12 @@ public class OrganizationService extends BaseService {
     return call(get, SearchMembersWsResponse.parser());
   }
 
-  public void addMember(String organizationKey, String login) {
+  public AddMemberWsResponse addMember(String organizationKey, String login) {
     PostRequest post = new PostRequest(path("add_member"))
       .setParam("organization", requireNonNull(organizationKey))
       .setParam("login", requireNonNull(login));
 
-    call(post);
+    return call(post, AddMemberWsResponse.parser());
   }
 
   public void removeMember(String organizationKey, String login) {
