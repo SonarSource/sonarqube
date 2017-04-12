@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import org.junit.Before;
@@ -56,6 +57,10 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class InheritanceActionTest {
 
@@ -146,71 +151,62 @@ public class InheritanceActionTest {
   @Test
   public void inheritance_parent_child() throws Exception {
     RuleDefinitionDto rule1 = dbTester.rules().insert();
-    ruleIndexer.index(organization, rule1.getKey());
+    ruleIndexer.indexRuleDefinition(rule1.getKey());
 
     RuleDefinitionDto rule2 = dbTester.rules().insert();
-    ruleIndexer.index(organization, rule1.getKey());
+    ruleIndexer.indexRuleDefinition(rule1.getKey());
 
     RuleDefinitionDto rule3 = dbTester.rules().insert();
-    ruleIndexer.index(organization, rule1.getKey());
+    ruleIndexer.indexRuleDefinition(rule1.getKey());
 
     QualityProfileDto parent = dbTester.qualityProfiles().insert(organization);
     dbTester.qualityProfiles().activateRule(parent, rule1);
     dbTester.qualityProfiles().activateRule(parent, rule2);
-    int parentRules = 2;
+    long parentRules = 2;
 
     QualityProfileDto child = dbTester.qualityProfiles().insert(organization, q -> q.setParentKee(parent.getKee()));
     dbTester.qualityProfiles().activateRule(child, rule3);
-    int childRules = 1;
+    long childRules = 1;
 
     activeRuleIndexer.index();
 
-    String response = wsActionTester.newRequest()
+    InputStream response = wsActionTester.newRequest()
       .setMethod("GET")
+      .setMediaType(PROTOBUF)
       .setParam("profileKey", child.getKey())
       .execute()
-      .getInput();
+      .getInputStream();
 
-    JsonAssert.assertJson(response).isSimilarTo("" +
-      "{" +
-      "  \"profile\":" + generateJsonProfile(child, childRules) +
-      "}");
+    InheritanceWsResponse result = InheritanceWsResponse.parseFrom(response);
 
-    JsonAssert.assertJson(response).isSimilarTo("" +
-      "{" +
-      "  \"ancestors\":[" + generateJsonProfile(parent, parentRules) + "]" +
-      "}");
+    assertThat(result.getProfile().getKey()).isEqualTo(child.getKey());
+    assertThat(result.getProfile().getActiveRuleCount()).isEqualTo(childRules);
+
+    assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getKey).containsExactly(parent.getKey());
+    assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getActiveRuleCount).containsExactly(parentRules);
   }
 
   @Test
   public void inheritance_ignores_removed_rules() throws Exception {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
-    ruleIndexer.index(organization, rule.getKey());
+    ruleIndexer.indexRuleDefinition(rule.getKey());
 
     QualityProfileDto profile = dbTester.qualityProfiles().insert(organization);
     dbTester.qualityProfiles().activateRule(profile, rule);
-    int activeRules = 0;
+    long activeRules = 0;
 
     activeRuleIndexer.index();
 
-    String response = wsActionTester.newRequest()
+    InputStream response = wsActionTester.newRequest()
       .setMethod("GET")
+      .setMediaType(PROTOBUF)
       .setParam("profileKey", profile.getKey())
       .execute()
-      .getInput();
+      .getInputStream();
 
-    JsonAssert.assertJson(response).isSimilarTo("" +
-      "{" +
-      "  \"profile\":" + generateJsonProfile(profile, activeRules) +
-      "}");
-  }
-
-  private String generateJsonProfile(QualityProfileDto child, int numberOfRules) {
-    return "" +
-      "{" +
-      "  \"key\":\"" + child.getKey() + "\"," +
-      "  \"activeRuleCount\":" + numberOfRules +
-      "}";
+    InheritanceWsResponse result = InheritanceWsResponse.parseFrom(response);
+    assertThat(result.getProfile().getKey()).isEqualTo(profile.getKey());
+    assertThat(result.getProfile().getActiveRuleCount()).isEqualTo(activeRules);
   }
 
   @Test

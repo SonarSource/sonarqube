@@ -21,13 +21,14 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -35,6 +36,10 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
+import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse.QualityProfile;
+
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class InheritanceAction implements QProfileWsAction {
 
@@ -75,54 +80,42 @@ public class InheritanceAction implements QProfileWsAction {
       List<QualityProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKey());
       Statistics statistics = new Statistics(dbSession, organization);
 
-      writeResponse(response.newJsonWriter(), profile, ancestors, children, statistics);
+      writeProtobuf(buildResponse(profile, ancestors, children, statistics), request, response);
     }
   }
 
-  private static void writeResponse(JsonWriter json, QualityProfileDto profile, List<QualityProfileDto> ancestors, List<QualityProfileDto> children, Statistics statistics) {
-    json.beginObject();
-    writeProfile(json, profile, statistics);
-    writeAncestors(json, ancestors, statistics);
-    writeChildren(json, children, statistics);
-    json.endObject().close();
+  private static InheritanceWsResponse buildResponse(QualityProfileDto profile, List<QualityProfileDto> ancestors, List<QualityProfileDto> children, Statistics statistics) {
+    return InheritanceWsResponse.newBuilder()
+      .setProfile(buildProfile(profile, statistics))
+      .addAllAncestors(buildAncestors(ancestors, statistics))
+      .addAllChildren(buildChildren(children, statistics))
+      .build();
   }
 
-  private static void writeProfile(JsonWriter json, QualityProfileDto profile, Statistics statistics) {
-    String profileKey = profile.getKey();
-    json.name("profile");
-    writeProfileAttributes(json, profileKey, profile.getName(), profile.getParentKee(), statistics);
+  private static QualityProfile buildProfile(QualityProfileDto profile, Statistics statistics) {
+    return buildProfile(profile.getKey(), profile.getName(), profile.getParentKee(), statistics);
   }
 
-  private static void writeAncestors(JsonWriter json, List<QualityProfileDto> ancestors, Statistics statistics) {
-    json.name("ancestors").beginArray();
-    for (QualityProfileDto ancestor : ancestors) {
-      String ancestorKey = ancestor.getKey();
-      writeProfileAttributes(json, ancestorKey, ancestor.getName(), ancestor.getParentKee(), statistics);
-    }
-    json.endArray();
+  private static Iterable<QualityProfile> buildAncestors(List<QualityProfileDto> ancestors, Statistics statistics) {
+    return ancestors.stream()
+      .map(ancestor -> buildProfile(ancestor.getKey(), ancestor.getName(), ancestor.getParentKee(), statistics))
+      .collect(Collectors.toList());
   }
 
-  private static void writeChildren(JsonWriter json, List<QualityProfileDto> children, Statistics statistics) {
-    json.name("children").beginArray();
-    for (QualityProfileDto child : children) {
-      String childKey = child.getKey();
-      writeProfileAttributes(json, childKey, child.getName(), null, statistics);
-    }
-    json.endArray();
+  private static Iterable<QualityProfile> buildChildren(List<QualityProfileDto> children, Statistics statistics) {
+    return children.stream()
+      .map(child -> buildProfile(child.getKey(), child.getName(), null, statistics))
+      .collect(Collectors.toList());
   }
 
-  private static void writeProfileAttributes(JsonWriter json, String key, String name, @Nullable String parentKey, Statistics statistics) {
-    json.beginObject();
-    json.prop("key", key)
-      .prop("name", name)
-      .prop("parent", parentKey);
-    writeStats(json, key, statistics);
-    json.endObject();
-  }
-
-  private static void writeStats(JsonWriter json, String profileKey, Statistics statistics) {
-    json.prop("activeRuleCount", statistics.countRulesByProfileKey.getOrDefault(profileKey, 0L));
-    json.prop("overridingRuleCount", statistics.countOverridingRulesByProfileKey.getOrDefault(profileKey, 0L));
+  private static QualityProfile buildProfile(String key, String name, @Nullable String parentKey, Statistics statistics) {
+    QualityProfile.Builder builder = QualityProfile.newBuilder()
+      .setKey(key)
+      .setName(name)
+      .setActiveRuleCount(statistics.countRulesByProfileKey.getOrDefault(key, 0L))
+      .setOverridingRuleCount(statistics.countOverridingRulesByProfileKey.getOrDefault(key, 0L));
+    Protobuf.setNullable(parentKey, builder::setParent);
+    return builder.build();
   }
 
   private class Statistics {
