@@ -78,6 +78,7 @@ public class OrganizationServiceTest {
   public void add_member() {
     underTest.addMember("O1", "login-1");
 
+    assertThat(serviceTester.getPostParser()).isSameAs(Organizations.AddMemberWsResponse.parser());
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasPath("add_member")
       .hasParam("organization", "O1")
