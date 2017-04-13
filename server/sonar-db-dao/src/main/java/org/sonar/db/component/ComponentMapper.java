@@ -142,6 +142,8 @@ public interface ComponentMapper {
 
   void resetBChangedForRootComponentUuid(@Param("projectUuid") String projectUuid);
 
+  void setPrivateForRootComponentUuid(@Param("projectUuid") String projectUuid, @Param("isPrivate") boolean isPrivate);
+
   void delete(long componentId);
 
   void updateTags(ComponentDto component);
