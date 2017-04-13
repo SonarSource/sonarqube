@@ -64,7 +64,7 @@ export default BaseFacet.extend({
       let date = moment();
       values = [];
       times(10, () => {
-        values.push({ count: 0, val: date.toDate().toString() });
+        values.push({ count: 0, val: date.toDate() });
         date = date.subtract(1, 'days');
       });
       values.reverse();
@@ -74,7 +74,9 @@ export default BaseFacet.extend({
         ? 'SHORT_INT'
         : 'SHORT_WORK_DUR';
       const text = formatMeasure(v.count, format);
-      return { ...v, text };
+      const val = query.createdAfter != null && moment(v.val).isBefore(query.createdAfter) ?
+          query.createdAfter : v.val;
+      return { ...v, val, text };
     });
     return this.$('.js-barchart').barchart(values);
   },
