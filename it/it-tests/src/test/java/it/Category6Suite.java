@@ -20,10 +20,11 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.organization.IssueAssignTest;
+import it.issue.OrganizationIssueAssignTest;
 import it.organization.OrganizationMembershipTest;
-import it.organization.OrganizationQualityProfilesPageTest;
 import it.organization.OrganizationTest;
+import it.qualityProfile.OrganizationQualityProfilesPageTest;
+import it.uiExtension.OrganizationUiExtensionsTest;
 import it.user.OrganizationIdentityProviderTest;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -39,11 +40,12 @@ import static util.ItUtils.xooPlugin;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  IssueAssignTest.class,
   OrganizationIdentityProviderTest.class,
+  OrganizationIssueAssignTest.class,
   OrganizationMembershipTest.class,
   OrganizationQualityProfilesPageTest.class,
-  OrganizationTest.class
+  OrganizationTest.class,
+  OrganizationUiExtensionsTest.class,
 })
 public class Category6Suite {
 
@@ -51,6 +53,7 @@ public class Category6Suite {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("base-auth-plugin"))
+    .addPlugin(pluginArtifact("ui-extensions-plugin"))
     .build();
 
   @BeforeClass

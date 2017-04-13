@@ -21,6 +21,7 @@ package it.uiExtension;
 
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
+import it.Category6Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -33,21 +34,15 @@ import pageobjects.Navigation;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.WebDriverRunner.url;
-import static java.util.Collections.emptyMap;
-import static java.util.Locale.ENGLISH;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static it.Category6Suite.enableOrganizationsSupport;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.pluginArtifact;
-import static util.ItUtils.xooPlugin;
+import static util.ItUtils.newOrganizationKey;
 
 public class OrganizationUiExtensionsTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
-    .addPlugin(xooPlugin())
-    .addPlugin(pluginArtifact("ui-extensions-plugin"))
-    .build();
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
   public Navigation nav = Navigation.get(orchestrator);
@@ -56,9 +51,8 @@ public class OrganizationUiExtensionsTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
-    orchestrator.resetData();
     adminClient = newAdminWsClient(orchestrator);
-    orchestrator.getServer().post("api/organizations/enable_support", emptyMap());
+    enableOrganizationsSupport();
   }
 
   @Test
@@ -86,7 +80,7 @@ public class OrganizationUiExtensionsTest {
   }
 
   private static String createOrganization() {
-    String keyAndName = randomAlphabetic(32).toLowerCase(ENGLISH);
+    String keyAndName = newOrganizationKey();
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(keyAndName).setName(keyAndName).build()).getOrganization();
     return keyAndName;
   }
