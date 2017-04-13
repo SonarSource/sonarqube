@@ -202,12 +202,12 @@ NC='\033[0m' # No Color
 printf "${RED}disk size after build${NC}\n"
 df -h
 du -sh $HOME
-du -sh $HOME/.m2/repository
-du -sh $HOME/.sonar
-du -sh $HOME/build
-du -sh $HOME/jvm
-du -sh $HOME/maven
-du -sh $HOME/phantomjs
+du -sh /mnt/ramdisk/.m2/repository
+du -sh /mnt/ramdisk/.sonar
+du -sh /mnt/ramdisk/build
+du -sh /mnt/ramdisk/jvm
+du -sh /mnt/ramdisk/maven
+du -sh /mnt/ramdisk/phantomjs
 
 #stop the clock
 touch stop
