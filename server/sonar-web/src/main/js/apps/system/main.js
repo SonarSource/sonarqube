@@ -36,36 +36,36 @@ const SECTIONS_ORDER = [
   'JvmProperties'
 ];
 
-export default React.createClass({
+export default class Main extends React.PureComponent {
   componentDidMount() {
     getSystemInfo().then(info => this.setState({ sections: this.parseSections(info) }));
-  },
+  }
 
-  parseSections(data) {
+  parseSections = data => {
     const sections = Object.keys(data).map(section => {
       return { name: section, items: this.parseItems(data[section]) };
     });
     return this.orderSections(sections);
-  },
+  };
 
-  orderSections(sections) {
+  orderSections = sections => {
     return sortBy(sections, section => SECTIONS_ORDER.indexOf(section.name));
-  },
+  };
 
-  parseItems(data) {
+  parseItems = data => {
     const items = Object.keys(data).map(item => {
       return { name: item, value: data[item] };
     });
     return this.orderItems(items);
-  },
+  };
 
-  orderItems(items) {
+  orderItems = items => {
     return sortBy(items, 'name');
-  },
+  };
 
-  handleServerRestart() {
+  handleServerRestart = () => {
     new RestartModal().render();
-  },
+  };
 
   render() {
     let sections = null;
@@ -120,4 +120,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

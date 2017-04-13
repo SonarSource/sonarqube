@@ -22,24 +22,27 @@ import Controls from './controls';
 import List from './list';
 import Footer from './footer';
 
-export default React.createClass({
-  propTypes: {
+export default class Main extends React.PureComponent {
+  static propTypes = {
     loadItems: React.PropTypes.func.isRequired,
     renderItem: React.PropTypes.func.isRequired,
     getItemKey: React.PropTypes.func.isRequired,
     selectItem: React.PropTypes.func.isRequired,
     deselectItem: React.PropTypes.func.isRequired
-  },
+  };
 
-  getInitialState() {
-    return { items: [], total: 0, selection: 'selected', query: null };
-  },
+  state = {
+    items: [],
+    total: 0,
+    selection: 'selected',
+    query: null
+  };
 
   componentDidMount() {
     this.loadItems();
-  },
+  }
 
-  loadItems() {
+  loadItems = () => {
     const options = {
       selection: this.state.selection,
       query: this.state.query,
@@ -48,9 +51,9 @@ export default React.createClass({
     this.props.loadItems(options, (items, paging) => {
       this.setState({ items, total: paging.total, page: paging.pageIndex });
     });
-  },
+  };
 
-  loadMoreItems() {
+  loadMoreItems = () => {
     const options = {
       selection: this.state.selection,
       query: this.state.query,
@@ -60,23 +63,23 @@ export default React.createClass({
       const newItems = [].concat(this.state.items, items);
       this.setState({ items: newItems, total: paging.total, page: paging.pageIndex });
     });
-  },
+  };
 
-  loadSelected() {
+  loadSelected = () => {
     this.setState({ selection: 'selected', query: null }, this.loadItems);
-  },
+  };
 
-  loadDeselected() {
+  loadDeselected = () => {
     this.setState({ selection: 'deselected', query: null }, this.loadItems);
-  },
+  };
 
-  loadAll() {
+  loadAll = () => {
     this.setState({ selection: 'all', query: null }, this.loadItems);
-  },
+  };
 
-  search(query) {
+  search = query => {
     this.setState({ query }, this.loadItems);
-  },
+  };
 
   render() {
     return (
@@ -102,4 +105,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

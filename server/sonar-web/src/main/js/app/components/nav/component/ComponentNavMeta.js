@@ -22,7 +22,7 @@ import React from 'react';
 import PendingIcon from '../../../../components/shared/pending-icon';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
-export default React.createClass({
+export default class ComponentNavMeta extends React.PureComponent {
   render() {
     const metaList = [];
     const canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
@@ -77,4 +77,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

@@ -20,21 +20,21 @@
 import React from 'react';
 import Checkbox from '../controls/Checkbox';
 
-export default React.createClass({
-  propTypes: {
+export default class Item extends React.PureComponent {
+  static propTypes = {
     item: React.PropTypes.any.isRequired,
     renderItem: React.PropTypes.func.isRequired,
     selectItem: React.PropTypes.func.isRequired,
     deselectItem: React.PropTypes.func.isRequired
-  },
+  };
 
-  onCheck(checked) {
+  onCheck = checked => {
     if (checked) {
       this.props.selectItem(this.props.item);
     } else {
       this.props.deselectItem(this.props.item);
     }
-  },
+  };
 
   render() {
     const renderedItem = this.props.renderItem(this.props.item);
@@ -50,4 +50,4 @@ export default React.createClass({
       </li>
     );
   }
-});
+}

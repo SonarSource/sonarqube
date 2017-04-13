@@ -19,25 +19,25 @@
  */
 import React from 'react';
 
-export default React.createClass({
-  propTypes: {
+export default class Footer extends React.PureComponent {
+  static propTypes = {
     count: React.PropTypes.number.isRequired,
     total: React.PropTypes.number.isRequired,
     loadMore: React.PropTypes.func.isRequired
-  },
+  };
 
-  loadMore(e) {
+  loadMore = e => {
     e.preventDefault();
     this.props.loadMore();
-  },
+  };
 
-  renderLoadMoreLink() {
+  renderLoadMoreLink = () => {
     const hasMore = this.props.total > this.props.count;
     if (!hasMore) {
       return null;
     }
     return <a onClick={this.loadMore} className="spacer-left" href="#">show more</a>;
-  },
+  };
 
   render() {
     return (
@@ -47,4 +47,4 @@ export default React.createClass({
       </footer>
     );
   }
-});
+}

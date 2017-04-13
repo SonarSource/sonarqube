@@ -20,14 +20,14 @@
 import React from 'react';
 import Item from './item';
 
-export default React.createClass({
-  propTypes: {
+export default class List extends React.PureComponent {
+  static propTypes = {
     items: React.PropTypes.array.isRequired,
     renderItem: React.PropTypes.func.isRequired,
     getItemKey: React.PropTypes.func.isRequired,
     selectItem: React.PropTypes.func.isRequired,
     deselectItem: React.PropTypes.func.isRequired
-  },
+  };
 
   render() {
     const renderedItems = this.props.items.map(item => {
@@ -36,4 +36,4 @@ export default React.createClass({
     });
     return <ul>{renderedItems}</ul>;
   }
-});
+}

@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-export default React.createClass({
+export default class PendingIcon extends React.PureComponent {
   render() {
     /* eslint max-len: 0 */
     return (
@@ -32,4 +32,4 @@ export default React.createClass({
       </svg>
     );
   }
-});
+}

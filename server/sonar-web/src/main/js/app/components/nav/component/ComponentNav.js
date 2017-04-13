@@ -27,19 +27,19 @@ import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin'
 import { getTasksForComponent } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 
-export default React.createClass({
+export default class ComponentNav extends React.PureComponent {
   componentDidMount() {
     this.mounted = true;
 
     this.loadStatus();
     this.populateRecentHistory();
-  },
+  }
 
   componentWillUnmount() {
     this.mounted = false;
-  },
+  }
 
-  loadStatus() {
+  loadStatus = () => {
     getTasksForComponent(this.props.component.id).then(r => {
       if (this.mounted) {
         this.setState({
@@ -49,9 +49,9 @@ export default React.createClass({
         });
       }
     });
-  },
+  };
 
-  populateRecentHistory() {
+  populateRecentHistory = () => {
     const { breadcrumbs } = this.props.component;
     const { qualifier } = breadcrumbs[breadcrumbs.length - 1];
     if (['TRK', 'VW', 'DEV'].indexOf(qualifier) !== -1) {
@@ -62,7 +62,7 @@ export default React.createClass({
         this.props.component.organization
       );
     }
-  },
+  };
 
   render() {
     return (
@@ -94,4 +94,4 @@ export default React.createClass({
       </nav>
     );
   }
-});
+}

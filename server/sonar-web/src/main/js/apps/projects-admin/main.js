@@ -26,14 +26,15 @@ import { PAGE_SIZE, TYPE } from './constants';
 import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
 import ListFooter from '../../components/controls/ListFooter';
 
-export default React.createClass({
-  propTypes: {
+export default class Main extends React.PureComponent {
+  static propTypes = {
     hasProvisionPermission: React.PropTypes.bool.isRequired,
     organization: React.PropTypes.object
-  },
+  };
 
-  getInitialState() {
-    return {
+  constructor(props) {
+    super(props);
+    this.state = {
       ready: false,
       projects: [],
       total: 0,
@@ -43,17 +44,14 @@ export default React.createClass({
       type: TYPE.ALL,
       selection: []
     };
-  },
-
-  componentWillMount() {
     this.requestProjects = debounce(this.requestProjects, 250);
-  },
+  }
 
   componentDidMount() {
     this.requestProjects();
-  },
+  }
 
-  getFilters() {
+  getFilters = () => {
     const filters = { ps: PAGE_SIZE };
     if (this.state.page !== 1) {
       filters.p = this.state.page;
@@ -65,9 +63,9 @@ export default React.createClass({
       filters.organization = this.props.organization.key;
     }
     return filters;
-  },
+  };
 
-  requestProjects() {
+  requestProjects = () => {
     switch (this.state.type) {
       case TYPE.ALL:
         this.requestAllProjects();
@@ -82,9 +80,9 @@ export default React.createClass({
 
       // should never happen
     }
-  },
+  };
 
-  requestGhosts() {
+  requestGhosts = () => {
     const data = this.getFilters();
     getGhosts(data).then(r => {
       let projects = r.projects.map(project => ({
@@ -97,9 +95,9 @@ export default React.createClass({
       }
       this.setState({ ready: true, projects, total: r.total });
     });
-  },
+  };
 
-  requestProvisioned() {
+  requestProvisioned = () => {
     const data = this.getFilters();
     getProvisioned(data).then(r => {
       let projects = r.projects.map(project => ({
@@ -112,9 +110,9 @@ export default React.createClass({
       }
       this.setState({ ready: true, projects, total: r.total });
     });
-  },
+  };
 
-  requestAllProjects() {
+  requestAllProjects = () => {
     const data = this.getFilters();
     data.qualifiers = this.state.qualifiers;
     getComponents(data).then(r => {
@@ -124,13 +122,13 @@ export default React.createClass({
       }
       this.setState({ ready: true, projects, total: r.paging.total });
     });
-  },
+  };
 
-  loadMore() {
+  loadMore = () => {
     this.setState({ ready: false, page: this.state.page + 1 }, this.requestProjects);
-  },
+  };
 
-  onSearch(query) {
+  onSearch = query => {
     this.setState(
       {
         ready: false,
@@ -140,9 +138,9 @@ export default React.createClass({
       },
       this.requestProjects
     );
-  },
+  };
 
-  onTypeChanged(newType) {
+  onTypeChanged = newType => {
     this.setState(
       {
         ready: false,
@@ -154,9 +152,9 @@ export default React.createClass({
       },
       this.requestProjects
     );
-  },
+  };
 
-  onQualifierChanged(newQualifier) {
+  onQualifierChanged = newQualifier => {
     this.setState(
       {
         ready: false,
@@ -168,28 +166,28 @@ export default React.createClass({
       },
       this.requestProjects
     );
-  },
+  };
 
-  onProjectSelected(project) {
+  onProjectSelected = project => {
     const newSelection = uniq([].concat(this.state.selection, project.key));
     this.setState({ selection: newSelection });
-  },
+  };
 
-  onProjectDeselected(project) {
+  onProjectDeselected = project => {
     const newSelection = without(this.state.selection, project.key);
     this.setState({ selection: newSelection });
-  },
+  };
 
-  onAllSelected() {
+  onAllSelected = () => {
     const newSelection = this.state.projects.map(project => project.key);
     this.setState({ selection: newSelection });
-  },
+  };
 
-  onAllDeselected() {
+  onAllDeselected = () => {
     this.setState({ selection: [] });
-  },
+  };
 
-  deleteProjects() {
+  deleteProjects = () => {
     this.setState({ ready: false });
     const projects = this.state.selection.join(',');
     const data = { projects };
@@ -199,7 +197,7 @@ export default React.createClass({
     deleteComponents(data).then(() => {
       this.setState({ page: 1, selection: [] }, this.requestProjects);
     });
-  },
+  };
 
   render() {
     return (
@@ -244,4 +242,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

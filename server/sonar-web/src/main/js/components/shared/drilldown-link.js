@@ -47,12 +47,12 @@ const ISSUE_MEASURES = [
   'new_vulnerabilities'
 ];
 
-export const DrilldownLink = React.createClass({
-  isIssueMeasure() {
+export class DrilldownLink extends React.PureComponent {
+  isIssueMeasure = () => {
     return ISSUE_MEASURES.indexOf(this.props.metric) !== -1;
-  },
+  };
 
-  propsToIssueParams() {
+  propsToIssueParams = () => {
     const params = {};
 
     if (this.props.periodDate) {
@@ -108,13 +108,13 @@ export const DrilldownLink = React.createClass({
         Object.assign(params, { resolved: 'false' });
     }
     return params;
-  },
+  };
 
-  renderIssuesLink() {
+  renderIssuesLink = () => {
     const url = getComponentIssuesUrl(this.props.component, this.propsToIssueParams());
 
     return <Link to={url} className={this.props.className}>{this.props.children}</Link>;
-  },
+  };
 
   render() {
     if (this.isIssueMeasure()) {
@@ -124,4 +124,4 @@ export const DrilldownLink = React.createClass({
     const url = getComponentDrilldownUrl(this.props.component, this.props.metric);
     return <Link to={url} className={this.props.className}>{this.props.children}</Link>;
   }
-});
+}

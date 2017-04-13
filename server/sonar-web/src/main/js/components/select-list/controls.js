@@ -22,17 +22,17 @@ import { debounce } from 'lodash';
 import RadioToggle from '../controls/RadioToggle';
 import { translate } from '../../helpers/l10n';
 
-export default React.createClass({
+export default class Controls extends React.PureComponent {
   componentWillMount() {
     this.search = debounce(this.search, 100);
-  },
+  }
 
-  search() {
+  search = () => {
     const query = this.refs.search.value;
     this.props.search(query);
-  },
+  };
 
-  onCheck(value) {
+  onCheck = value => {
     switch (value) {
       case 'selected':
         this.props.loadSelected();
@@ -43,7 +43,7 @@ export default React.createClass({
       default:
         this.props.loadAll();
     }
-  },
+  };
 
   render() {
     const selectionOptions = [
@@ -74,4 +74,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

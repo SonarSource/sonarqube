@@ -25,51 +25,51 @@ import RadioToggle from '../../components/controls/RadioToggle';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 
-export default React.createClass({
-  propTypes: {
+export default class Search extends React.PureComponent {
+  static propTypes = {
     onSearch: React.PropTypes.func.isRequired
-  },
+  };
 
-  onSubmit(e) {
+  onSubmit = e => {
     e.preventDefault();
     this.search();
-  },
+  };
 
-  search() {
+  search = () => {
     const q = this.refs.input.value;
     this.props.onSearch(q);
-  },
+  };
 
-  getTypeOptions() {
+  getTypeOptions = () => {
     return [
       { value: TYPE.ALL, label: 'All' },
       { value: TYPE.PROVISIONED, label: 'Provisioned' },
       { value: TYPE.GHOSTS, label: 'Ghosts' }
     ];
-  },
+  };
 
-  getQualifierOptions() {
+  getQualifierOptions = () => {
     const options = this.props.topLevelQualifiers.map(q => {
       return { value: q, label: translate('qualifiers', q) };
     });
     return sortBy(options, option => QUALIFIERS_ORDER.indexOf(option.value));
-  },
+  };
 
-  onCheck(checked) {
+  onCheck = checked => {
     if (checked) {
       this.props.onAllSelected();
     } else {
       this.props.onAllDeselected();
     }
-  },
+  };
 
-  deleteProjects() {
+  deleteProjects = () => {
     new DeleteView({
       deleteProjects: this.props.deleteProjects
     }).render();
-  },
+  };
 
-  renderCheckbox() {
+  renderCheckbox = () => {
     const isAllChecked = this.props.projects.length > 0 &&
       this.props.selection.length === this.props.projects.length;
     const thirdState = this.props.projects.length > 0 &&
@@ -77,9 +77,9 @@ export default React.createClass({
       this.props.selection.length < this.props.projects.length;
     const checked = isAllChecked || thirdState;
     return <Checkbox checked={checked} thirdState={thirdState} onCheck={this.onCheck} />;
-  },
+  };
 
-  renderGhostsDescription() {
+  renderGhostsDescription = () => {
     if (this.props.type !== TYPE.GHOSTS || !this.props.ready) {
       return null;
     }
@@ -88,9 +88,9 @@ export default React.createClass({
         {translate('bulk_deletion.ghosts.description')}
       </div>
     );
-  },
+  };
 
-  renderQualifierFilter() {
+  renderQualifierFilter = () => {
     const options = this.getQualifierOptions();
     if (options.length < 2) {
       return null;
@@ -105,11 +105,11 @@ export default React.createClass({
         />
       </td>
     );
-  },
+  };
 
-  renderSpinner() {
+  renderSpinner = () => {
     return <i className="spinner" />;
-  },
+  };
 
   render() {
     const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
@@ -160,4 +160,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

@@ -24,13 +24,13 @@ import { translateWithParameters } from '../../helpers/l10n';
 
 const HEIGHT = 80;
 
-export const ComplexityDistribution = React.createClass({
-  propTypes: {
+export class ComplexityDistribution extends React.PureComponent {
+  static propTypes = {
     distribution: React.PropTypes.string.isRequired,
     of: React.PropTypes.string.isRequired
-  },
+  };
 
-  renderBarChart() {
+  renderBarChart = () => {
     const data = this.props.distribution.split(';').map((point, index) => {
       const tokens = point.split('=');
       const y = parseInt(tokens[1], 10);
@@ -57,7 +57,7 @@ export const ComplexityDistribution = React.createClass({
         padding={[25, 10, 25, 10]}
       />
     );
-  },
+  };
 
   render() {
     // TODO remove inline styling
@@ -69,4 +69,4 @@ export const ComplexityDistribution = React.createClass({
       </div>
     );
   }
-});
+}
