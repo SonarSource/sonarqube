@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package it.organization;
+package it.issue;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
@@ -57,7 +57,7 @@ import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
-public class IssueAssignTest {
+public class OrganizationIssueAssignTest {
 
   private final static String ORGANIZATION_KEY = newOrganizationKey();
   private final static String OTHER_ORGANIZATION_KEY = newOrganizationKey();
