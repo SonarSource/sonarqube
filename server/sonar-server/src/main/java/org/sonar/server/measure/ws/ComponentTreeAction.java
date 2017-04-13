@@ -19,7 +19,9 @@
  */
 package org.sonar.server.measure.ws;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +40,8 @@ import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static java.lang.String.format;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
@@ -103,6 +107,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String ALL_METRIC_SORT_FILTER = "all";
   static final String WITH_MEASURES_ONLY_METRIC_SORT_FILTER = "withMeasuresOnly";
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
+  static final Set<String> FORBIDDEN_METRIC_TYPES = ImmutableSet.of(DISTRIB.name(), DATA.name());
+  private static final Joiner COMMA_JOINER = Joiner.on(" , ");
 
   private final ComponentTreeDataLoader dataLoader;
   private final I18n i18n;
@@ -167,7 +173,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDefaultValue(ALL_METRIC_SORT_FILTER)
       .setPossibleValues(METRIC_SORT_FILTERS);
 
-    createMetricKeysParameter(action);
+    createMetricKeysParameter(action).setDescription("Metric keys. Types %s are not allowed", COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES));
     createAdditionalFieldsParameter(action);
     createDeveloperParameters(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
