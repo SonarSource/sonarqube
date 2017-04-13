@@ -217,6 +217,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     insertGroupPermission(dbSession, permissionTemplateDto, SCAN.getKey(), ownerGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, USER, null);
+    insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, null);
 
     dbClient.organizationDao().setDefaultTemplates(
       dbSession,
@@ -242,6 +244,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     insertProjectCreatorPermission(dbSession, permissionTemplateDto, SCAN.getKey(), now);
     insertGroupPermission(dbSession, permissionTemplateDto, USER, defaultGroup);
     insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, defaultGroup);
+    insertGroupPermission(dbSession, permissionTemplateDto, USER, null);
+    insertGroupPermission(dbSession, permissionTemplateDto, CODEVIEWER, null);
 
     dbClient.organizationDao().setDefaultTemplates(
       dbSession,
