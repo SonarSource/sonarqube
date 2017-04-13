@@ -21,6 +21,8 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
@@ -29,8 +31,10 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.ws.WsUtils;
 
 import static org.sonar.server.util.EnumUtils.toEnums;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
@@ -65,28 +69,40 @@ public class RuleQueryFactory {
    * When a profile key is set, the language of the profile is automatically set in the query
    */
   public RuleQuery createRuleQuery(DbSession dbSession, Request request) {
-    RuleQuery ruleQuery = createRuleQuery(dbSession, new RuleQuery(), request);
-
-    String qProfileKey = ruleQuery.getQProfileKey();
-    if (qProfileKey != null) {
-      QualityProfileDto qProfile = getProfileByKey(dbSession, qProfileKey);
-      if (qProfile != null) {
-        ruleQuery.setLanguages(ImmutableList.of(qProfile.getLanguage()));
-      }
-    }
-    return ruleQuery;
-  }
-
-  private RuleQuery createRuleQuery(DbSession dbSession, RuleQuery query, Request request) {
+    RuleQuery query = new RuleQuery();
     query.setQueryText(request.param(WebService.Param.TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
     Date availableSince = request.paramAsDate(PARAM_AVAILABLE_SINCE);
     query.setAvailableSince(availableSince != null ? availableSince.getTime() : null);
     query.setStatuses(toEnums(request.paramAsStrings(PARAM_STATUSES), RuleStatus.class));
-    query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
-    query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
-    query.setQProfileKey(request.param(PARAM_QPROFILE));
+    Boolean activation = request.paramAsBoolean(PARAM_ACTIVATION);
+    query.setActivation(activation);
+
+    String qualityProfileKey = request.param(PARAM_QPROFILE);
+    String organizationKey = request.param(PARAM_ORGANIZATION);
+    String organizationUuid;
+    List<String> languages;
+    if (qualityProfileKey == null) {
+      organizationUuid = wsSupport.getOrganizationByKey(dbSession, organizationKey).getUuid();
+      languages = request.paramAsStrings(PARAM_LANGUAGES);
+    } else {
+      QualityProfileDto qualityProfileOptional = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
+      QualityProfileDto qualityProfile = WsUtils.checkFound(qualityProfileOptional, "The specified qualityProfile '%s' does not exist", qualityProfileKey);
+      query.setQProfileKey(qualityProfileKey);
+      languages = ImmutableList.of(qualityProfile.getLanguage());
+      organizationUuid = qualityProfile.getOrganizationUuid();
+      if (organizationKey != null) {
+        Optional<OrganizationDto> organizationOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+        OrganizationDto organization = WsUtils.checkFoundWithOptional(organizationOptional, "No organization with key '%s'", organizationKey);
+        if (!organizationUuid.equals(organization.getUuid())) {
+          throw new IllegalArgumentException(String.format("The specified qualityProfile '%s' is not part of the specified organization '%s'", qualityProfileKey, organizationKey));
+        }
+      }
+    }
+    query.setOrganizationUuid(organizationUuid);
+    query.setLanguages(languages);
+
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
@@ -94,7 +110,6 @@ public class RuleQueryFactory {
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setTypes(toEnums(request.paramAsStrings(PARAM_TYPES), RuleType.class));
     query.setKey(request.param(PARAM_RULE_KEY));
-    query.setOrganizationUuid(wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION)).getUuid());
 
     String sortParam = request.param(WebService.Param.SORT);
     if (sortParam != null) {

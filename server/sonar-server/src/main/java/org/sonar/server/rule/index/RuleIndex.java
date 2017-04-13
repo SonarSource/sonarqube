@@ -292,31 +292,34 @@ public class RuleIndex {
         QueryBuilders.termQuery(FIELD_RULE_TEMPLATE_KEY, template));
     }
 
-    // ActiveRule Filter (profile and inheritance)
-    BoolQueryBuilder childrenFilter = boolQuery();
-    addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
-    addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
-    addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
-    addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_ORGANIZATION_UUID, query.getOrganizationUuid());
-
-    // ChildQuery
-    QueryBuilder childQuery;
-    if (childrenFilter.hasClauses()) {
-      childQuery = childrenFilter;
-    } else {
-      childQuery = matchAllQuery();
-    }
-
     /* Implementation of activation query */
-    if (Boolean.TRUE.equals(query.getActivation())) {
-      filters.put("activation",
-        QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
-          childQuery));
-    } else if (Boolean.FALSE.equals(query.getActivation())) {
-      filters.put("activation",
-        boolQuery().mustNot(
+    if (query.getActivation() != null) {
+
+      // ActiveRule Filter (profile and inheritance)
+      BoolQueryBuilder childrenFilter = boolQuery();
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_ORGANIZATION_UUID, query.getOrganizationUuid());
+
+      // ChildQuery
+      QueryBuilder childQuery;
+      if (childrenFilter.hasClauses()) {
+        childQuery = childrenFilter;
+      } else {
+        childQuery = matchAllQuery();
+      }
+
+      if (Boolean.TRUE.equals(query.getActivation())) {
+        filters.put("activation",
           QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
-            childQuery)));
+            childQuery));
+      } else if (Boolean.FALSE.equals(query.getActivation())) {
+        filters.put("activation",
+          boolQuery().mustNot(
+            QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
+              childQuery)));
+      }
     }
 
     return filters;
