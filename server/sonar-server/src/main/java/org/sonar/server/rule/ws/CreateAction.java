@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.ReactivationException;
 import org.sonar.server.rule.RuleCreator;
@@ -62,11 +63,13 @@ public class CreateAction implements RulesWsAction {
   private final DbClient dbClient;
   private final RuleCreator ruleCreator;
   private final RuleMapper ruleMapper;
+  private final OrganizationFlags organizationFlags;
 
-  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper) {
+  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper, OrganizationFlags organizationFlags) {
     this.dbClient = dbClient;
     this.ruleCreator = ruleCreator;
     this.ruleMapper = ruleMapper;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -74,7 +77,8 @@ public class CreateAction implements RulesWsAction {
     WebService.NewAction action = controller
       .createAction("create")
       .setDescription("Create a custom rule. <br/>" +
-        "Since 5.5, it's no more possible to create manual rule.")
+        "Since 5.5, it's no more possible to create manual rule." +
+        "Custom rules are currently not supported, if the organization feature is enabled. In that case, the webservice will fail.")
       .setSince("4.4")
       .setPost(true)
       .setHandler(this);
@@ -133,6 +137,7 @@ public class CreateAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
     try (DbSession dbSession = dbClient.openSession(false)) {
+      organizationFlags.checkDisabled(dbSession);
       try {
         NewCustomRule newRule = NewCustomRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
           .setName(request.mandatoryParam(PARAM_NAME))

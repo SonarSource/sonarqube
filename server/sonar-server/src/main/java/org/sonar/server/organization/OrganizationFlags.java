@@ -31,6 +31,11 @@ public interface OrganizationFlags {
    */
   void checkEnabled(DbSession dbSession);
 
-  void enable(DbSession dbSession);
+  /**
+   * Ensures that {@link #isEnabled(DbSession)} is {@code false},
+   * otherwise throws {@link IllegalStateException}
+   */
+  void checkDisabled(DbSession dbSession);
 
+  void enable(DbSession dbSession);
 }
