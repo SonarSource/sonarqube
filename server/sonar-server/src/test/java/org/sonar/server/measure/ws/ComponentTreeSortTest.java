@@ -70,7 +70,7 @@ public class ComponentTreeSortTest {
       .setValueType(ValueType.INT.name());
     MetricDto sqaleIndexMetric = newMetricDto()
       .setKey(TEXT_METRIC_KEY)
-      .setValueType(ValueType.DATA.name());
+      .setValueType(ValueType.STRING.name());
 
     metrics = newArrayList(violationsMetric, sqaleIndexMetric);
 

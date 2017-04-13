@@ -41,8 +41,6 @@ import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
-import static org.sonar.api.measures.Metric.ValueType.DATA;
-import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
@@ -59,7 +57,7 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 public class ComponentTreeSort {
 
   private static final Set<ValueType> NUMERIC_VALUE_TYPES = EnumSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
-  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(DATA, DISTRIB, STRING);
+  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(STRING);
 
   private ComponentTreeSort() {
     // static method only
@@ -243,8 +241,7 @@ public class ComponentTreeSort {
       if (measure == null) {
         return null;
       }
-      Double variation = measure.getVariation();
-      return (variation == null) ? null : variation;
+      return measure.getVariation();
     }
   }
 

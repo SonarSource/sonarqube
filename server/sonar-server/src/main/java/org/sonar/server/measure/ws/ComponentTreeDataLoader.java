@@ -22,6 +22,7 @@ package org.sonar.server.measure.ws;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -60,8 +61,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
@@ -74,7 +75,8 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
 
 public class ComponentTreeDataLoader {
-  private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = newHashSet(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
+  private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
+  private static final Joiner COMA_JOINER = Joiner.on(", ");
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -166,9 +168,14 @@ public class ComponentTreeDataLoader {
         new LinkedHashSet<>(metricKeys),
         new LinkedHashSet<>(foundMetricKeys));
 
-      throw new NotFoundException(format("The following metric keys are not found: %s", Joiner.on(", ").join(missingMetricKeys)));
+      throw new NotFoundException(format("The following metric keys are not found: %s", COMA_JOINER.join(missingMetricKeys)));
     }
-
+    String forbiddenMetrics = metrics.stream()
+      .filter(metric -> ComponentTreeAction.FORBIDDEN_METRIC_TYPES.contains(metric.getValueType()))
+      .map(MetricDto::getKey)
+      .sorted()
+      .collect(Collectors.join(COMA_JOINER));
+    checkArgument(forbiddenMetrics.isEmpty(), "Metrics %s can't be requested in this web service. Please use api/measures/component", forbiddenMetrics);
     return metrics;
   }
 

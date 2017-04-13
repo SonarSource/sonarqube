@@ -40,6 +40,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.metric.MetricTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -64,7 +65,6 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
@@ -183,13 +183,13 @@ public class ComponentTreeActionTest {
     ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
     componentDb.insertComponent(file);
     MetricDto coverage = insertCoverageMetric();
-    dbClient.metricDao().insert(dbSession, newMetricDto()
+    dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto()
       .setKey("ncloc")
       .setValueType(ValueType.INT.name())
       .setOptimizedBestValue(true)
       .setBestValue(100d)
       .setWorstValue(1000d));
-    dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+    dbClient.metricDao().insert(dbSession, newMetricDto()
       .setKey("new_violations")
       .setOptimizedBestValue(true)
       .setBestValue(1984.0d)
@@ -229,7 +229,7 @@ public class ComponentTreeActionTest {
     componentDb.insertComponent(directoryDto);
     ComponentDto file = newFileDto(directoryDto, null, "file-uuid").setName("file-1");
     componentDb.insertComponent(file);
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setKey(NEW_SECURITY_RATING_KEY)
       .setOptimizedBestValue(true)
       .setBestValue(1d)
@@ -298,7 +298,7 @@ public class ComponentTreeActionTest {
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-2"));
-    MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setValue(1.0d),
@@ -328,7 +328,7 @@ public class ComponentTreeActionTest {
     componentDb.insertComponent(file2);
     componentDb.insertComponent(file3);
     componentDb.insertComponent(file4);
-    MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setValue(1.0d),
@@ -358,7 +358,7 @@ public class ComponentTreeActionTest {
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-2"));
-    MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1.0d),
@@ -384,7 +384,7 @@ public class ComponentTreeActionTest {
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-2"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1"));
-    MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("new_ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("new_ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1.0d),
@@ -555,6 +555,36 @@ public class ComponentTreeActionTest {
   }
 
   @Test
+  public void fail_when_using_DISTRIB_metrics() {
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib1").setValueType(ValueType.DISTRIB.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib2").setValueType(ValueType.DISTRIB.name()));
+    db.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metrics distrib1, distrib2 can't be requested in this web service. Please use api/measures/component");
+
+    call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_METRIC_KEYS, "distrib1,distrib2"));
+  }
+
+  @Test
+  public void fail_when_using_DATA_metrics() {
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data1").setValueType(ValueType.DISTRIB.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data2").setValueType(ValueType.DISTRIB.name()));
+    db.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metrics data1, data2 can't be requested in this web service. Please use api/measures/component");
+
+    call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_METRIC_KEYS, "data1,data2"));
+  }
+
+  @Test
   public void fail_when_search_query_have_less_than_3_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
     insertNclocMetric();
@@ -659,8 +689,8 @@ public class ComponentTreeActionTest {
     }
   }
 
-  private static MetricDto newMetricDtoWithoutOptimization() {
-    return newMetricDto()
+  private static MetricDto newMetricDto() {
+    return MetricTesting.newMetricDto()
       .setWorstValue(null)
       .setBestValue(null)
       .setOptimizedBestValue(false)
@@ -730,7 +760,7 @@ public class ComponentTreeActionTest {
   }
 
   private MetricDto insertNewViolationsMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setKey("new_violations")
       .setShortName("New issues")
       .setDescription("New Issues")
@@ -747,7 +777,7 @@ public class ComponentTreeActionTest {
   }
 
   private MetricDto insertNclocMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setKey("ncloc")
       .setShortName("Lines of code")
       .setDescription("Non Commenting Lines of Code")
@@ -762,7 +792,7 @@ public class ComponentTreeActionTest {
   }
 
   private MetricDto insertComplexityMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setKey("complexity")
       .setShortName("Complexity")
       .setDescription("Cyclomatic complexity")
@@ -777,7 +807,7 @@ public class ComponentTreeActionTest {
   }
 
   private MetricDto insertCoverageMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
+    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDto()
       .setKey("coverage")
       .setShortName("Coverage")
       .setDescription("Code Coverage")
