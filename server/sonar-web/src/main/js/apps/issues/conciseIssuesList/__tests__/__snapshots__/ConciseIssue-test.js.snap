@@ -1,0 +1,9 @@
+exports[`test should render 1`] = `
+<div>
+  <ConciseIssueComponent />
+  <ConciseIssueBox
+    issue={Object {}}
+    onClick={[Function]}
+    selected={false} />
+</div>
+`;

@@ -1,0 +1,84 @@
+.concise-issues-list-header {
+  height: 56px;
+  line-height: 24px;
+  margin-top: -20px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e6e6e6;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.concise-issues-list-header .spinner {
+  margin-top: 4px;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.concise-issues-list-header-button {
+  border: none;
+}
+
+.concise-issues-list-header-button path {
+  fill: #777;
+  transition: fill 0.3s ease;
+}
+
+.concise-issues-list-header-button:hover path {
+  fill: #4b9fd5;
+}
+
+.concise-issue-component {
+  margin-top: 16px;
+  margin-bottom: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.concise-issue-box {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 4px;
+  padding: 8px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.concise-issue-box:hover,
+.concise-issue-box:focus {
+  background-color: #ffeaea;
+  outline: none
+}
+
+.concise-issue-box.selected {
+  z-index: 2;
+  border-color: #dd4040;
+  background-color: #ffeaea;
+  cursor: default
+}
+
+.concise-issue-box-message {
+  font-weight: bold;
+}
+
+.concise-issue-box-attributes {
+  margin-top: 8px;
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.concise-issue-location-badge {
+  display: inline-block;
+  padding-left: 4px;
+  padding-right: 4px;
+  border-radius: 2px;
+  background-color: #ccc;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.concise-issue-box.selected .concise-issue-location-badge {
+  background-color: #d18582;
+}

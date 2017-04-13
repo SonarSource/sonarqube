@@ -31,6 +31,8 @@ import IssuesList from './IssuesList';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import BulkChangeModal from './BulkChangeModal';
+import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
+import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
 import {
   parseQuery,
   areMyIssuesSelected,
@@ -59,6 +61,7 @@ import PageFilters from '../../../components/layout/PageFilters';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import type { Issue } from '../../../components/issue/types';
+import '../styles.css';
 
 type Props = {
   component?: Component,
@@ -70,7 +73,7 @@ type Props = {
 };
 
 type State = {
-  bulkChange: 'all' | 'selected' | null,
+  bulkChange: "all" | "selected" | null,
   checked: Array<string>,
   facets: { [string]: Facet },
   issues: Array<Issue>,
@@ -304,7 +307,7 @@ export default class App extends React.PureComponent {
 
   fetchFirstIssues() {
     this.setState({ loading: true });
-    this.fetchIssues({}, true).then(({ facets, issues, paging, ...other }) => {
+    return this.fetchIssues({}, true).then(({ facets, issues, paging, ...other }) => {
       if (this.mounted) {
         const open = getOpen(this.props.location.query);
         this.setState({
@@ -321,6 +324,7 @@ export default class App extends React.PureComponent {
             : undefined
         });
       }
+      return issues;
     });
   }
 
@@ -470,7 +474,7 @@ export default class App extends React.PureComponent {
     }));
   };
 
-  openBulkChange = (mode: 'all' | 'selected') => {
+  openBulkChange = (mode: "all" | "selected") => {
     this.setState({ bulkChange: mode });
     key.setScope('issues-bulk-change');
   };
@@ -495,6 +499,14 @@ export default class App extends React.PureComponent {
   handleBulkChangeDone = () => {
     this.fetchFirstIssues();
     this.closeBulkChange();
+  };
+
+  handleReloadAndOpenFirst = () => {
+    this.fetchFirstIssues().then(issues => {
+      if (issues.length > 0) {
+        this.openIssue(issues[0].key);
+      }
+    });
   };
 
   renderBulkChange(openIssue?: Issue) {
@@ -542,6 +554,72 @@ export default class App extends React.PureComponent {
     );
   }
 
+  renderFacets() {
+    const { component, currentUser } = this.props;
+    const { query } = this.state;
+
+    return (
+      <PageFilters>
+        {currentUser.isLoggedIn &&
+          <MyIssuesFilter
+            myIssues={this.state.myIssues}
+            onMyIssuesChange={this.handleMyIssuesChange}
+          />}
+        <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
+        <Sidebar
+          component={component}
+          facets={this.state.facets}
+          myIssues={this.state.myIssues}
+          onFacetToggle={this.handleFacetToggle}
+          onFilterChange={this.handleFilterChange}
+          openFacets={this.state.openFacets}
+          query={query}
+          referencedComponents={this.state.referencedComponents}
+          referencedLanguages={this.state.referencedLanguages}
+          referencedRules={this.state.referencedRules}
+          referencedUsers={this.state.referencedUsers}
+        />
+      </PageFilters>
+    );
+  }
+
+  renderConciseIssuesList() {
+    const { issues, paging } = this.state;
+
+    return (
+      <PageFilters>
+        <ConciseIssuesListHeader
+          loading={this.state.loading}
+          onBackClick={this.closeIssue}
+          onReload={this.handleReloadAndOpenFirst}
+          paging={this.state.paging}
+          selectedIndex={this.getSelectedIndex()}
+        />
+        <ConciseIssuesList
+          issues={this.state.issues}
+          onIssueSelect={this.openIssue}
+          selected={this.state.selected}
+        />
+        {paging != null &&
+          paging.total > 0 &&
+          <ListFooter total={paging.total} count={issues.length} loadMore={this.fetchMoreIssues} />}
+      </PageFilters>
+    );
+  }
+
+  renderSide() {
+    const open = getOpen(this.props.location.query);
+    const openIssue = this.state.issues.find(issue => issue.key === open);
+
+    const top = this.props.component ? 95 : 30;
+
+    return (
+      <PageSide top={top}>
+        {openIssue == null ? this.renderFacets() : this.renderConciseIssuesList()}
+      </PageSide>
+    );
+  }
+
   renderList(openIssue?: Issue) {
     const { component, currentUser } = this.props;
     const { issues, paging } = this.state;
@@ -575,8 +653,8 @@ export default class App extends React.PureComponent {
   }
 
   render() {
-    const { component, currentUser } = this.props;
-    const { issues, paging, query } = this.state;
+    const { component } = this.props;
+    const { issues, paging } = this.state;
 
     const open = getOpen(this.props.location.query);
     const openIssue = issues.find(issue => issue.key === open);
@@ -589,44 +667,21 @@ export default class App extends React.PureComponent {
       <Page className="issues" id="issues-page">
         <Helmet title={translate('issues.page')} titleTemplate="%s - SonarQube" />
 
-        <PageSide top={top}>
-          <PageFilters>
-            {currentUser.isLoggedIn &&
-              <MyIssuesFilter
-                myIssues={this.state.myIssues}
-                onMyIssuesChange={this.handleMyIssuesChange}
-              />}
-            <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
-            <Sidebar
-              component={component}
-              facets={this.state.facets}
-              myIssues={this.state.myIssues}
-              onFacetToggle={this.handleFacetToggle}
-              onFilterChange={this.handleFilterChange}
-              openFacets={this.state.openFacets}
-              query={query}
-              referencedComponents={this.state.referencedComponents}
-              referencedLanguages={this.state.referencedLanguages}
-              referencedRules={this.state.referencedRules}
-              referencedUsers={this.state.referencedUsers}
-            />
-          </PageFilters>
-        </PageSide>
+        {this.renderSide()}
 
         <PageMain>
           <HeaderPanel border={true} top={top}>
             <PageMainInner>
               {this.renderBulkChange(openIssue)}
-              {openIssue != null &&
-                <div className="pull-left">
-                  <ComponentBreadcrumbs component={component} issue={openIssue} />
-                </div>}
-              <PageActions
-                loading={this.state.loading}
-                openIssue={openIssue}
-                paging={paging}
-                selectedIndex={selectedIndex}
-              />
+              {openIssue != null
+                ? <div className="pull-left">
+                    <ComponentBreadcrumbs component={component} issue={openIssue} />
+                  </div>
+                : <PageActions
+                    loading={this.state.loading}
+                    paging={paging}
+                    selectedIndex={selectedIndex}
+                  />}
             </PageMainInner>
           </HeaderPanel>
 

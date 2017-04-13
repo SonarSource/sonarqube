@@ -20,13 +20,12 @@
 // @flow
 import React from 'react';
 import { css } from 'glamor';
+import IssuesCounter from './IssuesCounter';
 import type { Paging } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 
 type Props = {|
   loading: boolean,
-  openIssue: ?{},
   paging: ?Paging,
   selectedIndex: ?number
 |};
@@ -53,23 +52,15 @@ export default class PageActions extends React.PureComponent {
   }
 
   render() {
-    const { openIssue, paging, selectedIndex } = this.props;
+    const { paging, selectedIndex } = this.props;
 
     return (
       <div className={css({ float: 'right' })}>
-        {openIssue == null && this.renderShortcuts()}
+        {this.renderShortcuts()}
 
         <div className={css({ display: 'inline-block', minWidth: 80, textAlign: 'right' })}>
           {this.props.loading && <i className="spinner spacer-right" />}
-          {paging != null &&
-            <span>
-              <strong>
-                {selectedIndex != null && <span>{selectedIndex + 1} / </span>}
-                {formatMeasure(paging.total, 'INT')}
-              </strong>
-              {' '}
-              {translate('issues.issues')}
-            </span>}
+          {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
         </div>
       </div>
     );

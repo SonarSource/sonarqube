@@ -1,0 +1,23 @@
+exports[`test should render not selected 1`] = `
+<Tooltip
+  overlay="issue.this_issue_involves_x_code_locations.7"
+  placement="bottom">
+  <div
+    className="concise-issue-location-badge">
+    +
+    7
+  </div>
+</Tooltip>
+`;
+
+exports[`test should render selected 1`] = `
+<Tooltip
+  overlay="issue.this_issue_involves_x_code_locations.7"
+  placement="bottom">
+  <div
+    className="concise-issue-location-badge">
+    +
+    7
+  </div>
+</Tooltip>
+`;
