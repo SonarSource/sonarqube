@@ -20,52 +20,49 @@
 package org.sonar.scanner.util;
 
 import java.util.Set;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.util.ProgressReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProgressReportTest {
   private static final String THREAD_NAME = "progress";
-  private ProgressReport progressReport;
 
+  @Rule
+  public TestRule timeoutSafeguard = new DisableOnDebug(Timeout.seconds(10));
   @Rule
   public LogTester logTester = new LogTester();
 
-  @Before
-  public void setUp() {
-    progressReport = new ProgressReport(THREAD_NAME, 100);
-  }
+  private ProgressReport underTest = new ProgressReport(THREAD_NAME, 1);
 
   @Test
-  public void die_on_stop() {
-    progressReport.start("start");
+  public void stop_thread_on_stop() {
+    underTest.start("start");
     assertThat(isThreadAlive(THREAD_NAME)).isTrue();
-    progressReport.stop("stop");
+    underTest.stop("stop");
     assertThat(isThreadAlive(THREAD_NAME)).isFalse();
   }
 
   @Test
   public void do_not_block_app() {
-    progressReport.start("start");
+    underTest.start("start");
     assertThat(isDaemon(THREAD_NAME)).isTrue();
-    progressReport.stop("stop");
+    underTest.stop("stop");
   }
 
   @Test
   public void do_log() {
-    progressReport.start("start");
-    progressReport.message("Some message");
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-      // Ignore
+    underTest.start("start");
+    underTest.message("Some message");
+    boolean logged = false;
+    while (!logged) {
+      logged = logTester.logs().contains("Some message");
     }
-    progressReport.stop("stop");
-    assertThat(logTester.logs()).contains("Some message");
+    underTest.stop("stop");
   }
 
   private static boolean isDaemon(String name) {
