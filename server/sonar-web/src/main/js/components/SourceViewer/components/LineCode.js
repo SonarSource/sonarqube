@@ -36,13 +36,13 @@ import type {
 } from '../helpers/indexing';
 
 type Props = {
-  highlightedSymbol: string | null,
+  highlightedSymbols: Array<string>,
   issueKeys: Array<string>,
   issueLocations: Array<LinearIssueLocation>,
   line: SourceLine,
   onIssueSelect: (issueKey: string) => void,
   onLocationSelect: (flowIndex: number, locationIndex: number) => void,
-  onSymbolClick: (symbol: string) => void,
+  onSymbolClick: (Array<string>) => void,
   // $FlowFixMe
   secondaryIssueLocations: Array<IndexedIssueLocation>,
   secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
@@ -109,9 +109,9 @@ export default class LineCode extends React.PureComponent {
 
   handleSymbolClick = (e: Object) => {
     e.preventDefault();
-    const key = e.currentTarget.className.match(/sym-\d+/);
-    if (key && key[0]) {
-      this.props.onSymbolClick(key[0]);
+    const keys = e.currentTarget.className.match(/sym-\d+/g);
+    if (keys.length > 0) {
+      this.props.onSymbolClick(keys);
     }
   };
 
@@ -165,7 +165,7 @@ export default class LineCode extends React.PureComponent {
 
   render() {
     const {
-      highlightedSymbol,
+      highlightedSymbols,
       issueKeys,
       issueLocations,
       line,
@@ -179,9 +179,9 @@ export default class LineCode extends React.PureComponent {
 
     let tokens = [...this.state.tokens];
 
-    if (highlightedSymbol) {
-      tokens = highlightSymbol(tokens, highlightedSymbol);
-    }
+    highlightedSymbols.forEach(symbol => {
+      tokens = highlightSymbol(tokens, symbol);
+    });
 
     if (issueLocations.length > 0) {
       tokens = highlightIssueLocations(tokens, issueLocations);

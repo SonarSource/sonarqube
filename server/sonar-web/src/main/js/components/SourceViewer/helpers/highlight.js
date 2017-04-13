@@ -45,13 +45,15 @@ export const splitByTokens = (code: string, rootClassName: string = ''): Tokens 
   return tokens;
 };
 
-export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens =>
-  tokens.map(
+export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => {
+  const symbolRegExp = new RegExp(`\\b${symbol}\\b`);
+  return tokens.map(
     token =>
-      token.className.includes(symbol)
+      symbolRegExp.test(token.className)
         ? { ...token, className: `${token.className} highlighted` }
         : token
   );
+};
 
 /**
  * Intersect two ranges
