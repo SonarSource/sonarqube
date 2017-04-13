@@ -19,8 +19,10 @@
  */
 package org.sonar.server.rule.ws;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleQuery;
@@ -57,6 +58,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SIN
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
@@ -70,6 +72,8 @@ public class RuleQueryFactoryTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   DbClient dbClient = dbTester.getDbClient();
 
@@ -78,7 +82,12 @@ public class RuleQueryFactoryTest {
   RuleQueryFactory underTest = new RuleQueryFactory(dbClient, new RuleWsSupport(dbClient, null, TestDefaultOrganizationProvider.from(dbTester)));
 
   FakeAction fakeAction = new FakeAction(underTest);
-  OrganizationDto organization = OrganizationTesting.newOrganizationDto();
+  OrganizationDto organization;
+
+  @Before
+  public void before() {
+    organization = dbTester.organizations().insert();
+  }
 
   @Test
   public void create_empty_query() throws Exception {
@@ -108,6 +117,8 @@ public class RuleQueryFactoryTest {
 
   @Test
   public void create_query() throws Exception {
+    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+
     RuleQuery result = execute(
       PARAM_RULE_KEY, "ruleKey",
 
@@ -118,7 +129,8 @@ public class RuleQueryFactoryTest {
       PARAM_IS_TEMPLATE, "true",
       PARAM_LANGUAGES, "java,js",
       TEXT_QUERY, "S001",
-      PARAM_QPROFILE, "sonar-way",
+      PARAM_QPROFILE, qualityProfile.getKey(),
+      PARAM_ORGANIZATION, organization.getKey(),
       PARAM_REPOSITORIES, "pmd,checkstyle",
       PARAM_SEVERITIES, "MINOR,CRITICAL",
       PARAM_STATUSES, "DEPRECATED,READY",
@@ -137,9 +149,10 @@ public class RuleQueryFactoryTest {
     assertThat(result.getAvailableSinceLong()).isNotNull();
     assertThat(result.getInheritance()).containsOnly(INHERITED, OVERRIDES);
     assertThat(result.isTemplate()).isTrue();
-    assertThat(result.getLanguages()).containsOnly("java", "js");
+    assertThat(result.getLanguages()).containsOnly(qualityProfile.getLanguage());
     assertThat(result.getQueryText()).isEqualTo("S001");
-    assertThat(result.getQProfileKey()).isEqualTo("sonar-way");
+    assertThat(result.getQProfileKey()).isEqualTo(qualityProfile.getKey());
+    assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(result.getRepositories()).containsOnly("pmd", "checkstyle");
     assertThat(result.getRuleKey()).isNull();
     assertThat(result.getSeverities()).containsOnly(MINOR, CRITICAL);
@@ -149,6 +162,27 @@ public class RuleQueryFactoryTest {
     assertThat(result.getTypes()).containsOnly(BUG, CODE_SMELL);
 
     assertThat(result.getSortField()).isEqualTo("updatedAt");
+  }
+
+  @Test
+  public void use_quality_profiles_language_if_available() throws Exception {
+    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    String qualityProfileKey = qualityProfile.getKey();
+
+    RuleQuery result = execute(
+      PARAM_LANGUAGES, "specifiedLanguage",
+      PARAM_ACTIVATION, "true",
+      PARAM_QPROFILE, qualityProfileKey);
+
+    assertThat(result.getLanguages()).containsExactly(qualityProfile.getLanguage());
+  }
+
+  @Test
+  public void use_specified_languages_if_no_quality_profile_available() throws Exception {
+    RuleQuery result = execute(
+      PARAM_LANGUAGES, "specifiedLanguage");
+
+    assertThat(result.getLanguages()).containsExactly("specifiedLanguage");
   }
 
   @Test
@@ -166,6 +200,39 @@ public class RuleQueryFactoryTest {
 
     assertThat(result.getQProfileKey()).isEqualTo(profileKey);
     assertThat(result.getLanguages()).containsOnly("xoo");
+  }
+
+  @Test
+  public void filter_on_quality_profiles_organization_if_searching_for_actives_with_no_organization_specified() throws Exception {
+    String profileKey = "sonar-way";
+    dbClient.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey)
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Sonar Way")
+      .setLanguage("xoo"));
+    dbSession.commit();
+
+    RuleQuery result = execute(
+      PARAM_ACTIVATION, "true",
+      PARAM_QPROFILE, profileKey);
+
+    assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
+  }
+
+  @Test
+  public void fail_if_organization_and_quality_profile_are_contradictory() throws Exception {
+    OrganizationDto organization1 = dbTester.organizations().insert();
+    OrganizationDto organization2 = dbTester.organizations().insert();
+
+    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization1);
+
+    String qualityProfileKey = qualityProfile.getKey();
+    String organization2Key = organization2.getKey();
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("The specified qualityProfile '" + qualityProfileKey + "' is not part of the specified organization '" + organization2Key + "'");
+
+    RuleQuery result = execute(PARAM_QPROFILE, qualityProfileKey,
+      PARAM_ORGANIZATION, organization2Key);
   }
 
   private RuleQuery execute(String... paramsKeyAndValue) {

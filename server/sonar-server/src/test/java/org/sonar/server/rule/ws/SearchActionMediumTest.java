@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -46,6 +47,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
@@ -72,6 +74,8 @@ public class SearchActionMediumTest {
   public static ServerTester tester = new ServerTester().withEsIndexes().addXoo();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private static final String API_ENDPOINT = "api/rules";
   private static final String API_SEARCH_METHOD = "search";
@@ -394,12 +398,15 @@ public class SearchActionMediumTest {
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules.json");
 
-    tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
+    WsTester.TestRequest request2 = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
       .setParam(PARAM_ACTIVATION, "true")
       .setParam(PARAM_QPROFILE, "unknown_profile")
-      .setParam(WebService.Param.FIELDS, "actives")
-      .execute()
-      .assertJson(this.getClass(), "search_no_rules.json");
+      .setParam(WebService.Param.FIELDS, "actives");
+
+    thrown.expect(NotFoundException.class);
+    thrown.expectMessage("The specified qualityProfile 'unknown_profile' does not exist");
+
+    request2.execute();
   }
 
   @Test
