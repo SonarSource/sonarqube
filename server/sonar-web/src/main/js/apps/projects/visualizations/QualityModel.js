@@ -56,11 +56,11 @@ export default class QualityModel extends React.PureComponent {
 
   getTooltip(
     project: Project,
-    x: number,
+    x: ?number,
     y: ?number,
-    size: number,
-    color1: number,
-    color2: number
+    size: ?number,
+    color1: ?number,
+    color2: ?number
   ) {
     const fullProjectName = this.props.displayOrganizations && project.organization
       ? `${project.organization.name} / <strong>${project.name}</strong>`
@@ -77,30 +77,30 @@ export default class QualityModel extends React.PureComponent {
   }
 
   render() {
-    const items = this.props.projects
-      .filter(
-        ({ measures }) =>
-          measures[X_METRIC] != null &&
-          measures[SIZE_METRIC] != null &&
-          measures[COLOR_METRIC_1] != null &&
-          measures[COLOR_METRIC_2] != null
-      )
-      .map(project => {
-        const x = Number(project.measures[X_METRIC]);
-        const y = project.measures[Y_METRIC] != null ? Number(project.measures[Y_METRIC]) : null;
-        const size = Number(project.measures[SIZE_METRIC]);
-        const color1 = Number(project.measures[COLOR_METRIC_1]);
-        const color2 = Number(project.measures[COLOR_METRIC_2]);
-        return {
-          x,
-          y: y || 0,
-          size,
-          color: RATING_COLORS[Math.max(color1, color2) - 1],
-          key: project.key,
-          tooltip: this.getTooltip(project, x, y, size, color1, color2),
-          link: getProjectUrl(project.key)
-        };
-      });
+    const items = this.props.projects.map(project => {
+      const x = project.measures[X_METRIC] != null ? Number(project.measures[X_METRIC]) : null;
+      const y = project.measures[Y_METRIC] != null ? Number(project.measures[Y_METRIC]) : null;
+      const size = project.measures[SIZE_METRIC] != null
+        ? Number(project.measures[SIZE_METRIC])
+        : null;
+      const color1 = project.measures[COLOR_METRIC_1] != null
+        ? Number(project.measures[COLOR_METRIC_1])
+        : null;
+      const color2 = project.measures[COLOR_METRIC_2] != null
+        ? Number(project.measures[COLOR_METRIC_2])
+        : null;
+      return {
+        x: x || 0,
+        y: y || 0,
+        size: size || 0,
+        color: color1 != null && color2 != null
+          ? RATING_COLORS[Math.max(color1, color2) - 1]
+          : undefined,
+        key: project.key,
+        tooltip: this.getTooltip(project, x, y, size, color1, color2),
+        link: getProjectUrl(project.key)
+      };
+    });
     const formatXTick = tick => formatMeasure(tick, X_METRIC_TYPE);
     const formatYTick = tick => formatMeasure(tick, Y_METRIC_TYPE);
     return (
