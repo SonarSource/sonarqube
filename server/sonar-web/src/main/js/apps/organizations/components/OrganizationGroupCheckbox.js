@@ -32,11 +32,11 @@ export default class OrganizationGroupCheckbox extends React.PureComponent {
   props: Props;
 
   onCheck = (checked: boolean) => {
-    this.props.onCheck(this.props.group.id, checked);
+    this.props.onCheck(this.props.group.name, checked);
   };
 
   toggleCheck = () => {
-    this.props.onCheck(this.props.group.id, !this.props.checked);
+    this.props.onCheck(this.props.group.name, !this.props.checked);
   };
 
   render() {

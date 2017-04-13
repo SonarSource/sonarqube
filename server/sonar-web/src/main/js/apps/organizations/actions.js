@@ -59,11 +59,11 @@ export const fetchOrganization = (key: string): Function =>
     );
   };
 
-export const fetchOrganizationGroups = (key: string): Function =>
+export const fetchOrganizationGroups = (organization: string): Function =>
   (dispatch: Function): Promise<*> => {
-    return searchUsersGroups('', key).then(
+    return searchUsersGroups({ organization }).then(
       response => {
-        dispatch(actions.receiveOrganizationGroups(key, response.groups));
+        dispatch(actions.receiveOrganizationGroups(organization, response.groups));
       },
       onFail(dispatch)
     );
@@ -166,24 +166,26 @@ export const removeOrganizationMember = (key: string, member: Member) =>
   };
 
 export const updateOrganizationMemberGroups = (
+  organization: Organization,
   member: Member,
   add: Array<string>,
   remove: Array<string>
 ) =>
   (dispatch: Function) => {
-    const promises = [
-      ...add.map(id => addUserToGroup(id, member.login)),
-      ...remove.map(id => removeUserFromGroup(id, member.login))
-    ];
-    return Promise.all(promises).then(
-      () => {
-        dispatch(
-          receiveUser({
-            ...member,
-            groupCount: (member.groupCount || 0) + add.length - remove.length
-          })
-        );
-      },
-      onFail(dispatch)
+    dispatch(
+      receiveUser({
+        ...member,
+        groupCount: (member.groupCount || 0) + add.length - remove.length
+      })
     );
+    const promises = [
+      ...add.map(name =>
+        addUserToGroup({ name, login: member.login, organization: organization.key })),
+      ...remove.map(name =>
+        removeUserFromGroup({ name, login: member.login, organization: organization.key }))
+    ];
+    return Promise.all(promises).catch(error => {
+      dispatch(receiveUser(member));
+      onFail(dispatch)(error);
+    });
   };

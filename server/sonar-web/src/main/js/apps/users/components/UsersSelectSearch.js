@@ -35,16 +35,17 @@ export type Option = {
 };
 
 type Props = {
-  selectedUser?: Option,
+  autoFocus?: boolean,
   excludedUsers: Array<string>,
+  handleValueChange: (Option) => void,
   searchUsers: (string, number) => Promise<*>,
-  handleValueChange: (Option) => void
+  selectedUser?: Option
 };
 
 type State = {
-  searchResult: Array<Option>,
   isLoading: boolean,
-  search: string
+  search: string,
+  searchResult: Array<Option>
 };
 
 const LIST_SIZE = 10;
@@ -88,6 +89,7 @@ export default class UsersSelectSearch extends React.PureComponent {
       : translate('no_results');
     return (
       <Select
+        autofocus={this.props.autoFocus}
         className="Select-big"
         options={this.state.searchResult}
         isLoading={this.state.isLoading}
