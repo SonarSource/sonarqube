@@ -29,7 +29,8 @@ exports[`test should not render actions for non admin 1`] = `
         "name": "Foo",
       }
     }
-    removeMember={[Function]} />
+    removeMember={[Function]}
+    updateMemberGroups={[Function]} />
   <ListFooter
     count={2}
     loadMore={[Function]}
@@ -80,7 +81,8 @@ exports[`test should render actions for admin 1`] = `
         "name": "Foo",
       }
     }
-    removeMember={[Function]} />
+    removeMember={[Function]}
+    updateMemberGroups={[Function]} />
   <ListFooter
     count={2}
     loadMore={[Function]}

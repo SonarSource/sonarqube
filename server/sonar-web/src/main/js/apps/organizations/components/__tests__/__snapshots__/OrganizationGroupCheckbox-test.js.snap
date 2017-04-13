@@ -16,7 +16,7 @@ exports[`test should be able to toggle check 1`] = `
 exports[`test should be able to toggle check 2`] = `
 Array [
   Array [
-    "7",
+    "professionals",
     false,
   ],
 ]

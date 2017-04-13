@@ -36,6 +36,7 @@ exports[`test should render and open the modal 2`] = `
             users.search_description
           </label>
           <UsersSelectSearch
+            autoFocus={true}
             excludedUsers={
               Array [
                 "admin",

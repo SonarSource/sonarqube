@@ -78,6 +78,7 @@ export default class AddMemberForm extends React.PureComponent {
             <div className="modal-large-field">
               <label>{translate('users.search_description')}</label>
               <UsersSelectSearch
+                autoFocus={true}
                 selectedUser={this.state.selectedMember}
                 excludedUsers={this.props.memberLogins}
                 searchUsers={searchUsers}

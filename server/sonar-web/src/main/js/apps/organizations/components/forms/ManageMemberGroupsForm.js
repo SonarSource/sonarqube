@@ -60,13 +60,13 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
   loadUserGroups = () => {
     this.setState({ loading: true });
     getUserGroups(this.props.member.login, this.props.organization.key).then(response => {
-      this.setState({ loading: false, userGroups: keyBy(response.groups, 'id') });
+      this.setState({ loading: false, userGroups: keyBy(response.groups, 'name') });
     });
   };
 
-  isGroupSelected = (groupId: string) => {
+  isGroupSelected = (groupName: string) => {
     if (this.state.userGroups) {
-      const group = this.state.userGroups[groupId] || {};
+      const group = this.state.userGroups[groupName] || {};
       if (group.status) {
         return group.status === 'add';
       } else {
@@ -76,17 +76,17 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
     return false;
   };
 
-  onCheck = (groupId: string, checked: boolean) => {
+  onCheck = (groupName: string, checked: boolean) => {
     this.setState((prevState: State) => {
       const userGroups = prevState.userGroups || {};
-      const group = userGroups[groupId] || {};
+      const group = userGroups[groupName] || {};
       let status = '';
       if (group.selected && !checked) {
         status = 'remove';
       } else if (!group.selected && checked) {
         status = 'add';
       }
-      return { userGroups: { ...userGroups, [groupId]: { ...group, status } } };
+      return { userGroups: { ...userGroups, [groupName]: { ...group, status } } };
     });
   };
 
@@ -125,7 +125,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
                   <OrganizationGroupCheckbox
                     key={group.id}
                     group={group}
-                    checked={this.isGroupSelected(group.id)}
+                    checked={this.isGroupSelected(group.name)}
                     onCheck={this.onCheck}
                   />
                 ))}

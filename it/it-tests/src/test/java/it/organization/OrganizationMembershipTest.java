@@ -223,7 +223,6 @@ public class OrganizationMembershipTest {
   }
 
   @Test
-  @Ignore("To be fixed by SONAR-8994")
   public void admin_can_manage_groups() {
     String orgKey = createOrganization();
     userRule.createUser("foo", "pwd");

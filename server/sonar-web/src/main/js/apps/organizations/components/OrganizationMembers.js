@@ -39,6 +39,7 @@ type Props = {
   addOrganizationMember: (organizationKey: string, member: Member) => void,
   removeOrganizationMember: (organizationKey: string, member: Member) => void,
   updateOrganizationMemberGroups: (
+    organization: Organization,
     member: Member,
     add: Array<string>,
     remove: Array<string>
@@ -71,6 +72,10 @@ export default class OrganizationMembers extends React.PureComponent {
     this.props.removeOrganizationMember(this.props.organization.key, member);
   };
 
+  updateMemberGroups = (member: Member, add: Array<string>, remove: Array<string>) => {
+    this.props.updateOrganizationMemberGroups(this.props.organization, member, add, remove);
+  };
+
   render() {
     const { organization, status, members } = this.props;
     return (
@@ -89,7 +94,7 @@ export default class OrganizationMembers extends React.PureComponent {
           organizationGroups={this.props.organizationGroups}
           organization={organization}
           removeMember={this.removeMember}
-          updateMemberGroups={this.props.updateOrganizationMemberGroups}
+          updateMemberGroups={this.updateMemberGroups}
         />
         {status.total != null &&
           <ListFooter
