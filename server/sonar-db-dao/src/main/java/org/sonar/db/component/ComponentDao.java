@@ -342,6 +342,10 @@ public class ComponentDao implements Dao {
     mapper(session).resetBChangedForRootComponentUuid(projectUuid);
   }
 
+  public void setPrivateForRootComponentUuid(DbSession session, String projectUuid, boolean isPrivate) {
+    mapper(session).setPrivateForRootComponentUuid(projectUuid, isPrivate);
+  }
+
   public void delete(DbSession session, long componentId) {
     mapper(session).delete(componentId);
   }
