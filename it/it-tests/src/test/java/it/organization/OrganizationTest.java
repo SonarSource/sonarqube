@@ -46,7 +46,6 @@ import org.sonarqube.ws.client.organization.UpdateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.user.GroupsRequest;
-import util.ItUtils;
 import util.user.GroupManagement;
 import util.user.Groups;
 import util.user.UserRule;
@@ -58,7 +57,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.deleteOrganizationsIfExists;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
+import static util.ItUtils.newWsClient;
 import static util.ItUtils.resetSettings;
+import static util.ItUtils.runProjectAnalysis;
+import static util.ItUtils.setServerProperty;
 
 public class OrganizationTest {
   private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
@@ -78,7 +81,7 @@ public class OrganizationTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private WsClient adminClient = newAdminWsClient(orchestrator);
-  private OrganizationService anonymousOrganizationService = ItUtils.newWsClient(orchestrator).organizations();
+  private OrganizationService anonymousOrganizationService = newWsClient(orchestrator).organizations();
   private OrganizationService adminOrganizationService = adminClient.organizations();
 
   @BeforeClass
@@ -170,7 +173,7 @@ public class OrganizationTest {
     verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
     verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.delete(KEY));
 
-    ItUtils.setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
+    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
     // verify anonymous still can't create update nor delete an organization if property is true
     verifyUserNotAuthenticated(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
     verifyUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
@@ -206,7 +209,7 @@ public class OrganizationTest {
 
   private void verifyUserNotAuthorized(String login, String password, Consumer<OrganizationService> consumer) {
     try {
-      OrganizationService organizationService = ItUtils.newUserWsClient(orchestrator, login, password).organizations();
+      OrganizationService organizationService = newUserWsClient(orchestrator, login, password).organizations();
       consumer.accept(organizationService);
       fail("An HttpException should have been raised");
     } catch (HttpException e) {
@@ -215,7 +218,7 @@ public class OrganizationTest {
   }
 
   private <T> T verifyUserAuthorized(String login, String password, Function<OrganizationService, T> consumer) {
-    OrganizationService organizationService = ItUtils.newUserWsClient(orchestrator, login, password).organizations();
+    OrganizationService organizationService = newUserWsClient(orchestrator, login, password).organizations();
     return consumer.apply(organizationService);
   }
 
@@ -252,7 +255,7 @@ public class OrganizationTest {
     CreateWsRequest createWsRequest = new CreateWsRequest.Builder()
       .setName("bla bla")
       .build();
-    OrganizationService fooUserOrganizationService = ItUtils.newUserWsClient(orchestrator, USER_LOGIN, USER_LOGIN).organizations();
+    OrganizationService fooUserOrganizationService = newUserWsClient(orchestrator, USER_LOGIN, USER_LOGIN).organizations();
 
     expect403HttpError(() -> fooUserOrganizationService.create(createWsRequest));
 
@@ -281,9 +284,9 @@ public class OrganizationTest {
     adminOrganizationService.addMember(KEY, USER_LOGIN);
     addPermissionsToUser(KEY, USER_LOGIN, "provisioning", "scan");
 
-    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+    runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.organization", KEY, "sonar.login", USER_LOGIN, "sonar.password", USER_LOGIN);
-    ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
+    ComponentsService componentsService = newUserWsClient(orchestrator, USER_LOGIN, USER_LOGIN).components();
     assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
   }
 
@@ -299,19 +302,33 @@ public class OrganizationTest {
     verifySingleSearchResult(createdOrganization, KEY, null, null, null);
 
     try {
-      ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+      runProjectAnalysis(orchestrator, "shared/xoo-sample",
         "sonar.organization", KEY);
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains("Insufficient privileges");
     }
 
-    ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
+    ComponentsService componentsService = newAdminWsClient(orchestrator).components();
     assertThat(searchSampleProject(KEY, componentsService).getComponentsCount()).isEqualTo(0);
   }
 
+  @Test
+  public void by_default_anonymous_can_browse_project_on_organization() {
+    adminOrganizationService.create(new CreateWsRequest.Builder()
+      .setName(KEY)
+      .setKey(KEY)
+      .build())
+      .getOrganization();
+
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.organization", KEY, "sonar.login", "admin", "sonar.password", "admin");
+
+    ComponentsService componentsService = newWsClient(orchestrator).components();
+    assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
+  }
+
   private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
-    PermissionsService permissionsService = ItUtils.newAdminWsClient(orchestrator).permissions();
+    PermissionsService permissionsService = newAdminWsClient(orchestrator).permissions();
     permissionsService.addUser(new AddUserWsRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(permission));
     for (String otherPermission : otherPermissions) {
       permissionsService.addUser(new AddUserWsRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(otherPermission));
@@ -341,9 +358,9 @@ public class OrganizationTest {
       .contains("grp1", "grp2");
     addPermissionsToUser(KEY, USER_LOGIN, "provisioning", "scan");
 
-    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
+    runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.organization", KEY, "sonar.login", USER_LOGIN, "sonar.password", USER_LOGIN);
-    ComponentsService componentsService = ItUtils.newAdminWsClient(orchestrator).components();
+    ComponentsService componentsService = newAdminWsClient(orchestrator).components();
     assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
 
     adminOrganizationService.delete(KEY);

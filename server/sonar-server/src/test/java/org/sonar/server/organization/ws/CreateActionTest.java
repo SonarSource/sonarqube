@@ -544,6 +544,7 @@ public class CreateActionTest {
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(0, UserRole.USER), tuple(0, UserRole.CODEVIEWER),
         tuple(defaultGroup.getId(), UserRole.USER), tuple(defaultGroup.getId(), UserRole.CODEVIEWER));
   }
 

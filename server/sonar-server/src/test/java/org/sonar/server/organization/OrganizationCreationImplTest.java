@@ -78,6 +78,7 @@ public class OrganizationCreationImplTest {
   private static final String SLUG_OF_A_LOGIN = "slug-of-a-login";
   private static final String STRING_64_CHARS = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   private static final String A_NAME = "a name";
+  private static final int ANYONE_GROUP_ID = 0;
 
   private OrganizationCreation.NewOrganization FULL_POPULATED_NEW_ORGANIZATION = newOrganizationBuilder()
     .setName("a-name")
@@ -271,6 +272,7 @@ public class OrganizationCreationImplTest {
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
+        tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER),
         tuple(defaultGroupId, UserRole.USER), tuple(defaultGroupId, UserRole.CODEVIEWER));
   }
 
@@ -434,7 +436,9 @@ public class OrganizationCreationImplTest {
     assertThat(defaultTemplates.getViewUuid()).isNull();
     assertThat(dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, defaultTemplate.getId()))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
-      .containsOnly(tuple(defaultGroupId, UserRole.USER), tuple(defaultGroupId, UserRole.CODEVIEWER));
+      .containsOnly(
+        tuple(ANYONE_GROUP_ID, UserRole.USER), tuple(ANYONE_GROUP_ID, UserRole.CODEVIEWER),
+        tuple(defaultGroupId, UserRole.USER), tuple(defaultGroupId, UserRole.CODEVIEWER));
     assertThat(dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, Collections.singletonList(defaultTemplate.getId())))
       .extracting(PermissionTemplateCharacteristicDto::getWithProjectCreator, PermissionTemplateCharacteristicDto::getPermission)
       .containsOnly(
