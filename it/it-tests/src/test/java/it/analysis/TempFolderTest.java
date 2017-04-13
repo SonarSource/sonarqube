@@ -76,21 +76,13 @@ public class TempFolderTest {
   // SONAR-4748
   @Test
   public void should_not_use_system_tmp_dir() throws Exception {
-    String oldTmp = System.getProperty("java.io.tmpdir");
-    try {
-      File tmp = temp.newFolder();
-      assertThat(tmp.list()).isEmpty();
+    File tmp = temp.newFolder();
+    SonarScanner runner = configureScanner()
+      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Djava.io.tmpdir=" + tmp.getAbsolutePath());
+    orchestrator.executeBuild(runner);
 
-      SonarScanner runner = configureScanner()
-        .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Djava.io.tmpdir=" + tmp.getAbsolutePath());
-      orchestrator.executeBuild(runner);
-
-      // TODO There is one remaining file waiting for SONARPLUGINS-3185
-      assertThat(tmp.list()).hasSize(1);
-      assertThat(tmp.list()[0]).matches("sonar-runner-batch(.*).jar");
-    } finally {
-      System.setProperty("java.io.tmpdir", oldTmp);
-    }
+    // temp directory is clean-up
+    assertThat(tmp.list()).isEmpty();
   }
 
   private BuildResult scan(String... props) {

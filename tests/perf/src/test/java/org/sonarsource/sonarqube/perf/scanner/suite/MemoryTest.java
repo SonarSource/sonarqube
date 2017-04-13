@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.http.HttpMethod;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
@@ -31,7 +32,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.wsclient.services.PropertyCreateQuery;
 import org.sonarsource.sonarqube.perf.MavenLogs;
 import org.sonarsource.sonarqube.perf.PerfRule;
 import org.sonarsource.sonarqube.perf.PerfTestCase;
@@ -92,7 +92,13 @@ public class MemoryTest extends PerfTestCase {
     perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 4847L);
 
     // Second execution with a property on server side
-    orchestrator.getServer().getAdminWsClient().create(new PropertyCreateQuery("sonar.anotherBigProp", Strings.repeat("B", 1000), "big-module-tree"));
+    orchestrator.getServer().newHttpCall("/api/settings/set")
+      .setMethod(HttpMethod.POST)
+      .setAdminCredentials()
+      .setParam("key", "sonar.anotherBigProp")
+      .setParam("value", Strings.repeat("B", 1000))
+      .setParam("component", "big-module-tree")
+      .execute();
     result = orchestrator.executeBuild(scanner);
     perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 4620L);
   }
