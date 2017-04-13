@@ -1143,4 +1143,55 @@ public class ComponentDaoTest {
     assertThat(underTest.selectProjectsByNameQuery(dbSession, "1", true)).extracting(ComponentDto::uuid).containsOnly(project1.uuid(), module1.uuid(), subModule1.uuid());
     assertThat(underTest.selectProjectsByNameQuery(dbSession, "unknown", true)).extracting(ComponentDto::uuid).isEmpty();
   }
+
+  @Test
+  public void setPrivateForRootComponentUuid_updates_private_column_to_specified_value_for_all_rows_with_specified_projectUuid() {
+    String uuid1 = "uuid1";
+    String uuid2 = "uuid2";
+
+    OrganizationDto organizationDto = db.organizations().insert();
+    String[] uuids = {
+      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(true)).uuid(),
+      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(false)).uuid(),
+      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(true)).uuid(),
+      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(false)).uuid(),
+      db.components().insertComponent(newProjectDto(organizationDto).setRootUuid(uuid1).setProjectUuid("foo").setPrivate(false)).uuid(),
+    };
+
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, true);
+
+    assertThat(privateFlagOfUuid(uuids[0])).isTrue();
+    assertThat(privateFlagOfUuid(uuids[1])).isTrue();
+    assertThat(privateFlagOfUuid(uuids[2])).isTrue();
+    assertThat(privateFlagOfUuid(uuids[3])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[4])).isFalse();
+
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, false);
+
+    assertThat(privateFlagOfUuid(uuids[0])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[1])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[2])).isTrue();
+    assertThat(privateFlagOfUuid(uuids[3])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[4])).isFalse();
+
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, false);
+
+    assertThat(privateFlagOfUuid(uuids[0])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[1])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[2])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[3])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[4])).isFalse();
+
+    underTest.setPrivateForRootComponentUuid(db.getSession(), uuid2, true);
+
+    assertThat(privateFlagOfUuid(uuids[0])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[1])).isFalse();
+    assertThat(privateFlagOfUuid(uuids[2])).isTrue();
+    assertThat(privateFlagOfUuid(uuids[3])).isTrue();
+    assertThat(privateFlagOfUuid(uuids[4])).isFalse();
+  }
+
+  private boolean privateFlagOfUuid(String uuid) {
+    return underTest.selectByUuid(db.getSession(), uuid).get().isPrivate();
+  }
 }
