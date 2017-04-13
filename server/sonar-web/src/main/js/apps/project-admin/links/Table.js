@@ -18,20 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import LinkRow from './LinkRow';
 import { orderLinks } from './utils';
 import { translate } from '../../../helpers/l10n';
 
-export default class Table extends React.Component {
+export default class Table extends React.PureComponent {
   static propTypes = {
     links: React.PropTypes.array.isRequired,
     onDelete: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   handleDeleteLink(link) {
     this.props.onDelete(link);

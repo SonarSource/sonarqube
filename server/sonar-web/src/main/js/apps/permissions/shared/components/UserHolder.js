@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
 
-export default class UserHolder extends React.Component {
+export default class UserHolder extends React.PureComponent {
   static propTypes = {
     user: React.PropTypes.object.isRequired,
     permissions: React.PropTypes.array.isRequired,
@@ -30,10 +29,6 @@ export default class UserHolder extends React.Component {
     permissionsOrder: React.PropTypes.array.isRequired,
     onToggle: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   handleClick(permission, e) {
     e.preventDefault();

@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { connect } from 'react-redux';
 import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
@@ -40,7 +39,7 @@ type State = {
   loaded: boolean
 };
 
-class App extends React.Component {
+class App extends React.PureComponent {
   props: Props;
   state: State = { loaded: false };
 
@@ -53,10 +52,6 @@ class App extends React.Component {
     this.props.fetchSettings(componentKey).then(() => {
       this.setState({ loaded: true });
     });
-  }
-
-  shouldComponentUpdate(nextProps: Props, nextState: ?{}) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentDidUpdate(prevProps) {

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Table from './Table';
@@ -26,7 +25,7 @@ import DeletionModal from './views/DeletionModal';
 import { fetchProjectLinks, deleteProjectLink, createProjectLink } from '../store/actions';
 import { getProjectAdminProjectLinks, getComponent } from '../../../store/rootReducer';
 
-class Links extends React.Component {
+class Links extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
     links: React.PropTypes.array
@@ -39,10 +38,6 @@ class Links extends React.Component {
 
   componentDidMount() {
     this.props.fetchProjectLinks(this.props.component.key);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   handleCreateLink(name, url) {

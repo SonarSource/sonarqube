@@ -18,17 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import ScannerContextView from '../views/ScannerContextView';
 import StacktraceView from '../views/StacktraceView';
 import { STATUSES } from './../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class TaskActions extends React.Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
-
+export default class TaskActions extends React.PureComponent {
   handleFilterClick(e) {
     e.preventDefault();
     this.props.onFilterTask(this.props.task);

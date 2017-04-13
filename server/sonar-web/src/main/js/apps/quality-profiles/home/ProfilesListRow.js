@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import shallowCompare from 'react-addons-shallow-compare';
 import ProfileLink from '../components/ProfileLink';
 import ProfileDate from '../components/ProfileDate';
 import ProfileActions from '../components/ProfileActions';
@@ -38,10 +37,6 @@ type Props = {
 
 export default class ProfilesListRow extends React.PureComponent {
   props: Props;
-
-  shouldComponentUpdate(nextProps: Props) {
-    return shallowCompare(this, nextProps);
-  }
 
   renderName() {
     const { profile } = this.props;

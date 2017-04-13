@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
 
-export default class ProfileRow extends React.Component {
+export default class ProfileRow extends React.PureComponent {
   static propTypes = {
     profile: React.PropTypes.object.isRequired,
     possibleProfiles: React.PropTypes.array.isRequired,
@@ -32,10 +31,6 @@ export default class ProfileRow extends React.Component {
   state = {
     loading: false
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   componentWillUpdate(nextProps) {
     if (nextProps.profile !== this.props.profile) {

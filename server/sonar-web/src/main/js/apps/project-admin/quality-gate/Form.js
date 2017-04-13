@@ -19,11 +19,10 @@
  */
 import React from 'react';
 import Select from 'react-select';
-import shallowCompare from 'react-addons-shallow-compare';
 import { some } from 'lodash';
 import { translate } from '../../../helpers/l10n';
 
-export default class Form extends React.Component {
+export default class Form extends React.PureComponent {
   static propTypes = {
     allGates: React.PropTypes.array.isRequired,
     gate: React.PropTypes.object,
@@ -37,10 +36,6 @@ export default class Form extends React.Component {
   componentWillMount() {
     this.handleChange = this.handleChange.bind(this);
     this.renderGateName = this.renderGateName.bind(this);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentDidUpdate(prevProps) {

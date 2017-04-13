@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import GroupIcon from './GroupIcon';
 
-export default class GroupHolder extends React.Component {
+export default class GroupHolder extends React.PureComponent {
   static propTypes = {
     group: React.PropTypes.object.isRequired,
     permissions: React.PropTypes.array.isRequired,
@@ -29,10 +28,6 @@ export default class GroupHolder extends React.Component {
     permissionsOrder: React.PropTypes.array.isRequired,
     onToggle: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   handleClick(permission, e) {
     e.preventDefault();

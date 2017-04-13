@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { sortBy } from 'lodash';
 import { IndexLink } from 'react-router';
 import { getCategoryName } from '../utils';
@@ -36,12 +35,8 @@ type Props = {
   selectedCategory: string
 };
 
-export default class CategoriesList extends React.Component {
+export default class CategoriesList extends React.PureComponent {
   rops: Props;
-
-  shouldComponentUpdate(nextProps: Props, nextState: ?{}) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   renderLink(category: Category) {
     const query = {};

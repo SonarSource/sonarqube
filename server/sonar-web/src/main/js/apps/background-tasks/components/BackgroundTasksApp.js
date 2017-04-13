@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
@@ -56,7 +55,7 @@ type State = {
   failingCount: number
 };
 
-class BackgroundTasksApp extends React.Component {
+class BackgroundTasksApp extends React.PureComponent {
   loadTasksDebounced: Function;
   mounted: boolean;
   props: Props;
@@ -88,10 +87,6 @@ class BackgroundTasksApp extends React.Component {
       this.setState({ types });
       this.loadTasks();
     });
-  }
-
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentDidUpdate(prevProps: Props) {

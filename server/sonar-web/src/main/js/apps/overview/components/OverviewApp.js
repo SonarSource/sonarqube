@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import moment from 'moment';
-import shallowCompare from 'react-addons-shallow-compare';
 import QualityGate from '../qualityGate/QualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
 import CodeSmells from '../main/CodeSmells';
@@ -78,7 +77,7 @@ const METRICS = [
 
 const HISTORY_METRICS_LIST = ['sqale_index', 'duplicated_lines_density', 'ncloc', 'coverage'];
 
-export default class OverviewApp extends React.Component {
+export default class OverviewApp extends React.PureComponent {
   static propTypes = {
     component: ComponentType.isRequired
   };
@@ -91,10 +90,6 @@ export default class OverviewApp extends React.Component {
     this.mounted = true;
     document.querySelector('html').classList.add('dashboard-page');
     this.loadMeasures(this.props.component.key).then(() => this.loadHistory(this.props.component));
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentDidUpdate(prevProps) {

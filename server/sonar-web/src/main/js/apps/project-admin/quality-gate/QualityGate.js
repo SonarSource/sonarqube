@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import shallowCompare from 'react-addons-shallow-compare';
 import Header from './Header';
 import Form from './Form';
 import { fetchProjectGate, setProjectGate } from '../store/actions';
@@ -29,7 +28,7 @@ import {
   getComponent
 } from '../../../store/rootReducer';
 
-class QualityGate extends React.Component {
+class QualityGate extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
     allGates: React.PropTypes.array,
@@ -38,10 +37,6 @@ class QualityGate extends React.Component {
 
   componentDidMount() {
     this.props.fetchProjectGate(this.props.component.key);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   handleChangeGate(oldId, newId) {

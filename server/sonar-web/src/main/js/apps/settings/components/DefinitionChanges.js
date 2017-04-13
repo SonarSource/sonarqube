@@ -19,18 +19,13 @@
  */
 // @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { translate } from '../../../helpers/l10n';
 
-export default class DefinitionChanges extends React.Component {
+export default class DefinitionChanges extends React.PureComponent {
   static propTypes = {
     onSave: React.PropTypes.func.isRequired,
     onCancel: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps: {}, nextState: ?{}) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   handleSaveClick(e: Object) {
     e.preventDefault();

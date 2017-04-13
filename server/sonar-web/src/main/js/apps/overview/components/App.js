@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { withRouter } from 'react-router';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
@@ -35,7 +34,7 @@ type Props = {
   router: Object
 };
 
-class App extends React.Component {
+class App extends React.PureComponent {
   props: Props;
   state: Object;
 
@@ -46,10 +45,6 @@ class App extends React.Component {
         query: { id: this.props.component.key }
       });
     }
-  }
-
-  shouldComponentUpdate(nextProps: Props) {
-    return shallowCompare(this, nextProps);
   }
 
   render() {

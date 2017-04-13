@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 import Components from './Components';
@@ -27,7 +26,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../utils';
 import { getComponentUrl } from '../../../helpers/urls';
 
-export default class Search extends React.Component {
+export default class Search extends React.PureComponent {
   static contextTypes = {
     router: React.PropTypes.object.isRequired
   };
@@ -64,10 +63,6 @@ export default class Search extends React.Component {
         selectedIndex: null
       });
     }
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentWillUnmount() {

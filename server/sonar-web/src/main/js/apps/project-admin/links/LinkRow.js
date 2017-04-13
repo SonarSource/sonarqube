@@ -18,20 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { isProvided, isClickable } from './utils';
 import { translate } from '../../../helpers/l10n';
 import BugTrackerIcon from '../../../components/ui/BugTrackerIcon';
 
-export default class LinkRow extends React.Component {
+export default class LinkRow extends React.PureComponent {
   static propTypes = {
     link: React.PropTypes.object.isRequired,
     onDelete: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   handleDeleteClick(e) {
     e.preventDefault();

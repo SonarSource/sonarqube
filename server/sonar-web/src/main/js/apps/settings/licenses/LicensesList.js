@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import LicenseRowContainer from './LicenseRowContainer';
 import { translate } from '../../../helpers/l10n';
 
-export default class LicensesList extends React.Component {
+export default class LicensesList extends React.PureComponent {
   static propTypes = {
     licenses: React.PropTypes.array.isRequired,
     fetchLicenses: React.PropTypes.func.isRequired
@@ -32,10 +31,6 @@ export default class LicensesList extends React.Component {
     this.props.fetchLicenses().catch(() => {
       /* do nothing */
     });
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   render() {
