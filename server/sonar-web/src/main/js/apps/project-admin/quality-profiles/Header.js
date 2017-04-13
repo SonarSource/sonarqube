@@ -20,17 +20,15 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class Header extends React.Component {
-  render() {
-    return (
-      <header className="page-header">
-        <h1 className="page-title">
-          {translate('project_quality_profiles.page')}
-        </h1>
-        <div className="page-description">
-          {translate('project_quality_profiles.page.description')}
-        </div>
-      </header>
-    );
-  }
+export default function Header() {
+  return (
+    <header className="page-header">
+      <h1 className="page-title">
+        {translate('project_quality_profiles.page')}
+      </h1>
+      <div className="page-description">
+        {translate('project_quality_profiles.page.description')}
+      </div>
+    </header>
+  );
 }

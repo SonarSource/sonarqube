@@ -26,18 +26,12 @@ import '../../styles.css';
 
 // TODO helmet
 
-export default class App extends React.Component {
-  props: {
-    organization?: {}
-  };
-
-  render() {
-    return (
-      <div className="page page-limited">
-        <PageHeader organization={this.props.organization} />
-        <PageError />
-        <AllHoldersList organization={this.props.organization} />
-      </div>
-    );
-  }
+export default function App(props: { organization?: {} }) {
+  return (
+    <div className="page page-limited">
+      <PageHeader organization={props.organization} />
+      <PageError />
+      <AllHoldersList organization={props.organization} />
+    </div>
+  );
 }

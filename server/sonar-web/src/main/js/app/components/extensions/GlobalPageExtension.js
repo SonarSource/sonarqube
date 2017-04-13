@@ -24,19 +24,18 @@ import Extension from './Extension';
 import ExtensionNotFound from './ExtensionNotFound';
 import { getAppState } from '../../../store/rootReducer';
 
-class GlobalPageExtension extends React.Component {
-  props: {
-    globalPages: Array<{ key: string }>,
-    params: {
-      extensionKey: string,
-      pluginKey: string
-    }
-  };
-  render() {
-    const { extensionKey, pluginKey } = this.props.params;
-    const extension = this.props.globalPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
-    return extension ? <Extension extension={extension} /> : <ExtensionNotFound />;
+type Props = {
+  globalPages: Array<{ key: string }>,
+  params: {
+    extensionKey: string,
+    pluginKey: string
   }
+};
+
+function GlobalPageExtension(props: Props) {
+  const { extensionKey, pluginKey } = props.params;
+  const extension = props.globalPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
+  return extension ? <Extension extension={extension} /> : <ExtensionNotFound />;
 }
 
 const mapStateToProps = state => ({

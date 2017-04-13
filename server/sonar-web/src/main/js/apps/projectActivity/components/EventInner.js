@@ -24,26 +24,20 @@ import type { Event as EventType } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
 import './Event.css';
 
-export default class EventInner extends React.Component {
-  props: {
-    event: EventType
-  };
+export default function EventInner(props: { event: EventType }) {
+  const { event } = props;
 
-  render() {
-    const { event } = this.props;
-
-    if (event.category === 'VERSION') {
-      return <span className="badge project-activity-version-badge">{this.props.event.name}</span>;
-    }
-
-    return (
-      <TooltipsContainer>
-        <span>
-          <span className="note">{translate('event.category', event.category)}:</span>
-          {' '}
-          <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
-        </span>
-      </TooltipsContainer>
-    );
+  if (event.category === 'VERSION') {
+    return <span className="badge project-activity-version-badge">{props.event.name}</span>;
   }
+
+  return (
+    <TooltipsContainer>
+      <span>
+        <span className="note">{translate('event.category', event.category)}:</span>
+        {' '}
+        <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
+      </span>
+    </TooltipsContainer>
+  );
 }

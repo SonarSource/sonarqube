@@ -41,7 +41,7 @@ import '../styles.css';
 
 type State = {
   loading: boolean,
-  projectsCount?: number,
+  projectsCount: number,
   issueTypes?: {
     [key: string]: ?{
       count: number
@@ -64,7 +64,8 @@ class AboutApp extends React.Component {
   };
 
   state: State = {
-    loading: true
+    loading: true,
+    projectsCount: 0
   };
 
   componentDidMount() {

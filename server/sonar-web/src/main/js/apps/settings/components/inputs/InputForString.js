@@ -20,8 +20,6 @@
 import React from 'react';
 import SimpleInput from './SimpleInput';
 
-export default class InputForString extends React.Component {
-  render() {
-    return <SimpleInput {...this.props} className="input-large" type="text" />;
-  }
+export default function InputForString(props) {
+  return <SimpleInput {...props} className="input-large" type="text" />;
 }

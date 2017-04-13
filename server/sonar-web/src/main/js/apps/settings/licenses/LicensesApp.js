@@ -21,13 +21,11 @@ import React from 'react';
 import LicensesAppHeader from './LicensesAppHeader';
 import LicensesListContainer from './LicensesListContainer';
 
-export default class LicensesApp extends React.Component {
-  render() {
-    return (
-      <div id="licenses-page" className="page page-limited">
-        <LicensesAppHeader />
-        <LicensesListContainer />
-      </div>
-    );
-  }
+export default function LicensesApp() {
+  return (
+    <div id="licenses-page" className="page page-limited">
+      <LicensesAppHeader />
+      <LicensesListContainer />
+    </div>
+  );
 }

@@ -21,13 +21,11 @@
 import React from 'react';
 import './GlobalLoading.css';
 
-export default class GlobalLoading extends React.Component {
-  render() {
-    return (
-      <div className="global-loading">
-        <i className="spinner global-loading-spinner" />
-        <span className="global-loading-text">Loading...</span>
-      </div>
-    );
-  }
+export default function GlobalLoading() {
+  return (
+    <div className="global-loading">
+      <i className="spinner global-loading-spinner" />
+      <span className="global-loading-text">Loading...</span>
+    </div>
+  );
 }

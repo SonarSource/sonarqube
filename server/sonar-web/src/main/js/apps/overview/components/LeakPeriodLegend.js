@@ -58,29 +58,25 @@ type Period =
   | PreviousAnalysisPeriod
   | PreviousVersionPeriod;
 
-export default class LeakPeriodLegend extends React.Component {
-  props: { period: Period };
+export default function LeakPeriodLegend(props: { period: Period }) {
+  const { period } = props;
+  const leakPeriodLabel = getPeriodLabel(period);
+  const leakPeriodDate = getPeriodDate(period);
 
-  render() {
-    const { period } = this.props;
-    const leakPeriodLabel = getPeriodLabel(period);
-    const leakPeriodDate = getPeriodDate(period);
+  const momentDate = moment(leakPeriodDate);
+  const fromNow = momentDate.fromNow();
+  const note = ['date', 'days'].includes(period.mode)
+    ? translateWithParameters('overview.last_analysis_x', fromNow)
+    : translateWithParameters('overview.started_x', fromNow);
+  const tooltip = ['date', 'days'].includes(period.mode)
+    ? translateWithParameters('overview.last_analysis_on_x', momentDate.format('LL'))
+    : translateWithParameters('overview.started_on_x', momentDate.format('LL'));
 
-    const momentDate = moment(leakPeriodDate);
-    const fromNow = momentDate.fromNow();
-    const note = ['date', 'days'].includes(period.mode)
-      ? translateWithParameters('overview.last_analysis_x', fromNow)
-      : translateWithParameters('overview.started_x', fromNow);
-    const tooltip = ['date', 'days'].includes(period.mode)
-      ? translateWithParameters('overview.last_analysis_on_x', momentDate.format('LL'))
-      : translateWithParameters('overview.started_on_x', momentDate.format('LL'));
-
-    return (
-      <div className="overview-legend" title={tooltip} data-toggle="tooltip">
-        {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
-        <br />
-        <span className="note">{note}</span>
-      </div>
-    );
-  }
+  return (
+    <div className="overview-legend" title={tooltip} data-toggle="tooltip">
+      {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
+      <br />
+      <span className="note">{note}</span>
+    </div>
+  );
 }

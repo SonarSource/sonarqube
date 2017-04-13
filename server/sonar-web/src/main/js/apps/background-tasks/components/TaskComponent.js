@@ -25,38 +25,36 @@ import QualifierIcon from '../../../components/shared/QualifierIcon';
 import Organization from '../../../components/shared/Organization';
 import { Task } from '../types';
 
-export default class TaskComponent extends React.Component {
-  props: {
-    task: Task,
-    types: Array<string>
-  };
+type Props = {
+  task: Task,
+  types: Array<string>
+};
 
-  render() {
-    const { task, types } = this.props;
+export default function TaskComponent(props: Props) {
+  const { task, types } = props;
 
-    if (!task.componentKey) {
-      return (
-        <td>
-          <span className="note">{task.id}</span>
-          {types.length > 1 && <TaskType task={task} />}
-        </td>
-      );
-    }
-
+  if (!task.componentKey) {
     return (
       <td>
-        <span className="little-spacer-right">
-          <QualifierIcon qualifier={task.componentQualifier} />
-        </span>
-
-        {task.organization != null && <Organization organizationKey={task.organization} />}
-
-        <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }}>
-          {task.componentName}
-        </Link>
-
+        <span className="note">{task.id}</span>
         {types.length > 1 && <TaskType task={task} />}
       </td>
     );
   }
+
+  return (
+    <td>
+      <span className="little-spacer-right">
+        <QualifierIcon qualifier={task.componentQualifier} />
+      </span>
+
+      {task.organization != null && <Organization organizationKey={task.organization} />}
+
+      <Link to={{ pathname: '/dashboard', query: { id: task.componentKey } }}>
+        {task.componentName}
+      </Link>
+
+      {types.length > 1 && <TaskType task={task} />}
+    </td>
+  );
 }

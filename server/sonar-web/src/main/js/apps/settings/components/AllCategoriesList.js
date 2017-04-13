@@ -23,10 +23,8 @@ import { connect } from 'react-redux';
 import CategoriesList from './CategoriesList';
 import { getSettingsAppAllCategories } from '../../../store/rootReducer';
 
-class AllCategoriesList extends React.Component {
-  render() {
-    return <CategoriesList {...this.props} />;
-  }
+function AllCategoriesList(props) {
+  return <CategoriesList {...props} />;
 }
 
 const mapStateToProps = state => ({

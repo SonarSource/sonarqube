@@ -34,46 +34,44 @@ import type {
 } from '../../../store/notifications/duck';
 import { addNotification, removeNotification } from './actions';
 
-class GlobalNotifications extends React.Component {
-  props: {
-    notifications: NotificationsState,
-    channels: ChannelsState,
-    types: TypesState,
-    addNotification: (n: Notification) => void,
-    removeNotification: (n: Notification) => void
-  };
+type Props = {
+  notifications: NotificationsState,
+  channels: ChannelsState,
+  types: TypesState,
+  addNotification: (n: Notification) => void,
+  removeNotification: (n: Notification) => void
+};
 
-  render() {
-    return (
-      <section>
-        <h2 className="spacer-bottom">
-          {translate('my_profile.overall_notifications.title')}
-        </h2>
+function GlobalNotifications(props: Props) {
+  return (
+    <section>
+      <h2 className="spacer-bottom">
+        {translate('my_profile.overall_notifications.title')}
+      </h2>
 
-        <table className="form">
-          <thead>
-            <tr>
-              <th />
-              {this.props.channels.map(channel => (
-                <th key={channel} className="text-center">
-                  <h4>{translate('notification.channel', channel)}</h4>
-                </th>
-              ))}
-            </tr>
-          </thead>
+      <table className="form">
+        <thead>
+          <tr>
+            <th />
+            {props.channels.map(channel => (
+              <th key={channel} className="text-center">
+                <h4>{translate('notification.channel', channel)}</h4>
+              </th>
+            ))}
+          </tr>
+        </thead>
 
-          <NotificationsList
-            notifications={this.props.notifications}
-            channels={this.props.channels}
-            types={this.props.types}
-            checkboxId={(d, c) => `global-notification-${d}-${c}`}
-            onAdd={this.props.addNotification}
-            onRemove={this.props.removeNotification}
-          />
-        </table>
-      </section>
-    );
-  }
+        <NotificationsList
+          notifications={props.notifications}
+          channels={props.channels}
+          types={props.types}
+          checkboxId={(d, c) => `global-notification-${d}-${c}`}
+          onAdd={props.addNotification}
+          onRemove={props.removeNotification}
+        />
+      </table>
+    </section>
+  );
 }
 
 const mapStateToProps = state => ({

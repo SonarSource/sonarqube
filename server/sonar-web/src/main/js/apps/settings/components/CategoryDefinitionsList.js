@@ -23,10 +23,8 @@ import { connect } from 'react-redux';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
 import { getSettingsAppSettingsForCategory } from '../../../store/rootReducer';
 
-class CategoryDefinitionsList extends React.Component {
-  render() {
-    return <SubCategoryDefinitionsList {...this.props} />;
-  }
+function CategoryDefinitionsList(props) {
+  return <SubCategoryDefinitionsList {...props} />;
 }
 
 const mapStateToProps = (state, ownProps) => ({

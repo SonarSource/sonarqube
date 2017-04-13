@@ -21,17 +21,15 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-export default class OrganizationLink extends React.Component {
+export default function OrganizationLink(
   props: {
     children?: Object,
     organization: {
       key: string
     }
-  };
-
-  render() {
-    const { children, organization, ...other } = this.props;
-
-    return <Link to={`/organizations/${organization.key}`} {...other}>{children}</Link>;
   }
+) {
+  const { children, organization, ...other } = props;
+
+  return <Link to={`/organizations/${organization.key}`} {...other}>{children}</Link>;
 }

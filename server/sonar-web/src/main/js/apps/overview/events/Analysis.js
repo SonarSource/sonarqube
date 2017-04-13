@@ -24,28 +24,22 @@ import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 import type { Analysis as AnalysisType } from '../../../store/projectActivity/duck';
 
-export default class Analysis extends React.Component {
-  props: {
-    analysis: AnalysisType
-  };
+export default function Analysis(props: { analysis: AnalysisType }) {
+  const { analysis } = props;
 
-  render() {
-    const { analysis } = this.props;
+  return (
+    <TooltipsContainer>
+      <li className="overview-analysis">
+        <div className="small little-spacer-bottom">
+          <strong>
+            <FormattedDate date={analysis.date} format="LL" />
+          </strong>
+        </div>
 
-    return (
-      <TooltipsContainer>
-        <li className="overview-analysis">
-          <div className="small little-spacer-bottom">
-            <strong>
-              <FormattedDate date={analysis.date} format="LL" />
-            </strong>
-          </div>
-
-          {analysis.events.length > 0
-            ? <Events events={analysis.events} canAdmin={false} />
-            : <span className="note">{translate('project_activity.project_analyzed')}</span>}
-        </li>
-      </TooltipsContainer>
-    );
-  }
+        {analysis.events.length > 0
+          ? <Events events={analysis.events} canAdmin={false} />
+          : <span className="note">{translate('project_activity.project_analyzed')}</span>}
+      </li>
+    </TooltipsContainer>
+  );
 }

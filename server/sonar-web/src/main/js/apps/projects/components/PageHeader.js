@@ -22,30 +22,28 @@ import React from 'react';
 import ViewSelect from './ViewSelect';
 import { translate } from '../../../helpers/l10n';
 
-export default class PageHeader extends React.Component {
-  props: {
-    loading: boolean,
-    onViewChange: (string) => void,
-    total?: number,
-    view: string
-  };
+type Props = {
+  loading: boolean,
+  onViewChange: (string) => void,
+  total?: number,
+  view: string
+};
 
-  render() {
-    return (
-      <header className="page-header">
-        <ViewSelect onChange={this.props.onViewChange} view={this.props.view} />
+export default function PageHeader(props: Props) {
+  return (
+    <header className="page-header">
+      <ViewSelect onChange={props.onViewChange} view={props.view} />
 
-        <div className="page-actions projects-page-actions">
-          {!!this.props.loading && <i className="spinner spacer-right" />}
+      <div className="page-actions projects-page-actions">
+        {!!props.loading && <i className="spinner spacer-right" />}
 
-          {this.props.total != null &&
-            <span>
-              <strong id="projects-total">{this.props.total}</strong>
-              {' '}
-              {translate('projects._projects')}
-            </span>}
-        </div>
-      </header>
-    );
-  }
+        {props.total != null &&
+          <span>
+            <strong id="projects-total">{props.total}</strong>
+            {' '}
+            {translate('projects._projects')}
+          </span>}
+      </div>
+    </header>
+  );
 }
