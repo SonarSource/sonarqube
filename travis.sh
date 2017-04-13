@@ -203,7 +203,6 @@ printf "${RED}disk size after build${NC}\n"
 df -h
 du -sh $HOME
 du -sh /mnt/ramdisk/.m2/repository
-du -sh /mnt/ramdisk/.sonar
 du -sh /mnt/ramdisk/build
 du -sh /mnt/ramdisk/jvm
 du -sh /mnt/ramdisk/maven

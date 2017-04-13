@@ -19,7 +19,7 @@ ls -al $HOME
 printf "${RED}create ramdisk mount point${NC}\n"
 sudo mkdir -p /mnt/ramdisk
 printf "${RED}create ramdisk${NC}\n"
-sudo mount -t tmpfs -o size=3584 tmpfs /mnt/ramdisk
+sudo mount -t tmpfs -o size=3584m tmpfs /mnt/ramdisk
 pushd /mnt/ramdisk
 printf "${RED}move build and cached directories to ramdisk${NC}\n"
 time sudo mv $HOME/build /mnt/ramdisk
