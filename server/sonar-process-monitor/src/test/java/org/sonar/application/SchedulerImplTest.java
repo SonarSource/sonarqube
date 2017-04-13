@@ -58,7 +58,7 @@ public class SchedulerImplTest {
   private static final JavaCommand CE_COMMAND = new JavaCommand(COMPUTE_ENGINE);
 
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(30));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
