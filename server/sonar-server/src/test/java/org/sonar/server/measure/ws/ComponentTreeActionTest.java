@@ -19,19 +19,21 @@
  */
 package org.sonar.server.measure.ws;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -57,6 +59,10 @@ import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
+import static org.sonar.api.measures.Metric.ValueType.FLOAT;
+import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
@@ -185,7 +191,7 @@ public class ComponentTreeActionTest {
     MetricDto coverage = insertCoverageMetric();
     dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto()
       .setKey("ncloc")
-      .setValueType(ValueType.INT.name())
+      .setValueType(INT.name())
       .setOptimizedBestValue(true)
       .setBestValue(100d)
       .setWorstValue(1000d));
@@ -193,7 +199,7 @@ public class ComponentTreeActionTest {
       .setKey("new_violations")
       .setOptimizedBestValue(true)
       .setBestValue(1984.0d)
-      .setValueType(ValueType.INT.name()));
+      .setValueType(INT.name()));
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(coverage, file, projectSnapshot).setValue(15.5d),
       newMeasureDto(coverage, directoryDto, projectSnapshot).setValue(42.0d));
@@ -233,7 +239,7 @@ public class ComponentTreeActionTest {
       .setKey(NEW_SECURITY_RATING_KEY)
       .setOptimizedBestValue(true)
       .setBestValue(1d)
-      .setValueType(ValueType.RATING.name()));
+      .setValueType(RATING.name()));
     dbClient.measureDao().insert(dbSession, newMeasureDto(metric, directoryDto, projectSnapshot).setVariation(2d));
     db.commit();
 
@@ -298,7 +304,7 @@ public class ComponentTreeActionTest {
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-2"));
-    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setValue(1.0d),
@@ -328,7 +334,7 @@ public class ComponentTreeActionTest {
     componentDb.insertComponent(file2);
     componentDb.insertComponent(file3);
     componentDb.insertComponent(file4);
-    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setValue(1.0d),
@@ -358,7 +364,7 @@ public class ComponentTreeActionTest {
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-2"));
-    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1.0d),
@@ -384,7 +390,7 @@ public class ComponentTreeActionTest {
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
     ComponentDto file2 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-2"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1"));
-    MetricDto ncloc = newMetricDto().setKey("new_ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    MetricDto ncloc = newMetricDto().setKey("new_ncloc").setValueType(INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, file1, projectSnapshot).setVariation(1.0d),
@@ -557,8 +563,8 @@ public class ComponentTreeActionTest {
   @Test
   public void fail_when_using_DISTRIB_metrics() {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib1").setValueType(ValueType.DISTRIB.name()));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib2").setValueType(ValueType.DISTRIB.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib1").setValueType(DISTRIB.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib2").setValueType(DISTRIB.name()));
     db.commit();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -572,8 +578,8 @@ public class ComponentTreeActionTest {
   @Test
   public void fail_when_using_DATA_metrics() {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data1").setValueType(ValueType.DISTRIB.name()));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data2").setValueType(ValueType.DISTRIB.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data1").setValueType(DISTRIB.name()));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data2").setValueType(DISTRIB.name()));
     db.commit();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -582,6 +588,22 @@ public class ComponentTreeActionTest {
     call(ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "data1,data2"));
+  }
+
+  @Test
+  public void fail_when_setting_more_than_15_metric_keys() {
+    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    List<String> metrics = IntStream.range(0, 20)
+      .mapToObj(i -> "metric" + i)
+      .collect(Collectors.toList());
+    db.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Number of metrics keys is limited to 15, got 20");
+
+    call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_METRIC_KEYS, Joiner.on(",").join(metrics)));
   }
 
   @Test
@@ -812,7 +834,7 @@ public class ComponentTreeActionTest {
       .setShortName("Coverage")
       .setDescription("Code Coverage")
       .setDomain("Coverage")
-      .setValueType(ValueType.FLOAT.name())
+      .setValueType(FLOAT.name())
       .setDirection(1)
       .setQualitative(false)
       .setHidden(false)
