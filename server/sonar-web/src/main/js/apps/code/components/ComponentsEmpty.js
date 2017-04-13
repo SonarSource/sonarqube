@@ -20,13 +20,13 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-const ComponentsEmpty = () => (
-  <tr>
-    <td colSpan="2">
-      {translate('no_results')}
-    </td>
-    <td colSpan="6" />
-  </tr>
-);
-
-export default ComponentsEmpty;
+export default function ComponentsEmpty() {
+  return (
+    <tr>
+      <td colSpan="2">
+        {translate('no_results')}
+      </td>
+      <td colSpan="6" />
+    </tr>
+  );
+}

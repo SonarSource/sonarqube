@@ -25,10 +25,10 @@ type Props = {|
   property: string
 |};
 
-const FacetBox = (props: Props) => (
-  <div className="search-navigator-facet-box" data-property={props.property}>
-    {props.children}
-  </div>
-);
-
-export default FacetBox;
+export default function FacetBox(props: Props) {
+  return (
+    <div className="search-navigator-facet-box" data-property={props.property}>
+      {props.children}
+    </div>
+  );
+}

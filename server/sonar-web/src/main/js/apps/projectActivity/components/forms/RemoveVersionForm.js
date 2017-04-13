@@ -31,13 +31,15 @@ type Props = {
   onClose: () => void
 };
 
-const RemoveVersionForm = (props: Props) => (
-  <RemoveEventForm
-    {...props}
-    removeEventButtonText="project_activity.remove_version"
-    removeEventQuestion="project_activity.remove_version.question"
-  />
-);
+function RemoveVersionForm(props: Props) {
+  return (
+    <RemoveEventForm
+      {...props}
+      removeEventButtonText="project_activity.remove_version"
+      removeEventQuestion="project_activity.remove_version.question"
+    />
+  );
+}
 
 const mapStateToProps = null;
 

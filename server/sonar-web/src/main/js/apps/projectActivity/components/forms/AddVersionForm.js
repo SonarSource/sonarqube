@@ -29,9 +29,9 @@ type Props = {
   analysis: Analysis
 };
 
-const AddVersionForm = (props: Props) => (
-  <AddEventForm {...props} addEventButtonText="project_activity.add_version" />
-);
+function AddVersionForm(props: Props) {
+  return <AddEventForm {...props} addEventButtonText="project_activity.add_version" />;
+}
 
 const mapStateToProps = null;
 

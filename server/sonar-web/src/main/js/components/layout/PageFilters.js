@@ -25,10 +25,10 @@ type Props = {
   children?: React.Element<*>
 };
 
-const PageSide = (props: Props) => (
-  <div className={css({ width: 260, padding: 20 })}>
-    {props.children}
-  </div>
-);
-
-export default PageSide;
+export default function PageSide(props: Props) {
+  return (
+    <div className={css({ width: 260, padding: 20 })}>
+      {props.children}
+    </div>
+  );
+}

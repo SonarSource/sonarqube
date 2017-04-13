@@ -24,10 +24,10 @@ type Props = {|
   children?: Array<React.Element<*>>
 |};
 
-const FacetItemsList = (props: Props) => (
-  <div className="search-navigator-facet-list">
-    {props.children}
-  </div>
-);
-
-export default FacetItemsList;
+export default function FacetItemsList(props: Props) {
+  return (
+    <div className="search-navigator-facet-list">
+      {props.children}
+    </div>
+  );
+}
