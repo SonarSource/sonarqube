@@ -149,11 +149,9 @@ export const fetchMoreOrganizationMembers = (key: string, query?: string) =>
 
 export const addOrganizationMember = (key: string, member: Member) =>
   (dispatch: Function) => {
-    dispatch(membersActions.addMember(key, member));
-    return api.addMember({ login: member.login, organization: key }).catch((error: Object) => {
-      onFail(dispatch)(error);
-      dispatch(membersActions.removeMember(key, member));
-    });
+    return api
+      .addMember({ login: member.login, organization: key })
+      .then(user => dispatch(membersActions.addMember(key, user)), onFail(dispatch));
   };
 
 export const removeOrganizationMember = (key: string, member: Member) =>

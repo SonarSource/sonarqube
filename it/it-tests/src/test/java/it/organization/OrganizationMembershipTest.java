@@ -204,7 +204,7 @@ public class OrganizationMembershipTest {
       .addMember("foo")
       .shouldHaveTotal(2);
     page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator").shouldHaveGroups(2);
-    page.getMembersByIdx(1).shouldBeNamed("foo", "foo").shouldHaveGroups(0);
+    page.getMembersByIdx(1).shouldBeNamed("foo", "foo").shouldHaveGroups(1);
   }
 
   @Test
@@ -245,7 +245,6 @@ public class OrganizationMembershipTest {
   }
 
   @Test
-  @Ignore("To be fixed by SONAR-8992")
   public void groups_count_should_be_updated_when_a_member_was_just_added() {
     String orgKey = createOrganization();
     userRule.createUser("foo", "pwd");
