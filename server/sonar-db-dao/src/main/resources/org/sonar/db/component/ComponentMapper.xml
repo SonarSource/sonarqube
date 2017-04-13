@@ -616,6 +616,14 @@
     b_changed = ${_true}
   </update>
 
+  <update id="setPrivateForRootComponentUuid" parameterType="map" >
+    update projects set
+      private = #{isPrivate,jdbcType=BOOLEAN}
+    where
+      project_uuid = #{projectUuid,jdbcType=VARCHAR}
+      and private &lt;&gt; #{isPrivate,jdbcType=BOOLEAN}
+  </update>
+
   <delete id="delete" parameterType="long">
     DELETE FROM projects WHERE id=#{id,jdbcType=BIGINT}
   </delete>
