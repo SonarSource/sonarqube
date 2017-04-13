@@ -28,7 +28,8 @@ import static java.lang.String.valueOf;
 
 public class OrganizationFlagsImpl implements OrganizationFlags {
 
-  public static final String FAILURE_MESSAGE = "Organization support is disabled";
+  public static final String FAILURE_MESSAGE_ENABLED = "Organization support is enabled";
+  public static final String FAILURE_MESSAGE_DISABLED = "Organization support is disabled";
 
   private final DbClient dbClient;
 
@@ -45,7 +46,14 @@ public class OrganizationFlagsImpl implements OrganizationFlags {
   @Override
   public void checkEnabled(DbSession dbSession) {
     if (!isEnabled(dbSession)) {
-      throw new IllegalStateException(FAILURE_MESSAGE);
+      throw new IllegalStateException(FAILURE_MESSAGE_DISABLED);
+    }
+  }
+
+  @Override
+  public void checkDisabled(DbSession dbSession) {
+    if (isEnabled(dbSession)) {
+      throw new IllegalStateException(FAILURE_MESSAGE_ENABLED);
     }
   }
 

@@ -22,7 +22,8 @@ package org.sonar.server.organization;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.sonar.db.DbSession;
 
-import static org.sonar.server.organization.OrganizationFlagsImpl.FAILURE_MESSAGE;
+import static org.sonar.server.organization.OrganizationFlagsImpl.FAILURE_MESSAGE_DISABLED;
+import static org.sonar.server.organization.OrganizationFlagsImpl.FAILURE_MESSAGE_ENABLED;
 
 public class TestOrganizationFlags implements OrganizationFlags {
 
@@ -49,7 +50,14 @@ public class TestOrganizationFlags implements OrganizationFlags {
   @Override
   public void checkEnabled(DbSession dbSession) {
     if (!isEnabled(dbSession)) {
-      throw new IllegalStateException(FAILURE_MESSAGE);
+      throw new IllegalStateException(FAILURE_MESSAGE_DISABLED);
+    }
+  }
+
+  @Override
+  public void checkDisabled(DbSession dbSession) {
+    if (isEnabled(dbSession)) {
+      throw new IllegalStateException(FAILURE_MESSAGE_ENABLED);
     }
   }
 
