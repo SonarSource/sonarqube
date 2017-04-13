@@ -69,6 +69,15 @@ ol, ul {
   &:focus {
     outline: none;
   }
+
+  &[disabled] {
+    opacity: 0.7;
+
+    a::before {
+      background-color: @darkGrey;
+      border-color: @darkGrey;
+    }
+  }
 }
 
 

@@ -32,22 +32,27 @@ export default class OrganizationGroupCheckbox extends React.PureComponent {
   props: Props;
 
   onCheck = (checked: boolean) => {
-    this.props.onCheck(this.props.group.name, checked);
+    const { group } = this.props;
+    if (!group.default) {
+      this.props.onCheck(group.name, checked);
+    }
   };
 
   toggleCheck = () => {
-    this.props.onCheck(this.props.group.name, !this.props.checked);
+    this.onCheck(!this.props.checked);
   };
 
   render() {
+    const { group } = this.props;
     return (
       <li
         className="capitalize list-item-checkable-link"
         onClick={this.toggleCheck}
         tabIndex={0}
-        role="listitem">
+        role="listitem"
+        disabled={group.default}>
         <Checkbox checked={this.props.checked} onCheck={this.onCheck} />
-        {' '}{this.props.group.name}
+        {' '}{group.name}
       </li>
     );
   }

@@ -25,7 +25,8 @@ const group = {
   id: '7',
   name: 'professionals',
   description: '',
-  membersCount: 12
+  membersCount: 12,
+  default: false
 };
 
 it('should render unchecked', () => {
@@ -44,4 +45,18 @@ it('should be able to toggle check', () => {
   wrapper.instance().toggleCheck();
   expect(onCheck.mock.calls).toMatchSnapshot();
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should disabled default groups', () => {
+  const onCheck = jest.fn((group, checked) => wrapper.setProps({ checked }));
+  const wrapper = shallow(
+    <OrganizationGroupCheckbox
+      group={{ ...group, default: true }}
+      checked={true}
+      onCheck={onCheck}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+  wrapper.instance().toggleCheck();
+  expect(onCheck.mock.calls.length).toBe(0);
 });
