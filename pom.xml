@@ -92,6 +92,10 @@
     <artifactsToPublish>${project.groupId}:sonar-application:zip</artifactsToPublish>
   </properties>
 
+  <prerequisites>
+    <maven>3.2</maven>
+  </prerequisites>
+
   <build>
     <extensions>
       <extension>
