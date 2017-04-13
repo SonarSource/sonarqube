@@ -46,18 +46,24 @@ export default Marionette.ItemView.extend({
 
   onUpdateClick(e) {
     e.preventDefault();
-    this.updateGroup();
+    if (!this.model.get('default')) {
+      this.updateGroup();
+    }
   },
 
   onDeleteClick(e) {
     e.preventDefault();
-    this.deleteGroup();
+    if (!this.model.get('default')) {
+      this.deleteGroup();
+    }
   },
 
   onUsersClick(e) {
     e.preventDefault();
     $('.tooltip').remove();
-    this.showUsers();
+    if (!this.model.get('default')) {
+      this.showUsers();
+    }
   },
 
   updateGroup() {

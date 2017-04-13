@@ -36,9 +36,10 @@ export type Organization = {
 
 export type OrgGroup = {
   id: string,
-  name: string,
+  default: boolean,
   description: string,
-  membersCount: number
+  membersCount: number,
+  name: string
 };
 
 type ReceiveOrganizationsAction = {
