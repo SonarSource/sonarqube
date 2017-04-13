@@ -31,6 +31,7 @@ import org.sonar.server.platform.db.migration.def.ColumnDef;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.platform.db.migration.def.Validations.validateTableName;
 
 /**
  * Generate SQL queries to update multiple columns of a single table.
@@ -52,7 +53,7 @@ public class AlterColumnsBuilder {
 
   public AlterColumnsBuilder(Dialect dialect, String tableName) {
     this.dialect = dialect;
-    this.tableName = tableName;
+    this.tableName = validateTableName(tableName);
   }
 
   public AlterColumnsBuilder updateColumn(ColumnDef columnDef) {
