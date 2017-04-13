@@ -24,6 +24,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.util.NetworkUtils;
 import it.Category3Suite;
+import java.net.InetAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.eclipse.jetty.http.HttpVersion;
@@ -69,8 +70,8 @@ public class SSLTest {
   }
 
   public static void startSSLTransparentReverseProxy(boolean requireClientAuth) throws Exception {
-    int httpPort = NetworkUtils.getNextAvailablePort();
-    httpsPort = NetworkUtils.getNextAvailablePort();
+    int httpPort = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+    httpsPort = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
     // Setup Threadpool
     QueuedThreadPool threadPool = new QueuedThreadPool();

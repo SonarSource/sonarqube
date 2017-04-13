@@ -52,7 +52,7 @@ public class LiteTest {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setContext("/sonarqube")
+    .setOrchestratorProperty("sonar.web.context", "/sonarqube")
     .addPlugin(xooPlugin())
     .build();
 

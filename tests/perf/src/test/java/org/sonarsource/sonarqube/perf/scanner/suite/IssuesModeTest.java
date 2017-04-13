@@ -61,7 +61,8 @@ public class IssuesModeTest extends PerfTestCase {
       "-Xmx512m -server",
       "sonar.analysis.mode", "issues",
       "sonar.userHome", userHome.getAbsolutePath(),
-      "sonar.showProfiling", "true");
+      "sonar.showProfiling", "true")
+        .setScannerVersion("2.4");
     long start = System.currentTimeMillis();
     orchestrator.executeBuild(runner, false);
     long duration = System.currentTimeMillis() - start;
