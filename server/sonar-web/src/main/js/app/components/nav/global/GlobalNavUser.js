@@ -23,7 +23,7 @@ import { Link, withRouter } from 'react-router';
 import Avatar from '../../../../components/ui/Avatar';
 import { translate } from '../../../../helpers/l10n';
 
-class GlobalNavUser extends React.Component {
+class GlobalNavUser extends React.PureComponent {
   props: {
     currentUser: {
       email?: string,

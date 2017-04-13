@@ -26,7 +26,7 @@ import BugIconForSonarQubeDotCom from './BugIconForSonarQubeDotCom';
 import VulnerabilityIconForSonarQubeDotCom from './VulnerabilityIconForSonarQubeDotCom';
 import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
 
-export default class EntryIssueTypesForSonarQubeDotCom extends React.Component {
+export default class EntryIssueTypesForSonarQubeDotCom extends React.PureComponent {
   static propTypes = {
     bugs: React.PropTypes.number.isRequired,
     vulnerabilities: React.PropTypes.number.isRequired,

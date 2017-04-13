@@ -23,7 +23,7 @@ import md5 from 'blueimp-md5';
 import classNames from 'classnames';
 import { getSettingValue } from '../../store/rootReducer';
 
-class Avatar extends React.Component {
+class Avatar extends React.PureComponent {
   static propTypes = {
     enableGravatar: React.PropTypes.bool.isRequired,
     gravatarServerUrl: React.PropTypes.string.isRequired,

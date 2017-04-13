@@ -33,7 +33,7 @@ type State = {|
   expanded: boolean
 |};
 
-export default class MetaLink extends React.Component {
+export default class MetaLink extends React.PureComponent {
   props: {
     link: Link
   };

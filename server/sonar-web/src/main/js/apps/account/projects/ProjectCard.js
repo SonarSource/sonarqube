@@ -25,7 +25,7 @@ import Level from '../../../components/ui/Level';
 import { projectType } from './propTypes';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
-export default class ProjectCard extends React.Component {
+export default class ProjectCard extends React.PureComponent {
   static propTypes = {
     project: projectType.isRequired
   };

@@ -49,7 +49,7 @@ type State = {
   }
 };
 
-class AboutApp extends React.Component {
+class AboutApp extends React.PureComponent {
   mounted: boolean;
 
   props: {

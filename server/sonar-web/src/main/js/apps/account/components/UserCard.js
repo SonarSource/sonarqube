@@ -20,7 +20,7 @@
 import React from 'react';
 import Avatar from '../../../components/ui/Avatar';
 
-export default class UserCard extends React.Component {
+export default class UserCard extends React.PureComponent {
   static propTypes = {
     user: React.PropTypes.object.isRequired
   };

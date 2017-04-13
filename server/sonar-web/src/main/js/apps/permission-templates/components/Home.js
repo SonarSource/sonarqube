@@ -24,7 +24,7 @@ import List from './List';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
-export default class Home extends React.Component {
+export default class Home extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     topQualifiers: React.PropTypes.array.isRequired,

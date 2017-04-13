@@ -20,7 +20,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class BulkUpdateForm extends React.Component {
+export default class BulkUpdateForm extends React.PureComponent {
   static propTypes = {
     onSubmit: React.PropTypes.func.isRequired
   };

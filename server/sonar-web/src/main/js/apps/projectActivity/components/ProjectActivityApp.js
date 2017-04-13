@@ -37,7 +37,7 @@ type State = {
   filter: ?string
 };
 
-class ProjectActivityApp extends React.Component {
+class ProjectActivityApp extends React.PureComponent {
   props: Props;
 
   state: State = {

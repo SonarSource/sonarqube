@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-export default class RadioToggle extends React.Component {
+export default class RadioToggle extends React.PureComponent {
   static propTypes = {
     value: React.PropTypes.string,
     options: React.PropTypes.arrayOf(

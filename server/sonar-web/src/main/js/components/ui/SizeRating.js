@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import { inRange } from 'lodash';
 import './SizeRating.css';
 
-export default class SizeRating extends React.Component {
+export default class SizeRating extends React.PureComponent {
   props: {
     value: number,
     small?: boolean,

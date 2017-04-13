@@ -22,7 +22,7 @@ import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import './Rating.css';
 
-export default class Rating extends React.Component {
+export default class Rating extends React.PureComponent {
   static propTypes = {
     value: (props, propName, componentName) => {
       // allow both numbers and strings

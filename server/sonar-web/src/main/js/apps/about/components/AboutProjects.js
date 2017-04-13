@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
-export default class AboutProjects extends React.Component {
+export default class AboutProjects extends React.PureComponent {
   static propTypes = {
     count: React.PropTypes.number.isRequired
   };

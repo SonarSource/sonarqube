@@ -21,7 +21,7 @@
 import React from 'react';
 import GlobalFooter from './GlobalFooter';
 
-export default class SimpleContainer extends React.Component {
+export default class SimpleContainer extends React.PureComponent {
   static propTypes = {
     children: React.PropTypes.oneOfType([
       React.PropTypes.element,

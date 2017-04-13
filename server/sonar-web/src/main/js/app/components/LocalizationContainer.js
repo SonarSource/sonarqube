@@ -21,7 +21,7 @@
 import React from 'react';
 import { requestMessages } from '../../helpers/l10n';
 
-export default class LocalizationContainer extends React.Component {
+export default class LocalizationContainer extends React.PureComponent {
   mounted: boolean;
 
   state = {

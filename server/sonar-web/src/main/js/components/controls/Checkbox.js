@@ -20,7 +20,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-export default class Checkbox extends React.Component {
+export default class Checkbox extends React.PureComponent {
   static propTypes = {
     id: React.PropTypes.string,
     onCheck: React.PropTypes.func.isRequired,

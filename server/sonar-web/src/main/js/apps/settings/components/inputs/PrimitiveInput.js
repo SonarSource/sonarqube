@@ -37,7 +37,7 @@ const typeMapping = {
   [types.TYPE_FLOAT]: InputForNumber
 };
 
-export default class PrimitiveInput extends React.Component {
+export default class PrimitiveInput extends React.PureComponent {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
     value: React.PropTypes.any,

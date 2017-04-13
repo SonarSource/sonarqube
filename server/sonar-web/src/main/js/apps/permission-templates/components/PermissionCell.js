@@ -21,7 +21,7 @@ import React from 'react';
 import { PermissionType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 
-export default class PermissionCell extends React.Component {
+export default class PermissionCell extends React.PureComponent {
   static propTypes = {
     permission: PermissionType.isRequired
   };

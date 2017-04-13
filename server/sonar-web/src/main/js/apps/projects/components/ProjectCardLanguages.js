@@ -24,7 +24,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { getLanguages } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 
-class ProjectCardLanguages extends React.Component {
+class ProjectCardLanguages extends React.PureComponent {
   getLanguageName(key) {
     if (key === '<null>') {
       return translate('unknown');

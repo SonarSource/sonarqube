@@ -21,7 +21,7 @@ import React from 'react';
 import PrimitiveInput from './PrimitiveInput';
 import { getEmptyValue, getUniqueName } from '../../utils';
 
-export default class PropertySetInput extends React.Component {
+export default class PropertySetInput extends React.PureComponent {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
     value: React.PropTypes.array,

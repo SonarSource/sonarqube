@@ -123,7 +123,7 @@ const loadSources = (key: string, from?: number, to?: number): Promise<Array<*>>
   return getSources(key, from, to);
 };
 
-export default class SourceViewerBase extends React.Component {
+export default class SourceViewerBase extends React.PureComponent {
   mounted: boolean;
   node: HTMLElement;
   props: Props;

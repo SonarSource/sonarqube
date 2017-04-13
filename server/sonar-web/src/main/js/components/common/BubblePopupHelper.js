@@ -22,13 +22,13 @@ import classNames from 'classnames';
 
 type Props = {
   className?: string,
-  children: React.Component<*>,
+  children?: Object,
   isOpen: boolean,
   offset?: {
     vertical: number,
     horizontal: number
   },
-  popup: React.Component<*>,
+  popup: Object,
   position: 'bottomleft' | 'bottomright',
   togglePopup: (?boolean) => void
 };

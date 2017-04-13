@@ -30,7 +30,7 @@ type OwnProps = {
   params: { organizationKey: string }
 };
 
-class OrganizationPage extends React.Component {
+class OrganizationPage extends React.PureComponent {
   mounted: boolean;
 
   props: {

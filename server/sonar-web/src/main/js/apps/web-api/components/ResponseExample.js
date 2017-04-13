@@ -20,7 +20,7 @@
 import React from 'react';
 import { fetchResponseExample as fetchResponseExampleApi } from '../../../api/web-api';
 
-export default class ResponseExample extends React.Component {
+export default class ResponseExample extends React.PureComponent {
   state = {};
 
   componentDidMount() {

@@ -22,7 +22,7 @@ import ListHeader from './ListHeader';
 import ListItem from './ListItem';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
 
-export default class List extends React.Component {
+export default class List extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     permissionTemplates: React.PropTypes.arrayOf(PermissionTemplateType).isRequired,

@@ -21,7 +21,7 @@ import React from 'react';
 import { some } from 'lodash';
 import { translateWithParameters, translate } from '../../../helpers/l10n';
 
-export default class BulkUpdateResults extends React.Component {
+export default class BulkUpdateResults extends React.PureComponent {
   static propTypes = {
     results: React.PropTypes.array.isRequired,
     onConfirm: React.PropTypes.func.isRequired

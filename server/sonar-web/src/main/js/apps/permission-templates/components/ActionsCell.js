@@ -28,7 +28,7 @@ import DeleteView from '../views/DeleteView';
 import { translate } from '../../../helpers/l10n';
 import { setDefaultPermissionTemplate } from '../../../api/permissions';
 
-export default class ActionsCell extends React.Component {
+export default class ActionsCell extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired,

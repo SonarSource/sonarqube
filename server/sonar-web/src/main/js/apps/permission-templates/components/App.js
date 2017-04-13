@@ -24,7 +24,7 @@ import { getPermissionTemplates } from '../../../api/permissions';
 import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates } from '../utils';
 import '../../permissions/styles.css';
 
-export default class App extends React.Component {
+export default class App extends React.PureComponent {
   static propTypes = {
     location: React.PropTypes.object.isRequired,
     organization: React.PropTypes.object,

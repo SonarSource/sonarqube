@@ -20,7 +20,7 @@
 import React from 'react';
 import { getIdentityProviders } from '../../../api/users';
 
-export default class UserExternalIdentity extends React.Component {
+export default class UserExternalIdentity extends React.PureComponent {
   state = {
     loading: true
   };

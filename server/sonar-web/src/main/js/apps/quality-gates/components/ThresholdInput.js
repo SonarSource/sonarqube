@@ -20,7 +20,7 @@
 import React from 'react';
 import Select from 'react-select';
 
-export default class ThresholdInput extends React.Component {
+export default class ThresholdInput extends React.PureComponent {
   static propTypes = {
     name: React.PropTypes.string.isRequired,
     value: React.PropTypes.any,

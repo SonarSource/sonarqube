@@ -24,7 +24,7 @@ import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
 import { areThereCustomOrganizations } from '../../../../store/rootReducer';
 
-class SettingsNav extends React.Component {
+class SettingsNav extends React.PureComponent {
   static defaultProps = {
     extensions: []
   };

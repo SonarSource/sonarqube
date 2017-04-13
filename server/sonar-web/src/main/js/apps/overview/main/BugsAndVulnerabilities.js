@@ -26,7 +26,7 @@ import { translate } from '../../../helpers/l10n';
 import BugIcon from '../../../components/ui/BugIcon';
 import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
 
-class BugsAndVulnerabilities extends React.Component {
+class BugsAndVulnerabilities extends React.PureComponent {
   renderHeader() {
     const { component } = this.props;
     const bugsDomainUrl = {

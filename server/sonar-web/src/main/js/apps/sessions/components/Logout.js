@@ -25,7 +25,7 @@ import { doLogout } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
 import RecentHistory from '../../../app/components/nav/component/RecentHistory';
 
-class Logout extends React.Component {
+class Logout extends React.PureComponent {
   componentDidMount() {
     this.props
       .doLogout()

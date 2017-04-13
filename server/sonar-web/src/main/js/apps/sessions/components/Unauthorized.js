@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 
-export default class Unauthorized extends React.Component {
+export default class Unauthorized extends React.PureComponent {
   static propTypes = {
     location: React.PropTypes.object.isRequired
   };

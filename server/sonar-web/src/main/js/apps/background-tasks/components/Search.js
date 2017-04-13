@@ -26,7 +26,7 @@ import DateFilter from './DateFilter';
 import { DEFAULT_FILTERS } from './../constants';
 import { translate } from '../../../helpers/l10n';
 
-export default class Search extends React.Component {
+export default class Search extends React.PureComponent {
   static propTypes = {
     loading: React.PropTypes.bool.isRequired,
     status: React.PropTypes.any.isRequired,

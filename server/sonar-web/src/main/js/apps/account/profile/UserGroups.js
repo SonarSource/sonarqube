@@ -20,7 +20,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class UserGroups extends React.Component {
+export default class UserGroups extends React.PureComponent {
   static propTypes = {
     groups: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
   };

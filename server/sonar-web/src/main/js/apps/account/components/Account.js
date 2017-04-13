@@ -25,7 +25,7 @@ import { getCurrentUser, areThereCustomOrganizations } from '../../../store/root
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import '../account.css';
 
-class Account extends React.Component {
+class Account extends React.PureComponent {
   componentDidMount() {
     if (!this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();

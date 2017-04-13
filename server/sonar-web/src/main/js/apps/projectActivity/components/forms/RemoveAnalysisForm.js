@@ -36,7 +36,7 @@ type State = {
   processing: boolean
 };
 
-class RemoveAnalysisForm extends React.Component {
+class RemoveAnalysisForm extends React.PureComponent {
   mounted: boolean;
   props: Props;
 

@@ -24,7 +24,7 @@ import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 
-class ComponentNavBreadcrumbs extends React.Component {
+class ComponentNavBreadcrumbs extends React.PureComponent {
   static propTypes = {
     breadcrumbs: React.PropTypes.array
   };

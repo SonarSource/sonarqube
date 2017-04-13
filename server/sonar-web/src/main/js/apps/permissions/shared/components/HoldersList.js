@@ -23,7 +23,7 @@ import GroupHolder from './GroupHolder';
 import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../../helpers/l10n';
 
-export default class HoldersList extends React.Component {
+export default class HoldersList extends React.PureComponent {
   static propTypes = {
     permissions: React.PropTypes.array.isRequired,
     users: React.PropTypes.array.isRequired,

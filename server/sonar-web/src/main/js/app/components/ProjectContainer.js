@@ -27,7 +27,7 @@ import { addGlobalErrorMessage } from '../../store/globalMessages/duck';
 import { parseError } from '../../apps/code/utils';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
-class ProjectContainer extends React.Component {
+class ProjectContainer extends React.PureComponent {
   props: {
     addGlobalErrorMessage: () => void,
     children: {},

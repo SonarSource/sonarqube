@@ -31,7 +31,7 @@ import PageSide from '../../../components/layout/PageSide';
 import PageFilters from '../../../components/layout/PageFilters';
 import '../styles.css';
 
-export default class AllProjects extends React.Component {
+export default class AllProjects extends React.PureComponent {
   static propTypes = {
     isFavorite: React.PropTypes.bool.isRequired,
     location: React.PropTypes.object.isRequired,

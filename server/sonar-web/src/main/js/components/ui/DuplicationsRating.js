@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import { inRange } from 'lodash';
 import './DuplicationsRating.css';
 
-export default class DuplicationsRating extends React.Component {
+export default class DuplicationsRating extends React.PureComponent {
   props: {
     value: number,
     size?: 'small' | 'normal' | 'big',

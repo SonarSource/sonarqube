@@ -24,7 +24,7 @@ import { sendTestEmail } from '../../../api/settings';
 import { parseError } from '../../code/utils';
 import { getCurrentUser } from '../../../store/rootReducer';
 
-class EmailForm extends React.Component {
+class EmailForm extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

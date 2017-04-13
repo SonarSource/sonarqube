@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import Defaults from './Defaults';
 import { PermissionTemplateType } from '../propTypes';
 
-export default class NameCell extends React.Component {
+export default class NameCell extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired

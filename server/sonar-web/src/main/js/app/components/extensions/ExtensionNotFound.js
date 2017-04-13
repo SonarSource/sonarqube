@@ -21,7 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-export default class ExtensionNotFound extends React.Component {
+export default class ExtensionNotFound extends React.PureComponent {
   componentDidMount() {
     const html = document.querySelector('html');
     if (html) {

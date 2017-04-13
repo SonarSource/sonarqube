@@ -20,7 +20,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
-export default class FavoriteBase extends React.Component {
+export default class FavoriteBase extends React.PureComponent {
   static propTypes = {
     favorite: React.PropTypes.bool.isRequired,
     addFavorite: React.PropTypes.func.isRequired,

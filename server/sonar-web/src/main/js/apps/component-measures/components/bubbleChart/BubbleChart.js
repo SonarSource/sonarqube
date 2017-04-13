@@ -34,7 +34,7 @@ function getMeasure(component, metric) {
   return Number(component.measures[metric]) || 0;
 }
 
-export default class BubbleChart extends React.Component {
+export default class BubbleChart extends React.PureComponent {
   state = {
     fetching: 0,
     files: []

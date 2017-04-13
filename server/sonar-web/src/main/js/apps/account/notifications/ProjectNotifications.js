@@ -37,7 +37,7 @@ import type {
 import { addNotification, removeNotification } from './actions';
 import { getProjectUrl } from '../../../helpers/urls';
 
-class ProjectNotifications extends React.Component {
+class ProjectNotifications extends React.PureComponent {
   props: {
     project: {
       key: string,

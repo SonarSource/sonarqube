@@ -28,7 +28,7 @@ const withStore = (ComposedComponent, initial = {}) => {
 
   const getStore = () => ({ ...store });
 
-  return class extends React.Component {
+  return class extends React.PureComponent {
     static displayName = `withStore(${ComposedComponent.displayName})}`;
 
     componentWillMount() {

@@ -41,7 +41,7 @@ type State = {
   locationBlink: boolean
 };
 
-export default class SourceViewerIssueLocations extends React.Component {
+export default class SourceViewerIssueLocations extends React.PureComponent {
   fixedNode: HTMLElement;
   locations: { [string]: HTMLElement };
   node: HTMLElement;

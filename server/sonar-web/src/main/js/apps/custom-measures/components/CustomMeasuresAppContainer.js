@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import init from '../init';
 import { getComponent } from '../../../store/rootReducer';
 
-class CustomMeasuresAppContainer extends React.Component {
+class CustomMeasuresAppContainer extends React.PureComponent {
   componentDidMount() {
     init(this.refs.container, this.props.component);
   }

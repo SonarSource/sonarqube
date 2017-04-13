@@ -26,7 +26,7 @@ import { onFail } from '../../store/rootActions';
 import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState/duck';
 
-class AdminContainer extends React.Component {
+class AdminContainer extends React.PureComponent {
   componentDidMount() {
     if (!isUserAdmin(this.props.currentUser)) {
       // workaround cyclic dependencies

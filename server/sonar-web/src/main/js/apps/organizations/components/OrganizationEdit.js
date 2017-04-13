@@ -31,7 +31,7 @@ type Props = {
   updateOrganization: (string, Object) => Promise<*>
 };
 
-class OrganizationEdit extends React.Component {
+class OrganizationEdit extends React.PureComponent {
   mounted: boolean;
 
   props: Props;

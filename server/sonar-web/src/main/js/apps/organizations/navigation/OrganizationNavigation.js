@@ -33,7 +33,7 @@ const ADMIN_PATHS = [
   'projects_management'
 ];
 
-export default class OrganizationNavigation extends React.Component {
+export default class OrganizationNavigation extends React.PureComponent {
   props: {
     location: { pathname: string },
     organization: Organization

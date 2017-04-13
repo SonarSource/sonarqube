@@ -35,7 +35,7 @@ import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { getComponent } from '../../../store/rootReducer';
 import '../code.css';
 
-class App extends React.Component {
+class App extends React.PureComponent {
   state = {
     loading: true,
     baseComponent: null,

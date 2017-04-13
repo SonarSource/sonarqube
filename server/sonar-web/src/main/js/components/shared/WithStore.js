@@ -21,7 +21,7 @@
 import React from 'react';
 import getStore from '../../app/utils/getStore';
 
-export default class WithStore extends React.Component {
+export default class WithStore extends React.PureComponent {
   store: {};
   props: { children: Object };
 

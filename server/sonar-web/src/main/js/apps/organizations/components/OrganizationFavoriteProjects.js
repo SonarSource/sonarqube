@@ -26,7 +26,7 @@ import { getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
 import { translate } from '../../../helpers/l10n';
 
-class OrganizationFavoriteProjects extends React.Component {
+class OrganizationFavoriteProjects extends React.PureComponent {
   props: {
     children: Object,
     location: Object,

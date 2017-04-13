@@ -23,7 +23,7 @@ import ListFooter from '../../../components/controls/ListFooter';
 import { projectsListType } from './propTypes';
 import { translate } from '../../../helpers/l10n';
 
-export default class Projects extends React.Component {
+export default class Projects extends React.PureComponent {
   static propTypes = {
     projects: projectsListType.isRequired,
     total: React.PropTypes.number.isRequired,

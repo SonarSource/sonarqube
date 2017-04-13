@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import init from '../init';
 import { getSettingValue } from '../../../store/rootReducer';
 
-class UpdateCenterAppContainer extends React.Component {
+class UpdateCenterAppContainer extends React.PureComponent {
   componentDidMount() {
     this.stop = init(this.refs.container, this.props.updateCenterActive);
   }

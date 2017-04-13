@@ -21,7 +21,7 @@ import React from 'react';
 import PrimitiveInput from './PrimitiveInput';
 import { getEmptyValue } from '../../utils';
 
-export default class MultiValueInput extends React.Component {
+export default class MultiValueInput extends React.PureComponent {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
     value: React.PropTypes.array,

@@ -31,7 +31,7 @@ type Props = {|
   selectedIndex: ?number
 |};
 
-export default class PageActions extends React.Component {
+export default class PageActions extends React.PureComponent {
   props: Props;
 
   renderShortcuts() {

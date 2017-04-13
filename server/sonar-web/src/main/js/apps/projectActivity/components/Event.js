@@ -38,7 +38,7 @@ type State = {
   deleting: boolean
 };
 
-export default class Event extends React.Component {
+export default class Event extends React.PureComponent {
   mounted: boolean;
   props: Props;
 

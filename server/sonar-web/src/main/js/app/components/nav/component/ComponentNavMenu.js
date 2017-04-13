@@ -35,7 +35,7 @@ const SETTINGS_URLS = [
   '/project/deletion'
 ];
 
-export default class ComponentNavMenu extends React.Component {
+export default class ComponentNavMenu extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
     conf: React.PropTypes.object.isRequired

@@ -33,7 +33,7 @@ type Props = {
   fetchRecentProjectActivity: (project: string) => Promise<*>
 };
 
-class AnalysesList extends React.Component {
+class AnalysesList extends React.PureComponent {
   mounted: boolean;
   props: Props;
 

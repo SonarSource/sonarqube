@@ -31,7 +31,7 @@ type Props = {
   organization?: {}
 };
 
-class SearchFilterContainer extends React.Component {
+class SearchFilterContainer extends React.PureComponent {
   handleSearch: (userQuery?: string) => void;
   props: Props;
 

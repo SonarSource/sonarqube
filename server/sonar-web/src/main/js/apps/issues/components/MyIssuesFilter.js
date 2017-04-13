@@ -27,7 +27,7 @@ type Props = {|
   onMyIssuesChange: (boolean) => void
 |};
 
-export default class MyIssuesFilter extends React.Component {
+export default class MyIssuesFilter extends React.PureComponent {
   props: Props;
 
   handleClick = (myIssues: boolean) =>

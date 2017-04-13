@@ -34,7 +34,7 @@ import Workspace from '../../../../components/workspace/main';
 
 const HEIGHT = 500;
 
-export default class MeasureTreemap extends React.Component {
+export default class MeasureTreemap extends React.PureComponent {
   state = {
     fetching: true,
     components: [],

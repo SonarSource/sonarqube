@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-export default class ListHeader extends React.Component {
+export default class ListHeader extends React.PureComponent {
   static propTypes = {
     permissions: React.PropTypes.array.isRequired
   };

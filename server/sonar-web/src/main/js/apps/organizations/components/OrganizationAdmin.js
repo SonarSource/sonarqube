@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 
-class OrganizationAdmin extends React.Component {
+class OrganizationAdmin extends React.PureComponent {
   props: {
     children: Object,
     organization: { canAdmin: boolean }

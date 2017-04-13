@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import init from '../init';
 import { getCurrentUser } from '../../../store/rootReducer';
 
-class UsersAppContainer extends React.Component {
+class UsersAppContainer extends React.PureComponent {
   static propTypes = {
     currentUser: React.PropTypes.object.isRequired
   };

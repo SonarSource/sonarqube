@@ -21,7 +21,7 @@ import React from 'react';
 import RadioToggle from '../../../../components/controls/RadioToggle';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
-export default class SearchForm extends React.Component {
+export default class SearchForm extends React.PureComponent {
   static propTypes = {
     query: React.PropTypes.string,
     filter: React.PropTypes.oneOf(['all', 'users', 'groups']),

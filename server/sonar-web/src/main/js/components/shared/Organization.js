@@ -35,7 +35,7 @@ type Props = {
   shouldBeDisplayed: boolean
 };
 
-class Organization extends React.Component {
+class Organization extends React.PureComponent {
   props: Props;
 
   static defaultProps = {

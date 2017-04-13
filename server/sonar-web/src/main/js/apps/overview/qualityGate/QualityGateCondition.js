@@ -29,7 +29,7 @@ import { getPeriod, getPeriodDate } from '../../../helpers/periods';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
-export default class QualityGateCondition extends React.Component {
+export default class QualityGateCondition extends React.PureComponent {
   props: {
     component: { key: string },
     periods: Array<{

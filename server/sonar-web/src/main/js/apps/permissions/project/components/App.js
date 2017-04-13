@@ -27,7 +27,7 @@ import '../../styles.css';
 
 // TODO helmet
 
-class App extends React.Component {
+class App extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object
   };

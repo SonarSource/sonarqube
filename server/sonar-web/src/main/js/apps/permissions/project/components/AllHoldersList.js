@@ -42,7 +42,7 @@ import {
   getPermissionsAppSelectedPermission
 } from '../../../../store/rootReducer';
 
-class AllHoldersList extends React.Component {
+class AllHoldersList extends React.PureComponent {
   static propTypes = {
     project: React.PropTypes.object.isRequired
   };

@@ -26,7 +26,7 @@ import GlobalNavSearch from './GlobalNavSearch';
 import ShortcutsHelpView from './ShortcutsHelpView';
 import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
 
-class GlobalNav extends React.Component {
+class GlobalNav extends React.PureComponent {
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
   }

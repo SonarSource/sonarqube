@@ -25,7 +25,7 @@ import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import CoverageRating from '../../../components/ui/CoverageRating';
 
-class Coverage extends React.Component {
+class Coverage extends React.PureComponent {
   getCoverage() {
     const { measures } = this.props;
     const { value } = measures.find(measure => measure.metric.key === 'coverage');
