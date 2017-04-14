@@ -73,8 +73,9 @@ public class RuleCreator {
     checkArgument(templateKey != null, "Rule template key should not be null");
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
-      .orElseThrow(() -> new IllegalStateException(String.format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
-    RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganization, templateKey);
+      .orElseThrow(() -> new IllegalStateException(format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
+    RuleDto templateRule = dbClient.ruleDao().selectByKey(dbSession, defaultOrganization, templateKey)
+      .orElseThrow(() -> new IllegalArgumentException(format("The template key doesn't exist: %s", templateKey)));
     checkArgument(templateRule.isTemplate(), "This rule is not a template rule: %s", templateKey.toString());
     validateCustomRule(newRule, dbSession, templateKey);
 

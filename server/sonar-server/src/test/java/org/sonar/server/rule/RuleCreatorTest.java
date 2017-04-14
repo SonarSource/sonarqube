@@ -443,6 +443,20 @@ public class RuleCreatorTest {
     underTest.create(dbSession, newRule);
   }
 
+  @Test
+  public void fail_to_create_custom_rule_when_unknown_template() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The template key doesn't exist: java:S001");
+
+    // Create custom rule
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", RuleKey.of("java", "S001"))
+      .setName("My custom")
+      .setMarkdownDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY);
+    underTest.create(dbSession, newRule);
+  }
+
   private RuleDto createTemplateRule() {
     RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"), db.getDefaultOrganization())
       .setIsTemplate(true)
