@@ -33,6 +33,7 @@ import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentT
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER;
@@ -78,6 +79,12 @@ public enum ComponentTextSearchFeature {
     public QueryBuilder getQuery(ComponentTextSearchQuery query) {
       return matchQuery(SORTABLE_ANALYZER.subField(query.getFieldKey()), query.getQueryText())
         .boost(50f);
+    }
+  },
+  RECENTLY_BROWSED {
+    @Override
+    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
+      return termsQuery(query.getFieldKey(), query.getRecentlyBrowsedKeys()).boost(100f);
     }
   };
 

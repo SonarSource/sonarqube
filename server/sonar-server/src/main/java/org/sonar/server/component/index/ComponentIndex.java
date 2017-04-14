@@ -127,6 +127,7 @@ public class ComponentIndex {
       .setQueryText(query.getQuery())
       .setFieldKey(FIELD_KEY)
       .setFieldName(FIELD_NAME)
+      .setRecentlyBrowsedKeys(query.getRecentlyBrowsedKeys())
       .build();
     return esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, features));
   }
