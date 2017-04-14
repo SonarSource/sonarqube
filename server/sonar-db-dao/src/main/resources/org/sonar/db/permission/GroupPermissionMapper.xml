@@ -196,6 +196,14 @@
       </choose>
   </delete>
 
+  <delete id="deleteByRootComponentIdAndPermission">
+    delete from
+      group_roles
+    where
+      resource_id=#{rootComponentId,jdbcType=BIGINT}
+      and role=#{permission,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="delete" parameterType="map">
     delete from group_roles
     where
