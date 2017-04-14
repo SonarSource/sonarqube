@@ -22,6 +22,7 @@ package org.sonar.db.permission;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 import org.junit.Before;
 import org.junit.Rule;
@@ -658,6 +659,172 @@ public class GroupPermissionDaoTest {
     underTest.deleteByOrganization(dbSession, organization3.getUuid());
     dbSession.commit();
     verifyOrganizationUuidsInTable();
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndGroupId_deletes_all_permissions_of_group_AnyOne_of_specified_component_if_groupId_is_null() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnAnyone("p1", project);
+    db.users().insertProjectPermissionOnGroup(group, "p2", project);
+    db.users().insertPermissionOnAnyone(organization, "p3");
+    db.users().insertPermissionOnGroup(group, "p4");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, project.getId()))
+      .containsOnly("p1");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), project.getId()))
+      .containsOnly("p2");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+      .containsOnly("p3");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group.getId()))
+      .containsOnly("p4");
+
+    int deletedCount = underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), null);
+
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, project.getId()))
+      .isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), project.getId()))
+      .containsOnly("p2");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+      .containsOnly("p3");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group.getId()))
+      .containsOnly("p4");
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndGroupId_deletes_all_permissions_of_specified_group_of_specified_component_if_groupId_is_non_null() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnAnyone("p1", project);
+    db.users().insertProjectPermissionOnGroup(group1, "p2", project);
+    db.users().insertProjectPermissionOnGroup(group2, "p3", project);
+    db.users().insertProjectPermissionOnGroup(group2, "p4", project);
+    db.users().insertPermissionOnAnyone(organization, "p5");
+    db.users().insertPermissionOnGroup(group1, "p6");
+    db.users().insertPermissionOnGroup(group2, "p7");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, project.getId()))
+      .containsOnly("p1");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId(), project.getId()))
+      .containsOnly("p2");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId(), project.getId()))
+      .containsOnly("p3", "p4");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+      .containsOnly("p5");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId()))
+      .containsOnly("p6");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId()))
+      .containsOnly("p7");
+
+    int deletedCount = underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), group1.getId());
+
+    assertThat(deletedCount).isEqualTo(1);
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, project.getId()))
+      .containsOnly("p1");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId(), project.getId()))
+      .isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId(), project.getId()))
+      .containsOnly("p3", "p4");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId()))
+      .containsOnly("p6");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId()))
+      .containsOnly("p7");
+
+    deletedCount = underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), group2.getId());
+
+    assertThat(deletedCount).isEqualTo(2);
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, project.getId()))
+      .containsOnly("p1");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId(), project.getId()))
+      .isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId(), project.getId()))
+      .isEmpty();
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId()))
+      .containsOnly("p6");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId()))
+      .containsOnly("p7");
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndGroupId_has_no_effect_if_component_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+
+    assertThat(underTest.deleteByRootComponentIdAndGroupId(dbSession, 1234L, null)).isEqualTo(0);
+    assertThat(underTest.deleteByRootComponentIdAndGroupId(dbSession, 1234L, group.getId())).isEqualTo(0);
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndGroupId_has_no_effect_if_component_has_no_group_permission_at_all() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    GroupDto group = db.users().insertGroup(organization);
+
+    assertThat(underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), null)).isEqualTo(0);
+    assertThat(underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), group.getId())).isEqualTo(0);
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndGroupId_has_no_effect_if_group_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+
+    assertThat(underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), 5678)).isEqualTo(0);
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndGroupId_has_no_effect_if_component_has_no_group_permission_for_group_AnyOne() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnGroup(group1, "p1", project);
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, project.getId()))
+      .isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId(), project.getId()))
+      .containsOnly("p1");
+    db.users().insertPermissionOnAnyone(organization, "p2");
+    db.users().insertPermissionOnGroup(group1, "p3");
+
+    int deletedCount = underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), null);
+
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, project.getId()))
+      .isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId(), project.getId()))
+      .containsOnly("p1");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+      .containsOnly("p2");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId()))
+      .containsOnly("p3");
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndGroupId_has_no_effect_if_component_has_no_group_permission_for_specified_group() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnGroup(group1, "p1", project);
+    db.users().insertPermissionOnAnyone(organization, "p2");
+    db.users().insertPermissionOnGroup(group1, "p3");
+
+    int deletedCount = underTest.deleteByRootComponentIdAndGroupId(dbSession, project.getId(), group2.getId());
+
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId(), project.getId()))
+      .containsOnly("p1");
+    assertThat(underTest.selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group2.getId(), project.getId()))
+      .isEmpty();
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+      .containsOnly("p2");
+    assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId()))
+      .containsOnly("p3");
+  }
+
+  private ComponentDto randomPublicOrPrivateProject(OrganizationDto organization) {
+    return new Random().nextBoolean() ? db.components().insertPublicProject(organization) : db.components().insertPrivateProject(organization);
   }
 
   private PermissionQuery.Builder newQuery() {
