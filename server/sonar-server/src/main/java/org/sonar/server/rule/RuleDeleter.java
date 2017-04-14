@@ -49,7 +49,7 @@ public class RuleDeleter {
 
   public void delete(RuleKey ruleKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      organizationFlags.checkEnabled(dbSession);
+      organizationFlags.checkDisabled(dbSession);
 
       RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, ruleKey);
       if (rule.getTemplateId() == null) {
