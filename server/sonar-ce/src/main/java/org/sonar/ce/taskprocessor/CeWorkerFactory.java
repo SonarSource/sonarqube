@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.ce.taskprocessor;
 
 import java.util.Set;
@@ -34,7 +33,6 @@ public interface CeWorkerFactory {
    */
   CeWorker create();
   /**
-   *
    * @return  the UUIDs of each {@link CeWorker} object returned by {@link #create}.
    */
   Set<String> getWorkerUUIDs();

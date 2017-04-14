@@ -21,32 +21,36 @@
 package org.sonar.process.cluster;
 
 /**
- * This interface holds all object keys accessible via Hazelcast
+ * This class holds all object keys accessible via Hazelcast
  */
-public interface ClusterObjectKeys {
+public final class ClusterObjectKeys {
+
+  private ClusterObjectKeys() {
+    // Holder for clustered objects
+  }
 
   /**
    * The key of replicated map that hold all operational processes
    */
-  String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
+  public static final String OPERATIONAL_PROCESSES = "OPERATIONAL_PROCESSES";
   /**
    * The key of atomic reference holding the leader UUID
    */
-  String LEADER = "LEADER";
+  public static final String LEADER = "LEADER";
   /**
    * The key of the hostname attribute of a member
    */
-  String HOSTNAME = "HOSTNAME";
+  public static final String HOSTNAME = "HOSTNAME";
   /**
    * The key of atomic reference holding the SonarQube version of the cluster
    */
-  String SONARQUBE_VERSION = "SONARQUBE_VERSION";
+  public static final String SONARQUBE_VERSION = "SONARQUBE_VERSION";
   /**
    * The key of the Set holding the UUIDs of clients
    */
-  String CLIENT_UUIDS = "CLIENT_UUIDS";
+  public static final String CLIENT_UUIDS = "CLIENT_UUIDS";
   /**
    * The key of replicated map holding the CeWorker UUIDs
    */
-  String WORKER_UUIDS = "WORKER_UUIDS";
+  public static final String WORKER_UUIDS = "WORKER_UUIDS";
 }

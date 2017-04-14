@@ -23,6 +23,8 @@ package org.sonar.ce;
 import java.util.Set;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 
+import static com.google.common.base.Preconditions.checkState;
+
 /**
  * Provide the set of worker's UUID in a non clustered SonarQube instance
  */
@@ -36,6 +38,7 @@ public class StandaloneCeDistributedInformation implements CeDistributedInformat
 
   @Override
   public Set<String> getWorkerUUIDs() {
+    checkState(workerUUIDs != null, "Invalid call, broadcastWorkerUUIDs() must be called first.");
     return workerUUIDs;
   }
 

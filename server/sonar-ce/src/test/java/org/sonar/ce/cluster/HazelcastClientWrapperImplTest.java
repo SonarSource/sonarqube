@@ -20,7 +20,13 @@
 
 package org.sonar.ce.cluster;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
+import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
+import com.hazelcast.client.impl.HazelcastClientProxy;
 import com.hazelcast.core.HazelcastInstance;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +42,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -205,11 +212,54 @@ public class HazelcastClientWrapperImplTest {
     }
   }
 
+  @Test
+  public void configuration_tweaks_of_hazelcast_must_be_present() {
+    try {
+      hzClient.start();
+      HazelcastClientInstanceImpl realClient = ((HazelcastClientProxy) hzClient.hzInstance).client;
+      assertThat(realClient.getClientConfig().getProperty("hazelcast.tcp.join.port.try.count")).isEqualTo("10");
+      assertThat(realClient.getClientConfig().getProperty("hazelcast.phone.home.enabled")).isEqualTo("false");
+      assertThat(realClient.getClientConfig().getProperty("hazelcast.logging.type")).isEqualTo("slf4j");
+    } finally {
+      hzClient.stop();
+    }
+  }
+
+  @Test
+  public void hazelcast_client_must_log_through_sl4fj() {
+    MemoryAppender<ILoggingEvent> memoryAppender = new MemoryAppender<>();
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+    memoryAppender.setContext(lc);
+    memoryAppender.start();
+    lc.getLogger("com.hazelcast").addAppender(memoryAppender);
+
+    try {
+      hzClient.start();
+    } finally {
+      hzClient.stop();
+      memoryAppender.stop();
+    }
+    assertThat(memoryAppender.events).isNotEmpty();
+    memoryAppender.events.stream().forEach(
+      e -> assertThat(e.getLoggerName()).startsWith("com.hazelcast")
+    );
+  }
+
   private static Settings createClusterSettings(String name, String localEndPoint) {
     Properties properties = new Properties();
     properties.setProperty(ProcessProperties.CLUSTER_NAME, name);
     properties.setProperty(ProcessProperties.CLUSTER_LOCALENDPOINT, localEndPoint);
     properties.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
     return new MapSettings(new PropertyDefinitions()).addProperties(properties);
+  }
+
+  private class MemoryAppender<E> extends AppenderBase<E> {
+    private final List<E> events = new ArrayList();
+
+    @Override
+    protected void append(E eventObject) {
+      events.add(eventObject);
+    }
   }
 }

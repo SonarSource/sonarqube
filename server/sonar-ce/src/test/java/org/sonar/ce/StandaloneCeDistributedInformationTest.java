@@ -21,7 +21,9 @@ package org.sonar.ce;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +32,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class StandaloneCeDistributedInformationTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   @Test
   public void broadcastWorkerUUIDs_must_retrieve_from_ceworkerfactory() {
     CeWorkerFactory ceWorkerFactory = mock(CeWorkerFactory.class);
@@ -57,6 +62,9 @@ public class StandaloneCeDistributedInformationTest {
     when(ceWorkerFactory.getWorkerUUIDs()).thenReturn(workerUUIDs);
     StandaloneCeDistributedInformation ceCluster = new StandaloneCeDistributedInformation(ceWorkerFactory);
 
-    assertThat(ceCluster.getWorkerUUIDs()).isNull();
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Invalid call, broadcastWorkerUUIDs() must be called first.");
+
+    ceCluster.getWorkerUUIDs();
   }
 }

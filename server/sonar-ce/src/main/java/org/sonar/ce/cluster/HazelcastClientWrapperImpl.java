@@ -20,12 +20,14 @@
 
 package org.sonar.ce.cluster;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
@@ -41,7 +43,8 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
 
   private final ClientConfig hzConfig;
 
-  private HazelcastInstance hzInstance;
+  @VisibleForTesting
+  protected HazelcastInstance hzInstance;
 
   public HazelcastClientWrapperImpl(Settings settings) {
     boolean clusterEnabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
@@ -60,8 +63,6 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
     hzConfig
       // Increase the number of tries
       .setProperty("hazelcast.tcp.join.port.try.count", "10")
-      // Don't bind on all interfaces
-      .setProperty("hazelcast.socket.bind.any", "false")
       // Don't phone home
       .setProperty("hazelcast.phone.home.enabled", "false")
       // Use slf4j for logging
@@ -96,6 +97,11 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
   @Override
   public Set<String> getConnectedClients() {
     return hzInstance.getSet(CLIENT_UUIDS);
+  }
+
+  @Override
+  public Lock getLock(String name) {
+    return hzInstance.getLock(name);
   }
 
   @Override

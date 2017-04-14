@@ -19,12 +19,17 @@
  */
 package org.sonar.application.cluster;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ItemEvent;
 import com.hazelcast.core.ItemListener;
 import com.hazelcast.core.ReplicatedMap;
 import java.net.InetAddress;
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +39,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.slf4j.LoggerFactory;
 import org.sonar.application.AppStateListener;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.NetworkUtils;
@@ -204,7 +210,6 @@ public class HazelcastClusterTest {
     }
   }
 
-
   @Test
   public void registerSonarQubeVersion_throws_ISE_if_initial_version_is_different() throws Exception {
     ClusterProperties clusterProperties = new ClusterProperties(newClusterSettings());
@@ -247,6 +252,44 @@ public class HazelcastClusterTest {
       verifyNoMoreInteractions(listener);
 
       hzInstance.shutdown();
+    }
+  }
+
+  @Test
+  public void hazelcast_must_log_through_sl4fj() {
+    MemoryAppender<ILoggingEvent> memoryAppender = new MemoryAppender<>();
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    lc.reset();
+    memoryAppender.setContext(lc);
+    memoryAppender.start();
+    lc.getLogger("com.hazelcast").addAppender(memoryAppender);
+
+    try (AppStateClusterImpl appStateCluster = new AppStateClusterImpl(newClusterSettings())) {
+    }
+
+    assertThat(memoryAppender.events).isNotEmpty();
+    memoryAppender.events.stream().forEach(
+      e -> assertThat(e.getLoggerName()).startsWith("com.hazelcast")
+    );
+  }
+
+  private class MemoryAppender<E> extends AppenderBase<E> {
+    private final List<E> events = new ArrayList();
+
+    @Override
+    protected void append(E eventObject) {
+      events.add(eventObject);
+    }
+  }
+
+
+  @Test
+  public void configuration_tweaks_of_hazelcast_must_be_present() {
+    try (HazelcastCluster hzCluster = HazelcastCluster.create(new ClusterProperties(newClusterSettings()))) {
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.tcp.join.port.try.count")).isEqualTo("10");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.phone.home.enabled")).isEqualTo("false");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.logging.type")).isEqualTo("slf4j");
+      assertThat(hzCluster.hzInstance.getConfig().getProperty("hazelcast.socket.bind.any")).isEqualTo("false");
     }
   }
 }

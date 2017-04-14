@@ -39,7 +39,7 @@ public class CeWorkerFactoryImplTest {
     Set<CeWorker> ceWorkers = new HashSet<>();
     Set<String> ceWorkerUUIDs = new HashSet<>();
 
-    for(int i=0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
       CeWorker ceWorker = underTest.create();
       ceWorkers.add(ceWorker);
       ceWorkerUUIDs.add(ceWorker.getUUID());

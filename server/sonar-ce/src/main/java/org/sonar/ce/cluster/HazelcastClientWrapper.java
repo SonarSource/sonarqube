@@ -23,50 +23,34 @@ package org.sonar.ce.cluster;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
+/**
+ * The interface Hazelcast client wrapper.
+ */
 public interface HazelcastClientWrapper {
   /**
-   * Gets the set identified by name
-   *
-   * @param <E>  the type parameter
-   * @param name the name
-   * @return the set
+   * Gets the set shared by the cluster and identified by name
    */
   <E> Set<E> getSet(String name);
 
   /**
-   * Gets the list identified by name
-   *
-   * @param <E>  the type parameter
-   * @param name the name
-   * @return the list
+   * Gets the list shared by the cluster and identified by name
    */
   <E> List<E> getList(String name);
 
   /**
-   * Gets the map identified by name
-   *
-   * @param <K>  the type parameter
-   * @param <V>  the type parameter
-   * @param name the name
-   * @return the map
+   * Gets the map shared by the cluster and identified by name
    */
   <K, V> Map<K, V> getMap(String name);
 
   /**
-   * Gets the replicated map identified by name
-   *
-   * @param <K>  the type parameter
-   * @param <V>  the type parameter
-   * @param name the name
-   * @return the replicated map
+   * Gets the replicated map shared by the cluster and identified by name
    */
   <K,V> Map<K,V> getReplicatedMap(String name);
 
   /**
    * Retrieve the local UUID
-   *
-   * @return the local uuid
    */
   String getClientUUID();
 
@@ -77,4 +61,9 @@ public interface HazelcastClientWrapper {
    * @return the connected clients
    */
   Set<String> getConnectedClients();
+
+  /**
+   * Gets lock among the cluster, identified by name
+   */
+  Lock getLock(String name);
 }
