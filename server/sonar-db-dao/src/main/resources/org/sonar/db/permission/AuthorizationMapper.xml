@@ -40,14 +40,6 @@
     gr.group_id is null
   </select>
 
-  <select id="selectRootComponentPermissionsOfAnonymous" parameterType="map" resultType="string">
-    select gr.role
-    from group_roles gr
-    where
-    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
-    gr.group_id is null
-  </select>
-
   <select id="countUsersWithGlobalPermissionExcludingGroup" parameterType="map" resultType="int">
     select count(1) from
     (
