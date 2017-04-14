@@ -181,6 +181,21 @@
     where resource_id=#{rootComponentId,jdbcType=BIGINT}
   </delete>
 
+  <delete id="deleteByRootComponentIdAndGroupId">
+    delete from
+      group_roles
+    where
+      resource_id=#{rootComponentId,jdbcType=BIGINT}
+      <choose>
+        <when test="groupId != null">
+          and group_id = #{groupId,jdbcType=INTEGER}
+        </when>
+        <otherwise>
+          and group_id is null
+        </otherwise>
+      </choose>
+  </delete>
+
   <delete id="delete" parameterType="map">
     delete from group_roles
     where
