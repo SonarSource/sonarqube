@@ -32,7 +32,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.ServletFilter;
+import org.sonar.api.web.ServletFilter.UrlPattern;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -48,6 +51,9 @@ public class MasterServletFilterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  @Rule
+  public LogTester logTester = new LogTester();
+
   @Before
   public void resetSingleton() {
     MasterServletFilter.INSTANCE = null;
@@ -55,7 +61,7 @@ public class MasterServletFilterTest {
 
   @Test
   public void should_init_and_destroy_filters() throws Exception {
-    ServletFilter filter = mock(ServletFilter.class);
+    ServletFilter filter = createMockFilter();
     FilterConfig config = mock(FilterConfig.class);
     MasterServletFilter master = new MasterServletFilter();
     master.init(config, singletonList(filter));
@@ -81,7 +87,7 @@ public class MasterServletFilterTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("foo");
 
-    ServletFilter filter = mock(ServletFilter.class);
+    ServletFilter filter = createMockFilter();
     doThrow(new IllegalStateException("foo")).when(filter).init(any(FilterConfig.class));
 
     FilterConfig config = mock(FilterConfig.class);
@@ -122,6 +128,23 @@ public class MasterServletFilterTest {
     assertThat(filter2.count).isEqualTo(2);
   }
 
+  @Test
+  public void display_servlet_filter_patterns_in_INFO_log() throws Exception {
+    ServletFilter filter = new PatternFilter(UrlPattern.builder().includes("/api/issues").excludes("/batch/projects").build());
+    FilterConfig config = mock(FilterConfig.class);
+    MasterServletFilter master = new MasterServletFilter();
+
+    master.init(config, singletonList(filter));
+
+    assertThat(logTester.logs(LoggerLevel.INFO)).containsOnly("Initializing servlet filter PatternFilter [pattern=UrlPattern{inclusions=[/api/issues], exclusions=[/batch/projects]}]");
+  }
+
+  private static ServletFilter createMockFilter() {
+    ServletFilter filter = mock(ServletFilter.class);
+    when(filter.doGetPattern()).thenReturn(UrlPattern.builder().build());
+    return filter;
+  }
+
   private static final class TrueFilter extends ServletFilter {
     private static int globalCount = 0;
     private int count = 0;
@@ -139,6 +162,40 @@ public class MasterServletFilterTest {
 
     @Override
     public void destroy() {
+    }
+  }
+
+  private static class PatternFilter extends ServletFilter {
+
+    private final UrlPattern urlPattern;
+
+    PatternFilter(UrlPattern urlPattern) {
+      this.urlPattern = urlPattern;
+    }
+
+    @Override
+    public UrlPattern doGetPattern() {
+      return urlPattern;
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+      // Nothing to do
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+      // Nothing to do
+    }
+
+    @Override
+    public void destroy() {
+      // Nothing to do
+    }
+
+    @Override
+    public String toString() {
+      return "PatternFilter";
     }
   }
 

@@ -228,6 +228,19 @@ public class ServletFilterTest {
       "/mstile*");
   }
 
+  @Test
+  public void test_label() throws Exception {
+    assertThat(ServletFilter.UrlPattern.builder().build().label()).isEqualTo("UrlPattern{inclusions=[], exclusions=[]}");
+    assertThat(ServletFilter.UrlPattern.builder()
+      .includes("/foo/*")
+      .excludes("/foo/login")
+      .build().label()).isEqualTo("UrlPattern{inclusions=[/foo/*], exclusions=[/foo/login]}");
+    assertThat(ServletFilter.UrlPattern.builder()
+      .includes("/foo/*", "/foo/lo*")
+      .excludes("/foo/login", "/foo/logout", "/foo/list")
+      .build().label()).isEqualTo("UrlPattern{inclusions=[/foo/*, ...], exclusions=[/foo/login, ...]}");
+  }
+
   private static class FakeFilter extends ServletFilter {
     @Override
     public UrlPattern doGetPattern() {
