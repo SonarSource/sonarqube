@@ -65,6 +65,7 @@ message SuggestionsWsResponse {
     optional string match = 3;
     optional string organization = 4;
     optional string project = 5;
+    optional bool isRecentlyBrowsed = 6;
   }
 
   message Organization {

@@ -21,6 +21,7 @@ package org.sonar.server.component.ws;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -48,6 +49,7 @@ import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 import static java.util.stream.Stream.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +61,7 @@ import static org.sonar.server.component.ws.SuggestionsAction.EXTENDED_LIMIT;
 import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
+import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.parseFrom;
@@ -94,7 +97,14 @@ public class SuggestionsActionTest {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
       PARAM_MORE,
-      PARAM_QUERY);
+      PARAM_QUERY,
+      PARAM_RECENTLY_BROWSED);
+
+    WebService.Param recentlyBrowsed = action.param(PARAM_RECENTLY_BROWSED);
+    assertThat(recentlyBrowsed.since()).isEqualTo("6.4");
+    assertThat(recentlyBrowsed.exampleValue()).isNotEmpty();
+    assertThat(recentlyBrowsed.description()).isNotEmpty();
+    assertThat(recentlyBrowsed.isRequired()).isFalse();
   }
 
   @Test
@@ -195,6 +205,28 @@ public class SuggestionsActionTest {
       .extracting(Project::getKey, Project::getName)
       .containsExactlyInAnyOrder(
         tuple(project.key(), project.longName()));
+  }
+
+  @Test
+  public void should_mark_recently_browsed_items() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto module1 = newModuleDto(project).setName("Module1");
+    db.components().insertComponent(module1);
+    ComponentDto module2 = newModuleDto(project).setName("Module2");
+    db.components().insertComponent(module2);
+    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+
+    SuggestionsWsResponse response = actionTester.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, "Module")
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getKey()).collect(joining(",")))
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getSuggestionsList())
+      .flatExtracting(Category::getSuggestionsList)
+      .extracting(Suggestion::getIsRecentlyBrowsed)
+      .containsExactly(true, false);
   }
 
   @Test

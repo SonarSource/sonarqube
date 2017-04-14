@@ -22,6 +22,7 @@ package org.sonar.server.component.index;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -32,12 +33,14 @@ public class ComponentIndexQuery {
 
   private final String query;
   private final Collection<String> qualifiers;
+  private final Set<String> recentlyBrowsedKeys;
   @CheckForNull
   private final Integer limit;
 
   private ComponentIndexQuery(Builder builder) {
     this.query = requireNonNull(builder.query);
     this.qualifiers = requireNonNull(builder.qualifiers);
+    this.recentlyBrowsedKeys = requireNonNull(builder.recentlyBrowsedKeys);
     this.limit = builder.limit;
   }
 
@@ -47,6 +50,10 @@ public class ComponentIndexQuery {
 
   public String getQuery() {
     return query;
+  }
+
+  public Set<String> getRecentlyBrowsedKeys() {
+    return recentlyBrowsedKeys;
   }
 
   public Optional<Integer> getLimit() {
@@ -60,6 +67,7 @@ public class ComponentIndexQuery {
   public static class Builder {
     private String query;
     private Collection<String> qualifiers = Collections.emptyList();
+    private Set<String> recentlyBrowsedKeys = Collections.emptySet();
     private Integer limit;
 
     private Builder() {
@@ -73,6 +81,11 @@ public class ComponentIndexQuery {
 
     public Builder setQualifiers(Collection<String> qualifiers) {
       this.qualifiers = Collections.unmodifiableCollection(qualifiers);
+      return this;
+    }
+
+    public Builder setRecentlyBrowsedKeys(Set<String> recentlyBrowsedKeys) {
+      this.recentlyBrowsedKeys = Collections.unmodifiableSet(recentlyBrowsedKeys);
       return this;
     }
 

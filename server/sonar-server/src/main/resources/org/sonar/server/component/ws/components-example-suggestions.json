@@ -7,7 +7,8 @@
           "organization": "default-organization",
           "key": "org.sonarsource:sonarqube",
           "name": "SonarSource :: SonarQube",
-          "match": "<mark>Sonar</mark>Source :: SonarQube"
+          "match": "<mark>Sonar</mark>Source :: SonarQube",
+          "recentlyBrowsed": true
         },
         {
           "organization": "default-organization",
