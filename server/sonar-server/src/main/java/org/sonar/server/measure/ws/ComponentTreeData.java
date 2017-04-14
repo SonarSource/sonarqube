@@ -23,11 +23,14 @@ import com.google.common.collect.Table;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures;
 
+import static java.lang.Double.NaN;
+import static java.lang.Double.isNaN;
 import static java.util.Objects.requireNonNull;
 
 class ComponentTreeData {
@@ -37,7 +40,7 @@ class ComponentTreeData {
   private final Map<String, ComponentDto> referenceComponentsByUuid;
   private final List<MetricDto> metrics;
   private final List<WsMeasures.Period> periods;
-  private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+  private final Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric;
 
   private ComponentTreeData(Builder builder) {
     this.baseComponent = builder.baseComponent;
@@ -79,7 +82,7 @@ class ComponentTreeData {
   }
 
   @CheckForNull
-  Table<String, MetricDto, MeasureDto> getMeasuresByComponentUuidAndMetric() {
+  Table<String, MetricDto, Measure> getMeasuresByComponentUuidAndMetric() {
     return measuresByComponentUuidAndMetric;
   }
 
@@ -94,7 +97,7 @@ class ComponentTreeData {
     private int componentCount;
     private List<MetricDto> metrics;
     private List<WsMeasures.Period> periods;
-    private Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+    private Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric;
 
     private Builder() {
       // private constructor
@@ -125,7 +128,7 @@ class ComponentTreeData {
       return this;
     }
 
-    public Builder setMeasuresByComponentUuidAndMetric(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
+    public Builder setMeasuresByComponentUuidAndMetric(Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric) {
       this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
       return this;
     }
@@ -138,6 +141,47 @@ class ComponentTreeData {
     public ComponentTreeData build() {
       requireNonNull(baseComponent);
       return new ComponentTreeData(this);
+    }
+  }
+
+  static class Measure {
+    private double value;
+    private String data;
+    private double variation;
+
+    private Measure(MeasureDto measureDto) {
+      this.value = toPrimitive(measureDto.getValue());
+      this.data = measureDto.getData();
+      this.variation = toPrimitive(measureDto.getVariation());
+    }
+
+    public double getValue() {
+      return value;
+    }
+
+    public boolean isValueSet() {
+      return !isNaN(value);
+    }
+
+    @CheckForNull
+    public String getData() {
+      return data;
+    }
+
+    public double getVariation() {
+      return variation;
+    }
+
+    public boolean isVariationSet() {
+      return !isNaN(variation);
+    }
+
+    static Measure createFromMeasureDto(MeasureDto measureDto) {
+      return new Measure(measureDto);
+    }
+
+    private static double toPrimitive(@Nullable Double value) {
+      return value == null ? NaN : value;
     }
   }
 }

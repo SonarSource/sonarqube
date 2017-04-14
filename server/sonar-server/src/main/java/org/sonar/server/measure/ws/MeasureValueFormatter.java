@@ -19,6 +19,7 @@
  */
 package org.sonar.server.measure.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -31,10 +32,13 @@ class MeasureValueFormatter {
   }
 
   static String formatMeasureValue(MeasureDto measure, MetricDto metric) {
-    Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
     Double doubleValue = measure.getValue();
     String stringValue = measure.getData();
+    return formatMeasureValue(doubleValue == null ? Double.NaN : doubleValue, stringValue, metric);
+  }
 
+  static String formatMeasureValue(double doubleValue, @Nullable String stringValue, MetricDto metric) {
+    Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
     switch (metricType) {
       case BOOL:
         return formatBoolean(doubleValue);
@@ -57,7 +61,7 @@ class MeasureValueFormatter {
     }
   }
 
-  static String formatNumericalValue(Double value, MetricDto metric) {
+  static String formatNumericalValue(double value, MetricDto metric) {
     Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
 
     switch (metricType) {
@@ -81,15 +85,15 @@ class MeasureValueFormatter {
     }
   }
 
-  private static String formatBoolean(Double value) {
+  private static String formatBoolean(double value) {
     return Math.abs(value - 1.0d) < DELTA ? "true" : "false";
   }
 
-  private static String formatInteger(Double value) {
-    return String.valueOf(value.intValue());
+  private static String formatInteger(double value) {
+    return String.valueOf((int) value);
   }
 
-  private static String formatLong(Double value) {
-    return String.valueOf(value.longValue());
+  private static String formatLong(double value) {
+    return String.valueOf((long) value);
   }
 }

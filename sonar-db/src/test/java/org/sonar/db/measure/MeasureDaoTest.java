@@ -493,13 +493,9 @@ public class MeasureDaoTest {
   }
 
   private void verifyMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery, String... expectedIds) {
-    assertThat(underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build()))
-      .extracting(MeasureDto::getData).containsOnly(expectedIds);
-  }
-
-  private void verifyZeroMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery) {
-    assertThat(underTest.selectTreeByQuery(db.getSession(), baseComponent,
-      measureQuery.build())).isEmpty();
+    List<MeasureDto> measures = new ArrayList<>();
+    underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build(), result -> measures.add((MeasureDto) result.getResultObject()));
+    assertThat(measures).extracting(MeasureDto::getData).containsOnly(expectedIds);
   }
 
   private List<MeasureDto> getMeasuresWithHandler(MeasureQuery.Builder query) {

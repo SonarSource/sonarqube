@@ -43,13 +43,14 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.PATH_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeData.Measure.createFromMeasureDto;
 
 public class ComponentTreeSortTest {
   private static final String NUM_METRIC_KEY = "violations";
   private static final String TEXT_METRIC_KEY = "sqale_index";
 
   private List<MetricDto> metrics;
-  private Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+  private Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric;
   private List<ComponentDto> components;
 
   @Before
@@ -78,9 +79,9 @@ public class ComponentTreeSortTest {
     // same number than path field
     double currentValue = 9;
     for (ComponentDto component : components) {
-      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, new MeasureDto().setValue(currentValue)
-        .setVariation(-currentValue));
-      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, new MeasureDto().setData(String.valueOf(currentValue)));
+      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMeasureDto(new MeasureDto().setValue(currentValue)
+        .setVariation(-currentValue)));
+      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMeasureDto(new MeasureDto().setData(String.valueOf(currentValue))));
       currentValue--;
     }
   }
@@ -153,7 +154,7 @@ public class ComponentTreeSortTest {
     for (int i = 0; i < components.size(); i++) {
       ComponentDto component = components.get(i);
       String alertStatus = statuses.get(i % 3);
-      measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), new MeasureDto().setData(alertStatus));
+      measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), createFromMeasureDto(new MeasureDto().setData(alertStatus)));
     }
     ComponentTreeWsRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
 

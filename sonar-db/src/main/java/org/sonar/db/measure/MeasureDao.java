@@ -104,11 +104,11 @@ public class MeasureDao implements Dao {
     mapper(dbSession).selectByQueryOnSingleComponent(query, resultHandler);
   }
 
-  public List<MeasureDto> selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query) {
+  public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query, ResultHandler resultHandler) {
     if (query.returnsEmpty()) {
-      return emptyList();
+      return;
     }
-    return mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent));
+    mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
   }
 
   public List<PastMeasureDto> selectPastMeasures(DbSession dbSession, String componentUuid, String analysisUuid, Collection<Integer> metricIds) {
