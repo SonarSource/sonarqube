@@ -156,14 +156,14 @@ public class JwtSerializer implements Startable {
   static class JwtSession {
 
     private final String userLogin;
-    private final int expirationTimeInSeconds;
+    private final long expirationTimeInSeconds;
     private final Map<String, Object> properties;
 
-    JwtSession(String userLogin, int expirationTimeInSeconds) {
+    JwtSession(String userLogin, long expirationTimeInSeconds) {
       this(userLogin, expirationTimeInSeconds, Collections.emptyMap());
     }
 
-    JwtSession(String userLogin, int expirationTimeInSeconds, Map<String, Object> properties) {
+    JwtSession(String userLogin, long expirationTimeInSeconds, Map<String, Object> properties) {
       this.userLogin = requireNonNull(userLogin, "User login cannot be null");
       this.expirationTimeInSeconds = expirationTimeInSeconds;
       this.properties = properties;
@@ -173,7 +173,7 @@ public class JwtSerializer implements Startable {
       return userLogin;
     }
 
-    int getExpirationTimeInSeconds() {
+    long getExpirationTimeInSeconds() {
       return expirationTimeInSeconds;
     }
 

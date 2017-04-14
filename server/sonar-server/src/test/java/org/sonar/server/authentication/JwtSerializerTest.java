@@ -74,12 +74,27 @@ public class JwtSerializerTest {
     underTest.start();
     Date now = new Date();
 
-    String token = underTest.encode(new JwtSession(USER_LOGIN, 10));
+    long expirationTimeInSeconds = 10L;
+    String token = underTest.encode(new JwtSession(USER_LOGIN, expirationTimeInSeconds));
 
     assertThat(token).isNotEmpty();
     Claims claims = underTest.decode(token).get();
-    // Check expiration date it set to more than 9 seconds in the future
-    assertThat(claims.getExpiration()).isAfterOrEqualsTo(new Date(now.getTime() + 9 * 1000));
+    assertThat(claims.getExpiration().getTime()).isGreaterThanOrEqualTo(now.getTime() + expirationTimeInSeconds * 1000L - 1000L);
+  }
+
+  @Test
+  public void generate_token_with_big_expiration_date() throws Exception {
+    setSecretKey(A_SECRET_KEY);
+    underTest.start();
+    Date now = new Date();
+
+    long oneYearInSeconds = 12 * 30 * 24 * 60 * 60L;
+    String token = underTest.encode(new JwtSession(USER_LOGIN, oneYearInSeconds));
+
+    assertThat(token).isNotEmpty();
+    Claims claims = underTest.decode(token).get();
+    // Check expiration date it set to one year in the future
+    assertThat(claims.getExpiration().getTime()).isGreaterThanOrEqualTo(now.getTime() + oneYearInSeconds * 1000L - 1000L);
   }
 
   @Test
