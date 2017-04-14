@@ -56,4 +56,6 @@ public interface GroupPermissionMapper {
   void deleteByRootComponentId(@Param("rootComponentId") long componentId);
 
   int deleteByRootComponentIdAndGroupId(@Param("rootComponentId") long rootComponentId, @Nullable @Param("groupId") Integer groupId);
+
+  int deleteByRootComponentIdAndPermission(@Param("rootComponentId") long rootComponentId, @Param("permission") String permission);
 }

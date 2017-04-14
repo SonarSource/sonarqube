@@ -147,6 +147,13 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
+   * Delete the specified permission for the specified component for any group (including group AnyOne).
+   */
+  public int deleteByRootComponentIdAndPermission(DbSession dbSession, long rootComponentId, String permission) {
+    return mapper(dbSession).deleteByRootComponentIdAndPermission(rootComponentId, permission);
+  }
+
+  /**
    * Delete a single permission. It can be:
    * <ul>
    *   <li>a global permission granted to a group</li>

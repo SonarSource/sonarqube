@@ -20,15 +20,18 @@
 package org.sonar.db.permission;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -821,6 +824,109 @@ public class GroupPermissionDaoTest {
       .containsOnly("p2");
     assertThat(underTest.selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group1.getId()))
       .containsOnly("p3");
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndPermission_deletes_all_rows_for_specified_role_of_specified_component() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    GroupDto group = db.users().insertGroup(organization);
+    Stream.of("p1", "p2").forEach(permission -> {
+      db.users().insertPermissionOnAnyone(organization, permission);
+      db.users().insertPermissionOnGroup(group, permission);
+      db.users().insertProjectPermissionOnGroup(group, permission, project);
+      db.users().insertProjectPermissionOnAnyone(permission, project);
+    });
+    assertThat(getGlobalPermissionsForAnyone(organization)).containsOnly("p1", "p2");
+    assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
+    assertThat(getProjectPermissionsForAnyOne(project)).containsOnly("p1", "p2");
+    assertThat(getProjectPermissionsForGroup(project, group)).containsOnly("p1", "p2");
+
+    int deletedRows = underTest.deleteByRootComponentIdAndPermission(dbSession, project.getId(), "p1");
+
+    assertThat(deletedRows).isEqualTo(2);
+    assertThat(getGlobalPermissionsForAnyone(organization)).containsOnly("p1", "p2");
+    assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
+    assertThat(getProjectPermissionsForAnyOne(project)).containsOnly("p2");
+    assertThat(getProjectPermissionsForGroup(project, group)).containsOnly("p2");
+
+    deletedRows = underTest.deleteByRootComponentIdAndPermission(dbSession, project.getId(), "p2");
+
+    assertThat(deletedRows).isEqualTo(2);
+    assertThat(getGlobalPermissionsForAnyone(organization)).containsOnly("p1", "p2");
+    assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1", "p2");
+    assertThat(getProjectPermissionsForAnyOne(project)).isEmpty();
+    assertThat(getProjectPermissionsForGroup(project, group)).isEmpty();
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndPermission_has_no_effect_if_component_has_no_group_permission_at_all() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    db.users().insertPermissionOnAnyone(organization, "p1");
+    db.users().insertPermissionOnGroup(group, "p1");
+
+    assertThat(underTest.deleteByRootComponentIdAndPermission(dbSession, project.getId(), "p1")).isEqualTo(0);
+
+    assertThat(getGlobalPermissionsForAnyone(organization)).containsOnly("p1");
+    assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1");
+    assertThat(getProjectPermissionsForAnyOne(project)).isEmpty();
+    assertThat(getProjectPermissionsForGroup(project, group)).isEmpty();
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndPermission_has_no_effect_if_component_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertPermissionOnAnyone(organization, "p1");
+    db.users().insertPermissionOnGroup(group, "p1");
+    db.users().insertProjectPermissionOnGroup(group, "p1", project);
+    db.users().insertProjectPermissionOnAnyone("p1", project);
+
+    assertThat(underTest.deleteByRootComponentIdAndPermission(dbSession, project.getId(), "p2")).isEqualTo(0);
+
+    assertThat(getGlobalPermissionsForAnyone(organization)).containsOnly("p1");
+    assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1");
+    assertThat(getProjectPermissionsForAnyOne(project)).containsOnly("p1");
+    assertThat(getProjectPermissionsForGroup(project, group)).containsOnly("p1");
+  }
+
+  @Test
+  public void deleteByRootComponentIdAndPermission_has_no_effect_if_component_does_not_have_specified_permission() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    db.users().insertPermissionOnAnyone(organization, "p1");
+    db.users().insertPermissionOnGroup(group, "p1");
+
+    assertThat(underTest.deleteByRootComponentIdAndPermission(dbSession, project.getId(), "p1")).isEqualTo(0);
+  }
+
+  private Collection<String> getGlobalPermissionsForAnyone(OrganizationDto organization) {
+    return getPermissions("organization_uuid = '" + organization.getUuid() + "' and group_id is null and resource_id is null");
+  }
+
+  private Collection<String> getGlobalPermissionsForGroup(GroupDto groupDto) {
+    return getPermissions("organization_uuid = '" + groupDto.getOrganizationUuid() + "' and group_id = " + groupDto.getId() + " and resource_id is null");
+  }
+
+  private Collection<String> getProjectPermissionsForAnyOne(ComponentDto project) {
+    return getPermissions("organization_uuid = '" + project.getOrganizationUuid() + "' and group_id is null and resource_id = " + project.getId());
+  }
+
+  private Collection<String> getProjectPermissionsForGroup(ComponentDto project, GroupDto group) {
+    return getPermissions("organization_uuid = '" + project.getOrganizationUuid() + "' and group_id = " + group.getId() + " and resource_id = " + project.getId());
+  }
+
+  private Collection<String> getPermissions(String whereClauses) {
+    return db
+      .select(dbSession, "select role from group_roles where " + whereClauses)
+      .stream()
+      .flatMap(map -> map.entrySet().stream())
+      .map(entry -> (String) entry.getValue())
+      .collect(MoreCollectors.toList());
   }
 
   private ComponentDto randomPublicOrPrivateProject(OrganizationDto organization) {
