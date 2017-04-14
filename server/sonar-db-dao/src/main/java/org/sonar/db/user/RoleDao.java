@@ -19,17 +19,31 @@
  */
 package org.sonar.db.user;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import java.util.Set;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.USER;
+
 public class RoleDao implements Dao {
+  private static final Set<String> UNSUPPORTED_PROJECT_PERMISSIONS = ImmutableSet.of(USER, CODEVIEWER);
 
   /**
    * All the projects on which the user has {@code permission}, directly or through
    * groups.
+   *
+   * @throws IllegalArgumentException this method does not support permissions {@link UserRole#USER user} nor
+   *         {@link UserRole#CODEVIEWER codeviewer} because it does not support public root components.
    */
   public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, int userId) {
+    checkArgument(
+      !UNSUPPORTED_PROJECT_PERMISSIONS.contains(permission),
+      "Permissions %s are not supported by selectComponentIdsByPermissionAndUserId", UNSUPPORTED_PROJECT_PERMISSIONS);
     return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
   }
 
