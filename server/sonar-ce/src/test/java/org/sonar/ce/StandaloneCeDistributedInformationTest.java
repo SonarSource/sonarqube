@@ -20,13 +20,18 @@
 package org.sonar.ce;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,5 +71,31 @@ public class StandaloneCeDistributedInformationTest {
     expectedException.expectMessage("Invalid call, broadcastWorkerUUIDs() must be called first.");
 
     ceCluster.getWorkerUUIDs();
+  }
+
+  @Test
+  public void acquireCleanJobLock_returns_a_non_current_lock() {
+    StandaloneCeDistributedInformation underTest = new StandaloneCeDistributedInformation(mock(CeWorkerFactory.class));
+
+    Lock lock = underTest.acquireCleanJobLock();
+
+    IntStream.range(0, 5 + Math.abs(new Random().nextInt(50)))
+      .forEach(i -> {
+        try {
+          assertThat(lock.tryLock()).isTrue();
+          assertThat(lock.tryLock(1, TimeUnit.MINUTES)).isTrue();
+          lock.lock();
+          lock.lockInterruptibly();
+          lock.unlock();
+        } catch (InterruptedException e) {
+          fail("no InterruptedException should be thrown");
+        }
+        try {
+          lock.newCondition();
+          fail("a UnsupportedOperationException should have been thrown");
+        } catch (UnsupportedOperationException e) {
+          assertThat(e.getMessage()).isEqualTo("newCondition not supported");
+        }
+      });
   }
 }

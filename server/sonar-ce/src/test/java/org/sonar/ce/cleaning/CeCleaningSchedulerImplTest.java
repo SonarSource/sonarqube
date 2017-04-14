@@ -27,6 +27,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
 import org.junit.Test;
 import org.sonar.ce.CeDistributedInformation;
 import org.sonar.ce.configuration.CeConfiguration;
@@ -37,21 +38,19 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CeCleaningSchedulerImplTest {
+
+  private Lock jobLock = mock(Lock.class);
+
   @Test
   public void startScheduling_does_not_fail_if_cleaning_methods_send_even_an_Exception() {
     InternalCeQueue mockedInternalCeQueue = mock(InternalCeQueue.class);
-    CeCleaningSchedulerImpl underTest = new CeCleaningSchedulerImpl(new CeCleaningAdapter() {
-      @Override
-      public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        // synchronously execute command
-        command.run();
-        return null;
-      }
-    }, mockCeConfiguration(1, 10), mockedInternalCeQueue, mock(CeDistributedInformation.class));
+    CeDistributedInformation mockedCeDistributedInformation = mockCeDistributedInformation(jobLock);
+    CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
     Exception exception = new IllegalArgumentException("faking unchecked exception thrown by cancelWornOuts");
     doThrow(exception).when(mockedInternalCeQueue).cancelWornOuts();
     doThrow(exception).when(mockedInternalCeQueue).resetTasksWithUnknownWorkerUUIDs(any());
@@ -65,14 +64,8 @@ public class CeCleaningSchedulerImplTest {
   @Test
   public void startScheduling_fails_if_cancelWornOuts_send_an_Error() {
     InternalCeQueue mockedInternalCeQueue = mock(InternalCeQueue.class);
-    CeCleaningSchedulerImpl underTest = new CeCleaningSchedulerImpl(new CeCleaningAdapter() {
-      @Override
-      public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        // synchronously execute command
-        command.run();
-        return null;
-      }
-    }, mockCeConfiguration(1, 10), mockedInternalCeQueue, mock(CeDistributedInformation.class));
+    CeDistributedInformation mockedCeDistributedInformation = mockCeDistributedInformation(jobLock);
+    CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
     Error expected = new Error("faking Error thrown by cancelWornOuts");
     doThrow(expected).when(mockedInternalCeQueue).cancelWornOuts();
 
@@ -88,14 +81,8 @@ public class CeCleaningSchedulerImplTest {
   @Test
   public void startScheduling_fails_if_resetTasksWithUnknownWorkerUUIDs_send_an_Error() {
     InternalCeQueue mockedInternalCeQueue = mock(InternalCeQueue.class);
-    CeCleaningSchedulerImpl underTest = new CeCleaningSchedulerImpl(new CeCleaningAdapter() {
-      @Override
-      public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
-        // synchronously execute command
-        command.run();
-        return null;
-      }
-    }, mockCeConfiguration(1, 10), mockedInternalCeQueue, mock(CeDistributedInformation.class));
+    CeDistributedInformation mockedCeDistributedInformation = mockCeDistributedInformation(jobLock);
+    CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
     Error expected = new Error("faking Error thrown by cancelWornOuts");
     doThrow(expected).when(mockedInternalCeQueue).resetTasksWithUnknownWorkerUUIDs(any());
 
@@ -106,6 +93,36 @@ public class CeCleaningSchedulerImplTest {
       assertThat(e).isSameAs(expected);
     }
     verify(mockedInternalCeQueue).resetTasksWithUnknownWorkerUUIDs(any());
+  }
+
+  @Test
+  public void startScheduling_must_call_the_lock_methods() {
+    InternalCeQueue mockedInternalCeQueue = mock(InternalCeQueue.class);
+    CeDistributedInformation mockedCeDistributedInformation = mockCeDistributedInformation(jobLock);
+    CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
+    underTest.startScheduling();
+
+    verify(mockedCeDistributedInformation, times(1)).acquireCleanJobLock();
+    verify(jobLock, times(1)).tryLock();
+    verify(jobLock, times(1)).unlock();
+  }
+
+  @Test
+  public void startScheduling_must_not_execute_method_if_lock_is_already_acquired() {
+    InternalCeQueue mockedInternalCeQueue = mock(InternalCeQueue.class);
+    CeDistributedInformation mockedCeDistributedInformation = mockCeDistributedInformation(jobLock);
+    when(jobLock.tryLock()).thenReturn(false);
+
+    CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
+    underTest.startScheduling();
+
+    verify(mockedCeDistributedInformation, times(1)).acquireCleanJobLock();
+    verify(jobLock, times(1)).tryLock();
+    // since lock cannot be locked, unlock method is not been called
+    verify(jobLock, times(0)).unlock();
+    // since lock cannot be locked, cleaning job methods must not be called
+    verify(mockedInternalCeQueue, times(0)).resetTasksWithUnknownWorkerUUIDs(any());
+    verify(mockedInternalCeQueue, times(0)).cancelWornOuts();
   }
 
   @Test
@@ -139,7 +156,8 @@ public class CeCleaningSchedulerImplTest {
         return null;
       }
     };
-    CeCleaningSchedulerImpl underTest = new CeCleaningSchedulerImpl(executorService, mockedCeConfiguration, mockedInternalCeQueue, mock(CeDistributedInformation.class));
+    CeCleaningSchedulerImpl underTest = new CeCleaningSchedulerImpl(executorService, mockedCeConfiguration,
+      mockedInternalCeQueue, mockCeDistributedInformation(jobLock));
 
     underTest.startScheduling();
     assertThat(executorService.schedulerCounter).isEqualTo(1);
@@ -151,6 +169,24 @@ public class CeCleaningSchedulerImplTest {
     when(mockedCeConfiguration.getCleanCeTasksInitialDelay()).thenReturn(cleanCeTasksInitialDelay);
     when(mockedCeConfiguration.getCleanCeTasksDelay()).thenReturn(cleanCeTasksDelay);
     return mockedCeConfiguration;
+  }
+
+  private CeCleaningSchedulerImpl mockCeCleaningSchedulerImpl(InternalCeQueue internalCeQueue, CeDistributedInformation ceDistributedInformation) {
+    return new CeCleaningSchedulerImpl(new CeCleaningAdapter() {
+      @Override
+      public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
+        // synchronously execute command
+        command.run();
+        return null;
+      }
+    }, mockCeConfiguration(1, 10), internalCeQueue, ceDistributedInformation);
+  }
+
+  private CeDistributedInformation mockCeDistributedInformation(Lock result) {
+    CeDistributedInformation mocked = mock(CeDistributedInformation.class);
+    when(mocked.acquireCleanJobLock()).thenReturn(result);
+    when(result.tryLock()).thenReturn(true);
+    return mocked;
   }
 
   /**
