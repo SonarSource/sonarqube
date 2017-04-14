@@ -135,14 +135,15 @@ public class CeTasksMBeanImplTest {
     }
 
     @Override
-    public long getCancelWornOutsInitialDelay() {
-      throw new UnsupportedOperationException("getCancelWornOutsInitialDelay is not implemented");
+    public long getCleanCeTasksInitialDelay() {
+      throw new UnsupportedOperationException("getCleanCeTasksInitialDelay is not implemented");
     }
 
     @Override
-    public long getCancelWornOutsDelay() {
-      throw new UnsupportedOperationException("getCancelWornOutsDelay is not implemented");
+    public long getCleanCeTasksDelay() {
+      throw new UnsupportedOperationException("getCleanCeTasksDelay is not implemented");
     }
+
   }
 
   @CheckForNull

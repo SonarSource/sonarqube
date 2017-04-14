@@ -21,6 +21,7 @@ package org.sonar.db.ce;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -278,6 +279,65 @@ public class CeQueueDaoTest {
     verifyUnchangedByResetToPendingForWorker(o2);
     verifyUnchangedByResetToPendingForWorker(o3);
     verifyUnchangedByResetToPendingForWorker(o4);
+  }
+
+
+  @Test
+  public void resetTasksWithUnknownWorkerUUIDs_with_empty_set_resets_status_of_all_pending_tasks() {
+    long startedAt = 2_099_888L;
+    CeQueueDto u1 = insert("u1", CeQueueDto.Status.IN_PROGRESS, 1, WORKER_UUID_1, startedAt);
+    CeQueueDto u2 = insert("u2", CeQueueDto.Status.PENDING, 1, WORKER_UUID_1, startedAt);
+    CeQueueDto u3 = insert("u3", CeQueueDto.Status.PENDING, 0, WORKER_UUID_1, startedAt);
+    CeQueueDto u4 = insert("u4", CeQueueDto.Status.IN_PROGRESS, 2, WORKER_UUID_1, startedAt);
+    CeQueueDto o1 = insert("o1", CeQueueDto.Status.IN_PROGRESS, 1, WORKER_UUID_2, startedAt);
+    CeQueueDto o2 = insert("o2", CeQueueDto.Status.PENDING, 1, WORKER_UUID_2, startedAt);
+    CeQueueDto o3 = insert("o3", CeQueueDto.Status.PENDING, 0, WORKER_UUID_2, startedAt);
+    CeQueueDto o4 = insert("o4", CeQueueDto.Status.IN_PROGRESS, 2, WORKER_UUID_2, startedAt);
+
+    underTestAlwaysIncreasingSystem2.resetTasksWithUnknownWorkerUUIDs(db.getSession(), ImmutableSet.of());
+
+    verifyResetByResetTasks(u1);
+    verifyUnchangedByResetToPendingForWorker(u2);
+    verifyUnchangedByResetToPendingForWorker(u3);
+    verifyResetByResetTasks(u4);
+    verifyResetByResetTasks(o1);
+    verifyUnchangedByResetToPendingForWorker(o2);
+    verifyUnchangedByResetToPendingForWorker(o3);
+    verifyResetByResetTasks(o4);
+  }
+
+  @Test
+  public void resetTasksWithUnknownWorkerUUIDs_set_resets_status_of_all_pending_tasks_with_unknown_workers() {
+    long startedAt = 2_099_888L;
+    CeQueueDto u1 = insert("u1", CeQueueDto.Status.IN_PROGRESS, 1, WORKER_UUID_1, startedAt);
+    CeQueueDto u2 = insert("u2", CeQueueDto.Status.PENDING, 1, WORKER_UUID_1, startedAt);
+    CeQueueDto u3 = insert("u3", CeQueueDto.Status.PENDING, 0, WORKER_UUID_1, startedAt);
+    CeQueueDto u4 = insert("u4", CeQueueDto.Status.IN_PROGRESS, 2, WORKER_UUID_1, startedAt);
+    CeQueueDto o1 = insert("o1", CeQueueDto.Status.IN_PROGRESS, 1, WORKER_UUID_2, startedAt);
+    CeQueueDto o2 = insert("o2", CeQueueDto.Status.PENDING, 1, WORKER_UUID_2, startedAt);
+    CeQueueDto o3 = insert("o3", CeQueueDto.Status.PENDING, 0, WORKER_UUID_2, startedAt);
+    CeQueueDto o4 = insert("o4", CeQueueDto.Status.IN_PROGRESS, 2, WORKER_UUID_2, startedAt);
+
+    underTestAlwaysIncreasingSystem2.resetTasksWithUnknownWorkerUUIDs(db.getSession(), ImmutableSet.of(WORKER_UUID_1, "unknown"));
+
+    verifyUnchangedByResetToPendingForWorker(u1);
+    verifyUnchangedByResetToPendingForWorker(u2);
+    verifyUnchangedByResetToPendingForWorker(u3);
+    verifyUnchangedByResetToPendingForWorker(u4);
+    verifyResetByResetTasks(o1);
+    verifyUnchangedByResetToPendingForWorker(o2);
+    verifyUnchangedByResetToPendingForWorker(o3);
+    verifyResetByResetTasks(o4);
+  }
+
+  private void verifyResetByResetTasks(CeQueueDto original) {
+    CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid()).get();
+    assertThat(dto.getStatus()).isEqualTo(CeQueueDto.Status.PENDING).isNotEqualTo(original.getStatus());
+    assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
+    assertThat(dto.getStartedAt()).isNull();
+    assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
+    assertThat(dto.getUpdatedAt()).isGreaterThan(original.getUpdatedAt());
+    assertThat(dto.getWorkerUuid()).isNull();
   }
 
   private void verifyResetToPendingForWorker(CeQueueDto original) {

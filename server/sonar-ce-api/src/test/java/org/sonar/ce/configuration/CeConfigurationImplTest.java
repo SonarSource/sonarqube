@@ -111,14 +111,14 @@ public class CeConfigurationImplTest {
   }
 
   @Test
-  public void getCancelWornOutsInitialDelay_returns_1() {
-    assertThat(new CeConfigurationImpl(settings).getCancelWornOutsInitialDelay())
+  public void getCleanCeTasksInitialDelay_returns_1() {
+    assertThat(new CeConfigurationImpl(settings).getCleanCeTasksInitialDelay())
       .isEqualTo(1L);
   }
 
   @Test
-  public void getCancelWornOutsDelay_returns_10() {
-    assertThat(new CeConfigurationImpl(settings).getCancelWornOutsDelay())
+  public void getCleanCeTasksDelay_returns_10() {
+    assertThat(new CeConfigurationImpl(settings).getCleanCeTasksDelay())
       .isEqualTo(10L);
   }
 }

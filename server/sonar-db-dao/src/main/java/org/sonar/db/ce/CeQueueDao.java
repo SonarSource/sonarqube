@@ -21,6 +21,8 @@ package org.sonar.db.ce;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
@@ -29,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 
 import static java.util.Collections.emptyList;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
@@ -82,6 +85,17 @@ public class CeQueueDao implements Dao {
 
   public List<CeQueueDto> selectPendingByMinimumExecutionCount(DbSession dbSession, int minExecutionCount) {
     return mapper(dbSession).selectPendingByMinimumExecutionCount(minExecutionCount);
+  }
+
+  public void resetTasksWithUnknownWorkerUUIDs(DbSession dbSession, Set<String> knownWorkerUUIDs) {
+    if (knownWorkerUUIDs.isEmpty()) {
+      mapper(dbSession).resetAllInProgressTasks(system2.now());
+    } else {
+      // executeLargeUpdates won't call the SQL command if knownWorkerUUIDs is empty
+      executeLargeUpdates(knownWorkerUUIDs,
+        (Consumer<List<String>>) uuids -> mapper(dbSession).resetTasksWithUnknownWorkerUUIDs(uuids, system2.now())
+      );
+    }
   }
 
   public CeQueueDto insert(DbSession session, CeQueueDto dto) {

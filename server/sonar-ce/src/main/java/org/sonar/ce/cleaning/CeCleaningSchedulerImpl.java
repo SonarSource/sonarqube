@@ -21,6 +21,7 @@ package org.sonar.ce.cleaning;
 
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.CeDistributedInformation;
 import org.sonar.ce.configuration.CeConfiguration;
 import org.sonar.ce.queue.InternalCeQueue;
 
@@ -32,27 +33,44 @@ public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
   private final CeCleaningExecutorService executorService;
   private final CeConfiguration ceConfiguration;
   private final InternalCeQueue internalCeQueue;
+  private final CeDistributedInformation ceDistributedInformation;
 
-  public CeCleaningSchedulerImpl(CeCleaningExecutorService executorService, CeConfiguration ceConfiguration, InternalCeQueue internalCeQueue) {
+  public CeCleaningSchedulerImpl(CeCleaningExecutorService executorService, CeConfiguration ceConfiguration,
+    InternalCeQueue internalCeQueue, CeDistributedInformation ceDistributedInformation) {
     this.executorService = executorService;
     this.internalCeQueue = internalCeQueue;
     this.ceConfiguration = ceConfiguration;
+    this.ceDistributedInformation = ceDistributedInformation;
   }
 
   @Override
   public void startScheduling() {
-    executorService.scheduleWithFixedDelay(this::cancelWornOuts,
-      ceConfiguration.getCancelWornOutsInitialDelay(),
-      ceConfiguration.getCancelWornOutsDelay(),
+    executorService.scheduleWithFixedDelay(this::cleanCeQueue,
+      ceConfiguration.getCleanCeTasksInitialDelay(),
+      ceConfiguration.getCleanCeTasksDelay(),
       MINUTES);
+  }
+
+  private void cleanCeQueue() {
+    cancelWornOuts();
+    resetTasksWithUnknownWorkerUUIDs();
   }
 
   private void cancelWornOuts() {
     try {
-      LOG.info("Deleting any worn out task");
+      LOG.debug("Deleting any worn out task");
       internalCeQueue.cancelWornOuts();
     } catch (Exception e) {
       LOG.warn("Failed to cancel worn out tasks", e);
+    }
+  }
+
+  private void resetTasksWithUnknownWorkerUUIDs() {
+    try {
+      LOG.debug("Resetting state of tasks with unknown worker UUIDs");
+      internalCeQueue.resetTasksWithUnknownWorkerUUIDs(ceDistributedInformation.getWorkerUUIDs());
+    } catch (Exception e) {
+      LOG.warn("Failed to reset tasks with unknown worker UUIDs", e);
     }
   }
 }
