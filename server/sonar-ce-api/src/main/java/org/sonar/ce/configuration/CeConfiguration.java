@@ -27,18 +27,19 @@ public interface CeConfiguration {
   int getWorkerCount();
 
   /**
-   * The delay in millisecond before a {@link CeWorker} shall try and find a task
+   * The delay in millisecond before a {@link org.sonar.ce.taskprocessor.CeWorker} shall try and find a task
    * to process when it's previous execution had nothing to do.
    */
   long getQueuePollingDelay();
 
   /**
-   * Delay before running job that cancels worn out tasks for the first time (in minutes).
+   * Delay before running job that cleans CE tasks for the first time (in minutes).
    */
-  long getCancelWornOutsInitialDelay();
+  long getCleanCeTasksInitialDelay();
 
   /**
-   * Delay between the end of a run and the start of the next one of the job that cancels worn out CE tasks (in minutes).
+   * Delay between the end of a run and the start of the next one of the job that cleans CE tasks (in minutes).
    */
-  long getCancelWornOutsDelay();
+  long getCleanCeTasksDelay();
+
 }
