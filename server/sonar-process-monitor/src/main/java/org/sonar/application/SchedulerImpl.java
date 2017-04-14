@@ -121,7 +121,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     } else {
       Optional<String> leader = appState.getLeaderHostName();
       if (leader.isPresent()) {
-        LOG.info("Waiting for initialization from " + appState.getLeaderHostName());
+        LOG.info("Waiting for initialization from " + leader.get());
       } else {
         LOG.error("Initialization failed. All nodes must be restarted");
       }
