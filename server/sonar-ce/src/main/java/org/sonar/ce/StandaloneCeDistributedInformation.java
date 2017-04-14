@@ -20,7 +20,11 @@
 
 package org.sonar.ce;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -31,6 +35,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class StandaloneCeDistributedInformation implements CeDistributedInformation {
   private final CeWorkerFactory ceCeWorkerFactory;
   private Set<String> workerUUIDs;
+  private final Map<String, Lock> locks = new HashMap<>();
 
   public StandaloneCeDistributedInformation(CeWorkerFactory ceCeWorkerFactory) {
     this.ceCeWorkerFactory = ceCeWorkerFactory;
@@ -45,5 +50,13 @@ public class StandaloneCeDistributedInformation implements CeDistributedInformat
   @Override
   public void broadcastWorkerUUIDs() {
     workerUUIDs = ceCeWorkerFactory.getWorkerUUIDs();
+  }
+
+  @Override
+  public synchronized Lock acquireLock(String name) {
+    if (locks.get(name) == null) {
+      locks.put(name, new ReentrantLock());
+    }
+    return locks.get(name);
   }
 }

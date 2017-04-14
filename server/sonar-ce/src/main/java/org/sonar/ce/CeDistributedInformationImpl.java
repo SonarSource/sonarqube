@@ -22,6 +22,7 @@ package org.sonar.ce;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 import org.picocontainer.Startable;
 import org.sonar.ce.cluster.HazelcastClientWrapper;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
@@ -55,6 +56,11 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
   @Override
   public void broadcastWorkerUUIDs() {
     getClusteredWorkerUUIDs().put(hazelcastClientWrapper.getClientUUID(), ceCeWorkerFactory.getWorkerUUIDs());
+  }
+
+  @Override
+  public Lock acquireLock(String name) {
+    return hazelcastClientWrapper.getLock(name);
   }
 
   @Override
