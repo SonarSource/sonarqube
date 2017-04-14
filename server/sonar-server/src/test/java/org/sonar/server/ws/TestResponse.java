@@ -34,7 +34,7 @@ public class TestResponse {
     this.dumbResponse = dumbResponse;
   }
 
-  private InputStream getInputStream() {
+  public InputStream getInputStream() {
     return new ByteArrayInputStream(dumbResponse.getFlushedOutput());
   }
 
