@@ -27,81 +27,75 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
-import org.sonar.db.DbClient;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.qualityprofile.RuleActivation;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
-// TODO remove ServerTester usage when ActiveRule Daov2 is removed
-public class RuleUpdaterMediumTest {
+public class RuleUpdaterTest {
 
   static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester().withEsIndexes();
+  private System2 system2 = mock(System2.class);
 
-  @org.junit.Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient db = tester.get(DbClient.class);
-  private RuleDao ruleDao = tester.get(RuleDao.class);
-  private DbSession dbSession = db.openSession(false);
-  private RuleIndex ruleIndex = tester.get(RuleIndex.class);
-  private OrganizationDto defaultOrganization;
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  RuleUpdater underTest = tester.get(RuleUpdater.class);
+  @Rule
+  public DbTester db = DbTester.create(system2);
 
-  @Before
-  public void before() {
-    tester.clearDbAndIndexes();
-    String defaultOrganizationUuid = tester.get(DefaultOrganizationProvider.class).get().getUuid();
-    defaultOrganization = db.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid).get();
-  }
+  @Rule
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
-  @After
-  public void after() {
-    dbSession.close();
-  }
+  private RuleIndex ruleIndex = new RuleIndex(es.client());
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private DbSession dbSession = db.getSession();
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+
+  private RuleUpdater underTest = new RuleUpdater(db.getDbClient(), ruleIndexer, system2);
 
   @Test
   public void do_not_update_rule_with_removed_status() {
-    ruleDao.insert(dbSession, RuleTesting.newRule(RULE_KEY).setStatus(RuleStatus.REMOVED));
+    db.rules().insert(RuleTesting.newRule(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setTags(Sets.newHashSet("java9"))
-      .setOrganization(defaultOrganization);
+      .setOrganization(db.getDefaultOrganization());
     try {
-      underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
@@ -110,7 +104,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void no_changes() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, db.getDefaultOrganization())
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
       .setNoteUserLogin("me")
@@ -118,16 +112,16 @@ public class RuleUpdaterMediumTest {
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
     assertThat(update.isEmpty()).isTrue();
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getTags()).containsOnly("tag1");
@@ -140,7 +134,7 @@ public class RuleUpdaterMediumTest {
   public void set_markdown_note() {
     userSessionRule.logIn("me");
 
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, db.getDefaultOrganization())
       .setNoteData(null)
       .setNoteUserLogin(null)
 
@@ -149,17 +143,17 @@ public class RuleUpdaterMediumTest {
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier("1d")
       .setRemediationBaseEffort("5min");
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setMarkdownNote("my *note*")
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getNoteCreatedAt()).isNotNull();
@@ -173,20 +167,20 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void remove_markdown_note() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, db.getDefaultOrganization())
       .setNoteData("my *note*")
       .setNoteUserLogin("me");
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setMarkdownNote(null)
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getNoteData()).isNull();
     assertThat(rule.getNoteUserLogin()).isNull();
     assertThat(rule.getNoteCreatedAt()).isNull();
@@ -196,7 +190,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void set_tags() {
     // insert db
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY, defaultOrganization)
+    db.rules().insert(RuleTesting.newDto(RULE_KEY, db.getDefaultOrganization())
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")).getDefinition());
     dbSession.commit();
@@ -204,45 +198,45 @@ public class RuleUpdaterMediumTest {
     // java8 is a system tag -> ignore
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setTags(Sets.newHashSet("bug", "java8"))
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getTags()).containsOnly("bug");
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    List<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
+    List<String> tags = ruleIndex.listTags(db.getDefaultOrganization(), null, 10);
     assertThat(tags).containsExactly("bug", "java8", "javadoc");
   }
 
   @Test
   public void remove_tags() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, db.getDefaultOrganization())
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc"));
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata());
+    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata());
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setTags(null)
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
     // verify that tags are indexed in index
-    List<String> tags = ruleIndex.listTags(defaultOrganization, null, 10);
+    List<String> tags = ruleIndex.listTags(db.getDefaultOrganization(), null, 10);
     assertThat(tags).containsExactly("java8", "javadoc");
   }
 
   @Test
   public void override_debt() {
-    ruleDao.insert(dbSession, RuleTesting.newRule(RULE_KEY)
+    db.rules().insert(RuleTesting.newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1d")
       .setDefRemediationBaseEffort("5min"));
@@ -251,12 +245,12 @@ public class RuleUpdaterMediumTest {
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(fn)
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationGapMultiplier()).isNull();
     assertThat(rule.getRemediationBaseEffort()).isEqualTo("1min");
@@ -268,7 +262,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void override_debt_only_offset() {
-    ruleDao.insert(dbSession, RuleTesting.newRule(RULE_KEY)
+    db.rules().insert(RuleTesting.newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefRemediationGapMultiplier("1d")
       .setDefRemediationBaseEffort(null));
@@ -276,12 +270,12 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "2d", null))
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(rule.getRemediationGapMultiplier()).isEqualTo("2d");
     assertThat(rule.getRemediationBaseEffort()).isNull();
@@ -293,7 +287,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void override_debt_from_linear_with_offset_to_constant() {
-    ruleDao.insert(dbSession, RuleTesting.newRule(RULE_KEY)
+    db.rules().insert(RuleTesting.newRule(RULE_KEY)
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefRemediationGapMultiplier("1d")
       .setDefRemediationBaseEffort("5min"));
@@ -301,12 +295,12 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10min"))
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationGapMultiplier()).isNull();
     assertThat(rule.getRemediationBaseEffort()).isEqualTo("10min");
@@ -318,25 +312,25 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void reset_remediation_function() {
-    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, defaultOrganization)
+    RuleDto ruleDto = RuleTesting.newDto(RULE_KEY, db.getDefaultOrganization())
       .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefRemediationGapMultiplier("1d")
       .setDefRemediationBaseEffort("5min")
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationGapMultiplier(null)
       .setRemediationBaseEffort("1min");
-    ruleDao.insert(dbSession, ruleDto.getDefinition());
-    ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
+    db.rules().insert(ruleDto.getDefinition());
+    db.rules().insertOrUpdateMetadata(ruleDto.getMetadata().setRuleId(ruleDto.getId()));
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(null)
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
     dbSession.clearCache();
 
     // verify debt is coming from default values
-    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, RULE_KEY);
+    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), RULE_KEY);
     assertThat(rule.getDefRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(rule.getDefRemediationGapMultiplier()).isEqualTo("1d");
     assertThat(rule.getDefRemediationBaseEffort()).isEqualTo("5min");
@@ -350,11 +344,9 @@ public class RuleUpdaterMediumTest {
   public void update_custom_rule() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule.getDefinition());
-    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule.getDefinition()).setName("format").setType("STRING").setDescription("Format");
-    ruleDao.insertRuleParam(dbSession, templateRule.getDefinition(), templateRuleParam1);
-    ruleDao.insertRuleParam(dbSession, templateRule.getDefinition(), templateRuleParam2);
+    db.rules().insert(templateRule.getDefinition());
+    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
+    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("format").setType("STRING").setDescription("Format"));
 
     // Create custom rule
     RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
@@ -363,11 +355,9 @@ public class RuleUpdaterMediumTest {
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
       .getDefinition();
-    ruleDao.insert(dbSession, customRule);
-    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
-    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue(null));
-
-    dbSession.commit();
+    db.rules().insert(customRule);
+    db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*"));
+    db.rules().insertRuleParam(customRule, param -> param.setName("format").setType("STRING").setDescription("Format").setDefaultValue(null));
 
     // Update custom rule
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
@@ -376,23 +366,21 @@ public class RuleUpdaterMediumTest {
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "b.*"))
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
     dbSession.clearCache();
 
     // Verify custom rule is updated
-    RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, defaultOrganization, customRule.getKey());
+    RuleDto customRuleReloaded = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getName()).isEqualTo("New name");
     assertThat(customRuleReloaded.getDescription()).isEqualTo("New description");
     assertThat(customRuleReloaded.getSeverityString()).isEqualTo("MAJOR");
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.READY);
 
-    List<RuleParamDto> params = ruleDao.selectRuleParamsByRuleKey(dbSession, customRuleReloaded.getKey());
-    assertThat(params).hasSize(2);
-    assertThat(params.get(0).getDefaultValue()).isEqualTo("b.*");
-    assertThat(params.get(1).getDefaultValue()).isNull();
+    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleReloaded.getKey());
+    assertThat(params).extracting(RuleParamDto::getDefaultValue).containsOnly("b.*", null);
 
     // Verify in index
     assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getIds()).containsOnly(customRule.getKey());
@@ -406,9 +394,8 @@ public class RuleUpdaterMediumTest {
   public void update_custom_rule_with_empty_parameter() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule.getDefinition());
-    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule.getDefinition()).setName("regex").setType("STRING").setDescription("Reg ex");
-    ruleDao.insertRuleParam(dbSession, templateRule.getDefinition(), templateRuleParam);
+    db.rules().insert(templateRule.getDefinition());
+    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
 
     // Create custom rule
     RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
@@ -417,8 +404,8 @@ public class RuleUpdaterMediumTest {
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
       .getDefinition();
-    ruleDao.insert(dbSession, customRule);
-    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam);
+    db.rules().insert(customRule);
+    db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(null));
 
     dbSession.commit();
 
@@ -428,13 +415,13 @@ public class RuleUpdaterMediumTest {
       .setMarkdownDescription("New description")
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY)
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
     dbSession.clearCache();
 
     // Verify custom rule is updated
-    List<RuleParamDto> params = ruleDao.selectRuleParamsByRuleKey(dbSession, customRule.getKey());
+    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRule.getKey());
     assertThat(params.get(0).getDefaultValue()).isNull();
   }
 
@@ -443,45 +430,47 @@ public class RuleUpdaterMediumTest {
     // Create template rule with 3 parameters
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
     RuleDefinitionDto templateRuleDefinition = templateRule.getDefinition();
-    ruleDao.insert(dbSession, templateRuleDefinition);
-    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRuleDefinition).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.insertRuleParam(dbSession, templateRuleDefinition, templateRuleParam1);
-    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRuleDefinition).setName("format").setType("STRING").setDescription("format").setDefaultValue("csv");
-    ruleDao.insertRuleParam(dbSession, templateRuleDefinition, templateRuleParam2);
-    RuleParamDto templateRuleParam3 = RuleParamDto.createFor(templateRuleDefinition).setName("message").setType("STRING").setDescription("message");
-    ruleDao.insertRuleParam(dbSession, templateRuleDefinition, templateRuleParam3);
+    db.rules().insert(templateRuleDefinition);
+    db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
+    db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("format").setType("STRING").setDescription("format").setDefaultValue("csv"));
+    db.rules().insertRuleParam(templateRuleDefinition, param -> param.setName("message").setType("STRING").setDescription("message"));
 
     // Create custom rule
     RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule)
       .setSeverity(Severity.MAJOR)
       .setLanguage("xoo")
       .getDefinition();
-    ruleDao.insert(dbSession, customRule);
-    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
-    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue("txt"));
-    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam3);
+    db.rules().insert(customRule);
+    RuleParamDto ruleParam1 = db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*"));
+    db.rules().insertRuleParam(customRule, param -> param.setName("format").setType("STRING").setDescription("format").setDefaultValue("txt"));
+    db.rules().insertRuleParam(customRule, param -> param.setName("message").setType("STRING").setDescription("message"));
 
     // Create a quality profile
-    QualityProfileDto profileDto = QProfileTesting.newXooP1(defaultOrganization);
-    db.qualityProfileDao().insert(dbSession, profileDto);
+    QualityProfileDto profileDto = QProfileTesting.newXooP1(db.getDefaultOrganization());
+    db.getDbClient().qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 
     // Activate the custom rule
-    RuleActivation activation = new RuleActivation(customRule.getKey()).setSeverity(Severity.BLOCKER);
-    tester.get(RuleActivator.class).activate(dbSession, activation, profileDto);
+    ActiveRuleDto activeRuleDto = new ActiveRuleDto()
+      .setProfileId(profileDto.getId())
+      .setRuleId(customRule.getId())
+      .setSeverity(Severity.BLOCKER);
+    db.getDbClient().activeRuleDao().insert(dbSession, activeRuleDto);
+    db.getDbClient().activeRuleDao().insertParam(dbSession, activeRuleDto, new ActiveRuleParamDto()
+      .setActiveRuleId(activeRuleDto.getId())
+      .setRulesParameterId(ruleParam1.getId())
+      .setKey(ruleParam1.getName())
+      .setValue(ruleParam1.getDefaultValue()));
     dbSession.commit();
-    dbSession.clearCache();
 
     // Update custom rule parameter 'regex', add 'message' and remove 'format'
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"))
-      .setOrganization(defaultOrganization);
-    underTest.update(dbSession, update, defaultOrganization, userSessionRule);
-
-    dbSession.clearCache();
+      .setOrganization(db.getDefaultOrganization());
+    underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
 
     // Verify custom rule parameters has been updated
-    List<RuleParamDto> params = ruleDao.selectRuleParamsByRuleKey(dbSession, customRule.getKey());
+    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRule.getKey());
     assertThat(params).hasSize(3);
 
     Map<String, RuleParamDto> paramsByKey = paramsByKey(params);
@@ -493,11 +482,11 @@ public class RuleUpdaterMediumTest {
     assertThat(paramsByKey.get("format").getDefaultValue()).isNull();
 
     // Verify that severity has not changed
-    ActiveRuleDto activeRuleDto = db.activeRuleDao().selectOrFailByKey(dbSession, ActiveRuleKey.of(profileDto.getKey(), customRule.getKey()));
-    assertThat(activeRuleDto.getSeverityString()).isEqualTo(Severity.BLOCKER);
+    ActiveRuleDto activeRuleReloaded = db.getDbClient().activeRuleDao().selectOrFailByKey(dbSession, ActiveRuleKey.of(profileDto.getKey(), customRule.getKey()));
+    assertThat(activeRuleReloaded.getSeverityString()).isEqualTo(Severity.BLOCKER);
 
     // Verify active rule parameters has been updated
-    List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
+    List<ActiveRuleParamDto> activeRuleParams = db.getDbClient().activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleReloaded.getId());
 
     assertThat(activeRuleParams).hasSize(2);
     Map<String, ActiveRuleParamDto> activeRuleParamsByKey = ActiveRuleParamDto.groupByKey(activeRuleParams);
@@ -510,11 +499,11 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_custom_rule_when_empty_name() {
     // Create template rule
     RuleDefinitionDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).getDefinition();
-    ruleDao.insert(dbSession, templateRule);
+    db.rules().insert(templateRule);
 
     // Create custom rule
     RuleDefinitionDto customRule = RuleTesting.newCustomRule(templateRule);
-    ruleDao.insert(dbSession, customRule);
+    db.rules().insert(customRule);
 
     dbSession.commit();
 
@@ -522,9 +511,9 @@ public class RuleUpdaterMediumTest {
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setName("")
       .setMarkdownDescription("New desc")
-      .setOrganization(defaultOrganization);
+      .setOrganization(db.getDefaultOrganization());
     try {
-      underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The name is missing");
@@ -535,11 +524,11 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_custom_rule_when_empty_description() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
-    ruleDao.insert(dbSession, templateRule.getDefinition());
+    db.rules().insert(templateRule.getDefinition());
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    ruleDao.insert(dbSession, customRule.getDefinition());
+    db.rules().insert(customRule.getDefinition());
 
     dbSession.commit();
 
@@ -547,9 +536,9 @@ public class RuleUpdaterMediumTest {
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setName("New name")
       .setMarkdownDescription("")
-      .setOrganization(defaultOrganization);
+      .setOrganization(db.getDefaultOrganization());
     try {
-      underTest.update(dbSession, update, defaultOrganization, userSessionRule);
+      underTest.update(dbSession, update, db.getDefaultOrganization(), userSessionRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");
@@ -560,7 +549,7 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_plugin_rule_if_name_is_set() {
     // Create rule rule
     RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("squid", "S01"));
-    ruleDao.insert(dbSession, ruleDto);
+    db.rules().insert(ruleDto);
 
     dbSession.commit();
 
@@ -578,7 +567,7 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_plugin_rule_if_description_is_set() {
     // Create rule rule
     RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("squid", "S01"));
-    ruleDao.insert(dbSession, ruleDto);
+    db.rules().insert(ruleDto);
 
     dbSession.commit();
 
@@ -596,7 +585,7 @@ public class RuleUpdaterMediumTest {
   public void fail_to_update_plugin_rule_if_severity_is_set() {
     // Create rule rule
     RuleDefinitionDto ruleDto = RuleTesting.newRule(RuleKey.of("squid", "S01"));
-    ruleDao.insert(dbSession, ruleDto);
+    db.rules().insert(ruleDto);
 
     dbSession.commit();
 
