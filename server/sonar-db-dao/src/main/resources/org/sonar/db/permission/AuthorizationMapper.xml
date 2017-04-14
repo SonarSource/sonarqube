@@ -40,30 +40,6 @@
     gr.group_id is null
   </select>
 
-  <select id="selectRootComponentPermissions" parameterType="map" resultType="string">
-    select gr.role
-    from group_roles gr
-    inner join groups_users gu on gr.group_id=gu.group_id
-    where
-    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
-    gu.user_id=#{userId,jdbcType=INTEGER}
-
-    union
-    select gr.role
-    from group_roles gr
-    where
-    gr.resource_id=#{rootComponentId,jdbcType=BIGINT} and
-    gr.group_id is null
-
-    union
-
-    select ur.role
-    from user_roles ur
-    where
-    ur.resource_id=#{rootComponentId,jdbcType=BIGINT} and
-    ur.user_id=#{userId,jdbcType=INTEGER}
-  </select>
-
   <select id="selectRootComponentPermissionsOfAnonymous" parameterType="map" resultType="string">
     select gr.role
     from group_roles gr
