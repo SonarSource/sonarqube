@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.cleaning;
 
+import java.util.concurrent.locks.Lock;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.CeDistributedInformation;
@@ -52,8 +53,18 @@ public class CeCleaningSchedulerImpl implements CeCleaningScheduler {
   }
 
   private void cleanCeQueue() {
-    cancelWornOuts();
-    resetTasksWithUnknownWorkerUUIDs();
+    Lock ceCleaningJobLock = ceDistributedInformation.acquireCleanJobLock();
+
+    // If we cannot lock that means that another job is running
+    // So we skip the cancelWornOuts() method
+    if (ceCleaningJobLock.tryLock()) {
+      try {
+        cancelWornOuts();
+        resetTasksWithUnknownWorkerUUIDs();
+      } finally {
+        ceCleaningJobLock.unlock();
+      }
+    }
   }
 
   private void cancelWornOuts() {

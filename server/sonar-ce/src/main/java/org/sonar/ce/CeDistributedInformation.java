@@ -21,6 +21,7 @@
 package org.sonar.ce;
 
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 /**
  * CeDistributedInformation is the interface to be implemented in order
@@ -34,4 +35,9 @@ public interface CeDistributedInformation {
    * are up so that they are shared with other Compute Engine nodes
    */
   void broadcastWorkerUUIDs();
+
+  /**
+   * Acquire a lock among all the Compute Engines
+   */
+  Lock acquireCleanJobLock();
 }

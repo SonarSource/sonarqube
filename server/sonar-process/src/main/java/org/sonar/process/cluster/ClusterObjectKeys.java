@@ -53,4 +53,10 @@ public final class ClusterObjectKeys {
    * The key of replicated map holding the CeWorker UUIDs
    */
   public static final String WORKER_UUIDS = "WORKER_UUIDS";
+
+  /**
+   * The key of the lock for executing CE_CLEANING_JOB
+   * {@link CeCleaningSchedulerImpl}
+   */
+  public static final String CE_CLEANING_JOB_LOCK = "CE_CLEANING_JOB_LOCK";
 }
