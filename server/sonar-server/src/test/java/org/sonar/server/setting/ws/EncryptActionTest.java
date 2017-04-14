@@ -36,7 +36,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,14 +137,13 @@ public class EncryptActionTest {
 
   private EncryptWsResponse call(@Nullable String value) {
     TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("POST");
 
     if (value != null) {
       request.setParam(PARAM_VALUE, value);
     }
 
-    return request.execute().getInputObject(EncryptWsResponse.class);
+    return request.executeProtobuf(EncryptWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

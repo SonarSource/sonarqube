@@ -33,7 +33,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings.CheckSecretKeyWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,10 +99,8 @@ public class CheckSecretKeyActionTest {
 
   private CheckSecretKeyWsResponse call() {
     return ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("GET")
-      .execute()
-      .getInputObject(CheckSecretKeyWsResponse.class);
+      .executeProtobuf(CheckSecretKeyWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

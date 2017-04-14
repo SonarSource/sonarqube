@@ -42,9 +42,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse;
 import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Project;
 
@@ -150,9 +148,10 @@ public class SearchMyProjectsActionTest {
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     }
 
-    SearchMyProjectsWsResponse result = call_ws(ws.newRequest()
+    SearchMyProjectsWsResponse result = ws.newRequest()
       .setParam(Param.PAGE, "2")
-      .setParam(Param.PAGE_SIZE, "3"));
+      .setParam(Param.PAGE_SIZE, "3")
+      .executeProtobuf(SearchMyProjectsWsResponse.class);
 
     assertThat(result.getProjectsCount()).isEqualTo(3);
     assertThat(result.getProjectsList()).extracting(Project::getName).containsExactly("project-3", "project-4", "project-5");
@@ -269,13 +268,8 @@ public class SearchMyProjectsActionTest {
   }
 
   private SearchMyProjectsWsResponse call_ws() {
-    return call_ws(ws.newRequest());
+    return ws.newRequest()
+      .executeProtobuf(SearchMyProjectsWsResponse.class);
   }
 
-  private SearchMyProjectsWsResponse call_ws(TestRequest request) {
-    return request
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(SearchMyProjectsWsResponse.class);
-  }
 }

@@ -135,10 +135,8 @@ public class WebhookDeliveryActionTest {
     userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     Webhooks.DeliveryWsResponse response = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("deliveryId", dto.getUuid())
-      .execute()
-      .getInputObject(Webhooks.DeliveryWsResponse.class);
+      .executeProtobuf(Webhooks.DeliveryWsResponse.class);
 
     Webhooks.Delivery actual = response.getDelivery();
     assertThat(actual.hasHttpStatus()).isFalse();

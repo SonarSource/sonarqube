@@ -228,11 +228,9 @@ public class SearchActionTest {
   }
 
   private List<Organization> executeRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
-    TestRequest request = wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = wsTester.newRequest();
     populateRequest(request, page, pageSize, keys);
-    return request.execute()
-      .getInputObject(Organizations.SearchWsResponse.class)
+    return request.executeProtobuf(Organizations.SearchWsResponse.class)
       .getOrganizationsList();
   }
 

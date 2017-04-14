@@ -41,7 +41,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Favorites.SearchResponse;
-import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -192,12 +191,11 @@ public class SearchActionTest {
 
   private SearchResponse call(@Nullable Integer page, @Nullable Integer pageSize) {
     TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setMethod(POST.name());
     setNullable(page, p -> request.setParam(Param.PAGE, p.toString()));
     setNullable(pageSize, ps -> request.setParam(Param.PAGE_SIZE, ps.toString()));
 
-    return request.setMediaType(MediaTypes.PROTOBUF).execute().getInputObject(SearchResponse.class);
+    return request.executeProtobuf(SearchResponse.class);
   }
 
   private SearchResponse call() {

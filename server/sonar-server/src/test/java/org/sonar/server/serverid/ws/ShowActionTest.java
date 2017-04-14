@@ -36,7 +36,6 @@ import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ServerId.ShowWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -193,9 +192,7 @@ public class ShowActionTest {
 
   private ShowWsResponse executeRequest() {
     return ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(ShowWsResponse.class);
+      .executeProtobuf(ShowWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

@@ -232,9 +232,7 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse call(TestRequest request) {
-    return request.setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(SearchWsResponse.class);
+    return request.executeProtobuf(SearchWsResponse.class);
   }
 
   private void insertDefaultGroup(OrganizationDto org, String name, int numberOfMembers) {

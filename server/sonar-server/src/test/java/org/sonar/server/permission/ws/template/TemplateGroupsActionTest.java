@@ -127,10 +127,8 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute()
-      .getInputObject(WsGroupsResponse.class);
+      .executeProtobuf(WsGroupsResponse.class);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name");
     assertThat(response.getGroups(0).getPermissionsList()).containsOnly("user", "issueadmin");
@@ -160,11 +158,9 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_PERMISSION, USER)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
-      .execute()
-      .getInputObject(WsGroupsResponse.class);
+      .executeProtobuf(WsGroupsResponse.class);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name");
     assertThat(response.getGroups(0).getPermissionsList()).containsOnly("user");
@@ -189,10 +185,8 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
-      .execute()
-      .getInputObject(WsGroupsResponse.class);
+      .executeProtobuf(WsGroupsResponse.class);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone", "group-1-name", "group-2-name");
   }
@@ -209,13 +203,11 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_PERMISSION, USER)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(PAGE, "2")
       .setParam(PAGE_SIZE, "1")
-      .execute()
-      .getInputObject(WsGroupsResponse.class);
+      .executeProtobuf(WsGroupsResponse.class);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("group-2-name");
   }
@@ -232,11 +224,9 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(TEXT_QUERY, "-nam")
-      .execute()
-      .getInputObject(WsGroupsResponse.class);
+      .executeProtobuf(WsGroupsResponse.class);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name", "group-2-name");
   }
@@ -252,11 +242,9 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(TEXT_QUERY, "-name")
-      .execute()
-      .getInputObject(WsGroupsResponse.class);
+      .executeProtobuf(WsGroupsResponse.class);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("group-1-name", "group-2-name", "group-3-name");
     assertThat(response.getGroups(0).getPermissionsList()).isEmpty();
@@ -273,11 +261,9 @@ public class TemplateGroupsActionTest extends BasePermissionWsTest<TemplateGroup
     loginAsAdmin(db.getDefaultOrganization());
 
     WsGroupsResponse response = newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_TEMPLATE_ID, template.getUuid())
       .setParam(TEXT_QUERY, "nyo")
-      .execute()
-      .getInputObject(WsGroupsResponse.class);
+      .executeProtobuf(WsGroupsResponse.class);
 
     assertThat(response.getGroupsList()).extracting("name").containsExactly("Anyone");
     assertThat(response.getGroups(0).getPermissionsList()).isEmpty();

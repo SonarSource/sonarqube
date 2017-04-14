@@ -40,7 +40,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog.Diff;
-import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -272,10 +271,9 @@ public class ChangelogActionTest {
   }
 
   private ChangelogWsResponse call(@Nullable String issueKey) {
-    TestRequest request = tester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = tester.newRequest();
     setNullable(issueKey, e -> request.setParam("issue", e));
-    return request.execute().getInputObject(ChangelogWsResponse.class);
+    return request.executeProtobuf(ChangelogWsResponse.class);
   }
 
   private IssueDto newIssue() {

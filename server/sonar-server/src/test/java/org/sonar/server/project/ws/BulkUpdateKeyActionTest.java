@@ -45,7 +45,6 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
 import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse.Key;
 
@@ -280,8 +279,7 @@ public class BulkUpdateKeyActionTest {
   }
 
   private BulkUpdateKeyWsResponse call(@Nullable String uuid, @Nullable String key, @Nullable String from, @Nullable String to, @Nullable Boolean dryRun) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = ws.newRequest();
 
     if (uuid != null) {
       request.setParam(PARAM_PROJECT_ID, uuid);
@@ -299,6 +297,6 @@ public class BulkUpdateKeyActionTest {
       request.setParam(PARAM_DRY_RUN, String.valueOf(dryRun));
     }
 
-    return request.execute().getInputObject(BulkUpdateKeyWsResponse.class);
+    return request.executeProtobuf(BulkUpdateKeyWsResponse.class);
   }
 }

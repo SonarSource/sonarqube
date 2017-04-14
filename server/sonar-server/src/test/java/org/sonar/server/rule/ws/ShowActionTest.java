@@ -96,10 +96,8 @@ public class ShowActionTest {
     RuleDefinitionDto rule = insertRule();
 
     Rules.ShowResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_KEY, rule.getKey().toString())
-      .execute()
-      .getInputObject(Rules.ShowResponse.class);
+      .executeProtobuf(Rules.ShowResponse.class);
     assertThat(result.getRule()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
   }
 
@@ -109,10 +107,8 @@ public class ShowActionTest {
     RuleMetadataDto metadata = insertMetadata(dbTester.getDefaultOrganization(), rule, setTags("tag1", "tag2"));
 
     Rules.ShowResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam(PARAM_KEY, rule.getKey().toString())
-      .execute()
-      .getInputObject(Rules.ShowResponse.class);
+      .executeProtobuf(Rules.ShowResponse.class);
     assertThat(result.getRule().getTags().getTagsList())
       .containsExactly(metadata.getTags().toArray(new String[0]));
   }
@@ -124,11 +120,9 @@ public class ShowActionTest {
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
 
     Rules.ShowResponse result = actionTester.newRequest()
-        .setMediaType(PROTOBUF)
         .setParam(PARAM_KEY, rule.getKey().toString())
         .setParam(PARAM_ORGANIZATION, organization.getKey())
-        .execute()
-        .getInputObject(Rules.ShowResponse.class);
+        .executeProtobuf(Rules.ShowResponse.class);
     assertThat(result.getRule().getTags().getTagsList())
       .containsExactly(metadata.getTags().toArray(new String[0]));
   }

@@ -39,7 +39,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -185,15 +184,13 @@ public class ActivityStatusActionTest {
   }
 
   private WsCe.ActivityStatusWsResponse callByComponentUuidOrComponentKey(@Nullable String componentUuid, @Nullable String componentKey) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = ws.newRequest();
     if (componentUuid != null) {
       request.setParam(PARAM_COMPONENT_ID, componentUuid);
     }
     if (componentKey != null) {
       request.setParam(PARAM_COMPONENT_KEY, componentKey);
     }
-
-      return request.execute().getInputObject(WsCe.ActivityStatusWsResponse.class);
+    return request.executeProtobuf(WsCe.ActivityStatusWsResponse.class);
   }
 }

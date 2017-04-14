@@ -59,7 +59,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.SearchWsResponse;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -155,10 +154,7 @@ public class SearchActionComponentsMediumTest {
     indexIssues();
 
     WsActionTester actionTester = new WsActionTester(tester.get(SearchAction.class));
-    SearchWsResponse searchResponse = actionTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(SearchWsResponse.class);
+    SearchWsResponse searchResponse = actionTester.newRequest().executeProtobuf(SearchWsResponse.class);
     assertThat(searchResponse.getIssuesCount()).isEqualTo(2);
 
     for (Issues.Issue issue : searchResponse.getIssuesList()) {

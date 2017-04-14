@@ -23,6 +23,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
+import com.google.protobuf.GeneratedMessage;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.sonar.api.server.ws.internal.ValidatingRequest;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
+import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TestRequest extends ValidatingRequest {
 
@@ -135,4 +137,7 @@ public class TestRequest extends ValidatingRequest {
     }
   }
 
+  public <T extends GeneratedMessage> T executeProtobuf(Class<T> protobufClass) {
+    return setMediaType(PROTOBUF).execute().getInputObject(protobufClass);
+  }
 }

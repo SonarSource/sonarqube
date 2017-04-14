@@ -41,8 +41,6 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
-import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Rules;
@@ -65,7 +63,6 @@ import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_BASE_EF
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_GAP_MULTIPLIER;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_TYPE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_TAGS;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class UpdateActionTest {
 
@@ -104,12 +101,10 @@ public class UpdateActionTest {
     RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("stag1", "stag2"));
     dbTester.rules().insertOrUpdateMetadata(rule, defaultOrganization, setTags("tag1", "tag2"));
 
-    TestRequest request = actionTester.newRequest().setMethod("POST")
-      .setMediaType(PROTOBUF)
+    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
-      .setParam(PARAM_TAGS, "tag2,tag3");
-    TestResponse response = request.execute();
-    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
+      .setParam(PARAM_TAGS, "tag2,tag3")
+      .executeProtobuf(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();
@@ -128,13 +123,11 @@ public class UpdateActionTest {
     RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("stag1", "stag2"));
     dbTester.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"));
 
-    TestRequest request = actionTester.newRequest().setMethod("POST")
-      .setMediaType(PROTOBUF)
+    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(PARAM_TAGS, "tag2,tag3")
-      .setParam(PARAM_ORGANIZATION, organization.getKey());
-    TestResponse response = request.execute();
-    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();
@@ -165,15 +158,13 @@ public class UpdateActionTest {
     String newMultiplier = "15d";
     String newEffort = "5min";
 
-    TestRequest request = actionTester.newRequest().setMethod("POST")
-      .setMediaType(PROTOBUF)
+    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
       .setParam("key", rule.getKey().toString())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_REMEDIATION_FN_TYPE, newOffset)
       .setParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER, newMultiplier)
-      .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, newEffort);
-    TestResponse response = request.execute();
-    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
+      .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, newEffort)
+      .executeProtobuf(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();
@@ -210,14 +201,12 @@ public class UpdateActionTest {
     String newCoeff = "11d";
     String newOffset = "6min";
 
-    TestRequest request = actionTester.newRequest().setMethod("POST")
-      .setMediaType(PROTOBUF)
+    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(DEPRECATED_PARAM_REMEDIATION_FN_TYPE, newType)
       .setParam(DEPRECATED_PARAM_REMEDIATION_FN_COEFF, newCoeff)
-      .setParam(DEPRECATED_PARAM_REMEDIATION_FN_OFFSET, newOffset);
-    TestResponse response = request.execute();
-    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
+      .setParam(DEPRECATED_PARAM_REMEDIATION_FN_OFFSET, newOffset)
+      .executeProtobuf(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();

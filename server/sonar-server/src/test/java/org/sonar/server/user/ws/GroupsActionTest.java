@@ -354,9 +354,7 @@ public class GroupsActionTest {
   }
 
   private GroupsWsResponse call(TestRequest request) {
-    return request.setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(GroupsWsResponse.class);
+    return request.executeProtobuf(GroupsWsResponse.class);
   }
 
 }

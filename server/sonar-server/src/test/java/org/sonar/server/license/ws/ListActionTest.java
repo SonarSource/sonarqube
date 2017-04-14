@@ -41,7 +41,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Licenses;
 import org.sonarqube.ws.Licenses.ListWsResponse;
-import org.sonarqube.ws.MediaTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.entry;
@@ -273,10 +272,7 @@ public class ListActionTest {
   }
 
   private ListWsResponse executeRequest() {
-    return ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(ListWsResponse.class);
+    return ws.newRequest().executeProtobuf(ListWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

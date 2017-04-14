@@ -36,14 +36,12 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsCe;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class TaskActionTest {
 
@@ -82,12 +80,9 @@ public class TaskActionTest {
     queueDto.setSubmitterLogin("john");
     persist(queueDto);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
-      .execute();
-
-    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     assertThat(taskResponse.getTask().getOrganization()).isEqualTo(organizationDto.getKey());
     assertThat(taskResponse.getTask().getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
@@ -106,12 +101,9 @@ public class TaskActionTest {
     CeActivityDto activityDto = createActivityDto(SOME_TASK_UUID);
     persist(activityDto);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
-      .execute();
-
-    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getOrganization()).isEqualTo(organizationDto.getKey());
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
@@ -133,13 +125,10 @@ public class TaskActionTest {
       .setErrorStacktrace("error stack");
     persist(activityDto);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
       .setParam("additionalFields", "stacktrace")
-      .execute();
-
-    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
@@ -156,12 +145,9 @@ public class TaskActionTest {
       .setErrorStacktrace("error stack");
     persist(activityDto);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
-      .execute();
-
-    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
@@ -176,13 +162,10 @@ public class TaskActionTest {
     persist(createActivityDto(SOME_TASK_UUID));
     persistScannerContext(SOME_TASK_UUID, scannerContext);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
       .setParam("additionalFields", "scannerContext")
-      .execute();
-
-    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getScannerContext()).isEqualTo(scannerContext);
@@ -196,13 +179,10 @@ public class TaskActionTest {
     persist(createActivityDto(SOME_TASK_UUID));
     persistScannerContext(SOME_TASK_UUID, scannerContext);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
       .setParam("additionalFields", "stacktrace")
-      .execute();
-
-    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.hasScannerContext()).isFalse();
@@ -216,12 +196,9 @@ public class TaskActionTest {
       .setErrorMessage("error msg");
     persist(activityDto);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", SOME_TASK_UUID)
-      .execute();
-
-    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
@@ -392,11 +369,9 @@ public class TaskActionTest {
   }
 
   private void call(String taskUuid) {
-    TestResponse response = ws.newRequest()
-      .setMediaType(PROTOBUF)
+    WsCe.TaskResponse taskResponse = ws.newRequest()
       .setParam("id", taskUuid)
-      .execute();
-    WsCe.TaskResponse taskResponse = response.getInputObject(WsCe.TaskResponse.class);
+      .executeProtobuf(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(taskUuid);
   }

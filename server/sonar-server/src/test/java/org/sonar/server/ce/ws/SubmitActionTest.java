@@ -60,17 +60,15 @@ public class SubmitActionTest {
     when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class)))
       .thenReturn(A_CE_TASK);
 
-    TestResponse wsResponse = tester.newRequest()
+    WsCe.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
       .setParam("report", "{binary}")
-      .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("POST")
-      .execute();
+      .executeProtobuf(WsCe.SubmitResponse.class);
 
     verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class));
 
-    WsCe.SubmitResponse submitResponse = wsResponse.getInputObject(WsCe.SubmitResponse.class);
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo("PROJECT_1");
   }

@@ -43,7 +43,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 
@@ -458,12 +457,11 @@ public class ListDefinitionsActionTest {
   }
 
   private ListDefinitionsWsResponse executeRequest(@Nullable String key) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = ws.newRequest();
     if (key != null) {
       request.setParam("component", key);
     }
-    return request.execute().getInputObject(ListDefinitionsWsResponse.class);
+    return request.executeProtobuf(ListDefinitionsWsResponse.class);
   }
 
   private void logIn() {

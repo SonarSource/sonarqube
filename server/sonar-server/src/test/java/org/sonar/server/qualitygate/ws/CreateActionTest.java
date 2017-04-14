@@ -34,7 +34,6 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,10 +104,8 @@ public class CreateActionTest {
 
   private CreateWsResponse executeRequest(String name) {
     return ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("name", name)
-      .execute()
-      .getInputObject(CreateWsResponse.class);
+      .executeProtobuf(CreateWsResponse.class);
   }
 
   private void logInAsQualityGateAdmin() {

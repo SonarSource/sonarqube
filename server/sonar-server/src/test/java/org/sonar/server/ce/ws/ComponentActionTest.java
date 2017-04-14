@@ -34,7 +34,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
@@ -64,12 +63,10 @@ public class ComponentActionTest {
     dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
     userSession.addComponentUuidPermission(UserRole.USER, "PROJECT_1", "PROJECT_1");
 
-    TestResponse wsResponse = ws.newRequest()
+    WsCe.ProjectResponse response = ws.newRequest()
       .setParam("componentId", "PROJECT_1")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+      .executeProtobuf(WsCe.ProjectResponse.class);
 
-    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(0);
     assertThat(response.hasCurrent()).isFalse();
   }
@@ -85,12 +82,9 @@ public class ComponentActionTest {
     insertQueue("T4", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
     insertQueue("T5", "PROJECT_1", CeQueueDto.Status.PENDING);
 
-    TestResponse wsResponse = ws.newRequest()
+    WsCe.ProjectResponse response = ws.newRequest()
       .setParam("componentId", "PROJECT_1")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
-
-    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
+      .executeProtobuf(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(2);
     assertThat(response.getQueue(0).getId()).isEqualTo("T4");
     assertThat(response.getQueue(1).getId()).isEqualTo("T5");
@@ -109,12 +103,9 @@ public class ComponentActionTest {
     logInWithBrowsePermission(project);
     insertActivity("T1", project.uuid(), CeActivityDto.Status.SUCCESS);
 
-    TestResponse wsResponse = ws.newRequest()
+    WsCe.ProjectResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_KEY, project.key())
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
-
-    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
+      .executeProtobuf(WsCe.ProjectResponse.class);
     assertThat(response.hasCurrent()).isTrue();
   }
 
@@ -128,12 +119,9 @@ public class ComponentActionTest {
     insertActivity("T4", "PROJECT_1", CeActivityDto.Status.CANCELED);
     insertActivity("T5", "PROJECT_1", CeActivityDto.Status.CANCELED);
 
-    TestResponse wsResponse = ws.newRequest()
+    WsCe.ProjectResponse response = ws.newRequest()
       .setParam("componentId", "PROJECT_1")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
-
-    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
+      .executeProtobuf(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(0);
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
     assertThat(response.hasCurrent()).isTrue();

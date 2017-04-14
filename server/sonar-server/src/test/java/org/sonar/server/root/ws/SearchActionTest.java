@@ -142,9 +142,7 @@ public class SearchActionTest {
 
   private List<WsRoot.Root> executeRequest() {
     return wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(WsRoot.SearchWsResponse.class)
+      .executeProtobuf(WsRoot.SearchWsResponse.class)
       .getRootsList();
   }
 

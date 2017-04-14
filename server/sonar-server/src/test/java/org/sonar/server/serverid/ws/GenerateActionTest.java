@@ -46,7 +46,6 @@ import static org.sonar.api.CoreProperties.SERVER_ID_IP_ADDRESS;
 import static org.sonar.server.serverid.ws.GenerateAction.PARAM_IP;
 import static org.sonar.server.serverid.ws.GenerateAction.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class GenerateActionTest {
 
@@ -169,8 +168,7 @@ public class GenerateActionTest {
 
   private GenerateWsResponse call(@Nullable String organization, @Nullable String ip) {
     TestRequest request = ws.newRequest()
-      .setMethod("POST")
-      .setMediaType(PROTOBUF);
+      .setMethod("POST");
 
     if (organization != null) {
       request.setParam(PARAM_ORGANIZATION, organization);
@@ -180,7 +178,7 @@ public class GenerateActionTest {
       request.setParam(PARAM_IP, ip);
     }
 
-    return request.execute().getInputObject(GenerateWsResponse.class);
+    return request.executeProtobuf(GenerateWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

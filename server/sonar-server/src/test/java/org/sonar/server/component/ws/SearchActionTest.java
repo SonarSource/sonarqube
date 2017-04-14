@@ -65,7 +65,6 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.WsComponents.Component;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -250,15 +249,14 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse call(SearchWsRequest wsRequest) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(PROTOBUF);
+    TestRequest request = ws.newRequest();
     setNullable(wsRequest.getOrganization(), p -> request.setParam(PARAM_ORGANIZATION, p));
     setNullable(wsRequest.getLanguage(), p -> request.setParam(PARAM_LANGUAGE, p));
     setNullable(wsRequest.getQualifiers(), p -> request.setParam(PARAM_QUALIFIERS, Joiner.on(",").join(p)));
     setNullable(wsRequest.getQuery(), p -> request.setParam(TEXT_QUERY, p));
     setNullable(wsRequest.getPage(), page -> request.setParam(PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
-    return request.execute().getInputObject(SearchWsResponse.class);
+    return request.executeProtobuf(SearchWsResponse.class);
   }
 
   private static Language[] javaLanguage() {

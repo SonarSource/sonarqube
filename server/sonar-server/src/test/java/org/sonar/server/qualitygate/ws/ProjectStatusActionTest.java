@@ -40,7 +40,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.Status;
 
@@ -238,16 +237,13 @@ public class ProjectStatusActionTest {
   private ProjectStatusWsResponse call(String taskId) {
     return ws.newRequest()
       .setParam("analysisId", taskId)
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(ProjectStatusWsResponse.class);
+      .executeProtobuf(ProjectStatusWsResponse.class);
   }
 
   private ProjectStatusWsResponse callByProjectUuid(String projectUuid) {
     return ws.newRequest()
       .setParam(PARAM_PROJECT_ID, projectUuid)
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute().getInputObject(ProjectStatusWsResponse.class);
+      .executeProtobuf(ProjectStatusWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

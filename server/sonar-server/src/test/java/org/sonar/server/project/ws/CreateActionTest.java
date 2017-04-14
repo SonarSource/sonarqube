@@ -40,7 +40,6 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
 
@@ -199,13 +198,12 @@ public class CreateActionTest {
 
   private CreateWsResponse call(CreateRequest request) {
     TestRequest httpRequest = ws.newRequest()
-      .setMethod(POST.name())
-      .setMediaType(MediaTypes.PROTOBUF);
+      .setMethod(POST.name());
     setNullable(request.getOrganization(), e -> httpRequest.setParam("organization", e));
     setNullable(request.getKey(), e -> httpRequest.setParam("project", e));
     setNullable(request.getName(), e -> httpRequest.setParam("name", e));
     setNullable(request.getBranch(), e -> httpRequest.setParam("branch", e));
-    return httpRequest.execute().getInputObject(CreateWsResponse.class);
+    return httpRequest.executeProtobuf(CreateWsResponse.class);
   }
 
   private NewComponent verifyCallToComponentUpdater() {

@@ -57,7 +57,6 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.QUALITY_GATE;
@@ -258,13 +257,12 @@ public class SearchActionTest {
 
   private SearchResponse call(SearchRequest wsRequest) {
     TestRequest request = ws.newRequest()
-      .setMediaType(PROTOBUF)
       .setMethod(POST.name());
     setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
     setNullable(wsRequest.getCategory(), category -> request.setParam(PARAM_CATEGORY, category.name()));
     setNullable(wsRequest.getPage(), page -> request.setParam(Param.PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(Param.PAGE_SIZE, String.valueOf(pageSize)));
 
-    return request.execute().getInputObject(SearchResponse.class);
+    return request.executeProtobuf(SearchResponse.class);
   }
 }

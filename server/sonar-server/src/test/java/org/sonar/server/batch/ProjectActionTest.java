@@ -26,7 +26,6 @@ import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,11 +77,9 @@ public class ProjectActionTest {
     when(projectDataLoader.load(any(ProjectDataQuery.class))).thenReturn(projectRepositories);
 
     WsProjectResponse wsProjectResponse = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("key", projectKey)
       .setParam("profile", "Default")
-      .execute()
-      .getInputObject(WsProjectResponse.class);
+      .executeProtobuf(WsProjectResponse.class);
     assertThat(wsProjectResponse.getFileDataByModuleAndPath()).isEmpty();
   }
 }

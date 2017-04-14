@@ -182,7 +182,6 @@ public class CreateConditionActionTest {
   private CreateConditionWsResponse executeRequest(long qualityProfileId, String metricKey, String operator, @Nullable String warning, @Nullable String error,
     @Nullable Integer period) {
     TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_GATE_ID, Long.toString(qualityProfileId))
       .setParam(PARAM_METRIC, metricKey)
       .setParam(PARAM_OPERATOR, operator);
@@ -195,7 +194,7 @@ public class CreateConditionActionTest {
     if (period != null) {
       request.setParam(PARAM_PERIOD, Integer.toString(period));
     }
-    return request.execute().getInputObject(CreateConditionWsResponse.class);
+    return request.executeProtobuf(CreateConditionWsResponse.class);
   }
 
   private void logInAsQualityGateAdmin() {

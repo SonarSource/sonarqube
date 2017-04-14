@@ -47,7 +47,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
@@ -804,15 +803,14 @@ public class ValuesActionTest {
   }
 
   private ValuesWsResponse executeRequest(@Nullable String componentKey, String... keys) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = ws.newRequest();
     if (keys.length > 0) {
       request.setParam("keys", COMMA_JOINER.join(keys));
     }
     if (componentKey != null) {
       request.setParam("component", componentKey);
     }
-    return request.execute().getInputObject(ValuesWsResponse.class);
+    return request.executeProtobuf(ValuesWsResponse.class);
   }
 
   private void logIn() {

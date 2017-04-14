@@ -31,7 +31,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,9 +102,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     db.organizations().addMember(org, user);
 
     WsPermissions.WsSearchGlobalPermissionsResponse result = newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(WsPermissions.WsSearchGlobalPermissionsResponse.class);
+      .executeProtobuf(WsPermissions.WsSearchGlobalPermissionsResponse.class);
 
     assertThat(result.getPermissionsCount()).isEqualTo(GlobalPermissions.ALL.size());
     for (WsPermissions.Permission permission : result.getPermissionsList()) {
@@ -122,9 +119,7 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     loginAsAdmin(db.getDefaultOrganization());
 
     WsPermissions.WsSearchGlobalPermissionsResponse result = newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(WsPermissions.WsSearchGlobalPermissionsResponse.class);
+      .executeProtobuf(WsPermissions.WsSearchGlobalPermissionsResponse.class);
 
     assertThat(result).isNotNull();
   }
