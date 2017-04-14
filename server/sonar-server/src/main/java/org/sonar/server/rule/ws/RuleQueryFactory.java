@@ -36,6 +36,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.ws.WsUtils;
 
+import static java.lang.String.format;
 import static org.sonar.server.util.EnumUtils.toEnums;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
@@ -96,7 +97,7 @@ public class RuleQueryFactory {
         Optional<OrganizationDto> organizationOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
         OrganizationDto organization = WsUtils.checkFoundWithOptional(organizationOptional, "No organization with key '%s'", organizationKey);
         if (!organizationUuid.equals(organization.getUuid())) {
-          throw new IllegalArgumentException(String.format("The specified qualityProfile '%s' is not part of the specified organization '%s'", qualityProfileKey, organizationKey));
+          throw new IllegalArgumentException(format("The specified quality profile '%s' is not part of the specified organization '%s'", qualityProfileKey, organizationKey));
         }
       }
     }

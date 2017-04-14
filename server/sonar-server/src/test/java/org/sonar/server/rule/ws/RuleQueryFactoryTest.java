@@ -229,7 +229,7 @@ public class RuleQueryFactoryTest {
     String organization2Key = organization2.getKey();
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("The specified qualityProfile '" + qualityProfileKey + "' is not part of the specified organization '" + organization2Key + "'");
+    thrown.expectMessage("The specified quality profile '" + qualityProfileKey + "' is not part of the specified organization '" + organization2Key + "'");
 
     RuleQuery result = execute(PARAM_QPROFILE, qualityProfileKey,
       PARAM_ORGANIZATION, organization2Key);
