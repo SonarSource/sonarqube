@@ -260,12 +260,11 @@ public class RuleQuery {
     return ruleKey;
   }
 
-  @CheckForNull
   public String getOrganizationUuid() {
     return organizationUuid;
   }
 
-  public RuleQuery setOrganizationUuid(@Nullable String organizationUuid) {
+  public RuleQuery setOrganizationUuid(String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;
   }
