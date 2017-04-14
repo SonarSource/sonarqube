@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
@@ -69,7 +68,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.language.LanguageTesting.newLanguages;
-import static org.sonarqube.ws.QualityProfiles.CreateWsResponse.parseFrom;
 
 public class CreateActionTest {
 
@@ -262,11 +260,7 @@ public class CreateActionTest {
   }
 
   private CreateWsResponse executeRequest(TestRequest request) {
-    try {
-      return parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return request.execute().getInputObject(CreateWsResponse.class);
   }
 
   private ProfileImporter[] createImporters() {

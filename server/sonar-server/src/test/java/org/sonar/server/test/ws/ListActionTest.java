@@ -19,8 +19,6 @@
  */
 package org.sonar.server.test.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -289,15 +287,9 @@ public class ListActionTest {
   }
 
   private static ListResponse call(TestRequest request) {
-    try {
-
-      return ListResponse.parseFrom(
-        request
-          .setMediaType(MediaTypes.PROTOBUF)
-          .execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute().getInputObject(ListResponse.class);
   }
 
 }

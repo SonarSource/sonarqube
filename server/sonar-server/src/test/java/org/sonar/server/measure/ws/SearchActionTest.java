@@ -20,8 +20,6 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -390,11 +388,7 @@ public class SearchActionTest {
       request.setParam(PARAM_METRIC_KEYS, String.join(",", metrics));
     }
 
-    try {
-      return SearchWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(SearchWsResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

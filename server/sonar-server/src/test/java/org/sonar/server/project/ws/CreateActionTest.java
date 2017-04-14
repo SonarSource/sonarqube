@@ -19,8 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
@@ -207,11 +205,7 @@ public class CreateActionTest {
     setNullable(request.getKey(), e -> httpRequest.setParam("project", e));
     setNullable(request.getName(), e -> httpRequest.setParam("name", e));
     setNullable(request.getBranch(), e -> httpRequest.setParam("branch", e));
-    try {
-      return CreateWsResponse.parseFrom(httpRequest.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return httpRequest.execute().getInputObject(CreateWsResponse.class);
   }
 
   private NewComponent verifyCallToComponentUpdater() {

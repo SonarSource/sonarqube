@@ -19,7 +19,6 @@
  */
 package org.sonar.server.root.ws;
 
-import java.io.IOException;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +32,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
@@ -143,13 +141,11 @@ public class SearchActionTest {
   }
 
   private List<WsRoot.Root> executeRequest() {
-    TestRequest request = wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
-    try {
-      return WsRoot.SearchWsResponse.parseFrom(request.execute().getInputStream()).getRootsList();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return wsTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(WsRoot.SearchWsResponse.class)
+      .getRootsList();
   }
 
   private void expectInsufficientPrivilegesForbiddenException() {

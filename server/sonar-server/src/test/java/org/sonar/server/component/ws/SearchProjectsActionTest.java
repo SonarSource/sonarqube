@@ -22,7 +22,6 @@ package org.sonar.server.component.ws;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -650,11 +649,7 @@ public class SearchProjectsActionTest {
     httpRequest.setParam(PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
     httpRequest.setParam(FACETS, Joiner.on(",").join(wsRequest.getFacets()));
     httpRequest.setParam(FIELDS, Joiner.on(",").join(wsRequest.getAdditionalFields()));
-    try {
-      return SearchProjectsWsResponse.parseFrom(httpRequest.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return httpRequest.execute().getInputObject(SearchProjectsWsResponse.class);
   }
 
   private ComponentDto insertProjectInDbAndEs(ComponentDto project) {

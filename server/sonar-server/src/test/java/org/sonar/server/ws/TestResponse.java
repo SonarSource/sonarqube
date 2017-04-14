@@ -19,8 +19,10 @@
  */
 package org.sonar.server.ws;
 
+import com.google.protobuf.GeneratedMessage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 
@@ -32,8 +34,19 @@ public class TestResponse {
     this.dumbResponse = dumbResponse;
   }
 
-  public InputStream getInputStream() {
+  private InputStream getInputStream() {
     return new ByteArrayInputStream(dumbResponse.getFlushedOutput());
+  }
+
+  public <T extends GeneratedMessage> T getInputObject(Class<T> protobufClass) {
+    try (InputStream input = getInputStream()) {
+      Method parseFromMethod = protobufClass.getMethod("parseFrom", InputStream.class);
+      @SuppressWarnings("unchecked")
+      T result = (T) parseFromMethod.invoke(null, input);
+      return result;
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   public String getInput() {

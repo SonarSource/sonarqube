@@ -19,8 +19,6 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
@@ -267,10 +265,6 @@ public class SearchActionTest {
     setNullable(wsRequest.getPage(), page -> request.setParam(Param.PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(Param.PAGE_SIZE, String.valueOf(pageSize)));
 
-    try {
-      return SearchResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(SearchResponse.class);
   }
 }

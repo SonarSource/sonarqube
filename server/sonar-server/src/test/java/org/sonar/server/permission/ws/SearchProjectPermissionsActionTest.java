@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws;
 
-import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -200,12 +199,11 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     db.components().insertComponent(newDeveloper(organizationDto, "developer-name"));
     db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
 
-    InputStream wsResponse = newRequest()
+    WsPermissions.SearchProjectPermissionsWsResponse result = newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_QUALIFIER, Qualifiers.PROJECT)
       .execute()
-      .getInputStream();
-    WsPermissions.SearchProjectPermissionsWsResponse result = WsPermissions.SearchProjectPermissionsWsResponse.parseFrom(wsResponse);
+      .getInputObject(WsPermissions.SearchProjectPermissionsWsResponse.class);
 
     assertThat(result.getProjectsList())
       .extracting("id")

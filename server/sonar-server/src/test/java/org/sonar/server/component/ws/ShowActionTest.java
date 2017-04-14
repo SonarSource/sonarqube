@@ -19,9 +19,7 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -199,11 +197,7 @@ public class ShowActionTest {
       request.setParam(PARAM_COMPONENT, key);
     }
 
-    try (InputStream responseStream = request.execute().getInputStream()) {
-      return ShowWsResponse.parseFrom(responseStream);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(ShowWsResponse.class);
   }
 
   private void insertJsonExampleComponentsAndSnapshots() {

@@ -19,9 +19,6 @@
  */
 package org.sonar.server.favorite.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -200,13 +197,7 @@ public class SearchActionTest {
     setNullable(page, p -> request.setParam(Param.PAGE, p.toString()));
     setNullable(pageSize, ps -> request.setParam(Param.PAGE_SIZE, ps.toString()));
 
-    InputStream response = request.execute().getInputStream();
-
-    try {
-      return SearchResponse.parseFrom(response);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.setMediaType(MediaTypes.PROTOBUF).execute().getInputObject(SearchResponse.class);
   }
 
   private SearchResponse call() {

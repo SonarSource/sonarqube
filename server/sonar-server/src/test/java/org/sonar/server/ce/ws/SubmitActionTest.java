@@ -23,7 +23,6 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.queue.ReportSubmitter;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -71,7 +70,7 @@ public class SubmitActionTest {
 
     verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"), any(InputStream.class));
 
-    WsCe.SubmitResponse submitResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.SubmitResponse.PARSER);
+    WsCe.SubmitResponse submitResponse = wsResponse.getInputObject(WsCe.SubmitResponse.class);
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     assertThat(submitResponse.getProjectId()).isEqualTo("PROJECT_1");
   }

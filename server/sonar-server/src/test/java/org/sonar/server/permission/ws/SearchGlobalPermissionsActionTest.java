@@ -102,11 +102,10 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_GATES);
     db.organizations().addMember(org, user);
 
-    WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
-      newRequest()
-        .setMediaType(MediaTypes.PROTOBUF)
-        .execute()
-        .getInputStream());
+    WsPermissions.WsSearchGlobalPermissionsResponse result = newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(WsPermissions.WsSearchGlobalPermissionsResponse.class);
 
     assertThat(result.getPermissionsCount()).isEqualTo(GlobalPermissions.ALL.size());
     for (WsPermissions.Permission permission : result.getPermissionsList()) {
@@ -122,11 +121,10 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
   public void supports_protobuf_response() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
 
-    WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
-      newRequest()
-        .setMediaType(MediaTypes.PROTOBUF)
-        .execute()
-        .getInputStream());
+    WsPermissions.WsSearchGlobalPermissionsResponse result = newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(WsPermissions.WsSearchGlobalPermissionsResponse.class);
 
     assertThat(result).isNotNull();
   }

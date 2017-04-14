@@ -77,13 +77,12 @@ public class ProjectActionTest {
     ProjectRepositories projectRepositories = new ProjectRepositories().addFileData("module-1", null, new FileData(null, null));
     when(projectDataLoader.load(any(ProjectDataQuery.class))).thenReturn(projectRepositories);
 
-    TestResponse result = ws.newRequest()
+    WsProjectResponse wsProjectResponse = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("key", projectKey)
       .setParam("profile", "Default")
-      .execute();
-
-    WsProjectResponse wsProjectResponse = WsProjectResponse.parseFrom(result.getInputStream());
+      .execute()
+      .getInputObject(WsProjectResponse.class);
     assertThat(wsProjectResponse.getFileDataByModuleAndPath()).isEmpty();
   }
 }

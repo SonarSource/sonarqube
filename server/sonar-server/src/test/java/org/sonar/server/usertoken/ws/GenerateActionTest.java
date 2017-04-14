@@ -19,8 +19,6 @@
  */
 package org.sonar.server.usertoken.ws;
 
-import java.io.IOException;
-import java.io.InputStream;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +37,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
 
-import static com.google.common.base.Throwables.propagate;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -178,14 +175,9 @@ public class GenerateActionTest {
       testRequest.setParam(PARAM_LOGIN, login);
     }
 
-    InputStream responseStream = testRequest
-      .execute().getInputStream();
-
-    try {
-      return GenerateWsResponse.parseFrom(responseStream);
-    } catch (IOException e) {
-      throw propagate(e);
-    }
+    return testRequest
+      .execute()
+      .getInputObject(GenerateWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

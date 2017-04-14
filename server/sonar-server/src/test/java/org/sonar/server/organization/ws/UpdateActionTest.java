@@ -19,7 +19,6 @@
  */
 package org.sonar.server.organization.ws;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,10 +40,10 @@ import org.sonarqube.ws.Organizations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_257_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.STRING_65_CHARS_LONG;
 import static org.sonar.server.organization.ws.OrganizationsWsTestSupport.setParam;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class UpdateActionTest {
   private static final String SOME_KEY = "key";
@@ -330,11 +329,7 @@ public class UpdateActionTest {
     setParam(request, "description", description);
     setParam(request, "url", url);
     setParam(request, "avatar", avatar);
-    try {
-      return Organizations.UpdateWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return request.execute().getInputObject(Organizations.UpdateWsResponse.class);
   }
 
   private void verifyResponseAndDb(Organizations.UpdateWsResponse response, OrganizationDto dto, String name, long updateAt) {

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -234,12 +232,9 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse call(TestRequest request) {
-    request.setMediaType(MediaTypes.PROTOBUF);
-    try {
-      return SearchWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(SearchWsResponse.class);
   }
 
   private void insertDefaultGroup(OrganizationDto org, String name, int numberOfMembers) {

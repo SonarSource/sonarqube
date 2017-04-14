@@ -19,8 +19,6 @@
  */
 package org.sonar.server.serverid.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -182,11 +180,7 @@ public class GenerateActionTest {
       request.setParam(PARAM_IP, ip);
     }
 
-    try {
-      return GenerateWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(GenerateWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

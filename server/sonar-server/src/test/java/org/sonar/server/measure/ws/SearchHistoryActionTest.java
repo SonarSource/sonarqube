@@ -19,8 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.LongStream;
@@ -327,11 +325,7 @@ public class SearchHistoryActionTest {
     setNullable(wsRequest.getPage(), p -> request.setParam(Param.PAGE, String.valueOf(p)));
     setNullable(wsRequest.getPageSize(), ps -> request.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
 
-    try {
-      return SearchHistoryResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(SearchHistoryResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

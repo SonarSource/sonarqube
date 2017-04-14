@@ -20,7 +20,6 @@
 package org.sonar.server.projectlink.ws;
 
 import java.io.IOException;
-import java.io.InputStream;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -208,15 +207,14 @@ public class CreateActionTest {
   }
 
   private void createAndTest(ComponentDto project, String name, String url, String type) throws IOException {
-    InputStream responseStream = ws.newRequest()
+    WsProjectLinks.CreateWsResponse response = ws.newRequest()
         .setMethod("POST")
         .setParam(PARAM_PROJECT_KEY, project.key())
         .setParam(PARAM_NAME, name)
         .setParam(PARAM_URL, url)
         .setMediaType(PROTOBUF)
-        .execute().getInputStream();
-
-    WsProjectLinks.CreateWsResponse response = WsProjectLinks.CreateWsResponse.parseFrom(responseStream);
+        .execute()
+      .getInputObject(WsProjectLinks.CreateWsResponse.class);
 
     long newId = Long.valueOf(response.getLink().getId());
 

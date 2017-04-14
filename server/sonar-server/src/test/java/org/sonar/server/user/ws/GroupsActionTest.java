@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -213,7 +212,8 @@ public class GroupsActionTest {
       .setParam(Param.SELECTED, ALL.value()));
 
     assertThat(response.getGroupsList())
-      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected, GroupsWsResponse.Group::getDefault)
+      .extracting(GroupsWsResponse.Group::getId, GroupsWsResponse.Group::getName, GroupsWsResponse.Group::getDescription, GroupsWsResponse.Group::getSelected,
+        GroupsWsResponse.Group::getDefault)
       .containsOnly(tuple(group.getId().longValue(), group.getName(), group.getDescription(), true, true));
   }
 
@@ -354,12 +354,9 @@ public class GroupsActionTest {
   }
 
   private GroupsWsResponse call(TestRequest request) {
-    request.setMediaType(MediaTypes.PROTOBUF);
-    try {
-      return GroupsWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(GroupsWsResponse.class);
   }
 
 }

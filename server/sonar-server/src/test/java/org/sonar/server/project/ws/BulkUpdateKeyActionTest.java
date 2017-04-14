@@ -20,8 +20,6 @@
 
 package org.sonar.server.project.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -301,10 +299,6 @@ public class BulkUpdateKeyActionTest {
       request.setParam(PARAM_DRY_RUN, String.valueOf(dryRun));
     }
 
-    try {
-      return BulkUpdateKeyWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(BulkUpdateKeyWsResponse.class);
   }
 }

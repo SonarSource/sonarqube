@@ -20,8 +20,6 @@
 
 package org.sonar.server.organization.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
@@ -263,11 +261,7 @@ public class AddMemberActionTest {
     TestRequest request = ws.newRequest().setMediaType(MediaTypes.PROTOBUF);
     setNullable(organizationKey, o -> request.setParam(PARAM_ORGANIZATION, o));
     setNullable(login, l -> request.setParam("login", l));
-    try {
-      return AddMemberWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(AddMemberWsResponse.class);
   }
 
   private void assertMember(String organizationUuid, int userId) {

@@ -59,7 +59,7 @@ public class ListActionTest {
       .execute();
 
     assertThat(response.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
-    Rules.ListResponse listResponse = Rules.ListResponse.parseFrom(response.getInputStream());
+    Rules.ListResponse listResponse = response.getInputObject(Rules.ListResponse.class);
     assertThat(listResponse.getRulesCount()).isEqualTo(2);
 
     assertThat(listResponse.getRules(0).getKey()).isEqualTo("S001");

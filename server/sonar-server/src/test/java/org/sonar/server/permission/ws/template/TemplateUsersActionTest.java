@@ -19,7 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import java.io.InputStream;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -88,12 +87,12 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
-    InputStream bytes = newRequest(null, null)
+    WsPermissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setMediaType(PROTOBUF)
-      .execute().getInputStream();
+      .execute()
+      .getInputObject(WsPermissions.UsersWsResponse.class);
 
-    WsPermissions.UsersWsResponse response = WsPermissions.UsersWsResponse.parseFrom(bytes);
     assertThat(response.getUsersList()).extracting("login").containsExactly("login-1", "login-2", "login-3");
     assertThat(response.getUsers(0).getPermissionsList()).containsOnly("issueadmin", "user");
     assertThat(response.getUsers(1).getPermissionsList()).containsOnly("user");
@@ -117,13 +116,13 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     PermissionTemplateDto anotherTemplate = addTemplateToDefaultOrganization();
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
-    InputStream bytes = newRequest(null, null)
+    WsPermissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(WebService.Param.TEXT_QUERY, "ame-1")
       .setMediaType(PROTOBUF)
-      .execute().getInputStream();
+      .execute()
+      .getInputObject(WsPermissions.UsersWsResponse.class);
 
-    WsPermissions.UsersWsResponse response = WsPermissions.UsersWsResponse.parseFrom(bytes);
     assertThat(response.getUsersList()).extracting("login").containsOnly("login-1");
   }
 
@@ -143,10 +142,9 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     loginAsAdmin(db.getDefaultOrganization());
-    InputStream bytes = newRequest(USER, template.getUuid())
+    WsPermissions.UsersWsResponse response = newRequest(USER, template.getUuid())
       .setMediaType(PROTOBUF)
-      .execute().getInputStream();
-    WsPermissions.UsersWsResponse response = WsPermissions.UsersWsResponse.parseFrom(bytes);
+      .execute().getInputObject(WsPermissions.UsersWsResponse.class);
     assertThat(response.getUsersList()).extracting("login").containsExactly("login-1", "login-2");
     assertThat(response.getUsers(0).getPermissionsList()).containsOnly("issueadmin", "user");
     assertThat(response.getUsers(1).getPermissionsList()).containsOnly("user");
@@ -168,15 +166,15 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user1));
 
     loginAsAdmin(db.getDefaultOrganization());
-    InputStream bytes = newRequest(USER, null)
+    WsPermissions.UsersWsResponse response = newRequest(USER, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setParam(WebService.Param.SELECTED, "all")
       .setParam(WebService.Param.PAGE, "2")
       .setParam(WebService.Param.PAGE_SIZE, "1")
       .setMediaType(PROTOBUF)
-      .execute().getInputStream();
+      .execute()
+      .getInputObject(WsPermissions.UsersWsResponse.class);
 
-    WsPermissions.UsersWsResponse response = WsPermissions.UsersWsResponse.parseFrom(bytes);
     assertThat(response.getUsersList()).extracting("login").containsOnly("login-2");
   }
 
@@ -192,12 +190,12 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     addUserToTemplate(newPermissionTemplateUser(ISSUE_ADMIN, template, user3));
 
     loginAsAdmin(db.getDefaultOrganization());
-    InputStream bytes = newRequest(null, null)
+    WsPermissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setMediaType(PROTOBUF)
-      .execute().getInputStream();
+      .execute()
+      .getInputObject(WsPermissions.UsersWsResponse.class);
 
-    WsPermissions.UsersWsResponse response = WsPermissions.UsersWsResponse.parseFrom(bytes);
     assertThat(response.getUsersList()).extracting("login").containsExactly("login-1", "login-2", "login-3");
   }
 
@@ -209,13 +207,12 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
     addUserToTemplate(newPermissionTemplateUser(USER, anotherTemplate, user));
 
     loginAsAdmin(db.getDefaultOrganization());
-    InputStream bytes = newRequest(null, null)
+    WsPermissions.UsersWsResponse response = newRequest(null, null)
       .setParam(PARAM_TEMPLATE_NAME, template.getName())
       .setMediaType(PROTOBUF)
       .execute()
-      .getInputStream();
+      .getInputObject(WsPermissions.UsersWsResponse.class);
 
-    WsPermissions.UsersWsResponse response = WsPermissions.UsersWsResponse.parseFrom(bytes);
     assertThat(response.getUsersList()).isEmpty();
   }
 

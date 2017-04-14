@@ -19,9 +19,7 @@
  */
 package org.sonar.server.setting.ws;
 
-import com.google.common.base.Throwables;
 import java.io.File;
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -147,11 +145,7 @@ public class EncryptActionTest {
       request.setParam(PARAM_VALUE, value);
     }
 
-    try {
-      return EncryptWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(EncryptWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

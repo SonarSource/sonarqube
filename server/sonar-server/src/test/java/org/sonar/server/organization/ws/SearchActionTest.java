@@ -231,11 +231,9 @@ public class SearchActionTest {
     TestRequest request = wsTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
     populateRequest(request, page, pageSize, keys);
-    try {
-      return Organizations.SearchWsResponse.parseFrom(request.execute().getInputStream()).getOrganizationsList();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return request.execute()
+      .getInputObject(Organizations.SearchWsResponse.class)
+      .getOrganizationsList();
   }
 
   private String executeJsonRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {

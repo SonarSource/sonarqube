@@ -85,11 +85,11 @@ public class WebhookDeliveriesActionTest {
   public void search_by_component_and_return_no_records() throws Exception {
     userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
 
-    Webhooks.DeliveriesWsResponse response = Webhooks.DeliveriesWsResponse.parseFrom(ws.newRequest()
+    Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("componentKey", project.getKey())
       .execute()
-      .getInputStream());
+      .getInputObject(Webhooks.DeliveriesWsResponse.class);
 
     assertThat(response.getDeliveriesCount()).isEqualTo(0);
   }
@@ -98,11 +98,11 @@ public class WebhookDeliveriesActionTest {
   public void search_by_task_and_return_no_records() throws Exception {
     userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
 
-    Webhooks.DeliveriesWsResponse response = Webhooks.DeliveriesWsResponse.parseFrom(ws.newRequest()
+    Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("ceTaskId", "t1")
       .execute()
-      .getInputStream());
+      .getInputObject(Webhooks.DeliveriesWsResponse.class);
 
     assertThat(response.getDeliveriesCount()).isEqualTo(0);
   }
@@ -142,11 +142,11 @@ public class WebhookDeliveriesActionTest {
     db.commit();
     userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
-    Webhooks.DeliveriesWsResponse response = Webhooks.DeliveriesWsResponse.parseFrom(ws.newRequest()
+    Webhooks.DeliveriesWsResponse response = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam("ceTaskId", "t1")
       .execute()
-      .getInputStream());
+      .getInputObject(Webhooks.DeliveriesWsResponse.class);
     assertThat(response.getDeliveriesCount()).isEqualTo(2);
     assertThat(response.getDeliveriesList()).extracting(Webhooks.Delivery::getId).containsOnly(dto1.getUuid(), dto2.getUuid());
   }
