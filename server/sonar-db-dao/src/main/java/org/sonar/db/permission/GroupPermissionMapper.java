@@ -39,8 +39,6 @@ public interface GroupPermissionMapper {
 
   void insert(GroupPermissionDto dto);
 
-  void deleteByRootComponentId(@Param("rootComponentId") long componentId);
-
   void delete(@Param("permission") String permission, @Param("organizationUuid") String organizationUuid,
     @Nullable @Param("groupId") Integer groupId, @Nullable @Param("rootComponentId") Long rootComponentId);
 
@@ -55,4 +53,7 @@ public interface GroupPermissionMapper {
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
+  void deleteByRootComponentId(@Param("rootComponentId") long componentId);
+
+  int deleteByRootComponentIdAndGroupId(@Param("rootComponentId") long rootComponentId, @Nullable @Param("groupId") Integer groupId);
 }

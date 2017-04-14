@@ -139,6 +139,14 @@ public class GroupPermissionDao implements Dao {
   }
 
   /**
+   * Delete all permissions of the specified group (group "AnyOne" if {@code groupId} is {@code null}) for the specified
+   * component.
+   */
+  public int deleteByRootComponentIdAndGroupId(DbSession dbSession, long rootComponentId, @Nullable Integer groupId) {
+    return mapper(dbSession).deleteByRootComponentIdAndGroupId(rootComponentId, groupId);
+  }
+
+  /**
    * Delete a single permission. It can be:
    * <ul>
    *   <li>a global permission granted to a group</li>
