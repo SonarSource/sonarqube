@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,6 +47,7 @@ import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
@@ -455,6 +457,81 @@ public class UserPermissionDaoTest {
     assertThat(dbTester.select("select user_id as \"userId\", resource_id as \"projectId\", role as \"permission\" from user_roles"))
       .extracting((row) -> row.get("userId"), (row) -> row.get("projectId"), (row) -> row.get("permission"))
       .containsOnly(tuple(user2.getId().longValue(), null, SCAN.getKey()), tuple(user2.getId().longValue(), project.getId(), ADMINISTER_QUALITY_GATES.getKey()));
+  }
+
+  @Test
+  public void deleteProjectPermissionOfAnyUser_has_no_effect_if_specified_component_does_not_exist() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.users().insertPermissionOnUser(organization, user1, SCAN);
+
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, 124L, SCAN.getKey());
+
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), organization.getUuid())).containsOnly(SCAN.getKey());
+  }
+
+  @Test
+  public void deleteProjectPermissionOfAnyUser_has_no_effect_if_specified_component_has_no_permission_at_all() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.users().insertPermissionOnUser(organization, user1, SCAN);
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.getId(), SCAN.getKey());
+
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), organization.getUuid())).containsOnly(SCAN.getKey());
+  }
+
+  @Test
+  public void deleteProjectPermissionOfAnyUser_has_no_effect_if_specified_component_does_not_have_specified_permission() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.users().insertPermissionOnUser(organization, user1, SCAN);
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    dbTester.users().insertProjectPermissionOnUser(user1, SCAN.getKey(), project);
+
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project.getId(), "p1");
+
+    assertThat(deletedCount).isEqualTo(0);
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project.getId())).containsOnly(SCAN.getKey());
+  }
+
+  @Test
+  public void deleteProjectPermissionOfAnyUser_deletes_specified_permission_for_any_user_on_the_specified_component() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.users().insertPermissionOnUser(organization, user1, SCAN);
+    dbTester.users().insertPermissionOnUser(organization, user2, SCAN);
+    ComponentDto project1 = randomPublicOrPrivateProject(organization);
+    ComponentDto project2 = randomPublicOrPrivateProject(organization);
+    dbTester.users().insertProjectPermissionOnUser(user1, SCAN.getKey(), project1);
+    dbTester.users().insertProjectPermissionOnUser(user2, SCAN.getKey(), project1);
+    dbTester.users().insertProjectPermissionOnUser(user1, SCAN.getKey(), project2);
+    dbTester.users().insertProjectPermissionOnUser(user2, SCAN.getKey(), project2);
+    dbTester.users().insertProjectPermissionOnUser(user2, PROVISION_PROJECTS.getKey(), project2);
+
+    int deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project1.getId(), SCAN.getKey());
+
+    assertThat(deletedCount).isEqualTo(2);
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user2.getId(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project1.getId())).isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getId(), project1.getId())).isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project2.getId())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getId(), project2.getId())).containsOnly(SCAN.getKey(), PROVISION_PROJECTS.getKey());
+
+    deletedCount = underTest.deleteProjectPermissionOfAnyUser(dbSession, project2.getId(), SCAN.getKey());
+
+    assertThat(deletedCount).isEqualTo(2);
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user1.getId(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectGlobalPermissionsOfUser(dbSession, user2.getId(), organization.getUuid())).containsOnly(SCAN.getKey());
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project1.getId())).isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getId(), project1.getId())).isEmpty();
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user1.getId(), project2.getId())).containsOnly();
+    assertThat(underTest.selectProjectPermissionsOfUser(dbSession, user2.getId(), project2.getId())).containsOnly(PROVISION_PROJECTS.getKey());
+  }
+
+  private ComponentDto randomPublicOrPrivateProject(OrganizationDto organization) {
+    return new Random().nextBoolean() ? dbTester.components().insertPrivateProject(organization) : dbTester.components().insertPublicProject(organization);
   }
 
   private void verifyOrganizationUuidsInTable(String... organizationUuids) {

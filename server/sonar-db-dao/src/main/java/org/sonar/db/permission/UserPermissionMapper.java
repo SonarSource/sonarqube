@@ -55,6 +55,8 @@ public interface UserPermissionMapper {
 
   void deleteProjectPermissions(@Param("projectId") long projectId);
 
+  int deleteProjectPermissionOfAnyUser(@Param("projectId") long projectId, @Param("permission") String permission);
+
   List<String> selectGlobalPermissionsOfUser(@Param("userId") int userId, @Param("organizationUuid") String organizationUuid);
 
   List<String> selectProjectPermissionsOfUser(@Param("userId") int userId, @Param("projectId") long projectId);

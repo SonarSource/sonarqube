@@ -136,6 +136,13 @@ public class UserPermissionDao implements Dao {
     mapper(dbSession).deleteProjectPermissions(projectId);
   }
 
+  /**
+   * Deletes the specified permission on the specified project for any user.
+   */
+  public int deleteProjectPermissionOfAnyUser(DbSession dbSession, long projectId, String permission) {
+    return mapper(dbSession).deleteProjectPermissionOfAnyUser(projectId, permission);
+  }
+
   public void deleteByOrganization(DbSession dbSession, String organizationUuid) {
     mapper(dbSession).deleteByOrganization(organizationUuid);
   }
