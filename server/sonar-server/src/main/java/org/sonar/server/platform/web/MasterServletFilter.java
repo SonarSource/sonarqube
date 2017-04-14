@@ -68,7 +68,7 @@ public class MasterServletFilter implements Filter {
     List<ServletFilter> filterList = Lists.newArrayList();
     for (ServletFilter extension : filterExtensions) {
       try {
-        Loggers.get(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern()));
+        Loggers.get(MasterServletFilter.class).info(String.format("Initializing servlet filter %s [pattern=%s]", extension, extension.doGetPattern().label()));
         extension.init(config);
         filterList.add(extension);
       } catch (Exception e) {

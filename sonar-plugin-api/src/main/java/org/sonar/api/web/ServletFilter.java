@@ -102,6 +102,24 @@ public abstract class ServletFilter implements Filter {
       throw new IllegalStateException("this method is deprecated and should not be used anymore");
     }
 
+    public String label() {
+      return "UrlPattern{" +
+        "inclusions=[" + convertPatternsToString(inclusions) + "]" +
+        ", exclusions=[" + convertPatternsToString(exclusions) + "]" +
+        '}';
+    }
+
+    private static String convertPatternsToString(List<String> input) {
+      StringBuilder output = new StringBuilder();
+      if (input.isEmpty()) {
+        return "";
+      }
+      if (input.size() == 1) {
+        return output.append(input.get(0)).toString();
+      }
+      return output.append(input.get(0)).append(", ...").toString();
+    }
+
     /**
      * Defines only a single inclusion pattern. This is a shortcut for {@code builder().includes(inclusionPattern).build()}.
      */
