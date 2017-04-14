@@ -21,6 +21,7 @@ package org.sonar.server.rule.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -55,6 +56,9 @@ public class CreateActionTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
   public DbTester db = DbTester.create(system2);
 
   @Rule
@@ -69,6 +73,7 @@ public class CreateActionTest {
 
   @Test
   public void create_custom_rule() {
+    organizationFlags.setEnabled(false);
     // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"), db.getDefaultOrganization());
     db.rules().insert(templateRule.getDefinition());
@@ -112,6 +117,7 @@ public class CreateActionTest {
 
   @Test
   public void create_custom_rule_with_prevent_reactivation_param_to_true() {
+    organizationFlags.setEnabled(false);
     RuleDefinitionDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).getDefinition();
     db.rules().insert(templateRule);
     // insert a removed rule
@@ -145,6 +151,22 @@ public class CreateActionTest {
       "    \"isTemplate\": false\n" +
       "  }\n" +
       "}\n");
+  }
+
+  @Test
+  public void fail_to_create_rule_when_organizations_are_enabled() throws Exception {
+    organizationFlags.setEnabled(true);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Organization support is enabled");
+
+    wsTester.newRequest()
+      .setParam("custom_key", "MY_CUSTOM")
+      .setParam("template_key", "java:S001")
+      .setParam("name", "My custom rule")
+      .setParam("markdown_description", "Description")
+      .setParam("severity", "MAJOR")
+      .execute();
   }
 
   private static MacroInterpreter createMacroInterpreter() {
