@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,7 +33,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
@@ -106,14 +104,11 @@ public class CreateActionTest {
   }
 
   private CreateWsResponse executeRequest(String name) {
-    TestRequest request = ws.newRequest()
+    return ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("name", name);
-    try {
-      return CreateWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+      .setParam("name", name)
+      .execute()
+      .getInputObject(CreateWsResponse.class);
   }
 
   private void logInAsQualityGateAdmin() {

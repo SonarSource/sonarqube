@@ -19,9 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
-import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -276,14 +273,9 @@ public class SearchMyProjectsActionTest {
   }
 
   private SearchMyProjectsWsResponse call_ws(TestRequest request) {
-    InputStream responseStream = request
+    return request
       .setMediaType(MediaTypes.PROTOBUF)
-      .execute().getInputStream();
-
-    try {
-      return SearchMyProjectsWsResponse.parseFrom(responseStream);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+      .execute()
+      .getInputObject(SearchMyProjectsWsResponse.class);
   }
 }

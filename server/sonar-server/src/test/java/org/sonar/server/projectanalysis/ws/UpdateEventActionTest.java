@@ -19,8 +19,6 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -232,11 +230,7 @@ public class UpdateEventActionTest {
     setNullable(eventUuid, e -> request.setParam(PARAM_EVENT, e));
     setNullable(name, n -> request.setParam(PARAM_NAME, n));
 
-    try {
-      return UpdateEventResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(UpdateEventResponse.class);
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {

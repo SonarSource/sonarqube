@@ -252,17 +252,18 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse callByKey(String projectKey) throws IOException {
-    return SearchWsResponse.parseFrom(ws.newRequest()
+    return ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, projectKey)
       .setMediaType(PROTOBUF)
-      .execute().getInputStream());
+      .execute()
+      .getInputObject(SearchWsResponse.class);
   }
 
   private SearchWsResponse callByUuid(String projectUuid) throws IOException {
-    return SearchWsResponse.parseFrom(ws.newRequest()
+    return ws.newRequest()
       .setParam(PARAM_PROJECT_ID, projectUuid)
       .setMediaType(PROTOBUF)
-      .execute().getInputStream());
+      .execute().getInputObject(SearchWsResponse.class);
   }
 
   private void checkItWorks(ComponentDto project) throws IOException {

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.usertoken.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +33,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUserTokens.SearchWsResponse;
@@ -144,15 +141,7 @@ public class SearchActionTest {
       testRequest.setParam(PARAM_LOGIN, login);
     }
 
-    TestResponse response = testRequest.execute();
-
-    try {
-      return SearchWsResponse.parseFrom(response.getInputStream());
-    } catch (IOException e) {
-      Throwables.propagate(e);
-    }
-
-    throw new IllegalStateException("unreachable");
+    return testRequest.execute().getInputObject(SearchWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

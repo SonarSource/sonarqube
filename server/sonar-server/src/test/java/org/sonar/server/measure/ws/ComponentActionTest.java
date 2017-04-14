@@ -19,9 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
-import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -246,15 +243,10 @@ public class ComponentActionTest {
   }
 
   private ComponentWsResponse call(TestRequest request) {
-    InputStream responseStream = request
+    return request
       .setMediaType(MediaTypes.PROTOBUF)
-      .execute().getInputStream();
-
-    try {
-      return ComponentWsResponse.parseFrom(responseStream);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+      .execute()
+      .getInputObject(ComponentWsResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

@@ -109,7 +109,7 @@ public class UpdateActionTest {
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(PARAM_TAGS, "tag2,tag3");
     TestResponse response = request.execute();
-    Rules.UpdateResponse result = Rules.UpdateResponse.parseFrom(response.getInputStream());
+    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();
@@ -134,7 +134,7 @@ public class UpdateActionTest {
       .setParam(PARAM_TAGS, "tag2,tag3")
       .setParam(PARAM_ORGANIZATION, organization.getKey());
     TestResponse response = request.execute();
-    Rules.UpdateResponse result = Rules.UpdateResponse.parseFrom(response.getInputStream());
+    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();
@@ -173,7 +173,7 @@ public class UpdateActionTest {
       .setParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER, newMultiplier)
       .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, newEffort);
     TestResponse response = request.execute();
-    Rules.UpdateResponse result = Rules.UpdateResponse.parseFrom(response.getInputStream());
+    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();
@@ -217,7 +217,7 @@ public class UpdateActionTest {
       .setParam(DEPRECATED_PARAM_REMEDIATION_FN_COEFF, newCoeff)
       .setParam(DEPRECATED_PARAM_REMEDIATION_FN_OFFSET, newOffset);
     TestResponse response = request.execute();
-    Rules.UpdateResponse result = Rules.UpdateResponse.parseFrom(response.getInputStream());
+    Rules.UpdateResponse result = response.getInputObject(Rules.UpdateResponse.class);
 
     Rules.Rule updatedRule = result.getRule();
     assertThat(updatedRule).isNotNull();

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -369,10 +367,6 @@ public class CreateEventActionTest {
       .setParam(PARAM_NAME, request.getName())
       .setParam(PARAM_ANALYSIS, request.getAnalysis());
 
-    try {
-      return CreateEventResponse.parseFrom(httpRequest.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return httpRequest.execute().getInputObject(CreateEventResponse.class);
   }
 }

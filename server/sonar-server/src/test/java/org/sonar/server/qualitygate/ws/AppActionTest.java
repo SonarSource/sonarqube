@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.io.IOException;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -223,10 +222,6 @@ public class AppActionTest {
   }
 
   private AppWsResponse executeRequest() {
-    try {
-      return AppWsResponse.parseFrom(ws.newRequest().setMediaType(MediaTypes.PROTOBUF).execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return ws.newRequest().setMediaType(MediaTypes.PROTOBUF).execute().getInputObject(AppWsResponse.class);
   }
 }

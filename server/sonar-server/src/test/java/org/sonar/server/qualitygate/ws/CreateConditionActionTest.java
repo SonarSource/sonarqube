@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -48,8 +47,8 @@ import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
@@ -196,11 +195,7 @@ public class CreateConditionActionTest {
     if (period != null) {
       request.setParam(PARAM_PERIOD, Integer.toString(period));
     }
-    try {
-      return CreateConditionWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return request.execute().getInputObject(CreateConditionWsResponse.class);
   }
 
   private void logInAsQualityGateAdmin() {

@@ -20,7 +20,6 @@
 
 package org.sonar.server.projecttag.ws;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -138,10 +137,6 @@ public class SearchActionTest {
     setNullable(textQuery, s -> request.setParam("q", s));
     setNullable(pageSize, ps -> request.setParam("ps", ps.toString()));
 
-    try {
-      return SearchResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(SearchResponse.class);
   }
 }

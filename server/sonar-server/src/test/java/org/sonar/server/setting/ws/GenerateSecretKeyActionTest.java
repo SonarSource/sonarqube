@@ -19,7 +19,6 @@
  */
 package org.sonar.server.setting.ws;
 
-import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
@@ -33,7 +32,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
@@ -89,15 +87,11 @@ public class GenerateSecretKeyActionTest {
 
 
   private GenerateSecretKeyWsResponse call() {
-    TestRequest request = ws.newRequest()
+    return ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
-      .setMethod("GET");
-
-    try {
-      return GenerateSecretKeyWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+      .setMethod("GET")
+      .execute()
+      .getInputObject(GenerateSecretKeyWsResponse.class);
   }
 
 }

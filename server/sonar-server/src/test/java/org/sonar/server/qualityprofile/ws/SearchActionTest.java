@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -60,7 +59,6 @@ import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
-import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -466,13 +464,10 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse call(TestRequest request) {
-    try {
-      return SearchWsResponse.parseFrom(request
-        .setMediaType(MediaTypes.PROTOBUF)
-        .execute().getInputStream());
-    } catch (IOException e) {
-      throw propagate(e);
-    }
+    return request
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(SearchWsResponse.class);
   }
 
   private OrganizationDto getDefaultOrganization() {

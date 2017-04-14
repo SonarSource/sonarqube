@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -88,7 +87,7 @@ public class TaskActionTest {
       .setParam("id", SOME_TASK_UUID)
       .execute();
 
-    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
     assertThat(taskResponse.getTask().getOrganization()).isEqualTo(organizationDto.getKey());
     assertThat(taskResponse.getTask().getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(taskResponse.getTask().getStatus()).isEqualTo(WsCe.TaskStatus.PENDING);
@@ -112,7 +111,7 @@ public class TaskActionTest {
       .setParam("id", SOME_TASK_UUID)
       .execute();
 
-    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getOrganization()).isEqualTo(organizationDto.getKey());
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
@@ -140,7 +139,7 @@ public class TaskActionTest {
       .setParam("additionalFields", "stacktrace")
       .execute();
 
-    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
@@ -162,7 +161,7 @@ public class TaskActionTest {
       .setParam("id", SOME_TASK_UUID)
       .execute();
 
-    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
@@ -183,7 +182,7 @@ public class TaskActionTest {
       .setParam("additionalFields", "scannerContext")
       .execute();
 
-    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getScannerContext()).isEqualTo(scannerContext);
@@ -203,7 +202,7 @@ public class TaskActionTest {
       .setParam("additionalFields", "stacktrace")
       .execute();
 
-    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.hasScannerContext()).isFalse();
@@ -222,7 +221,7 @@ public class TaskActionTest {
       .setParam("id", SOME_TASK_UUID)
       .execute();
 
-    WsCe.TaskResponse taskResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.TaskResponse.PARSER);
+    WsCe.TaskResponse taskResponse = wsResponse.getInputObject(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(SOME_TASK_UUID);
     assertThat(task.getErrorMessage()).isEqualTo(activityDto.getErrorMessage());
@@ -397,7 +396,7 @@ public class TaskActionTest {
       .setMediaType(PROTOBUF)
       .setParam("id", taskUuid)
       .execute();
-    WsCe.TaskResponse taskResponse = Protobuf.read(response.getInputStream(), WsCe.TaskResponse.parser());
+    WsCe.TaskResponse taskResponse = response.getInputObject(WsCe.TaskResponse.class);
     WsCe.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(taskUuid);
   }

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -108,7 +106,8 @@ public class BulkChangeActionTest {
 
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private IssueStorage issueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, new IssueIndexer(es.client(), new IssueIteratorFactory(dbClient)));
+  private IssueStorage issueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient,
+    new IssueIndexer(es.client(), new IssueIteratorFactory(dbClient)));
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private List<Action> actions = new ArrayList<>();
 
@@ -478,11 +477,7 @@ public class BulkChangeActionTest {
     if (!bulkChangeRequest.getRemoveTags().isEmpty()) {
       request.setParam("remove_tags", String.join(",", bulkChangeRequest.getRemoveTags()));
     }
-    try {
-      return BulkChangeWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(BulkChangeWsResponse.class);
   }
 
   private void setUserProjectPermissions(String... permissions) {

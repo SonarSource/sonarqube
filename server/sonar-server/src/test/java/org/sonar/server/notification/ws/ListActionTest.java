@@ -19,8 +19,6 @@
  */
 package org.sonar.server.notification.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -227,13 +225,10 @@ public class ListActionTest {
   }
 
   private ListResponse call() {
-    try {
-      return ListResponse.parseFrom(ws.newRequest()
-        .setMediaType(PROTOBUF)
-        .execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return ws.newRequest()
+      .setMediaType(PROTOBUF)
+      .execute()
+      .getInputObject(ListResponse.class);
   }
 
   private ComponentDto addComponent(ComponentDto component) {

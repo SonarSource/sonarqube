@@ -588,11 +588,7 @@ public class CreateActionTest {
     TestRequest request = wsTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
     populateRequest(name, key, description, url, avatar, request);
-    try {
-      return CreateWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return request.execute().getInputObject(CreateWsResponse.class);
   }
 
   private String executeJsonRequest(@Nullable String name, @Nullable String key, @Nullable String description, @Nullable String url, @Nullable String avatar) {

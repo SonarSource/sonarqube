@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -70,7 +69,7 @@ public class ComponentActionTest {
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.parser());
+    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(0);
     assertThat(response.hasCurrent()).isFalse();
   }
@@ -91,7 +90,7 @@ public class ComponentActionTest {
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.parser());
+    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(2);
     assertThat(response.getQueue(0).getId()).isEqualTo("T4");
     assertThat(response.getQueue(1).getId()).isEqualTo("T5");
@@ -115,7 +114,7 @@ public class ComponentActionTest {
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.parser());
+    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
     assertThat(response.hasCurrent()).isTrue();
   }
 
@@ -134,7 +133,7 @@ public class ComponentActionTest {
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    WsCe.ProjectResponse response = Protobuf.read(wsResponse.getInputStream(), WsCe.ProjectResponse.parser());
+    WsCe.ProjectResponse response = wsResponse.getInputObject(WsCe.ProjectResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(0);
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
     assertThat(response.hasCurrent()).isTrue();

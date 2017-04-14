@@ -21,7 +21,6 @@ package org.sonar.server.setting.ws;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -53,7 +52,6 @@ import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.PropertyType.LICENSE;
@@ -65,10 +63,10 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
-import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
+import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonarqube.ws.MediaTypes.JSON;
 import static org.sonarqube.ws.Settings.Setting.ParentValueOneOfCase.PARENTVALUEONEOF_NOT_SET;
 
@@ -814,11 +812,7 @@ public class ValuesActionTest {
     if (componentKey != null) {
       request.setParam("component", componentKey);
     }
-    try {
-      return ValuesWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return request.execute().getInputObject(ValuesWsResponse.class);
   }
 
   private void logIn() {

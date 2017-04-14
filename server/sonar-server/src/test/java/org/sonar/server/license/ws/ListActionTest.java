@@ -20,7 +20,6 @@
 package org.sonar.server.license.ws;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.sonar.db.property.PropertyDbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.setting.ws.SettingsFinder;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Licenses;
 import org.sonarqube.ws.Licenses.ListWsResponse;
@@ -275,13 +273,10 @@ public class ListActionTest {
   }
 
   private ListWsResponse executeRequest() {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
-    try {
-      return ListWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(ListWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

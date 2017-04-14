@@ -20,7 +20,6 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -259,11 +258,7 @@ public class SearchActionTest {
     setNullable(wsRequest.getQuery(), p -> request.setParam(TEXT_QUERY, p));
     setNullable(wsRequest.getPage(), page -> request.setParam(PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
-    try {
-      return SearchWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(SearchWsResponse.class);
   }
 
   private static Language[] javaLanguage() {

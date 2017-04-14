@@ -20,8 +20,6 @@
 
 package org.sonar.server.organization.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
@@ -334,10 +332,6 @@ public class SearchMembersActionTest {
     setNullable(request.getPageSize(), ps -> wsRequest.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
     setNullable(request.getSelected(), s -> wsRequest.setParam(Param.SELECTED, s));
 
-    try {
-      return SearchMembersWsResponse.parseFrom(wsRequest.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return wsRequest.execute().getInputObject(SearchMembersWsResponse.class);
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -405,13 +404,8 @@ public class ActivityActionTest {
   }
 
   private static ActivityResponse call(TestRequest request) {
-    try {
-      return ActivityResponse.parseFrom(
-        request
-          .setMediaType(MediaTypes.PROTOBUF)
-          .execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute().getInputObject(ActivityResponse.class);
   }
 }

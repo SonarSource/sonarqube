@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ce.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -196,10 +194,6 @@ public class ActivityStatusActionTest {
       request.setParam(PARAM_COMPONENT_KEY, componentKey);
     }
 
-    try {
-      return WsCe.ActivityStatusWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+      return request.execute().getInputObject(WsCe.ActivityStatusWsResponse.class);
   }
 }

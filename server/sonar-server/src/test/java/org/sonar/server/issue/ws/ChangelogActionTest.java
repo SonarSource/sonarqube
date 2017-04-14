@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -277,11 +275,7 @@ public class ChangelogActionTest {
     TestRequest request = tester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF);
     setNullable(issueKey, e -> request.setParam("issue", e));
-    try {
-      return ChangelogWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(ChangelogWsResponse.class);
   }
 
   private IssueDto newIssue() {

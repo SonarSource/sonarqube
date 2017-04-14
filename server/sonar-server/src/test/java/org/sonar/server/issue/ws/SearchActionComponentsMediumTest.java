@@ -55,7 +55,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonarqube.ws.Issues;
@@ -156,10 +155,10 @@ public class SearchActionComponentsMediumTest {
     indexIssues();
 
     WsActionTester actionTester = new WsActionTester(tester.get(SearchAction.class));
-    TestResponse response = actionTester.newRequest()
+    SearchWsResponse searchResponse = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
-    SearchWsResponse searchResponse = SearchWsResponse.parseFrom(response.getInputStream());
+      .execute()
+      .getInputObject(SearchWsResponse.class);
     assertThat(searchResponse.getIssuesCount()).isEqualTo(2);
 
     for (Issues.Issue issue : searchResponse.getIssuesList()) {

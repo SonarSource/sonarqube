@@ -19,7 +19,6 @@
  */
 package org.sonar.server.setting.ws;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -464,11 +463,7 @@ public class ListDefinitionsActionTest {
     if (key != null) {
       request.setParam("component", key);
     }
-    try {
-      return ListDefinitionsWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return request.execute().getInputObject(ListDefinitionsWsResponse.class);
   }
 
   private void logIn() {

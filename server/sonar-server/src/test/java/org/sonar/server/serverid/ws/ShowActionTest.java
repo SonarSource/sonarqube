@@ -19,7 +19,6 @@
  */
 package org.sonar.server.serverid.ws;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.sonar.db.property.PropertyDbTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
@@ -194,13 +192,10 @@ public class ShowActionTest {
   }
 
   private ShowWsResponse executeRequest() {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
-    try {
-      return ShowWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-    }
+    return ws.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(ShowWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

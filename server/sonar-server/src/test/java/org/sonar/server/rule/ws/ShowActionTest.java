@@ -95,12 +95,11 @@ public class ShowActionTest {
   public void should_show_rule_key() throws IOException {
     RuleDefinitionDto rule = insertRule();
 
-    Rules.ShowResponse result = Rules.ShowResponse.parseFrom(
-      actionTester.newRequest()
-        .setMediaType(PROTOBUF)
-        .setParam(PARAM_KEY, rule.getKey().toString())
-        .execute()
-        .getInputStream());
+    Rules.ShowResponse result = actionTester.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .execute()
+      .getInputObject(Rules.ShowResponse.class);
     assertThat(result.getRule()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
   }
 
@@ -109,12 +108,11 @@ public class ShowActionTest {
     RuleDefinitionDto rule = insertRule();
     RuleMetadataDto metadata = insertMetadata(dbTester.getDefaultOrganization(), rule, setTags("tag1", "tag2"));
 
-    Rules.ShowResponse result = Rules.ShowResponse.parseFrom(
-      actionTester.newRequest()
-        .setMediaType(PROTOBUF)
-        .setParam(PARAM_KEY, rule.getKey().toString())
-        .execute()
-        .getInputStream());
+    Rules.ShowResponse result = actionTester.newRequest()
+      .setMediaType(PROTOBUF)
+      .setParam(PARAM_KEY, rule.getKey().toString())
+      .execute()
+      .getInputObject(Rules.ShowResponse.class);
     assertThat(result.getRule().getTags().getTagsList())
       .containsExactly(metadata.getTags().toArray(new String[0]));
   }
@@ -125,13 +123,12 @@ public class ShowActionTest {
     OrganizationDto organization = dbTester.organizations().insert();
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
 
-    Rules.ShowResponse result = Rules.ShowResponse.parseFrom(
-      actionTester.newRequest()
+    Rules.ShowResponse result = actionTester.newRequest()
         .setMediaType(PROTOBUF)
         .setParam(PARAM_KEY, rule.getKey().toString())
         .setParam(PARAM_ORGANIZATION, organization.getKey())
         .execute()
-        .getInputStream());
+        .getInputObject(Rules.ShowResponse.class);
     assertThat(result.getRule().getTags().getTagsList())
       .containsExactly(metadata.getTags().toArray(new String[0]));
   }
@@ -169,7 +166,7 @@ public class ShowActionTest {
     assertThat(orgCaptor.getValue().getUuid()).isEqualTo(organization.getUuid());
     assertThat(ruleCaptor.getValue().getKey()).isEqualTo(rule.getKey());
 
-    Rules.ShowResponse result = Rules.ShowResponse.parseFrom(response.getInputStream());
+    Rules.ShowResponse result = response.getInputObject(Rules.ShowResponse.class);
     Rule resultRule = result.getRule();
     assertEqual(rule, ruleMetadata, resultRule);
 
@@ -199,7 +196,7 @@ public class ShowActionTest {
       .setMediaType(PROTOBUF)
       .execute();
 
-    Rules.ShowResponse result = Rules.ShowResponse.parseFrom(response.getInputStream());
+    Rules.ShowResponse result = response.getInputObject(Rules.ShowResponse.class);
     Rule resultRule = result.getRule();
     assertEqual(rule, ruleMetadata, resultRule);
 

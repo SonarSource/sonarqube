@@ -45,8 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTemplatesAction> {
@@ -180,17 +180,16 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     db.commit();
     userSession.addPermission(ADMINISTER, org);
 
-    WsPermissions.SearchTemplatesWsResponse result = WsPermissions.SearchTemplatesWsResponse.parseFrom(
-      newRequest(underTestWithoutViews)
-        .setParam("organization", org.getKey())
-        .setMediaType(MediaTypes.PROTOBUF)
-        .execute()
-        .getInputStream());
+    WsPermissions.SearchTemplatesWsResponse result = newRequest(underTestWithoutViews)
+      .setParam("organization", org.getKey())
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(WsPermissions.SearchTemplatesWsResponse.class);
 
     assertThat(result.getPermissionTemplatesCount()).isEqualTo(2);
     assertThat(result.getPermissionTemplatesList())
-        .extracting(WsPermissions.PermissionTemplate::getId)
-        .containsOnly(projectDefaultTemplate.getUuid(), templateInOrg.getUuid());
+      .extracting(WsPermissions.PermissionTemplate::getId)
+      .containsOnly(projectDefaultTemplate.getUuid(), templateInOrg.getUuid());
   }
 
   @Test

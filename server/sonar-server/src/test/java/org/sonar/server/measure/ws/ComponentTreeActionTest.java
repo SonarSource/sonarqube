@@ -19,9 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,7 +44,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
@@ -648,15 +644,10 @@ public class ComponentTreeActionTest {
   }
 
   private static ComponentTreeWsResponse call(TestRequest request) {
-    TestResponse testResponse = request
+    return request
       .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
-
-    try (InputStream responseStream = testResponse.getInputStream()) {
-      return ComponentTreeWsResponse.parseFrom(responseStream);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+      .execute()
+      .getInputObject(ComponentTreeWsResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

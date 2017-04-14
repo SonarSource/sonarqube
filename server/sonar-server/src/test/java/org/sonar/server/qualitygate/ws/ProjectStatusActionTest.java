@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.base.Throwables;
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -237,27 +236,18 @@ public class ProjectStatusActionTest {
   }
 
   private ProjectStatusWsResponse call(String taskId) {
-    try {
-      return ProjectStatusWsResponse.parseFrom(
-        ws.newRequest()
-          .setParam("analysisId", taskId)
-          .setMediaType(MediaTypes.PROTOBUF)
-          .execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return ws.newRequest()
+      .setParam("analysisId", taskId)
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(ProjectStatusWsResponse.class);
   }
 
   private ProjectStatusWsResponse callByProjectUuid(String projectUuid) {
-    try {
-      return ProjectStatusWsResponse.parseFrom(
-        ws.newRequest()
-          .setParam(PARAM_PROJECT_ID, projectUuid)
-          .setMediaType(MediaTypes.PROTOBUF)
-          .execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, projectUuid)
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute().getInputObject(ProjectStatusWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

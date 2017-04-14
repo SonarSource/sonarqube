@@ -20,10 +20,12 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Maps;
+import com.google.protobuf.GeneratedMessage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;

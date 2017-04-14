@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.base.Throwables;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -383,20 +382,17 @@ public class TreeActionTest {
   }
 
   private TreeWsResponse call(TestRequest request) {
-    try {
-      return TreeWsResponse.parseFrom(request
-        .setMediaType(MediaTypes.PROTOBUF)
-        .execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute()
+      .getInputObject(TreeWsResponse.class);
   }
 
   private static ComponentDto newFileDto(ComponentDto moduleOrProject, @Nullable ComponentDto directory, int i) {
     return ComponentTesting.newFileDto(moduleOrProject, directory, "file-uuid-" + i)
-        .setName("file-name-" + i)
-        .setKey("file-key-" + i)
-        .setPath("file-path-" + i);
+      .setName("file-name-" + i)
+      .setKey("file-key-" + i)
+      .setPath("file-path-" + i);
   }
 
   private static ComponentDto newFileDto(ComponentDto moduleOrProject, int i) {

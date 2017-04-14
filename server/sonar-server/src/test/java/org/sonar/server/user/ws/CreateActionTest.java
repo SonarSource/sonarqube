@@ -19,8 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.base.Throwables;
-import java.io.IOException;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -360,11 +358,7 @@ public class CreateActionTest {
     setNullable(createRequest.getPassword(), e -> request.setParam("password", e));
     setNullable(createRequest.getScmAccounts(), e -> request.setMultiParam("scmAccount", e));
     request.setParam("local", createRequest.isLocal() ? "true" : "false");
-    try {
-      return CreateWsResponse.parseFrom(request.execute().getInputStream());
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
-    }
+    return request.execute().getInputObject(CreateWsResponse.class);
   }
 
   private void enableCreatePersonalOrg(boolean flag) {
