@@ -19,11 +19,21 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import org.sonar.server.util.StoppableExecutorService;
+import java.util.Set;
 
 /**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerImpl}.
+ * A factory that will create the CeWorkerFactory with an UUID
  */
-public interface CeProcessingSchedulerExecutorService extends StoppableExecutorService, ListeningScheduledExecutorService {
+public interface CeWorkerFactory {
+  /**
+   * Create a new CeWorker object.
+   * Each {@link CeWorker} returned by this method will have a different UUID from the others and all of these UUIDS will be returned by {@link #getWorkerUUIDs()}.
+   *
+   * @return the CeWorker
+   */
+  CeWorker create();
+  /**
+   * @return  the UUIDs of each {@link CeWorker} object returned by {@link #create}.
+   */
+  Set<String> getWorkerUUIDs();
 }

@@ -17,13 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import org.sonar.server.util.StoppableExecutorService;
+package org.sonar.ce;
+
+import java.util.Set;
+import org.sonar.ce.taskprocessor.CeWorkerFactory;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerImpl}.
+ * Provide the set of worker's UUID in a non clustered SonarQube instance
  */
-public interface CeProcessingSchedulerExecutorService extends StoppableExecutorService, ListeningScheduledExecutorService {
+public class StandaloneCeDistributedInformation implements CeDistributedInformation {
+  private final CeWorkerFactory ceCeWorkerFactory;
+  private Set<String> workerUUIDs;
+
+  public StandaloneCeDistributedInformation(CeWorkerFactory ceCeWorkerFactory) {
+    this.ceCeWorkerFactory = ceCeWorkerFactory;
+  }
+
+  @Override
+  public Set<String> getWorkerUUIDs() {
+    checkState(workerUUIDs != null, "Invalid call, broadcastWorkerUUIDs() must be called first.");
+    return workerUUIDs;
+  }
+
+  @Override
+  public void broadcastWorkerUUIDs() {
+    workerUUIDs = ceCeWorkerFactory.getWorkerUUIDs();
+  }
 }

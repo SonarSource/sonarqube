@@ -17,13 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+@ParametersAreNonnullByDefault
+package org.sonar.process.cluster;
 
-import com.google.common.util.concurrent.ListeningScheduledExecutorService;
-import org.sonar.server.util.StoppableExecutorService;
-
-/**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link CeWorkerImpl}.
- */
-public interface CeProcessingSchedulerExecutorService extends StoppableExecutorService, ListeningScheduledExecutorService {
-}
+import javax.annotation.ParametersAreNonnullByDefault;

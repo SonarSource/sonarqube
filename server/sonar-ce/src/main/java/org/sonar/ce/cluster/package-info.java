@@ -17,16 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.taskprocessor;
+@ParametersAreNonnullByDefault
+package org.sonar.ce.cluster;
 
-import java.util.concurrent.Callable;
-import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
-
-/**
- * Marker interface of the runnable in charge of polling the {@link CeQueue} and executing {@link CeTask}.
- * {@link Callable#call()} returns a Boolean which is {@code true} when some a {@link CeTask} was processed,
- * {@code false} otherwise.
- */
-public interface CeWorkerCallable extends Callable<Boolean> {
-}
+import javax.annotation.ParametersAreNonnullByDefault;
