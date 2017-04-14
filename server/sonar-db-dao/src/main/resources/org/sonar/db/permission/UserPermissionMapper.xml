@@ -118,6 +118,14 @@
     resource_id = #{projectId,jdbcType=BIGINT}
   </delete>
 
+  <delete id="deleteProjectPermissionOfAnyUser" parameterType="map">
+    delete from
+      user_roles
+    where
+      resource_id = #{projectId,jdbcType=BIGINT}
+      and role = #{permission,jdbcType=VARCHAR}
+  </delete>
+
   <delete id="deleteByOrganization" parameterType="String">
     delete from
       user_roles

@@ -878,14 +878,14 @@ public class GroupPermissionDaoTest {
   @Test
   public void deleteByRootComponentIdAndPermission_has_no_effect_if_component_does_not_exist() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = randomPublicOrPrivateProject(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
     GroupDto group = db.users().insertGroup(organization);
     db.users().insertPermissionOnAnyone(organization, "p1");
     db.users().insertPermissionOnGroup(group, "p1");
     db.users().insertProjectPermissionOnGroup(group, "p1", project);
     db.users().insertProjectPermissionOnAnyone("p1", project);
 
-    assertThat(underTest.deleteByRootComponentIdAndPermission(dbSession, project.getId(), "p2")).isEqualTo(0);
+    assertThat(underTest.deleteByRootComponentIdAndPermission(dbSession, 1324, "p1")).isEqualTo(0);
 
     assertThat(getGlobalPermissionsForAnyone(organization)).containsOnly("p1");
     assertThat(getGlobalPermissionsForGroup(group)).containsOnly("p1");
