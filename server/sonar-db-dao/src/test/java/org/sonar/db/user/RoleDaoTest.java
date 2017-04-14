@@ -20,9 +20,11 @@
 package org.sonar.db.user;
 
 import java.util.List;
+import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
@@ -36,6 +38,8 @@ public class RoleDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DbSession dbSession = db.getSession();
   private RoleDao underTest = db.getDbClient().roleDao();
@@ -51,6 +55,25 @@ public class RoleDaoTest {
     user2 = db.users().insertUser();
     project1 = db.components().insertProject();
     project2 = db.components().insertProject();
+  }
+
+  @Test
+  public void selectComponentIdsByPermissionAndUserId_throws_IAR_if_permission_USER_is_specified() {
+    expectUnsupportedUserAndCodeViewerPermission();
+
+    underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.USER, new Random().nextInt(55));
+  }
+
+  @Test
+  public void selectComponentIdsByPermissionAndUserId_throws_IAR_if_permission_CODEVIEWER_is_specified() {
+    expectUnsupportedUserAndCodeViewerPermission();
+
+    underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.CODEVIEWER, new Random().nextInt(55));
+  }
+
+  private void expectUnsupportedUserAndCodeViewerPermission() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Permissions [user, codeviewer] are not supported by selectComponentIdsByPermissionAndUserId");
   }
 
   @Test
