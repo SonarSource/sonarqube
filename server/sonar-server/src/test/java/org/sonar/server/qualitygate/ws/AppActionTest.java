@@ -32,7 +32,6 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.AppWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -222,6 +221,6 @@ public class AppActionTest {
   }
 
   private AppWsResponse executeRequest() {
-    return ws.newRequest().setMediaType(MediaTypes.PROTOBUF).execute().getInputObject(AppWsResponse.class);
+    return ws.newRequest().executeProtobuf(AppWsResponse.class);
   }
 }

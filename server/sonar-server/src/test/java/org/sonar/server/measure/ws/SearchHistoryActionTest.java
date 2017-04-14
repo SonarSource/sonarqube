@@ -45,7 +45,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryMeasure;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
@@ -315,8 +314,7 @@ public class SearchHistoryActionTest {
   private SearchHistoryResponse call() {
     SearchHistoryRequest wsRequest = this.wsRequest.build();
 
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = ws.newRequest();
 
     request.setParam(PARAM_COMPONENT, wsRequest.getComponent());
     request.setParam(PARAM_METRICS, String.join(",", wsRequest.getMetrics()));
@@ -325,7 +323,7 @@ public class SearchHistoryActionTest {
     setNullable(wsRequest.getPage(), p -> request.setParam(Param.PAGE, String.valueOf(p)));
     setNullable(wsRequest.getPageSize(), ps -> request.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
 
-    return request.execute().getInputObject(SearchHistoryResponse.class);
+    return request.executeProtobuf(SearchHistoryResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

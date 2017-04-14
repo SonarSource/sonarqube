@@ -26,8 +26,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleTesting;
-import org.sonarqube.ws.MediaTypes;
-import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Rules;
 
@@ -54,12 +52,9 @@ public class ListActionTest {
     dbTester.rules().insert(RuleTesting.newRule(RuleKey.of("java", "S002")).setConfigKey("I002").setName("Rule Two"));
     dbTester.getSession().commit();
 
-    TestResponse response = tester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+    Rules.ListResponse listResponse = tester.newRequest()
+      .executeProtobuf(Rules.ListResponse.class);
 
-    assertThat(response.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
-    Rules.ListResponse listResponse = response.getInputObject(Rules.ListResponse.class);
     assertThat(listResponse.getRulesCount()).isEqualTo(2);
 
     assertThat(listResponse.getRules(0).getKey()).isEqualTo("S001");

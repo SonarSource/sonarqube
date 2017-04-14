@@ -360,13 +360,12 @@ public class CreateEventActionTest {
   private CreateEventResponse call(CreateEventRequest.Builder requestBuilder) {
     CreateEventRequest request = requestBuilder.build();
     TestRequest httpRequest = ws.newRequest()
-      .setMethod(POST.name())
-      .setMediaType(MediaTypes.PROTOBUF);
+      .setMethod(POST.name());
 
     httpRequest.setParam(PARAM_CATEGORY, request.getCategory().name())
       .setParam(PARAM_NAME, request.getName())
       .setParam(PARAM_ANALYSIS, request.getAnalysis());
 
-    return httpRequest.execute().getInputObject(CreateEventResponse.class);
+    return httpRequest.executeProtobuf(CreateEventResponse.class);
   }
 }

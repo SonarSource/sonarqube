@@ -48,7 +48,6 @@ import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBA
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class ListActionTest {
   private static final String NOTIF_MY_NEW_ISSUES = "MyNewIssues";
@@ -225,10 +224,7 @@ public class ListActionTest {
   }
 
   private ListResponse call() {
-    return ws.newRequest()
-      .setMediaType(PROTOBUF)
-      .execute()
-      .getInputObject(ListResponse.class);
+    return ws.newRequest().executeProtobuf(ListResponse.class);
   }
 
   private ComponentDto addComponent(ComponentDto component) {

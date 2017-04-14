@@ -199,8 +199,7 @@ public class GetByProjectActionTest {
   }
 
   private GetByProjectWsResponse call(@Nullable String projectUuid, @Nullable String projectKey) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = ws.newRequest();
 
     if (projectUuid != null) {
       request.setParam(PARAM_PROJECT_ID, projectUuid);
@@ -210,7 +209,7 @@ public class GetByProjectActionTest {
       request.setParam(PARAM_PROJECT_KEY, projectKey);
     }
 
-    return request.execute().getInputObject(GetByProjectWsResponse.class);
+    return request.executeProtobuf(GetByProjectWsResponse.class);
   }
 
   private QualityGateDto insertQualityGate(String name) {

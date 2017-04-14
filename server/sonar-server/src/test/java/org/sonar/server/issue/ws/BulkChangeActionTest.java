@@ -61,7 +61,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Issues.BulkChangeWsResponse;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
 
 import static java.util.Arrays.asList;
@@ -463,7 +462,7 @@ public class BulkChangeActionTest {
   }
 
   private BulkChangeWsResponse call(BulkChangeRequest bulkChangeRequest) {
-    TestRequest request = tester.newRequest().setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = tester.newRequest();
     setNullable(bulkChangeRequest.getIssues(), value -> request.setParam("issues", String.join(",", value)));
     setNullable(bulkChangeRequest.getAssign(), value -> request.setParam("assign", value));
     setNullable(bulkChangeRequest.getSetSeverity(), value -> request.setParam("set_severity", value));
@@ -477,7 +476,7 @@ public class BulkChangeActionTest {
     if (!bulkChangeRequest.getRemoveTags().isEmpty()) {
       request.setParam("remove_tags", String.join(",", bulkChangeRequest.getRemoveTags()));
     }
-    return request.execute().getInputObject(BulkChangeWsResponse.class);
+    return request.executeProtobuf(BulkChangeWsResponse.class);
   }
 
   private void setUserProjectPermissions(String... permissions) {

@@ -40,9 +40,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,10 +153,10 @@ public class ComponentActionTest {
       newMeasureDto(ncloc, file, projectSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
     db.commit();
 
-    ComponentWsResponse result = call(ws.newRequest()
+    ComponentWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, "file-uuid")
       .setParam(PARAM_DEVELOPER_ID, developer.uuid())
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc").executeProtobuf(ComponentWsResponse.class);
 
     assertThat(result.getComponent().getMeasuresCount()).isEqualTo(1);
     assertThat(result.getComponent().getMeasures(0).getValue()).isEqualTo("1984");
@@ -179,10 +177,10 @@ public class ComponentActionTest {
       newMeasureDto(ncloc, file, projectSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
     db.commit();
 
-    ComponentWsResponse result = call(ws.newRequest()
+    ComponentWsResponse result = ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, "file-uuid")
       .setParam(PARAM_DEVELOPER_KEY, developer.key())
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc").executeProtobuf(ComponentWsResponse.class);
 
     assertThat(result.getComponent().getMeasuresCount()).isEqualTo(1);
     assertThat(result.getComponent().getMeasures(0).getValue()).isEqualTo("1984");
@@ -196,10 +194,10 @@ public class ComponentActionTest {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
     insertNclocMetric();
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, PROJECT_UUID)
       .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(PARAM_DEVELOPER_ID, "unknown-developer-id"));
+      .setParam(PARAM_DEVELOPER_ID, "unknown-developer-id").executeProtobuf(ComponentWsResponse.class);
   }
 
   @Test
@@ -236,17 +234,10 @@ public class ComponentActionTest {
   }
 
   private ComponentWsResponse newRequest(String componentUuid, String metricKeys) {
-    return call(ws.newRequest()
+    return ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, componentUuid)
       .setParam(PARAM_METRIC_KEYS, metricKeys)
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods"));
-  }
-
-  private ComponentWsResponse call(TestRequest request) {
-    return request
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(ComponentWsResponse.class);
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods").executeProtobuf(ComponentWsResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

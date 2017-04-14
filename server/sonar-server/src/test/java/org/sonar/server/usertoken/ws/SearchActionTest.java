@@ -135,13 +135,12 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse newRequest(@Nullable String login) {
-    TestRequest testRequest = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest testRequest = ws.newRequest();
     if (login != null) {
       testRequest.setParam(PARAM_LOGIN, login);
     }
 
-    return testRequest.execute().getInputObject(SearchWsResponse.class);
+    return testRequest.executeProtobuf(SearchWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

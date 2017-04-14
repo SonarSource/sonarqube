@@ -639,8 +639,7 @@ public class SearchProjectsActionTest {
 
   private SearchProjectsWsResponse call(SearchProjectsRequest.Builder requestBuilder) {
     SearchProjectsRequest wsRequest = requestBuilder.build();
-    TestRequest httpRequest = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest httpRequest = ws.newRequest();
     ofNullable(wsRequest.getOrganization()).ifPresent(organization -> httpRequest.setParam(PARAM_ORGANIZATION, organization));
     ofNullable(wsRequest.getFilter()).ifPresent(filter -> httpRequest.setParam(PARAM_FILTER, filter));
     ofNullable(wsRequest.getSort()).ifPresent(sort -> httpRequest.setParam(SORT, sort));
@@ -649,7 +648,7 @@ public class SearchProjectsActionTest {
     httpRequest.setParam(PAGE_SIZE, String.valueOf(wsRequest.getPageSize()));
     httpRequest.setParam(FACETS, Joiner.on(",").join(wsRequest.getFacets()));
     httpRequest.setParam(FIELDS, Joiner.on(",").join(wsRequest.getAdditionalFields()));
-    return httpRequest.execute().getInputObject(SearchProjectsWsResponse.class);
+    return httpRequest.executeProtobuf(SearchProjectsWsResponse.class);
   }
 
   private ComponentDto insertProjectInDbAndEs(ComponentDto project) {

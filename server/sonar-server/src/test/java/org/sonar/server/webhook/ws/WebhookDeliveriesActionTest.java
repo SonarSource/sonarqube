@@ -35,7 +35,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Webhooks;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,10 +85,8 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("componentKey", project.getKey())
-      .execute()
-      .getInputObject(Webhooks.DeliveriesWsResponse.class);
+      .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
 
     assertThat(response.getDeliveriesCount()).isEqualTo(0);
   }
@@ -99,10 +96,8 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.ADMIN);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("ceTaskId", "t1")
-      .execute()
-      .getInputObject(Webhooks.DeliveriesWsResponse.class);
+      .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
 
     assertThat(response.getDeliveriesCount()).isEqualTo(0);
   }
@@ -143,10 +138,8 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("ceTaskId", "t1")
-      .execute()
-      .getInputObject(Webhooks.DeliveriesWsResponse.class);
+      .executeProtobuf(Webhooks.DeliveriesWsResponse.class);
     assertThat(response.getDeliveriesCount()).isEqualTo(2);
     assertThat(response.getDeliveriesList()).extracting(Webhooks.Delivery::getId).containsOnly(dto1.getUuid(), dto2.getUuid());
   }

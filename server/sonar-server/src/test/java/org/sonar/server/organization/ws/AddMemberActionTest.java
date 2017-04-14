@@ -50,7 +50,6 @@ import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 
 import static java.lang.String.format;
@@ -258,10 +257,10 @@ public class AddMemberActionTest {
   }
 
   private AddMemberWsResponse call(@Nullable String organizationKey, @Nullable String login) {
-    TestRequest request = ws.newRequest().setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = ws.newRequest();
     setNullable(organizationKey, o -> request.setParam(PARAM_ORGANIZATION, o));
     setNullable(login, l -> request.setParam("login", l));
-    return request.execute().getInputObject(AddMemberWsResponse.class);
+    return request.executeProtobuf(AddMemberWsResponse.class);
   }
 
   private void assertMember(String organizationUuid, int userId) {

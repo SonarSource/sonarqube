@@ -50,7 +50,6 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class SearchActionTest {
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
@@ -133,10 +132,10 @@ public class SearchActionTest {
   }
 
   private SearchResponse call(@Nullable String textQuery, @Nullable Integer pageSize) {
-    TestRequest request = ws.newRequest().setMediaType(PROTOBUF);
+    TestRequest request = ws.newRequest();
     setNullable(textQuery, s -> request.setParam("q", s));
     setNullable(pageSize, ps -> request.setParam("ps", ps.toString()));
 
-    return request.execute().getInputObject(SearchResponse.class);
+    return request.executeProtobuf(SearchResponse.class);
   }
 }

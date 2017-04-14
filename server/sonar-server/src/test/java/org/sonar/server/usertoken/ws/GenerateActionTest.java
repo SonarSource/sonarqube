@@ -169,15 +169,12 @@ public class GenerateActionTest {
 
   private GenerateWsResponse newRequest(@Nullable String login, String name) {
     TestRequest testRequest = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_NAME, name);
     if (login != null) {
       testRequest.setParam(PARAM_LOGIN, login);
     }
 
-    return testRequest
-      .execute()
-      .getInputObject(GenerateWsResponse.class);
+    return testRequest.executeProtobuf(GenerateWsResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

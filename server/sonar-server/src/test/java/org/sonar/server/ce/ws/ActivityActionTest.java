@@ -404,8 +404,6 @@ public class ActivityActionTest {
   }
 
   private static ActivityResponse call(TestRequest request) {
-    return request
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute().getInputObject(ActivityResponse.class);
+    return request.executeProtobuf(ActivityResponse.class);
   }
 }

@@ -37,7 +37,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 
@@ -225,12 +224,11 @@ public class UpdateEventActionTest {
 
   private UpdateEventResponse call(@Nullable String eventUuid, @Nullable String name) {
     TestRequest request = ws.newRequest()
-      .setMethod(POST.name())
-      .setMediaType(MediaTypes.PROTOBUF);
+      .setMethod(POST.name());
     setNullable(eventUuid, e -> request.setParam(PARAM_EVENT, e));
     setNullable(name, n -> request.setParam(PARAM_NAME, n));
 
-    return request.execute().getInputObject(UpdateEventResponse.class);
+    return request.executeProtobuf(UpdateEventResponse.class);
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {

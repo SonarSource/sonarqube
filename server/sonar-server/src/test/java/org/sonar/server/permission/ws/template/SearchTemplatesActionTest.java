@@ -38,7 +38,6 @@ import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -182,9 +181,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
     WsPermissions.SearchTemplatesWsResponse result = newRequest(underTestWithoutViews)
       .setParam("organization", org.getKey())
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(WsPermissions.SearchTemplatesWsResponse.class);
+      .executeProtobuf(WsPermissions.SearchTemplatesWsResponse.class);
 
     assertThat(result.getPermissionTemplatesCount()).isEqualTo(2);
     assertThat(result.getPermissionTemplatesList())

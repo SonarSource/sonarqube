@@ -45,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
@@ -84,11 +83,11 @@ public class CreateActionTest {
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
-        .setMethod("POST")
-        .setParam(PARAM_PROJECT_KEY, project.key())
-        .setParam(PARAM_NAME, "Custom")
-        .setParam(PARAM_URL, "http://example.org")
-        .execute().getInput();
+      .setMethod("POST")
+      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute().getInput();
 
     assertJson(result).ignoreFields("id").isSimilarTo(getClass().getResource("create-example.json"));
   }
@@ -99,11 +98,11 @@ public class CreateActionTest {
     logInAsProjectAdministrator(project);
 
     String result = ws.newRequest()
-        .setMethod("POST")
-        .setParam(PARAM_PROJECT_ID, project.uuid())
-        .setParam(PARAM_NAME, "Custom")
-        .setParam(PARAM_URL, "http://example.org")
-        .execute().getInput();
+      .setMethod("POST")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute().getInput();
 
     assertJson(result).ignoreFields("id").isSimilarTo(getClass().getResource("create-example.json"));
   }
@@ -130,48 +129,48 @@ public class CreateActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     ws.newRequest()
-        .setParam(PARAM_PROJECT_KEY, "unknown")
-        .setParam(PARAM_URL, "http://example.org")
-        .execute();
+      .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
   }
 
   @Test
   public void fail_if_long_name() {
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
-        .setParam(PARAM_PROJECT_KEY, "unknown")
-        .setParam(PARAM_NAME, StringUtils.leftPad("", 129, "*"))
-        .setParam(PARAM_URL, "http://example.org")
-        .execute();
+      .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_NAME, StringUtils.leftPad("", 129, "*"))
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
   }
 
   @Test
   public void fail_if_no_url() {
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
-        .setParam(PARAM_PROJECT_KEY, "unknown")
-        .setParam(PARAM_NAME, "Custom")
-        .execute();
+      .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_NAME, "Custom")
+      .execute();
   }
 
   @Test
   public void fail_if_long_url() {
     expectedException.expect(IllegalArgumentException.class);
     ws.newRequest()
-        .setParam(PARAM_PROJECT_KEY, "unknown")
-        .setParam(PARAM_NAME, "random")
-        .setParam(PARAM_URL, StringUtils.leftPad("", 2049, "*"))
-        .execute();
+      .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_NAME, "random")
+      .setParam(PARAM_URL, StringUtils.leftPad("", 2049, "*"))
+      .execute();
   }
 
   @Test
   public void fail_when_no_project() {
     expectedException.expect(NotFoundException.class);
     ws.newRequest()
-        .setParam(PARAM_PROJECT_KEY, "unknown")
-        .setParam(PARAM_NAME, "Custom")
-        .setParam(PARAM_URL, "http://example.org")
-        .execute();
+      .setParam(PARAM_PROJECT_KEY, "unknown")
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
   }
 
   @Test
@@ -181,10 +180,10 @@ public class CreateActionTest {
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
-        .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
-        .setParam(PARAM_NAME, "Custom")
-        .setParam(PARAM_URL, "http://example.org")
-        .execute();
+      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
   }
 
   @Test
@@ -194,27 +193,25 @@ public class CreateActionTest {
 
     expectedException.expect(ForbiddenException.class);
     ws.newRequest()
-        .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
-        .setParam(PARAM_NAME, "Custom")
-        .setParam(PARAM_URL, "http://example.org")
-        .execute();
+      .setParam(PARAM_PROJECT_KEY, PROJECT_KEY)
+      .setParam(PARAM_NAME, "Custom")
+      .setParam(PARAM_URL, "http://example.org")
+      .execute();
   }
 
   private ComponentDto insertProject() {
     OrganizationDto org = db.organizations().insert();
     return db.components().insertComponent(
-        ComponentTesting.newProjectDto(org, PROJECT_UUID).setKey(PROJECT_KEY));
+      ComponentTesting.newProjectDto(org, PROJECT_UUID).setKey(PROJECT_KEY));
   }
 
   private void createAndTest(ComponentDto project, String name, String url, String type) throws IOException {
     WsProjectLinks.CreateWsResponse response = ws.newRequest()
-        .setMethod("POST")
-        .setParam(PARAM_PROJECT_KEY, project.key())
-        .setParam(PARAM_NAME, name)
-        .setParam(PARAM_URL, url)
-        .setMediaType(PROTOBUF)
-        .execute()
-      .getInputObject(WsProjectLinks.CreateWsResponse.class);
+      .setMethod("POST")
+      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_NAME, name)
+      .setParam(PARAM_URL, url)
+      .executeProtobuf(WsProjectLinks.CreateWsResponse.class);
 
     long newId = Long.valueOf(response.getLink().getId());
 

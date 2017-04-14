@@ -161,7 +161,6 @@ public class CreateActionTest {
     String orgKey = organization.getKey();
 
     TestRequest request = wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("organization", orgKey)
       .setParam("name", "Profile with messages")
       .setParam("language", XOO_LANGUAGE)
@@ -180,7 +179,6 @@ public class CreateActionTest {
     OrganizationDto organization1 = dbTester.organizations().insert();
     logInAsQProfileAdministrator(organization1);
     TestRequest request1 = wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("organization", organization1.getKey())
       .setParam("name", profileName)
       .setParam("language", XOO_LANGUAGE);
@@ -190,7 +188,6 @@ public class CreateActionTest {
     OrganizationDto organization2 = dbTester.organizations().insert();
     logInAsQProfileAdministrator(organization2);
     TestRequest request2 = wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("organization", organization2.getKey())
       .setParam("name", profileName)
       .setParam("language", XOO_LANGUAGE);
@@ -249,7 +246,6 @@ public class CreateActionTest {
 
   private CreateWsResponse executeRequest(String name, String language, Map<String, String> xmls) {
     TestRequest request = wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam("organization", organization.getKey())
       .setParam("name", name)
       .setParam("language", language);
@@ -260,7 +256,7 @@ public class CreateActionTest {
   }
 
   private CreateWsResponse executeRequest(TestRequest request) {
-    return request.execute().getInputObject(CreateWsResponse.class);
+    return request.executeProtobuf(CreateWsResponse.class);
   }
 
   private ProfileImporter[] createImporters() {

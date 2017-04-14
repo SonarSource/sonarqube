@@ -45,7 +45,6 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.SearchMembersWsResponse;
 import org.sonarqube.ws.Organizations.User;
 import org.sonarqube.ws.client.organization.SearchMembersWsRequest;
@@ -324,14 +323,13 @@ public class SearchMembersActionTest {
   }
 
   private SearchMembersWsResponse call() {
-    TestRequest wsRequest = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest wsRequest = ws.newRequest();
     setNullable(request.getOrganization(), o -> wsRequest.setParam("organization", o));
     setNullable(request.getQuery(), q -> wsRequest.setParam(Param.TEXT_QUERY, q));
     setNullable(request.getPage(), p -> wsRequest.setParam(Param.PAGE, String.valueOf(p)));
     setNullable(request.getPageSize(), ps -> wsRequest.setParam(Param.PAGE_SIZE, String.valueOf(ps)));
     setNullable(request.getSelected(), s -> wsRequest.setParam(Param.SELECTED, s));
 
-    return wsRequest.execute().getInputObject(SearchMembersWsResponse.class);
+    return wsRequest.executeProtobuf(SearchMembersWsResponse.class);
   }
 }

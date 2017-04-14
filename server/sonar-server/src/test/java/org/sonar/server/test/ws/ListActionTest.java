@@ -39,7 +39,6 @@ import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsTests;
 import org.sonarqube.ws.WsTests.ListResponse;
 
@@ -288,8 +287,7 @@ public class ListActionTest {
 
   private static ListResponse call(TestRequest request) {
     return request
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute().getInputObject(ListResponse.class);
+      .executeProtobuf(ListResponse.class);
   }
 
 }

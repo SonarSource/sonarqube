@@ -38,7 +38,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 
@@ -187,17 +186,14 @@ public class ShowActionTest {
   }
 
   private ShowWsResponse newRequest(@Nullable String uuid, @Nullable String key) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
-
+    TestRequest request = ws.newRequest();
     if (uuid != null) {
       request.setParam(PARAM_COMPONENT_ID, uuid);
     }
     if (key != null) {
       request.setParam(PARAM_COMPONENT, key);
     }
-
-    return request.execute().getInputObject(ShowWsResponse.class);
+    return request.executeProtobuf(ShowWsResponse.class);
   }
 
   private void insertJsonExampleComponentsAndSnapshots() {

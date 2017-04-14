@@ -60,7 +60,6 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 
 public class SearchActionTest {
@@ -269,8 +268,7 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse call(SearchWsRequest wsRequest) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(PROTOBUF);
+    TestRequest request = ws.newRequest();
     setNullable(wsRequest.getOrganization(), organization -> request.setParam(PARAM_ORGANIZATION, organization));
     List<String> qualifiers = wsRequest.getQualifiers();
     if (!qualifiers.isEmpty()) {
@@ -279,7 +277,7 @@ public class SearchActionTest {
     setNullable(wsRequest.getQuery(), query -> request.setParam(TEXT_QUERY, query));
     setNullable(wsRequest.getPage(), page -> request.setParam(PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
-    return request.execute().getInputObject(SearchWsResponse.class);
+    return request.executeProtobuf(SearchWsResponse.class);
   }
 
 }

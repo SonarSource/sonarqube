@@ -34,7 +34,6 @@ import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -322,14 +321,13 @@ public class UpdateActionTest {
 
   private Organizations.UpdateWsResponse executeRequest(@Nullable String key,
     @Nullable String name, @Nullable String description, @Nullable String url, @Nullable String avatar) {
-    TestRequest request = wsTester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = wsTester.newRequest();
     setParam(request, "key", key);
     setParam(request, "name", name);
     setParam(request, "description", description);
     setParam(request, "url", url);
     setParam(request, "avatar", avatar);
-    return request.execute().getInputObject(Organizations.UpdateWsResponse.class);
+    return request.executeProtobuf(Organizations.UpdateWsResponse.class);
   }
 
   private void verifyResponseAndDb(Organizations.UpdateWsResponse response, OrganizationDto dto, String name, long updateAt) {

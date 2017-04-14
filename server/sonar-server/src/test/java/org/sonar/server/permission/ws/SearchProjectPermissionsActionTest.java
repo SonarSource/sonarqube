@@ -32,7 +32,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -200,10 +199,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
 
     WsPermissions.SearchProjectPermissionsWsResponse result = newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setParam(PARAM_QUALIFIER, Qualifiers.PROJECT)
-      .execute()
-      .getInputObject(WsPermissions.SearchProjectPermissionsWsResponse.class);
+      .executeProtobuf(WsPermissions.SearchProjectPermissionsWsResponse.class);
 
     assertThat(result.getProjectsList())
       .extracting("id")

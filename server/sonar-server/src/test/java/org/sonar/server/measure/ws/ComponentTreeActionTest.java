@@ -43,10 +43,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 
@@ -124,9 +122,10 @@ public class ComponentTreeActionTest {
   public void empty_response() {
     componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_METRIC_KEYS, "ncloc, complexity"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc, complexity")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getBaseComponent().getId()).isEqualTo("project-uuid");
     assertThat(response.getComponentsList()).isEmpty();
@@ -156,10 +155,11 @@ public class ComponentTreeActionTest {
       newMeasureDto(coverage, directoryDto, projectSnapshot).setValue(15.0d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc,coverage")
-      .setParam(PARAM_ADDITIONAL_FIELDS, ADDITIONAL_PERIODS));
+      .setParam(PARAM_ADDITIONAL_FIELDS, ADDITIONAL_PERIODS)
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
     // file measures
@@ -195,10 +195,11 @@ public class ComponentTreeActionTest {
       newMeasureDto(coverage, directoryDto, projectSnapshot).setValue(42.0d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc,coverage,new_violations")
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics"));
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     // directory measures
     assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
@@ -233,10 +234,11 @@ public class ComponentTreeActionTest {
     dbClient.measureDao().insert(dbSession, newMeasureDto(metric, directoryDto, projectSnapshot).setVariation(2d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, NEW_SECURITY_RATING_KEY)
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics"));
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     // directory
     assertThat(response.getComponentsList().get(0).getMeasuresList().get(0).getPeriods().getPeriodsValue(0).getValue()).isEqualTo("2.0");
@@ -270,7 +272,7 @@ public class ComponentTreeActionTest {
       newMeasureDto(coverage, file9, projectSnapshot).setValue(9.0d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(Param.SORT, NAME_SORT + ", " + METRIC_SORT)
       .setParam(PARAM_METRIC_SORT, "coverage")
@@ -278,7 +280,8 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_STRATEGY, "leaves")
       .setParam(PARAM_QUALIFIERS, "FIL,UTS")
       .setParam(Param.PAGE, "2")
-      .setParam(Param.PAGE_SIZE, "3"));
+      .setParam(Param.PAGE_SIZE, "3")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-4", "file-uuid-5", "file-uuid-6");
     assertThat(response.getPaging().getPageIndex()).isEqualTo(2);
@@ -302,11 +305,12 @@ public class ComponentTreeActionTest {
       newMeasureDto(ncloc, file3, projectSnapshot).setValue(3.0d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(Param.SORT, METRIC_SORT)
       .setParam(PARAM_METRIC_SORT, "ncloc")
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3", "file-uuid-4");
     assertThat(response.getPaging().getTotal()).isEqualTo(4);
@@ -334,12 +338,13 @@ public class ComponentTreeActionTest {
       newMeasureDto(ncloc, file4, projectSnapshot).setVariation(4.0d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, project.uuid())
       .setParam(Param.SORT, METRIC_SORT)
       .setParam(PARAM_METRIC_SORT, "ncloc")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER));
+      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER)
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("id")
       .containsExactly(file1.uuid(), file2.uuid(), file3.uuid())
@@ -362,12 +367,13 @@ public class ComponentTreeActionTest {
       newMeasureDto(ncloc, file3, projectSnapshot).setVariation(3.0d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(Param.SORT, METRIC_PERIOD_SORT)
       .setParam(PARAM_METRIC_SORT, "ncloc")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(PARAM_METRIC_PERIOD_SORT, "1"));
+      .setParam(PARAM_METRIC_PERIOD_SORT, "1")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3");
   }
@@ -390,13 +396,14 @@ public class ComponentTreeActionTest {
       newMeasureDto(ncloc, file4, projectSnapshot).setValue(4.0d));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(Param.SORT, METRIC_PERIOD_SORT + "," + NAME_SORT)
       .setParam(PARAM_METRIC_SORT, "new_ncloc")
       .setParam(PARAM_METRIC_KEYS, "new_ncloc")
       .setParam(PARAM_METRIC_PERIOD_SORT, "1")
-      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER));
+      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER)
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsList()).extracting("id")
       .containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3")
@@ -413,9 +420,10 @@ public class ComponentTreeActionTest {
     insertNclocMetric();
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, developer.uuid())
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsCount()).isEqualTo(1);
     WsMeasures.Component projectCopy = response.getComponents(0);
@@ -444,11 +452,12 @@ public class ComponentTreeActionTest {
       newMeasureDto(ncloc, file2, projectSnapshot).setDeveloperId(null));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_DEVELOPER_ID, "developer-uuid")
       .setParam(PARAM_STRATEGY, CHILDREN_STRATEGY)
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsCount()).isEqualTo(2);
     WsMeasures.Component file = response.getComponents(0);
@@ -472,10 +481,11 @@ public class ComponentTreeActionTest {
         .setDeveloperId(developer.getId()));
     db.commit();
 
-    ComponentTreeWsResponse response = call(ws.newRequest()
+    ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_DEVELOPER_KEY, developer.key())
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getComponentsCount()).isEqualTo(1);
     WsMeasures.Component file = response.getComponents(0);
@@ -493,10 +503,11 @@ public class ComponentTreeActionTest {
     componentDb.insertComponent(newFileDto(project, null));
     insertNclocMetric();
 
-    ComponentTreeWsResponse result = call(ws.newRequest()
+    ComponentTreeWsResponse result = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, projectUuid)
       .setParam(PARAM_STRATEGY, LEAVES_STRATEGY)
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(result.getBaseComponent().getId()).isEqualTo(projectUuid);
     assertThat(result.getComponentsCount()).isEqualTo(0);
@@ -519,10 +530,11 @@ public class ComponentTreeActionTest {
         .setDeveloperId(developer.getId()));
     db.commit();
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_DEVELOPER_KEY, "unknown-developer-key")
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -532,9 +544,10 @@ public class ComponentTreeActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'metricKeys' parameter must contain at least one metric key");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_METRIC_KEYS, ""));
+      .setParam(PARAM_METRIC_KEYS, "")
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -545,9 +558,9 @@ public class ComponentTreeActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("The following metric keys are not found: unknown-metric, another-unknown-metric");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations, unknown-metric, another-unknown-metric"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations, unknown-metric, another-unknown-metric").executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -558,10 +571,11 @@ public class ComponentTreeActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations")
-      .setParam(Param.TEXT_QUERY, "fi"));
+      .setParam(Param.TEXT_QUERY, "fi")
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -570,9 +584,10 @@ public class ComponentTreeActionTest {
     componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
     expectedException.expect(ForbiddenException.class);
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -582,11 +597,12 @@ public class ComponentTreeActionTest {
     expectedException
       .expectMessage("To sort by a metric, the 's' parameter must contain 'metric' or 'metricPeriod', and a metric key must be provided in the 'metricSort' parameter");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       // PARAM_METRIC_SORT is not set
-      .setParam(Param.SORT, METRIC_SORT));
+      .setParam(Param.SORT, METRIC_SORT)
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -595,11 +611,12 @@ public class ComponentTreeActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("To sort by the 'complexity' metric, it must be in the list of metric keys in the 'metricKeys' parameter");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc,violations")
       .setParam(PARAM_METRIC_SORT, "complexity")
-      .setParam(Param.SORT, METRIC_SORT));
+      .setParam(Param.SORT, METRIC_SORT)
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -608,12 +625,13 @@ public class ComponentTreeActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("To sort by a metric period, the 's' parameter must contain 'metricPeriod' and the 'metricPeriodSort' must be provided.");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .setParam(PARAM_METRIC_SORT, "ncloc")
       // PARAM_METRIC_PERIOD_SORT_IS_NOT_SET
-      .setParam(Param.SORT, METRIC_PERIOD_SORT));
+      .setParam(Param.SORT, METRIC_PERIOD_SORT)
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -623,10 +641,11 @@ public class ComponentTreeActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'ps' parameter must be less than 500");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(Param.PAGE_SIZE, "2540"));
+      .setParam(Param.PAGE_SIZE, "2540")
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test
@@ -637,17 +656,11 @@ public class ComponentTreeActionTest {
     expectedException
       .expectMessage("To filter components based on the sort metric, the 's' parameter must contain 'metric' or 'metricPeriod' and the 'metricSort' parameter must be provided");
 
-    call(ws.newRequest()
+    ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER));
-  }
-
-  private static ComponentTreeWsResponse call(TestRequest request) {
-    return request
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(ComponentTreeWsResponse.class);
+      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER)
+      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

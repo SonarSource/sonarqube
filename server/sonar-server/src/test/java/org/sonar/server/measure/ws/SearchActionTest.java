@@ -66,7 +66,6 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 
@@ -378,17 +377,14 @@ public class SearchActionTest {
   }
 
   private SearchWsResponse call(@Nullable List<String> keys, @Nullable List<String> metrics) {
-    TestRequest request = ws.newRequest()
-      .setMediaType(PROTOBUF);
-
+    TestRequest request = ws.newRequest();
     if (keys != null) {
       request.setParam(PARAM_PROJECT_KEYS, String.join(",", keys));
     }
     if (metrics != null) {
       request.setParam(PARAM_METRIC_KEYS, String.join(",", metrics));
     }
-
-    return request.execute().getInputObject(SearchWsResponse.class);
+    return request.executeProtobuf(SearchWsResponse.class);
   }
 
   private static MetricDto newMetricDtoWithoutOptimization() {

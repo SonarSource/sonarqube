@@ -46,7 +46,6 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
 
@@ -254,16 +253,13 @@ public class SearchActionTest {
   private SearchWsResponse callByKey(String projectKey) throws IOException {
     return ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, projectKey)
-      .setMediaType(PROTOBUF)
-      .execute()
-      .getInputObject(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
   }
 
   private SearchWsResponse callByUuid(String projectUuid) throws IOException {
     return ws.newRequest()
       .setParam(PARAM_PROJECT_ID, projectUuid)
-      .setMediaType(PROTOBUF)
-      .execute().getInputObject(SearchWsResponse.class);
+      .executeProtobuf(SearchWsResponse.class);
   }
 
   private void checkItWorks(ComponentDto project) throws IOException {

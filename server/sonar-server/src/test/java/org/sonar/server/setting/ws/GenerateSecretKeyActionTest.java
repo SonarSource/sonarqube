@@ -88,10 +88,8 @@ public class GenerateSecretKeyActionTest {
 
   private GenerateSecretKeyWsResponse call() {
     return ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("GET")
-      .execute()
-      .getInputObject(GenerateSecretKeyWsResponse.class);
+      .executeProtobuf(GenerateSecretKeyWsResponse.class);
   }
 
 }

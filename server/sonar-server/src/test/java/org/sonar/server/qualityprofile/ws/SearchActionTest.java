@@ -51,9 +51,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -218,7 +216,8 @@ public class SearchActionTest {
       .setLastUsed(time)
       .setUserUpdatedAt(time));
 
-    SearchWsResponse result = call(ws.newRequest());
+    SearchWsResponse result = ws.newRequest()
+      .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getProfilesCount()).isEqualTo(1);
     assertThat(result.getProfiles(0).getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+0100");
@@ -265,7 +264,8 @@ public class SearchActionTest {
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     qualityProfileDb.insertProjectWithQualityProfileAssociations(project, qualityProfileOnXoo1, qualityProfileOnXoo2);
 
-    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_PROJECT_KEY, project.key()));
+    SearchWsResponse result = ws.newRequest().setParam(PARAM_PROJECT_KEY, project.key())
+      .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getProfilesList())
       .hasSize(2)
@@ -461,13 +461,6 @@ public class SearchActionTest {
 
   private SearchWsResponse findProfiles(SearchWsRequest request) {
     return underTest.doHandle(request);
-  }
-
-  private SearchWsResponse call(TestRequest request) {
-    return request
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute()
-      .getInputObject(SearchWsResponse.class);
   }
 
   private OrganizationDto getDefaultOrganization() {

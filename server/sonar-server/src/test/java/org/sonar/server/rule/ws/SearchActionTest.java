@@ -54,7 +54,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
-import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class SearchActionTest {
 
@@ -91,9 +90,7 @@ public class SearchActionTest {
     doReturn("interpreted").when(macroInterpreter).interpret(anyString());
 
     SearchResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
-      .execute()
-      .getInputObject(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
   }
 
@@ -106,12 +103,10 @@ public class SearchActionTest {
     RuleMetadataDto metadata2 = insertMetadata(organization, rule2);
 
     SearchResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam("f", "repo,name")
       .setParam("tags", metadata1.getTags().stream().collect(Collectors.joining(",")))
       .setParam("organization", organization.getKey())
-      .execute()
-      .getInputObject(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule1.getKey().toString());
   }
 
@@ -122,11 +117,9 @@ public class SearchActionTest {
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
 
     SearchResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam("facets", "tags")
       .setParam("organization", organization.getKey())
-      .execute()
-      .getInputObject(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount()))
       .containsExactly(entry("tag1", 1L), entry("tag2", 1L), entry("tag3", 1L), entry("tag4", 1L), entry("tag5", 1L), entry("tag6", 1L), entry("tag7", 1L), entry("tag8", 1L),
         entry("tag9", 1L), entry("tagA", 1L));
@@ -137,11 +130,9 @@ public class SearchActionTest {
     insertRuleDefinition(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA", "x"));
 
     SearchResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam("facets", "tags")
       .setParam("tags", "x")
-      .execute()
-      .getInputObject(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount())).contains(entry("x", 1L));
   }
 
@@ -150,11 +141,9 @@ public class SearchActionTest {
     insertRuleDefinition(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA"));
 
     SearchResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam("facets", "tags")
       .setParam("tags", "x")
-      .execute()
-      .getInputObject(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class);
     assertThat(result.getFacets().getFacets(0).getValuesList()).extracting(v -> entry(v.getVal(), v.getCount())).contains(entry("x", 0L));
   }
 
@@ -165,11 +154,9 @@ public class SearchActionTest {
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
 
     SearchResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam("f", "tags")
       .setParam("organization", organization.getKey())
-      .execute()
-      .getInputObject(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList())
       .extracting(Rule::getTags).flatExtracting(Rules.Tags::getTagsList)
@@ -198,10 +185,8 @@ public class SearchActionTest {
   @SafeVarargs
   private final <T> void checkField(RuleDefinitionDto rule, String fieldName, Extractor<Rule, T> responseExtractor, T... expected) throws IOException {
     SearchResponse result = actionTester.newRequest()
-      .setMediaType(PROTOBUF)
       .setParam("f", fieldName)
-      .execute()
-      .getInputObject(SearchResponse.class);
+      .executeProtobuf(SearchResponse.class);
     assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
     assertThat(result.getRulesList()).extracting(responseExtractor).containsExactly(expected);
   }

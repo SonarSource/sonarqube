@@ -50,7 +50,6 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUsers.CreateWsResponse;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.user.CreateRequest;
@@ -350,15 +349,14 @@ public class CreateActionTest {
   }
 
   private CreateWsResponse call(CreateRequest createRequest) {
-    TestRequest request = tester.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF);
+    TestRequest request = tester.newRequest();
     setNullable(createRequest.getLogin(), e -> request.setParam("login", e));
     setNullable(createRequest.getName(), e -> request.setParam("name", e));
     setNullable(createRequest.getEmail(), e -> request.setParam("email", e));
     setNullable(createRequest.getPassword(), e -> request.setParam("password", e));
     setNullable(createRequest.getScmAccounts(), e -> request.setMultiParam("scmAccount", e));
     request.setParam("local", createRequest.isLocal() ? "true" : "false");
-    return request.execute().getInputObject(CreateWsResponse.class);
+    return request.executeProtobuf(CreateWsResponse.class);
   }
 
   private void enableCreatePersonalOrg(boolean flag) {
