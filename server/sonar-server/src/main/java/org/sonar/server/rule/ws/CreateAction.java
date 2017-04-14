@@ -26,6 +26,7 @@ import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -76,10 +77,11 @@ public class CreateAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("create")
-      .setDescription("Create a custom rule. <br/>" +
-        "Since 5.5, it's no more possible to create manual rule." +
-        "Custom rules are currently not supported, if the organization feature is enabled. In that case, the webservice will fail.")
+      .setDescription("Create a custom rule")
       .setSince("4.4")
+      .setChangelog(
+        new Change("5.5", "Creating manual rule is not more possible"),
+        new Change("6.4", "Creating custom rules are not supported if the organization feature is enabled. In that case, the webservice will fail"))
       .setPost(true)
       .setHandler(this);
 
@@ -167,9 +169,7 @@ public class CreateAction implements RulesWsAction {
     List<RuleDefinitionDto> templateRules = new ArrayList<>();
     if (rule.getTemplateId() != null) {
       Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
-      if (templateRule.isPresent()) {
-        templateRules.add(templateRule.get());
-      }
+      templateRule.ifPresent(templateRules::add);
     }
     List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
     SearchAction.SearchResult searchResult = new SearchAction.SearchResult()
@@ -177,7 +177,7 @@ public class CreateAction implements RulesWsAction {
       .setTemplateRules(templateRules)
       .setTotal(1L);
     return Rules.CreateResponse.newBuilder()
-      .setRule(ruleMapper.toWsRule(rule, searchResult, Collections.<String>emptySet()))
+      .setRule(ruleMapper.toWsRule(rule, searchResult, Collections.emptySet()))
       .build();
   }
 }

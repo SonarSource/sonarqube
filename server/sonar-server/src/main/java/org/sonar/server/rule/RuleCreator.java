@@ -46,6 +46,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -69,16 +70,12 @@ public class RuleCreator {
 
   public RuleKey create(DbSession dbSession, NewCustomRule newRule) {
     RuleKey templateKey = newRule.templateKey();
-    if (templateKey == null) {
-      throw new IllegalArgumentException("Rule template key should not be null");
-    }
+    checkArgument(templateKey != null, "Rule template key should not be null");
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     OrganizationDto defaultOrganization = dbClient.organizationDao().selectByUuid(dbSession, defaultOrganizationUuid)
       .orElseThrow(() -> new IllegalStateException(String.format("Could not find default organization for uuid '%s'", defaultOrganizationUuid)));
     RuleDto templateRule = dbClient.ruleDao().selectOrFailByKey(dbSession, defaultOrganization, templateKey);
-    if (!templateRule.isTemplate()) {
-      throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
-    }
+    checkArgument(templateRule.isTemplate(), "This rule is not a template rule: %s", templateKey.toString());
     validateCustomRule(newRule, dbSession, templateKey);
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
