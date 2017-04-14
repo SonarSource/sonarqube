@@ -20,10 +20,8 @@
 package org.sonar.ce.queue;
 
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.db.ce.CeActivityDto.Status;
 
 /**
@@ -69,6 +67,8 @@ public interface InternalCeQueue extends CeQueue {
   void remove(CeTask task, Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error);
 
   void cancelWornOuts();
+
+  void resetTasksWithUnknownWorkerUUIDs(Set<String> knownWorkerUUIDs);
 
   void pausePeek();
 

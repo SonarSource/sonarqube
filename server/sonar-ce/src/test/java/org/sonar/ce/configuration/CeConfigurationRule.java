@@ -54,21 +54,21 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
   }
 
   @Override
-  public long getCancelWornOutsInitialDelay() {
+  public long getCleanCeTasksInitialDelay() {
     return cancelWornOutsInitialDelay;
   }
 
-  public void setCancelWornOutsInitialDelay(long cancelWornOutsInitialDelay) {
+  public void setCleanCeTasksInitialDelay(long cancelWornOutsInitialDelay) {
     checkArgument(cancelWornOutsInitialDelay > 0, "cancel worn-outs polling initial delay must be >= 1");
     this.cancelWornOutsInitialDelay = cancelWornOutsInitialDelay;
   }
 
   @Override
-  public long getCancelWornOutsDelay() {
+  public long getCleanCeTasksDelay() {
     return cancelWornOutsDelay;
   }
 
-  public void setCancelWornOutsDelay(long cancelWornOutsDelay) {
+  public void setCleanCeTasksDelay(long cancelWornOutsDelay) {
     checkArgument(cancelWornOutsDelay > 0, "cancel worn-outs polling delay must be >= 1");
     this.cancelWornOutsDelay = cancelWornOutsDelay;
   }

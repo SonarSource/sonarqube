@@ -99,12 +99,13 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   }
 
   @Override
-  public long getCancelWornOutsInitialDelay() {
+  public long getCleanCeTasksInitialDelay() {
     return CANCEL_WORN_OUTS_INITIAL_DELAY;
   }
 
   @Override
-  public long getCancelWornOutsDelay() {
+  public long getCleanCeTasksDelay() {
     return CANCEL_WORN_OUTS_DELAY;
   }
+
 }

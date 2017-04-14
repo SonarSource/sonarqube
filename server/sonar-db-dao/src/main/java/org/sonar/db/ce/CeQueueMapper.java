@@ -46,6 +46,17 @@ public interface CeQueueMapper {
    */
   List<CeQueueDto> selectPendingByMinimumExecutionCount(@Param("minExecutionCount") int minExecutionCount);
 
+  /**
+   * Select all tasks whose worker UUID is not present in {@code knownWorkerUUIDs}
+   */
+  void resetTasksWithUnknownWorkerUUIDs(@Param("knownWorkerUUIDs") List<String> knownWorkerUUIDs, @Param("updatedAt") long updatedAt);
+
+  /**
+   * Reset all IN_PROGRESS TASKS
+   */
+  void resetAllInProgressTasks(@Param("updatedAt") long updatedAt);
+
+
   int countByStatusAndComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("componentUuid") String componentUuid);
 
   void insert(CeQueueDto dto);
