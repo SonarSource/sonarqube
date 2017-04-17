@@ -48,9 +48,7 @@ export default class Main extends React.PureComponent {
     return this.orderSections(sections);
   };
 
-  orderSections = sections => {
-    return sortBy(sections, section => SECTIONS_ORDER.indexOf(section.name));
-  };
+  orderSections = sections => sortBy(sections, section => SECTIONS_ORDER.indexOf(section.name));
 
   parseItems = data => {
     const items = Object.keys(data).map(item => {
@@ -59,9 +57,7 @@ export default class Main extends React.PureComponent {
     return this.orderItems(items);
   };
 
-  orderItems = items => {
-    return sortBy(items, 'name');
-  };
+  orderItems = items => sortBy(items, 'name');
 
   handleServerRestart = () => {
     new RestartModal().render();

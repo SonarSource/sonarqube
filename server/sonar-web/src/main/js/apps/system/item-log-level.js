@@ -24,7 +24,10 @@ import { translate } from '../../helpers/l10n';
 const LOG_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 
 export default class ItemLovLevel extends React.PureComponent {
-  state = { level: this.props.value };
+  constructor(props) {
+    super(props);
+    this.state = { level: props.value };
+  }
 
   onChange = () => {
     const newValue = this.refs.select.value;

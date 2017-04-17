@@ -107,9 +107,7 @@ export default class Search extends React.PureComponent {
     );
   };
 
-  renderSpinner = () => {
-    return <i className="spinner" />;
-  };
+  renderSpinner = () => <i className="spinner" />;
 
   render() {
     const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
