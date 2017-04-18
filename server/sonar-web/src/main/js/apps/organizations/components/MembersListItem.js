@@ -48,8 +48,8 @@ export default class MembersListItem extends React.PureComponent {
           <Avatar hash={member.avatar} email={member.email} size={AVATAR_SIZE} />
         </td>
         <td className="nowrap text-middle">
-          <strong>{member.login}</strong>
-          <span className="note little-spacer-left">{member.name}</span>
+          <strong>{member.name}</strong>
+          <span className="note little-spacer-left">{member.login}</span>
         </td>
         {organization.canAdmin &&
           <td className="text-right text-middle">
