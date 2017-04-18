@@ -19,26 +19,25 @@
  */
 package org.sonar.server.metric.ws;
 
-import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.measure.custom.CustomMeasureTesting;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class DeleteActionTest {
@@ -51,82 +50,71 @@ public class DeleteActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private DbClient dbClient = db.getDbClient();
-  private final DbSession dbSession = db.getSession();
-  private MetricDao metricDao;
-  private WsTester ws;
-
-  @Before
-  public void setUp() {
-    userSessionRule.logIn().setSystemAdministrator();
-    ws = new WsTester(new MetricsWs(new DeleteAction(dbClient, userSessionRule)));
-    metricDao = dbClient.metricDao();
-  }
+  private WsActionTester ws = new WsActionTester(new DeleteAction(dbClient, userSessionRule));
 
   @Test
-  public void delete_by_keys() throws Exception {
-    insertCustomEnabledMetrics(1, 2, 3);
-    dbSession.commit();
+  public void delete_by_keys() {
+    loggedAsSystemAdministrator();
+    insertCustomEnabledMetrics("key-1", "key-2", "key-3");
 
     newRequest().setParam("keys", "key-1, key-3").execute();
-    dbSession.commit();
 
-    List<MetricDto> disabledMetrics = metricDao.selectByKeys(dbSession, Arrays.asList("key-1", "key-3"));
+    List<MetricDto> disabledMetrics = db.getDbClient().metricDao().selectByKeys(db.getSession(), asList("key-1", "key-3"));
     assertThat(disabledMetrics).extracting("enabled").containsOnly(false);
-    assertThat(metricDao.selectByKey(dbSession, "key-2").isEnabled()).isTrue();
+    assertThat(db.getDbClient().metricDao().selectByKey(db.getSession(), "key-2").isEnabled()).isTrue();
   }
 
   @Test
-  public void delete_by_id() throws Exception {
-    MetricDto metric = newCustomEnabledMetric(1);
-    metricDao.insert(dbSession, metric);
-    dbSession.commit();
+  public void delete_by_id() {
+    loggedAsSystemAdministrator();
+    MetricDto metric = insertCustomMetric("custom-key");
 
-    WsTester.Result result = newRequest().setParam("ids", String.valueOf(metric.getId())).execute();
-    dbSession.commit();
+    TestResponse response = newRequest().setParam("ids", String.valueOf(metric.getId())).execute();
 
-    assertThat(metricDao.selectEnabled(dbSession)).isEmpty();
-    result.assertNoContent();
+    assertThat(db.getDbClient().metricDao().selectEnabled(db.getSession())).isEmpty();
+    assertThat(response.getStatus()).isEqualTo(204);
   }
 
   @Test
-  public void do_not_delete_non_custom_metric() throws Exception {
-    metricDao.insert(dbSession, newCustomEnabledMetric(1).setUserManaged(false));
-    dbSession.commit();
+  public void does_not_delete_non_custom_metric() {
+    loggedAsSystemAdministrator();
+    db.getDbClient().metricDao().insert(db.getSession(), newCustomEnabledMetric("custom-key").setUserManaged(false));
+    db.getSession().commit();
 
-    newRequest().setParam("keys", "key-1").execute();
-    dbSession.commit();
+    newRequest().setParam("keys", "custom-key").execute();
 
-    MetricDto metric = metricDao.selectByKey(dbSession, "key-1");
+    MetricDto metric = db.getDbClient().metricDao().selectByKey(db.getSession(), "custom-key");
     assertThat(metric.isEnabled()).isTrue();
   }
 
   @Test
-  public void delete_associated_measures() throws Exception {
-    MetricDto metric = newCustomEnabledMetric(1);
-    metricDao.insert(dbSession, metric);
-    CustomMeasureDto customMeasure = CustomMeasureTesting.newCustomMeasureDto().setMetricId(metric.getId());
-    CustomMeasureDto undeletedCustomMeasure = CustomMeasureTesting.newCustomMeasureDto().setMetricId(metric.getId() + 1);
-    dbClient.customMeasureDao().insert(dbSession, customMeasure);
-    dbClient.customMeasureDao().insert(dbSession, undeletedCustomMeasure);
-    dbSession.commit();
+  public void delete_associated_measures() {
+    loggedAsSystemAdministrator();
+    MetricDto metric = insertCustomMetric("custom-key");
+    CustomMeasureDto customMeasure = newCustomMeasureDto().setMetricId(metric.getId());
+    CustomMeasureDto undeletedCustomMeasure = newCustomMeasureDto().setMetricId(metric.getId() + 1);
+    dbClient.customMeasureDao().insert(db.getSession(), customMeasure);
+    dbClient.customMeasureDao().insert(db.getSession(), undeletedCustomMeasure);
+    db.getSession().commit();
 
-    newRequest().setParam("keys", "key-1").execute();
+    newRequest().setParam("keys", "custom-key").execute();
 
-    assertThat(dbClient.customMeasureDao().selectById(dbSession, customMeasure.getId())).isNull();
-    assertThat(dbClient.customMeasureDao().selectById(dbSession, undeletedCustomMeasure.getId())).isNotNull();
+    assertThat(dbClient.customMeasureDao().selectById(db.getSession(), customMeasure.getId())).isNull();
+    assertThat(dbClient.customMeasureDao().selectById(db.getSession(), undeletedCustomMeasure.getId())).isNotNull();
   }
 
   @Test
-  public void fail_when_no_argument() throws Exception {
+  public void fail_when_no_argument() {
+    loggedAsSystemAdministrator();
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest().execute();
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_system_administrator() {
     userSessionRule.logIn().setNonSystemAdministrator();
-    insertCustomEnabledMetrics(1);
+    insertCustomEnabledMetrics("custom-key");
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -135,9 +123,9 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void throw_UnauthorizedException_if_not_logged_in() {
     userSessionRule.anonymous();
-    insertCustomEnabledMetrics(1);
+    insertCustomEnabledMetrics("custom-key");
 
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
@@ -145,19 +133,29 @@ public class DeleteActionTest {
     newRequest().setParam("keys", "key-1").execute();
   }
 
-  private MetricDto newCustomEnabledMetric(int id) {
-    return newMetricDto().setEnabled(true).setUserManaged(true).setKey("key-" + id);
+  private MetricDto newCustomEnabledMetric(String key) {
+    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(key);
   }
 
-  private void insertCustomEnabledMetrics(int... ids) {
-    for (int id : ids) {
-      metricDao.insert(dbSession, newCustomEnabledMetric(id));
+  private void insertCustomEnabledMetrics(String... keys) {
+    for (String key : keys) {
+      db.getDbClient().metricDao().insert(db.getSession(), newCustomEnabledMetric(key));
     }
-
-    dbSession.commit();
+    db.getSession().commit();
   }
 
-  private WsTester.TestRequest newRequest() {
-    return ws.newPostRequest(MetricsWs.ENDPOINT, "delete");
+  private MetricDto insertCustomMetric(String key) {
+    MetricDto metricDto = newCustomEnabledMetric(key);
+    db.getDbClient().metricDao().insert(db.getSession(), metricDto);
+    db.getSession().commit();
+    return metricDto;
+  }
+
+  private void loggedAsSystemAdministrator() {
+    userSessionRule.logIn().setSystemAdministrator();
+  }
+
+  private TestRequest newRequest() {
+    return ws.newRequest();
   }
 }
