@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -82,7 +83,7 @@ public class DeactivateActionTest {
     dbClient, userIndexer, userSession, new UserJsonWriter(userSession), defaultOrganizationProvider));
 
   @Test
-  public void deactivate_user_and_delete_his_related_data() throws Exception {
+  public void deactivate_user_and_delete_his_related_data() {
     UserDto user = insertUser(newUserDto()
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")
@@ -90,17 +91,39 @@ public class DeactivateActionTest {
       .setScmAccounts(singletonList("al")));
     logInAsSystemAdministrator();
 
-    String json = deactivate(user.getLogin()).getInput();
+    deactivate(user.getLogin()).getInput();
 
-    // scm accounts, groups and email are deleted
-    assertThat(index.getNullableByLogin(user.getLogin()).active()).isFalse();
     verifyThatUserIsDeactivated(user.getLogin());
-    assertThat(dbClient.userTokenDao().selectByLogin(dbSession, user.getLogin())).isEmpty();
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession)).isEmpty();
+    assertThat(index.getNullableByLogin(user.getLogin()).active()).isFalse();
   }
 
   @Test
-  public void deactivate_user_and_delete_his_organization_membership() throws Exception {
+  public void deactivate_user_deletes_his_tokens() {
+    logInAsSystemAdministrator();
+    UserDto user = insertUser(newUserDto());
+    db.getDbClient().userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
+    db.getDbClient().userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
+    db.commit();
+
+    deactivate(user.getLogin()).getInput();
+
+    assertThat(db.getDbClient().userTokenDao().selectByLogin(dbSession, user.getLogin())).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_properties() {
+    logInAsSystemAdministrator();
+    UserDto user = insertUser(newUserDto());
+    db.properties().insertProperty(newUserPropertyDto(user));
+    db.properties().insertProperty(newUserPropertyDto(user));
+
+    deactivate(user.getLogin()).getInput();
+
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession)).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_organization_membership() {
     UserDto user = insertUser(newUserDto()
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")
@@ -116,7 +139,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void cannot_deactivate_self() throws Exception {
+  public void cannot_deactivate_self() {
     UserDto user = createUser();
     userSession.logIn(user.getLogin()).setSystemAdministrator();
 
@@ -129,7 +152,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivation_requires_to_be_logged_in() throws Exception {
+  public void deactivation_requires_to_be_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
@@ -137,7 +160,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void deactivation_requires_administrator_permission() throws Exception {
+  public void deactivation_requires_administrator_permission() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -147,7 +170,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void fail_if_user_does_not_exist() throws Exception {
+  public void fail_if_user_does_not_exist() {
     logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
@@ -157,7 +180,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void fail_if_login_is_blank() throws Exception {
+  public void fail_if_login_is_blank() {
     logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
@@ -167,7 +190,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void fail_to_deactivate_last_administrator_of_default_organization() throws Exception {
+  public void fail_to_deactivate_last_administrator_of_default_organization() {
     UserDto admin = createUser();
     db.users().insertPermissionOnUser(admin, ADMINISTER);
     logInAsSystemAdministrator();
@@ -179,7 +202,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void fail_to_deactivate_last_administrator_of_organization() throws Exception {
+  public void fail_to_deactivate_last_administrator_of_organization() {
     // user1 is the unique administrator of org1 and org2.
     // user1 and user2 are both administrators of org3
     UserDto user1 = insertUser(newUserDto().setLogin("test"));
@@ -200,7 +223,7 @@ public class DeactivateActionTest {
   }
 
   @Test
-  public void administrators_can_be_deactivated_if_there_are_still_other_administrators() throws Exception {
+  public void administrators_can_be_deactivated_if_there_are_still_other_administrators() {
     UserDto admin = createUser();
     UserDto anotherAdmin = createUser();
     db.users().insertPermissionOnUser(admin, ADMINISTER);
