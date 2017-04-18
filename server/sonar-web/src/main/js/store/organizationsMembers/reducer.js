@@ -51,7 +51,7 @@ const organizationMembers = (state = {}, action = {}) => {
       const withNew = [...members, action.member.login].sort();
       return {
         ...state,
-        total: withNew.length,
+        total: state.total + 1,
         members: withNew
       };
     }
@@ -62,7 +62,7 @@ const organizationMembers = (state = {}, action = {}) => {
       }
       return {
         ...state,
-        total: withoutDeleted.length,
+        total: state.total - 1,
         members: withoutDeleted
       };
     }

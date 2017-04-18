@@ -36,8 +36,8 @@ public class MemberItem {
 
   public MemberItem shouldBeNamed(String login, String name) {
     ElementsCollection tds = this.elt.$$("td");
-    tds.get(1).$("strong").shouldHave(Condition.text(login));
-    tds.get(1).$("span").shouldHave(Condition.text(name));
+    tds.get(1).$("strong").shouldHave(Condition.text(name));
+    tds.get(1).$("span").shouldHave(Condition.text(login));
     return this;
   }
 
