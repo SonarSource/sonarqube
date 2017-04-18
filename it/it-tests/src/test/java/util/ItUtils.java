@@ -368,6 +368,10 @@ public class ItUtils {
     return randomAlphabetic(32).toLowerCase(ENGLISH);
   }
 
+  public static String newProjectKey() {
+    return "key-" + randomAlphabetic(200);
+  }
+
   public static void deleteOrganizationsIfExists(Orchestrator orchestrator, String... organizationKeys) {
     OrganizationService adminOrganizationService = newAdminWsClient(orchestrator).organizations();
     adminOrganizationService.search(SearchWsRequest.builder().setOrganizations(organizationKeys).build()).getOrganizationsList()
