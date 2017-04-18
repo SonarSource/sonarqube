@@ -68,7 +68,6 @@ public class UserGroupDaoTest {
     assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user2.getId())).containsOnly(group2.getId());
   }
 
-
   @Test
   public void delete_organization_member() {
     OrganizationDto organization = dbTester.organizations().insert();
@@ -86,5 +85,23 @@ public class UserGroupDaoTest {
       .containsOnly(anotherGroup.getId());
     assertThat(dbClient.groupMembershipDao().selectGroupIdsByUserId(dbSession, anotherUser.getId()))
       .containsOnly(group.getId(), anotherGroup.getId());
+  }
+
+  @Test
+  public void delete_by_user() throws Exception {
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    GroupDto group1 = dbTester.users().insertGroup();
+    GroupDto group2 = dbTester.users().insertGroup();
+    dbTester.users().insertMember(group1, user1);
+    dbTester.users().insertMember(group1, user2);
+    dbTester.users().insertMember(group2, user1);
+    dbTester.users().insertMember(group2, user2);
+
+    underTest.deleteByUserId(dbTester.getSession(), user1.getId());
+    dbTester.getSession().commit();
+
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user1.getId())).isEmpty();
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user2.getId())).containsOnly(group1.getId(), group2.getId());
   }
 }

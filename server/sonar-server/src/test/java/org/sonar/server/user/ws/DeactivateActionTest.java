@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -95,6 +96,19 @@ public class DeactivateActionTest {
 
     verifyThatUserIsDeactivated(user.getLogin());
     assertThat(index.getNullableByLogin(user.getLogin()).active()).isFalse();
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_group_membership() {
+    logInAsSystemAdministrator();
+    UserDto user = insertUser(newUserDto());
+    GroupDto group1 = db.users().insertGroup();
+    db.users().insertGroup();
+    db.users().insertMember(group1, user);
+
+    deactivate(user.getLogin()).getInput();
+
+    assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbSession, user.getId())).isEmpty();
   }
 
   @Test

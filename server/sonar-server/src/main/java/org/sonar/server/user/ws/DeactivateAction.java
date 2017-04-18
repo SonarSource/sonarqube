@@ -92,6 +92,7 @@ public class DeactivateAction implements UsersWsAction {
       ensureNotLastAdministrator(dbSession, user);
 
       dbClient.userTokenDao().deleteByLogin(dbSession, login);
+      dbClient.userGroupDao().deleteByUserId(dbSession, user.getId());
       dbClient.userDao().deactivateUserByLogin(dbSession, login);
       dbSession.commit();
     }

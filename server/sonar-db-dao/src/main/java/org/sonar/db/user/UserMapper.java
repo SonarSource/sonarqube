@@ -64,8 +64,6 @@ public interface UserMapper {
 
   void setRoot(@Param("login") String login, @Param("root") boolean root, @Param("now") long now);
 
-  void removeUserFromGroups(int userId);
-
   void deleteUserProperties(int userId);
 
   void deleteUserRoles(int userId);

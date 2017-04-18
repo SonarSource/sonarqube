@@ -119,7 +119,6 @@ public class UserDao implements Dao {
       return false;
     }
 
-    mapper.removeUserFromGroups(dto.getId());
     mapper.deleteUserProperties(dto.getId());
     mapper.deleteUserRoles(dto.getId());
     mapper.deletePropertiesMatchingLogin(singletonList(DEFAULT_ISSUE_ASSIGNEE), dto.getLogin());
