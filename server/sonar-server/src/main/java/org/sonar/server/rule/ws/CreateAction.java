@@ -167,7 +167,7 @@ public class CreateAction implements RulesWsAction {
     RuleDefinitionDto rule = dbClient.ruleDao().selectDefinitionByKey(dbSession, ruleKey)
       .orElseThrow(() -> new IllegalStateException(String.format("Cannot load rule, that has just been created '%s'", ruleKey)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>();
-    if (rule.getTemplateId() != null) {
+    if (rule.isCustomRule()) {
       Optional<RuleDefinitionDto> templateRule = dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession);
       templateRule.ifPresent(templateRules::add);
     }

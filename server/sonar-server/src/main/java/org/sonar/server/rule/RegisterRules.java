@@ -393,7 +393,7 @@ public class RegisterRules implements Startable {
     List<RuleDefinitionDto> removedRules = newArrayList();
 
     for (RuleDefinitionDto rule : existingRules) {
-      if (rule.getTemplateId() != null) {
+      if (rule.isCustomRule()) {
         customRules.add(rule);
       } else if (rule.getStatus() != RuleStatus.REMOVED) {
         removeRule(session, removedRules, rule);

@@ -272,7 +272,7 @@ public class UpdateAction implements RulesWsAction {
     RuleDto rule = dbClient.ruleDao().selectByKey(dbSession, organization, key)
       .orElseThrow(() -> new NotFoundException(format("Rule not found: %s", key)));
     List<RuleDefinitionDto> templateRules = new ArrayList<>(1);
-    if (rule.getTemplateId() != null) {
+    if (rule.getDefinition().isCustomRule()) {
       dbClient.ruleDao().selectDefinitionById(rule.getTemplateId(), dbSession)
         .ifPresent(templateRules::add);
     }
