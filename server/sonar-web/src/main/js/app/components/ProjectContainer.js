@@ -73,7 +73,12 @@ class ProjectContainer extends React.PureComponent {
 
     return (
       <div>
-        {!isFile && <ComponentNav component={this.props.project} conf={configuration} />}
+        {!isFile &&
+          <ComponentNav
+            component={this.props.project}
+            conf={configuration}
+            location={this.props.location}
+          />}
         {this.props.children}
       </div>
     );

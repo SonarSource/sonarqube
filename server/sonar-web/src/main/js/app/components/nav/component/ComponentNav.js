@@ -88,7 +88,11 @@ export default class ComponentNav extends React.PureComponent {
               />
             </TooltipsContainer>
 
-            <ComponentNavMenu component={this.props.component} conf={this.props.conf} />
+            <ComponentNavMenu
+              component={this.props.component}
+              conf={this.props.conf}
+              location={this.props.location}
+            />
           </div>
         </div>
       </nav>
