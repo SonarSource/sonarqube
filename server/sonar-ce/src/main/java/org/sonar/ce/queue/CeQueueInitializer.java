@@ -24,6 +24,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.ce.cleaning.CeCleaningScheduler;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
+import org.sonar.ce.CeDistributedInformation;
 
 /**
  * Cleans-up the queue, initializes JMX counters then schedule
@@ -35,11 +36,14 @@ public class CeQueueInitializer implements ServerStartHandler {
 
   private final CeProcessingScheduler processingScheduler;
   private final CeCleaningScheduler cleaningScheduler;
+  private final CeDistributedInformation ceDistributedInformation;
   private boolean done = false;
 
-  public CeQueueInitializer(CeProcessingScheduler processingScheduler, CeCleaningScheduler cleaningScheduler) {
+  public CeQueueInitializer(CeProcessingScheduler processingScheduler, CeCleaningScheduler cleaningScheduler,
+    CeDistributedInformation ceDistributedInformation) {
     this.processingScheduler = processingScheduler;
     this.cleaningScheduler = cleaningScheduler;
+    this.ceDistributedInformation = ceDistributedInformation;
   }
 
   @Override
@@ -51,6 +55,7 @@ public class CeQueueInitializer implements ServerStartHandler {
   }
 
   private void initCe() {
+    ceDistributedInformation.broadcastWorkerUUIDs();
     processingScheduler.startScheduling();
     cleaningScheduler.startScheduling();
   }

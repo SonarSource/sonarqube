@@ -46,12 +46,10 @@ public class HazelcastTestHelper {
     return createHazelcastClient(appStateCluster.getHazelcastCluster());
   }
 
-
   static TestAppSettings newClusterSettings() {
     TestAppSettings settings = new TestAppSettings();
     settings.set(ProcessProperties.CLUSTER_ENABLED, "true");
     settings.set(ProcessProperties.CLUSTER_NAME, "sonarqube");
     return settings;
   }
-
 }

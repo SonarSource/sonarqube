@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.ce.cleaning.CeCleaningScheduler;
+import org.sonar.ce.CeDistributedInformation;
 import org.sonar.ce.taskprocessor.CeProcessingScheduler;
 
 import static org.mockito.Mockito.mock;
@@ -35,7 +36,7 @@ public class CeQueueInitializerTest {
   private Server server = mock(Server.class);
   private CeProcessingScheduler processingScheduler = mock(CeProcessingScheduler.class);
   private CeCleaningScheduler cleaningScheduler = mock(CeCleaningScheduler.class);
-  private CeQueueInitializer underTest = new CeQueueInitializer(processingScheduler, cleaningScheduler);
+  private CeQueueInitializer underTest = new CeQueueInitializer(processingScheduler, cleaningScheduler, mock(CeDistributedInformation.class));
 
   @Test
   public void clean_queue_then_start_scheduler_of_workers() throws IOException {
