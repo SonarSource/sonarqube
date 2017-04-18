@@ -195,6 +195,10 @@ public class RuleDefinitionDto {
     return templateId;
   }
 
+  public boolean isCustomRule() {
+    return getTemplateId() != null;
+  }
+
   public RuleDefinitionDto setTemplateId(@Nullable Integer templateId) {
     this.templateId = templateId;
     return this;

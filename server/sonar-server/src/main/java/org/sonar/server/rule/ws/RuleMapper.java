@@ -302,7 +302,7 @@ public class RuleMapper {
   }
 
   private static void setTemplateKey(Rules.Rule.Builder ruleResponse, RuleDefinitionDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_TEMPLATE_KEY) && ruleDto.getTemplateId() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_TEMPLATE_KEY) && ruleDto.isCustomRule()) {
       RuleDefinitionDto templateRule = result.getTemplateRulesByRuleId().get(ruleDto.getTemplateId());
       if (templateRule != null) {
         ruleResponse.setTemplateKey(templateRule.getKey().toString());

@@ -114,7 +114,7 @@ class RuleActivatorContext {
 
   @CheckForNull
   String requestParamValue(RuleActivation request, String key) {
-    if (rule.getTemplateId() != null) {
+    if (rule.isCustomRule()) {
       return null;
     }
     return request.getParameters().get(key);

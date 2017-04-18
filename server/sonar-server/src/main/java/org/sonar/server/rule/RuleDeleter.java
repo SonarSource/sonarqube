@@ -52,12 +52,12 @@ public class RuleDeleter {
       organizationFlags.checkEnabled(dbSession);
 
       RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, ruleKey);
-      if (rule.getTemplateId() == null) {
+      if (!rule.isCustomRule()) {
         throw new IllegalStateException("Only custom rules can be deleted");
       }
 
       // For custom rule, first deactivate the rule on all profiles
-      if (rule.getTemplateId() != null) {
+      if (rule.isCustomRule()) {
         ruleActivator.deactivateOfAllOrganizations(dbSession, rule);
       }
 
