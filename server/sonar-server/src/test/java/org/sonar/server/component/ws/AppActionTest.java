@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
@@ -38,9 +39,11 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
 
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
@@ -67,15 +70,12 @@ public class AppActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private WsTester wsTester;
+  private AppAction underTest = new AppAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient()));
+  private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
     insertMetrics();
-    wsTester = new WsTester(
-      new ComponentsWs(
-        new AppAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient())),
-        mock(SuggestionsAction.class)));
   }
 
   @Test
@@ -84,8 +84,8 @@ public class AppActionTest {
     dbTester.commit();
 
     userSessionRule.logIn("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
-    WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
-    request.execute().assertJson(getClass(), "app.json");
+    TestRequest request = wsTester.newRequest().setParam("uuid", FILE_UUID);
+    jsonAssert(request, "app.json");
   }
 
   @Test
@@ -102,8 +102,8 @@ public class AppActionTest {
     userSessionRule
       .logIn("john")
       .addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
-    WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
-    request.execute().assertJson(getClass(), "app_with_measures.json");
+    TestRequest request = wsTester.newRequest().setParam("uuid", FILE_UUID);
+    jsonAssert(request, "app_with_measures.json");
   }
 
   @Test
@@ -113,8 +113,18 @@ public class AppActionTest {
     dbTester.commit();
 
     userSessionRule.logIn("john").addComponentUuidPermission(UserRole.USER, PROJECT_UUID, FILE_UUID);
-    WsTester.TestRequest request = wsTester.newGetRequest("api/components", "app").setParam("uuid", FILE_UUID);
-    request.execute().assertJson(getClass(), "app_with_ut_measure.json");
+    TestRequest request = wsTester.newRequest().setParam("uuid", FILE_UUID);
+    jsonAssert(request, "app_with_ut_measure.json");
+  }
+
+  @Test
+  public void define_app_action() {
+    WebService.Action action = wsTester.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.params()).hasSize(3);
   }
 
   private void insertMetrics() {
@@ -152,5 +162,9 @@ public class AppActionTest {
       .setValue(value)
       .setData(data);
     dbTester.getDbClient().measureDao().insert(dbTester.getSession(), measure);
+  }
+
+  private void jsonAssert(TestRequest request, String filename) {
+    JsonAssert.assertJson(request.execute().getInput()).isSimilarTo(getClass().getResource(getClass().getSimpleName()+"/"+ filename));
   }
 }

@@ -19,59 +19,39 @@
  */
 package org.sonar.server.component.ws;
 
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.index.ComponentIndex;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLER_COMPONENTS;
 
 public class ComponentsWsTest {
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private WebService.Controller controller;
+  private String actionKey = randomAlphanumeric(10);
+  private ComponentsWsAction action = new ComponentsWsAction() {
 
-  @Before
-  public void setUp() {
-    Languages languages = mock(Languages.class, RETURNS_DEEP_STUBS);
-    when(languages.all()).thenReturn(new Language[0]);
+    @Override
+    public void handle(Request request, Response response) throws Exception {
+    }
 
-    WsTester tester = new WsTester(new ComponentsWs(
-      new AppAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)),
-      new SuggestionsAction(mock(DbClient.class), mock(ComponentIndex.class)),
-      new SearchAction(mock(DbClient.class), mock(ResourceTypes.class), mock(I18n.class), userSessionRule, languages, TestDefaultOrganizationProvider.fromUuid("foo"))));
-    controller = tester.controller("api/components");
-  }
+    @Override
+    public void define(WebService.NewController context) {
+      context.createAction(actionKey).setHandler(this);
+    }
+  };
 
   @Test
   public void define_controller() {
+    WebService.Context context = new WebService.Context();
+    new ComponentsWs(action).define(context);
+    WebService.Controller controller = context.controller(CONTROLLER_COMPONENTS);
+
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
-    assertThat(controller.actions()).hasSize(3);
-  }
-
-  @Test
-  public void define_app_action() {
-    WebService.Action action = controller.action("app");
-    assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isTrue();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isNotNull();
-    assertThat(action.params()).hasSize(3);
+    assertThat(controller.actions()).extracting(WebService.Action::key).containsExactly(actionKey);
   }
 }

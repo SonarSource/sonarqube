@@ -21,6 +21,7 @@ package org.sonar.server.es.textsearch;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
@@ -83,12 +84,32 @@ public enum ComponentTextSearchFeature {
   },
   RECENTLY_BROWSED {
     @Override
-    public QueryBuilder getQuery(ComponentTextSearchQuery query) {
-      return termsQuery(query.getFieldKey(), query.getRecentlyBrowsedKeys()).boost(100f);
+    public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+      Set<String> recentlyBrowsedKeys = query.getRecentlyBrowsedKeys();
+      if (recentlyBrowsedKeys.isEmpty()) {
+        return Stream.empty();
+      }
+      return Stream.of(termsQuery(query.getFieldKey(), recentlyBrowsedKeys).boost(100f));
+    }
+  },
+  FAVORITE {
+    @Override
+    public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+      Set<String> favoriteKeys = query.getFavoriteKeys();
+      if (favoriteKeys.isEmpty()) {
+        return Stream.empty();
+      }
+      return Stream.of(termsQuery(query.getFieldKey(), favoriteKeys).boost(1000f));
     }
   };
 
-  public abstract QueryBuilder getQuery(ComponentTextSearchQuery query);
+  public Stream<QueryBuilder> getQueries(ComponentTextSearchQuery query) {
+    return Stream.of(getQuery(query));
+  }
+
+  public QueryBuilder getQuery(ComponentTextSearchQuery query) {
+    throw new UnsupportedOperationException();
+  }
 
   public static Stream<String> split(String queryText) {
     return Arrays.stream(

@@ -34,6 +34,7 @@ public class ComponentIndexQuery {
   private final String query;
   private final Collection<String> qualifiers;
   private final Set<String> recentlyBrowsedKeys;
+  private final Set<String> favoriteKeys;
   @CheckForNull
   private final Integer limit;
 
@@ -41,6 +42,7 @@ public class ComponentIndexQuery {
     this.query = requireNonNull(builder.query);
     this.qualifiers = requireNonNull(builder.qualifiers);
     this.recentlyBrowsedKeys = requireNonNull(builder.recentlyBrowsedKeys);
+    this.favoriteKeys = requireNonNull(builder.favoriteKeys);
     this.limit = builder.limit;
   }
 
@@ -64,10 +66,15 @@ public class ComponentIndexQuery {
     return new Builder();
   }
 
+  public Set<String> getFavoriteKeys() {
+    return favoriteKeys;
+  }
+
   public static class Builder {
     private String query;
     private Collection<String> qualifiers = Collections.emptyList();
     private Set<String> recentlyBrowsedKeys = Collections.emptySet();
+    private Set<String> favoriteKeys = Collections.emptySet();
     private Integer limit;
 
     private Builder() {
@@ -86,6 +93,11 @@ public class ComponentIndexQuery {
 
     public Builder setRecentlyBrowsedKeys(Set<String> recentlyBrowsedKeys) {
       this.recentlyBrowsedKeys = Collections.unmodifiableSet(recentlyBrowsedKeys);
+      return this;
+    }
+
+    public Builder setFavoriteKeys(Set<String> favoriteKeys) {
+      this.favoriteKeys = Collections.unmodifiableSet(favoriteKeys);
       return this;
     }
 

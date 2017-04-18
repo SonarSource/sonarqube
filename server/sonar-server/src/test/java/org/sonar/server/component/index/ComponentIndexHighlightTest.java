@@ -20,8 +20,8 @@
 package org.sonar.server.component.index;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 
@@ -66,7 +66,7 @@ public class ComponentIndexHighlightTest extends ComponentIndexTest {
       .setQuery(search)
       .setQualifiers(Collections.singletonList(Qualifiers.FILE))
       .build();
-    List<ComponentHitsPerQualifier> results = index.search(query, features.get());
+    Stream<ComponentHitsPerQualifier> results = index.search(query, features.get()).getQualifiers();
 
     assertThat(results).flatExtracting(ComponentHitsPerQualifier::getHits)
       .extracting(ComponentHit::getHighlightedText)
