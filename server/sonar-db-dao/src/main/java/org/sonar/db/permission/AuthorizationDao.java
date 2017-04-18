@@ -20,8 +20,6 @@
 package org.sonar.db.permission;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
@@ -131,20 +129,6 @@ public class AuthorizationDao implements Dao {
         }
         return mapper(dbSession).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
       });
-  }
-
-  /**
-   * @deprecated it loads too many results and there's no functional need.
-   */
-  @Deprecated
-  public Collection<String> selectAuthorizedRootProjectsUuids(DbSession dbSession, @Nullable Integer userId, String role) {
-    String sql;
-    Map<String, Object> params = new HashMap<>(2);
-    sql = "selectAuthorizedRootProjectsUuids";
-    params.put(USER_ID_PARAM, userId);
-    params.put("role", role);
-
-    return dbSession.selectList(sql, params);
   }
 
   /**

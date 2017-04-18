@@ -21,7 +21,6 @@ package org.sonar.server.notification.ws;
 
 import com.google.common.base.Splitter;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -150,14 +149,14 @@ public class ListAction implements NotificationsWsAction {
   }
 
   private Map<Long, ComponentDto> searchProjects(DbSession dbSession, List<PropertyDto> properties) {
-    Set<String> authorizedComponentUuids = new HashSet<>(dbClient.authorizationDao().selectAuthorizedRootProjectsUuids(dbSession, userSession.getUserId(), UserRole.USER));
     Set<Long> componentIds = properties.stream()
       .map(PropertyDto::getResourceId)
       .filter(Objects::nonNull)
       .collect(MoreCollectors.toSet(properties.size()));
+    Set<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, componentIds, userSession.getUserId(), UserRole.USER);
     return dbClient.componentDao().selectByIds(dbSession, componentIds)
       .stream()
-      .filter(c -> authorizedComponentUuids.contains(c.uuid()))
+      .filter(c -> authorizedProjectIds.contains(c.getId()))
       .collect(MoreCollectors.uniqueIndex(ComponentDto::getId));
   }
 
