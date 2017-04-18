@@ -33,6 +33,8 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -43,6 +45,8 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.organization.OrganizationFlags;
+import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -75,6 +79,8 @@ public class RegisterRulesTest {
   public DbTester dbTester = DbTester.create(system);
   @org.junit.Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  @org.junit.Rule
+  public LogTester logTester = new LogTester();
 
   private RuleActivator ruleActivator = mock(RuleActivator.class);
   private DbClient dbClient = dbTester.getDbClient();
@@ -82,6 +88,7 @@ public class RegisterRulesTest {
   private ActiveRuleIndexer activeRuleIndexer;
   private RuleIndex ruleIndex;
   private OrganizationDto defaultOrganization;
+  private OrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
 
   @Before
   public void before() {
@@ -456,12 +463,29 @@ public class RegisterRulesTest {
     assertThat(result.getSystemTags()).isEmpty();
   }
 
+  @Test
+  public void ignore_template_rules_if_organizations_are_enabled() {
+    organizationFlags.enable(dbTester.getSession());
+    execute(new RepositoryWithOneTemplateRule());
+
+    List<RuleDefinitionDto> rules = dbClient.ruleDao().selectAllDefinitions(dbTester.getSession());
+    assertThat(rules).hasSize(0);
+  }
+
+  @Test
+  public void log_ignored_template_rules_if_organizations_are_enabled() {
+    organizationFlags.enable(dbTester.getSession());
+    execute(new RepositoryWithOneTemplateRule());
+
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Template rule test:rule1 will not be imported, because organizations are enabled.");
+  }
+
   private void execute(RulesDefinition... defs) {
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), mock(CommonRuleDefinitionsImpl.class), defs);
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system);
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system, organizationFlags);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();
@@ -563,12 +587,25 @@ public class RegisterRulesTest {
   }
 
   static class FbContribRepository implements RulesDefinition {
+
     @Override
     public void define(Context context) {
       NewExtendedRepository repo = context.extendRepository("findbugs", "java");
       repo.createRule("rule2")
         .setName("Rule Two")
         .setHtmlDescription("Description of Rule Two");
+      repo.done();
+    }
+  }
+
+  static class RepositoryWithOneTemplateRule implements RulesDefinition {
+    @Override
+    public void define(Context context) {
+      RulesDefinition.NewRepository repo = context.createRepository("test", "java");
+      repo.createRule("rule1")
+        .setName("Rule One")
+        .setHtmlDescription("Description of Rule One")
+        .setTemplate(true);
       repo.done();
     }
   }
