@@ -23,9 +23,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 
 public class QualityGateDbTester {
 
@@ -68,5 +70,16 @@ public class QualityGateDbTester {
       .setKey("sonar.qualitygate")
       .setValue(String.valueOf(qualityGate.getId())));
     db.commit();
+  }
+
+  public QualityGateConditionDto addCondition(QualityGateDto qualityGate, MetricDto metric) {
+    QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
+      .setMetricId(metric.getId())
+      .setOperator("GT")
+      .setWarningThreshold(randomNumeric(10))
+      .setErrorThreshold(randomNumeric(10));
+    dbClient.gateConditionDao().insert(condition, dbSession);
+    db.commit();
+    return condition;
   }
 }
