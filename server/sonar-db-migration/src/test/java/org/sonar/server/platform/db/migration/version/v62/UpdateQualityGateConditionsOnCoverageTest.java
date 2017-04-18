@@ -58,7 +58,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
 
   @Test
   public void move_overall_coverage_condition_to_coverage() throws SQLException {
-    Map<String, Long> metricIdsByMetricKeys = inserSampleMetrics();
+    Map<String, Long> metricIdsByMetricKeys = insertSampleMetrics();
     long qualityGateId = insertQualityGate("default");
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("overall_coverage"), null, "GT", "10", null);
 
@@ -70,7 +70,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
 
   @Test
   public void move_overall_coverage_condition_to_coverage_when_overall_coverage_exists_condition_on_overall_coverage_exists() throws SQLException {
-    Map<String, Long> metricIdsByMetricKeys = inserSampleMetrics();
+    Map<String, Long> metricIdsByMetricKeys = insertSampleMetrics();
     long qualityGateId = insertQualityGate("default");
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("overall_coverage"), null, "GT", "10", null);
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("coverage"), null, "LT", null, "20");
@@ -83,7 +83,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
 
   @Test
   public void remove_it_coverage_condition_when_overall_coverage_condition_exists_and_no_coverage_condition() throws Exception {
-    Map<String, Long> metricIdsByMetricKeys = inserSampleMetrics();
+    Map<String, Long> metricIdsByMetricKeys = insertSampleMetrics();
     long qualityGateId = insertQualityGate("default");
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("overall_coverage"), null, "GT", "10", null);
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("it_coverage"), null, "LT", null, "20");
@@ -96,7 +96,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
 
   @Test
   public void keep_coverage_condition_when_no_overall_and_it_coverage() throws SQLException {
-    Map<String, Long> metricIdsByMetricKeys = inserSampleMetrics();
+    Map<String, Long> metricIdsByMetricKeys = insertSampleMetrics();
     long qualityGateId = insertQualityGate("default");
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("coverage"), null, "GT", "10", null);
 
@@ -108,7 +108,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
 
   @Test
   public void remove_it_coverage_condition_when_coverage_condition_exists_and_no_overall_coverage_condition() throws SQLException {
-    Map<String, Long> metricIdsByMetricKeys = inserSampleMetrics();
+    Map<String, Long> metricIdsByMetricKeys = insertSampleMetrics();
     long qualityGateId = insertQualityGate("default");
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("coverage"), null, "GT", "10", null);
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("it_coverage"), null, "LT", null, "20");
@@ -121,7 +121,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
 
   @Test
   public void move_it_coverage_condition_to_coverage_when_only_it_coverage_condition() throws SQLException {
-    Map<String, Long> metricIdsByMetricKeys = inserSampleMetrics();
+    Map<String, Long> metricIdsByMetricKeys = insertSampleMetrics();
     long qualityGateId = insertQualityGate("default");
     insertQualityGateCondition(qualityGateId, metricIdsByMetricKeys.get("it_coverage"), null, "GT", "10", null);
 
@@ -208,6 +208,22 @@ public class UpdateQualityGateConditionsOnCoverageTest {
   }
 
   @Test
+  public void move_conditions_linked_to_same_metric() throws Exception {
+    insertMetric("coverage");
+    long metricId = insertMetric("overall_coverage");
+    long qualityGate = insertQualityGate("qualityGate");
+    insertQualityGateCondition(qualityGate, metricId, null, "GT", "7", "15");
+    insertQualityGateCondition(qualityGate, metricId, 1L, "GT", "10", null);
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable(TABLE_QUALITY_GATE_CONDITIONS)).isEqualTo(2);
+    verifyConditions(qualityGate,
+      new QualityGateCondition("coverage", null, "GT", "7", "15"),
+      new QualityGateCondition("coverage", 1L, "GT", "10", null));
+  }
+
+  @Test
   public void does_nothing_when_no_quality_gates() throws Exception {
     insertMetrics("coverage", "new_coverage", "overall_coverage");
 
@@ -223,7 +239,7 @@ public class UpdateQualityGateConditionsOnCoverageTest {
     assertThat(dbTester.countRowsOfTable(TABLE_QUALITY_GATE_CONDITIONS)).isZero();
   }
 
-  private Map<String, Long> inserSampleMetrics() {
+  private Map<String, Long> insertSampleMetrics() {
     return insertMetrics("coverage", "overall_coverage", "it_coverage");
   }
 
@@ -257,8 +273,10 @@ public class UpdateQualityGateConditionsOnCoverageTest {
       values.put("VALUE_WARNING", warning);
     }
     dbTester.executeInsert(TABLE_QUALITY_GATE_CONDITIONS, values);
+    String sql = format("select id as \"id\" from %s where qgate_id='%s' and metric_id='%s'", TABLE_QUALITY_GATE_CONDITIONS, qualityGateId, metricId);
+    sql += period == null ? "" : format(" and period='%s'", period);
     return (Long) dbTester
-      .selectFirst(format("select id as \"id\" from %s where qgate_id='%s' and metric_id='%s'", TABLE_QUALITY_GATE_CONDITIONS, qualityGateId, metricId))
+      .selectFirst(sql)
       .get("id");
   }
 
