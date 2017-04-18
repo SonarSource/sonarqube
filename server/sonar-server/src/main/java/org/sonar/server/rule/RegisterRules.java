@@ -52,6 +52,7 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleRepositoryDto;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -74,9 +75,10 @@ public class RegisterRules implements Startable {
   private final ActiveRuleIndexer activeRuleIndexer;
   private final Languages languages;
   private final System2 system2;
+  private final OrganizationFlags organizationFlags;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
-    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2) {
+    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, OrganizationFlags organizationFlags) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
@@ -84,6 +86,7 @@ public class RegisterRules implements Startable {
     this.activeRuleIndexer = activeRuleIndexer;
     this.languages = languages;
     this.system2 = system2;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -94,9 +97,14 @@ public class RegisterRules implements Startable {
       List<RuleKey> keysToIndex = new ArrayList<>();
 
       RulesDefinition.Context context = defLoader.load();
+      boolean orgsEnabled = organizationFlags.isEnabled(session);
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
+            if (ruleDef.template() && orgsEnabled) {
+              LOG.info("Template rule {} will not be imported, because organizations are enabled.", RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
+              continue;
+            }
             boolean relevantForIndex = registerRule(ruleDef, allRules, session);
             if (relevantForIndex) {
               keysToIndex.add(RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
