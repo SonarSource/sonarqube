@@ -26,6 +26,9 @@ import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -33,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -41,6 +45,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -49,6 +54,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
 public class EnableSupportActionTest {
@@ -62,8 +69,9 @@ public class EnableSupportActionTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(db.getDbClient());
+  private RuleIndexer ruleIndexer = mock(RuleIndexer.class);
   private EnableSupportAction underTest = new EnableSupportAction(userSession, db.getDbClient(), defaultOrganizationProvider, organizationFlags,
-    new DefaultGroupCreatorImpl(db.getDbClient()), new DefaultGroupFinder(db.getDbClient()));
+    new DefaultGroupCreatorImpl(db.getDbClient()), new DefaultGroupFinder(db.getDbClient()), ruleIndexer);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
@@ -151,6 +159,41 @@ public class EnableSupportActionTest {
     assertThat(db.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(db.getSession(), defaultGroupId))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(tuple(defaultGroupId, "user"), tuple(defaultGroupId, "admin"));
+  }
+
+  @Test
+  public void enabling_organizations_should_remove_template_rule_and_custom_rule() {
+    RuleDefinitionDto normal = db.rules().insert();
+    RuleDefinitionDto template = db.rules().insert(r -> r.setIsTemplate(true));
+    RuleDefinitionDto custom = db.rules().insert(r -> r.setTemplateId(template.getId()));
+
+    UserDto user = db.users().insertUser();
+    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    logInAsSystemAdministrator(user.getLogin());
+
+    assertThat(db.getDbClient().ruleDao().selectAllDefinitions(db.getSession()))
+      .extracting(RuleDefinitionDto::getKey, RuleDefinitionDto::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple(normal.getKey(), RuleStatus.READY),
+        tuple(template.getKey(), RuleStatus.READY),
+        tuple(custom.getKey(), RuleStatus.READY)
+      );
+
+    call();
+
+    assertThat(db.getDbClient().ruleDao().selectAllDefinitions(db.getSession()))
+      .extracting(RuleDefinitionDto::getKey, RuleDefinitionDto::getStatus)
+      .containsExactlyInAnyOrder(
+        tuple(normal.getKey(), RuleStatus.READY),
+        tuple(template.getKey(), RuleStatus.REMOVED),
+        tuple(custom.getKey(), RuleStatus.REMOVED)
+      );
+
+    @SuppressWarnings("unchecked")
+    Class<ArrayList<RuleKey>> listClass = (Class<ArrayList<RuleKey>>)(Class)ArrayList.class;
+    ArgumentCaptor<ArrayList<RuleKey>> indexedRuleKeys = ArgumentCaptor.forClass(listClass);
+    verify(ruleIndexer).indexRuleDefinitions(indexedRuleKeys.capture());
+    assertThat(indexedRuleKeys.getValue()).containsExactlyInAnyOrder(template.getKey(), custom.getKey());
   }
 
   @Test
