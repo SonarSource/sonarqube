@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,15 +30,16 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
-import org.sonar.db.permission.OrganizationPermission;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -157,11 +159,25 @@ public class ServerUserSession extends AbstractUserSession {
 
   private Set<String> loadProjectPermissions(String projectUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (userDto != null && userDto.getId() != null) {
-        return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getId());
+      com.google.common.base.Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
+      if (!component.isPresent()) {
+        return Collections.emptySet();
       }
-      return dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
+      if (component.get().isPrivate()) {
+        return loadDbPermissions(dbSession, projectUuid);
+      }
+      ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+      builder.addAll(ProjectPermissions.PUBLIC_PERMISSIONS);
+      builder.addAll(loadDbPermissions(dbSession, projectUuid));
+      return builder.build();
     }
+  }
+
+  private Set<String> loadDbPermissions(DbSession dbSession, String projectUuid) {
+    if (userDto != null && userDto.getId() != null) {
+      return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getId());
+    }
+    return dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
   }
 
   @Override
