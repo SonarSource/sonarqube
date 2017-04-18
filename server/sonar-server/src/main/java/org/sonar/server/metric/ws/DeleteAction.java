@@ -68,6 +68,7 @@ public class DeleteAction implements MetricsWsAction {
       List<Integer> ids = loadIds(dbSession, request);
       dbClient.metricDao().disableCustomByIds(dbSession, ids);
       dbClient.customMeasureDao().deleteByMetricIds(dbSession, ids);
+      dbClient.gateConditionDao().deleteConditionsWithInvalidMetrics(dbSession);
       dbSession.commit();
     }
 

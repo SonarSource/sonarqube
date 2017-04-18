@@ -52,6 +52,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.concat;
@@ -250,6 +251,28 @@ public class QualityGateTest {
     }
   }
 
+  @Test
+  public void does_not_fail_when_condition_is_on_removed_metric() throws IOException {
+    String customMetricKey = randomAlphabetic(10);
+    createCustomIntMetric(orchestrator, customMetricKey);
+    QualityGate simple = qgClient().create("OnCustomMetric");
+    qgClient().setDefault(simple.id());
+    qgClient().createCondition(NewCondition.create(simple.id()).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
+    try {
+      deleteCustomMetric(orchestrator, customMetricKey);
+      String projectKey = newProjectKey();
+      BuildResult buildResult = executeAnalysis(projectKey);
+
+      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
+
+      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
+    } finally {
+      deleteCustomMetric(orchestrator, customMetricKey);
+      qgClient().unsetDefault();
+      qgClient().destroy(simple.id());
+    }
+  }
+
   private BuildResult executeAnalysis(String projectKey, String... keyValueProperties) {
     return orchestrator.executeBuild(SonarScanner.create(
       projectDir("qualitygate/xoo-sample"), concat(keyValueProperties, "sonar.projectKey", projectKey)));
@@ -308,6 +331,20 @@ public class QualityGateTest {
       .filter(s -> s.contains("POSTASKPLUGIN: finished()"))
       .filter(s -> s.contains(taskUuid))
       .collect(Collectors.toList());
+  }
+
+  private static void createCustomIntMetric(Orchestrator orchestrator, String metricKey) {
+    newAdminWsClient(orchestrator).wsConnector().call(new PostRequest("api/metrics/create")
+      .setParam("key", metricKey)
+      .setParam("name", metricKey)
+      .setParam("type", "INT"))
+      .failIfNotSuccessful();
+  }
+
+  private static void deleteCustomMetric(Orchestrator orchestrator, String metricKey) {
+    newAdminWsClient(orchestrator).wsConnector().call(new PostRequest("api/metrics/delete")
+      .setParam("keys", metricKey))
+      .failIfNotSuccessful();
   }
 
   static class QualityGateDetails {

@@ -28,6 +28,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -104,6 +106,24 @@ public class DeleteActionTest {
   }
 
   @Test
+  public void delete_associated_quality_gate_conditions() {
+    loggedAsSystemAdministrator();
+    MetricDto customMetric = insertCustomMetric("custom-key");
+    MetricDto nonCustomMetric = insertMetric(newMetricDto().setEnabled(true).setUserManaged(false).setKey("non-custom"));
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
+    db.qualityGates().addCondition(qualityGate1, customMetric);
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
+    db.qualityGates().addCondition(qualityGate2, customMetric);
+    db.qualityGates().addCondition(qualityGate2, nonCustomMetric);
+
+    newRequest().setParam("keys", "custom-key").execute();
+
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate1.getId())).isEmpty();
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(db.getSession(), qualityGate2.getId()))
+      .extracting(QualityGateConditionDto::getMetricId).containsOnly(nonCustomMetric.getId().longValue());
+  }
+
+  @Test
   public void fail_when_no_argument() {
     loggedAsSystemAdministrator();
     expectedException.expect(IllegalArgumentException.class);
@@ -145,10 +165,13 @@ public class DeleteActionTest {
   }
 
   private MetricDto insertCustomMetric(String key) {
-    MetricDto metricDto = newCustomEnabledMetric(key);
-    db.getDbClient().metricDao().insert(db.getSession(), metricDto);
+    return insertMetric(newCustomEnabledMetric(key));
+  }
+
+  private MetricDto insertMetric(MetricDto metric) {
+    db.getDbClient().metricDao().insert(db.getSession(), metric);
     db.getSession().commit();
-    return metricDto;
+    return metric;
   }
 
   private void loggedAsSystemAdministrator() {
