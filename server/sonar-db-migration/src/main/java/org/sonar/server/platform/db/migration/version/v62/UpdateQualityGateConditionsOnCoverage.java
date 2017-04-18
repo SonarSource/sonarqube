@@ -19,12 +19,15 @@
  */
 package org.sonar.server.platform.db.migration.version.v62;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.sonar.api.measures.CoreMetrics;
@@ -33,8 +36,10 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.Select;
+import org.sonar.server.platform.db.migration.step.Upsert;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.DatabaseUtils.repeatCondition;
 
@@ -96,43 +101,43 @@ public class UpdateQualityGateConditionsOnCoverage extends DataChange {
 
     private void processQualityGate(long qualityGateId) {
       List<QualityGateCondition> qualityGateConditions = selectQualityGateConditions(qualityGateId, metricIds);
-      Map<Long, QualityGateCondition> qualityGateConditionsByMetricId = qualityGateConditions.stream()
-        .collect(uniqueIndex(QualityGateCondition::getMetricId, Function.identity()));
+      Multimap<Long, QualityGateCondition> qualityGateConditionsByMetricId = qualityGateConditions.stream()
+        .collect(index(QualityGateCondition::getMetricId, Function.identity()));
       COVERAGE_METRIC_KEYS.forEach(metric -> {
         processConditions(metric, OVERALL_PREFIX + metric, IT_PREFIX + metric, qualityGateConditionsByMetricId, qualityGateId);
         processConditions(NEW_PREFIX + metric, NEW_PREFIX + OVERALL_PREFIX + metric, NEW_PREFIX + IT_PREFIX + metric, qualityGateConditionsByMetricId, qualityGateId);
       });
     }
 
-    private void processConditions(String coverageMetricKey, String overallMetricKey, String itMetricKey, Map<Long, QualityGateCondition> qualityGateConditionsByMetricId,
+    private void processConditions(String coverageMetricKey, String overallMetricKey, String itMetricKey, Multimap<Long, QualityGateCondition> qualityGateConditionsByMetricId,
       long qualityGateId) {
       try {
-        Optional<QualityGateCondition> conditionOnCoverage = getConditionByMetricKey(coverageMetricKey, qualityGateConditionsByMetricId);
-        Optional<QualityGateCondition> conditionOnOverallCoverage = getConditionByMetricKey(overallMetricKey, qualityGateConditionsByMetricId);
-        Optional<QualityGateCondition> conditionOnItCoverage = getConditionByMetricKey(itMetricKey, qualityGateConditionsByMetricId);
-        if (!conditionOnCoverage.isPresent() && !conditionOnOverallCoverage.isPresent() && !conditionOnItCoverage.isPresent()) {
+        Collection<QualityGateCondition> conditionsOnCoverage = getConditionsByMetricKey(coverageMetricKey, qualityGateConditionsByMetricId);
+        Collection<QualityGateCondition> conditionsOnOverallCoverage = getConditionsByMetricKey(overallMetricKey, qualityGateConditionsByMetricId);
+        Collection<QualityGateCondition> conditionsOnItCoverage = getConditionsByMetricKey(itMetricKey, qualityGateConditionsByMetricId);
+        if (conditionsOnCoverage.isEmpty() && conditionsOnOverallCoverage.isEmpty() && conditionsOnItCoverage.isEmpty()) {
           return;
         }
-        if (conditionOnOverallCoverage.isPresent()) {
-          removeQualityGateCondition(conditionOnCoverage);
-          removeQualityGateCondition(conditionOnItCoverage);
-          updateQualityGateCondition(conditionOnOverallCoverage.get().getId(), coverageMetricKey);
-        } else if (conditionOnCoverage.isPresent()) {
-          removeQualityGateCondition(conditionOnItCoverage);
-        } else if (conditionOnItCoverage.isPresent()) {
-          updateQualityGateCondition(conditionOnItCoverage.get().getId(), coverageMetricKey);
+        if (!conditionsOnOverallCoverage.isEmpty()) {
+          removeQualityGateConditions(conditionsOnCoverage);
+          removeQualityGateConditions(conditionsOnItCoverage);
+          updateQualityGateConditions(conditionsOnOverallCoverage, coverageMetricKey);
+        } else if (!conditionsOnCoverage.isEmpty()) {
+          removeQualityGateConditions(conditionsOnItCoverage);
+        } else {
+          updateQualityGateConditions(conditionsOnItCoverage, coverageMetricKey);
         }
       } catch (SQLException e) {
         throw new IllegalStateException(String.format("Fail to update quality gate conditions of quality gate %s", qualityGateId), e);
       }
     }
 
-    private Optional<QualityGateCondition> getConditionByMetricKey(String metricKey, Map<Long, QualityGateCondition> qualityGateConditionsByMetricId) {
+    private Collection<QualityGateCondition> getConditionsByMetricKey(String metricKey, Multimap<Long, QualityGateCondition> qualityGateConditionsByMetricId) {
       Metric metric = metricsByMetricKeys.get(metricKey);
       if (metric == null) {
-        return Optional.empty();
+        return Collections.emptyList();
       }
-      return Optional.ofNullable(qualityGateConditionsByMetricId.get(metric.getId()));
+      return qualityGateConditionsByMetricId.get(metric.getId());
     }
 
     private List<QualityGateCondition> selectQualityGateConditions(long qualityGateId, List<Long> metricIds) {
@@ -150,21 +155,35 @@ public class UpdateQualityGateConditionsOnCoverage extends DataChange {
       }
     }
 
-    private void updateQualityGateCondition(long id, String metricKey) throws SQLException {
-      context.prepareUpsert("update quality_gate_conditions set metric_id=? where id=?")
-        .setLong(1, metricsByMetricKeys.get(metricKey).getId())
-        .setLong(2, id)
-        .execute()
-        .commit();
+    private void updateQualityGateConditions(Collection<QualityGateCondition> conditions, String metricKey) throws SQLException {
+      Upsert upsert = context.prepareUpsert("update quality_gate_conditions set metric_id=? where id=?");
+      conditions.forEach(condition -> {
+        try {
+          upsert
+            .setLong(1, metricsByMetricKeys.get(metricKey).getId())
+            .setLong(2, condition.getId())
+            .execute()
+            .commit();
+        } catch (SQLException e) {
+          Throwables.propagate(e);
+        }
+      });
     }
 
-    private void removeQualityGateCondition(Optional<QualityGateCondition> condition) throws SQLException {
-      if (!condition.isPresent()) {
+    private void removeQualityGateConditions(Collection<QualityGateCondition> conditions) throws SQLException {
+      if (conditions.isEmpty()) {
         return;
       }
-      context.prepareUpsert("delete from quality_gate_conditions where id=?").setLong(1, condition.get().getId())
-        .execute()
-        .commit();
+      Upsert upsert = context.prepareUpsert("delete from quality_gate_conditions where id=?");
+      conditions.forEach(condition -> {
+        try {
+          upsert.setLong(1, condition.getId())
+            .execute()
+            .commit();
+        } catch (SQLException e) {
+          Throwables.propagate(e);
+        }
+      });
     }
   }
 
