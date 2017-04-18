@@ -23,7 +23,7 @@ import { Link } from 'react-router';
 
 export default function OrganizationLink(
   props: {
-    children?: Object,
+    children?: React.Element<*>,
     organization: {
       key: string
     }

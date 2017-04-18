@@ -22,7 +22,7 @@ import classNames from 'classnames';
 
 type Props = {
   className?: string,
-  children?: Object,
+  children?: React.Element<*>,
   isOpen: boolean,
   offset?: {
     vertical: number,

@@ -24,7 +24,7 @@ import { getSystemStatus } from '../../api/system';
 
 class MigrationContainer extends React.PureComponent {
   props: {
-    children: Object,
+    children?: React.Element<*>,
     router: { push: (path: string) => void }
   };
 

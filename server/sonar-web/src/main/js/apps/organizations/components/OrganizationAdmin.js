@@ -25,7 +25,7 @@ import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthor
 
 class OrganizationAdmin extends React.PureComponent {
   props: {
-    children: Object,
+    children?: React.Element<*>,
     organization: { canAdmin: boolean }
   };
 

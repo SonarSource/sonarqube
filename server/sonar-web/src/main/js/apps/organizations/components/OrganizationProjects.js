@@ -28,7 +28,7 @@ import { translate } from '../../../helpers/l10n';
 
 class OrganizationProjects extends React.PureComponent {
   props: {
-    children: Object,
+    children?: React.Element<*>,
     location: Object,
     organization: {
       key: string

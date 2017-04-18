@@ -34,7 +34,7 @@ class OrganizationPage extends React.PureComponent {
   mounted: boolean;
 
   props: {
-    children: Object,
+    children?: React.Element<*>,
     location: Object,
     organization: null | Organization,
     params: { organizationKey: string },

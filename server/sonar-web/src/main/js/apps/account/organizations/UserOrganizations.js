@@ -35,7 +35,7 @@ class UserOrganizations extends React.PureComponent {
   props: {
     anyoneCanCreate?: { value: string },
     currentUser: Object,
-    children: Object,
+    children?: React.Element<*>,
     organizations: Array<Organization>,
     fetchIfAnyoneCanCreateOrganizations: () => Promise<*>,
     fetchMyOrganizations: () => Promise<*>

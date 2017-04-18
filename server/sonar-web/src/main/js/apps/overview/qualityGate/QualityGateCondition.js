@@ -93,7 +93,7 @@ export default class QualityGateCondition extends React.PureComponent {
       : this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
   }
 
-  wrapWithLink(children: Object) {
+  wrapWithLink(children: React.Element<*>) {
     const { component, periods, condition } = this.props;
 
     const period = getPeriod(periods, condition.period);
