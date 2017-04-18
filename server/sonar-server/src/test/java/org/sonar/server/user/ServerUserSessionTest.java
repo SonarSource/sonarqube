@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,12 +45,12 @@ import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class ServerUserSessionTest {
   private static final String LOGIN = "marius";
 
-  private static final String PROJECT_UUID = "ABCD";
+  private static final String PUBLIC_PROJECT_UUID = "public project";
+  private static final String PRIVATE_PROJECT_UUID = "private project";
   private static final String FILE_KEY = "com.foo:Bar:BarFile.xoo";
   private static final String FILE_UUID = "BCDE";
   private static final UserDto ROOT_USER_DTO = new UserDto() {
@@ -69,18 +70,22 @@ public class ServerUserSessionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
-  private UserDto userDto = newUserDto().setLogin(LOGIN);
+  private UserDto user;
+  private GroupDto groupOfUser;
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationDto organization;
-  private ComponentDto project;
+  private ComponentDto publicProject;
+  private ComponentDto privateProject;
 
   @Before
   public void setUp() throws Exception {
     organization = db.organizations().insert();
-    project = db.components().insertProject(organization, PROJECT_UUID);
-    db.components().insertComponent(ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
-    db.users().insertUser(userDto);
+    publicProject = db.components().insertProject(organization, PUBLIC_PROJECT_UUID);
+    privateProject = db.components().insertProject(organization, dto -> dto.setUuid(PRIVATE_PROJECT_UUID).setProjectUuid(PRIVATE_PROJECT_UUID).setPrivate(true));
+    db.components().insertComponent(ComponentTesting.newFileDto(publicProject, null, FILE_UUID).setKey(FILE_KEY));
+    user = db.users().insertUser(LOGIN);
+    groupOfUser = db.users().insertGroup(organization);
   }
 
   @Test
@@ -98,30 +103,30 @@ public class ServerUserSessionTest {
 
   @Test
   public void getGroups_is_empty_if_user_is_not_member_of_any_group() {
-    assertThat(newUserSession(userDto).getGroups()).isEmpty();
+    assertThat(newUserSession(user).getGroups()).isEmpty();
   }
 
   @Test
   public void getGroups_returns_the_groups_of_logged_in_user() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    db.users().insertMember(group1, userDto);
-    db.users().insertMember(group2, userDto);
+    db.users().insertMember(group1, user);
+    db.users().insertMember(group2, user);
 
-    assertThat(newUserSession(userDto).getGroups()).extracting(GroupDto::getId).containsOnly(group1.getId(), group2.getId());
+    assertThat(newUserSession(user).getGroups()).extracting(GroupDto::getId).containsOnly(group1.getId(), group2.getId());
   }
 
   @Test
   public void getGroups_keeps_groups_in_cache() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    db.users().insertMember(group1, userDto);
+    db.users().insertMember(group1, user);
 
-    ServerUserSession session = newUserSession(userDto);
+    ServerUserSession session = newUserSession(user);
     assertThat(session.getGroups()).extracting(GroupDto::getId).containsOnly(group1.getId());
 
     // membership updated but not cache
-    db.users().insertMember(group2, userDto);
+    db.users().insertMember(group2, user);
     assertThat(session.getGroups()).extracting(GroupDto::getId).containsOnly(group1.getId());
   }
 
@@ -132,17 +137,7 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void hasComponentUuidPermission_returns_true_if_user_has_project_permission_for_given_uuid_in_db() {
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
-
-    assertThat(session.hasComponentUuidPermission(UserRole.USER, FILE_UUID)).isTrue();
-    assertThat(session.hasComponentUuidPermission(UserRole.CODEVIEWER, FILE_UUID)).isFalse();
-    assertThat(session.hasComponentUuidPermission(UserRole.ADMIN, FILE_UUID)).isFalse();
-  }
-
-  @Test
-  public void hasComponentUuidPermission_returns_true_when_flag_is_true_on_UserDto_no_matter_if_user_has_project_permission_for_given_uuid() {
+  public void hasComponentUuidPermission_returns_true_when_flag_root_is_true_on_UserDto_no_matter_if_user_has_project_permission_for_given_uuid() {
     UserSession underTest = newUserSession(ROOT_USER_DTO);
 
     assertThat(underTest.hasComponentUuidPermission(UserRole.USER, FILE_UUID)).isTrue();
@@ -161,8 +156,8 @@ public class ServerUserSessionTest {
 
   @Test
   public void checkComponentUuidPermission_fails_with_FE_when_user_has_not_permission_for_specified_uuid_in_db() {
-    addProjectPermissions(project, UserRole.USER);
-    UserSession session = newUserSession(userDto);
+    addProjectPermissions(publicProject, UserRole.USER);
+    UserSession session = newUserSession(user);
 
     expectInsufficientPrivilegesForbiddenException();
 
@@ -199,10 +194,10 @@ public class ServerUserSessionTest {
   public void test_hasPermission_on_organization_for_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertProject(org);
-    db.users().insertPermissionOnUser(org, userDto, PROVISION_PROJECTS);
-    db.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, project);
+    db.users().insertPermissionOnUser(org, user, PROVISION_PROJECTS);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
 
-    UserSession session = newUserSession(userDto);
+    UserSession session = newUserSession(user);
     assertThat(session.hasPermission(PROVISION_PROJECTS, org.getUuid())).isTrue();
     assertThat(session.hasPermission(ADMINISTER, org.getUuid())).isFalse();
     assertThat(session.hasPermission(PROVISION_PROJECTS, "another-org")).isFalse();
@@ -222,16 +217,16 @@ public class ServerUserSessionTest {
   @Test
   public void hasPermission_on_organization_keeps_cache_of_permissions_of_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
-    db.users().insertPermissionOnUser(org, userDto, PROVISIONING);
+    db.users().insertPermissionOnUser(org, user, PROVISIONING);
 
-    UserSession session = newUserSession(userDto);
+    UserSession session = newUserSession(user);
 
     // feed the cache
     assertThat(session.hasPermission(PROVISION_PROJECTS, org.getUuid())).isTrue();
 
     // change permissions without updating the cache
-    db.users().deletePermissionFromUser(org, userDto, PROVISION_PROJECTS);
-    db.users().insertPermissionOnUser(org, userDto, SCAN);
+    db.users().deletePermissionFromUser(org, user, PROVISION_PROJECTS);
+    db.users().insertPermissionOnUser(org, user, SCAN);
     assertThat(session.hasPermission(PROVISION_PROJECTS, org.getUuid())).isTrue();
     assertThat(session.hasPermission(ADMINISTER, org.getUuid())).isFalse();
     assertThat(session.hasPermission(SCAN, org.getUuid())).isFalse();
@@ -254,77 +249,171 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void test_hasComponentPermission_with_anonymous_user() {
+  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_without_permissions() {
     ServerUserSession underTest = newAnonymousSession();
-    ComponentDto project = db.components().insertProject();
-    db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
-    ComponentDto otherProject = db.components().insertProject();
 
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
-    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, publicProject)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, publicProject)).isTrue();
   }
 
   @Test
-  public void hasComponentPermission_returns_true_when_logged_in_user_has_permission_on_project_through_anyone() {
-    ServerUserSession underTest = newUserSession(userDto);
-    ComponentDto project = db.components().insertProject();
-    db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
-    ComponentDto otherProject = db.components().insertProject();
+  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_global_permissions() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnAnyone("p1", publicProject);
 
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
-    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, publicProject)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, publicProject)).isTrue();
   }
 
   @Test
-  public void hasComponentPermission_returns_true_when_logged_in_user_has_permission_on_project() {
-    ServerUserSession underTest = newUserSession(userDto);
-    ComponentDto project = db.components().insertProject();
-    db.users().insertProjectPermissionOnUser(userDto, UserRole.CODEVIEWER, project);
-    ComponentDto otherProject = db.components().insertProject();
+  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_group_permissions() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnGroup(db.users().insertGroup(organization), "p1", publicProject);
 
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
-    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, publicProject)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, publicProject)).isTrue();
   }
 
   @Test
-  public void hasComponentPermission_returns_true_when_logged_in_user_has_permission_on_project_through_group_membership() {
-    ServerUserSession underTest = newUserSession(userDto);
-    ComponentDto project = db.components().insertProject();
-    GroupDto group = db.users().insertGroup();
-    db.users().insertMember(group, userDto);
-    db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, project);
-    ComponentDto otherProject = db.components().insertProject();
+  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_permissions_USER_and_CODEVIEWER_on_public_projects_with_user_permissions() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnUser(db.users().insertUser(), "p1", publicProject);
 
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, project)).isTrue();
-    assertThat(underTest.hasComponentPermission(UserRole.ISSUE_ADMIN, project)).isFalse();
-    assertThat(underTest.hasComponentPermission(UserRole.CODEVIEWER, otherProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, publicProject)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, publicProject)).isTrue();
   }
 
   @Test
-  public void hasComponentPermission_keeps_cache_of_permissions_of_logged_in_user() {
-    ComponentDto project = db.components().insertProject();
-    db.users().insertProjectPermissionOnUser(userDto, UserRole.USER, project);
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_without_permissions() {
+    ServerUserSession underTest = newUserSession(user);
 
-    UserSession session = newUserSession(userDto);
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, privateProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, privateProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_global_permissions() {
+    ServerUserSession underTest = newUserSession(user);
+    db.users().insertProjectPermissionOnAnyone("p1", privateProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, this.privateProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, this.privateProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_group_permissions() {
+    ServerUserSession underTest = newUserSession(user);
+    db.users().insertProjectPermissionOnGroup(db.users().insertGroup(organization), "p1", privateProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, privateProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, privateProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_user_permissions() {
+    ServerUserSession underTest = newUserSession(user);
+    db.users().insertProjectPermissionOnUser(db.users().insertUser(), "p1", privateProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, privateProject)).isFalse();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, privateProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_inserted_permissions_on_group_AnyOne_on_public_projects() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnAnyone("p1", publicProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", publicProject)).isTrue();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_inserted_permissions_on_group_AnyOne_on_private_projects() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnAnyone("p1", privateProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", privateProject)).isTrue();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_group_on_public_projects() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnGroup(groupOfUser, "p1", publicProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", publicProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_group_on_private_projects() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnGroup(groupOfUser, "p1", privateProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", privateProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_user_on_public_projects() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnUser(user, "p1", publicProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", publicProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_false_for_anonymous_user_for_inserted_permissions_on_user_on_private_projects() {
+    ServerUserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnUser(user, "p1", privateProject);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", privateProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_returns_true_for_any_project_or_permission_for_root_user() {
+    ServerUserSession underTest = newUserSession(ROOT_USER_DTO);
+
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "does not matter", publicProject)).isTrue();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_keeps_cache_of_permissions_of_logged_in_user() {
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, publicProject);
+
+    UserSession underTest = newUserSession(user);
 
     // feed the cache
-    assertThat(session.hasComponentPermission(UserRole.USER, project)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ADMIN, publicProject)).isTrue();
 
     // change permissions without updating the cache
-    db.users().deletePermissionFromUser(project, userDto, UserRole.USER);
-    db.users().insertProjectPermissionOnUser(userDto, UserRole.ADMIN, project);
-    assertThat(session.hasComponentPermission(UserRole.USER, project)).isTrue();
-    assertThat(session.hasComponentPermission(UserRole.ADMIN, project)).isFalse();
+    db.users().deletePermissionFromUser(publicProject, user, UserRole.ADMIN);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ISSUE_ADMIN, publicProject);
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ADMIN, publicProject)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ISSUE_ADMIN, publicProject)).isFalse();
+  }
+
+  @Test
+  public void hasComponentPermissionByDtoOrUuid_keeps_cache_of_permissions_of_anonymous_user() {
+    db.users().insertProjectPermissionOnAnyone(UserRole.ADMIN, publicProject);
+
+    UserSession underTest = newAnonymousSession();
+
+    // feed the cache
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ADMIN, publicProject)).isTrue();
+
+    // change permissions without updating the cache
+    db.users().deleteProjectPermissionFromAnyone(publicProject, UserRole.ADMIN);
+    db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, publicProject);
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ADMIN, publicProject)).isTrue();
+    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.ISSUE_ADMIN, publicProject)).isFalse();
+  }
+
+  private boolean hasComponentPermissionByDtoOrUuid(UserSession underTest, String permission, ComponentDto component) {
+    return new Random().nextBoolean() ? underTest.hasComponentPermission(permission, component) : underTest.hasComponentUuidPermission(permission, component.uuid());
   }
 
   @Test
   public void isSystemAdministrator_returns_true_if_org_feature_is_enabled_and_user_is_root() {
     organizationFlags.setEnabled(true);
-    userDto = db.users().makeRoot(userDto);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeRoot(user);
+    UserSession session = newUserSession(user);
 
     assertThat(session.isSystemAdministrator()).isTrue();
   }
@@ -332,8 +421,8 @@ public class ServerUserSessionTest {
   @Test
   public void isSystemAdministrator_returns_false_if_org_feature_is_enabled_and_user_is_not_root() {
     organizationFlags.setEnabled(true);
-    userDto = db.users().makeNotRoot(userDto);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeNotRoot(user);
+    UserSession session = newUserSession(user);
 
     assertThat(session.isSystemAdministrator()).isFalse();
   }
@@ -341,9 +430,9 @@ public class ServerUserSessionTest {
   @Test
   public void isSystemAdministrator_returns_false_if_org_feature_is_enabled_and_user_is_administrator_of_default_organization() {
     organizationFlags.setEnabled(true);
-    userDto = db.users().makeNotRoot(userDto);
-    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, SYSTEM_ADMIN);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeNotRoot(user);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SYSTEM_ADMIN);
+    UserSession session = newUserSession(user);
 
     assertThat(session.isSystemAdministrator()).isFalse();
   }
@@ -351,9 +440,9 @@ public class ServerUserSessionTest {
   @Test
   public void isSystemAdministrator_returns_true_if_org_feature_is_disabled_and_user_is_administrator_of_default_organization() {
     organizationFlags.setEnabled(false);
-    userDto = db.users().makeNotRoot(userDto);
-    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, SYSTEM_ADMIN);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeNotRoot(user);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SYSTEM_ADMIN);
+    UserSession session = newUserSession(user);
 
     assertThat(session.isSystemAdministrator()).isTrue();
   }
@@ -361,9 +450,9 @@ public class ServerUserSessionTest {
   @Test
   public void isSystemAdministrator_returns_false_if_org_feature_is_disabled_and_user_is_not_administrator_of_default_organization() {
     organizationFlags.setEnabled(true);
-    userDto = db.users().makeNotRoot(userDto);
-    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, PROVISIONING);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeNotRoot(user);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, PROVISIONING);
+    UserSession session = newUserSession(user);
 
     assertThat(session.isSystemAdministrator()).isFalse();
   }
@@ -371,13 +460,13 @@ public class ServerUserSessionTest {
   @Test
   public void keep_isSystemAdministrator_flag_in_cache() {
     organizationFlags.setEnabled(false);
-    userDto = db.users().makeNotRoot(userDto);
-    db.users().insertPermissionOnUser(db.getDefaultOrganization(), userDto, SYSTEM_ADMIN);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeNotRoot(user);
+    db.users().insertPermissionOnUser(db.getDefaultOrganization(), user, SYSTEM_ADMIN);
+    UserSession session = newUserSession(user);
 
     session.checkIsSystemAdministrator();
 
-    db.getDbClient().userDao().deactivateUserById(db.getSession(), userDto.getId());
+    db.getDbClient().userDao().deactivateUserById(db.getSession(), user.getId());
     db.commit();
 
     // should fail but succeeds because flag is kept in cache
@@ -387,8 +476,8 @@ public class ServerUserSessionTest {
   @Test
   public void checkIsSystemAdministrator_succeeds_if_system_administrator() {
     organizationFlags.setEnabled(true);
-    userDto = db.users().makeRoot(userDto);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeRoot(user);
+    UserSession session = newUserSession(user);
 
     session.checkIsSystemAdministrator();
   }
@@ -396,8 +485,8 @@ public class ServerUserSessionTest {
   @Test
   public void checkIsSystemAdministrator_throws_ForbiddenException_if_not_system_administrator() {
     organizationFlags.setEnabled(true);
-    userDto = db.users().makeNotRoot(userDto);
-    UserSession session = newUserSession(userDto);
+    user = db.users().makeNotRoot(user);
+    UserSession session = newUserSession(user);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -420,9 +509,9 @@ public class ServerUserSessionTest {
   private void addPermissions(@Nullable ComponentDto component, String... permissions) {
     for (String permission : permissions) {
       if (component == null) {
-        db.users().insertPermissionOnUser(userDto, OrganizationPermission.fromKey(permission));
+        db.users().insertPermissionOnUser(user, OrganizationPermission.fromKey(permission));
       } else {
-        db.users().insertProjectPermissionOnUser(userDto, permission, component);
+        db.users().insertProjectPermissionOnUser(user, permission, component);
       }
     }
   }

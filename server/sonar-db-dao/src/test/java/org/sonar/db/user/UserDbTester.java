@@ -223,6 +223,11 @@ public class UserDbTester {
     return dto;
   }
 
+  public void deleteProjectPermissionFromAnyone(ComponentDto project, String permission) {
+    db.getDbClient().groupPermissionDao().delete(db.getSession(), permission, project.getOrganizationUuid(), null, project.getId());
+    db.commit();
+  }
+
   public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, String permission, ComponentDto project) {
     checkArgument(group.getOrganizationUuid().equals(project.getOrganizationUuid()), "Different organizations");
     GroupPermissionDto dto = new GroupPermissionDto()

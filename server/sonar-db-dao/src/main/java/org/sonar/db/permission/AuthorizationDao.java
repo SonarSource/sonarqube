@@ -54,16 +54,22 @@ public class AuthorizationDao implements Dao {
   }
 
   /**
-   * Loads all the permissions granted to logged-in user for the specified project.
+   * Loads all the permissions granted to logged-in user for the specified project <strong>stored in *_ROLES
+   * tables</strong>.
    * An empty Set is returned if user has no permissions on the project.
+   *
+   * <strong>This method does not support public components</strong>
    */
   public Set<String> selectProjectPermissions(DbSession dbSession, String projectUuid, long userId) {
     return mapper(dbSession).selectProjectPermissions(projectUuid, userId);
   }
 
   /**
-   * Loads all the permissions granted to anonymous for the specified project.
+   * Loads all the permissions granted to anonymous for the specified project <strong>stored in *_ROLES
+   * tables</strong>.
    * An empty Set is returned if anonymous user has no permissions on the project.
+   *
+   * <strong>This method does not support public components</strong>
    */
   public Set<String> selectProjectPermissionsOfAnonymous(DbSession dbSession, String projectUuid) {
     return mapper(dbSession).selectProjectPermissionsOfAnonymous(projectUuid);

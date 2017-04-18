@@ -158,60 +158,80 @@
   </select>
 
   <select id="keepAuthorizedProjectIdsForUser" parameterType="map" resultType="long">
-    SELECT gr.resource_id
-    FROM group_roles gr
-    WHERE
-    gr.role=#{role,jdbcType=VARCHAR}
-    and (gr.group_id is null or exists (select 1 from groups_users gu where gu.user_id = #{userId, jdbcType=INTEGER} and gr.group_id = gu.group_id))
-    and
-    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-      gr.resource_id=#{element,jdbcType=BIGINT}
-    </foreach>
-    UNION
-    SELECT p.id
-    FROM user_roles ur
-    INNER JOIN projects p on p.id = ur.resource_id
-    WHERE
-    ur.role=#{role,jdbcType=VARCHAR}
-    and ur.user_id=#{userId,jdbcType=INTEGER} and
-    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-      p.id=#{element,jdbcType=BIGINT}
-    </foreach>
+    select
+      gr.resource_id
+    from
+      group_roles gr
+    where
+      gr.role=#{role,jdbcType=VARCHAR}
+      and (
+        gr.group_id is null
+        or exists (
+          select
+            1
+          from
+            groups_users gu
+          where
+            gu.user_id = #{userId, jdbcType=INTEGER}
+            and gr.group_id = gu.group_id
+        )
+      )
+      and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+            gr.resource_id=#{element,jdbcType=BIGINT}
+          </foreach>
+    union
+    select
+      p.id
+    from
+      user_roles ur
+    inner join projects p on
+      p.id = ur.resource_id
+    where
+      ur.role=#{role,jdbcType=VARCHAR}
+      and ur.user_id=#{userId,jdbcType=INTEGER}
+      and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+        p.id=#{element,jdbcType=BIGINT}
+      </foreach>
   </select>
 
   <select id="keepAuthorizedProjectIdsForAnonymous" parameterType="map" resultType="long">
-    SELECT gr.resource_id
-    FROM group_roles gr
-    WHERE
-    gr.role=#{role,jdbcType=VARCHAR}
-    and gr.group_id is null
-    and
-    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-      gr.resource_id=#{element,jdbcType=BIGINT}
-    </foreach>
+    select
+      gr.resource_id
+    from
+      group_roles gr
+    where
+      gr.role=#{role,jdbcType=VARCHAR}
+      and gr.group_id is null
+      and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+            gr.resource_id=#{element,jdbcType=BIGINT}
+          </foreach>
   </select>
 
   <select id="keepAuthorizedUsersForRoleAndProject" parameterType="map" resultType="int">
-    SELECT gu.user_id
-    FROM groups_users gu
-    INNER JOIN group_roles gr ON gr.group_id=gu.group_id
+    SELECT
+      gu.user_id
+    FROM
+      groups_users gu
+    INNER JOIN group_roles gr ON
+      gr.group_id=gu.group_id
     WHERE
-    gr.resource_id=#{componentId,jdbcType=BIGINT}
-    AND gr.role=#{role,jdbcType=VARCHAR}
-    AND gu.user_id in
-    <foreach collection="userIds" open="(" close=")" item="id" separator=",">
-      #{id,jdbcType=BIGINT}
-    </foreach>
+      gr.resource_id=#{componentId,jdbcType=BIGINT}
+      AND gr.role=#{role,jdbcType=VARCHAR}
+      AND gu.user_id in <foreach collection="userIds" open="(" close=")" item="id" separator=",">
+        #{id,jdbcType=BIGINT}
+      </foreach>
     UNION
-    SELECT ur.user_id
-    FROM user_roles ur
+    SELECT
+      ur.user_id
+    FROM
+      user_roles ur
     WHERE
-    ur.resource_id=#{componentId,jdbcType=BIGINT}
-    AND ur.role=#{role,jdbcType=VARCHAR}
-    AND ur.user_id IN
-    <foreach collection="userIds" open="(" close=")" item="id" separator=",">
-      #{id,jdbcType=BIGINT}
-    </foreach>
+      ur.resource_id=#{componentId,jdbcType=BIGINT}
+      AND ur.role=#{role,jdbcType=VARCHAR}
+      AND ur.user_id IN
+        <foreach collection="userIds" open="(" close=")" item="id" separator=",">
+          #{id,jdbcType=BIGINT}
+        </foreach>
   </select>
 
   <select id="selectProjectPermissions" parameterType="map" resultType="String">
@@ -244,12 +264,15 @@
   </select>
 
   <sql id="sql_selectProjectPermissionsOfAnonymous">
-    select gr.role
-    from group_roles gr
-    inner join projects p on p.id = gr.resource_id
+    select
+      gr.role
+    from
+      group_roles gr
+    inner join projects p on
+      p.id = gr.resource_id
     where
-    p.uuid = #{projectUuid,jdbcType=VARCHAR} and
-    p.organization_uuid = gr.organization_uuid and
-    gr.group_id is null
+      p.uuid = #{projectUuid,jdbcType=VARCHAR}
+      and p.organization_uuid = gr.organization_uuid
+      and gr.group_id is null
   </sql>
 </mapper>

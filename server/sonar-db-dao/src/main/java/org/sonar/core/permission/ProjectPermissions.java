@@ -21,7 +21,9 @@ package org.sonar.core.permission;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.web.UserRole;
 
 /**
@@ -29,6 +31,10 @@ import org.sonar.api.web.UserRole;
  *
  */
 public final class ProjectPermissions {
+  /**
+   * Permissions which are implicitly available for any user, any group and to group "AnyOne" on public components.
+   */
+  public static final Set<String> PUBLIC_PERMISSIONS = ImmutableSet.of(UserRole.USER, UserRole.CODEVIEWER);
 
   /**
    * All the component permissions values, ordered from {@link UserRole#USER} to {@link GlobalPermissions#SCAN_EXECUTION}.
