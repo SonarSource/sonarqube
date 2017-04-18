@@ -391,7 +391,6 @@ public class UserDaoTest {
   @Test
   public void deactivate_user() throws Exception {
     UserDto user = newActiveUser();
-    PropertyDto property = insertProperty(user);
     db.users().insertPermissionOnUser(user, ADMINISTER);
     insertUserGroup(user);
 
@@ -415,7 +414,6 @@ public class UserDaoTest {
 
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
 
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey(property.getKey()).build(), session)).isEmpty();
     assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(session, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
     assertThat(dbClient.groupMembershipDao().countGroups(session, builder().organizationUuid(db.getDefaultOrganization().getUuid()).membership(IN).build(), user.getId())).isZero();
   }
@@ -620,12 +618,6 @@ public class UserDaoTest {
   private UserDto insertUser(boolean active) {
     UserDto dto = newUserDto().setActive(active);
     underTest.insert(session, dto);
-    return dto;
-  }
-
-  private PropertyDto insertProperty(UserDto user) {
-    PropertyDto dto = new PropertyDto().setKey(randomAlphanumeric(100)).setUserId(user.getId());
-    dbClient.propertiesDao().saveProperty(session, dto);
     return dto;
   }
 

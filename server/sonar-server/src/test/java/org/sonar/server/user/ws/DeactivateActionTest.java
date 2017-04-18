@@ -29,6 +29,7 @@ import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -128,12 +129,15 @@ public class DeactivateActionTest {
   public void deactivate_user_deletes_his_properties() {
     logInAsSystemAdministrator();
     UserDto user = insertUser(newUserDto());
+    ComponentDto project = db.components().insertProject();
     db.properties().insertProperty(newUserPropertyDto(user));
     db.properties().insertProperty(newUserPropertyDto(user));
+    db.properties().insertProperty(newUserPropertyDto(user).setResourceId(project.getId()));
 
     deactivate(user.getLogin()).getInput();
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession)).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).setComponentId(project.getId()).build(), dbSession)).isEmpty();
   }
 
   @Test

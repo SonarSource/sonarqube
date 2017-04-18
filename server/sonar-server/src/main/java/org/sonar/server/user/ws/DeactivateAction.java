@@ -33,6 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -93,6 +94,7 @@ public class DeactivateAction implements UsersWsAction {
 
       dbClient.userTokenDao().deleteByLogin(dbSession, login);
       dbClient.userGroupDao().deleteByUserId(dbSession, user.getId());
+      dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserId(user.getId()).build());
       dbClient.userDao().deactivateUserByLogin(dbSession, login);
       dbSession.commit();
     }
