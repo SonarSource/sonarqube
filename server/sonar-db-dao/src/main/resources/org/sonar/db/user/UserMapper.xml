@@ -119,10 +119,6 @@
     DELETE FROM user_roles WHERE user_id=#{id,jdbcType=INTEGER}
   </delete>
 
-  <delete id="deleteUserProperties" parameterType="int">
-    DELETE FROM properties WHERE user_id=#{id,jdbcType=BIGINT}
-  </delete>
-
   <delete id="deletePropertiesMatchingLogin" parameterType="String">
     DELETE FROM properties
     <where>

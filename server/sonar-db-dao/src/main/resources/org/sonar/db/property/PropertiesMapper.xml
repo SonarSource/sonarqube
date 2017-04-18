@@ -170,10 +170,10 @@
       properties p
     <where>
       <if test="query.key() != null">
-        and p.prop_key=#{query.key}
+        and p.prop_key=#{query.key,jdbcType=VARCHAR}
       </if>
       <if test="query.componentId() != null">
-        and p.resource_id=#{query.componentId}
+        and p.resource_id=#{query.componentId,jdbcType=BIGINT}
       </if>
       <if test="query.userId() != null">
         and p.user_id=#{query.userId,jdbcType=INTEGER}
@@ -332,10 +332,10 @@
     delete from properties
     <where>
       <if test="query.key() != null">
-        and prop_key=#{query.key}
+        and prop_key=#{query.key,jdbcType=VARCHAR}
       </if>
       <if test="query.componentId() != null">
-        and resource_id=#{query.componentId}
+        and resource_id=#{query.componentId,jdbcType=BIGINT}
       </if>
       <if test="query.userId() != null">
         and user_id=#{query.userId,jdbcType=INTEGER}
