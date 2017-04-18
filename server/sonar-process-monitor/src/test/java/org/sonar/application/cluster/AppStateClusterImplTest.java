@@ -39,9 +39,9 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.sonar.application.cluster.HazelcastCluster.SONARQUBE_VERSION;
 import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
 import static org.sonar.application.cluster.HazelcastTestHelper.newClusterSettings;
+import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class AppStateClusterImplTest {
 

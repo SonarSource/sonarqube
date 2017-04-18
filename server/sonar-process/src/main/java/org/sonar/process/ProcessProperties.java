@@ -40,6 +40,10 @@ public class ProcessProperties {
   public static final String CLUSTER_NAME = "sonar.cluster.name";
   public static final String HAZELCAST_LOG_LEVEL = "sonar.log.level.app.hazelcast";
   public static final String CLUSTER_WEB_LEADER = "sonar.cluster.web.startupLeader";
+  // Internal property used by sonar-application to share the local endpoint of Hazelcast
+  public static final String CLUSTER_LOCALENDPOINT = "sonar.cluster.hazelcast.localEndPoint";
+  // Internal property used by sonar-application to share the local UUID of the Hazelcast member
+  public static final String CLUSTER_MEMBERUUID = "sonar.cluster.hazelcast.memberUUID";
 
   public static final String JDBC_URL = "sonar.jdbc.url";
   public static final String JDBC_DRIVER_PATH = "sonar.jdbc.driverPath";
