@@ -23,7 +23,7 @@ import { translate } from '../../helpers/l10n';
 
 const LOG_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 
-export default class ItemLovLevel extends React.PureComponent {
+export default class ItemLogLevel extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = { level: props.value };
