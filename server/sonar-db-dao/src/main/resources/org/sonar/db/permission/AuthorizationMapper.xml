@@ -191,34 +191,6 @@
     </foreach>
   </select>
 
-  <select id="selectAuthorizedRootProjectsUuids" parameterType="map" resultType="string">
-    <choose>
-      <when test="userId != null">
-        SELECT p.uuid as root_project_uuid
-        FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        where
-        gr.role=#{role,jdbcType=VARCHAR}
-        and (gr.group_id is null or exists (select 1 from groups_users gu where gu.user_id = #{userId,jdbcType=INTEGER} and gu.group_id = gr.group_id))
-        UNION
-        SELECT p.uuid as root_project_uuid
-        FROM user_roles ur
-        INNER JOIN projects p on p.id = ur.resource_id AND p.module_uuid IS NULL
-        where
-        ur.role=#{role,jdbcType=VARCHAR}
-        and ur.user_id = #{userId,jdbcType=INTEGER}
-      </when>
-      <otherwise>
-        SELECT p.uuid as root_project_uuid
-        FROM group_roles gr
-        INNER JOIN projects p on p.id = gr.resource_id AND p.module_uuid IS NULL
-        where
-        gr.role=#{role,jdbcType=VARCHAR}
-        and gr.group_id is null
-      </otherwise>
-    </choose>
-  </select>
-
   <select id="keepAuthorizedUsersForRoleAndProject" parameterType="map" resultType="int">
     SELECT gu.user_id
     FROM groups_users gu

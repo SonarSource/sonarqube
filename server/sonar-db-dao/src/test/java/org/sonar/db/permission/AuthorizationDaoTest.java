@@ -299,34 +299,6 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void should_return_root_project_uuids_for_user() {
-    db.prepareDbUnit(getClass(), "should_return_root_project_keys_for_user.xml");
-
-    Collection<String> rootProjectUuids = underTest.selectAuthorizedRootProjectsUuids(dbSession, USER, "user");
-
-    assertThat(rootProjectUuids).containsOnly("ABCD");
-  }
-
-  @Test
-  public void should_return_root_project_uuids_for_group() {
-    // but user is not in an authorized group
-    db.prepareDbUnit(getClass(), "should_return_root_project_keys_for_group.xml");
-
-    Collection<String> rootProjectUuids = underTest.selectAuthorizedRootProjectsUuids(dbSession, USER, "user");
-
-    assertThat(rootProjectUuids).containsOnly("ABCD");
-  }
-
-  @Test
-  public void should_return_root_project_uuids_for_anonymous() {
-    db.prepareDbUnit(getClass(), "should_return_root_project_keys_for_anonymous.xml");
-
-    Collection<String> rootProjectUuids = underTest.selectAuthorizedRootProjectsUuids(dbSession, null, "user");
-
-    assertThat(rootProjectUuids).containsOnly("ABCD");
-  }
-
-  @Test
   public void keep_authorized_users_for_role_and_project_for_user() {
     db.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_user.xml");
 
