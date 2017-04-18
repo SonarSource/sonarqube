@@ -20,38 +20,38 @@
 
 package org.sonar.server.component.index;
 
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 
 import static com.google.common.collect.ImmutableSet.of;
+import static java.util.Collections.singletonList;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
-public class ComponentIndexFeatureRecentlyBrowsedTest extends ComponentIndexTest {
+public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
 
   @Before
   public void before() {
-    features.set(ComponentTextSearchFeature.PREFIX, ComponentTextSearchFeature.RECENTLY_BROWSED);
+    features.set(ComponentTextSearchFeature.PREFIX, ComponentTextSearchFeature.FAVORITE);
   }
 
   @Test
-  public void search_projects_by_exact_name() {
+  public void scoring_cares_about_favorites() {
     ComponentDto project1 = indexProject("sonarqube", "SonarQube");
     ComponentDto project2 = indexProject("recent", "SonarQube Recently");
 
     ComponentIndexQuery query1 = ComponentIndexQuery.builder()
       .setQuery("SonarQube")
-      .setQualifiers(Collections.singletonList(PROJECT))
-      .setRecentlyBrowsedKeys(of(project1.getKey()))
+      .setQualifiers(singletonList(PROJECT))
+      .setFavoriteKeys(of(project1.getKey()))
       .build();
     assertSearch(query1).containsExactly(uuids(project1, project2));
 
     ComponentIndexQuery query2 = ComponentIndexQuery.builder()
       .setQuery("SonarQube")
-      .setQualifiers(Collections.singletonList(PROJECT))
-      .setRecentlyBrowsedKeys(of(project2.getKey()))
+      .setQualifiers(singletonList(PROJECT))
+      .setFavoriteKeys(of(project2.getKey()))
       .build();
     assertSearch(query2).containsExactly(uuids(project2, project1));
   }

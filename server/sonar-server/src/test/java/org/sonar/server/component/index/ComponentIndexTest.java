@@ -60,7 +60,6 @@ public abstract class ComponentIndexTest {
   public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
   protected ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
-
   protected ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession));
   protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
   private OrganizationDto organization;
@@ -103,7 +102,7 @@ public abstract class ComponentIndexTest {
   }
 
   protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
-    return assertThat(index.search(query, features.get()))
+    return assertThat(index.search(query, features.get()).getQualifiers())
       .flatExtracting(ComponentHitsPerQualifier::getHits)
       .extracting(ComponentHit::getUuid);
   }

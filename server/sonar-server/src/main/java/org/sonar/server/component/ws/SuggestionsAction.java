@@ -40,7 +40,9 @@ import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
+import org.sonar.server.component.index.ComponentIndexResults;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.favorite.FavoriteFinder;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
@@ -71,12 +73,14 @@ public class SuggestionsAction implements ComponentsWsAction {
   static final int EXTENDED_LIMIT = 20;
 
   private final ComponentIndex index;
+  private final FavoriteFinder favoriteFinder;
 
   private DbClient dbClient;
 
-  public SuggestionsAction(DbClient dbClient, ComponentIndex index) {
+  public SuggestionsAction(DbClient dbClient, ComponentIndex index, FavoriteFinder favoriteFinder) {
     this.dbClient = dbClient;
     this.index = index;
+    this.favoriteFinder = favoriteFinder;
   }
 
   @Override
@@ -120,13 +124,17 @@ public class SuggestionsAction implements ComponentsWsAction {
     String more = wsRequest.param(PARAM_MORE);
     List<String> recentlyBrowsedParam = wsRequest.paramAsStrings(PARAM_RECENTLY_BROWSED);
     Set<String> recentlyBrowsedKeys = recentlyBrowsedParam == null ? emptySet() : copyOf(recentlyBrowsedParam);
+    Set<String> favoriteKeys = favoriteFinder.list().stream().map(ComponentDto::getKey).collect(Collectors.toSet());
 
-    ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder().setQuery(query).setRecentlyBrowsedKeys(recentlyBrowsedKeys);
+    ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder()
+      .setQuery(query)
+      .setRecentlyBrowsedKeys(recentlyBrowsedKeys)
+      .setFavoriteKeys(favoriteKeys);
 
-    List<ComponentHitsPerQualifier> componentsPerQualifiers = getComponentsPerQualifiers(more, queryBuilder);
+    ComponentIndexResults componentsPerQualifiers = getComponentsPerQualifiers(more, queryBuilder);
     String warning = getWarning(query);
 
-    SuggestionsWsResponse searchWsResponse = toResponse(componentsPerQualifiers, recentlyBrowsedKeys, warning);
+    SuggestionsWsResponse searchWsResponse = toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteKeys, warning);
     writeProtobuf(searchWsResponse, wsRequest, wsResponse);
   }
 
@@ -138,8 +146,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     return null;
   }
 
-  private List<ComponentHitsPerQualifier> getComponentsPerQualifiers(String more, ComponentIndexQuery.Builder queryBuilder) {
-    List<ComponentHitsPerQualifier> componentsPerQualifiers;
+  private ComponentIndexResults getComponentsPerQualifiers(@Nullable String more, ComponentIndexQuery.Builder queryBuilder) {
     if (more == null) {
       queryBuilder.setQualifiers(stream(SuggestionCategory.values()).map(SuggestionCategory::getQualifier).collect(Collectors.toList()))
         .setLimit(DEFAULT_LIMIT);
@@ -147,22 +154,21 @@ public class SuggestionsAction implements ComponentsWsAction {
       queryBuilder.setQualifiers(singletonList(SuggestionCategory.getByName(more).getQualifier()))
         .setLimit(EXTENDED_LIMIT);
     }
-    componentsPerQualifiers = searchInIndex(queryBuilder.build());
-    return componentsPerQualifiers;
+    return searchInIndex(queryBuilder.build());
   }
 
-  private List<ComponentHitsPerQualifier> searchInIndex(ComponentIndexQuery componentIndexQuery) {
+  private ComponentIndexResults searchInIndex(ComponentIndexQuery componentIndexQuery) {
     return index.search(componentIndexQuery);
   }
 
-  private SuggestionsWsResponse toResponse(List<ComponentHitsPerQualifier> componentsPerQualifiers, Set<String> recentlyBrowsedKeys, @Nullable String warning) {
+  private SuggestionsWsResponse toResponse(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteKeys, @Nullable String warning) {
     SuggestionsWsResponse.Builder builder = newBuilder();
     if (!componentsPerQualifiers.isEmpty()) {
       Map<String, OrganizationDto> organizationsByUuids;
       Map<String, ComponentDto> componentsByUuids;
       Map<String, ComponentDto> projectsByUuids;
       try (DbSession dbSession = dbClient.openSession(false)) {
-        Set<String> componentUuids = componentsPerQualifiers.stream()
+        Set<String> componentUuids = componentsPerQualifiers.getQualifiers()
           .map(ComponentHitsPerQualifier::getHits)
           .flatMap(Collection::stream)
           .map(ComponentHit::getUuid)
@@ -182,7 +188,7 @@ public class SuggestionsAction implements ComponentsWsAction {
           .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       }
       builder
-        .addAllSuggestions(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, componentsByUuids, organizationsByUuids, projectsByUuids))
+        .addAllSuggestions(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteKeys, componentsByUuids, organizationsByUuids, projectsByUuids))
         .addAllOrganizations(toOrganizations(organizationsByUuids))
         .addAllProjects(toProjects(projectsByUuids));
     }
@@ -190,12 +196,12 @@ public class SuggestionsAction implements ComponentsWsAction {
     return builder.build();
   }
 
-  private static List<Category> toCategories(List<ComponentHitsPerQualifier> componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Map<String, ComponentDto> componentsByUuids,
-    Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
-    return componentsPerQualifiers.stream().map(qualifier -> {
+  private static List<Category> toCategories(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteKeys,
+    Map<String, ComponentDto> componentsByUuids, Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
+    return componentsPerQualifiers.getQualifiers().map(qualifier -> {
 
       List<Suggestion> suggestions = qualifier.getHits().stream()
-        .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, componentsByUuids, organizationByUuids, projectsByUuids))
+        .map(hit -> toSuggestion(hit, recentlyBrowsedKeys, favoriteKeys, componentsByUuids, organizationByUuids, projectsByUuids))
         .collect(toList());
 
       return Category.newBuilder()
@@ -206,7 +212,7 @@ public class SuggestionsAction implements ComponentsWsAction {
     }).collect(toList());
   }
 
-  private static Suggestion toSuggestion(ComponentHit hit, Set<String> recentlyBrowsedKeys, Map<String, ComponentDto> componentsByUuids,
+  private static Suggestion toSuggestion(ComponentHit hit, Set<String> recentlyBrowsedKeys, Set<String> favoriteKeys, Map<String, ComponentDto> componentsByUuids,
     Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
     ComponentDto result = componentsByUuids.get(hit.getUuid());
     String organizationKey = organizationByUuids.get(result.getOrganizationUuid()).getKey();
@@ -219,6 +225,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setName(result.longName())
       .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.longName())))
       .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
+      .setIsFavorite(favoriteKeys.contains(result.getKey()))
       .build();
   }
 

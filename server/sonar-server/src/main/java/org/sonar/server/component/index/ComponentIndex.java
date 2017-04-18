@@ -22,7 +22,6 @@ package org.sonar.server.component.index;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -38,7 +37,6 @@ import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Buck
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
@@ -79,15 +77,15 @@ public class ComponentIndex {
     return field;
   }
 
-  public List<ComponentHitsPerQualifier> search(ComponentIndexQuery query) {
+  public ComponentIndexResults search(ComponentIndexQuery query) {
     return search(query, ComponentTextSearchFeature.values());
   }
 
   @VisibleForTesting
-  List<ComponentHitsPerQualifier> search(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
+  ComponentIndexResults search(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
     Collection<String> qualifiers = query.getQualifiers();
     if (qualifiers.isEmpty()) {
-      return Collections.emptyList();
+      return ComponentIndexResults.newBuilder().build();
     }
 
     SearchRequestBuilder request = client
@@ -128,16 +126,18 @@ public class ComponentIndex {
       .setFieldKey(FIELD_KEY)
       .setFieldName(FIELD_NAME)
       .setRecentlyBrowsedKeys(query.getRecentlyBrowsedKeys())
+      .setFavoriteKeys(query.getFavoriteKeys())
       .build();
     return esQuery.must(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, features));
   }
 
-  private static List<ComponentHitsPerQualifier> aggregationsToQualifiers(SearchResponse response) {
+  private static ComponentIndexResults aggregationsToQualifiers(SearchResponse response) {
     InternalFilters filtersAgg = response.getAggregations().get(FILTERS_AGGREGATION_NAME);
     List<Bucket> buckets = filtersAgg.getBuckets();
-    return buckets.stream()
-      .map(ComponentIndex::bucketToQualifier)
-      .collect(MoreCollectors.toList(buckets.size()));
+    return ComponentIndexResults.newBuilder()
+      .setQualifiers(
+        buckets.stream().map(ComponentIndex::bucketToQualifier))
+      .build();
   }
 
   private static ComponentHitsPerQualifier bucketToQualifier(Bucket bucket) {

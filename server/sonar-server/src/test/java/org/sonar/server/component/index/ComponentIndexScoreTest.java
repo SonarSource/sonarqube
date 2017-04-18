@@ -19,10 +19,16 @@
  */
 package org.sonar.server.component.index;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+
+import static java.util.Arrays.asList;
+import static org.sonar.api.resources.Qualifiers.FILE;
+import static org.sonar.api.resources.Qualifiers.MODULE;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class ComponentIndexScoreTest extends ComponentIndexTest {
 
@@ -102,6 +108,23 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
     assertResultOrder("sonarqube",
       "sonarqube",
       "SonarQube");
+  }
+
+  @Test
+  public void should_prefer_favorite_over_recently_browsed() {
+    ComponentDto recentlyBrowsed = db.components().insertProject(c -> c.setName("File1"));
+    index(recentlyBrowsed);
+
+    ComponentDto favorite = db.components().insertProject(c -> c.setName("File2"));
+    index(favorite);
+
+    ComponentIndexQuery query = ComponentIndexQuery.builder()
+      .setQuery("sonarqube")
+      .setQualifiers(asList(PROJECT, MODULE, FILE))
+      .setRecentlyBrowsedKeys(ImmutableSet.of(recentlyBrowsed.getKey()))
+      .setFavoriteKeys(ImmutableSet.of(favorite.getKey()))
+      .build();
+    assertSearch(query).containsExactly(uuids(favorite, recentlyBrowsed));
   }
 
   @Test

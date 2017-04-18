@@ -45,7 +45,7 @@ public class ComponentTextSearchQueryFactory {
     checkArgument(features.length > 0, "features cannot be empty");
     BoolQueryBuilder featureQuery = boolQuery();
     Arrays.stream(features)
-      .map(f -> f.getQuery(query))
+      .flatMap(f -> f.getQueries(query))
       .forEach(featureQuery::should);
     return featureQuery;
   }
@@ -55,12 +55,14 @@ public class ComponentTextSearchQueryFactory {
     private final String fieldKey;
     private final String fieldName;
     private final Set<String> recentlyBrowsedKeys;
+    private final Set<String> favoriteKeys;
 
     private ComponentTextSearchQuery(Builder builder) {
       this.queryText = builder.queryText;
       this.fieldKey = builder.fieldKey;
       this.fieldName = builder.fieldName;
       this.recentlyBrowsedKeys = builder.recentlyBrowsedKeys;
+      this.favoriteKeys = builder.favoriteKeys;
     }
 
     public String getQueryText() {
@@ -83,11 +85,16 @@ public class ComponentTextSearchQueryFactory {
       return new Builder();
     }
 
+    public Set<String> getFavoriteKeys() {
+      return favoriteKeys;
+    }
+
     public static class Builder {
       private String queryText;
       private String fieldKey;
       private String fieldName;
       private Set<String> recentlyBrowsedKeys = Collections.emptySet();
+      private Set<String> favoriteKeys = Collections.emptySet();
 
       /**
        * The text search query
@@ -121,11 +128,20 @@ public class ComponentTextSearchQueryFactory {
         return this;
       }
 
+      /**
+       * Component keys of favorite items
+       */
+      public Builder setFavoriteKeys(Set<String> favoriteKeys) {
+        this.favoriteKeys = ImmutableSet.copyOf(favoriteKeys);
+        return this;
+      }
+
       public ComponentTextSearchQuery build() {
         this.queryText = requireNonNull(queryText, "query text cannot be null");
         this.fieldKey = requireNonNull(fieldKey, "field key cannot be null");
         this.fieldName = requireNonNull(fieldName, "field name cannot be null");
         this.recentlyBrowsedKeys = requireNonNull(recentlyBrowsedKeys, "field recentlyBrowsedKeys cannot be null");
+        this.favoriteKeys = requireNonNull(favoriteKeys, "field favoriteKeys cannot be null");
         return new ComponentTextSearchQuery(this);
       }
     }

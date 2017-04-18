@@ -33,7 +33,7 @@ public class ComponentIndexCombinationTest extends ComponentIndexTest {
   public void return_empty_list_if_no_fields_match_query() {
     indexProject("struts", "Apache Struts");
 
-    assertThat(index.search(ComponentIndexQuery.builder().setQuery("missing").build())).isEmpty();
+    assertThat(index.search(ComponentIndexQuery.builder().setQuery("missing").build()).isEmpty()).isTrue();
   }
 
   @Test

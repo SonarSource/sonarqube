@@ -19,17 +19,16 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.Arrays;
 import org.sonar.api.server.ws.WebService;
 
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.CONTROLLER_COMPONENTS;
 
 public class ComponentsWs implements WebService {
 
-  private final AppAction appAction;
   private final ComponentsWsAction[] actions;
 
-  public ComponentsWs(AppAction appAction, ComponentsWsAction... actions) {
-    this.appAction = appAction;
+  public ComponentsWs(ComponentsWsAction... actions) {
     this.actions = actions;
   }
 
@@ -40,10 +39,8 @@ public class ComponentsWs implements WebService {
       .setDescription("Get information about a component (file, directory, project, ...) and its ancestors or descendants. " +
         "Update a project or module key.");
 
-    for (ComponentsWsAction action : actions) {
-      action.define(controller);
-    }
-    appAction.define(controller);
+    Arrays.stream(actions)
+      .forEach(action -> action.define(controller));
 
     controller.done();
   }

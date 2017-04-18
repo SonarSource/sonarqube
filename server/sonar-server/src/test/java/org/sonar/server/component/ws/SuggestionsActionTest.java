@@ -39,6 +39,7 @@ import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -48,12 +49,15 @@ import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
 
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 import static java.util.stream.Stream.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.component.ws.SuggestionsAction.DEFAULT_LIMIT;
@@ -64,7 +68,6 @@ import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
-import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.parseFrom;
 
 public class SuggestionsActionTest {
 
@@ -76,8 +79,9 @@ public class SuggestionsActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
+  private FavoriteFinder favoriteFinder = mock(FavoriteFinder.class);
   private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
-  private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index);
+  private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index, favoriteFinder);
   private OrganizationDto organization;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);
   private WsActionTester actionTester = new WsActionTester(underTest);
@@ -227,6 +231,29 @@ public class SuggestionsActionTest {
       .flatExtracting(Category::getSuggestionsList)
       .extracting(Suggestion::getIsRecentlyBrowsed)
       .containsExactly(true, false);
+  }
+
+  @Test
+  public void should_mark_favorite_items() throws Exception {
+    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto favorite = newModuleDto(project).setName("Module1");
+    db.components().insertComponent(favorite);
+    doReturn(singletonList(favorite)).when(favoriteFinder).list();
+
+    ComponentDto nonFavorite = newModuleDto(project).setName("Module2");
+    db.components().insertComponent(nonFavorite);
+    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+
+    SuggestionsWsResponse response = actionTester.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, "Module")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getSuggestionsList())
+      .flatExtracting(Category::getSuggestionsList)
+      .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
+      .containsExactly(tuple(favorite.getKey(), true), tuple(nonFavorite.getKey(), false));
   }
 
   @Test
