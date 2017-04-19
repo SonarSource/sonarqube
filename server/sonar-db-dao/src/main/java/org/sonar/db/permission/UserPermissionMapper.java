@@ -62,4 +62,6 @@ public interface UserPermissionMapper {
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
   void deleteOrganizationMemberPermissions(@Param("organizationUuid") String organizationUuid, @Param("userId") int login);
+
+  void deleteByUserId(@Param("userId") int userId);
 }

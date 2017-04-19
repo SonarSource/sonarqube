@@ -132,4 +132,8 @@
       organization_uuid = #{organizationUuid,jdbcType=VARCHAR} and
       user_id = #{userId,jdbcType=INTEGER}
   </delete>
+
+  <delete id="deleteByUserId" parameterType="int">
+    DELETE FROM user_roles WHERE user_id=#{userId,jdbcType=INTEGER}
+  </delete>
 </mapper>

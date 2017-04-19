@@ -115,10 +115,6 @@
       and u.login &lt;&gt; #{login}
   </select>
 
-  <delete id="deleteUserRoles" parameterType="int">
-    DELETE FROM user_roles WHERE user_id=#{id,jdbcType=INTEGER}
-  </delete>
-
   <delete id="deletePropertiesMatchingLogin" parameterType="String">
     DELETE FROM properties
     <where>

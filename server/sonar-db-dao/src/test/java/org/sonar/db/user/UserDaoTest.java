@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
@@ -391,7 +390,6 @@ public class UserDaoTest {
   @Test
   public void deactivate_user() throws Exception {
     UserDto user = newActiveUser();
-    db.users().insertPermissionOnUser(user, ADMINISTER);
     insertUserGroup(user);
 
     UserDto otherUser = newActiveUser();
@@ -414,7 +412,6 @@ public class UserDaoTest {
 
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
 
-    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(session, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
     assertThat(dbClient.groupMembershipDao().countGroups(session, builder().organizationUuid(db.getDefaultOrganization().getUuid()).membership(IN).build(), user.getId())).isZero();
   }
 
