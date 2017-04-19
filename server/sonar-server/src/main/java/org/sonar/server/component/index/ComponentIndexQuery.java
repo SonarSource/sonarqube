@@ -23,20 +23,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class ComponentIndexQuery {
 
+  public static final int DEFAULT_LIMIT = 6;
+
   private final String query;
   private final Collection<String> qualifiers;
   private final Set<String> recentlyBrowsedKeys;
   private final Set<String> favoriteKeys;
-  @CheckForNull
-  private final Integer limit;
+  private final int limit;
 
   private ComponentIndexQuery(Builder builder) {
     this.query = requireNonNull(builder.query);
@@ -75,7 +74,7 @@ public class ComponentIndexQuery {
     private Collection<String> qualifiers = Collections.emptyList();
     private Set<String> recentlyBrowsedKeys = Collections.emptySet();
     private Set<String> favoriteKeys = Collections.emptySet();
-    private Integer limit;
+    private int limit = DEFAULT_LIMIT;
 
     private Builder() {
     }
@@ -101,8 +100,8 @@ public class ComponentIndexQuery {
       return this;
     }
 
-    public Builder setLimit(@Nullable Integer limit) {
-      checkArgument(limit == null || limit > 0, "Limit has to be strictly positive: %s", limit);
+    public Builder setLimit(int limit) {
+      checkArgument(limit > 0, "Limit has to be strictly positive: %s", limit);
       this.limit = limit;
       return this;
     }
