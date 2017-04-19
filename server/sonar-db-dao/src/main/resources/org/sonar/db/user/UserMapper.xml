@@ -115,17 +115,6 @@
       and u.login &lt;&gt; #{login}
   </select>
 
-  <delete id="deletePropertiesMatchingLogin" parameterType="String">
-    DELETE FROM properties
-    <where>
-      text_value LIKE #{login,jdbcType=VARCHAR}
-      AND prop_key IN
-      <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
-        #{property,jdbcType=VARCHAR}
-      </foreach>
-    </where>
-  </delete>
-
   <delete id="deleteOrganisationMembership" parameterType="int">
     DELETE FROM organization_members WHERE user_id=#{id,jdbcType=BIGINT}
   </delete>

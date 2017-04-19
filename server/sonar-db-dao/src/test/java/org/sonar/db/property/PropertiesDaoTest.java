@@ -891,6 +891,27 @@ public class PropertiesDaoTest {
   }
 
   @Test
+  public void delete_by_key_and_value() throws SQLException {
+    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto anotherProject = dbTester.components().insertProject();
+    insertProperty("KEY", "VALUE", null, null);
+    insertProperty("KEY", "VALUE", project.getId(), null);
+    insertProperty("KEY", "VALUE", null, 100);
+    insertProperty("KEY", "VALUE", project.getId(), 100);
+    insertProperty("KEY", "VALUE", anotherProject.getId(), null);
+    // Should not be removed
+    insertProperty("KEY", "ANOTHER_VALUE", null, null);
+    insertProperty("ANOTHER_KEY", "VALUE", project.getId(), 100);
+
+    underTest.deleteByKeyAndValue(session, "KEY", "VALUE");
+    dbTester.commit();
+
+    assertThat(dbTester.select("select prop_key as \"key\", text_value as \"value\", resource_id as \"projectId\", user_id as \"userId\" from properties"))
+      .extracting((row) -> row.get("key"), (row) -> row.get("value"), (row) -> row.get("projectId"), (row) -> row.get("userId"))
+      .containsOnly(tuple("KEY", "ANOTHER_VALUE", null, null), tuple("ANOTHER_KEY", "VALUE", project.getId(), 100L));
+  }
+
+  @Test
   public void saveGlobalProperties_insert_property_if_does_not_exist_in_db() {
     when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
 

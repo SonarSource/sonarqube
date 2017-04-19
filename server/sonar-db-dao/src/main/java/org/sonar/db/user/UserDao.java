@@ -35,8 +35,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.FluentIterable.from;
-import static java.util.Collections.singletonList;
-import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserDao implements Dao {
@@ -119,7 +117,6 @@ public class UserDao implements Dao {
       return false;
     }
 
-    mapper.deletePropertiesMatchingLogin(singletonList(DEFAULT_ISSUE_ASSIGNEE), dto.getLogin());
     mapper.deleteOrganisationMembership(dto.getId());
     mapper.deactivateUser(dto.getId(), system2.now());
     dbSession.commit();

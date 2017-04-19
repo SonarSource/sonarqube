@@ -162,6 +162,23 @@ public class DeactivateActionTest {
   }
 
   @Test
+  public void deactivate_user_deletes_his_default_assignee_settings() {
+    logInAsSystemAdministrator();
+    UserDto user = insertUser(newUserDto());
+    ComponentDto project = db.components().insertProject();
+    ComponentDto anotherProject = db.components().insertProject();
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(project.getId()));
+    db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(anotherProject.getId()));
+    db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin()).setResourceId(anotherProject.getId()));
+    db.commit();
+
+    deactivate(user.getLogin()).getInput();
+
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setKey("sonar.issues.defaultAssigneeLogin").build(), db.getSession())).isEmpty();
+    assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().build(), db.getSession())).extracting(PropertyDto::getKey).containsOnly("other");
+  }
+
+  @Test
   public void deactivate_user_deletes_his_organization_membership() {
     UserDto user = insertUser(newUserDto()
       .setLogin("ada.lovelace")
