@@ -61,7 +61,8 @@ public class IssueFinderTest {
   @Test
   public void get_by_issue_key() throws Exception {
     IssueDto issueDto = insertIssue();
-    userSession.addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    String permission = USER;
+    addProjectPermission(issueDto, permission);
 
     IssueDto result = underTest.getByKey(db.getSession(), issueDto.getKey());
 
@@ -72,7 +73,7 @@ public class IssueFinderTest {
   @Test
   public void fail_when_issue_key_does_not_exist() throws Exception {
     IssueDto issueDto = insertIssue();
-    userSession.addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    addProjectPermission(issueDto, USER);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Issue with key 'UNKNOWN' does not exist");
@@ -82,7 +83,7 @@ public class IssueFinderTest {
   @Test
   public void fail_when_not_enough_permission() throws Exception {
     IssueDto issueDto = insertIssue();
-    userSession.addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
+    addProjectPermission(issueDto, CODEVIEWER);
 
     expectedException.expect(ForbiddenException.class);
     underTest.getByKey(db.getSession(), issueDto.getKey());
@@ -93,5 +94,9 @@ public class IssueFinderTest {
     ComponentDto project = componentDbTester.insertProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
     return issueDbTester.insertIssue(newDto(rule, file, project));
+  }
+
+  private void addProjectPermission(IssueDto issueDto, String permission) {
+    userSession.addProjectPermission(permission, db.getDbClient().componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
   }
 }

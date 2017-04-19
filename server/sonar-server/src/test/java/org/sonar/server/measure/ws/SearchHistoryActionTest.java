@@ -94,7 +94,7 @@ public class SearchHistoryActionTest {
   public void setUp() {
     project = newProjectDto(db.getDefaultOrganization());
     analysis = db.components().insertProjectAndSnapshot(project);
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
     nclocMetric = insertNclocMetric();
     complexityMetric = insertComplexityMetric();
     newViolationMetric = insertNewViolationMetric();
@@ -105,7 +105,7 @@ public class SearchHistoryActionTest {
   @Test
   public void empty_response() {
     project = db.components().insertProject();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
     wsRequest
       .setComponent(project.getKey())
       .setMetrics(singletonList(complexityMetric.getKey()));
@@ -173,7 +173,7 @@ public class SearchHistoryActionTest {
   @Test
   public void pagination_applies_to_analyses() {
     project = db.components().insertProject();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(i * 1_000_000_000)))
       .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(101d)))
@@ -192,7 +192,7 @@ public class SearchHistoryActionTest {
   @Test
   public void inclusive_from_and_to_dates() {
     project = db.components().insertProject();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
       .peek(a -> dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, a).setValue(Double.valueOf(a.getCreatedAt()))))
@@ -263,7 +263,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void fail_if_not_enough_permissions() {
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -293,7 +293,7 @@ public class SearchHistoryActionTest {
   @Test
   public void json_example() {
     project = db.components().insertProject();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
     long now = parseDateTime("2017-01-23T17:00:53+0100").getTime();
     LongStream.rangeClosed(0, 2)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(now + i * 24 * 1_000 * 60 * 60)))

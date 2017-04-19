@@ -88,7 +88,7 @@ public class AddActionTest {
   public void add_a_file() {
     ComponentDto project = insertProjectAndPermissions();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    userSession.addComponentUuidPermission(UserRole.USER, PROJECT_UUID, file.uuid());
+    userSession.addProjectPermission(UserRole.USER, project, file);
 
     call(file.key());
 
@@ -105,9 +105,9 @@ public class AddActionTest {
 
   @Test
   public void fail_when_no_browse_permission_on_the_project() {
-    insertProject();
+    ComponentDto project = insertProject();
     userSession.logIn();
-    userSession.addProjectUuidPermissions(UserRole.ADMIN, PROJECT_UUID);
+    userSession.addProjectPermission(UserRole.ADMIN, project);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -146,12 +146,13 @@ public class AddActionTest {
   }
 
   private ComponentDto insertProjectAndPermissions() {
+    ComponentDto project = insertProject();
     userSession
       .logIn()
       .setUserId(USER_ID)
-      .addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+      .addProjectPermission(UserRole.USER, project);
 
-    return insertProject();
+    return project;
   }
 
   private TestResponse call(@Nullable String componentKey) {

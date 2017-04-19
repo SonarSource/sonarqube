@@ -73,7 +73,7 @@ public class TransitionActionTest {
 
   @Test
   public void execute() {
-    userSession.logIn("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
+    loginAndAddProjectPermission("john", ISSUE_ADMIN);
     issue.setStatus(Issue.STATUS_RESOLVED);
     issue.setResolution(Issue.RESOLUTION_FIXED);
 
@@ -85,7 +85,7 @@ public class TransitionActionTest {
 
   @Test
   public void does_not_execute_if_transition_is_not_available() {
-    userSession.logIn("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.projectUuid());
+    loginAndAddProjectPermission("john", ISSUE_ADMIN);
     issue.setStatus(Issue.STATUS_CLOSED);
 
     action.execute(ImmutableMap.of("transition", "reopen"), context);
@@ -117,6 +117,10 @@ public class TransitionActionTest {
     ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
     ComponentDto file = (newFileDto(project));
     return newDto(rule, file, project);
+  }
+
+  private void loginAndAddProjectPermission(String login, String permission) {
+    userSession.logIn(login).addProjectPermission(permission, ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), issue.projectUuid()));
   }
 
 }

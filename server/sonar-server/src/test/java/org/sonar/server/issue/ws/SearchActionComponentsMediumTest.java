@@ -494,7 +494,7 @@ public class SearchActionComponentsMediumTest {
     indexView(view.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
+    userSessionRule.logIn("john").addProjectPermission(UserRole.USER, view);
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, view.uuid())
@@ -514,7 +514,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
+    userSessionRule.logIn("john").addProjectPermission(UserRole.CODEVIEWER, view);
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, view.uuid())
@@ -535,7 +535,7 @@ public class SearchActionComponentsMediumTest {
     indexView(subView.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    userSessionRule.logIn("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
+    userSessionRule.logIn("john").addProjectPermission(UserRole.USER, view, subView);
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, subView.uuid())
@@ -557,7 +557,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    userSessionRule.logIn("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
+    userSessionRule.logIn("john").addProjectPermission(UserRole.CODEVIEWER, view, subView);
 
     wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH)
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, subView.uuid())

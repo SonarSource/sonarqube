@@ -80,10 +80,11 @@ public class ActivityStatusActionTest {
   public void status_for_a_project_as_project_admin() {
     String projectUuid = "project-uuid";
     String anotherProjectUuid = "another-project-uuid";
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, projectUuid);
     OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertComponent(newProjectDto(organizationDto, projectUuid));
+    ComponentDto project = newProjectDto(organizationDto, projectUuid);
+    db.components().insertComponent(project);
     db.components().insertComponent(newProjectDto(organizationDto, anotherProjectUuid));
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
     insertInQueue(CeQueueDto.Status.PENDING, projectUuid);

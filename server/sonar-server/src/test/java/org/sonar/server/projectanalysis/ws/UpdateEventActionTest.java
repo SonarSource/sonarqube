@@ -82,6 +82,7 @@ public class UpdateEventActionTest {
 
     assertJson(result).isSimilarTo(getClass().getResource("update_event-example.json"));
   }
+
   @Test
   public void update_name_in_db() {
     SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
@@ -161,7 +162,7 @@ public class UpdateEventActionTest {
     ComponentDto project = newProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
-    userSession.logIn().addProjectUuidPermissions(project.uuid(), UserRole.USER);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -232,7 +233,7 @@ public class UpdateEventActionTest {
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 
   private SnapshotDto createAnalysisAndLogInAsProjectAdministrator(String version) {

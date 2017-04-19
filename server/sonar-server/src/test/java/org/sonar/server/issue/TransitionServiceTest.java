@@ -62,7 +62,7 @@ public class TransitionServiceTest {
   @Test
   public void list_transitions() throws Exception {
     IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
-    userSession.logIn("john").addProjectUuidPermissions(ISSUE_ADMIN, issue.getProjectUuid());
+    userSession.logIn("john").addProjectPermission(ISSUE_ADMIN, ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), issue.getProjectUuid()));
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 

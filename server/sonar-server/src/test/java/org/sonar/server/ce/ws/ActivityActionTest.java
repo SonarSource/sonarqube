@@ -211,9 +211,9 @@ public class ActivityActionTest {
 
   @Test
   public void project_administrator_can_access_his_project_activity() {
-    dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
+    ComponentDto project = dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
     // no need to be a system admin
-    userSession.logIn().addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
@@ -305,7 +305,7 @@ public class ActivityActionTest {
     // is reserved to roots
     ComponentDto view = dbTester.components().insertView();
     insertActivity("T1", view.uuid(), CeActivityDto.Status.SUCCESS);
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, view.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, view);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -318,7 +318,7 @@ public class ActivityActionTest {
     ComponentDto project = dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     ActivityResponse result = call(ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, "PROJECT_1")

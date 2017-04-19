@@ -69,13 +69,10 @@ public class AssignActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
-
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -211,7 +208,7 @@ public class AssignActionTest {
   @Test
   public void fail_when_missing_browse_permission() throws Exception {
     IssueDto issue = newIssue();
-    userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(CODEVIEWER, issue.getProjectUuid());
+    setUserWithPermission(issue, CODEVIEWER);
 
     expectedException.expect(ForbiddenException.class);
 
@@ -246,11 +243,12 @@ public class AssignActionTest {
   }
 
   private IssueDto newIssue() {
-    return db.issues().insertIssue(
+    IssueDto issue = db.issues().insertIssue(
       issueDto -> issueDto
         .setAssignee(PREVIOUS_ASSIGNEE)
         .setCreatedAt(PAST).setIssueCreationTime(PAST)
         .setUpdatedAt(PAST).setIssueUpdateTime(PAST));
+    return issue;
   }
 
   private IssueDto newIssueWithBrowsePermission() {
@@ -260,8 +258,15 @@ public class AssignActionTest {
   }
 
   private void setUserWithBrowsePermission(IssueDto issue) {
+    setUserWithPermission(issue, USER);
+  }
+
+  private void setUserWithPermission(IssueDto issue, String permission) {
     insertUser(CURRENT_USER_LOGIN);
-    userSession.logIn(CURRENT_USER_LOGIN).addProjectUuidPermissions(USER, issue.getProjectUuid());
+    userSession.logIn(CURRENT_USER_LOGIN)
+      .addProjectPermission(permission,
+        db.getDbClient().componentDao().selectByUuid(db.getSession(), issue.getProjectUuid()).get(),
+        db.getDbClient().componentDao().selectByUuid(db.getSession(), issue.getComponentUuid()).get());
   }
 
   private void checkIssueAssignee(String issueKey, @Nullable String expectedAssignee) {

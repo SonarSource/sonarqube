@@ -96,7 +96,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     UserDto withoutPermission = db.users().insertUser(newUserDto());
     db.organizations().addMember(db.getDefaultOrganization(), withoutPermission);
 
-    userSession.logIn().addProjectUuidPermissions(SYSTEM_ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(SYSTEM_ADMIN, project);
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, project.uuid())

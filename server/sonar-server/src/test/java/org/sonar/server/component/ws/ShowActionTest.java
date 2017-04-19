@@ -93,8 +93,9 @@ public class ShowActionTest {
 
   @Test
   public void show_with_browse_permission() {
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, "project-uuid");
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
+    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
+    componentDb.insertProjectAndSnapshot(project);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     ShowWsResponse response = newRequest("project-uuid", null);
 
@@ -118,7 +119,7 @@ public class ShowActionTest {
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
     ComponentDto file = componentDb.insertComponent(newFileDto(directory));
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     ShowWsResponse response = newRequest(null, file.key());
 
@@ -130,7 +131,7 @@ public class ShowActionTest {
   public void show_without_ancestors_when_project() throws Exception {
     ComponentDto project = componentDb.insertProject();
     componentDb.insertComponent(newModuleDto(project));
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     ShowWsResponse response = newRequest(null, project.key());
 
@@ -144,7 +145,7 @@ public class ShowActionTest {
     componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(1_000_000_000L).setLast(false));
     componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(2_000_000_000L).setLast(false));
     componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     ShowWsResponse response = newRequest(null, project.key());
 
@@ -158,7 +159,7 @@ public class ShowActionTest {
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
     ComponentDto file = componentDb.insertComponent(newFileDto(directory));
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     ShowWsResponse response = newRequest(null, file.key());
 

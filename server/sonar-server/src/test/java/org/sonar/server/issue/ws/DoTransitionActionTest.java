@@ -103,19 +103,23 @@ public class DoTransitionActionTest {
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
     new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class));
+  private ComponentDto project;
+  private ComponentDto file;
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
   public void setUp() throws Exception {
+    project = componentDbTester.insertProject();
+    file = componentDbTester.insertComponent(newFileDto(project));
     workflow.start();
   }
 
   @Test
   public void do_transition() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectPermission(USER, project, file);
 
     call(issueDto.getKey(), "confirm");
 
@@ -143,7 +147,7 @@ public class DoTransitionActionTest {
   @Test
   public void fail_if_no_transition_param() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectPermission(USER, project, file);
 
     expectedException.expect(IllegalArgumentException.class);
     call(issueDto.getKey(), null);
@@ -152,7 +156,7 @@ public class DoTransitionActionTest {
   @Test
   public void fail_if_not_enough_permission_to_access_issue() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectPermission(CODEVIEWER, project, file);
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), "confirm");
@@ -161,7 +165,7 @@ public class DoTransitionActionTest {
   @Test
   public void fail_if_not_enough_permission_to_apply_transition() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    userSession.logIn("john").addProjectPermission(USER, project, file);
 
     // False-positive transition is requiring issue admin permission
     expectedException.expect(ForbiddenException.class);
@@ -187,8 +191,6 @@ public class DoTransitionActionTest {
 
   private IssueDto newIssue() {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertProject();
-    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
     return newDto(rule, file, project);
   }
 

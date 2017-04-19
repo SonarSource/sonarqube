@@ -100,7 +100,7 @@ public class DeleteActionTest {
     ComponentLinkDto customLink2 = insertCustomLink(project2.uuid());
     Long id1 = customLink1.getId();
     Long id2 = customLink2.getId();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project1.uuid(), project2.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project1, project2);
 
     deleteLink(id1);
     assertLinkIsDeleted(id1);
@@ -206,6 +206,6 @@ public class DeleteActionTest {
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 }

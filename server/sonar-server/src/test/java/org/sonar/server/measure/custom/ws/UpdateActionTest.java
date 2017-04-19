@@ -328,6 +328,6 @@ public class UpdateActionTest {
   }
 
   private void logInAsProjectAdministrator(ComponentDto component) {
-    userSessionRule.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, component.uuid());
+    userSessionRule.logIn("login").addProjectPermission(UserRole.ADMIN, component);
   }
 }

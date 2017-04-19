@@ -67,8 +67,9 @@ public class SetSeverityActionTest {
 
   @Test
   public void set_severity() {
-    DefaultIssue issue = newIssue().setSeverity(MAJOR).toDefaultIssue();
-    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+    IssueDto issueDto = newIssue().setSeverity(MAJOR);
+    DefaultIssue issue = issueDto.toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
     BulkChangeAction.ActionContext context = new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getLogin()), null);
 
     action.execute(ImmutableMap.of("severity", MINOR), context);
@@ -93,8 +94,9 @@ public class SetSeverityActionTest {
 
   @Test
   public void support_only_unresolved_issues() {
-    DefaultIssue issue = newIssue().setSeverity(MAJOR).toDefaultIssue();
-    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+    IssueDto issueDto = newIssue().setSeverity(MAJOR);
+    DefaultIssue issue = issueDto.toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     assertThat(action.supports(issue.setResolution(null))).isTrue();
     assertThat(action.supports(issue.setResolution(Issue.RESOLUTION_FIXED))).isFalse();
@@ -102,18 +104,20 @@ public class SetSeverityActionTest {
 
   @Test
   public void support_only_issues_with_issue_admin_permission() {
-    DefaultIssue authorizedIssue = newIssue().setSeverity(MAJOR).toDefaultIssue();
-    setUserWithBrowseAndAdministerIssuePermission(authorizedIssue.projectUuid());
-    DefaultIssue unauthorizedIssue = newIssue().setSeverity(MAJOR).toDefaultIssue();
+    IssueDto authorizedIssue = newIssue().setSeverity(MAJOR);
+    setUserWithBrowseAndAdministerIssuePermission(authorizedIssue);
+    IssueDto unauthorizedIssue = newIssue().setSeverity(MAJOR);
 
-    assertThat(action.supports(authorizedIssue.setResolution(null))).isTrue();
-    assertThat(action.supports(unauthorizedIssue.setResolution(null))).isFalse();
+    assertThat(action.supports(authorizedIssue.toDefaultIssue().setResolution(null))).isTrue();
+    assertThat(action.supports(unauthorizedIssue.toDefaultIssue().setResolution(null))).isFalse();
   }
 
-  private void setUserWithBrowseAndAdministerIssuePermission(String projectUuid) {
+  private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issue) {
+    ComponentDto project = db.getDbClient().componentDao().selectByUuid(db.getSession(), issue.getProjectUuid()).get();
+    ComponentDto component = db.getDbClient().componentDao().selectByUuid(db.getSession(), issue.getComponentUuid()).get();
     userSession.logIn(USER_LOGIN)
-      .addProjectUuidPermissions(ISSUE_ADMIN, projectUuid)
-      .addProjectUuidPermissions(USER, projectUuid);
+      .addProjectPermission(ISSUE_ADMIN, project, component)
+      .addProjectPermission(USER, project, component);
   }
 
   private IssueDto newIssue() {

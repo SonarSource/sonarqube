@@ -117,7 +117,7 @@ public class DeselectActionTest {
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     callByKey(gateId, project.getKey());
 
@@ -162,7 +162,7 @@ public class DeselectActionTest {
   public void fail_when_not_project_admin() throws Exception {
     String gateId = String.valueOf(gate.getId());
 
-    userSession.logIn().addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ISSUE_ADMIN, project);
 
     expectedException.expect(ForbiddenException.class);
 

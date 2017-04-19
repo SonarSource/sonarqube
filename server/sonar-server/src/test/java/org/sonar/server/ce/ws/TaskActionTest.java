@@ -218,7 +218,7 @@ public class TaskActionTest {
 
   @Test
   public void get_project_queue_task_with_scan_permission_on_project() {
-    userSession.logIn().addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, project.uuid());
+    userSession.logIn().addProjectPermission(GlobalPermissions.SCAN_EXECUTION, project);
     CeQueueDto task = createAndPersistQueueTask(project);
 
     call(task.getUuid());
@@ -262,7 +262,7 @@ public class TaskActionTest {
 
   @Test
   public void get_project_archived_task_with_scan_permission_on_project() {
-    userSession.logIn().addProjectUuidPermissions(GlobalPermissions.SCAN_EXECUTION, project.uuid());
+    userSession.logIn().addProjectPermission(GlobalPermissions.SCAN_EXECUTION, project);
     CeActivityDto task = createAndPersistArchivedTask(project);
 
     call(task.getUuid());

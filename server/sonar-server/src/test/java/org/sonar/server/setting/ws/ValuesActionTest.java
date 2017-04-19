@@ -561,8 +561,8 @@ public class ValuesActionTest {
   @Test
   public void return_component_secured_settings_when_not_authenticated_but_with_scan_permission() throws Exception {
     userSession
-      .addProjectUuidPermissions(USER, project.uuid())
-      .addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
+      .addProjectPermission(USER, project)
+      .addProjectPermission(SCAN_EXECUTION, project);
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").onQualifiers(PROJECT).build(),
       PropertyDefinition.builder("global.secret.secured").build(),
@@ -586,8 +586,8 @@ public class ValuesActionTest {
   @Test
   public void return_component_secured_settings_even_if_not_defined_when_not_authenticated_but_with_scan_permission() throws Exception {
     userSession
-      .addProjectUuidPermissions(USER, project.uuid())
-      .addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
+      .addProjectPermission(USER, project)
+      .addProjectPermission(SCAN_EXECUTION, project);
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("not-defined.secured").setValue("123"));
 
     ValuesWsResponse result = executeRequestForProjectProperties("not-defined.secured");
@@ -728,7 +728,7 @@ public class ValuesActionTest {
 
   @Test
   public void fail_when_user_has_not_project_browse_permission() throws Exception {
-    userSession.logIn("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
@@ -818,7 +818,7 @@ public class ValuesActionTest {
   }
 
   private void logInAsProjectUser() {
-    userSession.logIn().addProjectUuidPermissions(USER, project.uuid());
+    userSession.logIn().addProjectPermission(USER, project);
   }
 
   private void logInAsAdmin() {
@@ -827,8 +827,8 @@ public class ValuesActionTest {
 
   private void logInAsProjectAdmin() {
     userSession.logIn()
-      .addProjectUuidPermissions(ADMIN, project.uuid())
-      .addProjectUuidPermissions(USER, project.uuid());
+      .addProjectPermission(ADMIN, project)
+      .addProjectPermission(USER, project);
   }
 
   private void assertSetting(Settings.Setting setting, String expectedKey, String expectedValue, boolean expectedInherited) {

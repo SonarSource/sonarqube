@@ -112,7 +112,7 @@ public class WebhookDeliveryActionTest {
       .setPayload("{\"status\"=\"SUCCESS\"}");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     String json = ws.newRequest()
       .setParam("deliveryId", dto.getUuid())
@@ -132,7 +132,7 @@ public class WebhookDeliveryActionTest {
       .setErrorStacktrace("IOException -> can not connect");
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     Webhooks.DeliveryWsResponse response = ws.newRequest()
       .setParam("deliveryId", dto.getUuid())
@@ -150,7 +150,7 @@ public class WebhookDeliveryActionTest {
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
     db.commit();
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

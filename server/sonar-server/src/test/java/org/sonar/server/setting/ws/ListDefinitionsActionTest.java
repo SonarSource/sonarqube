@@ -383,7 +383,7 @@ public class ListDefinitionsActionTest {
 
   @Test
   public void fail_when_user_has_not_project_browse_permission() throws Exception {
-    userSession.logIn("project-admin").addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSession.logIn("project-admin").addProjectPermission(CODEVIEWER, project);
     propertyDefinitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
@@ -469,7 +469,7 @@ public class ListDefinitionsActionTest {
   }
 
   private void logInAsProjectUser() {
-    userSession.logIn().addProjectUuidPermissions(USER, project.uuid());
+    userSession.logIn().addProjectPermission(USER, project);
   }
 
   private void logInAsAdmin(OrganizationDto org) {
@@ -478,8 +478,8 @@ public class ListDefinitionsActionTest {
 
   private void logInAsProjectAdmin() {
     userSession.logIn()
-      .addProjectUuidPermissions(ADMIN, project.uuid())
-      .addProjectUuidPermissions(USER, project.uuid());
+      .addProjectPermission(ADMIN, project)
+      .addProjectPermission(USER, project);
   }
 
 }
