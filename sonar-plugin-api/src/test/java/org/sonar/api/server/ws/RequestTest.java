@@ -111,6 +111,24 @@ public class RequestTest {
   }
 
   @Test
+  public void multi_param() {
+    assertThat(underTest.multiParam("a_required_multi_param")).isEmpty();
+
+    underTest.setMultiParam("a_required_multi_param", newArrayList("firstValue", "secondValue", "thirdValue"));
+    assertThat(underTest.multiParam("a_required_multi_param")).containsExactly("firstValue", "secondValue", "thirdValue");
+  }
+
+  @Test
+  public void fail_when_multi_param_has_more_values_than_maximum_values() {
+    underTest.setMultiParam("has_maximum_values", newArrayList("firstValue", "secondValue", "thirdValue"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'has_maximum_values' can contains only 2 values, got 3");
+
+    underTest.multiParam("has_maximum_values");
+  }
+
+  @Test
   public void mandatory_multi_param() {
     underTest.setMultiParam("a_required_multi_param", newArrayList("firstValue", "secondValue", "thirdValue"));
 
@@ -215,8 +233,21 @@ public class RequestTest {
 
   @Test
   public void param_as_enums() {
-    assertThat(underTest.setParam("a_enum", "BETA,READY").paramAsEnums("a_enum", RuleStatus.class)).containsOnly(
-      RuleStatus.BETA, RuleStatus.READY);
+    assertThat(underTest.setParam("a_enum", "BETA,READY").paramAsEnums("a_enum", RuleStatus.class)).containsOnly(RuleStatus.BETA, RuleStatus.READY);
+    assertThat(underTest.setParam("a_enum", "").paramAsEnums("a_enum", RuleStatus.class)).isEmpty();
+  }
+
+  @Test
+  public void param_as_enums_returns_null_when_no_value() {
+    assertThat(underTest.paramAsEnums("a_enum", RuleStatus.class)).isNull();
+  }
+
+  @Test
+  public void fail_when_param_as_enums_has_more_values_than_maximum_values() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'has_maximum_values' can contains only 2 values, got 3");
+
+    underTest.setParam("has_maximum_values", "BETA,READY,REMOVED").paramAsEnums("has_maximum_values", RuleStatus.class);
   }
 
   @Test
@@ -346,7 +377,9 @@ public class RequestTest {
     IllegalArgumentException expected = new IllegalArgumentException("Faking validation of parameter value failed");
 
     try {
-      underTest.getParam("a_string", (str) -> {throw expected; });
+      underTest.getParam("a_string", (str) -> {
+        throw expected;
+      });
       fail("an IllegalStateException should have been raised");
     } catch (IllegalArgumentException e) {
       assertThat(e).isSameAs(expected);
@@ -407,7 +440,9 @@ public class RequestTest {
     RuntimeException expected = new RuntimeException("Faking BiConsumer throwing unchecked exception");
 
     try {
-      underTest.getParam("a_string", (rqt, key) -> { throw expected; });
+      underTest.getParam("a_string", (rqt, key) -> {
+        throw expected;
+      });
       fail("an RuntimeException should have been raised");
     } catch (RuntimeException e) {
       assertThat(e).isSameAs(expected);
@@ -470,6 +505,14 @@ public class RequestTest {
     assertThat(underTest.setParam("a_string", "bar").paramAsStrings("a_string")).containsExactly("bar");
     assertThat(underTest.setParam("a_string", "bar,baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
     assertThat(underTest.setParam("a_string", "bar , baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
+  }
+
+  @Test
+  public void fail_when_param_as_strings_has_more_values_than_maximum_values() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'has_maximum_values' can contains only 2 values, got 3");
+
+    underTest.setParam("has_maximum_values", "foo,bar,baz").paramAsStrings("has_maximum_values");
   }
 
   @Test
@@ -635,6 +678,8 @@ public class RequestTest {
       action.createParam("has_default_boolean").setDefaultValue("true");
 
       action.createParam("has_possible_values").setPossibleValues("foo", "bar");
+
+      action.createParam("has_maximum_values").setMaxValuesAllowed(2);
 
       action.createParam("new_param").setDeprecatedKey("deprecated_param", "6.3");
       action.createParam("new_param_with_default_value").setDeprecatedKey("deprecated_new_param_with_default_value", "6.2").setDefaultValue("the_default_string");

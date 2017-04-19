@@ -21,7 +21,6 @@ package org.sonar.api.server.ws;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,6 +35,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.DateUtils.parseDateQuietly;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
@@ -71,7 +71,7 @@ public abstract class Request {
    */
   public String mandatoryParam(String key) {
     String value = param(key);
-    checkArgument(value != null, String.format(MSG_PARAMETER_MISSING, key));
+    checkArgument(value != null, format(MSG_PARAMETER_MISSING, key));
     return value;
   }
 
@@ -111,27 +111,18 @@ public abstract class Request {
 
   public List<String> mandatoryParamAsStrings(String key) {
     List<String> values = paramAsStrings(key);
-    if (values == null) {
-      throw new IllegalArgumentException(String.format(MSG_PARAMETER_MISSING, key));
-    }
+    checkArgument(values != null, format(MSG_PARAMETER_MISSING, key));
     return values;
   }
 
   public List<String> mandatoryMultiParam(String key) {
     List<String> values = multiParam(key);
     checkArgument(!values.isEmpty(), MSG_PARAMETER_MISSING, key);
-
     return values;
   }
 
   @CheckForNull
-  public List<String> paramAsStrings(String key) {
-    String value = param(key);
-    if (value == null) {
-      return null;
-    }
-    return Lists.newArrayList(Splitter.on(',').omitEmptyStrings().trimResults().split(value));
-  }
+  public abstract List<String> paramAsStrings(String key);
 
   @CheckForNull
   public abstract String param(String key);
@@ -267,14 +258,14 @@ public abstract class Request {
     if ("false".equals(value) || "no".equals(value)) {
       return false;
     }
-    throw new IllegalArgumentException(String.format("Property %s is not a boolean value: %s", key, value));
+    throw new IllegalArgumentException(format("Property %s is not a boolean value: %s", key, value));
   }
 
   private static int parseInt(String key, String value) {
     try {
       return Integer.parseInt(value);
     } catch (NumberFormatException expection) {
-      throw new IllegalArgumentException(String.format("The '%s' parameter cannot be parsed as an integer value: %s", key, value));
+      throw new IllegalArgumentException(format("The '%s' parameter cannot be parsed as an integer value: %s", key, value));
     }
   }
 
@@ -282,7 +273,7 @@ public abstract class Request {
     try {
       return Long.parseLong(value);
     } catch (NumberFormatException exception) {
-      throw new IllegalArgumentException(String.format("The '%s' parameter cannot be parsed as a long value: %s", key, value));
+      throw new IllegalArgumentException(format("The '%s' parameter cannot be parsed as a long value: %s", key, value));
     }
   }
 

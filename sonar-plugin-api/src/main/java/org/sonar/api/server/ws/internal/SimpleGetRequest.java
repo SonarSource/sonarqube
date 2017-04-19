@@ -19,10 +19,13 @@
  */
 package org.sonar.api.server.ws.internal;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.LocalConnector;
@@ -75,6 +78,16 @@ public class SimpleGetRequest extends Request {
   public List<String> multiParam(String key) {
     String value = params.get(key);
     return value == null ? emptyList() : singletonList(value);
+  }
+
+  @Override
+  @CheckForNull
+  public List<String> paramAsStrings(String key) {
+    String value = param(key);
+    if (value == null) {
+      return null;
+    }
+    return Lists.newArrayList(Splitter.on(',').omitEmptyStrings().trimResults().split(value));
   }
 
   @Override
