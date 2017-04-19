@@ -50,7 +50,7 @@ public class DisplayLogOnDeprecatedProjectsTest {
   @Test
   public void display_log_on_deprecated_project() throws Exception {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto)
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newPrivateProjectDto(organizationDto)
       .setKey(DEPRECATED_PROJECT_KEY)
       .setDeprecatedKey(null));
     dbSession.commit();
@@ -66,7 +66,7 @@ public class DisplayLogOnDeprecatedProjectsTest {
   @Test
   public void not_display_log_when_task_already_executed() throws Exception {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto)
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newPrivateProjectDto(organizationDto)
       .setKey(DEPRECATED_PROJECT_KEY)
       .setDeprecatedKey(null));
     dbSession.commit();
@@ -82,7 +82,7 @@ public class DisplayLogOnDeprecatedProjectsTest {
   @Test
   public void nothing_do_when_no_deprecated_project() throws Exception {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto)
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newPrivateProjectDto(organizationDto)
       .setKey(PROJECT_KEY)
       .setDeprecatedKey(PROJECT_KEY));
     dbSession.commit();

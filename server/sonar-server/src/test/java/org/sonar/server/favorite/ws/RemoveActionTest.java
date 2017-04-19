@@ -41,7 +41,7 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.PARAM_COMPONENT;
 
 public class RemoveActionTest {
@@ -112,7 +112,7 @@ public class RemoveActionTest {
   }
 
   private ComponentDto insertProject() {
-    return db.components().insertComponent(newProjectDto(db.organizations().insert(), PROJECT_UUID).setKey(PROJECT_KEY));
+    return db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID).setKey(PROJECT_KEY));
   }
 
   private ComponentDto insertProjectAndPermissions() {

@@ -129,7 +129,7 @@ public class SetActionTest {
   @Test
   public void persist_new_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     callForProjectSettingByKey("my.key", "my project value", project.key());
@@ -141,7 +141,7 @@ public class SetActionTest {
 
   @Test
   public void persist_project_property_with_project_admin_permission() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     callForProjectSettingByKey("my.key", "my value", project.key());
@@ -152,7 +152,7 @@ public class SetActionTest {
   @Test
   public void update_existing_project_setting() {
     propertyDb.insertProperty(newGlobalPropertyDto("my.key", "my global value"));
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     propertyDb.insertProperty(newComponentPropertyDto("my.key", "my project value", project));
     assertComponentSetting("my.key", "my project value", project.getId());
     logInAsProjectAdministrator(project);
@@ -283,7 +283,7 @@ public class SetActionTest {
           .type(PropertyType.STRING)
           .build()))
       .build());
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     propertyDb.insertProperties(
       newGlobalPropertyDto("my.key", "1"),
       newGlobalPropertyDto("my.key.1.firstField", "oldFirstValue"),
@@ -796,7 +796,7 @@ public class SetActionTest {
       .fields(newArrayList(PropertyFieldDefinition.build("firstField").name("First Field").type(PropertyType.STRING).build()))
       .build());
     i18n.put("qualifier." + Qualifiers.PROJECT, "Project");
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     expectedException.expect(BadRequestException.class);

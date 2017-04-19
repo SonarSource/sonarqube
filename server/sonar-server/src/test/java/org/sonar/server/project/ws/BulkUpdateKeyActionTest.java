@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
@@ -56,7 +57,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_DRY_RUN;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
@@ -96,9 +96,9 @@ public class BulkUpdateKeyActionTest {
   @Test
   public void json_example() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = componentDb.insertComponent(newProjectDto(organizationDto).setKey("my_project"));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("my_project"));
     componentDb.insertComponent(newModuleDto(project).setKey("my_project:module_1"));
-    ComponentDto anotherProject = componentDb.insertComponent(newProjectDto(organizationDto).setKey("another_project"));
+    ComponentDto anotherProject = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("another_project"));
     componentDb.insertComponent(newModuleDto(anotherProject).setKey("my_new_project:module_1"));
     ComponentDto module2 = componentDb.insertComponent(newModuleDto(project).setKey("my_project:module_2"));
     componentDb.insertComponent(newFileDto(module2, null));
@@ -145,7 +145,7 @@ public class BulkUpdateKeyActionTest {
   @Test
   public void bulk_update_provisioned_project_key() {
     String newKey = "provisionedProject2";
-    ComponentDto provisionedProject = componentDb.insertProject();
+    ComponentDto provisionedProject = componentDb.insertPrivateProject();
 
     callByKey(provisionedProject.key(), provisionedProject.getKey(), newKey);
 
@@ -154,8 +154,8 @@ public class BulkUpdateKeyActionTest {
 
   @Test
   public void fail_to_bulk_if_a_component_already_exists_with_the_same_key() {
-    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("my_project"));
-    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("your_project"));
+    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("my_project"));
+    componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("your_project"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Impossible to update key: a component with key \"your_project\" already exists.");
@@ -259,7 +259,7 @@ public class BulkUpdateKeyActionTest {
   }
 
   private ComponentDto insertMyProject() {
-    return componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey(MY_PROJECT_KEY));
+    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey(MY_PROJECT_KEY));
   }
 
   private BulkUpdateKeyWsResponse callDryRunByUuid(@Nullable String uuid, @Nullable String from, @Nullable String to) {

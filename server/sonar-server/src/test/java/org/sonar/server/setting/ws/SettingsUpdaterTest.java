@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
@@ -40,7 +41,6 @@ import org.sonar.db.user.UserTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
@@ -66,7 +66,7 @@ public class SettingsUpdaterTest {
 
   @Before
   public void setUp() throws Exception {
-    project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 
   @Test

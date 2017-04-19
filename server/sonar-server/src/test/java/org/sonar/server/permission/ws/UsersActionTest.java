@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -33,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
@@ -81,13 +82,13 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_for_users_with_permission_on_project() throws Exception {
     // User has permission on project
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     UserDto user = db.users().insertUser(newUserDto());
     db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
 
     // User has permission on another project
-    ComponentDto anotherProject = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto anotherProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     UserDto userHavePermissionOnAnotherProject = db.users().insertUser(newUserDto());
     db.organizations().addMember(db.getDefaultOrganization(), userHavePermissionOnAnotherProject);
     db.users().insertProjectPermissionOnUser(userHavePermissionOnAnotherProject, ISSUE_ADMIN, anotherProject);
@@ -111,7 +112,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_only_for_users_with_permission_when_no_search_query() throws Exception {
     // User have permission on project
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     UserDto user = db.users().insertUser();
     db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
@@ -134,7 +135,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_also_for_users_without_permission_when_filtering_name() throws Exception {
     // User with permission on project
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
     db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
@@ -158,7 +159,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_also_for_users_without_permission_when_filtering_email() throws Exception {
     // User with permission on project
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
     db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
@@ -178,7 +179,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   @Test
   public void search_also_for_users_without_permission_when_filtering_login() throws Exception {
     // User with permission on project
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.organizations().insert()));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
     UserDto user = db.users().insertUser(newUserDto("with-permission-login", "with-permission-name", "with-permission-email"));
     db.organizations().addMember(db.getDefaultOrganization(), user);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
@@ -259,7 +260,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() throws Exception {
-    db.components().insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
+    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
     loginAsAdmin(db.getDefaultOrganization());
 
     expectedException.expect(BadRequestException.class);

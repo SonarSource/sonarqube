@@ -25,6 +25,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -39,7 +40,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -116,7 +117,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_project_permissions_with_project_permission() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     String result = newRequest()
@@ -130,7 +131,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   public void has_projects_ordered_by_name() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
     for (int i = 9; i >= 1; i--) {
-      db.components().insertComponent(newProjectDto(organizationDto)
+      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto)
         .setName("project-name-" + i));
     }
 
@@ -146,8 +147,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_by_query_on_name() throws Exception {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("project-name"));
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("another-name"));
+    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("project-name"));
+    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("another-name"));
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project")
@@ -160,8 +161,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   @Test
   public void search_by_query_on_key_must_match_exactly() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setKey("project-key"));
-    componentDb.insertProjectAndSnapshot(newProjectDto(organizationDto).setKey("another-key"));
+    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("project-key"));
+    componentDb.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("another-key"));
 
     String result = newRequest()
       .setParam(TEXT_QUERY, "project-key")
@@ -175,7 +176,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   @Test
   public void handle_more_than_1000_projects() throws Exception {
     for (int i = 1; i <= 1001; i++) {
-      componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid-" + i));
+      componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid-" + i));
     }
 
     String result = newRequest()
@@ -191,7 +192,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   public void filter_by_qualifier() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
     db.components().insertComponent(newView(organizationDto, "view-uuid"));
-    db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
+    db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
 
     WsPermissions.SearchProjectPermissionsWsResponse result = newRequest()
       .setParam(PARAM_QUALIFIER, Qualifiers.PROJECT)
@@ -242,14 +243,14 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertClang() {
-    return db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid-2")
+    return db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid-2")
       .setName("Clang")
       .setKey("clang")
       .setUuid("ce4c03d6-430f-40a9-b777-ad877c00aa4d"));
   }
 
   private ComponentDto insertJdk7() {
-    return db.components().insertComponent(newProjectDto(db.getDefaultOrganization())
+    return db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization())
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));

@@ -141,8 +141,8 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_project_in_ce_activity_when_deleting_project() {
-    ComponentDto projectToBeDeleted = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization());
-    ComponentDto anotherLivingProject = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization());
+    ComponentDto projectToBeDeleted = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    ComponentDto anotherLivingProject = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
     dbClient.componentDao().insert(dbSession, projectToBeDeleted, anotherLivingProject);
 
     // Insert 2 rows in CE_ACTIVITY : one for the project that will be deleted, and on on another project
@@ -158,8 +158,8 @@ public class PurgeDaoTest {
 
   @Test
   public void delete_tasks_in_ce_queue_when_deleting_project() {
-    ComponentDto projectToBeDeleted = dbTester.components().insertProject();
-    ComponentDto anotherLivingProject = dbTester.components().insertProject();
+    ComponentDto projectToBeDeleted = dbTester.components().insertPrivateProject();
+    ComponentDto anotherLivingProject = dbTester.components().insertPrivateProject();
 
     // Insert 3 rows in CE_QUEUE: two for the project that will be deleted (in order to check that status
     // is not involved in deletion), and one on another project

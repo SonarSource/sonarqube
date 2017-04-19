@@ -43,7 +43,7 @@ import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_ID;
@@ -145,7 +145,7 @@ public class SearchActionTest {
 
   @Test
   public void request_does_not_fail_when_link_has_no_name() throws IOException {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setType("type");
     insertLink(foo);
     logInAsProjectAdministrator(project);
@@ -155,7 +155,7 @@ public class SearchActionTest {
 
   @Test
   public void request_does_not_fail_when_link_has_no_type() throws IOException {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentLinkDto foo = new ComponentLinkDto().setComponentUuid(project.uuid()).setHref("foo").setName("name");
     insertLink(foo);
     logInAsProjectAdministrator(project);
@@ -218,7 +218,7 @@ public class SearchActionTest {
   }
 
   private ComponentDto insertProject(String projectKey, String projectUuid) {
-    return componentDb.insertComponent(newProjectDto(db.organizations().insert(), projectUuid).setKey(projectKey));
+    return componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), projectUuid).setKey(projectKey));
   }
 
   private ComponentDto insertProject() {

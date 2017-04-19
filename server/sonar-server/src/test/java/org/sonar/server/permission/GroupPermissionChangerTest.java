@@ -55,7 +55,7 @@ public class GroupPermissionChangerTest {
   public void setUp() throws Exception {
     org = db.organizations().insert();
     group = db.users().insertGroup(org, "a-group");
-    project = db.components().insertProject(org);
+    project = db.components().insertPrivateProject(org);
   }
 
   @Test

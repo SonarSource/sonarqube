@@ -48,7 +48,7 @@ public class IssueMapperTest {
   @Before
   public void setUp() throws Exception {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    project = ComponentTesting.newProjectDto(organizationDto);
+    project = ComponentTesting.newPrivateProjectDto(organizationDto);
     dbTester.getDbClient().componentDao().insert(dbSession, project);
     file = ComponentTesting.newFileDto(project, null);
     dbTester.getDbClient().componentDao().insert(dbSession, file);

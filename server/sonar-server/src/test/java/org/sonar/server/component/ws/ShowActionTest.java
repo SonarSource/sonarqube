@@ -47,7 +47,7 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
@@ -93,7 +93,7 @@ public class ShowActionTest {
 
   @Test
   public void show_with_browse_permission() {
-    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
@@ -105,7 +105,7 @@ public class ShowActionTest {
   @Test
   public void show_provided_project() {
     userSession.logIn().setRoot();
-    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setEnabled(false));
+    componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setEnabled(false));
 
     ShowWsResponse response = newRequest("project-uuid", null);
 
@@ -115,7 +115,7 @@ public class ShowActionTest {
 
   @Test
   public void show_with_ancestors_when_not_project() throws Exception {
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = componentDb.insertPrivateProject();
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
     ComponentDto file = componentDb.insertComponent(newFileDto(directory));
@@ -129,7 +129,7 @@ public class ShowActionTest {
 
   @Test
   public void show_without_ancestors_when_project() throws Exception {
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = componentDb.insertPrivateProject();
     componentDb.insertComponent(newModuleDto(project));
     userSession.addProjectPermission(UserRole.USER, project);
 
@@ -141,7 +141,7 @@ public class ShowActionTest {
 
   @Test
   public void show_with_last_analysis_date() throws Exception {
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = componentDb.insertPrivateProject();
     componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(1_000_000_000L).setLast(false));
     componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(2_000_000_000L).setLast(false));
     componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
@@ -154,7 +154,7 @@ public class ShowActionTest {
 
   @Test
   public void show_with_ancestors_and_analysis_date() throws Exception {
-    ComponentDto project = componentDb.insertProject();
+    ComponentDto project = componentDb.insertPrivateProject();
     componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
@@ -173,7 +173,7 @@ public class ShowActionTest {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
 
     newRequest("project-uuid", null);
   }
@@ -199,7 +199,7 @@ public class ShowActionTest {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = componentDb.insertComponent(newProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
+    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
       .setKey("com.sonarsource:java-markdown")
       .setName("Java Markdown")
       .setDescription("Java Markdown Project")

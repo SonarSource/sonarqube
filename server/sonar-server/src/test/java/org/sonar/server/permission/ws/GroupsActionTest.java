@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -36,7 +37,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -154,11 +155,11 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   @Test
   public void search_groups_with_project_permissions() throws Exception {
     OrganizationDto organizationDto = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
     GroupDto group = db.users().insertGroup(organizationDto, "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
-    ComponentDto anotherProject = db.components().insertComponent(newProjectDto(organizationDto));
+    ComponentDto anotherProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
     GroupDto anotherGroup = db.users().insertGroup(organizationDto, "another-project-group-name");
     db.users().insertProjectPermissionOnGroup(anotherGroup, ISSUE_ADMIN, anotherProject);
 
@@ -179,7 +180,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   @Test
   public void return_also_groups_without_permission_when_search_query() throws Exception {
     OrganizationDto organizationDto = db.getDefaultOrganization();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
     GroupDto group = db.users().insertGroup(organizationDto, "group-with-permission");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
@@ -201,7 +202,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void return_only_groups_with_permission_when_no_search_query() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "project-group-name");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
@@ -221,7 +222,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
   @Test
   public void return_anyone_group_when_search_query_and_no_param_permission() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "project-uuid"));
     GroupDto group = db.users().insertGroup(organizationDto, "group-with-permission");
     db.users().insertProjectPermissionOnGroup(group, ISSUE_ADMIN, project);
 
@@ -276,7 +277,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
   @Test
   public void fail_if_project_uuid_and_project_key_are_provided() throws Exception {
-    db.components().insertComponent(newProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
+    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setKey("project-key"));
 
     expectedException.expect(BadRequestException.class);
 

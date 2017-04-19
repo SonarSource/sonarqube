@@ -70,7 +70,7 @@ public class ChangelogActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     file = db.components().insertComponent(newFileDto(project));
   }
 
@@ -94,7 +94,7 @@ public class ChangelogActionTest {
   @Test
   public void changelog_of_file_move_contains_file_names() throws Exception {
     RuleDto rule = db.rules().insertRule(newRuleDto());
-    ComponentDto project = db.components().insertProject(db.organizations().insert());
+    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
     ComponentDto file1 = db.components().insertComponent(newFileDto(project));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = db.issues().insertIssue(newDto(rule, file2, project));

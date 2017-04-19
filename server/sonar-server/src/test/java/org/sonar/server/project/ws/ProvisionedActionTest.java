@@ -88,7 +88,7 @@ public class ProvisionedActionTest {
   @Test
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
     OrganizationDto org = db.organizations().insert();
-    ComponentDto analyzedProject = ComponentTesting.newProjectDto(org, "analyzed-uuid-1");
+    ComponentDto analyzedProject = ComponentTesting.newPrivateProjectDto(org, "analyzed-uuid-1");
     db.components().insertComponents(newProvisionedProject(org, "1"), newProvisionedProject(org, "2"), analyzedProject);
     db.components().insertSnapshot(SnapshotTesting.newAnalysis(analyzedProject));
     userSessionRule.logIn().addPermission(PROVISION_PROJECTS, org);
@@ -169,11 +169,11 @@ public class ProvisionedActionTest {
   @Test
   public void provisioned_projects_as_defined_in_the_example() throws Exception {
     OrganizationDto org = db.organizations().insert();
-    ComponentDto hBaseProject = ComponentTesting.newProjectDto(org, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+    ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(org, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
-    ComponentDto roslynProject = ComponentTesting.newProjectDto(org, "c526ef20-131b-4486-9357-063fa64b5079")
+    ComponentDto roslynProject = ComponentTesting.newPrivateProjectDto(org, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
@@ -213,7 +213,7 @@ public class ProvisionedActionTest {
 
   private static ComponentDto newProvisionedProject(OrganizationDto organizationDto, String uuid) {
     return ComponentTesting
-      .newProjectDto(organizationDto, "provisioned-uuid-" + uuid)
+      .newPrivateProjectDto(organizationDto, "provisioned-uuid-" + uuid)
       .setName("provisioned-name-" + uuid)
       .setKey("provisioned-key-" + uuid);
   }

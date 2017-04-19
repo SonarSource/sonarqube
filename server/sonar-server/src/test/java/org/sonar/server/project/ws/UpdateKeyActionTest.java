@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.NotFoundException;
@@ -43,7 +44,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
@@ -129,7 +129,7 @@ public class UpdateKeyActionTest {
   }
 
   private ComponentDto insertProject() {
-    return componentDb.insertComponent(newProjectDto(db.organizations().insert()));
+    return componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 
   private String callByUuid(@Nullable String uuid, @Nullable String newKey) {

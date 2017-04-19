@@ -341,7 +341,7 @@ public class InternalCeQueueImplTest {
   }
 
   private ComponentDto newComponentDto(String uuid) {
-    return ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), uuid).setName("name_" + uuid).setKey("key_" + uuid);
+    return ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), uuid).setName("name_" + uuid).setKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, String componentUuid) {

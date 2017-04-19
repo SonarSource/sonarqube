@@ -78,7 +78,7 @@ public class TaskFormatterTest {
   public void formatQueue_with_component_and_other_fields() throws IOException {
     String uuid = "COMPONENT_UUID";
     OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertProject(organizationDto, (t) -> t.setUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
+    db.components().insertPrivateProject(organizationDto, (t) -> t.setUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
 
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");

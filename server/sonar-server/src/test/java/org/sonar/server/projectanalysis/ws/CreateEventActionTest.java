@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.event.EventDto;
@@ -49,7 +50,7 @@ import org.sonarqube.ws.client.projectanalysis.CreateEventRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.component.SnapshotTesting.newSnapshot;
@@ -84,7 +85,7 @@ public class CreateEventActionTest {
 
   @Test
   public void json_example() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newAnalysis(project).setUuid("A2"));
     db.commit();
     uuidFactory = mock(UuidFactory.class);
@@ -103,7 +104,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_event_in_db() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
@@ -129,7 +130,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_event_as_project_admin() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "P1");
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "P1");
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
@@ -144,7 +145,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_version_event() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
@@ -160,7 +161,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_other_event_with_ws_response() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
@@ -181,7 +182,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_event_without_description() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
@@ -198,7 +199,7 @@ public class CreateEventActionTest {
 
   @Test
   public void create_2_version_events_on_same_project() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto firstAnalysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder firstRequest = CreateEventRequest.builder()
       .setAnalysis(firstAnalysis.getUuid())
@@ -221,7 +222,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_not_blank_name() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder().setAnalysis(analysis.getUuid()).setName("    ");
     logInAsProjectAdministrator(project);
@@ -249,7 +250,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_2_version_events_on_the_same_analysis() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
@@ -266,7 +267,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_2_other_events_on_same_analysis_with_same_name() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
@@ -283,7 +284,7 @@ public class CreateEventActionTest {
 
   @Test
   public void fail_if_category_other_than_authorized() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     logInAsProjectAdministrator(project);
 
@@ -330,7 +331,7 @@ public class CreateEventActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "P1"));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "P1"));
     CreateEventRequest.Builder request = CreateEventRequest.builder()
       .setAnalysis(analysis.getUuid())
       .setCategory(VERSION)

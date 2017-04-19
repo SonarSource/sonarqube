@@ -80,8 +80,8 @@ public class IssueIndexDebtTest {
   @Test
   public void facets_on_projects() {
     OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD");
-    ComponentDto project2 = ComponentTesting.newProjectDto(organizationDto, "EFGH");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto, "EFGH");
 
     indexIssues(
       IssueDocTesting.newDoc("ISSUE1", ComponentTesting.newFileDto(project, null)).setEffort(10L),
@@ -97,7 +97,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_components() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto(), "A");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto(), "A");
     ComponentDto file1 = ComponentTesting.newFileDto(project, null, "ABCD");
     ComponentDto file2 = ComponentTesting.newFileDto(project, null, "BCDE");
     ComponentDto file3 = ComponentTesting.newFileDto(project, null, "CDEF");
@@ -118,7 +118,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_directories() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file1 = ComponentTesting.newFileDto(project, null).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = ComponentTesting.newFileDto(project, null).setPath("F2.xoo");
 
@@ -134,7 +134,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_severities() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -150,7 +150,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_statuses() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -166,7 +166,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_resolutions() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -182,7 +182,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_languages() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
 
@@ -196,7 +196,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_assignees() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -213,7 +213,7 @@ public class IssueIndexDebtTest {
 
   @Test
   public void facets_on_authors() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     indexIssues(
@@ -246,8 +246,8 @@ public class IssueIndexDebtTest {
   @Test
   public void deprecated_debt_facets() {
     OrganizationDto organizationDto = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, "ABCD");
-    ComponentDto project2 = ComponentTesting.newProjectDto(organizationDto, "EFGH");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto, "EFGH");
 
     indexIssues(
       IssueDocTesting.newDoc("ISSUE1", ComponentTesting.newFileDto(project, null)).setEffort(10L),
@@ -262,7 +262,7 @@ public class IssueIndexDebtTest {
   }
 
   protected SearchOptions fixtureForCreatedAtFacet() {
-    ComponentDto project = ComponentTesting.newProjectDto(newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
     IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", file).setFuncCreationDate(DateUtils.parseDateTime("2011-04-25T01:05:13+0100"));

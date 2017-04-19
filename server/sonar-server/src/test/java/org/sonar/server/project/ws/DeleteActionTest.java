@@ -79,7 +79,7 @@ public class DeleteActionTest {
 
   @Test
   public void organization_administrator_deletes_project_by_id() throws Exception {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
 
     WsTester.TestRequest request = newRequest().setParam(PARAM_PROJECT_ID, project.uuid());
@@ -90,7 +90,7 @@ public class DeleteActionTest {
 
   @Test
   public void organization_administrator_deletes_project_by_key() throws Exception {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addPermission(ADMINISTER, project.getOrganizationUuid());
 
     call(newRequest().setParam(PARAM_PROJECT, project.key()));
@@ -106,7 +106,7 @@ public class DeleteActionTest {
 
   @Test
   public void project_administrator_deletes_the_project_by_uuid() throws Exception {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     call(newRequest().setParam(PARAM_PROJECT_ID, project.uuid()));
@@ -116,7 +116,7 @@ public class DeleteActionTest {
 
   @Test
   public void project_administrator_deletes_the_project_by_key() throws Exception {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     call(newRequest().setParam(PARAM_PROJECT, project.key()));
@@ -126,7 +126,7 @@ public class DeleteActionTest {
 
   @Test
   public void return_403_if_not_project_admin_nor_org_admin() throws Exception {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
 
     userSessionRule.logIn()
       .addProjectPermission(UserRole.CODEVIEWER, project)
@@ -139,7 +139,7 @@ public class DeleteActionTest {
 
   @Test
   public void return_401_if_not_logged_in() throws Exception {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
 
     userSessionRule.anonymous();
     expectedException.expect(UnauthorizedException.class);

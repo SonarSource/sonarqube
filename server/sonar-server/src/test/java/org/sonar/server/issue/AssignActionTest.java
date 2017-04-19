@@ -67,7 +67,7 @@ public class AssignActionTest {
   @Before
   public void setUp() throws Exception {
     issueOrganizationDto = db.organizations().insert();
-    project = db.components().insertProject(issueOrganizationDto);
+    project = db.components().insertPrivateProject(issueOrganizationDto);
     context = new BulkChangeAction.ActionContext(issue, issueChangeContext, project);
   }
 

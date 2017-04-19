@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertyDto;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -45,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;
 
@@ -110,7 +110,7 @@ public class SettingsFinderTest {
 
   @Test
   public void return_component_settings() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     addDefinitions(PropertyDefinition.builder("property").defaultValue("default").build());
     insertProperties(newComponentPropertyDto(project).setKey("property").setValue("one"));
 
@@ -125,7 +125,7 @@ public class SettingsFinderTest {
 
   @Test
   public void return_component_setting_even_if_no_definition() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     insertProperties(newComponentPropertyDto(project).setKey("property").setValue("one"));
 
     Multimap<String, Setting> settings = underTest.loadComponentSettings(dbSession, newHashSet("property"), project);
@@ -135,7 +135,7 @@ public class SettingsFinderTest {
 
   @Test
   public void return_component_settings_with_property_set() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     addDefinitions(PropertyDefinition.builder("set1")
       .type(PROPERTY_SET)
       .fields(asList(
@@ -161,10 +161,10 @@ public class SettingsFinderTest {
 
   @Test
   public void return_module_settings() throws Exception {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project));
     ComponentDto subModule = componentDb.insertComponent(newModuleDto(module));
-    ComponentDto anotherProject = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization()));
+    ComponentDto anotherProject = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
 
     insertProperties(
       newComponentPropertyDto(project).setKey("property").setValue("one"),

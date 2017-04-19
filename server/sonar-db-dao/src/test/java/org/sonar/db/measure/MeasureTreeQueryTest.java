@@ -81,10 +81,10 @@ public class MeasureTreeQueryTest {
   @Test
   public void test_getUuidPath() throws Exception {
     assertThat(MeasureTreeQuery.builder().setStrategy(CHILDREN)
-      .build().getUuidPath(ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
+      .build().getUuidPath(ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
 
     assertThat(MeasureTreeQuery.builder().setStrategy(LEAVES)
-      .build().getUuidPath(ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT/_UUID.%");
+      .build().getUuidPath(ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT/_UUID.%");
   }
 
   @Test

@@ -63,7 +63,7 @@ public class RawActionTest {
 
   WsTester tester;
 
-  ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
+  ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
   ComponentDto file = ComponentTesting.newFileDto(project, null);
 
   @Before

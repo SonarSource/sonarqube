@@ -53,8 +53,8 @@ public class RoleDaoTest {
   public void setUp() throws Exception {
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    project1 = db.components().insertProject();
-    project2 = db.components().insertProject();
+    project1 = db.components().insertPrivateProject();
+    project2 = db.components().insertPrivateProject();
   }
 
   @Test
@@ -117,7 +117,7 @@ public class RoleDaoTest {
   public void delete_all_group_permissions_by_group_id() {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.users().insertPermissionOnGroup(group1, "admin");
     db.users().insertProjectPermissionOnGroup(group1, "profileadmin", project);
     db.users().insertPermissionOnGroup(group1, "gateadmin");

@@ -38,7 +38,7 @@ import static org.sonar.db.component.ComponentKeyUpdaterDao.computeNewKey;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class ComponentKeyUpdaterDaoTest {
 
@@ -63,7 +63,7 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void updateKey_does_not_updated_inactive_components() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "A").setKey("my_project"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "A").setKey("my_project"));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "/directory").setKey("my_project:directory"));
     db.components().insertComponent(newFileDto(project, directory).setKey("my_project:directory/file"));
     ComponentDto inactiveDirectory = db.components().insertComponent(newDirectory(project, "/inactive_directory").setKey("my_project:inactive_directory").setEnabled(false));
@@ -89,7 +89,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void bulk_update_key_does_not_update_inactive_components() {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "A").setKey("my_project"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "A").setKey("my_project"));
     db.components().insertComponent(newModuleDto(project).setKey("my_project:module"));
     db.components().insertComponent(newModuleDto(project).setKey("my_project:inactive_module").setEnabled(false));
 
@@ -144,7 +144,7 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void updateKey_throws_IAE_when_sub_component_key_is_too_long() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = newProjectDto(organizationDto, "project-uuid").setKey("old-project-key");
+    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid").setKey("old-project-key");
     db.components().insertComponent(project);
     db.components().insertComponent(newFileDto(project, null).setKey("old-project-key:file"));
     String newLongProjectKey = Strings.repeat("a", 400);
@@ -156,7 +156,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void fail_when_new_key_is_invalid() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Malformed key for 'my?project?key'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
@@ -178,8 +178,8 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void check_component_keys_checks_inactive_components() {
     OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertComponent(newProjectDto(organizationDto).setKey("my-project"));
-    db.components().insertComponent(newProjectDto(organizationDto).setKey("your-project").setEnabled(false));
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("my-project"));
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("your-project").setEnabled(false));
 
     Map<String, Boolean> result = underTest.checkComponentKeys(dbSession, newArrayList("my-project", "your-project", "new-project"));
 
@@ -201,7 +201,7 @@ public class ComponentKeyUpdaterDaoTest {
 
   @Test
   public void simulate_bulk_update_key_do_not_return_disable_components() {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "A").setKey("project"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "A").setKey("project"));
     db.components().insertComponent(newModuleDto(project).setKey("project:enabled-module"));
     db.components().insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
 
@@ -215,7 +215,7 @@ public class ComponentKeyUpdaterDaoTest {
   @Test
   public void simulate_bulk_update_key_fails_if_invalid_componentKey() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, "A").setKey("project"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "A").setKey("project"));
     db.components().insertComponent(newModuleDto(project).setKey("project:enabled-module"));
     db.components().insertComponent(newModuleDto(project).setKey("project:disabled-module").setEnabled(false));
 

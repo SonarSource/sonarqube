@@ -67,7 +67,7 @@ import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -94,7 +94,7 @@ public class ComponentActionTest {
   @Before
   public void before() {
     OrganizationDto organization = dbTester.organizations().insertForKey("my-org");
-    project = newProjectDto(organization, "abcd")
+    project = newPrivateProjectDto(organization, "abcd")
       .setKey("polop")
       .setName("Polop")
       .setDescription("test project")
@@ -368,7 +368,7 @@ public class ComponentActionTest {
   public void test_example_response() throws Exception {
     init(createPages());
     OrganizationDto organizationDto = dbTester.organizations().insertForKey("my-org-1");
-    ComponentDto project = newProjectDto(organizationDto, "ABCD")
+    ComponentDto project = newPrivateProjectDto(organizationDto, "ABCD")
       .setKey("org.codehaus.sonar:sonar")
       .setName("Sonarqube")
       .setDescription("Open source platform for continuous inspection of code quality");
@@ -398,7 +398,7 @@ public class ComponentActionTest {
   public void canApplyPermissionTemplate_is_true_if_logged_in_as_organization_administrator() {
     init(createPages());
     OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(org);
+    ComponentDto project = dbTester.components().insertPrivateProject(org);
 
     userSession.logIn()
       .addProjectPermission(UserRole.ADMIN, project)

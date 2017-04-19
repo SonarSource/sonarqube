@@ -60,7 +60,7 @@ import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
@@ -121,7 +121,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void empty_response() {
-    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
 
     ComponentTreeWsResponse response = ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
@@ -136,7 +136,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void load_measures_and_periods() {
-    ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto projectDto = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     componentDb.insertComponent(projectDto);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession,
       newAnalysis(projectDto)
@@ -172,7 +172,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void load_measures_with_best_value() {
-    ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto projectDto = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
     userSession.anonymous().addProjectPermission(UserRole.USER, projectDto);
     ComponentDto directoryDto = newDirectory(projectDto, "directory-uuid", "path/to/directory").setName("directory-1");
@@ -216,7 +216,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void use_best_value_for_rating() {
-    ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto projectDto = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     userSession.anonymous().addProjectPermission(UserRole.USER, projectDto);
     componentDb.insertComponent(projectDto);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(projectDto)
@@ -249,7 +249,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void load_measures_multi_sort_with_metric_key_and_paginated() {
-    ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto projectDto = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
     ComponentDto file9 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-9").setName("file-1"));
     ComponentDto file8 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-8").setName("file-1"));
@@ -292,7 +292,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void sort_by_metric_value() {
-    ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto projectDto = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
     ComponentDto file4 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-4"));
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
@@ -319,7 +319,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void remove_components_without_measure_on_the_metric_sort() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto file1 = newFileDto(project, null, "file-uuid-1");
     ComponentDto file2 = newFileDto(project, null, "file-uuid-2");
@@ -355,7 +355,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void sort_by_metric_period() {
-    ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto projectDto = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-1"));
@@ -381,7 +381,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void remove_components_without_measure_on_the_metric_period_sort() {
-    ComponentDto projectDto = newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto projectDto = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
     ComponentDto file4 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-4"));
     ComponentDto file3 = componentDb.insertComponent(newFileDto(projectDto, null, "file-uuid-3"));
@@ -415,7 +415,7 @@ public class ComponentTreeActionTest {
   public void load_measures_when_no_leave_qualifier() {
     resourceTypes.setLeavesQualifiers();
     String projectUuid = "project-uuid";
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), projectUuid);
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), projectUuid);
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newFileDto(project, null));
     insertNclocMetric();
@@ -432,7 +432,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_metric_keys_parameter_is_empty() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'metricKeys' parameter must contain at least one metric key");
@@ -445,7 +445,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_a_metric_is_not_found() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     insertNclocMetric();
     insertNewViolationsMetric();
     expectedException.expect(NotFoundException.class);
@@ -458,7 +458,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_using_DISTRIB_metrics() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib1").setValueType(DISTRIB.name()));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("distrib2").setValueType(DISTRIB.name()));
     db.commit();
@@ -474,7 +474,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_using_DATA_metrics() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data1").setValueType(DISTRIB.name()));
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey("data2").setValueType(DISTRIB.name()));
     db.commit();
@@ -490,7 +490,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_setting_more_than_15_metric_keys() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     List<String> metrics = IntStream.range(0, 20)
       .mapToObj(i -> "metric" + i)
       .collect(MoreCollectors.toList());
@@ -507,7 +507,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_search_query_have_less_than_3_characters() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     insertNclocMetric();
     insertNewViolationsMetric();
     expectedException.expect(BadRequestException.class);
@@ -523,7 +523,7 @@ public class ComponentTreeActionTest {
   @Test
   public void fail_when_insufficient_privileges() {
     userSession.logIn();
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     expectedException.expect(ForbiddenException.class);
 
     ws.newRequest()
@@ -534,7 +534,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_sort_by_metric_and_no_metric_sort_provided() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     expectedException.expect(BadRequestException.class);
     expectedException
       .expectMessage("To sort by a metric, the 's' parameter must contain 'metric' or 'metricPeriod', and a metric key must be provided in the 'metricSort' parameter");
@@ -549,7 +549,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_sort_by_metric_and_not_in_the_list_of_metric_keys() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("To sort by the 'complexity' metric, it must be in the list of metric keys in the 'metricKeys' parameter");
 
@@ -563,7 +563,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_sort_by_metric_period_and_no_metric_period_sort_provided() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("To sort by a metric period, the 's' parameter must contain 'metricPeriod' and the 'metricPeriodSort' must be provided.");
 
@@ -578,7 +578,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_paging_parameter_is_too_big() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     insertNclocMetric();
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The 'ps' parameter must be less than 500");
@@ -592,7 +592,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void fail_when_with_measures_only_and_no_metric_sort() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     insertNclocMetric();
     expectedException.expect(BadRequestException.class);
     expectedException
@@ -614,7 +614,7 @@ public class ComponentTreeActionTest {
   }
 
   private void insertJsonExampleData() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-id")
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-id")
       .setKey("MY_PROJECT")
       .setName("My Project")
       .setQualifier(Qualifiers.PROJECT);

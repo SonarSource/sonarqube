@@ -78,7 +78,7 @@ public class ComponentIndexerTest {
 
   @Test
   public void index_everything() {
-    insert(ComponentTesting.newProjectDto(organization));
+    insert(ComponentTesting.newPrivateProjectDto(organization));
 
     index();
     assertThat(count()).isEqualTo(1);
@@ -86,7 +86,7 @@ public class ComponentIndexerTest {
 
   @Test
   public void index_unexisting_project_while_database_contains_another() {
-    insert(ComponentTesting.newProjectDto(organization, "UUID-1"));
+    insert(ComponentTesting.newPrivateProjectDto(organization, "UUID-1"));
 
     index("UUID-2");
     assertThat(count()).isEqualTo(0);
@@ -94,7 +94,7 @@ public class ComponentIndexerTest {
 
   @Test
   public void index_one_project() {
-    ComponentDto project = ComponentTesting.newProjectDto(organization, "UUID-1");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organization, "UUID-1");
     insert(project);
 
     index(project);
@@ -103,7 +103,7 @@ public class ComponentIndexerTest {
 
   @Test
   public void index_one_project_containing_a_file() {
-    ComponentDto projectComponent = ComponentTesting.newProjectDto(organization, "UUID-PROJECT-1");
+    ComponentDto projectComponent = ComponentTesting.newPrivateProjectDto(organization, "UUID-PROJECT-1");
     insert(projectComponent);
     insert(ComponentTesting.newFileDto(projectComponent));
 
@@ -115,7 +115,7 @@ public class ComponentIndexerTest {
   public void index_and_update_and_reindex_project() {
 
     // insert
-    ComponentDto component = ComponentTesting.newProjectDto(organization, "UUID-1").setName("OldName");
+    ComponentDto component = ComponentTesting.newPrivateProjectDto(organization, "UUID-1").setName("OldName");
     insert(component);
 
     // verify insert
@@ -136,7 +136,7 @@ public class ComponentIndexerTest {
   public void index_and_update_and_reindex_project_with_files() {
 
     // insert
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project).setName("OldFile"));
 
     // verify insert
@@ -157,7 +157,7 @@ public class ComponentIndexerTest {
   public void full_reindexing_on_empty_index() {
 
     // insert
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     dbTester.components().insertComponent(ComponentTesting.newFileDto(project).setName("OldFile"));
 
     // verify insert

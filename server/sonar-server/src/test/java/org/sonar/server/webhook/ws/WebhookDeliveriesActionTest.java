@@ -29,6 +29,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -38,7 +39,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Webhooks;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.webhook.WebhookDbTesting.newWebhookDeliveryDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -62,7 +62,7 @@ public class WebhookDeliveriesActionTest {
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     WebhookDeliveriesAction underTest = new WebhookDeliveriesAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertComponent(newProjectDto(db.organizations().insert()).setKey("my-project"));
+    project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("my-project"));
   }
 
   @Test

@@ -28,7 +28,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 /**
  * On H2, the index on PROJECTS.KEE is unique. In order to simulate the MySQL behaviour where the index is not unique,
@@ -50,10 +49,10 @@ public class ComponentDaoWithDuplicatedKeysTest {
   @Test
   public void select_components_having_same_key() {
     OrganizationDto organizationDto = db.organizations().insert();
-    insertProject(newProjectDto(organizationDto).setKey(PROJECT_KEY));
-    insertProject(newProjectDto(organizationDto).setKey(PROJECT_KEY));
-    insertProject(newProjectDto(organizationDto).setKey(PROJECT_KEY));
-    insertProject(newProjectDto(organizationDto).setKey("ANOTHER_PROJECT_KEY"));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey(PROJECT_KEY));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey(PROJECT_KEY));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey(PROJECT_KEY));
+    insertProject(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("ANOTHER_PROJECT_KEY"));
 
     assertThat(underTest.selectComponentsHavingSameKeyOrderedById(db.getSession(), PROJECT_KEY)).hasSize(3);
   }

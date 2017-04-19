@@ -108,7 +108,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
   @Before
   public void setUp() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project);
     dbClient.snapshotDao().insert(dbSession, projectSnapshot);
@@ -326,7 +326,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   }
 
   private ComponentDto createProject(String projectKey) {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert()).setKey(projectKey);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setKey(projectKey);
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
     return project;

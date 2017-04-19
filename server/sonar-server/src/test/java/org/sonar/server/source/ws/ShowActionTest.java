@@ -65,7 +65,7 @@ public class ShowActionTest {
   @Mock
   ComponentDao componentDao;
 
-  ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
+  ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
   ComponentDto file = ComponentTesting.newFileDto(project, null);
 
   @Before

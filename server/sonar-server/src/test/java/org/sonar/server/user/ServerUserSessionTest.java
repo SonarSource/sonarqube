@@ -81,8 +81,8 @@ public class ServerUserSessionTest {
   @Before
   public void setUp() throws Exception {
     organization = db.organizations().insert();
-    publicProject = db.components().insertProject(organization, PUBLIC_PROJECT_UUID);
-    privateProject = db.components().insertProject(organization, dto -> dto.setUuid(PRIVATE_PROJECT_UUID).setProjectUuid(PRIVATE_PROJECT_UUID).setPrivate(true));
+    publicProject = db.components().insertPublicProject(organization, PUBLIC_PROJECT_UUID);
+    privateProject = db.components().insertPrivateProject(organization, dto -> dto.setUuid(PRIVATE_PROJECT_UUID).setProjectUuid(PRIVATE_PROJECT_UUID).setPrivate(true));
     db.components().insertComponent(ComponentTesting.newFileDto(publicProject, null, FILE_UUID).setKey(FILE_KEY));
     user = db.users().insertUser(LOGIN);
     groupOfUser = db.users().insertGroup(organization);
@@ -193,7 +193,7 @@ public class ServerUserSessionTest {
   @Test
   public void test_hasPermission_on_organization_for_logged_in_user() {
     OrganizationDto org = db.organizations().insert();
-    ComponentDto project = db.components().insertProject(org);
+    ComponentDto project = db.components().insertPrivateProject(org);
     db.users().insertPermissionOnUser(org, user, PROVISION_PROJECTS);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
 

@@ -59,7 +59,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGatesTest {
@@ -91,7 +91,7 @@ public class QualityGatesTest {
     when(dbClient.componentDao()).thenReturn(componentDao);
 
     when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(
-      newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
+      newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setKey(PROJECT_KEY));
 
     underTest = new QualityGates(dbClient, metricFinder, userSession);
 

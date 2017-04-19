@@ -71,7 +71,7 @@ public class MeasureDaoTest {
 
   @Test
   public void test_inserted_and_selected_columns() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
     db.components().insertComponent(newFileDto(project).setUuid("C4"));
 
@@ -105,7 +105,7 @@ public class MeasureDaoTest {
 
   @Test
   public void selectByQuery() {
-    ComponentDto project1 = db.components().insertProject();
+    ComponentDto project1 = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project1));
     db.components().insertComponent(newFileDto(module).setUuid("C1"));
     db.components().insertComponent(newFileDto(module).setUuid("C2"));
@@ -113,7 +113,7 @@ public class MeasureDaoTest {
     insertAnalysis(OTHER_ANALYSIS_UUID, project1.uuid(), false);
 
     String project2LastAnalysisUuid = "P2_LAST_ANALYSIS";
-    ComponentDto project2 = db.components().insertProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
     insertAnalysis(project2LastAnalysisUuid, project2.uuid(), true);
 
     // project 1
@@ -200,7 +200,7 @@ public class MeasureDaoTest {
 
   @Test
   public void selectSingle() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertComponent(newFileDto(project).setUuid("C1"));
     insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
     insertMeasure("M1", LAST_ANALYSIS_UUID, "C1", NCLOC_METRIC_ID);
@@ -221,7 +221,7 @@ public class MeasureDaoTest {
 
   @Test
   public void select_tree_by_query() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module1 = db.components().insertComponent(newModuleDto(project));
     ComponentDto module2 = db.components().insertComponent(newModuleDto(project));
     ComponentDto file1 = db.components().insertComponent(newFileDto(module1).setUuid("C1").setName("File One"));
@@ -272,7 +272,7 @@ public class MeasureDaoTest {
 
   @Test
   public void select_tree_by_query_use_only_latest_analysis() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file1 = db.components().insertComponent(newFileDto(project).setUuid("C1").setName("File One"));
     db.components().insertComponent(newFileDto(project).setUuid("C2").setName("File Two").setQualifier(UNIT_TEST_FILE));
     insertAnalysis(LAST_ANALYSIS_UUID, project.uuid(), true);
@@ -305,7 +305,7 @@ public class MeasureDaoTest {
 
   @Test
   public void select_past_measures_with_several_analyses() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     long lastAnalysisDate = parseDate("2017-01-25").getTime();
     long previousAnalysisDate = lastAnalysisDate - 10_000_000_000L;
     long oldAnalysisDate = lastAnalysisDate - 100_000_000_000L;
@@ -329,7 +329,7 @@ public class MeasureDaoTest {
 
   @Test
   public void selectByComponentsAndMetrics() {
-    ComponentDto project1 = db.components().insertProject(db.getDefaultOrganization(), "P1");
+    ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization(), "P1");
     ComponentDto module = db.components().insertComponent(newModuleDto(project1));
     db.components().insertComponent(newFileDto(module).setUuid("C1"));
     db.components().insertComponent(newFileDto(module).setUuid("C2"));
@@ -337,7 +337,7 @@ public class MeasureDaoTest {
     insertAnalysis(OTHER_ANALYSIS_UUID, project1.uuid(), false);
 
     String project2LastAnalysisUuid = "P2_LAST_ANALYSIS";
-    ComponentDto project2 = db.components().insertProject(db.getDefaultOrganization(), "P2");
+    ComponentDto project2 = db.components().insertPrivateProject(db.getDefaultOrganization(), "P2");
     insertAnalysis(project2LastAnalysisUuid, project2.uuid(), true);
 
     // project 1

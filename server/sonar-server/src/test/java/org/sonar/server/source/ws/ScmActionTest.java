@@ -63,7 +63,7 @@ public class ScmActionTest {
     tester = new WsTester(
       new SourcesWs(new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()), userSessionRule, new ComponentFinder(dbClient))));
 
-    project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
+    project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
     file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
     dbClient.componentDao().insert(dbTester.getSession(), project, file);
     dbTester.getSession().commit();

@@ -70,7 +70,7 @@ public class CeQueueImplTest {
 
   @Test
   public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto = insertComponent(ComponentTesting.newProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
+    ComponentDto componentDto = insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
     CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, componentDto.uuid(), null);
 
     CeTask task = underTest.submit(taskSubmit);
@@ -113,7 +113,7 @@ public class CeQueueImplTest {
 
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto1 = insertComponent(ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), "PROJECT_1"));
+    ComponentDto componentDto1 = insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), "PROJECT_1"));
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, componentDto1.uuid(), null);
     CeTaskSubmit taskSubmit2 = createTaskSubmit("something", "non existing component uuid", null);
 

@@ -32,6 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.user.GroupDto;
@@ -58,7 +59,7 @@ import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.Metric.Level.ERROR;
 import static org.sonar.api.measures.Metric.Level.OK;
 import static org.sonar.api.measures.Metric.Level.WARN;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
@@ -75,9 +76,9 @@ public class ProjectMeasuresIndexTest {
   private static final String LANGUAGES = "languages";
 
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
-  private static final ComponentDto PROJECT1 = newProjectDto(ORG).setUuid("Project-1").setName("Project 1").setKey("key-1");
-  private static final ComponentDto PROJECT2 = newProjectDto(ORG).setUuid("Project-2").setName("Project 2").setKey("key-2");
-  private static final ComponentDto PROJECT3 = newProjectDto(ORG).setUuid("Project-3").setName("Project 3").setKey("key-3");
+  private static final ComponentDto PROJECT1 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-1").setName("Project 1").setKey("key-1");
+  private static final ComponentDto PROJECT2 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-2").setName("Project 2").setKey("key-2");
+  private static final ComponentDto PROJECT3 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-3").setName("Project 3").setKey("key-3");
   private static final UserDto USER1 = newUserDto();
   private static final UserDto USER2 = newUserDto();
   private static final GroupDto GROUP1 = newGroupDto();
@@ -103,10 +104,10 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void default_sort_is_by_ascending_case_insensitive_name_then_by_key() {
-    ComponentDto windows = newProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
-    ComponentDto apachee = newProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
-    ComponentDto apache1 = newProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
-    ComponentDto apache2 = newProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
+    ComponentDto windows = ComponentTesting.newPrivateProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
+    ComponentDto apachee = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
+    ComponentDto apache1 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
+    ComponentDto apache2 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
     index(newDoc(windows), newDoc(apachee), newDoc(apache1), newDoc(apache2));
 
     assertResults(new ProjectMeasuresQuery(), apache1, apache2, apachee, windows);
@@ -114,9 +115,9 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void sort_by_insensitive_name() {
-    ComponentDto windows = newProjectDto(ORG).setUuid("windows").setName("Windows");
-    ComponentDto apachee = newProjectDto(ORG).setUuid("apachee").setName("apachee");
-    ComponentDto apache = newProjectDto(ORG).setUuid("apache").setName("Apache");
+    ComponentDto windows = ComponentTesting.newPrivateProjectDto(ORG).setUuid("windows").setName("Windows");
+    ComponentDto apachee = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apachee").setName("apachee");
+    ComponentDto apache = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache").setName("Apache");
     index(newDoc(windows), newDoc(apachee), newDoc(apache));
 
     assertResults(new ProjectMeasuresQuery().setSort("name").setAsc(true), apache, apachee, windows);
@@ -136,10 +137,10 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void sort_by_a_metric_then_by_name_then_by_key() {
-    ComponentDto windows = newProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
-    ComponentDto apachee = newProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
-    ComponentDto apache1 = newProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
-    ComponentDto apache2 = newProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
+    ComponentDto windows = ComponentTesting.newPrivateProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
+    ComponentDto apachee = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
+    ComponentDto apache1 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
+    ComponentDto apache2 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
     index(
       newDoc(windows, NCLOC, 10_000d),
       newDoc(apachee, NCLOC, 5_000d),
@@ -152,7 +153,7 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void sort_by_quality_gate_status() {
-    ComponentDto project4 = newProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
+    ComponentDto project4 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
     index(
       newDoc(PROJECT1).setQualityGateStatus(OK.name()),
       newDoc(PROJECT2).setQualityGateStatus(ERROR.name()),
@@ -165,10 +166,10 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void sort_by_quality_gate_status_then_by_name_then_by_key() {
-    ComponentDto windows = newProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
-    ComponentDto apachee = newProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
-    ComponentDto apache1 = newProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
-    ComponentDto apache2 = newProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
+    ComponentDto windows = ComponentTesting.newPrivateProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
+    ComponentDto apachee = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
+    ComponentDto apache1 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
+    ComponentDto apache2 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
     index(
       newDoc(windows).setQualityGateStatus(WARN.name()),
       newDoc(apachee).setQualityGateStatus(OK.name()),
@@ -182,7 +183,7 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void paginate_results() {
     IntStream.rangeClosed(1, 9)
-      .forEach(i -> index(newDoc(newProjectDto(ORG, "P" + i))));
+      .forEach(i -> index(newDoc(newPrivateProjectDto(ORG, "P" + i))));
 
     SearchIdResult<String> result = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().setPage(2, 3));
 
@@ -284,7 +285,7 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void filter_on_languages() {
-    ComponentDto project4 = newProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
+    ComponentDto project4 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("Project-4").setName("Project 4").setKey("key-4");
     index(
       newDoc(PROJECT1).setLanguages(singletonList("java")),
       newDoc(PROJECT2).setLanguages(singletonList("xoo")),
@@ -298,10 +299,10 @@ public class ProjectMeasuresIndexTest {
 
   @Test
   public void filter_on_query_text() {
-    ComponentDto windows = newProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
-    ComponentDto apachee = newProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
-    ComponentDto apache1 = newProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
-    ComponentDto apache2 = newProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
+    ComponentDto windows = ComponentTesting.newPrivateProjectDto(ORG).setUuid("windows").setName("Windows").setKey("project1");
+    ComponentDto apachee = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apachee").setName("apachee").setKey("project2");
+    ComponentDto apache1 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-1").setName("Apache").setKey("project3");
+    ComponentDto apache2 = ComponentTesting.newPrivateProjectDto(ORG).setUuid("apache-2").setName("Apache").setKey("project4");
     index(newDoc(windows), newDoc(apachee), newDoc(apache1), newDoc(apache2));
 
     assertResults(new ProjectMeasuresQuery().setQueryText("windows"), windows);
@@ -338,8 +339,8 @@ public class ProjectMeasuresIndexTest {
   public void filter_on_organization() {
     OrganizationDto org1 = OrganizationTesting.newOrganizationDto();
     OrganizationDto org2 = OrganizationTesting.newOrganizationDto();
-    ComponentDto projectInOrg1 = newProjectDto(org1);
-    ComponentDto projectInOrg2 = newProjectDto(org2);
+    ComponentDto projectInOrg1 = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto projectInOrg2 = ComponentTesting.newPrivateProjectDto(org2);
     index(newDoc(projectInOrg1), newDoc(projectInOrg2));
 
     ProjectMeasuresQuery query1 = new ProjectMeasuresQuery().setOrganizationUuid(org1.getUuid());
@@ -1282,7 +1283,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   private static ProjectMeasuresDoc newDoc() {
-    return newDoc(newProjectDto(ORG));
+    return newDoc(ComponentTesting.newPrivateProjectDto(ORG));
   }
 
   private static ProjectMeasuresDoc newDoc(ComponentDto project, String metric1, Object value1) {
@@ -1302,15 +1303,15 @@ public class ProjectMeasuresIndexTest {
   }
 
   private static ProjectMeasuresDoc newDoc(String metric1, Object value1) {
-    return newDoc(newProjectDto(ORG), metric1, value1);
+    return newDoc(ComponentTesting.newPrivateProjectDto(ORG), metric1, value1);
   }
 
   private static ProjectMeasuresDoc newDoc(String metric1, Object value1, String metric2, Object value2) {
-    return newDoc(newProjectDto(ORG), metric1, value1, metric2, value2);
+    return newDoc(ComponentTesting.newPrivateProjectDto(ORG), metric1, value1, metric2, value2);
   }
 
   private static ProjectMeasuresDoc newDoc(String metric1, Object value1, String metric2, Object value2, String metric3, Object value3) {
-    return newDoc(newProjectDto(ORG), metric1, value1, metric2, value2, metric3, value3);
+    return newDoc(ComponentTesting.newPrivateProjectDto(ORG), metric1, value1, metric2, value2, metric3, value3);
   }
 
   private void assertResults(ProjectMeasuresQuery query, ComponentDto... expectedProjects) {
