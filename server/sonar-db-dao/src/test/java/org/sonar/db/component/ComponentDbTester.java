@@ -27,7 +27,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -48,10 +47,6 @@ public class ComponentDbTester {
   }
 
   public SnapshotDto insertViewAndSnapshot(ComponentDto component) {
-    return insertComponentAndSnapshot(component);
-  }
-
-  public SnapshotDto insertDeveloperAndSnapshot(ComponentDto component) {
     return insertComponentAndSnapshot(component);
   }
 
@@ -111,18 +106,6 @@ public class ComponentDbTester {
 
   public ComponentDto insertView(OrganizationDto organizationDto, String uuid) {
     return insertComponentImpl(newView(organizationDto, uuid), noExtraConfiguration());
-  }
-
-  public ComponentDto insertDeveloper(String name, Consumer<ComponentDto> dtoPopulator) {
-    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name), dtoPopulator);
-  }
-
-  public ComponentDto insertDeveloper(String name) {
-    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name), noExtraConfiguration());
-  }
-
-  public ComponentDto insertDeveloper(String name, String uuid) {
-    return insertComponentImpl(newDeveloper(db.getDefaultOrganization(), name, uuid), noExtraConfiguration());
   }
 
   private static <T> Consumer<T> noExtraConfiguration() {
