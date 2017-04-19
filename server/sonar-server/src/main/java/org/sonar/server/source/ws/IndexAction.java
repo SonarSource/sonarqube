@@ -80,7 +80,7 @@ public class IndexAction implements SourcesWsAction {
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, fileKey);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
-      Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(session, component.uuid(), from, to == null ? Integer.MAX_VALUE : to - 1);
+      Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(session, component.uuid(), from, to == null ? Integer.MAX_VALUE : (to - 1));
       JsonWriter json = response.newJsonWriter().beginArray().beginObject();
       if (lines.isPresent()) {
         int lineCounter = from;
