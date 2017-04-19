@@ -69,7 +69,6 @@ public class SuggestionsAction implements ComponentsWsAction {
   static final String SHORT_INPUT_WARNING = "short_input";
   private static final long MAXIMUM_RECENTLY_BROWSED = 50;
 
-  static final int DEFAULT_LIMIT = 6;
   static final int EXTENDED_LIMIT = 20;
 
   private final ComponentIndex index;
@@ -107,7 +106,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setExampleValue("sonar");
 
     action.createParam(PARAM_MORE)
-      .setDescription("Category, for which to display " + EXTENDED_LIMIT + " instead of " + DEFAULT_LIMIT + " results")
+      .setDescription("Category, for which to display " + EXTENDED_LIMIT + " instead of " + ComponentIndexQuery.DEFAULT_LIMIT + " results")
       .setPossibleValues(stream(SuggestionCategory.values()).map(SuggestionCategory::getName).toArray(String[]::new))
       .setSince("6.4");
 
@@ -153,13 +152,14 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private ComponentIndexResults getComponentsPerQualifiers(@Nullable String more, ComponentIndexQuery.Builder queryBuilder) {
+    List<String> qualifiers;
     if (more == null) {
-      queryBuilder.setQualifiers(stream(SuggestionCategory.values()).map(SuggestionCategory::getQualifier).collect(Collectors.toList()))
-        .setLimit(DEFAULT_LIMIT);
+      qualifiers = stream(SuggestionCategory.values()).map(SuggestionCategory::getQualifier).collect(Collectors.toList());
     } else {
-      queryBuilder.setQualifiers(singletonList(SuggestionCategory.getByName(more).getQualifier()))
-        .setLimit(EXTENDED_LIMIT);
+      qualifiers = singletonList(SuggestionCategory.getByName(more).getQualifier());
+      queryBuilder.setLimit(EXTENDED_LIMIT);
     }
+    queryBuilder.setQualifiers(qualifiers);
     return searchInIndex(queryBuilder.build());
   }
 

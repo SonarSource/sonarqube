@@ -60,7 +60,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.component.ws.SuggestionsAction.DEFAULT_LIMIT;
+import static org.sonar.server.component.index.ComponentIndexQuery.DEFAULT_LIMIT;
 import static org.sonar.server.component.ws.SuggestionsAction.EXTENDED_LIMIT;
 import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
