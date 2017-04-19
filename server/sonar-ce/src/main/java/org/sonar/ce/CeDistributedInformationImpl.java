@@ -26,6 +26,7 @@ import java.util.concurrent.locks.Lock;
 import org.picocontainer.Startable;
 import org.sonar.ce.cluster.HazelcastClientWrapper;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
+import org.sonar.process.cluster.ClusterObjectKeys;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.process.cluster.ClusterObjectKeys.WORKER_UUIDS;
@@ -59,8 +60,8 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
   }
 
   @Override
-  public Lock acquireLock(String name) {
-    return hazelcastClientWrapper.getLock(name);
+  public Lock acquireCleanJobLock() {
+    return hazelcastClientWrapper.getLock(ClusterObjectKeys.CE_CLEANING_JOB_LOCK);
   }
 
   @Override

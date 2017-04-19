@@ -39,5 +39,5 @@ public interface CeDistributedInformation {
   /**
    * Acquire a lock among all the Compute Engines
    */
-  Lock acquireLock(String name);
+  Lock acquireCleanJobLock();
 }

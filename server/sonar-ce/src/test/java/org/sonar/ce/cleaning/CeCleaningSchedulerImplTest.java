@@ -35,15 +35,12 @@ import org.sonar.ce.queue.InternalCeQueue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.process.cluster.ClusterObjectKeys.CE_CLEANING_JOB_LOCK;
 
 public class CeCleaningSchedulerImplTest {
 
@@ -105,7 +102,7 @@ public class CeCleaningSchedulerImplTest {
     CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
     underTest.startScheduling();
 
-    verify(mockedCeDistributedInformation, times(1)).acquireLock(CE_CLEANING_JOB_LOCK);
+    verify(mockedCeDistributedInformation, times(1)).acquireCleanJobLock();
     verify(jobLock, times(1)).tryLock();
     verify(jobLock, times(1)).unlock();
   }
@@ -119,7 +116,7 @@ public class CeCleaningSchedulerImplTest {
     CeCleaningSchedulerImpl underTest = mockCeCleaningSchedulerImpl(mockedInternalCeQueue, mockedCeDistributedInformation);
     underTest.startScheduling();
 
-    verify(mockedCeDistributedInformation, times(1)).acquireLock(CE_CLEANING_JOB_LOCK);
+    verify(mockedCeDistributedInformation, times(1)).acquireCleanJobLock();
     verify(jobLock, times(1)).tryLock();
     // since lock cannot be locked, unlock method is not been called
     verify(jobLock, times(0)).unlock();
@@ -187,10 +184,8 @@ public class CeCleaningSchedulerImplTest {
 
   private CeDistributedInformation mockCeDistributedInformation(Lock result) {
     CeDistributedInformation mocked = mock(CeDistributedInformation.class);
-    when(mocked.acquireLock(CE_CLEANING_JOB_LOCK)).thenReturn(result);
+    when(mocked.acquireCleanJobLock()).thenReturn(result);
     when(result.tryLock()).thenReturn(true);
-    when(mocked.acquireLock(not(eq(CE_CLEANING_JOB_LOCK))))
-      .thenThrow(new IllegalStateException("This lock is unexpected. CE_CLEANING_JOB_LOCK should have been used"));
     return mocked;
   }
 

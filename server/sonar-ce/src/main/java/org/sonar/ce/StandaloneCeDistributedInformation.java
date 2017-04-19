@@ -20,11 +20,10 @@
 
 package org.sonar.ce;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -35,7 +34,8 @@ import static com.google.common.base.Preconditions.checkState;
 public class StandaloneCeDistributedInformation implements CeDistributedInformation {
   private final CeWorkerFactory ceCeWorkerFactory;
   private Set<String> workerUUIDs;
-  private final Map<String, Lock> locks = new HashMap<>();
+
+  private Lock cleanJobLock = new NonConcurrentLock();
 
   public StandaloneCeDistributedInformation(CeWorkerFactory ceCeWorkerFactory) {
     this.ceCeWorkerFactory = ceCeWorkerFactory;
@@ -52,11 +52,46 @@ public class StandaloneCeDistributedInformation implements CeDistributedInformat
     workerUUIDs = ceCeWorkerFactory.getWorkerUUIDs();
   }
 
+  /**
+   * Since StandaloneCeDistributedInformation in fact does not provide any distribution support, the lock returned by
+   * this method provides no concurrency support at all.
+   */
   @Override
-  public synchronized Lock acquireLock(String name) {
-    if (locks.get(name) == null) {
-      locks.put(name, new ReentrantLock());
+  public Lock acquireCleanJobLock() {
+    return cleanJobLock;
+  }
+
+  private static class NonConcurrentLock implements Lock {
+    @Override
+    public void lock() {
+      // return immediately and never block
     }
-    return locks.get(name);
+
+    @Override
+    public void lockInterruptibly() throws InterruptedException {
+      // return immediately and never block
+    }
+
+    @Override
+    public boolean tryLock() {
+      // always succeed
+      return true;
+    }
+
+    @Override
+    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+      // always succeed
+      return true;
+    }
+
+    @Override
+    public void unlock() {
+      // nothing to do
+    }
+
+    @Override
+    public Condition newCondition() {
+      throw new UnsupportedOperationException("newCondition not supported");
+    }
   }
 }
