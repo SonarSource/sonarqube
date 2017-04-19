@@ -60,7 +60,7 @@ public class ServerTest extends PerfTestCase {
       // compare dates of first and last log
       long firstLogDate = ServerLogs.extractFirstDate(readLines(orchestrator.getServer().getAppLogs())).getTime();
       long startedAtDate = extractStartedAtDate(orchestrator);
-      assertDurationAround(startedAtDate - firstLogDate, 23_000);
+      assertDurationAround(startedAtDate - firstLogDate, 25_000);
 
       ServerLogs.clear(orchestrator);
       orchestrator.stop();
