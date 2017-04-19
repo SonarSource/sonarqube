@@ -133,6 +133,7 @@ public class ListAction implements WebServicesWsAction {
     writer.prop("deprecatedSince", param.deprecatedSince());
     writer.prop("deprecatedKey", param.deprecatedKey());
     writer.prop("deprecatedKeySince", param.deprecatedKeySince());
+    writer.prop("maxValuesAllowed", param.maxValuesAllowed());
     Set<String> possibleValues = param.possibleValues();
     if (possibleValues != null) {
       writer.name("possibleValues").beginArray().values(possibleValues).endArray();

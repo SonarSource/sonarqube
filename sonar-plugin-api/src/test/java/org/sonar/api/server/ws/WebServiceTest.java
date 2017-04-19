@@ -45,7 +45,7 @@ public class WebServiceTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  WebService.Context context = new WebService.Context();
+  private WebService.Context context = new WebService.Context();
 
   @Test
   public void no_web_services_by_default() {
@@ -195,7 +195,8 @@ public class WebServiceTest {
         .setSince("4.4")
         .setDeprecatedSince("5.3")
         .setDeprecatedKey("old-severity", "4.5")
-        .setPossibleValues("INFO", "MAJOR", "BLOCKER");
+        .setPossibleValues("INFO", "MAJOR", "BLOCKER")
+        .setMaxValuesAllowed(10);
       newAction.createParam("internal")
         .setInternal(true);
       newAction.addPagingParams(20);
@@ -223,6 +224,7 @@ public class WebServiceTest {
     assertThat(severityParam.deprecatedKeySince()).isEqualTo("4.5");
     assertThat(severityParam.defaultValue()).isEqualTo("MAJOR");
     assertThat(severityParam.possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
+    assertThat(severityParam.maxValuesAllowed()).isEqualTo(10);
 
     WebService.Param internalParam = action.param("internal");
     assertThat(internalParam.isInternal()).isTrue();

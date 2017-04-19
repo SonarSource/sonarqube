@@ -636,6 +636,7 @@ public interface WebService extends Definable<WebService.Context> {
     private boolean required = false;
     private boolean internal = false;
     private Set<String> possibleValues = null;
+    private Integer maxValuesAllowed = null;
 
     private NewParam(String key) {
       this.key = key;
@@ -765,6 +766,14 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
+    /**
+     * @since 6.4
+     */
+    public NewParam setMaxValuesAllowed(@Nullable Integer maxValuesAllowed) {
+      this.maxValuesAllowed = maxValuesAllowed;
+      return this;
+    }
+
     @Override
     public String toString() {
       return key;
@@ -818,6 +827,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final boolean required;
     private final boolean internal;
     private final Set<String> possibleValues;
+    private final Integer maxValuesAllowed;
 
     protected Param(Action action, NewParam newParam) {
       this.key = newParam.key;
@@ -831,9 +841,8 @@ public interface WebService extends Definable<WebService.Context> {
       this.required = newParam.required;
       this.internal = newParam.internal;
       this.possibleValues = newParam.possibleValues;
-      if (required && defaultValue != null) {
-        throw new IllegalArgumentException(format("Default value must not be set on parameter '%s?%s' as it's marked as required", action, key));
-      }
+      this.maxValuesAllowed = newParam.maxValuesAllowed;
+      checkArgument(!required || defaultValue == null, "Default value must not be set on parameter '%s?%s' as it's marked as required", action, key);
     }
 
     public String key() {
@@ -918,6 +927,15 @@ public interface WebService extends Definable<WebService.Context> {
     @CheckForNull
     public String defaultValue() {
       return defaultValue;
+    }
+
+    /**
+     * Specify the maximum number of values allowed when using this a parameter
+     *
+     * @since 6.4
+     */
+    public Integer maxValuesAllowed() {
+      return maxValuesAllowed;
     }
 
     @Override
