@@ -41,7 +41,8 @@ public class DeleteAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("delete")
-      .setDescription("Delete custom rule")
+      .setDescription("Delete custom rule.<br/>" +
+        "Requires the 'Administer Quality Profiles' permission")
       .setSince("4.4")
       .setPost(true)
       .setHandler(this);

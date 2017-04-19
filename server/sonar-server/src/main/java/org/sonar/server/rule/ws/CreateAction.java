@@ -65,19 +65,22 @@ public class CreateAction implements RulesWsAction {
   private final RuleCreator ruleCreator;
   private final RuleMapper ruleMapper;
   private final OrganizationFlags organizationFlags;
+  private final RuleWsSupport ruleWsSupport;
 
-  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper, OrganizationFlags organizationFlags) {
+  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper, OrganizationFlags organizationFlags, RuleWsSupport ruleWsSupport) {
     this.dbClient = dbClient;
     this.ruleCreator = ruleCreator;
     this.ruleMapper = ruleMapper;
     this.organizationFlags = organizationFlags;
+    this.ruleWsSupport = ruleWsSupport;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("create")
-      .setDescription("Create a custom rule")
+      .setDescription("Create a custom rule.<br>" +
+        "Requires the 'Administer Quality Profiles' permission")
       .setSince("4.4")
       .setChangelog(
         new Change("5.5", "Creating manual rule is not more possible"),
@@ -137,6 +140,7 @@ public class CreateAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    ruleWsSupport.checkQProfileAdminPermission();
     String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
     try (DbSession dbSession = dbClient.openSession(false)) {
       organizationFlags.checkDisabled(dbSession);
