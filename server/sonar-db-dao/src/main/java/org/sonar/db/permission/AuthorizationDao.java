@@ -139,7 +139,7 @@ public class AuthorizationDao implements Dao {
 
   /**
    * Keep only authorized user that have the given permission on a given project.
-   * Please Note that if the permission is 'Anyone' is NOT taking into account by thie method.
+   * Please Note that if the permission is 'Anyone' is NOT taking into account by this method.
    */
   public Collection<Integer> keepAuthorizedUsersForRoleAndProject(DbSession dbSession, Collection<Integer> userIds, String role, long projectId) {
     return executeLargeInputs(
