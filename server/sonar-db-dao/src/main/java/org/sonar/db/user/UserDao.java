@@ -106,20 +106,8 @@ public class UserDao implements Dao {
     mapper(session).setRoot(login, root, system2.now());
   }
 
-  /**
-   * Deactivate a user and drops all his preferences.
-   * @return false if the user does not exist, true if the existing user has been deactivated
-   */
-  public boolean deactivateUserByLogin(DbSession dbSession, String login) {
-    UserMapper mapper = mapper(dbSession);
-    UserDto dto = mapper.selectUserByLogin(login);
-    if (dto == null) {
-      return false;
-    }
-
-    mapper.deactivateUser(dto.getId(), system2.now());
-    dbSession.commit();
-    return true;
+  public void deactivateUserById(DbSession dbSession, int userId) {
+    mapper(dbSession).deactivateUser(userId, system2.now());
   }
 
   @CheckForNull

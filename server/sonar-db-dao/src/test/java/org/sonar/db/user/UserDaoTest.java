@@ -40,8 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
-import static org.sonar.db.user.GroupMembershipQuery.builder;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
@@ -388,13 +386,10 @@ public class UserDaoTest {
   public void deactivate_user() throws Exception {
     UserDto user = newActiveUser();
     insertUserGroup(user);
-
     UserDto otherUser = newActiveUser();
-
     session.commit();
 
-    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
-    assertThat(deactivated).isTrue();
+    underTest.deactivateUserById(session, user.getId());
 
     UserDto userReloaded = underTest.selectUserById(session, user.getId());
     assertThat(userReloaded.isActive()).isFalse();
@@ -406,18 +401,12 @@ public class UserDaoTest {
     assertThat(userReloaded.getExternalIdentityProvider()).isNull();
     assertThat(userReloaded.isRoot()).isFalse();
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
-
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
-
-    assertThat(dbClient.groupMembershipDao().countGroups(session, builder().organizationUuid(db.getDefaultOrganization().getUuid()).membership(IN).build(), user.getId())).isZero();
   }
 
   @Test
-  public void deactivate_missing_user() {
-    String login = "does_not_exist";
-    boolean deactivated = underTest.deactivateUserByLogin(session, login);
-    assertThat(deactivated).isFalse();
-    assertThat(underTest.selectActiveUserByLogin(session, login)).isNull();
+  public void does_not_fail_to_deactivate_missing_user() {
+    underTest.deactivateUserById(session, 123);
   }
 
   @Test
