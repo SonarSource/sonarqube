@@ -343,6 +343,14 @@
     </where>
   </delete>
 
+  <delete id="deleteByKeyAndValue" parameterType="map">
+    DELETE FROM properties
+    <where>
+      AND prop_key = #{key,jdbcType=VARCHAR}
+      AND text_value LIKE #{value,jdbcType=VARCHAR}
+    </where>
+  </delete>
+
   <delete id="deleteByIds" parameterType="long">
     delete from properties
     where

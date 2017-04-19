@@ -34,8 +34,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDto;
-import org.sonar.db.property.PropertyQuery;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -416,24 +414,6 @@ public class UserDaoTest {
   }
 
   @Test
-  public void deactivate_user_also_remove_default_assignee_login_properties() throws Exception {
-    UserDto user = newActiveUser();
-    insertProperty("sonar.issues.defaultAssigneeLogin", user.getLogin(), 10L);
-    insertProperty("sonar.issues.defaultAssigneeLogin", user.getLogin(), 11L);
-    insertProperty("sonar.issues.defaultAssigneeLogin", user.getLogin(), 12L);
-
-    UserDto otherUser = newActiveUser();
-    insertProperty("sonar.issues.defaultAssigneeLogin", otherUser.getLogin(), 13L);
-
-    session.commit();
-
-    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
-    assertThat(deactivated).isTrue();
-
-    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey("sonar.issues.defaultAssigneeLogin").build(), session)).hasSize(1);
-  }
-
-  @Test
   public void deactivate_user_also_remove_all_his_organization_membership() throws Exception {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
@@ -615,12 +595,6 @@ public class UserDaoTest {
   private UserDto insertUser(boolean active) {
     UserDto dto = newUserDto().setActive(active);
     underTest.insert(session, dto);
-    return dto;
-  }
-
-  private PropertyDto insertProperty(String key, String value, long componentId) {
-    PropertyDto dto = new PropertyDto().setKey(key).setValue(value).setResourceId(componentId);
-    dbClient.propertiesDao().saveProperty(session, dto);
     return dto;
   }
 

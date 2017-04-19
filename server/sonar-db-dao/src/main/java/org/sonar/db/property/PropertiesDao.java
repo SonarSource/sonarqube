@@ -282,6 +282,10 @@ public class PropertiesDao implements Dao {
     executeLargeInputsWithoutOutput(ids, list -> getMapper(dbSession).deleteByIds(list));
   }
 
+  public void deleteByKeyAndValue(DbSession dbSession, String key, String value){
+    getMapper(dbSession).deleteByKeyAndValue(key, value);
+  }
+
   public void saveGlobalProperties(Map<String, String> properties) {
     try (DbSession session = mybatis.openSession(false)) {
       PropertiesMapper mapper = getMapper(session);

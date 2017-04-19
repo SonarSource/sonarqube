@@ -76,6 +76,8 @@ public interface PropertiesMapper {
 
   void deleteByIds(@Param("ids") List<Long> ids);
 
+  void deleteByKeyAndValue(@Param("key") String key, @Param("value") String value);
+
   int renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
 
 }
