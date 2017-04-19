@@ -179,7 +179,9 @@
       and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
             gr.resource_id=#{element,jdbcType=BIGINT}
           </foreach>
+
     union
+
     select
       p.id
     from
@@ -192,6 +194,10 @@
       and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
         p.id=#{element,jdbcType=BIGINT}
       </foreach>
+
+    union
+
+    <include refid="sqlSelectPublicProjectsIfRole"/>
   </select>
 
   <select id="keepAuthorizedProjectIdsForAnonymous" parameterType="map" resultType="long">
@@ -205,7 +211,24 @@
       and <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
             gr.resource_id=#{element,jdbcType=BIGINT}
           </foreach>
+
+    union
+
+    <include refid="sqlSelectPublicProjectsIfRole"/>
   </select>
+
+  <sql id="sqlSelectPublicProjectsIfRole">
+    select
+      p.id
+    from
+      projects p
+    where
+      <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+        p.id=#{element,jdbcType=BIGINT}
+      </foreach>
+      and p.private = ${_false}
+      and #{role,jdbcType=VARCHAR} in ('user','codeviewer')
+  </sql>
 
   <select id="keepAuthorizedUsersForRoleAndProject" parameterType="map" resultType="int">
     select
