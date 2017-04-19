@@ -78,7 +78,7 @@ public class ProjectStatusActionTest {
   @Test
   public void json_example() throws IOException {
     ComponentDto project = db.components().insertProject(db.organizations().insert());
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
@@ -113,7 +113,7 @@ public class ProjectStatusActionTest {
       newMeasureDto(metric, project, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
     dbSession.commit();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
@@ -136,7 +136,7 @@ public class ProjectStatusActionTest {
       newMeasureDto(metric, project, snapshot)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
     dbSession.commit();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, "project-key")
@@ -150,7 +150,7 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     ProjectStatusWsResponse result = call(snapshot.getUuid());
 
@@ -161,7 +161,7 @@ public class ProjectStatusActionTest {
   @Test
   public void return_undefined_status_if_snapshot_is_not_found() {
     ComponentDto project = db.components().insertProject(db.organizations().insert());
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     ProjectStatusWsResponse result = callByProjectUuid(project.uuid());
 
@@ -174,7 +174,7 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
-    userSession.addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.addProjectPermission(UserRole.ADMIN, project);
 
     call(snapshot.getUuid());
   }
@@ -184,7 +184,7 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertProject(db.organizations().insert());
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
-    userSession.addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.addProjectPermission(UserRole.USER, project);
 
     call(snapshot.getUuid());
   }

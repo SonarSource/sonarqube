@@ -28,9 +28,9 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -187,8 +187,8 @@ public class UserSessionRule implements TestRule, UserSession {
     setCurrentUserSession(userSession);
   }
 
-  public UserSessionRule addProjectUuidPermissions(String projectPermission, String... projectUuids) {
-    ensureAbstractMockUserSession().addProjectUuidPermissions(projectPermission, projectUuids);
+  public UserSessionRule addProjectPermission(String projectPermission, ComponentDto... components) {
+    ensureAbstractMockUserSession().addProjectPermission(projectPermission, components);
     return this;
   }
 
@@ -213,11 +213,6 @@ public class UserSessionRule implements TestRule, UserSession {
    */
   public UserSessionRule setGroups(GroupDto... groups) {
     ensureMockUserSession().setGroups(groups);
-    return this;
-  }
-
-  public UserSessionRule addComponentUuidPermission(String projectPermission, String projectUuid, String componentUuid) {
-    ensureAbstractMockUserSession().addComponentUuidPermission(projectPermission, projectUuid, componentUuid);
     return this;
   }
 

@@ -64,7 +64,7 @@ public class DeleteActionTest {
   @Test
   public void project_administrator_can_delete_custom_measures() throws Exception {
     ComponentDto project = db.components().insertProject();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     long id = insertCustomMeasure(project);
 
     newRequest().setParam(PARAM_ID, valueOf(id)).execute();

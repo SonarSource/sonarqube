@@ -487,7 +487,7 @@ public class BulkChangeActionTest {
   private void addUserProjectPermissions(ComponentDto project, String... permissions) {
     for (String permission : permissions) {
       db.users().insertProjectPermissionOnUser(user, permission, project);
-      userSession.addProjectUuidPermissions(permission, project.uuid());
+      userSession.addProjectPermission(permission, project);
     }
   }
 

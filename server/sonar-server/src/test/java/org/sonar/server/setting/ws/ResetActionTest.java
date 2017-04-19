@@ -230,7 +230,7 @@ public class ResetActionTest {
 
   @Test
   public void throw_ForbiddenException_if_project_setting_and_not_project_administrator() throws Exception {
-    userSession.logIn().addProjectUuidPermissions(USER, project.uuid());
+    userSession.logIn().addProjectPermission(USER, project);
     definitions.addComponent(PropertyDefinition.builder("foo").build());
 
     expectedException.expect(ForbiddenException.class);
@@ -317,7 +317,7 @@ public class ResetActionTest {
   }
 
   private void logInAsProjectAdmin() {
-    userSession.logIn().addProjectUuidPermissions(ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(ADMIN, project);
   }
 
   private void assertGlobalPropertyDoesNotExist(String key) {

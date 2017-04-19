@@ -20,13 +20,15 @@
 package org.sonar.server.tester;
 
 import com.google.common.collect.HashMultimap;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.AbstractUserSession;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
@@ -34,7 +36,7 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
   private HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   private final HashMultimap<String, OrganizationPermission> permissionsByOrganizationUuid = HashMultimap.create();
   private Map<String, String> projectUuidByComponentUuid = newHashMap();
-  private List<String> projectPermissionsCheckedByUuid = newArrayList();
+  private Set<String> projectPermissionsCheckedByUuid = new HashSet<>();
   private boolean systemAdministrator = false;
 
   protected AbstractMockUserSession(Class<T> clazz) {
@@ -51,22 +53,16 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
   }
 
-
-  public T addProjectUuidPermissions(String projectPermission, String... projectUuids) {
-    this.projectPermissionsCheckedByUuid.add(projectPermission);
-    this.projectUuidByPermission.putAll(projectPermission, newArrayList(projectUuids));
-    for (String projectUuid : projectUuids) {
-      this.projectUuidByComponentUuid.put(projectUuid, projectUuid);
-    }
+  public T addProjectPermission(String permission, ComponentDto... components) {
+    this.projectPermissionsCheckedByUuid.add(permission);
+    Arrays.stream(components)
+      .forEach(component -> {
+        this.projectUuidByPermission.put(permission, component.projectUuid());
+        this.projectUuidByComponentUuid.put(component.uuid(), component.projectUuid());
+      });
     return clazz.cast(this);
   }
 
-  public T addComponentUuidPermission(String projectPermission, String projectUuid, String componentUuid) {
-    this.projectUuidByComponentUuid.put(componentUuid, projectUuid);
-    addProjectUuidPermissions(projectPermission, projectUuid);
-    return clazz.cast(this);
-  }
-  
   @Override
   protected Optional<String> componentUuidToProjectUuid(String componentUuid) {
     return Optional.ofNullable(projectUuidByComponentUuid.get(componentUuid));

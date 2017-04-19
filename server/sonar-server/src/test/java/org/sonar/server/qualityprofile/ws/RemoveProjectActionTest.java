@@ -112,7 +112,7 @@ public class RemoveProjectActionTest {
     ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
     db.qualityProfiles().associateProjectWithQualityProfile(project, profile);
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     call(project, profile);
 

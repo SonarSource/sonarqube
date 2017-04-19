@@ -66,8 +66,9 @@ public class SetTypeActionTest {
 
   @Test
   public void set_type() {
-    DefaultIssue issue = newIssue().setType(BUG).toDefaultIssue();
-    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+    IssueDto issueDto = newIssue().setType(BUG);
+    DefaultIssue issue = issueDto.toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     action.execute(ImmutableMap.of("type", VULNERABILITY.name()),
       new BulkChangeAction.ActionContext(issue, IssueChangeContext.createUser(NOW, userSession.getLogin()), null));
@@ -99,8 +100,9 @@ public class SetTypeActionTest {
 
   @Test
   public void support_only_unresolved_issues() {
-    DefaultIssue issue = newIssue().setType(BUG).toDefaultIssue();
-    setUserWithBrowseAndAdministerIssuePermission(issue.projectUuid());
+    IssueDto issueDto = newIssue().setType(BUG);
+    DefaultIssue issue = issueDto.toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     assertThat(action.supports(issue.setResolution(null))).isTrue();
     assertThat(action.supports(issue.setResolution(Issue.RESOLUTION_FIXED))).isFalse();
@@ -108,18 +110,21 @@ public class SetTypeActionTest {
 
   @Test
   public void support_only_issues_with_issue_admin_permission() {
-    DefaultIssue authorizedIssue = newIssue().setType(BUG).toDefaultIssue();
-    setUserWithBrowseAndAdministerIssuePermission(authorizedIssue.projectUuid());
+    IssueDto authorizedIssueDto = newIssue().setType(BUG);
+    DefaultIssue authorizedIssue = authorizedIssueDto.toDefaultIssue();
+    setUserWithBrowseAndAdministerIssuePermission(authorizedIssueDto);
     DefaultIssue unauthorizedIssue = newIssue().setType(BUG).toDefaultIssue();
 
     assertThat(action.supports(authorizedIssue.setResolution(null))).isTrue();
     assertThat(action.supports(unauthorizedIssue.setResolution(null))).isFalse();
   }
 
-  private void setUserWithBrowseAndAdministerIssuePermission(String projectUuid) {
+  private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issueDto) {
+    ComponentDto project = db.getDbClient().componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get();
+    ComponentDto component = db.getDbClient().componentDao().selectByUuid(db.getSession(), issueDto.getComponentUuid()).get();
     userSession.logIn(USER_LOGIN)
-      .addProjectUuidPermissions(ISSUE_ADMIN, projectUuid)
-      .addProjectUuidPermissions(USER, projectUuid);
+      .addProjectPermission(ISSUE_ADMIN, project, component)
+      .addProjectPermission(USER, project, component);
   }
 
   private IssueDto newIssue() {

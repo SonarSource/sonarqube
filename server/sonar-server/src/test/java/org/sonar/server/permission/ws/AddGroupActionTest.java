@@ -301,7 +301,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
   public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
     GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
     ComponentDto project = db.components().insertProject();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())

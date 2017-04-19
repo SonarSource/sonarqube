@@ -105,7 +105,7 @@ public class AddCommentActionTest {
   @Test
   public void add_comment() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    loginWithBrowsePermission(issueDto, USER);
 
     call(issueDto.getKey(), "please fix it");
 
@@ -151,7 +151,7 @@ public class AddCommentActionTest {
   @Test
   public void fail_when_empty_comment_text() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    loginWithBrowsePermission(issueDto, USER);
 
     expectedException.expect(IllegalArgumentException.class);
     call(issueDto.getKey(), "");
@@ -166,7 +166,7 @@ public class AddCommentActionTest {
   @Test
   public void fail_when_not_enough_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.logIn("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
+    loginWithBrowsePermission(issueDto, CODEVIEWER);
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), "please fix it");
@@ -187,6 +187,12 @@ public class AddCommentActionTest {
     setNullable(issueKey, issue -> request.setParam("issue", issue));
     setNullable(commentText, text -> request.setParam("text", text));
     return request.execute();
+  }
+
+  private void loginWithBrowsePermission(IssueDto issueDto, String permission) {
+    userSession.logIn("john").addProjectPermission(permission,
+      dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
+      dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
   }
 
 }

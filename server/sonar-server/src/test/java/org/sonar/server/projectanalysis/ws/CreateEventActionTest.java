@@ -42,7 +42,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
 import org.sonarqube.ws.client.projectanalysis.CreateEventRequest;
@@ -354,7 +353,7 @@ public class CreateEventActionTest {
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 
   private CreateEventResponse call(CreateEventRequest.Builder requestBuilder) {

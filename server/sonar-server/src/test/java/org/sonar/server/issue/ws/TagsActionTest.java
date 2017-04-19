@@ -213,7 +213,7 @@ public class TagsActionTest {
   }
 
   private void setUserWithBrowsePermission(IssueDto issue) {
-    userSession.logIn("john").addProjectUuidPermissions(USER, issue.getProjectUuid());
+    userSession.logIn("john").addProjectPermission(USER, db.getDbClient().componentDao().selectByUuid(db.getSession(), issue.getProjectUuid()).get());
   }
 
   private IssueDto insertIssueWithBrowsePermission(RuleDefinitionDto rule, String... tags) {

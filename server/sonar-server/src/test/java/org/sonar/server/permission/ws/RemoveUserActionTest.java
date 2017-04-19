@@ -265,7 +265,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
     ComponentDto project = db.components().insertProject();
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, project);
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())

@@ -55,17 +55,23 @@ public class ScmActionTest {
   private WsTester tester;
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
+  private ComponentDto project;
+  private ComponentDto file;
 
   @Before
   public void setUp() {
     tester = new WsTester(
       new SourcesWs(new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()), userSessionRule, new ComponentFinder(dbClient))));
+
+    project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
+    file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
+    dbClient.componentDao().insert(dbTester.getSession(), project, file);
+    dbTester.getSession().commit();
   }
 
   @Test
   public void show_scm() throws Exception {
-    initFile();
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
@@ -80,8 +86,7 @@ public class ScmActionTest {
 
   @Test
   public void show_scm_from_given_range_lines() throws Exception {
-    initFile();
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
@@ -100,8 +105,7 @@ public class ScmActionTest {
 
   @Test
   public void not_group_lines_by_commit() throws Exception {
-    initFile();
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -122,8 +126,7 @@ public class ScmActionTest {
 
   @Test
   public void group_lines_by_commit() throws Exception {
-    initFile();
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
@@ -144,8 +147,7 @@ public class ScmActionTest {
 
   @Test
   public void accept_negative_value_in_from_parameter() throws Exception {
-    initFile();
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
@@ -165,8 +167,7 @@ public class ScmActionTest {
 
   @Test
   public void return_empty_value_when_no_scm() throws Exception {
-    initFile();
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
     dbTester.getDbClient().fileSourceDao().insert(dbSession, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
@@ -180,17 +181,10 @@ public class ScmActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_without_code_viewer_permission() throws Exception {
-    initFile();
-    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectPermission(UserRole.USER, project, file);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
     request.execute();
-  }
-
-  private void initFile() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
-    dbClient.componentDao().insert(dbTester.getSession(), project, ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY));
-    dbTester.getSession().commit();
   }
 
   private DbFileSources.Line newSourceLine(String author, String revision, Date date, int line) {
