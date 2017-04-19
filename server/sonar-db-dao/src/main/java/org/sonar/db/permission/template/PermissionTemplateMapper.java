@@ -46,6 +46,8 @@ public interface PermissionTemplateMapper {
 
   void deleteUserPermissionsByOrganization(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 
+  void deleteUserPermissionsByUserId(@Param("userId") int userId);
+
   void deleteUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
   void deleteGroupPermissionsByTemplateId(long templateId);

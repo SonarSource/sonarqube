@@ -93,13 +93,15 @@ public class DeactivateAction implements UsersWsAction {
 
       ensureNotLastAdministrator(dbSession, user);
 
+      Integer userId = user.getId();
       dbClient.userTokenDao().deleteByLogin(dbSession, login);
-      dbClient.userGroupDao().deleteByUserId(dbSession, user.getId());
-      dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserId(user.getId()).build());
-      dbClient.userPermissionDao().deleteByUserId(dbSession, user.getId());
       dbClient.propertiesDao().deleteByKeyAndValue(dbSession, DEFAULT_ISSUE_ASSIGNEE, user.getLogin());
-      dbClient.organizationMemberDao().deleteByUserId(dbSession, user.getId());
-      dbClient.userDao().deactivateUserById(dbSession, user.getId());
+      dbClient.propertiesDao().deleteByQuery(dbSession, PropertyQuery.builder().setUserId(userId).build());
+      dbClient.userGroupDao().deleteByUserId(dbSession, userId);
+      dbClient.userPermissionDao().deleteByUserId(dbSession, userId);
+      dbClient.permissionTemplateDao().deleteUserPermissionsByUserId(dbSession, userId);
+      dbClient.organizationMemberDao().deleteByUserId(dbSession, userId);
+      dbClient.userDao().deactivateUserById(dbSession, userId);
       dbSession.commit();
     }
 

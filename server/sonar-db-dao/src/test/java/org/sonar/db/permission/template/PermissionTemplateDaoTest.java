@@ -443,6 +443,27 @@ public class PermissionTemplateDaoTest {
     assertThat(underTest.selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId).containsOnly(user.getId());
   }
 
+  @Test
+  public void delete_user_permissions_by_user_id() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    UserDto anotherUser = db.users().insertUser();
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate(organization);
+    PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate(anotherOrganization);
+    String permission = "PERMISSION";
+    db.permissionTemplates().addUserToTemplate(template.getId(), user.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(template.getId(), anotherUser.getId(), permission);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getId(), user.getId(), permission);
+
+    underTest.deleteUserPermissionsByUserId(dbSession, user.getId());
+    db.commit();
+
+    assertThat(db.select("select template_id as \"templateId\", user_id as \"userId\", permission_reference as \"permission\" from perm_templates_users"))
+      .extracting((row) -> row.get("templateId"), (row) -> row.get("userId"), (row) -> row.get("permission"))
+      .containsOnly(tuple(template.getId(), anotherUser.getId().longValue(), permission));
+  }
+
   private PermissionTemplateDto createTemplate(OrganizationDto organization) {
     UserDto user = db.users().insertUser();
     GroupDto group = db.users().insertGroup();
