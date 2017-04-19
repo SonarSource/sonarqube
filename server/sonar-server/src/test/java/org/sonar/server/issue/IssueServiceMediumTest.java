@@ -155,7 +155,7 @@ public class IssueServiceMediumTest {
     ComponentDto project = ComponentTesting.newProjectDto(organization);
     tester.get(ComponentDao.class).insert(session, project);
 
-    userSessionRule.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     session.commit();
 
     // project can be seen by group "anyone"

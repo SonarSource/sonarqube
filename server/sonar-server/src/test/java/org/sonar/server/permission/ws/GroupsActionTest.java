@@ -164,7 +164,7 @@ public class GroupsActionTest extends BasePermissionWsTest<GroupsAction> {
 
     GroupDto groupWithoutPermission = db.users().insertGroup(organizationDto, "group-without-permission");
 
-    userSession.logIn().addProjectUuidPermissions(ADMIN, "project-uuid");
+    userSession.logIn().addProjectPermission(ADMIN, project);
     String result = newRequest()
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_ID, "project-uuid")

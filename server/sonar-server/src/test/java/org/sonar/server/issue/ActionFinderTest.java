@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.tester.UserSessionRule;
@@ -60,7 +61,7 @@ public class ActionFinderTest {
 
   @Test
   public void return_provided_actions_with_set_severity_and_set_type_when_issue_admin() {
-    userSession.addProjectUuidPermissions(ISSUE_ADMIN, PROJECT_UUID);
+    userSession.addProjectPermission(ISSUE_ADMIN, ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID));
     assertThat(underTest.listAvailableActions(issue)).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me", "set_severity");
   }
 

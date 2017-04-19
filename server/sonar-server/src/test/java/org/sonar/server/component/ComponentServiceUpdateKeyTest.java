@@ -123,7 +123,7 @@ public class ComponentServiceUpdateKeyTest {
     expectedException.expect(ForbiddenException.class);
 
     ComponentDto project = insertSampleRootProject();
-    userSession.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn("john").addProjectPermission(UserRole.USER, project);
 
     underTest.updateKey(dbSession, project, "sample2:root");
   }
@@ -215,6 +215,6 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private void logInAsProjectAdministrator(ComponentDto provisionedProject) {
-    userSession.logIn("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
+    userSession.logIn("john").addProjectPermission(UserRole.ADMIN, provisionedProject);
   }
 }

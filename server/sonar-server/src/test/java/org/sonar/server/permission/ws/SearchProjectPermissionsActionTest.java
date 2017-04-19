@@ -120,8 +120,8 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   @Test
   public void search_project_permissions_with_project_permission() throws Exception {
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
-    db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), "project-uuid"));
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     String result = newRequest()
       .setParam(PARAM_PROJECT_ID, "project-uuid")

@@ -166,7 +166,7 @@ public class SearchActionTest {
   @Test
   public void project_administrator_can_search_for_links() throws IOException {
     ComponentDto project = insertProject();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     checkItWorks(project);
   }
@@ -174,7 +174,7 @@ public class SearchActionTest {
   @Test
   public void project_user_can_search_for_links() throws IOException {
     ComponentDto project = insertProject();
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     checkItWorks(project);
   }
@@ -270,6 +270,6 @@ public class SearchActionTest {
   }
 
   private void logInAsProjectAdministrator(ComponentDto project) {
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 }

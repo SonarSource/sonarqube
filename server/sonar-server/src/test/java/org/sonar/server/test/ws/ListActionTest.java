@@ -89,7 +89,7 @@ public class ListActionTest {
 
   @Test
   public void list_tests() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
     DbFileSources.Test test = newTest(mainFile, 10, 11, 12, 20, 21, 25).setStatus(OK).build();
     insertTests(testFile, test);
 
@@ -111,7 +111,7 @@ public class ListActionTest {
 
   @Test
   public void list_tests_by_test_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
     DbFileSources.Test test1 = newTest(mainFile, 10).build();
     DbFileSources.Test test2 = newTest(mainFile, 11).build();
     insertTests(testFile, test1, test2);
@@ -123,7 +123,7 @@ public class ListActionTest {
 
   @Test
   public void list_tests_by_test_file_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
     ComponentDto anotherTestFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10).build();
     DbFileSources.Test test2 = newTest(mainFile, 11).build();
@@ -138,7 +138,7 @@ public class ListActionTest {
 
   @Test
   public void list_tests_by_test_file_key() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
     ComponentDto anotherTestFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10).build();
     DbFileSources.Test test2 = newTest(mainFile, 11).build();
@@ -153,7 +153,7 @@ public class ListActionTest {
 
   @Test
   public void list_tests_by_source_file_uuid_and_line_number() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
     ComponentDto anotherMainFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10, 11, 12).build();
     DbFileSources.Test test2 = newTest(mainFile, 9, 11).build();
@@ -168,7 +168,7 @@ public class ListActionTest {
 
   @Test
   public void list_tests_by_source_file_key_and_line_number() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
     ComponentDto anotherMainFile = db.components().insertComponent(newFileDto(project));
     DbFileSources.Test test1 = newTest(mainFile, 10, 11, 12).build();
     DbFileSources.Test test2 = newTest(mainFile, 9, 11).build();
@@ -183,7 +183,7 @@ public class ListActionTest {
 
   @Test
   public void tests_are_paginated() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
     insertTests(testFile, newTest(mainFile, 10).build(), newTest(mainFile, 11).build(), newTest(mainFile, 12).build());
 
     ListResponse request = call(ws.newRequest().setParam(TEST_FILE_ID, testFile.uuid()));
@@ -195,7 +195,7 @@ public class ListActionTest {
 
   @Test
   public void fail_when_no_argument() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
 
     expectedException.expect(IllegalArgumentException.class);
     call(ws.newRequest());
@@ -203,7 +203,7 @@ public class ListActionTest {
 
   @Test
   public void fail_when_source_file_uuid_without_line_number() throws Exception {
-    userSessionRule.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(CODEVIEWER, project);
 
     expectedException.expect(IllegalArgumentException.class);
     call(ws.newRequest().setParam(SOURCE_FILE_ID, mainFile.uuid()));
@@ -211,7 +211,7 @@ public class ListActionTest {
 
   @Test
   public void fail_when_not_enough_privilege_on_test_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    userSessionRule.addProjectPermission(USER, project);
     DbFileSources.Test test = newTest(mainFile, 10).build();
     insertTests(testFile, test);
 
@@ -221,7 +221,7 @@ public class ListActionTest {
 
   @Test
   public void fail_when_no_enough_privilege_on_test_file_id() throws Exception {
-    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    userSessionRule.addProjectPermission(USER, project);
     insertTests(testFile, newTest(mainFile, 10).build());
 
     expectedException.expect(ForbiddenException.class);
@@ -230,7 +230,7 @@ public class ListActionTest {
 
   @Test
   public void fail_when_not_enough_privilege_on_test_file_key() throws Exception {
-    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    userSessionRule.addProjectPermission(USER, project);
     insertTests(testFile, newTest(mainFile, 10).build());
 
     expectedException.expect(ForbiddenException.class);
@@ -239,7 +239,7 @@ public class ListActionTest {
 
   @Test
   public void fail_when_not_enough_privilege_on_main_file_uuid() throws Exception {
-    userSessionRule.addProjectUuidPermissions(USER, project.uuid());
+    userSessionRule.addProjectPermission(USER, project);
     insertTests(testFile, newTest(mainFile, 10).build());
 
     expectedException.expect(ForbiddenException.class);

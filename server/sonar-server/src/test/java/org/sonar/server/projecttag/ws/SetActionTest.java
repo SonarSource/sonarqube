@@ -99,7 +99,7 @@ public class SetActionTest {
 
   @Test
   public void set_tags_as_project_admin() {
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     call(project.key(), "platform, lambda");
 
@@ -123,7 +123,7 @@ public class SetActionTest {
 
   @Test
   public void fail_if_not_project_admin() {
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.key());
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(ForbiddenException.class);
 

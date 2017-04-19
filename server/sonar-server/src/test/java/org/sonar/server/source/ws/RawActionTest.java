@@ -76,7 +76,7 @@ public class RawActionTest {
   @Test
   public void get_txt() throws Exception {
     String fileKey = "src/Foo.java";
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
 
     Iterable<String> lines = newArrayList(

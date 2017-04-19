@@ -255,7 +255,7 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
   public void adding_project_permission_is_allowed_to_project_administrators() throws Exception {
     ComponentDto project = db.components().insertProject();
 
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
       .setParam(PARAM_USER_LOGIN, user.getLogin())

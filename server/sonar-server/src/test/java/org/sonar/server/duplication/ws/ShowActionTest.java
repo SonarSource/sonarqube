@@ -83,7 +83,7 @@ public class ShowActionTest {
     ComponentDto file = db.components().insertComponent(newFileDto(project).setKey("foo.js"));
     db.components().insertSnapshot(newAnalysis(project));
 
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
 
     WsTester.Result result = newBaseRequest().setParam("key", file.key()).execute();
 
@@ -127,7 +127,7 @@ public class ShowActionTest {
     db.getDbClient().measureDao().insert(db.getSession(), newMeasureDto(dataMetric, file, snapshot).setData(xml));
     db.commit();
 
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
+    userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
 
     WsTester.TestRequest request = requestFactory.apply(file);
     WsTester.Result result = request.execute();

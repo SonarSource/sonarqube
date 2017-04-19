@@ -296,7 +296,7 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
     db.users().insertProjectPermissionOnGroup(aGroup, CODEVIEWER, project);
     db.users().insertProjectPermissionOnGroup(aGroup, ISSUE_ADMIN, project);
 
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     newRequest()
       .setParam(PARAM_GROUP_NAME, aGroup.getName())
       .setParam(PARAM_PROJECT_ID, project.uuid())

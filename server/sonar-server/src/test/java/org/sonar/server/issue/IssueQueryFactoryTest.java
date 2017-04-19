@@ -192,7 +192,7 @@ public class IssueQueryFactoryTest {
     ComponentDto view = db.components().insertView();
     SearchWsRequest request = new SearchWsRequest()
       .setComponentRootUuids(asList(view.uuid()));
-    userSession.addProjectUuidPermissions(UserRole.USER, view.uuid());
+    userSession.addProjectPermission(UserRole.USER, view);
 
     IssueQuery query = underTest.create(request);
 

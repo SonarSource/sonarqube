@@ -96,8 +96,8 @@ public class ComponentActionTest {
 
   @Test
   public void provided_project() {
-    componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
-    userSession.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
+    userSession.addProjectPermission(UserRole.USER, project);
     insertNclocMetric();
 
     ComponentWsResponse response = newRequest(PROJECT_UUID, "ncloc");

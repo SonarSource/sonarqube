@@ -40,7 +40,6 @@ import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates;
 import org.sonarqube.ws.WsQualityGates.GetByProjectWsResponse;
 
@@ -136,7 +135,7 @@ public class GetByProjectActionTest {
   @Test
   public void get_with_project_admin_permission() {
     ComponentDto project = componentDb.insertProject();
-    userSession.logIn().addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
@@ -148,7 +147,7 @@ public class GetByProjectActionTest {
   @Test
   public void get_with_project_user_permission() {
     ComponentDto project = componentDb.insertProject();
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
@@ -234,6 +233,6 @@ public class GetByProjectActionTest {
   }
 
   private void logInAsProjectUser(ComponentDto project) {
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
   }
 }

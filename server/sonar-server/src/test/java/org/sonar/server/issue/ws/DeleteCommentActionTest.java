@@ -73,7 +73,7 @@ public class DeleteCommentActionTest {
   public void delete_comment() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    loginAndAddProjectPermission("john", issueDto, USER);
 
     call(commentDto.getKey());
 
@@ -85,7 +85,7 @@ public class DeleteCommentActionTest {
   public void delete_comment_using_deprecated_key_parameter() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    loginAndAddProjectPermission("john", issueDto, USER);
 
     tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
 
@@ -97,7 +97,7 @@ public class DeleteCommentActionTest {
   public void fail_when_comment_does_not_belong_to_current_user() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.logIn("another").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    loginAndAddProjectPermission("another", issueDto, USER);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You can only delete your own comments");
@@ -108,7 +108,7 @@ public class DeleteCommentActionTest {
   public void fail_when_comment_has_not_user() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, null, "please fix it");
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    loginAndAddProjectPermission("john", issueDto, USER);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("You can only delete your own comments");
@@ -141,7 +141,7 @@ public class DeleteCommentActionTest {
   public void fail_when_not_enough_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
     IssueChangeDto commentDto = issueDbTester.insertComment(issueDto, "john", "please fix it");
-    userSession.logIn("john").addProjectUuidPermissions(CODEVIEWER, issueDto.getProjectUuid());
+    loginAndAddProjectPermission("john", issueDto, CODEVIEWER);
 
     expectedException.expect(ForbiddenException.class);
     call(commentDto.getKey());
@@ -161,6 +161,10 @@ public class DeleteCommentActionTest {
     TestRequest request = tester.newRequest();
     setNullable(commentKey, comment -> request.setParam("comment", comment));
     return request.execute();
+  }
+
+  private void loginAndAddProjectPermission(String login, IssueDto issueDto, String permission) {
+    userSession.logIn(login).addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
   }
 
 }

@@ -300,9 +300,9 @@ public class TreeActionTest {
 
   @Test
   public void fail_when_not_enough_privileges() {
+    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
     userSession.logIn()
-      .addProjectUuidPermissions(UserRole.CODEVIEWER, "project-uuid");
-    componentDb.insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+      .addProjectPermission(UserRole.CODEVIEWER, project);
     db.commit();
 
     expectedException.expect(ForbiddenException.class);
@@ -424,6 +424,6 @@ public class TreeActionTest {
   }
 
   private void logInWithBrowsePermission(ComponentDto project) {
-    userSession.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
   }
 }

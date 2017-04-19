@@ -705,7 +705,7 @@ public class SearchActionMediumTest {
 
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
-    userSessionRule.logIn().addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
     // for each organization
     GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid()));
@@ -715,7 +715,7 @@ public class SearchActionMediumTest {
   private void setProjectPermission(ComponentDto project, String... permissions) {
     // project can be seen by anyone and by code viewer
     userSessionRule.logIn("admin");
-    Arrays.stream(permissions).forEach(permission -> userSessionRule.addProjectUuidPermissions(permission, project.uuid()));
+    Arrays.stream(permissions).forEach(permission -> userSessionRule.addProjectPermission(permission, project));
     tester.get(PermissionUpdater.class).apply(session, Arrays.stream(permissions)
       // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone" for each organization
       .map(permission -> new GroupPermissionChange(PermissionChange.Operation.ADD, permission, new ProjectId(project), GroupIdOrAnyone.forAnyone(project.getOrganizationUuid())))

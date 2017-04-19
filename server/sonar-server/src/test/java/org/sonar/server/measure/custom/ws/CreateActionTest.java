@@ -69,17 +69,15 @@ public class CreateActionTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
 
   DbClient dbClient = db.getDbClient();
+  ComponentDto project;
 
   final DbSession dbSession = db.getSession();
 
@@ -97,12 +95,15 @@ public class CreateActionTest {
       .setActive(true));
     dbSession.commit();
 
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
+    OrganizationDto organizationDto = db.organizations().insert();
+    project = ComponentTesting.newProjectDto(organizationDto, DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
+    dbClient.componentDao().insert(dbSession, project);
+    dbSession.commit();
+    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, project);
   }
 
   @Test
   public void create_boolean_custom_measure_in_db() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(BOOL);
 
     newRequest()
@@ -123,7 +124,6 @@ public class CreateActionTest {
 
   @Test
   public void create_int_custom_measure_in_db() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(INT);
 
     newRequest()
@@ -139,7 +139,6 @@ public class CreateActionTest {
 
   @Test
   public void create_text_custom_measure_in_db() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -154,9 +153,8 @@ public class CreateActionTest {
 
   @Test
   public void create_text_custom_measure_as_project_admin() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
+    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
@@ -170,7 +168,6 @@ public class CreateActionTest {
 
   @Test
   public void create_text_custom_measure_with_metric_key() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -185,7 +182,6 @@ public class CreateActionTest {
 
   @Test
   public void create_text_custom_measure_with_project_key() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -200,7 +196,6 @@ public class CreateActionTest {
 
   @Test
   public void create_float_custom_measure_in_db() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(FLOAT);
 
     newRequest()
@@ -216,7 +211,6 @@ public class CreateActionTest {
 
   @Test
   public void create_work_duration_custom_measure_in_db() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(WORK_DUR);
 
     newRequest()
@@ -232,7 +226,6 @@ public class CreateActionTest {
 
   @Test
   public void create_level_type_custom_measure_in_db() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(LEVEL);
 
     newRequest()
@@ -247,7 +240,6 @@ public class CreateActionTest {
 
   @Test
   public void response_with_object_and_id() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     WsTester.Result response = newRequest()
@@ -266,10 +258,11 @@ public class CreateActionTest {
   @Test
   public void create_custom_measure_on_a_view() throws Exception {
     String viewUuid = "VIEW_UUID";
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newView(db.organizations().insert(), viewUuid));
+    ComponentDto view = ComponentTesting.newView(db.organizations().insert(), viewUuid);
+    dbClient.componentDao().insert(dbSession, view);
     dbSession.commit();
     MetricDto metric = insertMetric(BOOL);
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, viewUuid);
+    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, view);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, viewUuid)
@@ -293,7 +286,7 @@ public class CreateActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newSubView(view, subViewUuid, "SUB_VIEW_KEY"));
     dbSession.commit();
     MetricDto metric = insertMetric(BOOL);
-    userSession.logIn("login").addProjectUuidPermissions(UserRole.ADMIN, view.uuid());
+    userSession.logIn("login").addProjectPermission(UserRole.ADMIN, view);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, subViewUuid)
@@ -323,7 +316,6 @@ public class CreateActionTest {
   public void fail_when_project_id_nor_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided, not both");
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -336,7 +328,6 @@ public class CreateActionTest {
   public void fail_when_project_id_and_project_key_are_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided, not both");
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -351,8 +342,7 @@ public class CreateActionTest {
   public void fail_when_project_key_does_not_exist_in_db() throws Exception {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'another-project-key' not found");
-    insertProject(DEFAULT_PROJECT_UUID);
-    MetricDto metric = insertMetric(STRING);
+    insertMetric(STRING);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_KEY, "another-project-key")
@@ -365,7 +355,6 @@ public class CreateActionTest {
   public void fail_when_project_id_does_not_exist_in_db() throws Exception {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component id 'another-project-uuid' not found");
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -379,8 +368,7 @@ public class CreateActionTest {
   public void fail_when_metric_id_nor_metric_key_is_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The metric id or the metric key must be provided, not both.");
-    insertProject(DEFAULT_PROJECT_UUID);
-    MetricDto metric = insertMetric(STRING);
+    insertMetric(STRING);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
@@ -392,7 +380,6 @@ public class CreateActionTest {
   public void fail_when_metric_id_and_metric_key_are_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The metric id or the metric key must be provided, not both.");
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -405,9 +392,6 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_metric_is_not_found_in_db() throws Exception {
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(db.organizations().insert(), DEFAULT_PROJECT_UUID));
-    dbSession.commit();
-
     expectedException.expect(RowNotFoundException.class);
     expectedException.expectMessage("Metric id '42' not found");
 
@@ -420,7 +404,6 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_measure_already_exists_on_same_project_and_same_metric() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     expectedException.expect(ServerException.class);
@@ -440,7 +423,6 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_value_is_not_well_formatted() throws Exception {
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(BOOL);
 
     expectedException.expect(BadRequestException.class);
@@ -455,7 +437,6 @@ public class CreateActionTest {
   @Test
   public void fail_when_not_project_administrator() throws Exception {
     userSession.logIn();
-    insertProject(DEFAULT_PROJECT_UUID);
     MetricDto metric = insertMetric(STRING);
 
     expectedException.expect(ForbiddenException.class);
@@ -471,8 +452,6 @@ public class CreateActionTest {
   public void fail_when_not_a_project() throws Exception {
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(STRING.name()).setKey("metric-key");
     dbClient.metricDao().insert(dbSession, metric);
-    ComponentDto project = ComponentTesting.newProjectDto(db.organizations().insert(), DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
-    dbClient.componentDao().insert(dbSession, project);
     dbClient.componentDao().insert(dbSession, ComponentTesting.newDirectory(project, "directory-uuid", "path/to/directory").setKey("directory-key"));
     dbSession.commit();
 
@@ -497,9 +476,4 @@ public class CreateActionTest {
     return metric;
   }
 
-  private void insertProject(String projectUuid) {
-    OrganizationDto organizationDto = db.organizations().insert();
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(organizationDto, projectUuid).setKey(DEFAULT_PROJECT_KEY));
-    dbSession.commit();
-  }
 }

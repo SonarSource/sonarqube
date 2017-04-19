@@ -101,7 +101,7 @@ public class SetSeverityActionTest {
   @Test
   public void set_severity() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setSeverity(MAJOR));
-    setUserWithBrowseAndAdministerIssuePermission(issueDto.getProjectUuid());
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     call(issueDto.getKey(), MINOR);
 
@@ -114,7 +114,7 @@ public class SetSeverityActionTest {
   @Test
   public void insert_entry_in_changelog_when_setting_severity() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setSeverity(MAJOR));
-    setUserWithBrowseAndAdministerIssuePermission(issueDto.getProjectUuid());
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     call(issueDto.getKey(), MINOR);
 
@@ -128,7 +128,7 @@ public class SetSeverityActionTest {
   @Test
   public void fail_if_bad_severity() {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setSeverity("unknown"));
-    setUserWithBrowseAndAdministerIssuePermission(issueDto.getProjectUuid());
+    setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'severity' (unknown) must be one of: [INFO, MINOR, MAJOR, CRITICAL, BLOCKER]");
@@ -144,7 +144,7 @@ public class SetSeverityActionTest {
   @Test
   public void fail_when_missing_browse_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.logIn("john").addProjectUuidPermissions(ISSUE_ADMIN, issueDto.getProjectUuid());
+    logInAndAddProjectPermission(issueDto, ISSUE_ADMIN);
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), MAJOR);
@@ -153,7 +153,7 @@ public class SetSeverityActionTest {
   @Test
   public void fail_when_missing_administer_issue_permission() throws Exception {
     IssueDto issueDto = issueDbTester.insertIssue();
-    userSession.logIn("john").addProjectUuidPermissions(USER, issueDto.getProjectUuid());
+    logInAndAddProjectPermission(issueDto, USER);
 
     expectedException.expect(ForbiddenException.class);
     call(issueDto.getKey(), MAJOR);
@@ -183,9 +183,14 @@ public class SetSeverityActionTest {
     return newDto(rule, file, project);
   }
 
-  private void setUserWithBrowseAndAdministerIssuePermission(String projectUuid) {
+  private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
+    userSession.logIn("john").addProjectPermission(permission, dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get());
+  }
+
+  private void setUserWithBrowseAndAdministerIssuePermission(IssueDto issueDto) {
+    ComponentDto project = dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get();
     userSession.logIn("john")
-      .addProjectUuidPermissions(ISSUE_ADMIN, projectUuid)
-      .addProjectUuidPermissions(USER, projectUuid);
+      .addProjectPermission(ISSUE_ADMIN, project)
+      .addProjectPermission(USER, project);
   }
 }
