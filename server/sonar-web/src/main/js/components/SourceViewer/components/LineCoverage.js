@@ -37,7 +37,8 @@ export default class LineCoverage extends React.PureComponent {
 
   render() {
     const { line } = this.props;
-    const className = 'source-meta source-line-coverage' +
+    const className =
+      'source-meta source-line-coverage' +
       (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
     const title = line.coverageStatus != null
       ? translate('source_viewer.tooltip', line.coverageStatus)

@@ -66,7 +66,8 @@ export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>
       const internal = !domain.actions.find(action => !action.internal);
 
       return { ...domain, deprecated, internal };
-    }));
+    })
+  );
 }
 
 export function fetchResponseExample(domain: string, action: string): Promise<{ example: string }> {

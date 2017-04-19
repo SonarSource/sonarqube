@@ -37,8 +37,8 @@ export default class ComponentBreadcrumbs extends React.PureComponent {
     const { component, issue } = this.props;
 
     const displayOrganization = component == null || ['VW', 'SVW'].includes(component.qualifier);
-    const displayProject = component == null ||
-      !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
+    const displayProject =
+      component == null || !['TRK', 'BRC', 'DIR'].includes(component.qualifier);
     const displaySubProject = component == null || !['BRC', 'DIR'].includes(component.qualifier);
 
     return (

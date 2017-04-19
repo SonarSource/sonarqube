@@ -21,20 +21,23 @@ const routes = [
   {
     getComponent(_, callback) {
       require.ensure([], require =>
-        callback(null, require('./containers/QualityGatesAppContainer').default));
+        callback(null, require('./containers/QualityGatesAppContainer').default)
+      );
     },
     childRoutes: [
       {
         getIndexRoute(_, callback) {
           require.ensure([], require =>
-            callback(null, { component: require('./components/Intro').default }));
+            callback(null, { component: require('./components/Intro').default })
+          );
         }
       },
       {
         path: 'show/:id',
         getComponent(_, callback) {
           require.ensure([], require =>
-            callback(null, require('./containers/DetailsContainer').default));
+            callback(null, require('./containers/DetailsContainer').default)
+          );
         }
       }
     ]

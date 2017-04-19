@@ -30,9 +30,9 @@ import type { Issue } from '../types';
 type Props = {|
   issue: Issue,
   currentPopup: string,
-  onFail: (Error) => void,
+  onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
-  togglePopup: (string) => void
+  togglePopup: string => void
 |};
 
 const stopPropagation = (event: Event) => event.stopPropagation();

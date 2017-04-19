@@ -37,7 +37,7 @@ export type Option = {
 type Props = {
   autoFocus?: boolean,
   excludedUsers: Array<string>,
-  handleValueChange: (Option) => void,
+  handleValueChange: Option => void,
   searchUsers: (string, number) => Promise<*>,
   selectedUser?: Option
 };

@@ -49,7 +49,8 @@ export const getDefinitionsForCategory = (state: State, category: string) =>
 
 export const getAllCategories = (state: State) =>
   uniqBy(getAllDefinitions(state).map(definition => definition.category), category =>
-    category.toLowerCase());
+    category.toLowerCase()
+  );
 
 export const getDefaultCategory = (state: State) => {
   const categories = getAllCategories(state);
@@ -57,7 +58,8 @@ export const getDefaultCategory = (state: State) => {
     return DEFAULT_CATEGORY;
   } else {
     const sortedCategories = sortBy(categories, category =>
-      getCategoryName(category).toLowerCase());
+      getCategoryName(category).toLowerCase()
+    );
     return sortedCategories[0];
   }
 };

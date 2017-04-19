@@ -119,9 +119,8 @@ export default Marionette.CompositeView.extend({
     const selectedView = this.children.findByModel(selected);
     const parentTopOffset = this.$el.offset().top;
     const viewTop = selectedView.$el.offset().top - parentTopOffset;
-    const viewBottom = selectedView.$el.offset().top +
-      selectedView.$el.outerHeight() +
-      BOTTOM_OFFSET;
+    const viewBottom =
+      selectedView.$el.offset().top + selectedView.$el.outerHeight() + BOTTOM_OFFSET;
     const windowTop = $(window).scrollTop();
     const windowBottom = windowTop + $(window).height();
     if (viewTop < windowTop) {

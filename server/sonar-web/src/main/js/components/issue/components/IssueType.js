@@ -31,7 +31,7 @@ type Props = {
   isOpen: boolean,
   issue: Issue,
   setIssueProperty: (string, string, apiCall: (Object) => Promise<*>, string) => void,
-  togglePopup: (string) => void
+  togglePopup: string => void
 };
 
 export default class IssueType extends React.PureComponent {

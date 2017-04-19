@@ -25,8 +25,8 @@ import { translate } from '../../helpers/l10n';
 export default function StatusHelper(
   props: { resolution?: string, status: string, className?: string }
 ) {
-  const resolution = props.resolution != null &&
-    ` (${translate('issue.resolution', props.resolution)})`;
+  const resolution =
+    props.resolution != null && ` (${translate('issue.resolution', props.resolution)})`;
   return (
     <span className={props.className}>
       <StatusIcon className="little-spacer-right" status={props.status} />

@@ -29,9 +29,9 @@ type Props = {
   isOpen: boolean,
   issue: Issue,
   canAssign: boolean,
-  onAssign: (string) => void,
-  onFail: (Error) => void,
-  togglePopup: (string) => void
+  onAssign: string => void,
+  onFail: Error => void,
+  togglePopup: string => void
 };
 
 export default class IssueAssign extends React.PureComponent {

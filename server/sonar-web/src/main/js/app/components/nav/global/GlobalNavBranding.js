@@ -39,8 +39,8 @@ class GlobalNavBranding extends React.PureComponent {
 
   render() {
     const homeController = this.props.currentUser.isLoggedIn ? '/projects' : '/about';
-    const homeLinkClassName = 'navbar-brand' +
-      (this.props.customLogoUrl ? ' navbar-brand-custom' : '');
+    const homeLinkClassName =
+      'navbar-brand' + (this.props.customLogoUrl ? ' navbar-brand-custom' : '');
     return (
       <div className="navbar-header">
         <Link to={homeController} className={homeLinkClassName}>{this.renderLogo()}</Link>

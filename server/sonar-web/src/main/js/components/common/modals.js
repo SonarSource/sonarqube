@@ -53,13 +53,10 @@ export default Marionette.ItemView.extend({
 
   show() {
     const that = this;
-    setTimeout(
-      () => {
-        that.$el.addClass('in');
-        $('.' + that.overlayClassName).addClass('in');
-      },
-      0
-    );
+    setTimeout(() => {
+      that.$el.addClass('in');
+      $('.' + that.overlayClassName).addClass('in');
+    }, 0);
   },
 
   onDestroy() {

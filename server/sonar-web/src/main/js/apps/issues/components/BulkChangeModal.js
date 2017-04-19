@@ -42,7 +42,7 @@ type Props = {|
   fetchIssues: ({}) => Promise<*>,
   onClose: () => void,
   onDone: () => void,
-  onRequestFail: (Error) => void
+  onRequestFail: Error => void
 |};
 
 type State = {|
@@ -65,8 +65,8 @@ type State = {|
   type?: string
 |};
 
-const hasAction = (action: string) =>
-  (issue: Issue): boolean => issue.actions && issue.actions.includes(action);
+const hasAction = (action: string) => (issue: Issue): boolean =>
+  issue.actions && issue.actions.includes(action);
 
 export default class BulkChangeModal extends React.PureComponent {
   mounted: boolean;
@@ -115,9 +115,8 @@ export default class BulkChangeModal extends React.PureComponent {
       const options = [];
 
       if (currentUser.isLoggedIn) {
-        const canBeAssignedToMe = issues.filter(
-          issue => issue.assignee !== currentUser.login
-        ).length > 0;
+        const canBeAssignedToMe =
+          issues.filter(issue => issue.assignee !== currentUser.login).length > 0;
         if (canBeAssignedToMe) {
           options.push({
             email: currentUser.email,
@@ -140,29 +139,25 @@ export default class BulkChangeModal extends React.PureComponent {
     this.setState({ assignee });
   };
 
-  handleFieldCheck = (field: string) =>
-    (checked: boolean) => {
-      if (!checked) {
-        this.setState({ [field]: undefined });
-      } else if (field === 'notifications') {
-        this.setState({ [field]: true });
-      }
-    };
+  handleFieldCheck = (field: string) => (checked: boolean) => {
+    if (!checked) {
+      this.setState({ [field]: undefined });
+    } else if (field === 'notifications') {
+      this.setState({ [field]: true });
+    }
+  };
 
-  handleFieldChange = (field: string) =>
-    (event: { target: HTMLInputElement }) => {
-      this.setState({ [field]: event.target.value });
-    };
+  handleFieldChange = (field: string) => (event: { target: HTMLInputElement }) => {
+    this.setState({ [field]: event.target.value });
+  };
 
-  handleSelectFieldChange = (field: string) =>
-    ({ value }: { value: string }) => {
-      this.setState({ [field]: value });
-    };
+  handleSelectFieldChange = (field: string) => ({ value }: { value: string }) => {
+    this.setState({ [field]: value });
+  };
 
-  handleMultiSelectFieldChange = (field: string) =>
-    (options: Array<{ value: string }>) => {
-      this.setState({ [field]: options.map(option => option.value) });
-    };
+  handleMultiSelectFieldChange = (field: string) => (options: Array<{ value: string }>) => {
+    this.setState({ [field]: options.map(option => option.value) });
+  };
 
   handleSubmit = (e: Event) => {
     e.preventDefault();
@@ -473,8 +468,8 @@ export default class BulkChangeModal extends React.PureComponent {
   renderForm = () => {
     const { issues, paging, submitting } = this.state;
 
-    const limitReached: boolean = paging != null &&
-      paging.total > paging.pageIndex * paging.pageSize;
+    const limitReached: boolean =
+      paging != null && paging.total > paging.pageIndex * paging.pageSize;
 
     return (
       <form id="bulk-change-form" onSubmit={this.handleSubmit}>

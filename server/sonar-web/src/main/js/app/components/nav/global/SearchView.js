@@ -126,12 +126,9 @@ export default Marionette.LayoutView.extend({
   onRender() {
     const that = this;
     this.resultsRegion.show(this.resultsView);
-    setTimeout(
-      () => {
-        that.$('.js-search-input').focus();
-      },
-      0
-    );
+    setTimeout(() => {
+      that.$('.js-search-input').focus();
+    }, 0);
   },
 
   onKeyDown(e) {
@@ -191,7 +188,8 @@ export default Marionette.LayoutView.extend({
     const recentHistory = RecentHistory.get();
     const customOrganizations = areThereCustomOrganizations();
     const history = recentHistory.map((historyItem, index) => {
-      const url = window.baseUrl +
+      const url =
+        window.baseUrl +
         '/dashboard/index?id=' +
         encodeURIComponent(historyItem.key) +
         window.dashboardParameters(true);
@@ -229,7 +227,8 @@ export default Marionette.LayoutView.extend({
       const collection = [];
       r.results.forEach(({ items, q }) => {
         items.forEach((item, index) => {
-          const showOrganization = customOrganizations &&
+          const showOrganization =
+            customOrganizations &&
             item.organization != null &&
             SHOW_ORGANIZATION_FOR_QUALIFIERS.includes(q);
           const organization = showOrganization ? getOrganization(item.organization) : null;

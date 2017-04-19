@@ -41,7 +41,8 @@ type Props = {
 function ProjectAdminPageExtension(props: Props) {
   const { extensionKey, pluginKey } = props.params;
   const { component } = props;
-  const extension = component.configuration &&
+  const extension =
+    component.configuration &&
     component.configuration.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension
     ? <Extension extension={extension} options={{ component }} />

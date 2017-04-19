@@ -24,18 +24,17 @@ import { translate } from '../../../helpers/l10n';
 
 type Props = {|
   myIssues: boolean,
-  onMyIssuesChange: (boolean) => void
+  onMyIssuesChange: boolean => void
 |};
 
 export default class MyIssuesFilter extends React.PureComponent {
   props: Props;
 
-  handleClick = (myIssues: boolean) =>
-    (e: Event & { currentTarget: HTMLElement }) => {
-      e.preventDefault();
-      e.currentTarget.blur();
-      this.props.onMyIssuesChange(myIssues);
-    };
+  handleClick = (myIssues: boolean) => (e: Event & { currentTarget: HTMLElement }) => {
+    e.preventDefault();
+    e.currentTarget.blur();
+    this.props.onMyIssuesChange(myIssues);
+  };
 
   render() {
     const { myIssues } = this.props;

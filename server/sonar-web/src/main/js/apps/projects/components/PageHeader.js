@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 type Props = {
   loading: boolean,
-  onViewChange: (string) => void,
+  onViewChange: string => void,
   total?: number,
   view: string
 };

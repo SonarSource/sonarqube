@@ -34,7 +34,8 @@ export function fetchQualityGates() {
         ...qualityGate,
         isDefault: qualityGate.id === r.default
       };
-    }));
+    })
+  );
 }
 
 export function fetchQualityGate(id) {

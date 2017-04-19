@@ -108,12 +108,9 @@ const SelectListItemView = Backbone.View.extend({
     if (postpone) {
       const that = this;
       that.$el.addClass(this.model.get('selected') ? 'added' : 'removed');
-      setTimeout(
-        function() {
-          Backbone.View.prototype.remove.call(that, arguments);
-        },
-        500
-      );
+      setTimeout(function() {
+        Backbone.View.prototype.remove.call(that, arguments);
+      }, 500);
     } else {
       Backbone.View.prototype.remove.call(this, arguments);
     }
@@ -219,12 +216,9 @@ const SelectListView = Backbone.View.extend({
       .on('search', debounce(keyup, 250));
 
     if (this.settings.focusSearch) {
-      setTimeout(
-        () => {
-          searchInput.focus();
-        },
-        250
-      );
+      setTimeout(() => {
+        searchInput.focus();
+      }, 250);
     }
 
     this.listItemViews = [];
@@ -284,7 +278,7 @@ const SelectListView = Backbone.View.extend({
 
   filterBySelection(filter) {
     const that = this;
-    filter = (this.currentFilter = filter || this.currentFilter);
+    filter = this.currentFilter = filter || this.currentFilter;
 
     if (filter != null) {
       this.$('.select-list-check-control').toggleClass('disabled', false);
@@ -361,7 +355,8 @@ const SelectListView = Backbone.View.extend({
   },
 
   scroll() {
-    const scrollBottom = this.$listContainer.scrollTop() >=
+    const scrollBottom =
+      this.$listContainer.scrollTop() >=
       this.$list[0].scrollHeight - this.$listContainer.outerHeight();
 
     if (scrollBottom && this.collection.more) {

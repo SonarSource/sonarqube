@@ -153,11 +153,11 @@ class Template extends React.PureComponent {
 
     const isFiltered = store.filter !== 'all';
 
-    const matchQuery = !store.query ||
-      CREATOR_NAME.toLocaleLowerCase().includes(store.query.toLowerCase());
+    const matchQuery =
+      !store.query || CREATOR_NAME.toLocaleLowerCase().includes(store.query.toLowerCase());
 
-    const matchPermission = store.selectedPermission == null ||
-      creatorPermissions.includes(store.selectedPermission);
+    const matchPermission =
+      store.selectedPermission == null || creatorPermissions.includes(store.selectedPermission);
 
     return !isFiltered && matchQuery && matchPermission;
   }

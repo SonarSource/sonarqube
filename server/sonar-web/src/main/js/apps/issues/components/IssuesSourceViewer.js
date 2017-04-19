@@ -25,8 +25,8 @@ import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
   loadIssues: () => Promise<*>,
-  onIssueChange: (Issue) => void,
-  onIssueSelect: (string) => void,
+  onIssueChange: Issue => void,
+  onIssueSelect: string => void,
   openIssue: Issue
 |};
 

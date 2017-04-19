@@ -23,7 +23,7 @@ import { parseIssueFromResponse } from '../../helpers/issues';
 import type { Issue } from './types';
 
 export const updateIssue = (
-  onChange: (Issue) => void,
+  onChange: Issue => void,
   resultPromise: Promise<*>,
   oldIssue?: Issue,
   newIssue?: Issue

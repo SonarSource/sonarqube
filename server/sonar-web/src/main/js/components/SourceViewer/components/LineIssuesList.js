@@ -24,7 +24,7 @@ import type { Issue as IssueType } from '../../issue/types';
 
 type Props = {
   issues: Array<IssueType>,
-  onIssueChange: (IssueType) => void,
+  onIssueChange: IssueType => void,
   onIssueClick: (issueKey: string) => void,
   selectedIssue: string | null
 };

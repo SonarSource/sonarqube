@@ -60,8 +60,8 @@ export default ModalForm.extend({
         return `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}`;
       }
     };
-    const severity = (this.model && this.model.get('severity')) ||
-      this.options.rule.get('severity');
+    const severity =
+      (this.model && this.model.get('severity')) || this.options.rule.get('severity');
     this.ui.qualityProfileSeverity.val(severity);
     this.ui.qualityProfileSeverity.select2({
       width: '250px',
@@ -69,12 +69,9 @@ export default ModalForm.extend({
       formatResult: format,
       formatSelection: format
     });
-    setTimeout(
-      () => {
-        that.$('a').first().focus();
-      },
-      0
-    );
+    setTimeout(() => {
+      that.$('a').first().focus();
+    }, 0);
   },
 
   activate(e) {

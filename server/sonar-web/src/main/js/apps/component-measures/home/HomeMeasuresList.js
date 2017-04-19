@@ -55,7 +55,8 @@ const HomeMeasuresList = ({ domain, component }) => {
 
   const configMain = config.main || [];
   const [mainMeasures, otherMeasures] = partition(filteredMeasures, measure =>
-    configMain.includes(measure.metric.key));
+    configMain.includes(measure.metric.key)
+  );
 
   const configOrder = config.order || [];
   const sortedMainMeasures = sortMeasures(mainMeasures, configOrder);

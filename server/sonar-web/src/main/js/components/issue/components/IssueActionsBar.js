@@ -32,10 +32,10 @@ import type { Issue } from '../types';
 type Props = {
   issue: Issue,
   currentPopup: string,
-  onAssign: (string) => void,
-  onChange: (Issue) => void,
-  onFail: (Error) => void,
-  togglePopup: (string) => void
+  onAssign: string => void,
+  onChange: Issue => void,
+  onFail: Error => void,
+  togglePopup: string => void
 };
 
 type State = {
@@ -58,7 +58,7 @@ export default class IssueActionsBar extends React.PureComponent {
   setIssueProperty = (
     property: string,
     popup: string,
-    apiCall: (Object) => Promise<*>,
+    apiCall: Object => Promise<*>,
     value: string
   ) => {
     const { issue } = this.props;

@@ -95,7 +95,8 @@ export default class OverviewApp extends React.PureComponent {
   componentDidUpdate(prevProps) {
     if (this.props.component.key !== prevProps.component.key) {
       this.loadMeasures(this.props.component.key).then(() =>
-        this.loadHistory(this.props.component));
+        this.loadHistory(this.props.component)
+      );
     }
   }
 

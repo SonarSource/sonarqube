@@ -29,7 +29,7 @@ import { TooltipsContainer } from '../mixins/tooltips-mixin';
 type Scale = {
   (number): number,
   range: () => [number, number],
-  ticks: (number) => Array<number>
+  ticks: number => Array<number>
 };
 
 const TICKS_COUNT = 5;
@@ -38,7 +38,7 @@ export class Bubble extends React.PureComponent {
   props: {
     color?: string,
     link?: string,
-    onClick: (?string) => void,
+    onClick: ?string => void,
     r: number,
     tooltip?: string,
     x: number,
@@ -99,9 +99,9 @@ export default class BubbleChart extends React.PureComponent {
     displayYTicks: boolean,
     height: number,
     padding: [number, number, number, number],
-    formatXTick: (number) => string,
-    formatYTick: (number) => string,
-    onBubbleClick?: (?string) => void,
+    formatXTick: number => string,
+    formatYTick: number => string,
+    onBubbleClick?: ?string => void,
     xDomain?: [number, number],
     yDomain?: [number, number]
   |};
@@ -133,7 +133,7 @@ export default class BubbleChart extends React.PureComponent {
     return [availableHeight - dMaxY, dMinY];
   }
 
-  getTicks(scale: Scale, format: (number) => string) {
+  getTicks(scale: Scale, format: number => string) {
     const ticks = scale.ticks(TICKS_COUNT).map(tick => format(tick));
     const uniqueTicksCount = uniq(ticks).length;
     const ticksCount = uniqueTicksCount < TICKS_COUNT ? uniqueTicksCount - 1 : TICKS_COUNT;

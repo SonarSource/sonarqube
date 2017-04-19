@@ -27,7 +27,7 @@ type Props = {
   custom: boolean,
   active: boolean,
   onSelectChange: (string, boolean) => void,
-  onHover: (string) => void
+  onHover: string => void
 };
 
 export default class MultiSelectOption extends React.PureComponent {

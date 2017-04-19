@@ -20,9 +20,14 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function DetailsHeader(
-  { qualityGate, edit, onRename, onCopy, onSetAsDefault, onDelete }
-) {
+export default function DetailsHeader({
+  qualityGate,
+  edit,
+  onRename,
+  onCopy,
+  onSetAsDefault,
+  onDelete
+}) {
   function handleRenameClick(e) {
     e.preventDefault();
     onRename();

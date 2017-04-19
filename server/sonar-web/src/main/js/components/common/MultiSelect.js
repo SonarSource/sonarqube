@@ -27,10 +27,10 @@ type Props = {
   selectedElements: Array<string>,
   elements: Array<string>,
   listSize: number,
-  onSearch: (string) => void,
-  onSelect: (string) => void,
-  onUnselect: (string) => void,
-  validateSearchInput: (string) => string
+  onSearch: string => void,
+  onSelect: string => void,
+  onUnselect: string => void,
+  validateSearchInput: string => string
 };
 
 type State = {

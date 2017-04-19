@@ -33,41 +33,38 @@ const receiveLicenses = licenses => ({
   licenses
 });
 
-const handleError = dispatch =>
-  error => {
-    parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
-    return Promise.reject();
-  };
+const handleError = dispatch => error => {
+  parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
+  return Promise.reject();
+};
 
-export const fetchLicenses = () =>
-  dispatch => {
-    return licenses
-      .getLicenses()
-      .then(licenses => {
+export const fetchLicenses = () => dispatch => {
+  return licenses
+    .getLicenses()
+    .then(licenses => {
+      dispatch(receiveLicenses(licenses));
+      /* eslint import/namespace: 0 */
+      const invalidLicenses = licenses.some(isLicenseInvalid);
+      if (invalidLicenses) {
+        dispatch(addGlobalErrorMessage(translate('licenses.there_are_invalid')));
+      }
+    })
+    .catch(handleError(dispatch));
+};
+
+export const setLicense = (key, value) => dispatch => {
+  const request = value ? licenses.setLicense(key, value) : licenses.resetLicense(key);
+
+  return request
+    .then(() => {
+      licenses.getLicenses().then(licenses => {
         dispatch(receiveLicenses(licenses));
-        /* eslint import/namespace: 0 */
-        const invalidLicenses = licenses.some(isLicenseInvalid);
-        if (invalidLicenses) {
-          dispatch(addGlobalErrorMessage(translate('licenses.there_are_invalid')));
+        if (isLicenseFromListInvalid(licenses, key)) {
+          dispatch(addGlobalErrorMessage(translate('licenses.error_message')));
+        } else {
+          dispatch(addGlobalSuccessMessage(translate('licenses.success_message')));
         }
-      })
-      .catch(handleError(dispatch));
-  };
-
-export const setLicense = (key, value) =>
-  dispatch => {
-    const request = value ? licenses.setLicense(key, value) : licenses.resetLicense(key);
-
-    return request
-      .then(() => {
-        licenses.getLicenses().then(licenses => {
-          dispatch(receiveLicenses(licenses));
-          if (isLicenseFromListInvalid(licenses, key)) {
-            dispatch(addGlobalErrorMessage(translate('licenses.error_message')));
-          } else {
-            dispatch(addGlobalSuccessMessage(translate('licenses.success_message')));
-          }
-        });
-      })
-      .catch(handleError(dispatch));
-  };
+      });
+    })
+    .catch(handleError(dispatch));
+};

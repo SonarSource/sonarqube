@@ -26,7 +26,7 @@ import type { Profile } from '../propTypes';
 type Props = {
   profile: Profile,
   profiles: Array<Profile>,
-  onCompare: (string) => void,
+  onCompare: string => void,
   withKey: string
 };
 

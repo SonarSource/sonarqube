@@ -46,7 +46,8 @@ export default class Changelog extends React.PureComponent {
     const rows = this.props.events.map((event, index) => {
       const prev = index > 0 ? this.props.events[index - 1] : null;
       const isSameDate = prev != null && moment(prev.date).diff(event.date, 'seconds') < 10;
-      const isBulkChange = prev != null &&
+      const isBulkChange =
+        prev != null &&
         isSameDate &&
         prev.authorName === event.authorName &&
         prev.action === event.action;

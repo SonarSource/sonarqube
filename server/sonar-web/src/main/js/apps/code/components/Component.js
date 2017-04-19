@@ -42,12 +42,9 @@ export default class Component extends React.PureComponent {
 
     // scroll viewport so the current selected component is visible
     if (selected) {
-      setTimeout(
-        () => {
-          this.handleScroll();
-        },
-        0
-      );
+      setTimeout(() => {
+        this.handleScroll();
+      }, 0);
     }
   }
 

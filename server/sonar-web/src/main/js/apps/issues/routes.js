@@ -26,7 +26,8 @@ const routes = [
         callback(null, {
           component: require('./components/AppContainer').default,
           onEnter
-        }));
+        })
+      );
     }
   }
 ];

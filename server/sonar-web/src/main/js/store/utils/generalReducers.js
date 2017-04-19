@@ -35,16 +35,15 @@ export const createValue = (
   shouldReset = () => false,
   getValue = (state, action) => action.payload,
   defaultValue = null
-) =>
-  (state = defaultValue, action = {}) => {
-    if (shouldReset(state, action)) {
-      return defaultValue;
-    }
-    if (shouldUpdate(state, action)) {
-      return getValue(state, action);
-    }
-    return state;
-  };
+) => (state = defaultValue, action = {}) => {
+  if (shouldReset(state, action)) {
+    return defaultValue;
+  }
+  if (shouldUpdate(state, action)) {
+    return getValue(state, action);
+  }
+  return state;
+};
 
 /**
  * Creates a reducer that manages a map.
@@ -94,13 +93,15 @@ export const createSet = (
  * @param {bool} defaultValue
  * @returns {function(state, action)}
  */
-export const createFlag = (shouldTurnOn, shouldTurnOff, defaultValue = false) =>
-  (state = defaultValue, action = {}) => {
-    if (shouldTurnOn(state, action)) {
-      return true;
-    }
-    if (shouldTurnOff(state, action)) {
-      return false;
-    }
-    return state;
-  };
+export const createFlag = (shouldTurnOn, shouldTurnOff, defaultValue = false) => (
+  state = defaultValue,
+  action = {}
+) => {
+  if (shouldTurnOn(state, action)) {
+    return true;
+  }
+  if (shouldTurnOff(state, action)) {
+    return false;
+  }
+  return state;
+};

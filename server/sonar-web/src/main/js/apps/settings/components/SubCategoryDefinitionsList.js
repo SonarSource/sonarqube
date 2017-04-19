@@ -46,7 +46,8 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
       description: getSubCategoryDescription(bySubCategory[key][0].definition.category, key)
     }));
     const sortedSubCategories = sortBy(subCategories, subCategory =>
-      subCategory.name.toLowerCase());
+      subCategory.name.toLowerCase()
+    );
 
     return (
       <ul className="settings-sub-categories-list">

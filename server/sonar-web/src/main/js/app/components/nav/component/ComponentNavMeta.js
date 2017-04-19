@@ -26,7 +26,8 @@ export default class ComponentNavMeta extends React.PureComponent {
   render() {
     const metaList = [];
     const canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
-    const backgroundTasksUrl = window.baseUrl +
+    const backgroundTasksUrl =
+      window.baseUrl +
       `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
 
     if (this.props.isInProgress) {

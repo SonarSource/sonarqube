@@ -28,9 +28,9 @@ type Props = {|
   component?: Component,
   issues: Array<Issue>,
   onFilterChange: (changes: {}) => void,
-  onIssueChange: (Issue) => void,
-  onIssueCheck?: (string) => void,
-  onIssueClick: (string) => void,
+  onIssueChange: Issue => void,
+  onIssueCheck?: string => void,
+  onIssueClick: string => void,
   selectedIssue: ?Issue
 |};
 

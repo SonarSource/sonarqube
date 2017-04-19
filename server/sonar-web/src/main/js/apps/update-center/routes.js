@@ -21,35 +21,40 @@ const routes = [
   {
     getIndexRoute(_, callback) {
       require.ensure([], require =>
-        callback(null, { component: require('./components/UpdateCenterAppContainer').default }));
+        callback(null, { component: require('./components/UpdateCenterAppContainer').default })
+      );
     }
   },
   {
     path: 'installed',
     getComponent(_, callback) {
       require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default));
+        callback(null, require('./components/UpdateCenterAppContainer').default)
+      );
     }
   },
   {
     path: 'updates',
     getComponent(_, callback) {
       require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default));
+        callback(null, require('./components/UpdateCenterAppContainer').default)
+      );
     }
   },
   {
     path: 'available',
     getComponent(_, callback) {
       require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default));
+        callback(null, require('./components/UpdateCenterAppContainer').default)
+      );
     }
   },
   {
     path: 'system',
     getComponent(_, callback) {
       require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default));
+        callback(null, require('./components/UpdateCenterAppContainer').default)
+      );
     }
   }
 ];

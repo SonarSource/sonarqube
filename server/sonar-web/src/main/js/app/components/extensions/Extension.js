@@ -33,7 +33,7 @@ type Props = {
     key: string,
     title: string
   },
-  onFail: (string) => void,
+  onFail: string => void,
   options?: {},
   router: Object
 };

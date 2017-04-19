@@ -95,9 +95,8 @@ export default class ProfileActions extends React.PureComponent {
     const { profile, canAdmin } = this.props;
 
     // FIXME use org, name and lang
-    const backupUrl = window.baseUrl +
-      '/api/qualityprofiles/backup?profileKey=' +
-      encodeURIComponent(profile.key);
+    const backupUrl =
+      window.baseUrl + '/api/qualityprofiles/backup?profileKey=' + encodeURIComponent(profile.key);
 
     const activateMoreUrl = getRulesUrl(
       {

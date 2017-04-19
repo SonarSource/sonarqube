@@ -217,8 +217,9 @@ export default class SourceViewerIssueLocations extends React.PureComponent {
     if (selectedLocation == null) {
       return false;
     } else {
-      return selectedLocation.flowIndex === flowIndex &&
-        selectedLocation.locationIndex === locationIndex;
+      return (
+        selectedLocation.flowIndex === flowIndex && selectedLocation.locationIndex === locationIndex
+      );
     }
   }
 
@@ -295,7 +296,8 @@ export default class SourceViewerIssueLocations extends React.PureComponent {
                   (flow, flowIndex) =>
                     flow.locations != null &&
                     this.reverseLocations(flow.locations).map((location, locationIndex) =>
-                      this.renderLocation(location, flowIndex, locationIndex, flow.locations || []))
+                      this.renderLocation(location, flowIndex, locationIndex, flow.locations || [])
+                    )
                 )}
               </ul>
               <DraggableCore axis="y" onDrag={this.handleDrag} offsetParent={document.body}>

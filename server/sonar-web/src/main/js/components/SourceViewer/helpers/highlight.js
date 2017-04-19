@@ -49,9 +49,9 @@ export const highlightSymbol = (tokens: Tokens, symbol: string): Tokens => {
   const symbolRegExp = new RegExp(`\\b${symbol}\\b`);
   return tokens.map(
     token =>
-      symbolRegExp.test(token.className)
+      (symbolRegExp.test(token.className)
         ? { ...token, className: `${token.className} highlighted` }
-        : token
+        : token)
   );
 };
 

@@ -43,7 +43,7 @@ import { fetchOrganizations } from '../../../store/rootActions';
 type Props = {
   component: Object,
   location: Object,
-  fetchOrganizations: (Array<string>) => string
+  fetchOrganizations: Array<string> => string
 };
 
 type State = {
@@ -107,8 +107,8 @@ class BackgroundTasksApp extends React.PureComponent {
     const status = this.props.location.query.status || DEFAULT_FILTERS.status;
     const taskType = this.props.location.query.taskType || DEFAULT_FILTERS.taskType;
     const currents = this.props.location.query.currents || DEFAULT_FILTERS.currents;
-    const minSubmittedAt = this.props.location.query.minSubmittedAt ||
-      DEFAULT_FILTERS.minSubmittedAt;
+    const minSubmittedAt =
+      this.props.location.query.minSubmittedAt || DEFAULT_FILTERS.minSubmittedAt;
     const maxExecutedAt = this.props.location.query.maxExecutedAt || DEFAULT_FILTERS.maxExecutedAt;
     const query = this.props.location.query.query || DEFAULT_FILTERS.query;
 

@@ -84,7 +84,8 @@ $.fn.barchart = function(data) {
         .enter()
         .append('g')
         .attr('transform', (d, i) =>
-          trans(xScale(i), Math.ceil(options.availableHeight - yScale(d.count))));
+          trans(xScale(i), Math.ceil(options.availableHeight - yScale(d.count)))
+        );
 
       barsEnter
         .append('rect')
@@ -108,10 +109,12 @@ $.fn.barchart = function(data) {
             : options.endDate;
           if (ending) {
             const isSameDay = ending.diff(beginning, 'days') <= 1;
-            return d.text +
+            return (
+              d.text +
               '<br>' +
               beginning.format('LL') +
-              (isSameDay ? '' : ' – ' + ending.format('LL'));
+              (isSameDay ? '' : ' – ' + ending.format('LL'))
+            );
           } else {
             return d.text + '<br>' + beginning.format('LL');
           }

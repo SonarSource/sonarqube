@@ -45,7 +45,7 @@ export default class SourceViewerCode extends React.PureComponent {
     duplications?: Array<Duplication>,
     duplicationsByLine: { [number]: Array<number> },
     duplicatedFiles?: Array<{ key: string }>,
-    filterLine?: (SourceLine) => boolean,
+    filterLine?: SourceLine => boolean,
     hasSourcesAfter: boolean,
     hasSourcesBefore: boolean,
     highlightedLine: number | null,
@@ -62,15 +62,15 @@ export default class SourceViewerCode extends React.PureComponent {
     loadingSourcesBefore: boolean,
     onCoverageClick: (SourceLine, HTMLElement) => void,
     onDuplicationClick: (number, number) => void,
-    onIssueChange: (Issue) => void,
-    onIssueSelect: (string) => void,
+    onIssueChange: Issue => void,
+    onIssueSelect: string => void,
     onIssueUnselect: () => void,
-    onIssuesOpen: (SourceLine) => void,
-    onIssuesClose: (SourceLine) => void,
+    onIssuesOpen: SourceLine => void,
+    onIssuesClose: SourceLine => void,
     onLineClick: (SourceLine, HTMLElement) => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
     onLocationSelect: (flowIndex: number, locationIndex: number) => void,
-    onSymbolClick: (Array<string>) => void,
+    onSymbolClick: Array<string> => void,
     openIssuesByLine: { [number]: boolean },
     selectedIssue: string | null,
     selectedIssueLocation: IndexedIssueLocation | null,
@@ -228,14 +228,8 @@ export default class SourceViewerCode extends React.PureComponent {
                 hasIssues
               )}
             {sources.map((line, index) =>
-              this.renderLine(
-                line,
-                index,
-                hasCoverage,
-                hasDuplications,
-                displayFiltered,
-                hasIssues
-              ))}
+              this.renderLine(line, index, hasCoverage, hasDuplications, displayFiltered, hasIssues)
+            )}
           </tbody>
         </table>
 

@@ -63,8 +63,8 @@ export default class Sidebar extends React.PureComponent {
   render() {
     const { component, facets, openFacets, query } = this.props;
 
-    const displayProjectsFacet: boolean = component == null ||
-      !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
+    const displayProjectsFacet: boolean =
+      component == null || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
     const displayModulesFacet = component == null || component.qualifier !== 'DIR';
     const displayDirectoriesFacet = component == null || component.qualifier !== 'DIR';
     const displayAuthorFacet = component == null || component.qualifier !== 'DEV';

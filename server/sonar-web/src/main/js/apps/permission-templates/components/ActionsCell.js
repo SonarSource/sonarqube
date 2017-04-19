@@ -124,7 +124,8 @@ export default class ActionsCell extends React.PureComponent {
       this.renderSetDefaultLink(
         qualifier,
         <span>{translate('permission_templates.set_default')}</span>
-      ));
+      )
+    );
   }
 
   renderIfMultipleTopQualifiers(availableQualifiers) {
@@ -138,7 +139,8 @@ export default class ActionsCell extends React.PureComponent {
           {' '}
           {translate('qualifiers', qualifier)}
         </span>
-      ));
+      )
+    );
   }
 
   render() {

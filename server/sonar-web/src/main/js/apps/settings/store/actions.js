@@ -34,69 +34,66 @@ import { isEmptyValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../store/rootReducer';
 
-export const fetchSettings = componentKey =>
-  dispatch => {
-    return getDefinitions(componentKey)
-      .then(definitions => {
-        const withoutLicenses = definitions.filter(definition => definition.type !== 'LICENSE');
-        dispatch(receiveDefinitions(withoutLicenses));
-        const keys = withoutLicenses.map(definition => definition.key).join();
-        return getValues(keys, componentKey);
-      })
-      .then(settings => {
-        dispatch(receiveValues(settings));
-        dispatch(closeAllGlobalMessages());
-      })
-      .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
-  };
+export const fetchSettings = componentKey => dispatch => {
+  return getDefinitions(componentKey)
+    .then(definitions => {
+      const withoutLicenses = definitions.filter(definition => definition.type !== 'LICENSE');
+      dispatch(receiveDefinitions(withoutLicenses));
+      const keys = withoutLicenses.map(definition => definition.key).join();
+      return getValues(keys, componentKey);
+    })
+    .then(settings => {
+      dispatch(receiveValues(settings));
+      dispatch(closeAllGlobalMessages());
+    })
+    .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
+};
 
-export const saveValue = (key, componentKey) =>
-  (dispatch, getState) => {
-    dispatch(startLoading(key));
+export const saveValue = (key, componentKey) => (dispatch, getState) => {
+  dispatch(startLoading(key));
 
-    const state = getState();
-    const definition = getSettingsAppDefinition(state, key);
-    const value = getSettingsAppChangedValue(state, key);
+  const state = getState();
+  const definition = getSettingsAppDefinition(state, key);
+  const value = getSettingsAppChangedValue(state, key);
 
-    if (isEmptyValue(definition, value)) {
-      dispatch(failValidation(key, translate('settings.state.value_cant_be_empty')));
+  if (isEmptyValue(definition, value)) {
+    dispatch(failValidation(key, translate('settings.state.value_cant_be_empty')));
+    dispatch(stopLoading(key));
+    return Promise.reject();
+  }
+
+  return setSettingValue(definition, value, componentKey)
+    .then(() => getValues(key, componentKey))
+    .then(values => {
+      dispatch(receiveValues(values));
+      dispatch(cancelChange(key));
+      dispatch(passValidation(key));
       dispatch(stopLoading(key));
+    })
+    .catch(e => {
+      dispatch(stopLoading(key));
+      parseError(e).then(message => dispatch(failValidation(key, message)));
       return Promise.reject();
-    }
+    });
+};
 
-    return setSettingValue(definition, value, componentKey)
-      .then(() => getValues(key, componentKey))
-      .then(values => {
+export const resetValue = (key, componentKey) => dispatch => {
+  dispatch(startLoading(key));
+
+  return resetSettingValue(key, componentKey)
+    .then(() => getValues(key, componentKey))
+    .then(values => {
+      if (values.length > 0) {
         dispatch(receiveValues(values));
-        dispatch(cancelChange(key));
-        dispatch(passValidation(key));
-        dispatch(stopLoading(key));
-      })
-      .catch(e => {
-        dispatch(stopLoading(key));
-        parseError(e).then(message => dispatch(failValidation(key, message)));
-        return Promise.reject();
-      });
-  };
-
-export const resetValue = (key, componentKey) =>
-  dispatch => {
-    dispatch(startLoading(key));
-
-    return resetSettingValue(key, componentKey)
-      .then(() => getValues(key, componentKey))
-      .then(values => {
-        if (values.length > 0) {
-          dispatch(receiveValues(values));
-        } else {
-          dispatch(receiveValues([{ key }]));
-        }
-        dispatch(passValidation(key));
-        dispatch(stopLoading(key));
-      })
-      .catch(e => {
-        dispatch(stopLoading(key));
-        parseError(e).then(message => dispatch(failValidation(key, message)));
-        return Promise.reject();
-      });
-  };
+      } else {
+        dispatch(receiveValues([{ key }]));
+      }
+      dispatch(passValidation(key));
+      dispatch(stopLoading(key));
+    })
+    .catch(e => {
+      dispatch(stopLoading(key));
+      parseError(e).then(message => dispatch(failValidation(key, message)));
+      return Promise.reject();
+    });
+};

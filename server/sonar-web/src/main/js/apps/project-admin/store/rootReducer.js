@@ -50,7 +50,8 @@ export const getAllProfiles = state => nextGetAllProfiles(state.profiles);
 
 export const getProjectProfiles = (state, projectKey) =>
   getProfiles(state.profilesByProject, projectKey).map(profileKey =>
-    getProfileByKey(state, profileKey));
+    getProfileByKey(state, profileKey)
+  );
 
 export const getGateById = (state, gateId) => getGate(state.gates, gateId);
 

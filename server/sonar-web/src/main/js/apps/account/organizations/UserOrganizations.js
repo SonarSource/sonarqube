@@ -64,11 +64,11 @@ class UserOrganizations extends React.PureComponent {
   render() {
     const title = translate('my_account.organizations') + ' - ' + translate('my_account.page');
 
-    const anyoneCanCreate = this.props.anyoneCanCreate != null &&
-      this.props.anyoneCanCreate.value === 'true';
+    const anyoneCanCreate =
+      this.props.anyoneCanCreate != null && this.props.anyoneCanCreate.value === 'true';
 
-    const canCreateOrganizations = !this.state.loading &&
-      (anyoneCanCreate || isUserAdmin(this.props.currentUser));
+    const canCreateOrganizations =
+      !this.state.loading && (anyoneCanCreate || isUserAdmin(this.props.currentUser));
 
     return (
       <div className="account-body account-container">

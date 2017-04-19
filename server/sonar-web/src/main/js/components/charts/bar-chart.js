@@ -150,7 +150,8 @@ export const BarChart = React.createClass({
     const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    const innerPadding = (availableWidth - this.props.barsWidth * this.props.data.length) /
+    const innerPadding =
+      (availableWidth - this.props.barsWidth * this.props.data.length) /
       (this.props.data.length - 1);
     const relativeInnerPadding = innerPadding / (innerPadding + this.props.barsWidth);
 

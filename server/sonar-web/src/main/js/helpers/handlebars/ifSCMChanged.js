@@ -22,7 +22,8 @@ module.exports = function(source, line, options) {
   const prevLine = source.find(row => row.lineNumber === line - 1);
   let changed = true;
   if (currentLine && prevLine && currentLine.scm && prevLine.scm) {
-    changed = currentLine.scm.author !== prevLine.scm.author ||
+    changed =
+      currentLine.scm.author !== prevLine.scm.author ||
       currentLine.scm.date !== prevLine.scm.date ||
       !prevLine.show;
   }

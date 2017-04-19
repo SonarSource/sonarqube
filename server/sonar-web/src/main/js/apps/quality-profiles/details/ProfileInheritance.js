@@ -93,7 +93,8 @@ export default class ProfileInheritance extends React.PureComponent {
   };
 
   render() {
-    const highlightCurrent = !this.state.loading &&
+    const highlightCurrent =
+      !this.state.loading &&
       this.state.ancestors != null &&
       this.state.children != null &&
       (this.state.ancestors.length > 0 || this.state.children.length > 0);

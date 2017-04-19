@@ -28,7 +28,7 @@ import type { Issue } from '../types';
 
 type Props = {
   issue: Issue,
-  onSelect: (string) => void,
+  onSelect: string => void,
   popupPosition?: {}
 };
 

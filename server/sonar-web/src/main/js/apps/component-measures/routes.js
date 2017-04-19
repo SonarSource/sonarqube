@@ -31,14 +31,16 @@ const routes = [
           {
             getIndexRoute(_, callback) {
               require.ensure([], require =>
-                callback(null, { component: require('./home/AllMeasuresContainer').default }));
+                callback(null, { component: require('./home/AllMeasuresContainer').default })
+              );
             }
           },
           {
             path: 'domain/:domainName',
             getComponent(_, callback) {
               require.ensure([], require =>
-                callback(null, require('./home/DomainMeasuresContainer').default));
+                callback(null, require('./home/DomainMeasuresContainer').default)
+              );
             }
           }
         ]
@@ -47,7 +49,8 @@ const routes = [
         path: 'metric/:metricKey',
         getComponent(_, callback) {
           require.ensure([], require =>
-            callback(null, require('./details/MeasureDetailsContainer').default));
+            callback(null, require('./details/MeasureDetailsContainer').default)
+          );
         },
         childRoutes: [
           {
@@ -65,28 +68,32 @@ const routes = [
             path: 'list',
             getComponent(_, callback) {
               require.ensure([], require =>
-                callback(null, require('./details/drilldown/ListViewContainer').default));
+                callback(null, require('./details/drilldown/ListViewContainer').default)
+              );
             }
           },
           {
             path: 'tree',
             getComponent(_, callback) {
               require.ensure([], require =>
-                callback(null, require('./details/drilldown/TreeViewContainer').default));
+                callback(null, require('./details/drilldown/TreeViewContainer').default)
+              );
             }
           },
           {
             path: 'history',
             getComponent(_, callback) {
               require.ensure([], require =>
-                callback(null, require('./details/history/MeasureHistoryContainer').default));
+                callback(null, require('./details/history/MeasureHistoryContainer').default)
+              );
             }
           },
           {
             path: 'treemap',
             getComponent(_, callback) {
               require.ensure([], require =>
-                callback(null, require('./details/treemap/MeasureTreemapContainer').default));
+                callback(null, require('./details/treemap/MeasureTreemapContainer').default)
+              );
             }
           }
         ]

@@ -25,8 +25,8 @@ import { getRulesUrl } from '../../../helpers/urls';
 
 const link = 'https://redirect.sonarsource.com/doc/rules.html';
 
-const owaspTags = 'owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,' +
-  'owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10';
+const owaspTags =
+  'owasp-a1,owasp-a2,owasp-a3,owasp-a4,owasp-a5,owasp-a6,owasp-a7,owasp-a8,owasp-a9,owasp-a10';
 const sans25Tags = 'sans-top25-porous,sans-top25-risky,sans-top25-insecure';
 
 type Props = {

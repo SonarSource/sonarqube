@@ -57,9 +57,9 @@ export default class Filter extends React.PureComponent {
   }
 
   highlightUnder(option) {
-    return this.props.highlightUnder != null &&
-      option !== null &&
-      option > this.props.highlightUnder;
+    return (
+      this.props.highlightUnder != null && option !== null && option > this.props.highlightUnder
+    );
   }
 
   getPath(option) {

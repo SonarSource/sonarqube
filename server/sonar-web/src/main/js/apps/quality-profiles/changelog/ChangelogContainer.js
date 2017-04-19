@@ -162,7 +162,8 @@ export default class ChangelogContainer extends React.PureComponent {
   render() {
     const { query } = this.props.location;
 
-    const shouldDisplayFooter = this.state.events != null &&
+    const shouldDisplayFooter =
+      this.state.events != null &&
       this.state.total != null &&
       this.state.events.length < this.state.total;
 

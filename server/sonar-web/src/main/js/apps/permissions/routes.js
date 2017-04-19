@@ -34,7 +34,8 @@ export const projectPermissionsRoutes = [
   {
     getIndexRoute(_, callback) {
       require.ensure([], require =>
-        callback(null, { component: require('./project/components/App').default }));
+        callback(null, { component: require('./project/components/App').default })
+      );
     }
   }
 ];

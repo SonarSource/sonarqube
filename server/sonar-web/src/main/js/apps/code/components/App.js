@@ -89,8 +89,8 @@ class App extends React.PureComponent {
   loadComponent(componentKey) {
     this.setState({ loading: true });
 
-    const isView = this.props.component.qualifier === 'VW' ||
-      this.props.component.qualifier === 'SVW';
+    const isView =
+      this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
     retrieveComponent(componentKey, isView)
       .then(r => {
         if (this.mounted) {
@@ -133,8 +133,8 @@ class App extends React.PureComponent {
 
   handleLoadMore() {
     const { baseComponent, page } = this.state;
-    const isView = this.props.component.qualifier === 'VW' ||
-      this.props.component.qualifier === 'SVW';
+    const isView =
+      this.props.component.qualifier === 'VW' || this.props.component.qualifier === 'SVW';
     loadMoreChildren(baseComponent.key, page + 1, isView)
       .then(r => {
         if (this.mounted) {

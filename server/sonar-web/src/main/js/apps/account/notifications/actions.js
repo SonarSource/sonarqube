@@ -28,36 +28,33 @@ import {
 } from '../../../store/notifications/duck';
 import type { Notification } from '../../../store/notifications/duck';
 
-export const fetchNotifications = () =>
-  (dispatch: Function) => {
-    const onFulfil = (response: GetNotificationsResponse) => {
-      const organizations = response.notifications
-        .filter(n => n.organization)
-        .map(n => n.organization);
+export const fetchNotifications = () => (dispatch: Function) => {
+  const onFulfil = (response: GetNotificationsResponse) => {
+    const organizations = response.notifications
+      .filter(n => n.organization)
+      .map(n => n.organization);
 
-      dispatch(fetchOrganizations(organizations)).then(() => {
-        dispatch(
-          receiveNotifications(
-            response.notifications,
-            response.channels,
-            response.globalTypes,
-            response.perProjectTypes
-          )
-        );
-      });
-    };
-
-    return api.getNotifications().then(onFulfil, onFail(dispatch));
+    dispatch(fetchOrganizations(organizations)).then(() => {
+      dispatch(
+        receiveNotifications(
+          response.notifications,
+          response.channels,
+          response.globalTypes,
+          response.perProjectTypes
+        )
+      );
+    });
   };
 
-export const addNotification = (n: Notification) =>
-  (dispatch: Function) =>
-    api
-      .addNotification(n.channel, n.type, n.project)
-      .then(() => dispatch(addNotificationAction(n)), onFail(dispatch));
+  return api.getNotifications().then(onFulfil, onFail(dispatch));
+};
 
-export const removeNotification = (n: Notification) =>
-  (dispatch: Function) =>
-    api
-      .removeNotification(n.channel, n.type, n.project)
-      .then(() => dispatch(removeNotificationAction(n)), onFail(dispatch));
+export const addNotification = (n: Notification) => (dispatch: Function) =>
+  api
+    .addNotification(n.channel, n.type, n.project)
+    .then(() => dispatch(addNotificationAction(n)), onFail(dispatch));
+
+export const removeNotification = (n: Notification) => (dispatch: Function) =>
+  api
+    .removeNotification(n.channel, n.type, n.project)
+    .then(() => dispatch(removeNotificationAction(n)), onFail(dispatch));

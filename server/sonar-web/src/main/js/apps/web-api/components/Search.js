@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 type Props = {
   showDeprecated: boolean,
   showInternal: boolean,
-  onSearch: (string) => void,
+  onSearch: string => void,
   onToggleInternal: () => void,
   onToggleDeprecated: () => void
 };

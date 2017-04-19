@@ -70,38 +70,36 @@ export default class CreationDateFacet extends React.PureComponent {
     });
   };
 
-  handleBarClick = (
-    { createdAfter, createdBefore }: { createdAfter: Object, createdBefore?: Object }
-  ) => {
+  handleBarClick = ({
+    createdAfter,
+    createdBefore
+  }: { createdAfter: Object, createdBefore?: Object }) => {
     this.resetTo({
       createdAfter: createdAfter.format(DATE_FORMAT),
       createdBefore: createdBefore && createdBefore.format(DATE_FORMAT)
     });
   };
 
-  handlePeriodChange = (property: string) =>
-    (value: string) => {
-      this.props.onChange({
-        createdAt: undefined,
-        createdInLast: undefined,
-        sinceLeakPeriod: undefined,
-        [property]: value
-      });
-    };
+  handlePeriodChange = (property: string) => (value: string) => {
+    this.props.onChange({
+      createdAt: undefined,
+      createdInLast: undefined,
+      sinceLeakPeriod: undefined,
+      [property]: value
+    });
+  };
 
-  handlePeriodClick = (period?: string) =>
-    (e: Event & { target: HTMLElement }) => {
-      e.preventDefault();
-      e.target.blur;
-      this.resetTo({ createdInLast: period });
-    };
+  handlePeriodClick = (period?: string) => (e: Event & { target: HTMLElement }) => {
+    e.preventDefault();
+    e.target.blur;
+    this.resetTo({ createdInLast: period });
+  };
 
-  handleLeakPeriodClick = () =>
-    (e: Event & { target: HTMLElement }) => {
-      e.preventDefault();
-      e.target.blur;
-      this.resetTo({ sinceLeakPeriod: true });
-    };
+  handleLeakPeriodClick = () => (e: Event & { target: HTMLElement }) => {
+    e.preventDefault();
+    e.target.blur;
+    this.resetTo({ sinceLeakPeriod: true });
+  };
 
   renderBarChart() {
     const { createdBefore, stats } = this.props;
@@ -123,9 +121,8 @@ export default class CreationDateFacet extends React.PureComponent {
         : createdBefore ? moment(createdBefore) : undefined;
       const endMoment = nextStartMoment && nextStartMoment.clone().subtract(1, 'days');
 
-      let tooltip = formatMeasure(stats[startDate], 'SHORT_INT') +
-        '<br>' +
-        startMoment.format('LL');
+      let tooltip =
+        formatMeasure(stats[startDate], 'SHORT_INT') + '<br>' + startMoment.format('LL');
 
       if (endMoment) {
         const isSameDay = endMoment.diff(startMoment, 'days') <= 1;
@@ -149,7 +146,7 @@ export default class CreationDateFacet extends React.PureComponent {
 
     const maxValue = max(data.map(d => d.y));
     const format = this.props.facetMode === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
-    const xValues = data.map(d => d.y === maxValue ? formatMeasure(maxValue, format) : '');
+    const xValues = data.map(d => (d.y === maxValue ? formatMeasure(maxValue, format) : ''));
 
     return (
       <BarChart
@@ -248,7 +245,8 @@ export default class CreationDateFacet extends React.PureComponent {
   }
 
   render() {
-    const hasValue = this.props.createdAfter.length > 0 ||
+    const hasValue =
+      this.props.createdAfter.length > 0 ||
       this.props.createdAt.length > 0 ||
       this.props.createdBefore.length > 0 ||
       this.props.createdInLast.length > 0 ||

@@ -36,11 +36,13 @@ import FiltersView from './filters-view';
 
 const App = new Marionette.Application();
 
-App.on('start', function(options: {
-  el: HTMLElement,
-  organization: ?string,
-  isDefaultOrganization: boolean
-}) {
+App.on('start', function(
+  options: {
+    el: HTMLElement,
+    organization: ?string,
+    isDefaultOrganization: boolean
+  }
+) {
   const data = options.organization ? { organization: options.organization } : {};
   $.get(window.baseUrl + '/api/rules/app', data)
     .done(r => {
