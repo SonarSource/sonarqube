@@ -25,23 +25,21 @@ import org.sonar.api.resources.Qualifiers;
 import static java.util.Arrays.stream;
 
 public enum SuggestionCategory {
-  VIEW("views", Qualifiers.VIEW),
-  SUBVIEW("sub-views", Qualifiers.SUBVIEW),
-  PROJECT("projects", Qualifiers.PROJECT),
-  MODULE("modules", Qualifiers.MODULE),
-  FILE("files", Qualifiers.FILE),
-  UNIT_TEST_FILE("unit-test-files", Qualifiers.UNIT_TEST_FILE),;
+  VIEW(Qualifiers.VIEW),
+  SUBVIEW(Qualifiers.SUBVIEW),
+  PROJECT(Qualifiers.PROJECT),
+  MODULE(Qualifiers.MODULE),
+  FILE(Qualifiers.FILE),
+  UNIT_TEST_FILE(Qualifiers.UNIT_TEST_FILE),;
 
-  private final String name;
   private final String qualifier;
 
-  SuggestionCategory(String name, String qualifier) {
-    this.name = name;
+  SuggestionCategory(String qualifier) {
     this.qualifier = qualifier;
   }
 
   public String getName() {
-    return name;
+    return qualifier;
   }
 
   public String getQualifier() {

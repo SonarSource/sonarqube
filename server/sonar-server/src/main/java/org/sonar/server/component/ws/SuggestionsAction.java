@@ -194,7 +194,7 @@ public class SuggestionsAction implements ComponentsWsAction {
           .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
       }
       builder
-        .addAllSuggestions(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteKeys, componentsByUuids, organizationsByUuids, projectsByUuids))
+        .addAllResults(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteKeys, componentsByUuids, organizationsByUuids, projectsByUuids))
         .addAllOrganizations(toOrganizations(organizationsByUuids))
         .addAllProjects(toProjects(projectsByUuids));
     }
@@ -211,9 +211,9 @@ public class SuggestionsAction implements ComponentsWsAction {
         .collect(toList());
 
       return Category.newBuilder()
-        .setCategory(qualifier.getQualifier())
+        .setQ(qualifier.getQualifier())
         .setMore(qualifier.getNumberOfFurtherResults())
-        .addAllSuggestions(suggestions)
+        .addAllItems(suggestions)
         .build();
     }).collect(toList());
   }
