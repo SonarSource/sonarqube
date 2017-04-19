@@ -113,8 +113,13 @@ table.data td.small, table.data th.small {
   white-space: nowrap;
 }
 
-table.data.zebra > tbody > tr:nth-child(even) {
-  background-color: #f5f5f5;
+table.data.zebra {
+  &:not(.zebra-inversed) > tbody > tr:nth-child(even) {
+    background-color: #f5f5f5;
+  }
+  &.zebra-inversed > tbody > tr:nth-child(odd) {
+    background-color: #f5f5f5;
+  }
 }
 
 table.data.zebra-hover > tbody > tr:hover {

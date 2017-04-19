@@ -33,9 +33,17 @@ table.nowrap td, td.nowrap, th.nowrap { white-space: nowrap; }
   visibility: hidden !important;
 }
 
-.note {
+.invisible {
+  visibility: hidden !important;
+}
+
+.note-without-link {
   color: @secondFontColor;
   font-size: @smallFontSize;
+}
+
+.note {
+  .note-without-link();
 
   a {
     color: @secondFontColor;
