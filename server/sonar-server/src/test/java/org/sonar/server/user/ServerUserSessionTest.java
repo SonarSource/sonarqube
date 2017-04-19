@@ -156,7 +156,7 @@ public class ServerUserSessionTest {
 
   @Test
   public void checkComponentUuidPermission_fails_with_FE_when_user_has_not_permission_for_specified_uuid_in_db() {
-    addProjectPermissions(publicProject, UserRole.USER);
+    addProjectPermissions(privateProject, UserRole.USER);
     UserSession session = newUserSession(user);
 
     expectInsufficientPrivilegesForbiddenException();

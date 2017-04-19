@@ -178,7 +178,6 @@ public class SearchActionTest {
   public void return_measures_on_view() throws Exception {
     ComponentDto view = newView(db.getDefaultOrganization());
     SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(view);
-    setBrowsePermissionOnUser(view);
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, view, viewSnapshot).setValue(15.5d));
     db.commit();
@@ -197,7 +196,6 @@ public class SearchActionTest {
     ComponentDto view = newView(db.getDefaultOrganization());
     SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(view);
     ComponentDto subView = db.components().insertComponent(newSubView(view));
-    setBrowsePermissionOnUser(view);
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, subView, viewSnapshot).setValue(15.5d));
     db.commit();

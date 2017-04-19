@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -168,7 +167,6 @@ public class ViewIndexerTest {
     ComponentDto project = ComponentTesting.newPublicProjectDto(org);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbTester.components().insertComponents(project, file);
-    dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     dbClient.issueDao().insert(dbSession, issue);
