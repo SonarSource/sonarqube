@@ -156,6 +156,12 @@ public class OkHttpClientBuilder {
     if (readTimeoutMs >= 0) {
       builder.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS);
     }
+    if (proxyLogin != null) {
++      builder.proxyAuthenticator((route, response) -> {
++        Request.Builder newRequest = response.request().newBuilder();
++        return newRequest.header("Proxy-Authorization", Credentials.basic(proxyLogin, nullToEmpty(proxyPassword))).build();
++      });
++    }
     builder.addInterceptor(this::completeHeaders);
 
     ConnectionSpec tls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
@@ -176,9 +182,6 @@ public class OkHttpClientBuilder {
     Request.Builder newRequest = chain.request().newBuilder();
     if (userAgent != null) {
       newRequest.header("User-Agent", userAgent);
-    }
-    if (proxyLogin != null) {
-      newRequest.header("Proxy-Authorization", Credentials.basic(proxyLogin, nullToEmpty(proxyPassword)));
     }
     return chain.proceed(newRequest.build());
   }
