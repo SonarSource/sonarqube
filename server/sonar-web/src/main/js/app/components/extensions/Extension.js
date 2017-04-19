@@ -33,6 +33,7 @@ type Props = {
     key: string,
     title: string
   },
+  location: {},
   onFail: string => void,
   options?: {},
   router: Object
@@ -51,6 +52,8 @@ class Extension extends React.PureComponent {
     if (prevProps.extension !== this.props.extension) {
       this.stopExtension();
       this.startExtension();
+    } else if (prevProps.location !== this.props.location) {
+      this.startExtension();
     }
   }
 
@@ -64,6 +67,7 @@ class Extension extends React.PureComponent {
       store,
       el: this.container,
       currentUser: this.props.currentUser,
+      location: this.props.location,
       router: this.props.router,
       ...this.props.options
     });

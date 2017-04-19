@@ -27,6 +27,7 @@ import type { Organization } from '../../../store/organizations/duck';
 
 type Props = {
   organization: Organization,
+  location: {},
   params: {
     extensionKey: string,
     organizationKey: string,
@@ -48,7 +49,11 @@ class OrganizationPageExtension extends React.PureComponent {
 
     const extension = pages.find(p => p.key === `${pluginKey}/${extensionKey}`);
     return extension
-      ? <Extension extension={extension} options={{ organization }} />
+      ? <Extension
+          extension={extension}
+          options={{ organization }}
+          location={this.props.location}
+        />
       : <ExtensionNotFound />;
   }
 }
