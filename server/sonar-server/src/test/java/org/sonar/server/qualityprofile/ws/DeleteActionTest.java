@@ -71,7 +71,7 @@ public class DeleteActionTest {
   @Test
   public void delete_profile_by_key() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
     QualityProfileDto profile1 = createProfile(organization);
     QualityProfileDto profile2 = createProfile(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project, profile1);
@@ -91,7 +91,7 @@ public class DeleteActionTest {
   @Test
   public void delete_profile_by_language_and_name_in_default_organization() throws Exception {
     OrganizationDto organization = dbTester.getDefaultOrganization();
-    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
     QualityProfileDto profile1 = createProfile(organization);
     QualityProfileDto profile2 = createProfile(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project, profile1);
@@ -113,7 +113,7 @@ public class DeleteActionTest {
   @Test
   public void delete_profile_by_language_and_name_in_specified_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
     QualityProfileDto profile1 = createProfile(organization);
     QualityProfileDto profile2 = createProfile(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project, profile1);

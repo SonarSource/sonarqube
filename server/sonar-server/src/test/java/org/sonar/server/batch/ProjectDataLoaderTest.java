@@ -129,7 +129,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void throw_ForbiddenException_if_no_browse_permission_nor_scan_permission() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -140,7 +140,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void throw_ForbiddenException_if_browse_permission_but_not_scan_permission() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(ForbiddenException.class);
@@ -151,7 +151,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void issues_mode_is_allowed_if_user_has_browse_permission() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 
     ProjectRepositories repositories = underTest.load(ProjectDataQuery.create().setModuleKey(project.key()).setIssuesMode(true));
@@ -161,7 +161,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void issues_mode_is_forbidden_if_user_doesnt_have_browse_permission() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(GlobalPermissions.SCAN_EXECUTION, project);
 
     expectedException.expect(ForbiddenException.class);
@@ -172,7 +172,7 @@ public class ProjectDataLoaderTest {
 
   @Test
   public void scan_permission_on_organization_is_enough_even_without_scan_permission_on_project() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     userSession.logIn().addPermission(SCAN, project.getOrganizationUuid());
     userSession.logIn().addProjectPermission(UserRole.USER, project);
 

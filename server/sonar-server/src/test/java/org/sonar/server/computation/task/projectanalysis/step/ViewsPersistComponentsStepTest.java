@@ -50,7 +50,7 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.SUBVIEW;
@@ -133,7 +133,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_view_with_projectView() {
-    ComponentDto project = newProjectDto(dbTester.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert());
     persistComponents(project);
 
     treeRootHolder.setRoot(
@@ -227,7 +227,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_project_view_under_subview() {
-    ComponentDto project = newProjectDto(dbTester.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert());
     persistComponents(project);
 
     treeRootHolder.setRoot(
@@ -273,7 +273,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public void update_project_view() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto view = newViewDto(organizationDto);
-    ComponentDto project = newProjectDto(organizationDto);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
     persistComponents(view, project);
     ComponentDto projectView = ComponentTesting.newProjectCopy(PROJECT_VIEW_1_UUID, project, view)
       .setOrganizationUuid(ORGANIZATION_UUID)
@@ -302,8 +302,8 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public void update_copy_component_uuid_of_project_view() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto view = newViewDto(organizationDto);
-    ComponentDto project1 = newProjectDto(organizationDto, "P1");
-    ComponentDto project2 = newProjectDto(organizationDto, "P2");
+    ComponentDto project1 = newPrivateProjectDto(organizationDto, "P1");
+    ComponentDto project2 = newPrivateProjectDto(organizationDto, "P2");
     persistComponents(view, project1, project2);
 
     // Project view in DB is associated to project1
@@ -354,7 +354,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persists_new_components_as_public_if_root_does_not_exist_yet_out_of_functional_transaction() {
-    ComponentDto project = dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert()));
+    ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     treeRootHolder.setRoot(
       createViewBuilder()
         .addChildren(
@@ -373,7 +373,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persists_new_components_with_visibility_of_root_in_db_out_of_functional_transaction() {
     boolean isRootPrivate = new Random().nextBoolean();
-    ComponentDto project = dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert()));
+    ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);
@@ -397,7 +397,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   @Test
   public void persists_existing_components_with_visibility_of_root_in_db_out_of_functional_transaction() {
     boolean isRootPrivate = new Random().nextBoolean();
-    ComponentDto project = dbTester.components().insertComponent(newProjectDto(dbTester.organizations().insert()));
+    ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto view = newViewDto(organization).setUuid(VIEW_UUID).setKey(VIEW_KEY).setName("View").setPrivate(isRootPrivate);
     dbTester.components().insertComponent(view);

@@ -69,7 +69,7 @@ public class DeselectActionTest {
     underTest = new DeselectAction(qualityGates, dbClient, componentFinder);
     ws = new WsActionTester(underTest);
 
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     gate = insertQualityGate();
   }
 
@@ -77,7 +77,7 @@ public class DeselectActionTest {
   public void deselect_by_id() throws Exception {
     logInAsRoot();
 
-    ComponentDto anotherProject = db.components().insertProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
     associateProjectToQualityGate(anotherProject.getId(), gateId);

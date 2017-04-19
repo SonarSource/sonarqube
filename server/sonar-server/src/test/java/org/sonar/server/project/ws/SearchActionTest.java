@@ -31,6 +31,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -55,7 +56,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
@@ -85,8 +86,8 @@ public class SearchActionTest {
   public void search_by_key_query() throws IOException {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
-      newProjectDto(db.getDefaultOrganization()).setKey("project-_%-key"),
-      newProjectDto(db.getDefaultOrganization()).setKey("project-key-without-escaped-characters"));
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-_%-key"),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-key-without-escaped-characters"));
 
     SearchWsResponse response = call(SearchWsRequest.builder().setQuery("project-_%-key").build());
 
@@ -97,7 +98,7 @@ public class SearchActionTest {
   public void search_projects_when_no_qualifier_set() throws IOException {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
-      newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()));
 
     SearchWsResponse response = call(SearchWsRequest.builder().build());
@@ -108,13 +109,13 @@ public class SearchActionTest {
   @Test
   public void search_projects() throws IOException {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
-    ComponentDto project = newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1);
     ComponentDto module = newModuleDto(project);
     ComponentDto directory = newDirectory(module, "dir");
     ComponentDto file = newFileDto(directory);
     db.components().insertComponents(
       project, module, directory, file,
-      newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_2),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_2),
       newView(db.getDefaultOrganization()));
 
     SearchWsResponse response = call(SearchWsRequest.builder().setQualifiers(singletonList("TRK")).build());
@@ -126,7 +127,7 @@ public class SearchActionTest {
   public void search_views() throws IOException {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
-      newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()).setKey("view1"));
 
     SearchWsResponse response = call(SearchWsRequest.builder().setQualifiers(singletonList("VW")).build());
@@ -138,7 +139,7 @@ public class SearchActionTest {
   public void search_projects_and_views() throws IOException {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     db.components().insertComponents(
-      newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
       newView(db.getDefaultOrganization()).setKey("view1"));
 
     SearchWsResponse response = call(SearchWsRequest.builder().setQualifiers(asList("TRK", "VW")).build());
@@ -151,9 +152,9 @@ public class SearchActionTest {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     OrganizationDto otherOrganization = db.organizations().insert();
     db.components().insertComponents(
-      newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
-      newProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_2),
-      newProjectDto(otherOrganization).setKey(PROJECT_KEY_3));
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_1),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey(PROJECT_KEY_2),
+      ComponentTesting.newPrivateProjectDto(otherOrganization).setKey(PROJECT_KEY_3));
 
     SearchWsResponse response = call(SearchWsRequest.builder().build());
 
@@ -165,9 +166,9 @@ public class SearchActionTest {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
     userSession.addPermission(ADMINISTER, organization1);
-    ComponentDto project1 = newProjectDto(organization1);
-    ComponentDto project2 = newProjectDto(organization1);
-    ComponentDto project3 = newProjectDto(organization2);
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organization1);
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organization1);
+    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organization2);
     db.components().insertComponents(project1, project2, project3);
 
     SearchWsResponse response = call(SearchWsRequest.builder().setOrganization(organization1.getKey()).build());
@@ -180,7 +181,7 @@ public class SearchActionTest {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
-      componentDtoList.add(newProjectDto(db.getDefaultOrganization(), "project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
+      componentDtoList.add(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
     }
     db.components().insertComponents(componentDtoList.toArray(new ComponentDto[] {}));
 
@@ -257,8 +258,8 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
     userSession.addPermission(ADMINISTER, organization);
     db.components().insertComponents(
-      newProjectDto(organization, "project-uuid-1").setName("Project Name 1").setKey("project-key-1"),
-      newProjectDto(organization, "project-uuid-2").setName("Project Name 1").setKey("project-key-2"));
+      newPrivateProjectDto(organization, "project-uuid-1").setName("Project Name 1").setKey("project-key-1"),
+      newPrivateProjectDto(organization, "project-uuid-2").setName("Project Name 1").setKey("project-key-2"));
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)

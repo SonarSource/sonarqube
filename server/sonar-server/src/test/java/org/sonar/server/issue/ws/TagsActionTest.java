@@ -206,7 +206,7 @@ public class TagsActionTest {
   }
 
   private IssueDto insertIssue(RuleDefinitionDto rule, String... tags) {
-    ComponentDto project = db.components().insertProject(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     IssueDto issueDto = IssueTesting.newIssue(rule, file, project).setTags(asList(tags));
     return db.issues().insertIssue(issueDto);

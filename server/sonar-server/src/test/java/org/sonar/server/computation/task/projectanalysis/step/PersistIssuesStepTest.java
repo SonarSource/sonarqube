@@ -98,7 +98,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
     dbTester.rules().insert(rule);
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
     dbClient.componentDao().insert(session, project);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbClient.componentDao().insert(session, file);

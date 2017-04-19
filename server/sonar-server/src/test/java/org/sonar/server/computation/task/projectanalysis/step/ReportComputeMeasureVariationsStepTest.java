@@ -86,7 +86,7 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Before
   public void setUp() {
-    project = dbTester.components().insertProject(dbTester.organizations().insert(), PROJECT_UUID);
+    project = dbTester.components().insertPrivateProject(dbTester.organizations().insert(), PROJECT_UUID);
   }
 
   @Test

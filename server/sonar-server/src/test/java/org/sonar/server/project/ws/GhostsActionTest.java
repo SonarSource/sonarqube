@@ -188,14 +188,14 @@ public class GhostsActionTest {
   @Test
   public void ghost_projects_base_on_json_example() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto hBaseProject = ComponentTesting.newProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+    ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
       .setStatus(STATUS_UNPROCESSED));
-    ComponentDto roslynProject = ComponentTesting.newProjectDto(organization, "c526ef20-131b-4486-9357-063fa64b5079")
+    ComponentDto roslynProject = ComponentTesting.newPrivateProjectDto(organization, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
@@ -241,13 +241,13 @@ public class GhostsActionTest {
   }
 
   private ComponentDto insertGhostProject(OrganizationDto organization, Consumer<ComponentDto> consumer) {
-    ComponentDto project = db.components().insertProject(organization, consumer);
+    ComponentDto project = db.components().insertPrivateProject(organization, consumer);
     db.components().insertSnapshot(project, dto -> dto.setStatus(STATUS_UNPROCESSED));
     return project;
   }
 
   private ComponentDto insertActiveProject(OrganizationDto organization) {
-    ComponentDto project = db.components().insertProject(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     db.components().insertSnapshot(project, dto -> dto.setStatus(STATUS_PROCESSED));
     return project;
   }

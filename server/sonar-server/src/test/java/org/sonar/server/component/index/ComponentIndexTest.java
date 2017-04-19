@@ -125,13 +125,13 @@ public abstract class ComponentIndexTest {
 
   protected ComponentDto indexProject(String key, String name) {
     return index(
-      ComponentTesting.newProjectDto(organization, "UUID_" + key)
+      ComponentTesting.newPrivateProjectDto(organization, "UUID_" + key)
         .setKey(key)
         .setName(name));
   }
 
   protected ComponentDto newProject(String key, String name) {
-    return ComponentTesting.newProjectDto(organization, "UUID_" + key)
+    return ComponentTesting.newPrivateProjectDto(organization, "UUID_" + key)
       .setKey(key)
       .setName(name);
   }

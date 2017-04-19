@@ -29,11 +29,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
 
@@ -51,7 +51,7 @@ public class EventDaoTest {
 
   @Test
   public void select_by_uuid() {
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(newProjectDto(dbTester.organizations().insert()));
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A1"));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A2"));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("A3"));
@@ -87,7 +87,7 @@ public class EventDaoTest {
 
   @Test
   public void select_by_analysis_uuid() {
-    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
     SnapshotDto otherAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbTester.commit();
@@ -106,7 +106,7 @@ public class EventDaoTest {
 
   @Test
   public void select_by_analysis_uuids() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     SnapshotDto a1 = dbTester.components().insertSnapshot(newAnalysis(project));
     SnapshotDto a2 = dbTester.components().insertSnapshot(newAnalysis(project));
     SnapshotDto a42 = dbTester.components().insertSnapshot(newAnalysis(project));
@@ -156,7 +156,7 @@ public class EventDaoTest {
 
   @Test
   public void update_name_and_description() {
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(newProjectDto(dbTester.organizations().insert()));
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()));
     dbTester.events().insertEvent(newEvent(analysis).setUuid("E1"));
 
     underTest.update(dbSession, "E1", "New Name", "New Description");
@@ -178,7 +178,7 @@ public class EventDaoTest {
 
   @Test
   public void delete_by_uuid() {
-    dbTester.events().insertEvent(newEvent(newAnalysis(newProjectDto(dbTester.getDefaultOrganization()))).setUuid("E1"));
+    dbTester.events().insertEvent(newEvent(newAnalysis(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()))).setUuid("E1"));
 
     underTest.delete(dbTester.getSession(), "E1");
     dbTester.commit();

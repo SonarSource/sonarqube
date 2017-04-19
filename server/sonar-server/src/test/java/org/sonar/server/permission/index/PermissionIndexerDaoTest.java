@@ -70,8 +70,8 @@ public class PermissionIndexerDaoTest {
 
   @Before
   public void setUp() throws Exception {
-    project1 = componentDbTester.insertProject();
-    project2 = componentDbTester.insertProject();
+    project1 = componentDbTester.insertPrivateProject();
+    project2 = componentDbTester.insertPrivateProject();
     view1 = componentDbTester.insertView();
     view2 = componentDbTester.insertView();
     user1 = userDbTester.insertUser();
@@ -157,7 +157,7 @@ public class PermissionIndexerDaoTest {
   public void select_by_projects_with_high_number_of_projects() throws Exception {
     List<String> projects = new ArrayList<>();
     for (int i = 0; i < 350; i++) {
-      ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), Integer.toString(i));
+      ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), Integer.toString(i));
       dbClient.componentDao().insert(dbSession, project);
       projects.add(project.uuid());
       GroupPermissionDto dto = new GroupPermissionDto()

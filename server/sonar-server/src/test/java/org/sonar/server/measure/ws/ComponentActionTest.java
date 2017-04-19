@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -93,7 +93,7 @@ public class ComponentActionTest {
 
   @Test
   public void provided_project() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
+    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
     userSession.addProjectPermission(UserRole.USER, project);
     insertNclocMetric();
 
@@ -106,7 +106,7 @@ public class ComponentActionTest {
 
   @Test
   public void without_additional_fields() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), "project-uuid"));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
     insertNclocMetric();
 
     String response = ws.newRequest()
@@ -121,7 +121,7 @@ public class ComponentActionTest {
 
   @Test
   public void reference_uuid_in_the_response() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
     componentDb.insertViewAndSnapshot(view);
@@ -140,7 +140,7 @@ public class ComponentActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component id 'unknown-developer-id' not found");
 
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
     insertNclocMetric();
 
     ws.newRequest()
@@ -151,7 +151,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_a_metric_is_not_found() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID));
     insertNclocMetric();
     insertComplexityMetric();
 
@@ -163,7 +163,7 @@ public class ComponentActionTest {
 
   @Test
   public void fail_when_empty_metric_keys_parameter() {
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("At least one metric key must be provided");
@@ -174,7 +174,7 @@ public class ComponentActionTest {
   @Test
   public void fail_when_not_enough_permission() {
     userSession.logIn();
-    componentDb.insertProjectAndSnapshot(newProjectDto(db.organizations().insert(), PROJECT_UUID));
+    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID));
     insertNclocMetric();
 
     expectedException.expect(ForbiddenException.class);
@@ -243,7 +243,7 @@ public class ComponentActionTest {
   }
 
   private void insertJsonExampleData() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
     SnapshotDto projectSnapshot = SnapshotTesting.newAnalysis(project)
       .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
       .setPeriodMode("previous_version")

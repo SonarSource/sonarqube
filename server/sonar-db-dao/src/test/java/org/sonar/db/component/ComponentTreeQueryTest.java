@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
@@ -70,10 +70,10 @@ public class ComponentTreeQueryTest {
   @Test
   public void test_getUuidPath() throws Exception {
     assertThat(ComponentTreeQuery.builder().setBaseUuid(BASE_UUID).setStrategy(CHILDREN)
-      .build().getUuidPath(newProjectDto(newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
+      .build().getUuidPath(newPrivateProjectDto(newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT_UUID.");
 
     assertThat(ComponentTreeQuery.builder().setBaseUuid(BASE_UUID).setStrategy(LEAVES)
-      .build().getUuidPath(newProjectDto(newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT/_UUID.%");
+      .build().getUuidPath(newPrivateProjectDto(newOrganizationDto(), "PROJECT_UUID"))).isEqualTo(".PROJECT/_UUID.%");
   }
 
   @Test

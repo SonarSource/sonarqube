@@ -164,7 +164,7 @@ public class ComponentUpdaterTest {
 
   @Test
   public void fail_when_project_key_already_exists() throws Exception {
-    ComponentDto existing = db.components().insertProject();
+    ComponentDto existing = db.components().insertPrivateProject();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Could not create Project, key already exists: " + existing.key());
@@ -180,7 +180,7 @@ public class ComponentUpdaterTest {
 
   @Test
   public void fail_when_project_key_already_exists_on_other_organization() throws Exception {
-    ComponentDto existing = db.components().insertProject(db.organizations().insert());
+    ComponentDto existing = db.components().insertPrivateProject(db.organizations().insert());
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Could not create Project, key already exists: " + existing.key());

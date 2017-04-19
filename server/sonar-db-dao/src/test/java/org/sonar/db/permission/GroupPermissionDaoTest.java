@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
@@ -45,7 +46,6 @@ import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -72,9 +72,9 @@ public class GroupPermissionDaoTest {
     GroupDto group1 = db.users().insertGroup();
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
-    ComponentDto project1 = db.components().insertProject();
-    ComponentDto project2 = db.components().insertProject();
-    ComponentDto project3 = db.components().insertProject();
+    ComponentDto project1 = db.components().insertPrivateProject();
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto project3 = db.components().insertPrivateProject();
 
     db.users().insertProjectPermissionOnGroup(group1, ISSUE_ADMIN, project1);
     db.users().insertProjectPermissionOnGroup(group1, ADMIN, project2);
@@ -135,7 +135,7 @@ public class GroupPermissionDaoTest {
     GroupDto group2 = db.users().insertGroup(organizationDto, "Group-2");
     GroupDto group3 = db.users().insertGroup(organizationDto, "Group-3");
 
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
 
     db.users().insertPermissionOnAnyone(organizationDto, SCAN);
     db.users().insertPermissionOnAnyone(organizationDto, PROVISION_PROJECTS);
@@ -159,8 +159,8 @@ public class GroupPermissionDaoTest {
     GroupDto group2 = db.users().insertGroup();
     GroupDto group3 = db.users().insertGroup();
 
-    ComponentDto project = db.components().insertProject();
-    ComponentDto anotherProject = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
 
     db.users().insertProjectPermissionOnGroup(group1, SCAN_EXECUTION, project);
     db.users().insertProjectPermissionOnGroup(group1, PROVISIONING, project);
@@ -217,7 +217,7 @@ public class GroupPermissionDaoTest {
     db.users().insertPermissionOnGroup(group1, SCAN);
 
     GroupDto group2 = db.users().insertGroup(organizationDto, "Group-2");
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, project);
 
     GroupDto group3 = db.users().insertGroup(organizationDto, "Group-3");
@@ -255,7 +255,7 @@ public class GroupPermissionDaoTest {
     db.users().insertPermissionOnGroup(group1, PROVISION_PROJECTS);
 
     GroupDto group2 = db.users().insertGroup(org, "Group-2");
-    ComponentDto project = db.components().insertComponent(newProjectDto(org));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(org));
     db.users().insertProjectPermissionOnGroup(group2, USER, project);
 
     GroupDto group3 = db.users().insertGroup(org, "Group-3");
@@ -291,7 +291,7 @@ public class GroupPermissionDaoTest {
     OrganizationDto org2 = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org1, "group1");
     GroupDto group2 = db.users().insertGroup(org2, "group2");
-    ComponentDto project = db.components().insertProject(org1);
+    ComponentDto project = db.components().insertPrivateProject(org1);
 
     db.users().insertPermissionOnAnyone(org1, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
@@ -313,8 +313,8 @@ public class GroupPermissionDaoTest {
   public void selectProjectPermissionsOfGroup() {
     OrganizationDto org1 = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org1, "group1");
-    ComponentDto project1 = db.components().insertProject(org1);
-    ComponentDto project2 = db.components().insertProject(org1);
+    ComponentDto project1 = db.components().insertPrivateProject(org1);
+    ComponentDto project2 = db.components().insertPrivateProject(org1);
 
     db.users().insertPermissionOnAnyone(org1, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
@@ -337,8 +337,8 @@ public class GroupPermissionDaoTest {
   public void selectAllPermissionsByGroupId() throws Exception {
     OrganizationDto org1 = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org1, "group1");
-    ComponentDto project1 = db.components().insertProject(org1);
-    ComponentDto project2 = db.components().insertProject(org1);
+    ComponentDto project1 = db.components().insertPrivateProject(org1);
+    ComponentDto project2 = db.components().insertPrivateProject(org1);
     db.users().insertPermissionOnAnyone(org1, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
@@ -358,8 +358,8 @@ public class GroupPermissionDaoTest {
     OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org);
     GroupDto group2 = db.users().insertGroup(org);
-    ComponentDto project1 = db.components().insertProject(org);
-    ComponentDto project2 = db.components().insertProject(org);
+    ComponentDto project1 = db.components().insertPrivateProject(org);
+    ComponentDto project2 = db.components().insertPrivateProject(org);
     db.users().insertPermissionOnGroup(group1, "perm1");
     db.users().insertProjectPermissionOnGroup(group1, "perm2", project1);
     db.users().insertProjectPermissionOnAnyone("perm3", project1);
@@ -376,7 +376,7 @@ public class GroupPermissionDaoTest {
   public void delete_global_permission_from_group() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org);
-    ComponentDto project1 = db.components().insertProject(org);
+    ComponentDto project1 = db.components().insertPrivateProject(org);
     db.users().insertPermissionOnAnyone(org, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
@@ -393,7 +393,7 @@ public class GroupPermissionDaoTest {
   public void delete_global_permission_from_anyone() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org);
-    ComponentDto project1 = db.components().insertProject(org);
+    ComponentDto project1 = db.components().insertPrivateProject(org);
     db.users().insertPermissionOnAnyone(org, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
@@ -410,7 +410,7 @@ public class GroupPermissionDaoTest {
   public void delete_project_permission_from_group() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org);
-    ComponentDto project1 = db.components().insertProject(org);
+    ComponentDto project1 = db.components().insertPrivateProject(org);
     db.users().insertPermissionOnAnyone(org, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);
@@ -427,7 +427,7 @@ public class GroupPermissionDaoTest {
   public void delete_project_permission_from_anybody() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org);
-    ComponentDto project1 = db.components().insertProject(org);
+    ComponentDto project1 = db.components().insertPrivateProject(org);
     db.users().insertPermissionOnAnyone(org, "perm1");
     db.users().insertPermissionOnGroup(group1, "perm2");
     db.users().insertProjectPermissionOnGroup(group1, "perm3", project1);

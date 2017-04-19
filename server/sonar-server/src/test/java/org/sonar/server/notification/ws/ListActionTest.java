@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -43,7 +44,6 @@ import org.sonarqube.ws.Notifications.Notification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -113,8 +113,8 @@ public class ListActionTest {
 
   @Test
   public void filter_unauthorized_projects() {
-    ComponentDto project = addComponent(newProjectDto(db.organizations().insert()).setKey("K1"));
-    ComponentDto anotherProject = db.components().insertProject();
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("K1"));
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, anotherProject);
     dbSession.commit();
@@ -148,7 +148,7 @@ public class ListActionTest {
 
   @Test
   public void filter_per_project_dispatchers() {
-    ComponentDto project = addComponent(newProjectDto(db.organizations().insert()).setKey("K1"));
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("K1"));
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, project);
     notificationUpdater.add(dbSession, emailChannel.getKey(), "Unknown Notification", project);
     dbSession.commit();
@@ -163,7 +163,7 @@ public class ListActionTest {
   @Test
   public void order_with_global_then_by_channel_and_dispatcher() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = addComponent(newProjectDto(organization).setKey("K1"));
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setKey("K1"));
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, null);
@@ -188,7 +188,7 @@ public class ListActionTest {
   @Test
   public void json_example() {
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = addComponent(newProjectDto(organization).setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
+    ComponentDto project = addComponent(ComponentTesting.newPrivateProjectDto(organization).setKey(KEY_PROJECT_EXAMPLE_001).setName("My Project"));
     notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
     notificationUpdater.add(dbSession, emailChannel.getKey(), NOTIF_NEW_ISSUES, null);

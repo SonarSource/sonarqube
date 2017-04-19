@@ -88,7 +88,7 @@ public class ProjectQgateAssociationDaoTest {
 
   @Test
   public void select_qgate_id_is_absent() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     Optional<Long> result = underTest.selectQGateIdByComponentId(dbSession, project.getId());
 

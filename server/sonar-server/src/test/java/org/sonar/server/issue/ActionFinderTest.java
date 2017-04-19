@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.issue.IssueTesting.newDto;
 import static org.sonar.db.rule.RuleTesting.newXooX1;
 
@@ -49,7 +49,7 @@ public class ActionFinderTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn("arthur");
 
-  private ComponentDto project = newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setKey(PROJECT_KEY);
+  private ComponentDto project = newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setKey(PROJECT_KEY);
   private IssueDto issue = newDto(newXooX1().setId(10), newFileDto(project, null), project).setKee(ISSUE_KEY);
 
   private ActionFinder underTest = new ActionFinder(userSession);
@@ -61,7 +61,7 @@ public class ActionFinderTest {
 
   @Test
   public void return_provided_actions_with_set_severity_and_set_type_when_issue_admin() {
-    userSession.addProjectPermission(ISSUE_ADMIN, ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID));
+    userSession.addProjectPermission(ISSUE_ADMIN, ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID));
     assertThat(underTest.listAvailableActions(issue)).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me", "set_severity");
   }
 

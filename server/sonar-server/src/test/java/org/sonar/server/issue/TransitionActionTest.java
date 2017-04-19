@@ -114,13 +114,13 @@ public class TransitionActionTest {
 
   private IssueDto newIssue() {
     RuleDto rule = newRuleDto().setId(10);
-    ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
     ComponentDto file = (newFileDto(project));
     return newDto(rule, file, project);
   }
 
   private void loginAndAddProjectPermission(String login, String permission) {
-    userSession.logIn(login).addProjectPermission(permission, ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), issue.projectUuid()));
+    userSession.logIn(login).addProjectPermission(permission, ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), issue.projectUuid()));
   }
 
 }

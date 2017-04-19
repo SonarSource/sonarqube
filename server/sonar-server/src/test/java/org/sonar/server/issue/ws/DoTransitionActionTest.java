@@ -111,7 +111,7 @@ public class DoTransitionActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = componentDbTester.insertProject();
+    project = componentDbTester.insertPrivateProject();
     file = componentDbTester.insertComponent(newFileDto(project));
     workflow.start();
   }

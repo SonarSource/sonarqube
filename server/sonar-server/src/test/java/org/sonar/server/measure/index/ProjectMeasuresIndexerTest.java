@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
@@ -41,7 +42,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_NAME;
@@ -81,9 +82,9 @@ public class ProjectMeasuresIndexerTest {
   @Test
   public void index_all_project() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
-    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
-    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
+    componentDbTester.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto));
+    componentDbTester.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto));
+    componentDbTester.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto));
 
     underTest.indexOnStartup(null);
 
@@ -95,7 +96,7 @@ public class ProjectMeasuresIndexerTest {
    */
   @Test
   public void index_provisioned_projects() {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
 
     underTest.indexOnStartup(null);
 
@@ -104,7 +105,7 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void indexProject_indexes_provisioned_project() {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
 
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
 
@@ -113,7 +114,7 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void indexProject_indexes_project_when_its_key_is_updated() {
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
 
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
 
@@ -123,9 +124,9 @@ public class ProjectMeasuresIndexerTest {
   @Test
   public void index_one_project() throws Exception {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = newProjectDto(organizationDto);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project);
-    componentDbTester.insertProjectAndSnapshot(newProjectDto(organizationDto));
+    componentDbTester.insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto));
 
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
 
@@ -141,7 +142,7 @@ public class ProjectMeasuresIndexerTest {
       .setName("Old Name")
       .setTags(singletonList("old tag"))
       .setAnalysedAt(new Date(1_000_000L)));
-    ComponentDto project = newProjectDto(dbTester.getDefaultOrganization(), uuid).setKey("New key").setName("New name").setTagsString("new tag");
+    ComponentDto project = newPrivateProjectDto(dbTester.getDefaultOrganization(), uuid).setKey("New key").setName("New name").setTagsString("new tag");
     SnapshotDto analysis = componentDbTester.insertProjectAndSnapshot(project);
 
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
@@ -162,11 +163,11 @@ public class ProjectMeasuresIndexerTest {
   @Test
   public void delete_project() {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project1 = newProjectDto(organizationDto);
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project1);
-    ComponentDto project2 = newProjectDto(organizationDto);
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project2);
-    ComponentDto project3 = newProjectDto(organizationDto);
+    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organizationDto);
     componentDbTester.insertProjectAndSnapshot(project3);
     underTest.indexOnStartup(null);
 
@@ -177,7 +178,7 @@ public class ProjectMeasuresIndexerTest {
 
   @Test
   public void does_nothing_when_deleting_unknown_project() throws Exception {
-    ComponentDto project = newProjectDto(dbTester.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert());
     componentDbTester.insertProjectAndSnapshot(project);
     underTest.indexOnStartup(null);
 

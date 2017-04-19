@@ -96,7 +96,7 @@ public class CreateActionTest {
     dbSession.commit();
 
     OrganizationDto organizationDto = db.organizations().insert();
-    project = ComponentTesting.newProjectDto(organizationDto, DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
+    project = ComponentTesting.newPrivateProjectDto(organizationDto, DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
     userSession.logIn("login").addProjectPermission(UserRole.ADMIN, project);

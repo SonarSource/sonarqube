@@ -98,7 +98,7 @@ public class IssueUpdaterTest {
   @Test
   public void verify_notification() throws Exception {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
     DefaultIssue issue = issueDbTester.insertIssue(newDto(rule, file, project)).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
@@ -123,7 +123,7 @@ public class IssueUpdaterTest {
   @Test
   public void verify_notification_when_issue_is_linked_on_removed_rule() throws Exception {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto().setStatus(RuleStatus.REMOVED));
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
     DefaultIssue issue = issueDbTester.insertIssue(newDto(rule, file, project)).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
@@ -137,7 +137,7 @@ public class IssueUpdaterTest {
 
   private IssueDto newIssue() {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
     return newDto(rule, file, project);
   }

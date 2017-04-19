@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -35,7 +36,6 @@ import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ComponentServiceTest {
 
@@ -55,7 +55,7 @@ public class ComponentServiceTest {
 
   @Test
   public void bulk_update() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(dbTester.organizations().insert()).setKey("my_project"));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));

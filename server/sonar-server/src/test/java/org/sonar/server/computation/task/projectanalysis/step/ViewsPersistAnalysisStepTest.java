@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT_VIEW;
@@ -99,7 +99,7 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto viewDto = save(newView(organizationDto, "UUID_VIEW").setKey("KEY_VIEW"));
     save(newSubView(viewDto, "UUID_SUBVIEW", "KEY_SUBVIEW"));
-    save(newProjectDto(organizationDto, "proj"));
+    save(newPrivateProjectDto(organizationDto, "proj"));
     dbTester.getSession().commit();
 
     Component projectView = ViewsComponent.builder(PROJECT_VIEW, "KEY_PROJECT_COPY").setUuid("UUID_PROJECT_COPY").build();

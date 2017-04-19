@@ -34,6 +34,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -52,7 +53,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
@@ -80,9 +80,9 @@ public class ActivityActionTest {
   public void get_all_past_activity() {
     logInAsSystemAdministrator();
     OrganizationDto org1 = dbTester.organizations().insert();
-    dbTester.components().insertProject(org1, "PROJECT_1");
+    dbTester.components().insertPrivateProject(org1, "PROJECT_1");
     OrganizationDto org2 = dbTester.organizations().insert();
-    dbTester.components().insertProject(org2, "PROJECT_2");
+    dbTester.components().insertPrivateProject(org2, "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
@@ -110,8 +110,8 @@ public class ActivityActionTest {
   @Test
   public void filter_by_status() {
     logInAsSystemAdministrator();
-    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
-    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_2");
+    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
+    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -142,7 +142,7 @@ public class ActivityActionTest {
   public void filter_by_min_submitted_and_max_executed_at_include_day() {
     logInAsSystemAdministrator();
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    dbTester.components().insertProject(organizationDto, "PROJECT_1");
+    dbTester.components().insertPrivateProject(organizationDto, "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
 
@@ -155,7 +155,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_on_current_activities() {
-    dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
+    dbTester.components().insertPrivateProject(dbTester.organizations().insert(), "PROJECT_1");
     logInAsSystemAdministrator();
     // T2 is the current activity (the most recent one)
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -174,8 +174,8 @@ public class ActivityActionTest {
   public void limit_results() {
     logInAsSystemAdministrator();
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    dbTester.components().insertProject(organizationDto, "PROJECT_1");
-    dbTester.components().insertProject(organizationDto, "PROJECT_2");
+    dbTester.components().insertPrivateProject(organizationDto, "PROJECT_1");
+    dbTester.components().insertPrivateProject(organizationDto, "PROJECT_2");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -210,7 +210,7 @@ public class ActivityActionTest {
 
   @Test
   public void project_administrator_can_access_his_project_activity() {
-    ComponentDto project = dbTester.components().insertProject(dbTester.organizations().insert(), "PROJECT_1");
+    ComponentDto project = dbTester.components().insertPrivateProject(dbTester.organizations().insert(), "PROJECT_1");
     // no need to be a system admin
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
@@ -226,7 +226,7 @@ public class ActivityActionTest {
 
   @Test
   public void return_401_if_user_is_not_logged_in() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     userSession.anonymous();
 
     expectedException.expect(UnauthorizedException.class);
@@ -238,9 +238,9 @@ public class ActivityActionTest {
   @Test
   public void search_activity_by_component_name() throws IOException {
     OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto struts = newProjectDto(organizationDto).setName("old apache struts").setUuid("P1").setProjectUuid("P1");
-    ComponentDto zookeeper = newProjectDto(organizationDto).setName("new apache zookeeper").setUuid("P2").setProjectUuid("P2");
-    ComponentDto eclipse = newProjectDto(organizationDto).setName("eclipse").setUuid("P3").setProjectUuid("P3");
+    ComponentDto struts = ComponentTesting.newPrivateProjectDto(organizationDto).setName("old apache struts").setUuid("P1").setProjectUuid("P1");
+    ComponentDto zookeeper = ComponentTesting.newPrivateProjectDto(organizationDto).setName("new apache zookeeper").setUuid("P2").setProjectUuid("P2");
+    ComponentDto eclipse = ComponentTesting.newPrivateProjectDto(organizationDto).setName("eclipse").setUuid("P3").setProjectUuid("P3");
     dbTester.components().insertProjectAndSnapshot(struts);
     dbTester.components().insertProjectAndSnapshot(zookeeper);
     dbTester.components().insertProjectAndSnapshot(eclipse);
@@ -270,7 +270,7 @@ public class ActivityActionTest {
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
     logInAsSystemAdministrator();
-    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
+    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
     ActivityResponse result = call(
@@ -285,7 +285,7 @@ public class ActivityActionTest {
   @Test
   public void search_task_id_in_activity() {
     logInAsSystemAdministrator();
-    dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
+    dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
@@ -311,7 +311,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_by_component_id() {
-    ComponentDto project = dbTester.components().insertProject(dbTester.getDefaultOrganization(), "PROJECT_1");
+    ComponentDto project = dbTester.components().insertPrivateProject(dbTester.getDefaultOrganization(), "PROJECT_1");
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);

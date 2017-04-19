@@ -139,7 +139,7 @@ public class AppActionTest {
   }
 
   private ComponentDto[] insertComponentsAndAnalysis() {
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), PROJECT_UUID)
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), PROJECT_UUID)
       .setLongName("SonarQube")
       .setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project)

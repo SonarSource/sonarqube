@@ -224,7 +224,7 @@ public class DeleteActionTest {
   @Test
   public void request_also_deletes_components_of_specified_organization() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertProject(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
     ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(module, "a/b"));
     ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module, directory));
@@ -255,8 +255,8 @@ public class DeleteActionTest {
     GroupDto otherGroup1 = db.users().insertGroup(otherOrg);
     GroupDto otherGroup2 = db.users().insertGroup(otherOrg);
 
-    ComponentDto projectDto = db.components().insertProject(org);
-    ComponentDto otherProjectDto = db.components().insertProject(otherOrg);
+    ComponentDto projectDto = db.components().insertPrivateProject(org);
+    ComponentDto otherProjectDto = db.components().insertPrivateProject(otherOrg);
 
     db.users().insertPermissionOnAnyone(org, "u1");
     db.users().insertPermissionOnAnyone(otherOrg, "not deleted u1");

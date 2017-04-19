@@ -56,7 +56,7 @@ public class DeleteActionTest {
 
   @Test
   public void project_administrator_deletes_analysis() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_PROCESSED));
     db.components().insertSnapshot(newAnalysis(project).setUuid("A2").setLast(true).setStatus(STATUS_PROCESSED));
     logInAsProjectAdministrator(project);
@@ -80,7 +80,7 @@ public class DeleteActionTest {
 
   @Test
   public void last_analysis_cannot_be_deleted() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(true));
     logInAsProjectAdministrator(project);
 
@@ -102,7 +102,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_analysis_is_unprocessed() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false).setStatus(STATUS_UNPROCESSED));
     logInAsProjectAdministrator(project);
 
@@ -114,7 +114,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_not_enough_permission() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.components().insertSnapshot(newAnalysis(project).setUuid("A1").setLast(false));
     userSession.logIn();
 

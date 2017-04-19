@@ -62,7 +62,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void apply_permission_template() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(organization);
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
     GroupDto adminGroup = dbTester.users().insertGroup(organization);
     GroupDto userGroup = dbTester.users().insertGroup(organization);
     UserDto user = dbTester.users().insertUser();

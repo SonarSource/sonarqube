@@ -59,7 +59,7 @@ public class DuplicationsJsonWriterTest {
 
   @Before
   public void setUp() {
-    project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto())
+    project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto())
       .setId(1L)
       .setName("SonarQube")
       .setLongName("SonarQube")

@@ -89,7 +89,7 @@ public class ApplyTemplateActionTest extends BasePermissionWsTest<ApplyTemplateA
     addGroupToTemplate(group1, template2, UserRole.USER);
     addGroupToTemplate(group2, template2, UserRole.USER);
 
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     db.users().insertProjectPermissionOnUser(user1, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, project);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, project);

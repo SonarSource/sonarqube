@@ -82,7 +82,7 @@ public class AddProjectActionTest {
   @Test
   public void add_project_on_profile_of_default_organization() {
     logInAsProfileAdmin(db.getDefaultOrganization());
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     TestResponse response = call(project, profile);
@@ -95,7 +95,7 @@ public class AddProjectActionTest {
   public void add_project_on_profile_of_specified_organization() {
     OrganizationDto org1 = db.organizations().insert();
     logInAsProfileAdmin(org1);
-    ComponentDto project = db.components().insertProject(org1);
+    ComponentDto project = db.components().insertPrivateProject(org1);
     QualityProfileDto profile = db.qualityProfiles().insert(org1, p -> p.setLanguage(LANGUAGE_1));
 
     TestResponse response = call(org1, project, profile);
@@ -109,7 +109,7 @@ public class AddProjectActionTest {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
     logInAsProfileAdmin(org1);
-    ComponentDto project = db.components().insertProject(org1);
+    ComponentDto project = db.components().insertPrivateProject(org1);
     QualityProfileDto profileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(LANGUAGE_1));
 
     expectedException.expect(IllegalArgumentException.class);
@@ -125,7 +125,7 @@ public class AddProjectActionTest {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
     logInAsProfileAdmin(org1);
-    ComponentDto project = db.components().insertProject(org1);
+    ComponentDto project = db.components().insertPrivateProject(org1);
     QualityProfileDto profileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(LANGUAGE_1));
 
     expectedException.expect(NotFoundException.class);
@@ -141,7 +141,7 @@ public class AddProjectActionTest {
   public void change_association_in_default_organization() throws Exception {
     logInAsProfileAdmin(db.getDefaultOrganization());
 
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     // two profiles on same language
     QualityProfileDto profile1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
     QualityProfileDto profile2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
@@ -156,7 +156,7 @@ public class AddProjectActionTest {
   @Test
   public void changing_association_does_not_change_other_language_associations() throws Exception {
     logInAsProfileAdmin(db.getDefaultOrganization());
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile1Language1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
     QualityProfileDto profile2Language2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_2));
     QualityProfileDto profile3Language1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
@@ -170,7 +170,7 @@ public class AddProjectActionTest {
 
   @Test
   public void project_administrator_can_change_profile() throws Exception {
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
@@ -182,7 +182,7 @@ public class AddProjectActionTest {
   @Test
   public void throw_ForbiddenException_if_not_project_nor_organization_administrator() {
     userSession.logIn();
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
@@ -194,7 +194,7 @@ public class AddProjectActionTest {
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(UnauthorizedException.class);
@@ -220,7 +220,7 @@ public class AddProjectActionTest {
   @Test
   public void throw_NotFoundException_if_profile_does_not_exist() {
     logInAsProfileAdmin(db.getDefaultOrganization());
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'unknown' does not exist");

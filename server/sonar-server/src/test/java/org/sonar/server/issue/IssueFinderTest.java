@@ -91,7 +91,7 @@ public class IssueFinderTest {
 
   private IssueDto insertIssue() {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto());
-    ComponentDto project = componentDbTester.insertProject();
+    ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
     return issueDbTester.insertIssue(newDto(rule, file, project));
   }

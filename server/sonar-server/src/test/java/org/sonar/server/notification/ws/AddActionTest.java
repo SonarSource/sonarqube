@@ -109,7 +109,7 @@ public class AddActionTest {
 
   @Test
   public void add_a_project_notification() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     call(request.setProject(project.getKey()));
 
@@ -118,7 +118,7 @@ public class AddActionTest {
 
   @Test
   public void add_a_global_notification_when_a_project_one_exists() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     call(request.setProject(project.getKey()));
 
     call(request.setProject(null));
@@ -129,7 +129,7 @@ public class AddActionTest {
 
   @Test
   public void add_a_project_notification_when_a_global_one_exists() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     call(request);
 
     call(request.setProject(project.getKey()));
@@ -172,7 +172,7 @@ public class AddActionTest {
 
   @Test
   public void fail_when_unknown_project_dispatcher() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Value of parameter 'type' (Dispatcher42) must be one of: [Dispatcher1, Dispatcher3]");

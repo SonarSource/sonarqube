@@ -70,8 +70,8 @@ public class UserPermissionDaoTest {
     dbClient.userDao().insert(dbSession, user2);
     dbClient.userDao().insert(dbSession, user3);
     organizationDto = dbTester.organizations().insert();
-    project1 = dbTester.components().insertProject(organizationDto);
-    project2 = dbTester.components().insertProject(organizationDto);
+    project1 = dbTester.components().insertPrivateProject(organizationDto);
+    project2 = dbTester.components().insertPrivateProject(organizationDto);
     dbTester.organizations().addMember(organizationDto, user1);
     dbTester.organizations().addMember(organizationDto, user2);
     dbTester.organizations().addMember(organizationDto, user3);
@@ -236,8 +236,8 @@ public class UserPermissionDaoTest {
   public void selectUserIds() {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
-    ComponentDto project1 = dbTester.components().insertProject(org1);
-    ComponentDto project2 = dbTester.components().insertProject(org2);
+    ComponentDto project1 = dbTester.components().insertPrivateProject(org1);
+    ComponentDto project2 = dbTester.components().insertPrivateProject(org2);
 
     addProjectPermission(org1, USER, user1, project1);
     addProjectPermission(org1, USER, user2, project1);
@@ -353,7 +353,7 @@ public class UserPermissionDaoTest {
   @Test
   public void selectProjectPermissionsOfUser() {
     OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project3 = dbTester.components().insertProject(org);
+    ComponentDto project3 = dbTester.components().insertPrivateProject(org);
     addGlobalPermission(organizationDto, "perm1", user1);
     addProjectPermission(organizationDto, "perm2", user1, project1);
     addProjectPermission(organizationDto, "perm3", user1, project1);
@@ -414,7 +414,7 @@ public class UserPermissionDaoTest {
   public void delete_permissions_of_an_organization_member() {
     OrganizationDto organization1 = dbTester.organizations().insert();
     OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(organization1);
+    ComponentDto project = dbTester.components().insertPrivateProject(organization1);
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
     // user 1 permissions
@@ -442,7 +442,7 @@ public class UserPermissionDaoTest {
   public void deleteByUserId() {
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     dbTester.users().insertPermissionOnUser(user1, SCAN);
     dbTester.users().insertPermissionOnUser(user1, ADMINISTER);
     dbTester.users().insertProjectPermissionOnUser(user1, ADMINISTER_QUALITY_GATES.getKey(), project);

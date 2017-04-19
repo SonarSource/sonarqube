@@ -64,7 +64,7 @@ public class UserPermissionChangerTest {
     org2 = db.organizations().insert();
     user1 = db.users().insertUser();
     user2 = db.users().insertUser();
-    project = db.components().insertProject(org1);
+    project = db.components().insertPrivateProject(org1);
   }
 
   @Test
@@ -137,7 +137,7 @@ public class UserPermissionChangerTest {
 
   @Test
   public void remove_project_permission_from_user() {
-    ComponentDto project2 = db.components().insertProject(org1);
+    ComponentDto project2 = db.components().insertPrivateProject(org1);
     db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
     db.users().insertProjectPermissionOnUser(user1, ISSUE_ADMIN, project);
     db.users().insertProjectPermissionOnUser(user1, USER, project);
