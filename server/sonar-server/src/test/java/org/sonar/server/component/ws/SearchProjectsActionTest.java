@@ -55,7 +55,6 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
@@ -78,7 +77,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -228,7 +226,7 @@ public class SearchProjectsActionTest {
     ComponentDto project = newProjectDto(organizationDto).setName("SonarQube");
     ComponentDto directory = newDirectory(project, "path");
     insertProjectInDbAndEs(project);
-    componentDb.insertComponents(newModuleDto(project), newView(organizationDto), newDeveloper(organizationDto, "Sonar Developer"), directory, newFileDto(project, directory));
+    componentDb.insertComponents(newModuleDto(project), newView(organizationDto), directory, newFileDto(project, directory));
 
     SearchProjectsWsResponse result = call(request);
 

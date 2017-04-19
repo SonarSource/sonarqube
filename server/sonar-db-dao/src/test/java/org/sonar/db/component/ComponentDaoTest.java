@@ -50,7 +50,6 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -876,7 +875,6 @@ public class ComponentDaoTest {
     OrganizationDto organizationDto = db.organizations().insert();
     db.components().insertProjectAndSnapshot(newProjectDto(organizationDto).setName("aaaa-name"));
     db.components().insertProjectAndSnapshot(newView(organizationDto));
-    db.components().insertProjectAndSnapshot(newDeveloper(organizationDto, "project-name"));
     for (int i = 9; i >= 1; i--) {
       db.components().insertProjectAndSnapshot(newProjectDto(organizationDto).setName("project-" + i));
     }

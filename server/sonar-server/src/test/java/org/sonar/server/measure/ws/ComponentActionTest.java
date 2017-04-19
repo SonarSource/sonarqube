@@ -34,7 +34,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -45,7 +44,6 @@ import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -56,7 +54,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 public class ComponentActionTest {
@@ -136,54 +133,6 @@ public class ComponentActionTest {
     assertThat(response.getComponent().getId()).isEqualTo("project-uuid-copy");
     assertThat(response.getComponent().getRefId()).isEqualTo("project-uuid");
     assertThat(response.getComponent().getRefKey()).isEqualTo("project-key");
-  }
-
-  @Test
-  public void developer_measure_by_developer_uuid() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto developer = newDeveloper(organizationDto, "developer-name");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    ComponentDto project = newProjectDto(organizationDto, "project-uuid");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    ComponentDto file = newFileDto(project, null, "file-uuid");
-    componentDb.insertComponent(file);
-    MetricDto ncloc = insertNclocMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file, projectSnapshot).setValue(42.0d).setDeveloperId(null),
-      newMeasureDto(ncloc, file, projectSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
-    db.commit();
-
-    ComponentWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "file-uuid")
-      .setParam(PARAM_DEVELOPER_ID, developer.uuid())
-      .setParam(PARAM_METRIC_KEYS, "ncloc").executeProtobuf(ComponentWsResponse.class);
-
-    assertThat(result.getComponent().getMeasuresCount()).isEqualTo(1);
-    assertThat(result.getComponent().getMeasures(0).getValue()).isEqualTo("1984");
-  }
-
-  @Test
-  public void developer_measure_by_developer_key() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto developer = newDeveloper(organizationDto, "developer-name");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    ComponentDto project = newProjectDto(organizationDto, PROJECT_UUID);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    ComponentDto file = newFileDto(project, null, "file-uuid");
-    componentDb.insertComponent(file);
-    MetricDto ncloc = insertNclocMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file, projectSnapshot).setValue(42.0d).setDeveloperId(null),
-      newMeasureDto(ncloc, file, projectSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
-    db.commit();
-
-    ComponentWsResponse result = ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, "file-uuid")
-      .setParam(PARAM_DEVELOPER_KEY, developer.key())
-      .setParam(PARAM_METRIC_KEYS, "ncloc").executeProtobuf(ComponentWsResponse.class);
-
-    assertThat(result.getComponent().getMeasuresCount()).isEqualTo(1);
-    assertThat(result.getComponent().getMeasures(0).getValue()).isEqualTo("1984");
   }
 
   @Test

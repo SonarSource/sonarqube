@@ -48,7 +48,6 @@ import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -173,14 +172,12 @@ public class SearchMyProjectsActionTest {
   }
 
   @Test
-  public void do_not_return_views_or_developers() {
+  public void do_not_return_views() {
     OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto jdk7 = insertJdk7(organizationDto);
-    ComponentDto dev = insertDeveloper(organizationDto);
     ComponentDto view = insertView(organizationDto);
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, dev);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, view);
 
     SearchMyProjectsWsResponse result = call_ws();
@@ -260,11 +257,6 @@ public class SearchMyProjectsActionTest {
     return db.components().insertComponent(newView(organizationDto, "752d8bfd-420c-4a83-a4e5-8ab19b13c8fc")
       .setName("Java")
       .setKey("Java"));
-  }
-
-  private ComponentDto insertDeveloper(OrganizationDto organizationDto) {
-    return db.components().insertComponent(newDeveloper(organizationDto, "Joda", "4e607bf9-7ed0-484a-946d-d58ba7dab2fb")
-      .setKey("joda"));
   }
 
   private SearchMyProjectsWsResponse call_ws() {
