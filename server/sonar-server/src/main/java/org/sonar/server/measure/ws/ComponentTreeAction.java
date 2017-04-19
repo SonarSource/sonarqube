@@ -19,8 +19,11 @@
  */
 package org.sonar.server.measure.ws;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.i18n.I18n;
@@ -37,11 +40,15 @@ import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
+import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
@@ -103,6 +110,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String ALL_METRIC_SORT_FILTER = "all";
   static final String WITH_MEASURES_ONLY_METRIC_SORT_FILTER = "withMeasuresOnly";
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
+  static final Set<String> FORBIDDEN_METRIC_TYPES = ImmutableSet.of(DISTRIB.name(), DATA.name());
+  private static final int MAX_METRIC_KEYS = 15;
+  private static final Joiner COMMA_JOINER = Joiner.on(" , ");
 
   private final ComponentTreeDataLoader dataLoader;
   private final I18n i18n;
@@ -167,7 +177,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDefaultValue(ALL_METRIC_SORT_FILTER)
       .setPossibleValues(METRIC_SORT_FILTERS);
 
-    createMetricKeysParameter(action);
+    createMetricKeysParameter(action).setDescription("Metric keys, maximum %s values can bet set. Types %s are not allowed", MAX_METRIC_KEYS,
+      COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES));
     createAdditionalFieldsParameter(action);
     createDeveloperParameters(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
@@ -213,13 +224,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .build();
 
     response.setBaseComponent(
-      componentDtoToWsComponent(
+      toWsComponent(
         data.getBaseComponent(),
         data.getMeasuresByComponentUuidAndMetric().row(data.getBaseComponent().uuid()),
         data.getReferenceComponentsByUuid()));
 
     for (ComponentDto componentDto : data.getComponents()) {
-      response.addComponents(componentDtoToWsComponent(
+      response.addComponents(toWsComponent(
         componentDto,
         data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
         data.getReferenceComponentsByUuid()));
@@ -258,10 +269,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static ComponentTreeWsRequest toComponentTreeWsRequest(Request request) {
+    List<String> metricKeys = request.mandatoryParamAsStrings(PARAM_METRIC_KEYS);
+    checkArgument(metricKeys.size() <= MAX_METRIC_KEYS, "Number of metrics keys is limited to %s, got %s", MAX_METRIC_KEYS, metricKeys.size());
     ComponentTreeWsRequest componentTreeWsRequest = new ComponentTreeWsRequest()
       .setBaseComponentId(request.param(PARAM_BASE_COMPONENT_ID))
       .setBaseComponentKey(request.param(PARAM_BASE_COMPONENT_KEY))
-      .setMetricKeys(request.mandatoryParamAsStrings(PARAM_METRIC_KEYS))
+      .setMetricKeys(metricKeys)
       .setStrategy(request.mandatoryParam(PARAM_STRATEGY))
       .setQualifiers(request.paramAsStrings(PARAM_QUALIFIERS))
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
@@ -294,4 +307,23 @@ public class ComponentTreeAction implements MeasuresWsAction {
       Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
     return componentTreeWsRequest;
   }
+
+  private static WsMeasures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
+    Map<String, ComponentDto> referenceComponentsByUuid) {
+    WsMeasures.Component.Builder wsComponent = componentDtoToWsComponent(component);
+    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
+    if (referenceComponent != null) {
+      wsComponent.setRefId(referenceComponent.uuid());
+      wsComponent.setRefKey(referenceComponent.key());
+    }
+    WsMeasures.Measure.Builder measureBuilder = WsMeasures.Measure.newBuilder();
+    for (Map.Entry<MetricDto, ComponentTreeData.Measure> entry : measures.entrySet()) {
+      ComponentTreeData.Measure measure = entry.getValue();
+      updateMeasureBuilder(measureBuilder, entry.getKey(), measure.getValue(), measure.getData(), measure.getVariation());
+      wsComponent.addMeasures(measureBuilder);
+      measureBuilder.clear();
+    }
+    return wsComponent;
+  }
+
 }

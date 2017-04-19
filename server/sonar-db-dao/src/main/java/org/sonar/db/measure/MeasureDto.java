@@ -33,7 +33,6 @@ public class MeasureDto {
   private Double variation;
   private String alertStatus;
   private String alertText;
-  private String description;
   private String componentUuid;
   private String analysisUuid;
   private int metricId;
@@ -111,16 +110,6 @@ public class MeasureDto {
     return this;
   }
 
-  @CheckForNull
-  public String getDescription() {
-    return description;
-  }
-
-  public MeasureDto setDescription(@Nullable String description) {
-    this.description = description;
-    return this;
-  }
-
   public int getMetricId() {
     return metricId;
   }
@@ -158,7 +147,6 @@ public class MeasureDto {
       .add("variation", variation)
       .add("alertStatus", alertStatus)
       .add("alertText", alertText)
-      .add("description", description)
       .add("componentUuid", componentUuid)
       .add("analysisUuid", analysisUuid)
       .add("metricId", metricId)

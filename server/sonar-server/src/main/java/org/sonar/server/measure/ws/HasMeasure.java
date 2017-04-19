@@ -23,14 +23,15 @@ import com.google.common.collect.Table;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
+
+import static org.sonar.server.measure.ws.ComponentTreeData.Measure;
 
 class HasMeasure implements Predicate<ComponentDto> {
   private final Predicate<ComponentDto> predicate;
 
-  HasMeasure(Table<String, MetricDto, MeasureDto> table, MetricDto metric, ComponentTreeWsRequest request) {
+  HasMeasure(Table<String, MetricDto, ComponentTreeData.Measure> table, MetricDto metric, ComponentTreeWsRequest request) {
     Integer periodIndex = request.getMetricPeriodSort();
     this.predicate = periodIndex == null
       ? new HasAbsoluteValue(table, metric)
@@ -43,34 +44,34 @@ class HasMeasure implements Predicate<ComponentDto> {
   }
 
   private static class HasAbsoluteValue implements Predicate<ComponentDto> {
-    private final Table<String, MetricDto, MeasureDto> table;
+    private final Table<String, MetricDto, ComponentTreeData.Measure> table;
     private final MetricDto metric;
 
-    private HasAbsoluteValue(Table<String, MetricDto, MeasureDto> table, MetricDto metric) {
+    private HasAbsoluteValue(Table<String, MetricDto, ComponentTreeData.Measure> table, MetricDto metric) {
       this.table = table;
       this.metric = metric;
     }
 
     @Override
     public boolean test(@Nonnull ComponentDto input) {
-      MeasureDto measure = table.get(input.uuid(), metric);
-      return measure != null && (measure.getValue() != null || measure.getData() != null);
+      Measure measure = table.get(input.uuid(), metric);
+      return measure != null && (measure.isValueSet() || measure.getData() != null);
     }
   }
 
   private static class HasValueOnPeriod implements Predicate<ComponentDto> {
-    private final Table<String, MetricDto, MeasureDto> table;
+    private final Table<String, MetricDto, ComponentTreeData.Measure> table;
     private final MetricDto metric;
 
-    private HasValueOnPeriod(Table<String, MetricDto, MeasureDto> table, MetricDto metric) {
+    private HasValueOnPeriod(Table<String, MetricDto, ComponentTreeData.Measure> table, MetricDto metric) {
       this.table = table;
       this.metric = metric;
     }
 
     @Override
     public boolean test(@Nonnull ComponentDto input) {
-      MeasureDto measure = table.get(input.uuid(), metric);
-      return measure != null && measure.getVariation() != null;
+      Measure measure = table.get(input.uuid(), metric);
+      return measure != null && measure.isVariationSet();
     }
   }
 

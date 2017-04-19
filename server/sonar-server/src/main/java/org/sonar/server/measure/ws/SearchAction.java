@@ -50,7 +50,7 @@ import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.dbToWsMeasure;
+import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
@@ -197,8 +197,15 @@ public class SearchAction implements MeasuresWsAction {
       Function<Measure, String> byMetricKey = Measure::getMetric;
       Function<Measure, String> byComponentName = wsMeasure -> componentNamesByKey.get(wsMeasure.getComponent());
 
+      Measure.Builder measureBuilder = Measure.newBuilder();
       return measures.stream()
-        .map(dbMeasure -> dbToWsMeasure(dbMeasure, dbMeasureToDbMetric.apply(dbMeasure), componentsByUuid.get(dbMeasure.getComponentUuid())))
+        .map(dbMeasure -> {
+          updateMeasureBuilder(measureBuilder, dbMeasureToDbMetric.apply(dbMeasure), dbMeasure);
+          measureBuilder.setComponent(componentsByUuid.get(dbMeasure.getComponentUuid()).getKey());
+          Measure measure = measureBuilder.build();
+          measureBuilder.clear();
+          return measure;
+        })
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))
         .collect(toList());
     }

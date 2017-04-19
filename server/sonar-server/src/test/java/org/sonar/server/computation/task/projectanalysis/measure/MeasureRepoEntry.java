@@ -77,7 +77,6 @@ public final class MeasureRepoEntry {
       && equalsByValue(measure, measure1)
       && equalsByVariation(measure, measure1)
       && equalsByQualityGateStatus(measure, measure1)
-      && Objects.equals(measure.getDescription(), measure1.getDescription())
       && Objects.equals(measure.getData(), measure1.getData());
   }
 

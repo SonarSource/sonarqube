@@ -19,7 +19,7 @@
  */
 package org.sonar.server.measure.ws;
 
-import org.sonar.db.component.ComponentDto;
+import javax.annotation.Nullable;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures;
@@ -34,41 +34,26 @@ class MeasureDtoToWsMeasure {
     // static methods
   }
 
-  /**
-   * @see #measureDtoToWsMeasure(MetricDto, MeasureDto)
-   * add component uuid to the WS Measure object
-   *
-   */
-  static Measure dbToWsMeasure(MeasureDto dbMeasure, MetricDto dbMetric, ComponentDto componentDto) {
-    return map(dbMetric, dbMeasure).setComponent(componentDto.getKey()).build();
+  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, MeasureDto measureDto) {
+    Double value = measureDto.getValue();
+    Double variation = measureDto.getVariation();
+    updateMeasureBuilder(measureBuilder, metricDto, value == null ? Double.NaN : value, measureDto.getData(), variation == null ? Double.NaN : variation);
   }
 
-  static Measure measureDtoToWsMeasure(MetricDto metricDto, MeasureDto measureDto) {
-    return map(metricDto, measureDto).build();
-  }
-
-  private static Measure.Builder map(MetricDto dbMetric, MeasureDto dbMeasure) {
-    try {
-      Measure.Builder measure = Measure.newBuilder();
-      measure.setMetric(dbMetric.getKey());
-      // a measure value can be null, new_violations metric for example
-      if (dbMeasure.getValue() != null
-        || dbMeasure.getData() != null) {
-        measure.setValue(formatMeasureValue(dbMeasure, dbMetric));
-      }
-
-      WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
-      Double variation = dbMeasure.getVariation();
-      if (variation != null) {
-        measure.getPeriodsBuilder().addPeriodsValue(periodBuilder
-          .clear()
-          .setIndex(1)
-          .setValue(formatNumericalValue(variation, dbMetric)));
-      }
-
-      return measure;
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Error while mapping a measure of metric key '%s' and parameters %s", dbMetric.getKey(), dbMeasure.toString()), e);
+  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metric, double doubleValue, @Nullable String stringValue, double variation) {
+    measureBuilder.setMetric(metric.getKey());
+    // a measure value can be null, new_violations metric for example
+    if (!Double.isNaN(doubleValue) || stringValue != null) {
+      measureBuilder.setValue(formatMeasureValue(doubleValue, stringValue, metric));
     }
+
+    WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
+    if (Double.isNaN(variation)) {
+      return;
+    }
+    measureBuilder.getPeriodsBuilder().addPeriodsValue(periodBuilder
+      .clear()
+      .setIndex(1)
+      .setValue(formatNumericalValue(variation, metric)));
   }
 }

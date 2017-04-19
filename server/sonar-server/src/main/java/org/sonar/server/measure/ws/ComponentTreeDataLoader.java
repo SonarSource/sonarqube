@@ -22,6 +22,7 @@ package org.sonar.server.measure.ws;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -57,11 +58,12 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.measure.ws.ComponentTreeData.Measure;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Objects.requireNonNull;
@@ -74,7 +76,8 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
 
 public class ComponentTreeDataLoader {
-  private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = newHashSet(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
+  private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
+  private static final Joiner COMA_JOINER = Joiner.on(", ");
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -103,7 +106,8 @@ public class ComponentTreeDataLoader {
       ComponentTreeQuery componentTreeQuery = toComponentTreeQuery(wsRequest, baseComponent);
       List<ComponentDto> components = searchComponents(dbSession, componentTreeQuery);
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
-      Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery, components,
+      Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, componentTreeQuery,
+        components,
         metrics, developerId);
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
@@ -163,13 +167,19 @@ public class ComponentTreeDataLoader {
         new LinkedHashSet<>(metricKeys),
         new LinkedHashSet<>(foundMetricKeys));
 
-      throw new NotFoundException(format("The following metric keys are not found: %s", Joiner.on(", ").join(missingMetricKeys)));
+      throw new NotFoundException(format("The following metric keys are not found: %s", COMA_JOINER.join(missingMetricKeys)));
     }
-
+    String forbiddenMetrics = metrics.stream()
+      .filter(metric -> ComponentTreeAction.FORBIDDEN_METRIC_TYPES.contains(metric.getValueType()))
+      .map(MetricDto::getKey)
+      .sorted()
+      .collect(MoreCollectors.join(COMA_JOINER));
+    checkArgument(forbiddenMetrics.isEmpty(), "Metrics %s can't be requested in this web service. Please use api/measures/component", forbiddenMetrics);
     return metrics;
   }
 
-  private Table<String, MetricDto, MeasureDto> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent, ComponentTreeQuery componentTreeQuery,
+  private Table<String, MetricDto, Measure> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent,
+    ComponentTreeQuery componentTreeQuery,
     List<ComponentDto> components, List<MetricDto> metrics, @Nullable Long developerId) {
 
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
@@ -180,15 +190,15 @@ public class ComponentTreeDataLoader {
       .setPersonId(developerId)
       .setMetricIds(new ArrayList<>(metricsById.keySet()))
       .build();
-    List<MeasureDto> measureDtos = dbClient.measureDao().selectTreeByQuery(dbSession, baseComponent, measureQuery);
 
-    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), metrics.size());
-    for (MeasureDto measureDto : measureDtos) {
+    Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), metrics.size());
+    dbClient.measureDao().selectTreeByQuery(dbSession, baseComponent, measureQuery, result -> {
+      MeasureDto measureDto = (MeasureDto) result.getResultObject();
       measuresByComponentUuidAndMetric.put(
         measureDto.getComponentUuid(),
         metricsById.get(measureDto.getMetricId()),
-        measureDto);
-    }
+        Measure.createFromMeasureDto(measureDto));
+    });
 
     addBestValuesToMeasures(measuresByComponentUuidAndMetric, components, metrics);
 
@@ -202,7 +212,7 @@ public class ComponentTreeDataLoader {
    * <li>metric is optimized for best value</li>
    * </ul>
    */
-  private static void addBestValuesToMeasures(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<ComponentDto> components,
+  private static void addBestValuesToMeasures(Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric, List<ComponentDto> components,
     List<MetricDto> metrics) {
     List<MetricDtoWithBestValue> metricDtosWithBestValueMeasure = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
@@ -216,14 +226,15 @@ public class ComponentTreeDataLoader {
     componentsEligibleForBestValue.forEach(component -> {
       for (MetricDtoWithBestValue metricWithBestValue : metricDtosWithBestValueMeasure) {
         if (measuresByComponentUuidAndMetric.get(component.uuid(), metricWithBestValue.getMetric()) == null) {
-          measuresByComponentUuidAndMetric.put(component.uuid(), metricWithBestValue.getMetric(), metricWithBestValue.getBestValue());
+          measuresByComponentUuidAndMetric.put(component.uuid(), metricWithBestValue.getMetric(),
+            Measure.createFromMeasureDto(metricWithBestValue.getBestValue()));
         }
       }
     });
   }
 
   private static List<ComponentDto> filterComponents(List<ComponentDto> components,
-    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeWsRequest wsRequest) {
+    Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeWsRequest wsRequest) {
     if (!componentWithMeasuresOnly(wsRequest)) {
       return components;
     }
@@ -243,7 +254,7 @@ public class ComponentTreeDataLoader {
   }
 
   private static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
-    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
+    Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric) {
     return ComponentTreeSort.sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
   }
 

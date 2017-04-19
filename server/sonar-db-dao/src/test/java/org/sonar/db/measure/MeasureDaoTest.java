@@ -19,6 +19,7 @@
  */
 package org.sonar.db.measure;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -89,8 +90,7 @@ public class MeasureDaoTest {
       .setData("data")
       .setVariation(1d)
       .setAlertStatus("alert")
-      .setAlertText("alert-text")
-      .setDescription("measure-description");
+      .setAlertText("alert-text");
     underTest.insert(db.getSession(), inserted);
     db.commit();
 
@@ -435,8 +435,9 @@ public class MeasureDaoTest {
   }
 
   private void verifyMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery, String... expectedIds) {
-    assertThat(underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build()))
-      .extracting(MeasureDto::getData).containsOnly(expectedIds);
+    List<MeasureDto> measures = new ArrayList<>();
+    underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build(), result -> measures.add((MeasureDto) result.getResultObject()));
+    assertThat(measures).extracting(MeasureDto::getData).containsOnly(expectedIds);
   }
 
   private void insertMeasure(String id, String analysisUuid, String componentUuid, int metricId) {
