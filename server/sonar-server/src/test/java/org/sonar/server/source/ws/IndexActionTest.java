@@ -19,107 +19,122 @@
  */
 package org.sonar.server.source.ws;
 
-import java.util.Optional;
-import org.junit.Before;
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDao;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.test.JsonAssert.assertJson;
 
-@RunWith(MockitoJUnitRunner.class)
 public class IndexActionTest {
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  DbClient dbClient;
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  @Mock
-  DbSession session;
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Mock
-  ComponentDao componentDao;
-
-  @Mock
-  SourceService sourceService;
-
-  WsTester tester;
-
-  ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
-  ComponentDto file = ComponentTesting.newFileDto(project, null);
-
-  @Before
-  public void setUp() {
-    when(dbClient.componentDao()).thenReturn(componentDao);
-    when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new IndexAction(dbClient, sourceService, userSessionRule, new ComponentFinder(dbClient))));
-  }
+  WsActionTester tester = new WsActionTester(
+    new IndexAction(db.getDbClient(), new SourceService(db.getDbClient(), new HtmlSourceDecorator()), userSession, new ComponentFinder(db.getDbClient())));
 
   @Test
   public void get_json() throws Exception {
-    String fileKey = "src/Foo.java";
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
+    ComponentDto project = db.components().insertProject();
+    userSession.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    insertFileWithData(file, newData("public class HelloWorld {", "}"));
 
-    when(sourceService.getLinesAsRawText(session, file.uuid(), 1, Integer.MAX_VALUE)).thenReturn(Optional.of(newArrayList(
-      "public class HelloWorld {",
-      "}")));
+    TestResponse request = tester.newRequest()
+      .setParam("resource", file.getKey())
+      .execute();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
-    request.execute().assertJson(this.getClass(), "index-result.json");
+    assertJson(request.getInput()).isSimilarTo("[\n" +
+      "  {\n" +
+      "    \"1\": \"public class HelloWorld {\",\n" +
+      "    \"2\": \"}\"\n" +
+      "  }\n" +
+      "]");
   }
 
   @Test
   public void limit_range() throws Exception {
-    String fileKey = "src/Foo.java";
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.of(file));
+    ComponentDto project = db.components().insertProject();
+    userSession.addProjectUuidPermissions(CODEVIEWER, project.uuid());
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    insertFileWithData(file, newData("/**", " */", "public class HelloWorld {", "}", "", "foo"));
 
-    when(sourceService.getLinesAsRawText(session, file.uuid(), 1, 2)).thenReturn(Optional.of(newArrayList(
-      "public class HelloWorld {",
-      "}")));
+    TestResponse request = tester.newRequest()
+      .setParam("resource", file.getKey())
+      .setParam("from", "3")
+      .setParam("to", "5")
+      .execute();
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "index")
-      .setParam("resource", fileKey).setParam("from", "1").setParam("to", "3");
-    request.execute().assertJson(this.getClass(), "index-result.json");
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void requires_code_viewer_permission() throws Exception {
-    when(componentDao.selectByKey(session, "foo")).thenReturn(com.google.common.base.Optional.of(file));
-    tester.newGetRequest("api/sources", "index").setParam("resource", "foo").execute();
+    assertJson(request.getInput()).isSimilarTo("[\n" +
+      "  {\n" +
+      "    \"3\": \"public class HelloWorld {\",\n" +
+      "    \"4\": \"}\"\n" +
+      "  }\n" +
+      "]");
   }
 
   @Test
-  public void close_db_session() throws Exception {
-    String fileKey = "src/Foo.java";
-    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, project.uuid());
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(com.google.common.base.Optional.<ComponentDto>absent());
+  public void fail_when_missing_code_viewer_permission() throws Exception {
+    ComponentDto project = db.components().insertProject();
+    userSession.addProjectUuidPermissions(USER, project.uuid());
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
-    try {
-      request.execute();
-    } catch (NotFoundException nfe) {
-      verify(session).close();
-    }
+    expectedException.expect(ForbiddenException.class);
+
+    tester.newRequest()
+      .setParam("resource", file.getKey())
+      .execute();
   }
+
+  @Test
+  public void fail_when_component_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+
+    tester.newRequest()
+      .setParam("resource", "unknown")
+      .execute();
+  }
+
+  private static DbFileSources.Data newData(String... lines) throws IOException {
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    for (int i = 1; i <= lines.length; i++) {
+      dataBuilder.addLinesBuilder()
+        .setLine(i)
+        .setSource(lines[i - 1])
+        .build();
+    }
+    return dataBuilder.build();
+  }
+
+  private void insertFileWithData(ComponentDto file, DbFileSources.Data fileData) throws IOException {
+    db.getDbClient().fileSourceDao().insert(db.getSession(), new FileSourceDto()
+      .setProjectUuid(file.projectUuid())
+      .setFileUuid(file.uuid())
+      .setSourceData(fileData));
+    db.commit();
+  }
+
 }
