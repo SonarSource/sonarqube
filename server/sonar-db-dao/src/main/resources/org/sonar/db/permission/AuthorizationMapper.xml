@@ -208,30 +208,55 @@
   </select>
 
   <select id="keepAuthorizedUsersForRoleAndProject" parameterType="map" resultType="int">
-    SELECT
+    select
       gu.user_id
-    FROM
+    from
       groups_users gu
-    INNER JOIN group_roles gr ON
+    inner join group_roles gr on
       gr.group_id=gu.group_id
-    WHERE
+    where
       gr.resource_id=#{componentId,jdbcType=BIGINT}
-      AND gr.role=#{role,jdbcType=VARCHAR}
-      AND gu.user_id in <foreach collection="userIds" open="(" close=")" item="id" separator=",">
-        #{id,jdbcType=BIGINT}
-      </foreach>
-    UNION
-    SELECT
-      ur.user_id
-    FROM
-      user_roles ur
-    WHERE
-      ur.resource_id=#{componentId,jdbcType=BIGINT}
-      AND ur.role=#{role,jdbcType=VARCHAR}
-      AND ur.user_id IN
+      and gr.role=#{role,jdbcType=VARCHAR}
+      and gu.user_id in
         <foreach collection="userIds" open="(" close=")" item="id" separator=",">
           #{id,jdbcType=BIGINT}
         </foreach>
+
+    union
+
+    select
+      ur.user_id
+    from
+      user_roles ur
+    where
+      ur.resource_id=#{componentId,jdbcType=BIGINT}
+      and ur.role=#{role,jdbcType=VARCHAR}
+      and ur.user_id IN
+        <foreach collection="userIds" open="(" close=")" item="id" separator=",">
+          #{id,jdbcType=BIGINT}
+        </foreach>
+
+    union
+
+    select
+      u.id
+    from
+      users u
+    where
+      u.id in
+        <foreach collection="userIds" open="(" close=")" item="id" separator=",">
+          #{id,jdbcType=BIGINT}
+        </foreach>
+      and exists (
+        select
+          1
+        from
+          projects p
+        where
+          p.id =#{componentId,jdbcType=BIGINT}
+          and p.private = ${_false}
+          and #{role,jdbcType=VARCHAR} in ('user','codeviewer')
+      )
   </select>
 
   <select id="selectProjectPermissions" parameterType="map" resultType="String">
