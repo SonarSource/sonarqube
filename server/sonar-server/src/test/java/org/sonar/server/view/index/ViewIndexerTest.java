@@ -165,7 +165,7 @@ public class ViewIndexerTest {
   }
 
   private ComponentDto addProjectWithIssue(RuleDto rule, OrganizationDto org) {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    ComponentDto project = ComponentTesting.newPublicProjectDto(org);
     ComponentDto file = ComponentTesting.newFileDto(project, null);
     dbTester.components().insertComponents(project, file);
     dbTester.users().insertProjectPermissionOnAnyone(UserRole.USER, project);

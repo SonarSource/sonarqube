@@ -273,13 +273,13 @@ public class PermissionIndexerTest {
   }
 
   private ComponentDto createAndIndexProject() {
-    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto project = componentDbTester.insertPublicProject();
     fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     return project;
   }
 
   private ComponentDto createAndIndexProject(OrganizationDto org) {
-    ComponentDto project = componentDbTester.insertPrivateProject(org);
+    ComponentDto project = componentDbTester.insertPublicProject(org);
     fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     return project;
   }
