@@ -610,7 +610,7 @@ public class ComponentTreeActionTest {
     db.commit();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Number of metrics keys is limited to 15, got 20");
+    expectedException.expectMessage("'metricKeys' can contains only 15 values, got 20");
 
     ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")

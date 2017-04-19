@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -112,7 +113,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
   static final Set<String> FORBIDDEN_METRIC_TYPES = ImmutableSet.of(DISTRIB.name(), DATA.name());
   private static final int MAX_METRIC_KEYS = 15;
-  private static final Joiner COMMA_JOINER = Joiner.on(" , ");
+  private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final ComponentTreeDataLoader dataLoader;
   private final I18n i18n;
@@ -135,7 +136,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setResponseExample(getClass().getResource("component_tree-example.json"))
       .setSince("5.4")
       .setHandler(this)
-      .addPagingParams(100, MAX_SIZE);
+      .addPagingParams(100, MAX_SIZE)
+      .setChangelog(new Change("6.3", format("Number of metric keys is limited to %s", MAX_METRIC_KEYS)));
 
     action.createSortParams(SORTS, NAME_SORT, true)
       .setDescription("Comma-separated list of sort fields")
@@ -177,8 +179,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDefaultValue(ALL_METRIC_SORT_FILTER)
       .setPossibleValues(METRIC_SORT_FILTERS);
 
-    createMetricKeysParameter(action).setDescription("Metric keys, maximum %s values can bet set. Types %s are not allowed", MAX_METRIC_KEYS,
-      COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES));
+    createMetricKeysParameter(action)
+      .setDescription("Metric keys. Types %s are not allowed", COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES))
+      .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
     createDeveloperParameters(action);
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
