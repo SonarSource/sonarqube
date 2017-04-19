@@ -117,7 +117,6 @@ public class UserDao implements Dao {
       return false;
     }
 
-    mapper.deleteOrganisationMembership(dto.getId());
     mapper.deactivateUser(dto.getId(), system2.now());
     dbSession.commit();
     return true;
