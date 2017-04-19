@@ -97,8 +97,6 @@ public class ProjectsActionTest {
     project4 = newPublicProject("DEFA", "Project Four");
     dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
 
-    addBrowsePermissionToAnyone(project1, project2, project3, project4);
-
     associateProjectsWithProfile(dbSession, xooP1, project1, project2, project3, project4);
 
     dbSession.commit();
@@ -128,8 +126,6 @@ public class ProjectsActionTest {
     project4 = newPublicProject("DEFA", "Project Four");
     dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
 
-    addBrowsePermissionToAnyone(project1, project2, project3, project4);
-
     associateProjectsWithProfile(dbSession, xooP1, project1, project2);
 
     dbSession.commit();
@@ -144,8 +140,6 @@ public class ProjectsActionTest {
     project3 = newPublicProject("CDEF", "Project Three");
     project4 = newPublicProject("DEFA", "Project Four");
     dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
-
-    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
     associateProjectsWithProfile(dbSession, xooP1, project1, project2);
     // project3 is associated with P2, must appear as not associated with xooP1
@@ -163,8 +157,6 @@ public class ProjectsActionTest {
     project3 = newPublicProject("CDEF", "Project Three");
     project4 = newPublicProject("DEFA", "Project Four");
     dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
-
-    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
     associateProjectsWithProfile(dbSession, xooP1, project1, project2);
 
@@ -185,8 +177,6 @@ public class ProjectsActionTest {
     project3 = newPublicProject("CDEF", "Project Three");
     project4 = newPublicProject("DEFA", "Project Four");
     dbClient.componentDao().insert(dbSession, project1, project2, project3, project4);
-
-    addBrowsePermissionToAnyone(project1, project2, project3, project4);
 
     associateProjectsWithProfile(dbSession, xooP1, project1, project2);
     // project3 is associated with P2, must appear as not associated with xooP1
@@ -213,12 +203,6 @@ public class ProjectsActionTest {
 
   private ComponentDto newPrivateProject(String uuid, String name) {
     return ComponentTesting.newPrivateProjectDto(organizationDto, uuid).setName(name);
-  }
-
-  private void addBrowsePermissionToAnyone(ComponentDto... projects) {
-    for (ComponentDto project : projects) {
-      db.users().insertProjectPermissionOnAnyone(UserRole.USER, project);
-    }
   }
 
   private void associateProjectsWithProfile(DbSession session, QualityProfileDto profile, ComponentDto... projects) {

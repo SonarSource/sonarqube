@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -214,6 +215,8 @@ public class UserDbTester {
 
   public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ComponentDto project) {
     checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
+    checkArgument(!ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+      "permission %s can't be granted on a public project", permission);
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(project.getOrganizationUuid())
       .setGroupId(null)
@@ -231,6 +234,8 @@ public class UserDbTester {
 
   public GroupPermissionDto insertProjectPermissionOnGroup(GroupDto group, String permission, ComponentDto project) {
     checkArgument(group.getOrganizationUuid().equals(project.getOrganizationUuid()), "Different organizations");
+    checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+      "%s can't be granted on a public project", permission);
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(group.getOrganizationUuid())
       .setGroupId(group.getId())
@@ -301,6 +306,8 @@ public class UserDbTester {
    * Grant permission on given project
    */
   public UserPermissionDto insertProjectPermissionOnUser(UserDto user, String permission, ComponentDto project) {
+    checkArgument(project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+      "%s can't be granted on a public project", permission);
     UserPermissionDto dto = new UserPermissionDto(project.getOrganizationUuid(), permission, user.getId(), project.getId());
     db.getDbClient().userPermissionDao().insert(db.getSession(), dto);
     db.commit();

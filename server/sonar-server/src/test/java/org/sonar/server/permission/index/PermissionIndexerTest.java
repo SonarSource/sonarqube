@@ -59,6 +59,19 @@ public class PermissionIndexerTest {
   private PermissionIndexer underTest = new PermissionIndexer(dbTester.getDbClient(), esTester.client(), fooIndexer);
 
   @Test
+  public void initalizeOnStartup_grants_access_to_any_user_and_to_group_Anyone_on_public_projects() {
+    ComponentDto project = createAndIndexPublicProject();
+    UserDto user1 = userDbTester.insertUser();
+    UserDto user2 = userDbTester.insertUser();
+
+    indexOnStartup();
+
+    verifyAnyoneAuthorized(project);
+    verifyAuthorized(project, user1);
+    verifyAuthorized(project, user2);
+  }
+
+  @Test
   public void initializeOnStartup_grants_access_to_user() {
     ComponentDto project = createAndIndexPrivateProject();
     UserDto user1 = userDbTester.insertUser();
@@ -79,7 +92,7 @@ public class PermissionIndexerTest {
   }
 
   @Test
-  public void initializeOnStartup_grants_access_to_group() {
+  public void initializeOnStartup_grants_access_to_group_on_private_project() {
     ComponentDto project = createAndIndexPrivateProject();
     UserDto user1 = userDbTester.insertUser();
     UserDto user2 = userDbTester.insertUser();
@@ -189,8 +202,6 @@ public class PermissionIndexerTest {
   public void deleteProject_deletes_the_documents_related_to_the_project() {
     ComponentDto project1 = createAndIndexPublicProject();
     ComponentDto project2 = createAndIndexPublicProject();
-    userDbTester.insertProjectPermissionOnAnyone(USER, project1);
-    userDbTester.insertProjectPermissionOnAnyone(USER, project2);
     indexOnStartup();
     assertThat(esTester.countDocuments(INDEX_TYPE_FOO_AUTH)).isEqualTo(2);
 
@@ -201,7 +212,6 @@ public class PermissionIndexerTest {
   @Test
   public void indexProject_does_nothing_because_authorizations_are_triggered_outside_standard_indexer_lifecycle() {
     ComponentDto project = createAndIndexPublicProject();
-    userDbTester.insertProjectPermissionOnAnyone(USER, project);
 
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
@@ -215,8 +225,6 @@ public class PermissionIndexerTest {
     ComponentDto projectOnOrg1 = createAndIndexPublicProject(dbTester.organizations().insert());
     ComponentDto projectOnOrg2 = createAndIndexPublicProject(dbTester.organizations().insert());
     UserDto user = userDbTester.insertUser();
-    userDbTester.insertProjectPermissionOnAnyone(USER, projectOnOrg1);
-    userDbTester.insertProjectPermissionOnUser(user, USER, projectOnOrg2);
 
     indexOnStartup();
 

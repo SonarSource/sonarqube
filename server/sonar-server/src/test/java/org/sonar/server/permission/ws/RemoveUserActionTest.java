@@ -130,7 +130,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
   public void remove_with_view_uuid() throws Exception {
     ComponentDto view = db.components().insertComponent(newView(db.organizations().insert(), "view-uuid").setKey("view-key"));
     db.users().insertProjectPermissionOnUser(user, ISSUE_ADMIN, view);
-    db.users().insertProjectPermissionOnUser(user, CODEVIEWER, view);
+    db.users().insertProjectPermissionOnUser(user, ADMIN, view);
     loginAsAdmin(db.getDefaultOrganization());
 
     newRequest()
@@ -139,7 +139,7 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .execute();
 
-    assertThat(db.users().selectProjectPermissionsOfUser(user, view)).containsOnly(CODEVIEWER);
+    assertThat(db.users().selectProjectPermissionsOfUser(user, view)).containsOnly(ADMIN);
   }
 
   @Test
