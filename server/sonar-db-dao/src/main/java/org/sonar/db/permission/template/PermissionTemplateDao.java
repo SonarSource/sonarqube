@@ -105,7 +105,6 @@ public class PermissionTemplateDao implements Dao {
   private static String toUppercaseSqlQuery(String nameMatch) {
     String wildcard = "%";
     return format("%s%s%s", wildcard, nameMatch.toUpperCase(Locale.ENGLISH), wildcard);
-
   }
 
   public PermissionTemplateDto insert(DbSession session, PermissionTemplateDto dto) {
@@ -182,6 +181,10 @@ public class PermissionTemplateDao implements Dao {
 
   public void deleteUserPermissionsByOrganization(DbSession dbSession, String organizationUuid, int userId) {
     mapper(dbSession).deleteUserPermissionsByOrganization(organizationUuid, userId);
+  }
+
+  public void deleteUserPermissionsByUserId(DbSession dbSession, int userId) {
+    mapper(dbSession).deleteUserPermissionsByUserId(userId);
   }
 
   public void insertGroupPermission(DbSession session, long templateId, @Nullable Integer groupId, String permission) {

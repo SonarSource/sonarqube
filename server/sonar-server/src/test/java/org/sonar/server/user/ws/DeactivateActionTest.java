@@ -31,6 +31,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.GroupDto;
@@ -153,12 +155,26 @@ public class DeactivateActionTest {
     db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_PROFILES);
     db.users().insertProjectPermissionOnUser(user, USER, project);
     db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
-    db.commit();
 
     deactivate(user.getLogin()).getInput();
 
     assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
     assertThat(db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), project.getId())).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_permission_templates() {
+    logInAsSystemAdministrator();
+    UserDto user = insertUser(newUserDto());
+    PermissionTemplateDto template = db.permissionTemplates().insertTemplate();
+    PermissionTemplateDto anotherTemplate = db.permissionTemplates().insertTemplate();
+    db.permissionTemplates().addUserToTemplate(template.getId(), user.getId(), USER);
+    db.permissionTemplates().addUserToTemplate(anotherTemplate.getId(), user.getId(), CODEVIEWER);
+
+    deactivate(user.getLogin()).getInput();
+
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId())).extracting(PermissionTemplateUserDto::getUserId).isEmpty();
+    assertThat(db.getDbClient().permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId).isEmpty();
   }
 
   @Test
@@ -170,7 +186,6 @@ public class DeactivateActionTest {
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(project.getId()));
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(anotherProject.getId()));
     db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin()).setResourceId(anotherProject.getId()));
-    db.commit();
 
     deactivate(user.getLogin()).getInput();
 
