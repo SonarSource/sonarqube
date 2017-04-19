@@ -255,8 +255,8 @@ public class DeleteActionTest {
     GroupDto otherGroup1 = db.users().insertGroup(otherOrg);
     GroupDto otherGroup2 = db.users().insertGroup(otherOrg);
 
-    ComponentDto projectDto = db.components().insertPrivateProject(org);
-    ComponentDto otherProjectDto = db.components().insertPrivateProject(otherOrg);
+    ComponentDto projectDto = db.components().insertPublicProject(org);
+    ComponentDto otherProjectDto = db.components().insertPublicProject(otherOrg);
 
     db.users().insertPermissionOnAnyone(org, "u1");
     db.users().insertPermissionOnAnyone(otherOrg, "not deleted u1");

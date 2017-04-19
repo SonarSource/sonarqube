@@ -250,7 +250,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   }
 
   private ComponentDto insertJdk7() {
-    return db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization())
+    return db.components().insertComponent(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization())
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setUuid("0bd7b1e7-91d6-439e-a607-4a3a9aad3c6a"));

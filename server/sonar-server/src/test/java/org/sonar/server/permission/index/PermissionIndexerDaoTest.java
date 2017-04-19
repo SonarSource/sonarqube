@@ -70,8 +70,8 @@ public class PermissionIndexerDaoTest {
 
   @Before
   public void setUp() throws Exception {
-    project1 = componentDbTester.insertPrivateProject();
-    project2 = componentDbTester.insertPrivateProject();
+    project1 = componentDbTester.insertPublicProject();
+    project2 = componentDbTester.insertPublicProject();
     view1 = componentDbTester.insertView();
     view2 = componentDbTester.insertView();
     user1 = userDbTester.insertUser();
