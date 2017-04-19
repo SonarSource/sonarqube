@@ -213,6 +213,7 @@ public class UserDbTester {
   }
 
   public GroupPermissionDto insertProjectPermissionOnAnyone(String permission, ComponentDto project) {
+    checkArgument(!project.isPrivate(), "No permission to group AnyOne can be granted on a private project");
     GroupPermissionDto dto = new GroupPermissionDto()
       .setOrganizationUuid(project.getOrganizationUuid())
       .setGroupId(null)

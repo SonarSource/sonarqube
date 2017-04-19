@@ -292,15 +292,6 @@ public class ServerUserSessionTest {
   }
 
   @Test
-  public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_global_permissions() {
-    ServerUserSession underTest = newUserSession(user);
-    db.users().insertProjectPermissionOnAnyone("p1", privateProject);
-
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.USER, this.privateProject)).isFalse();
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, UserRole.CODEVIEWER, this.privateProject)).isFalse();
-  }
-
-  @Test
   public void hasComponentPermissionByDtoOrUuid_returns_false_for_authenticated_user_for_permissions_USER_and_CODEVIEWER_on_private_projects_with_group_permissions() {
     ServerUserSession underTest = newUserSession(user);
     db.users().insertProjectPermissionOnGroup(db.users().insertGroup(organization), "p1", privateProject);
@@ -324,14 +315,6 @@ public class ServerUserSessionTest {
     db.users().insertProjectPermissionOnAnyone("p1", publicProject);
 
     assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", publicProject)).isTrue();
-  }
-
-  @Test
-  public void hasComponentPermissionByDtoOrUuid_returns_true_for_anonymous_user_for_inserted_permissions_on_group_AnyOne_on_private_projects() {
-    ServerUserSession underTest = newAnonymousSession();
-    db.users().insertProjectPermissionOnAnyone("p1", privateProject);
-
-    assertThat(hasComponentPermissionByDtoOrUuid(underTest, "p1", privateProject)).isTrue();
   }
 
   @Test

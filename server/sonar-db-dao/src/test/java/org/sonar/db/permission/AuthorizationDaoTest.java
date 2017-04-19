@@ -469,11 +469,11 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void selectProjectPermissionsOfAnonymous_returns_permissions_of_anonymous_user_on_specified_project() {
-    ComponentDto project = db.components().insertPrivateProject(org);
+  public void selectProjectPermissionsOfAnonymous_returns_permissions_of_anonymous_user_on_specified_public_project() {
+    ComponentDto project = db.components().insertPublicProject(org);
     db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnUser(db.users().insertUser(), UserRole.USER, project);
-    ComponentDto otherProject = db.components().insertPrivateProject();
+    ComponentDto otherProject = db.components().insertPublicProject();
     db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, otherProject);
 
     assertThat(underTest.selectProjectPermissionsOfAnonymous(dbSession, project.uuid())).containsOnly(UserRole.CODEVIEWER);
@@ -481,23 +481,17 @@ public class AuthorizationDaoTest {
 
   @Test
   public void selectProjectPermissionsOfAnonymous_returns_empty_set_when_project_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject(org);
-    db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
-
     assertThat(underTest.selectProjectPermissionsOfAnonymous(dbSession, "does_not_exist")).isEmpty();
   }
 
   @Test
   public void selectProjectPermissions_returns_empty_set_when_logged_in_user_and_project_does_not_exist() {
-    ComponentDto project = db.components().insertPrivateProject(org);
-    db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
-
     assertThat(underTest.selectProjectPermissions(dbSession, "does_not_exist", user.getId())).isEmpty();
   }
 
   @Test
-  public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_project_through_anonymous_permissions() {
-    ComponentDto project = db.components().insertPrivateProject(org);
+  public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_public_project_through_anonymous_permissions() {
+    ComponentDto project = db.components().insertPublicProject(org);
     db.users().insertProjectPermissionOnAnyone(UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, project);
 
@@ -524,8 +518,18 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_project_through_all_possible_configurations() {
+  public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_private_project_through_all_possible_configurations() {
     ComponentDto project = db.components().insertPrivateProject(org);
+    db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project);
+    db.users().insertMember(group1, user);
+
+    assertThat(underTest.selectProjectPermissions(dbSession, project.uuid(), user.getId())).containsOnly(UserRole.CODEVIEWER, UserRole.USER);
+  }
+
+  @Test
+  public void selectProjectPermissions_returns_permissions_of_logged_in_user_on_specified_public_project_through_all_possible_configurations() {
+    ComponentDto project = db.components().insertPublicProject(org);
     db.users().insertProjectPermissionOnUser(user, UserRole.CODEVIEWER, project);
     db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, project);
     db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project);
