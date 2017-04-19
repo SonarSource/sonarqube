@@ -123,33 +123,6 @@ public class ComponentTesting {
       .setEnabled(true);
   }
 
-  public static ComponentDto newDeveloper(OrganizationDto organizationDto, String name) {
-    return newDeveloper(organizationDto.getUuid(), name, Uuids.createFast());
-  }
-
-  public static ComponentDto newDeveloper(OrganizationDto organizationDto, String name, String uuid) {
-    return newDeveloper(organizationDto.getUuid(), name, uuid);
-  }
-
-  private static ComponentDto newDeveloper(String organizationUuid, String name, String uuid) {
-    return new ComponentDto()
-      .setOrganizationUuid(organizationUuid)
-      .setUuid(uuid)
-      .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
-      .setProjectUuid(uuid)
-      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
-      .setRootUuid(uuid)
-      .setKey(uuid)
-      .setName(name)
-      .setLongName(name)
-      .setScope(Scopes.PROJECT)
-      // XXX No constant !
-      .setQualifier("DEV")
-      .setPath(null)
-      .setLanguage(null)
-      .setEnabled(true);
-  }
-
   public static ComponentDto newView(OrganizationDto organizationDto) {
     return newView(organizationDto.getUuid(), Uuids.createFast());
   }
@@ -178,20 +151,6 @@ public class ComponentTesting {
       .setCopyComponentUuid(project.uuid())
       .setScope(Scopes.FILE)
       .setQualifier(Qualifiers.PROJECT)
-      .setPath(null)
-      .setLanguage(null);
-  }
-
-  public static ComponentDto newDevProjectCopy(String uuid, ComponentDto project, ComponentDto developer) {
-    checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
-    return newChildComponent(uuid, developer, developer)
-      .setUuid(uuid)
-      .setKey(developer.key() + ":" + project.key())
-      .setName(project.name())
-      .setLongName(project.longName())
-      .setCopyComponentUuid(project.uuid())
-      .setScope(Scopes.PROJECT)
-      .setQualifier("DEV_PRJ")
       .setPath(null)
       .setLanguage(null);
   }

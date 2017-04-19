@@ -58,14 +58,11 @@ import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
-import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
@@ -75,8 +72,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
@@ -417,90 +412,6 @@ public class ComponentTreeActionTest {
   }
 
   @Test
-  public void load_developer_descendants() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
-    componentDb.insertProjectAndSnapshot(project);
-    ComponentDto developer = newDeveloper(db.getDefaultOrganization(), "developer", "developer-uuid");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    componentDb.insertComponent(newDevProjectCopy("project-uuid-copy", project, developer));
-    insertNclocMetric();
-    db.commit();
-
-    ComponentTreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, developer.uuid())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .executeProtobuf(ComponentTreeWsResponse.class);
-
-    assertThat(response.getComponentsCount()).isEqualTo(1);
-    WsMeasures.Component projectCopy = response.getComponents(0);
-    assertThat(projectCopy.getId()).isEqualTo("project-uuid-copy");
-    assertThat(projectCopy.getRefId()).isEqualTo("project-uuid");
-    assertThat(projectCopy.getRefKey()).isEqualTo("project-key");
-  }
-
-  @Test
-  public void load_developer_measures_by_developer_uuid() {
-    ComponentDto developer = newDeveloper(db.getDefaultOrganization(), "developer", "developer-uuid");
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    ComponentDto file1 = componentDb.insertComponent(newFileDto(project, null, "file1-uuid"));
-    ComponentDto file2 = componentDb.insertComponent(newFileDto(project, null, "file2-uuid"));
-    componentDb.insertComponent(newDevProjectCopy("project-uuid-copy", project, developer));
-    MetricDto ncloc = insertNclocMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, project, projectSnapshot).setDeveloperId(developer.getId()),
-      newMeasureDto(ncloc, file1, projectSnapshot)
-        .setValue(3d)
-        .setDeveloperId(developer.getId()),
-      // measures are not specific to the developer
-      newMeasureDto(ncloc, file1, projectSnapshot).setDeveloperId(null),
-      newMeasureDto(ncloc, file2, projectSnapshot).setDeveloperId(null));
-    db.commit();
-
-    ComponentTreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_DEVELOPER_ID, "developer-uuid")
-      .setParam(PARAM_STRATEGY, CHILDREN_STRATEGY)
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .executeProtobuf(ComponentTreeWsResponse.class);
-
-    assertThat(response.getComponentsCount()).isEqualTo(2);
-    WsMeasures.Component file = response.getComponents(0);
-    assertThat(file.getId()).isEqualTo("file1-uuid");
-    assertThat(file.getMeasuresCount()).isEqualTo(1);
-    assertThat(file.getMeasures(0).getValue()).isEqualTo("3");
-  }
-
-  @Test
-  public void load_developer_measures_by_developer_key() {
-    ComponentDto developer = newDeveloper(db.getDefaultOrganization(), "developer", "developer-uuid");
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    ComponentDto file1 = componentDb.insertComponent(newFileDto(project, null, "file1-uuid"));
-    componentDb.insertComponent(newDevProjectCopy("project-uuid-copy", project, developer));
-    MetricDto ncloc = insertNclocMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1, projectSnapshot)
-        .setValue(3d)
-        .setDeveloperId(developer.getId()));
-    db.commit();
-
-    ComponentTreeWsResponse response = ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_DEVELOPER_KEY, developer.key())
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .executeProtobuf(ComponentTreeWsResponse.class);
-
-    assertThat(response.getComponentsCount()).isEqualTo(1);
-    WsMeasures.Component file = response.getComponents(0);
-    assertThat(file.getId()).isEqualTo("file1-uuid");
-    assertThat(file.getMeasuresCount()).isEqualTo(1);
-    assertThat(file.getMeasures(0).getValue()).isEqualTo("3");
-  }
-
-  @Test
   public void load_measures_when_no_leave_qualifier() {
     resourceTypes.setLeavesQualifiers();
     String projectUuid = "project-uuid";
@@ -517,30 +428,6 @@ public class ComponentTreeActionTest {
 
     assertThat(result.getBaseComponent().getId()).isEqualTo(projectUuid);
     assertThat(result.getComponentsCount()).isEqualTo(0);
-  }
-
-  @Test
-  public void fail_when_developer_is_unknown() {
-    expectedException.expect(NotFoundException.class);
-
-    ComponentDto developer = newDeveloper(db.getDefaultOrganization(), "developer", "developer-uuid");
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid").setKey("project-key");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
-    ComponentDto file1 = componentDb.insertComponent(newFileDto(project, null, "file1-uuid"));
-    componentDb.insertComponent(newDevProjectCopy("project-uuid-copy", project, developer));
-    MetricDto ncloc = insertNclocMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1, projectSnapshot)
-        .setValue(3d)
-        .setDeveloperId(developer.getId()));
-    db.commit();
-
-    ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_DEVELOPER_KEY, "unknown-developer-key")
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-      .executeProtobuf(ComponentTreeWsResponse.class);
   }
 
   @Test

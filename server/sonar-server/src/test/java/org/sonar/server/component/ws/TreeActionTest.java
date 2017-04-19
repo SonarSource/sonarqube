@@ -57,8 +57,6 @@ import org.sonarqube.ws.WsComponents.TreeWsResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -264,24 +262,6 @@ public class TreeActionTest {
   }
 
   @Test
-  public void return_developers() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), "project-uuid");
-    componentDb.insertProjectAndSnapshot(project);
-    ComponentDto developer = newDeveloper(db.organizations().insert(), "developer-name");
-    componentDb.insertDeveloperAndSnapshot(developer);
-    componentDb.insertComponent(newDevProjectCopy("project-copy-uuid", project, developer));
-    db.commit();
-    logInWithBrowsePermission(developer);
-
-    TreeWsResponse response = ws.newRequest().setParam(PARAM_COMPONENT_ID, developer.uuid()).executeProtobuf(TreeWsResponse.class);
-
-    assertThat(response.getBaseComponent().getId()).isEqualTo(developer.uuid());
-    assertThat(response.getComponentsCount()).isEqualTo(1);
-    assertThat(response.getComponents(0).getId()).isEqualTo("project-copy-uuid");
-    assertThat(response.getComponents(0).getRefId()).isEqualTo("project-uuid");
-  }
-
-  @Test
   public void return_projects_composing_a_view() {
     ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
@@ -395,7 +375,7 @@ public class TreeActionTest {
     ComponentDto project = newProjectDto(organizationDto, "MY_PROJECT_ID")
       .setKey("MY_PROJECT_KEY")
       .setName("Project Name");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertProjectAndSnapshot(project);
     Date now = new Date();
     JsonParser jsonParser = new JsonParser();
     JsonElement jsonTree = jsonParser.parse(IOUtils.toString(getClass().getResource("tree-example.json"), UTF_8));

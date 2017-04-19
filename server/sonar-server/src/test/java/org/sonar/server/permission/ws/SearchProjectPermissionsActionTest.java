@@ -38,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -75,7 +74,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
     ComponentDto jdk7 = insertJdk7();
     ComponentDto project2 = insertClang();
-    ComponentDto dev = insertDeveloper();
     ComponentDto view = insertView();
     insertProjectInView(jdk7, view);
 
@@ -84,7 +82,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     db.users().insertProjectPermissionOnUser(user2, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(user3, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, project2);
-    db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, dev);
     db.users().insertProjectPermissionOnUser(user1, UserRole.ISSUE_ADMIN, view);
     // global permission
     db.users().insertPermissionOnUser(user1, ADMINISTER);
@@ -97,7 +94,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     db.users().insertProjectPermissionOnGroup(group1, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, jdk7);
     db.users().insertProjectPermissionOnGroup(group3, UserRole.ADMIN, jdk7);
-    db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, dev);
     db.users().insertProjectPermissionOnGroup(group2, UserRole.ADMIN, view);
 
     db.commit();
@@ -195,7 +191,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
   public void filter_by_qualifier() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
     db.components().insertComponent(newView(organizationDto, "view-uuid"));
-    db.components().insertComponent(newDeveloper(organizationDto, "developer-name"));
     db.components().insertComponent(newProjectDto(organizationDto, "project-uuid"));
 
     WsPermissions.SearchProjectPermissionsWsResponse result = newRequest()
@@ -205,8 +200,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     assertThat(result.getProjectsList())
       .extracting("id")
       .contains("project-uuid")
-      .doesNotContain("view-uuid")
-      .doesNotContain("developer-name");
+      .doesNotContain("view-uuid");
   }
 
   @Test
@@ -245,12 +239,6 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
 
   private ComponentDto insertProjectInView(ComponentDto project, ComponentDto view) {
     return db.components().insertComponent(newProjectCopy("project-in-view-uuid", project, view));
-  }
-
-  private ComponentDto insertDeveloper() {
-    return db.components().insertComponent(newDeveloper(db.getDefaultOrganization(), "Simon Brandhof")
-      .setUuid("4e607bf9-7ed0-484a-946d-d58ba7dab2fb")
-      .setKey("simon-brandhof"));
   }
 
   private ComponentDto insertClang() {

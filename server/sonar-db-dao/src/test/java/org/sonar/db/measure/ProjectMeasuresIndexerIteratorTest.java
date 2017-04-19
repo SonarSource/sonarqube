@@ -47,7 +47,6 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -203,9 +202,6 @@ public class ProjectMeasuresIndexerIteratorTest {
 
     // A view
     dbTester.components().insertProjectAndSnapshot(newView(dbTester.getDefaultOrganization()));
-
-    // A developer
-    dbTester.components().insertProjectAndSnapshot(newDeveloper(dbTester.getDefaultOrganization(), "dev"));
 
     dbSession.commit();
 

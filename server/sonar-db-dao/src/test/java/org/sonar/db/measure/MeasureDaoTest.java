@@ -20,7 +20,6 @@
 package org.sonar.db.measure;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbClient;
@@ -37,18 +35,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
-import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -223,46 +217,6 @@ public class MeasureDaoTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("expected one element");
     selectSingle(MeasureQuery.builder().setComponentUuid("C1"));
-  }
-
-  @Test
-  public void selectProjectMeasuresOfDeveloper() {
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto dev = db.components().insertComponent(newDeveloper(organizationDto, "DEV"));
-    insertAnalysis(LAST_ANALYSIS_UUID, dev.uuid(), true);
-    insertAnalysis(PREVIOUS_ANALYSIS_UUID, dev.uuid(), false);
-    List<Integer> allMetricIds = Arrays.asList(NCLOC_METRIC_ID, COMPLEXITY_METRIC_ID, COVERAGE_METRIC_ID);
-    long developerId = dev.getId();
-    assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, allMetricIds)).isEmpty();
-
-    String projectUuid = insertComponent(Scopes.PROJECT, PROJECT, true);
-    String viewUuid = insertComponent(Scopes.PROJECT, VIEW, true);
-    String disabledProjectUuid = insertComponent(Scopes.PROJECT, PROJECT, false);
-    insertMeasure("M1", LAST_ANALYSIS_UUID, projectUuid, NCLOC_METRIC_ID);
-    insertMeasure("M2", LAST_ANALYSIS_UUID, projectUuid, COMPLEXITY_METRIC_ID);
-    insertMeasure("M3", LAST_ANALYSIS_UUID, projectUuid, COVERAGE_METRIC_ID);
-    insertMeasure("M4", PREVIOUS_ANALYSIS_UUID, projectUuid, NCLOC_METRIC_ID);
-    insertMeasure("M5", PREVIOUS_ANALYSIS_UUID, projectUuid, COMPLEXITY_METRIC_ID);
-    insertMeasure("M6", PREVIOUS_ANALYSIS_UUID, projectUuid, COVERAGE_METRIC_ID);
-    insertMeasure("M11", LAST_ANALYSIS_UUID, projectUuid, developerId, NCLOC_METRIC_ID);
-    insertMeasure("M12", LAST_ANALYSIS_UUID, projectUuid, developerId, COMPLEXITY_METRIC_ID);
-    insertMeasure("M13", LAST_ANALYSIS_UUID, projectUuid, developerId, COVERAGE_METRIC_ID);
-    insertMeasure("M14", PREVIOUS_ANALYSIS_UUID, projectUuid, NCLOC_METRIC_ID);
-    insertMeasure("M15", PREVIOUS_ANALYSIS_UUID, projectUuid, COMPLEXITY_METRIC_ID);
-    insertMeasure("M16", PREVIOUS_ANALYSIS_UUID, projectUuid, COVERAGE_METRIC_ID);
-    insertMeasure("M51", LAST_ANALYSIS_UUID, viewUuid, NCLOC_METRIC_ID);
-    insertMeasure("M52", LAST_ANALYSIS_UUID, viewUuid, COMPLEXITY_METRIC_ID);
-    insertMeasure("M53", LAST_ANALYSIS_UUID, viewUuid, COVERAGE_METRIC_ID);
-    insertMeasure("M54", LAST_ANALYSIS_UUID, disabledProjectUuid, developerId, NCLOC_METRIC_ID);
-    insertMeasure("M55", LAST_ANALYSIS_UUID, disabledProjectUuid, developerId, COMPLEXITY_METRIC_ID);
-    insertMeasure("M56", LAST_ANALYSIS_UUID, disabledProjectUuid, developerId, COVERAGE_METRIC_ID);
-
-    assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, allMetricIds))
-      .extracting(MeasureDto::getData)
-      .containsOnly("M11", "M12", "M13", "M54", "M55", "M56");
-    assertThat(underTest.selectProjectMeasuresOfDeveloper(db.getSession(), developerId, singletonList(NCLOC_METRIC_ID)))
-      .extracting(MeasureDto::getData)
-      .containsOnly("M11", "M54");
   }
 
   @Test
