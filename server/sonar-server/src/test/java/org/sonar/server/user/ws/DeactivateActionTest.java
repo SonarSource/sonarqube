@@ -51,9 +51,13 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newUserPropertyDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
@@ -138,6 +142,23 @@ public class DeactivateActionTest {
 
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).build(), dbSession)).isEmpty();
     assertThat(db.getDbClient().propertiesDao().selectByQuery(PropertyQuery.builder().setUserId(user.getId()).setComponentId(project.getId()).build(), dbSession)).isEmpty();
+  }
+
+  @Test
+  public void deactivate_user_deletes_his_permissions() {
+    logInAsSystemAdministrator();
+    UserDto user = insertUser(newUserDto());
+    ComponentDto project = db.components().insertProject();
+    db.users().insertPermissionOnUser(user, SCAN);
+    db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertProjectPermissionOnUser(user, USER, project);
+    db.users().insertProjectPermissionOnUser(user, CODEVIEWER, project);
+    db.commit();
+
+    deactivate(user.getLogin()).getInput();
+
+    assertThat(db.getDbClient().userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), db.getDefaultOrganization().getUuid())).isEmpty();
+    assertThat(db.getDbClient().userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), project.getId())).isEmpty();
   }
 
   @Test
