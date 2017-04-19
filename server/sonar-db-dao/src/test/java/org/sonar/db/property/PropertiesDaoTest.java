@@ -338,7 +338,7 @@ public class PropertiesDaoTest {
   @UseDataProvider("allValuesForSelect")
   public void selectEnabledDescendantModuleProperties_supports_all_values(String dbValue, String expected) throws SQLException {
     String projectUuid = "A";
-    ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), projectUuid);
     dbClient.componentDao().insert(session, project);
     long projectId = project.getId();
     insertProperty("project.one", dbValue, projectId, null);
@@ -404,7 +404,7 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_component_properties_by_keys() throws Exception {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     UserDto user = dbTester.users().insertUser();
 
     String key = "key";
@@ -425,8 +425,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_component_properties_by_ids() throws Exception {
-    ComponentDto project = dbTester.components().insertProject();
-    ComponentDto project2 = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project2 = dbTester.components().insertPrivateProject();
 
     UserDto user = UserTesting.newUserDto();
     dbClient.userDao().insert(session, user);
@@ -453,8 +453,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void select_properties_by_keys_and_component_ids() throws Exception {
-    ComponentDto project = dbTester.components().insertProject();
-    ComponentDto project2 = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto project2 = dbTester.components().insertPrivateProject();
 
     UserDto user = UserTesting.newUserDto();
     dbClient.userDao().insert(session, user);
@@ -850,8 +850,8 @@ public class PropertiesDaoTest {
   public void delete_by_organization_and_user() throws SQLException {
     OrganizationDto organization = dbTester.organizations().insert();
     OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(organization);
-    ComponentDto anotherProject = dbTester.components().insertProject(anotherOrganization);
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto anotherProject = dbTester.components().insertPrivateProject(anotherOrganization);
     UserDto user = dbTester.users().insertUser();
     UserDto anotherUser = dbTester.users().insertUser();
     insertProperty("KEY_11", "VALUE", project.getId(), user.getId());
@@ -872,8 +872,8 @@ public class PropertiesDaoTest {
   public void delete_by_organization_and_matching_login() throws SQLException {
     OrganizationDto organization = dbTester.organizations().insert();
     OrganizationDto anotherOrganization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(organization);
-    ComponentDto anotherProject = dbTester.components().insertProject(anotherOrganization);
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    ComponentDto anotherProject = dbTester.components().insertPrivateProject(anotherOrganization);
     UserDto user = dbTester.users().insertUser();
     UserDto anotherUser = dbTester.users().insertUser();
     insertProperty("KEY_11", user.getLogin(), project.getId(), null);
@@ -892,8 +892,8 @@ public class PropertiesDaoTest {
 
   @Test
   public void delete_by_key_and_value() throws SQLException {
-    ComponentDto project = dbTester.components().insertProject();
-    ComponentDto anotherProject = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
+    ComponentDto anotherProject = dbTester.components().insertPrivateProject();
     insertProperty("KEY", "VALUE", null, null);
     insertProperty("KEY", "VALUE", project.getId(), null);
     insertProperty("KEY", "VALUE", null, 100);
@@ -1091,7 +1091,7 @@ public class PropertiesDaoTest {
 
   private ComponentDto insertProject(String uuid) {
     String key = "project" + uuid;
-    ComponentDto project = ComponentTesting.newProjectDto(dbTester.getDefaultOrganization(), uuid).setKey(key);
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), uuid).setKey(key);
     dbClient.componentDao().insert(session, project);
     dbTester.commit();
     return project;

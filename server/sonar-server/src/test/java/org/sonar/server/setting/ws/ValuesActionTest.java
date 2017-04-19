@@ -37,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.server.component.ComponentFinder;
@@ -61,7 +62,6 @@ import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.property.PropertyTesting.newComponentPropertyDto;
@@ -98,7 +98,7 @@ public class ValuesActionTest {
   @Before
   public void setUp() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    project = componentDb.insertComponent(newProjectDto(organizationDto));
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
   }
 
   @Test

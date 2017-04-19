@@ -54,7 +54,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
@@ -534,11 +534,11 @@ public class ComponentDaoTest {
   @Test
   public void select_projects() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto provisionedProject = db.components().insertProject();
+    ComponentDto provisionedProject = db.components().insertPrivateProject();
     ComponentDto provisionedView = db.components().insertView(organization, (dto) -> {
     });
-    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization)).getComponentUuid();
-    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization).setEnabled(false)).getComponentUuid();
+    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization)).getComponentUuid();
+    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
     assertThat(underTest.selectProjects(dbSession))
@@ -549,10 +549,10 @@ public class ComponentDaoTest {
   @Test
   public void select_provisioned() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto provisionedProject = db.components().insertComponent(newProjectDto(organization).setKey("provisioned.project").setName("Provisioned Project"));
+    ComponentDto provisionedProject = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization).setKey("provisioned.project").setName("Provisioned Project"));
     ComponentDto provisionedView = db.components().insertView(organization);
-    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization)).getComponentUuid();
-    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization).setEnabled(false)).getComponentUuid();
+    String projectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization)).getComponentUuid();
+    String disabledProjectUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false)).getComponentUuid();
     String viewUuid = db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization)).getComponentUuid();
 
     Set<String> projectQualifiers = newHashSet(Qualifiers.PROJECT);
@@ -595,8 +595,8 @@ public class ComponentDaoTest {
   @Test
   public void count_provisioned() {
     OrganizationDto organization = db.organizations().insert();
-    db.components().insertProject(organization);
-    db.components().insertProjectAndSnapshot(ComponentTesting.newProjectDto(organization));
+    db.components().insertPrivateProject(organization);
+    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization));
     db.components().insertProjectAndSnapshot(ComponentTesting.newView(organization));
 
     assertThat(underTest.countProvisioned(dbSession, organization.getUuid(), null, newHashSet(Qualifiers.PROJECT))).isEqualTo(1);
@@ -609,25 +609,25 @@ public class ComponentDaoTest {
     OrganizationDto organization = db.organizations().insert();
 
     // ghosts because has at least one snapshot with status U but none with status P
-    ComponentDto ghostProject = db.components().insertProject(organization);
+    ComponentDto ghostProject = db.components().insertPrivateProject(organization);
     db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
     db.components().insertSnapshot(ghostProject, dto -> dto.setStatus("U"));
-    ComponentDto ghostProject2 = db.components().insertProject(organization);
+    ComponentDto ghostProject2 = db.components().insertPrivateProject(organization);
     db.components().insertSnapshot(ghostProject2, dto -> dto.setStatus("U"));
-    ComponentDto disabledGhostProject = db.components().insertProject(dto -> dto.setEnabled(false));
+    ComponentDto disabledGhostProject = db.components().insertPrivateProject(dto -> dto.setEnabled(false));
     db.components().insertSnapshot(disabledGhostProject, dto -> dto.setStatus("U"));
 
-    ComponentDto project1 = db.components().insertProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
     db.components().insertSnapshot(project1, dto -> dto.setStatus("P"));
     db.components().insertSnapshot(project1, dto -> dto.setStatus("U"));
     ComponentDto module = db.components().insertComponent(newModuleDto(project1));
     ComponentDto dir = db.components().insertComponent(newDirectory(module, "foo"));
     db.components().insertComponent(newFileDto(module, dir, "bar"));
 
-    ComponentDto provisionedProject = db.components().insertProject(organization);
+    ComponentDto provisionedProject = db.components().insertPrivateProject(organization);
 
     // not a ghost because has at least one snapshot with status P
-    ComponentDto project2 = db.components().insertProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
     db.components().insertSnapshot(project2, dto -> dto.setStatus("P"));
 
     // not a ghost because it's not a project
@@ -748,7 +748,7 @@ public class ComponentDaoTest {
 
   @Test
   public void update() {
-    db.components().insertProject(db.getDefaultOrganization(), "U1");
+    db.components().insertPrivateProject(db.getDefaultOrganization(), "U1");
 
     underTest.update(dbSession, new ComponentUpdateDto()
       .setUuid("U1")
@@ -783,9 +783,9 @@ public class ComponentDaoTest {
 
   @Test
   public void updateBEnabledToFalse() {
-    ComponentDto dto1 = newProjectDto(db.getDefaultOrganization(), "U1");
-    ComponentDto dto2 = newProjectDto(db.getDefaultOrganization(), "U2");
-    ComponentDto dto3 = newProjectDto(db.getDefaultOrganization(), "U3");
+    ComponentDto dto1 = newPrivateProjectDto(db.getDefaultOrganization(), "U1");
+    ComponentDto dto2 = newPrivateProjectDto(db.getDefaultOrganization(), "U2");
+    ComponentDto dto3 = newPrivateProjectDto(db.getDefaultOrganization(), "U3");
     underTest.insert(dbSession, dto1, dto2, dto3);
 
     underTest.updateBEnabledToFalse(dbSession, asList("U1", "U2"));
@@ -834,7 +834,7 @@ public class ComponentDaoTest {
 
   @Test
   public void update_tags() {
-    ComponentDto project = db.components().insertProject(p -> p.setTags(emptyList()));
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setTags(emptyList()));
 
     underTest.updateTags(dbSession, project.setTags(newArrayList("finance", "toto", "tutu")));
     dbSession.commit();
@@ -844,8 +844,8 @@ public class ComponentDaoTest {
 
   @Test
   public void delete() throws Exception {
-    ComponentDto project1 = db.components().insertProject(db.getDefaultOrganization(), (t) -> t.setKey("PROJECT_1"));
-    db.components().insertProject(db.getDefaultOrganization(), (t) -> t.setKey("PROJECT_2"));
+    ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization(), (t) -> t.setKey("PROJECT_1"));
+    db.components().insertPrivateProject(db.getDefaultOrganization(), (t) -> t.setKey("PROJECT_2"));
 
     underTest.delete(dbSession, project1.getId());
     dbSession.commit();
@@ -873,10 +873,10 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_with_paging_query_and_qualifiers() {
     OrganizationDto organizationDto = db.organizations().insert();
-    db.components().insertProjectAndSnapshot(newProjectDto(organizationDto).setName("aaaa-name"));
+    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setName("aaaa-name"));
     db.components().insertProjectAndSnapshot(newView(organizationDto));
     for (int i = 9; i >= 1; i--) {
-      db.components().insertProjectAndSnapshot(newProjectDto(organizationDto).setName("project-" + i));
+      db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project-" + i));
     }
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
@@ -893,8 +893,8 @@ public class ComponentDaoTest {
   public void selectByQuery_with_organization_filters_on_specified_organization() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertProject(organization1);
-    ComponentDto project2 = db.components().insertProject(organization2);
+    ComponentDto project1 = db.components().insertPrivateProject(organization1);
+    ComponentDto project2 = db.components().insertPrivateProject(organization2);
 
     assertThat(underTest.selectByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY, 0, 2))
       .extracting(ComponentDto::uuid)
@@ -913,8 +913,8 @@ public class ComponentDaoTest {
   public void countByQuery_with_organization_filters_on_specified_organization() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
-    ComponentDto project1 = db.components().insertProject(organization1);
-    ComponentDto project2 = db.components().insertProject(organization2);
+    ComponentDto project1 = db.components().insertPrivateProject(organization1);
+    ComponentDto project2 = db.components().insertPrivateProject(organization2);
 
     assertThat(underTest.countByQuery(dbSession, ALL_PROJECTS_COMPONENT_QUERY))
       .isEqualTo(2);
@@ -928,7 +928,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_name_with_special_characters() {
-    db.components().insertProjectAndSnapshot(newProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
+    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("project-\\_%/-name"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -939,7 +939,7 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_key_with_special_characters() {
-    db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()).setKey("project-_%-key"));
+    db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("project-_%-key"));
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -950,8 +950,8 @@ public class ComponentDaoTest {
 
   @Test
   public void selectByQuery_filter_on_language() {
-    db.components().insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("java-project-key").setLanguage("java"));
-    db.components().insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("cpp-project-key").setLanguage("cpp"));
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("java-project-key").setLanguage("java"));
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("cpp-project-key").setLanguage("cpp"));
 
     ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -973,9 +973,9 @@ public class ComponentDaoTest {
   @Test
   public void selectByQuery_on_component_ids() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto sonarqube = db.components().insertComponent(newProjectDto(organizationDto));
-    ComponentDto jdk8 = db.components().insertComponent(newProjectDto(organizationDto));
-    ComponentDto cLang = db.components().insertComponent(newProjectDto(organizationDto));
+    ComponentDto sonarqube = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
+    ComponentDto jdk8 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
+    ComponentDto cLang = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
 
     ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
       .setComponentIds(newHashSet(sonarqube.getId(), jdk8.getId())).build();
@@ -991,7 +991,7 @@ public class ComponentDaoTest {
     // organization
     OrganizationDto organization = db.organizations().insert();
     // project -> module -> file
-    ComponentDto project = newProjectDto(organization, PROJECT_UUID);
+    ComponentDto project = newPrivateProjectDto(organization, PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     db.components().insertComponent(module);
@@ -1015,7 +1015,7 @@ public class ComponentDaoTest {
   @Test
   public void select_descendants_with_children_stragegy() {
     // project has 2 children: module and file 1. Other files are part of module.
-    ComponentDto project = newProjectDto(db.organizations().insert(), PROJECT_UUID);
+    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     db.components().insertComponent(module);
@@ -1080,7 +1080,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_descendants_with_leaves_strategy() {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
+    ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newModuleDto("module-1-uuid", project));
     db.components().insertComponent(newFileDto(project, null, "file-1-uuid"));
@@ -1110,7 +1110,7 @@ public class ComponentDaoTest {
     ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
     db.components().insertComponent(subView);
     // one project and its copy linked to the view
-    ComponentDto project = newProjectDto(organizationDto, PROJECT_UUID).setName("project name");
+    ComponentDto project = newPrivateProjectDto(organizationDto, PROJECT_UUID).setName("project name");
     db.components().insertProjectAndSnapshot(project);
     db.components().insertComponent(newProjectCopy("project-copy-uuid", project, view));
     ComponentTreeQuery dbQuery = newTreeQuery(A_VIEW_UUID).setNameOrKeyQuery("name").setStrategy(CHILDREN).build();
@@ -1123,12 +1123,12 @@ public class ComponentDaoTest {
   @Test
   public void select_projects_by_name_query() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = db.components().insertComponent(newProjectDto(organizationDto).setName("project1"));
+    ComponentDto project1 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project1"));
     ComponentDto module1 = db.components().insertComponent(newModuleDto(project1).setName("module1"));
     ComponentDto subModule1 = db.components().insertComponent(newModuleDto(module1).setName("subModule1"));
     db.components().insertComponent(newFileDto(subModule1).setName("file"));
-    ComponentDto project2 = db.components().insertComponent(newProjectDto(organizationDto).setName("project2"));
-    ComponentDto project3 = db.components().insertComponent(newProjectDto(organizationDto).setName("project3"));
+    ComponentDto project2 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project2"));
+    ComponentDto project3 = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project3"));
 
     assertThat(underTest.selectProjectsByNameQuery(dbSession, null, false)).extracting(ComponentDto::uuid)
       .containsOnly(project1.uuid(), project2.uuid(), project3.uuid());
@@ -1149,11 +1149,11 @@ public class ComponentDaoTest {
 
     OrganizationDto organizationDto = db.organizations().insert();
     String[] uuids = {
-      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(true)).uuid(),
-      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(false)).uuid(),
-      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(true)).uuid(),
-      db.components().insertComponent(newProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(false)).uuid(),
-      db.components().insertComponent(newProjectDto(organizationDto).setRootUuid(uuid1).setProjectUuid("foo").setPrivate(false)).uuid(),
+      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(true)).uuid(),
+      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid1).setPrivate(false)).uuid(),
+      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(true)).uuid(),
+      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setProjectUuid(uuid2).setPrivate(false)).uuid(),
+      db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setRootUuid(uuid1).setProjectUuid("foo").setPrivate(false)).uuid(),
     };
 
     underTest.setPrivateForRootComponentUuid(db.getSession(), uuid1, true);

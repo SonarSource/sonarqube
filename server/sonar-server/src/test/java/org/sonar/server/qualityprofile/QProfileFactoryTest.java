@@ -91,7 +91,7 @@ public class QProfileFactoryTest {
 
   private QualityProfileDto createRandomProfile(OrganizationDto org) {
     QualityProfileDto profile = db.qualityProfiles().insert(org);
-    ComponentDto project = db.components().insertProject(org);
+    ComponentDto project = db.components().insertPrivateProject(org);
     db.qualityProfiles().associateProjectWithQualityProfile(project, profile);
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
       .setProfileId(profile.getId())

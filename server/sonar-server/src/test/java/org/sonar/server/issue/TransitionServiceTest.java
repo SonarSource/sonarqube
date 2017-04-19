@@ -62,7 +62,7 @@ public class TransitionServiceTest {
   @Test
   public void list_transitions() throws Exception {
     IssueDto issue = newIssue().setStatus(STATUS_OPEN).setResolution(null);
-    userSession.logIn("john").addProjectPermission(ISSUE_ADMIN, ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), issue.getProjectUuid()));
+    userSession.logIn("john").addProjectPermission(ISSUE_ADMIN, ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), issue.getProjectUuid()));
 
     List<Transition> result = underTest.listTransitions(issue.toDefaultIssue());
 
@@ -100,7 +100,7 @@ public class TransitionServiceTest {
 
   private IssueDto newIssue() {
     RuleDto rule = newRuleDto().setId(10);
-    ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto());
     ComponentDto file = (newFileDto(project));
     return newDto(rule, file, project);
   }

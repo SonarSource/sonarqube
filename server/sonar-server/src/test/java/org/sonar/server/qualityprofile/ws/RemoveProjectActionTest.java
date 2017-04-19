@@ -81,7 +81,7 @@ public class RemoveProjectActionTest {
   public void remove_profile_from_project_in_default_organization() {
     logInAsProfileAdmin();
 
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profileLang1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
     QualityProfileDto profileLang2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_2));
     db.qualityProfiles().associateProjectWithQualityProfile(project, profileLang1);
@@ -98,7 +98,7 @@ public class RemoveProjectActionTest {
   public void removal_does_not_fail_if_profile_is_not_associated_to_project() {
     logInAsProfileAdmin();
 
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     TestResponse response = call(project, profile);
@@ -109,7 +109,7 @@ public class RemoveProjectActionTest {
 
   @Test
   public void project_administrator_can_remove_profile() throws Exception {
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
     db.qualityProfiles().associateProjectWithQualityProfile(project, profile);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -122,7 +122,7 @@ public class RemoveProjectActionTest {
   @Test
   public void throw_ForbiddenException_if_not_project_nor_organization_administrator() {
     userSession.logIn();
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
@@ -134,7 +134,7 @@ public class RemoveProjectActionTest {
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(UnauthorizedException.class);
@@ -160,7 +160,7 @@ public class RemoveProjectActionTest {
   @Test
   public void throw_NotFoundException_if_profile_does_not_exist() {
     logInAsProfileAdmin();
-    ComponentDto project = db.components().insertProject(db.getDefaultOrganization());
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'unknown' does not exist");

@@ -36,6 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
@@ -58,7 +59,6 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -92,7 +92,7 @@ public class SearchHistoryActionTest {
 
   @Before
   public void setUp() {
-    project = newProjectDto(db.getDefaultOrganization());
+    project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     analysis = db.components().insertProjectAndSnapshot(project);
     userSession.addProjectPermission(UserRole.USER, project);
     nclocMetric = insertNclocMetric();
@@ -104,7 +104,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void empty_response() {
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     wsRequest
       .setComponent(project.getKey())
@@ -172,7 +172,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void pagination_applies_to_analyses() {
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(i * 1_000_000_000)))
@@ -191,7 +191,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void inclusive_from_and_to_dates() {
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     List<String> analysisDates = LongStream.rangeClosed(1, 9)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(System2.INSTANCE.now() + i * 1_000_000_000L)))
@@ -292,7 +292,7 @@ public class SearchHistoryActionTest {
 
   @Test
   public void json_example() {
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
     long now = parseDateTime("2017-01-23T17:00:53+0100").getTime();
     LongStream.rangeClosed(0, 2)

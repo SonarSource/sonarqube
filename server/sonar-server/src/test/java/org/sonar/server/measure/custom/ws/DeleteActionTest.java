@@ -63,7 +63,7 @@ public class DeleteActionTest {
 
   @Test
   public void project_administrator_can_delete_custom_measures() throws Exception {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     long id = insertCustomMeasure(project);
 
@@ -81,7 +81,7 @@ public class DeleteActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_system_administrator() throws Exception {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     long id = insertCustomMeasure(project);
     userSession.logIn().setNonSystemAdministrator();
 
@@ -91,7 +91,7 @@ public class DeleteActionTest {
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     long id = insertCustomMeasure(project);
     userSession.anonymous();
 

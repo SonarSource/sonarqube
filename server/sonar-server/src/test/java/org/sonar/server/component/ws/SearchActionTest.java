@@ -35,6 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
@@ -62,7 +63,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.WsComponents.Component;
@@ -122,8 +123,8 @@ public class SearchActionTest {
   @Test
   public void search_by_key_query() throws IOException {
     insertProjectsAuthorizedForUser(
-      newProjectDto(db.getDefaultOrganization()).setKey("project-_%-key"),
-      newProjectDto(db.getDefaultOrganization()).setKey("project-key-without-escaped-characters"));
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-_%-key"),
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-key-without-escaped-characters"));
 
     SearchWsResponse response = call(new SearchWsRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
 
@@ -132,7 +133,7 @@ public class SearchActionTest {
 
   @Test
   public void search_for_files() throws IOException {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     ComponentDto file1 = newFileDto(project).setKey("file1");
     ComponentDto file2 = newFileDto(project).setKey("file2");
     db.components().insertComponents(project, file1, file2);
@@ -148,7 +149,7 @@ public class SearchActionTest {
     OrganizationDto organizationDto = db.organizations().insert();
     List<ComponentDto> componentDtoList = new ArrayList<>();
     for (int i = 1; i <= 9; i++) {
-      componentDtoList.add(newProjectDto(organizationDto, "project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
+      componentDtoList.add(newPrivateProjectDto(organizationDto, "project-uuid-" + i).setKey("project-key-" + i).setName("Project Name " + i));
     }
     insertProjectsAuthorizedForUser(componentDtoList.toArray(new ComponentDto[] {}));
 
@@ -161,8 +162,8 @@ public class SearchActionTest {
   public void search_with_language() throws IOException {
     OrganizationDto organizationDto = db.organizations().insert();
     insertProjectsAuthorizedForUser(
-      newProjectDto(organizationDto).setKey("java-project").setLanguage("java"),
-      newProjectDto(organizationDto).setKey("cpp-project").setLanguage("cpp"));
+      ComponentTesting.newPrivateProjectDto(organizationDto).setKey("java-project").setLanguage("java"),
+      ComponentTesting.newPrivateProjectDto(organizationDto).setKey("cpp-project").setLanguage("cpp"));
 
     SearchWsResponse response = call(new SearchWsRequest().setOrganization(organizationDto.getKey()).setLanguage("java").setQualifiers(singletonList(PROJECT)));
 
@@ -171,10 +172,10 @@ public class SearchActionTest {
 
   @Test
   public void return_only_components_from_projects_on_which_user_has_browse_permission() throws IOException {
-    ComponentDto project1 = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     ComponentDto file1 = newFileDto(project1).setKey("file1");
     ComponentDto file2 = newFileDto(project1).setKey("file2");
-    ComponentDto project2 = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     ComponentDto file3 = newFileDto(project2).setKey("file3");
     db.components().insertComponents(project1, file1, file2, project2, file3);
     setBrowsePermissionOnUser(project1);
@@ -187,9 +188,9 @@ public class SearchActionTest {
   @Test
   public void do_not_verify_permissions_if_user_is_root() throws IOException {
     OrganizationDto org = db.organizations().insert();
-    ComponentDto project1 = newProjectDto(org);
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org);
     ComponentDto file1 = newFileDto(project1);
-    ComponentDto project2 = newProjectDto(org);
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org);
     ComponentDto file2 = newFileDto(project2);
     db.components().insertComponents(project1, file1, project2, file2);
 
@@ -222,7 +223,7 @@ public class SearchActionTest {
   public void test_json_example() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
     db.components().insertComponent(newView(organizationDto));
-    ComponentDto project = newProjectDto(organizationDto, "project-uuid").setName("Project Name").setKey("project-key");
+    ComponentDto project = newPrivateProjectDto(organizationDto, "project-uuid").setName("Project Name").setKey("project-key");
     ComponentDto module = newModuleDto("module-uuid", project).setName("Module Name").setKey("module-key");
     ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
     db.components().insertComponents(project, module, directory,

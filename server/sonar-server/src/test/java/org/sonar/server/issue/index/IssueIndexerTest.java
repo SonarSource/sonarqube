@@ -81,7 +81,7 @@ public class IssueIndexerTest {
   @Test
   public void indexOnStartup_loads_and_indexes_all_issues() {
     OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(org);
+    ComponentDto project = dbTester.components().insertPrivateProject(org);
     ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir, "F1"));
     RuleDto rule = dbTester.rules().insertRule();
@@ -97,7 +97,7 @@ public class IssueIndexerTest {
   @Test
   public void index_loads_and_indexes_issues_with_specified_keys() {
     OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(org);
+    ComponentDto project = dbTester.components().insertPrivateProject(org);
     ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir, "F1"));
     RuleDto rule = dbTester.rules().insertRule();
@@ -124,9 +124,9 @@ public class IssueIndexerTest {
   @Test
   public void indexProject_loads_and_indexes_issues_with_specified_project_uuid() {
     OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project1 = dbTester.components().insertProject(org);
+    ComponentDto project1 = dbTester.components().insertPrivateProject(org);
     ComponentDto file1 = dbTester.components().insertComponent(ComponentTesting.newFileDto(project1));
-    ComponentDto project2 = dbTester.components().insertProject(org);
+    ComponentDto project2 = dbTester.components().insertPrivateProject(org);
     ComponentDto file2 = dbTester.components().insertComponent(ComponentTesting.newFileDto(project2));
     RuleDto rule = dbTester.rules().insertRule();
     IssueDto issue1 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file1, project1));
@@ -151,7 +151,7 @@ public class IssueIndexerTest {
 
   private void verifyThatProjectIsNotIndexed(ProjectIndexer.Cause cause) {
     OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertProject(org);
+    ComponentDto project = dbTester.components().insertPrivateProject(org);
     ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
     RuleDto rule = dbTester.rules().insertRule();
     IssueDto issue = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));

@@ -29,6 +29,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
@@ -47,7 +48,6 @@ import org.sonarqube.ws.WsProjectTags.SearchResponse;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -128,7 +128,7 @@ public class SearchActionTest {
   }
 
   private static ProjectMeasuresDoc newDoc() {
-    return newDoc(newProjectDto(ORG));
+    return newDoc(ComponentTesting.newPrivateProjectDto(ORG));
   }
 
   private SearchResponse call(@Nullable String textQuery, @Nullable Integer pageSize) {

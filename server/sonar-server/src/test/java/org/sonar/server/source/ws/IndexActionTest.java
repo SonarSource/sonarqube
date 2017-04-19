@@ -58,7 +58,7 @@ public class IndexActionTest {
 
   @Test
   public void get_json() throws Exception {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     insertFileWithData(file, newData("public class HelloWorld {", "}"));
@@ -77,7 +77,7 @@ public class IndexActionTest {
 
   @Test
   public void limit_range() throws Exception {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     insertFileWithData(file, newData("/**", " */", "public class HelloWorld {", "}", "", "foo"));
@@ -98,7 +98,7 @@ public class IndexActionTest {
 
   @Test
   public void fail_when_missing_code_viewer_permission() throws Exception {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(USER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 

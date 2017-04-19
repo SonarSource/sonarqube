@@ -27,17 +27,17 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class FavoriteUpdaterTest {
   private static final long COMPONENT_ID = 23L;
   private static final String COMPONENT_KEY = "K1";
-  private static final ComponentDto COMPONENT = newProjectDto(OrganizationTesting.newOrganizationDto())
+  private static final ComponentDto COMPONENT = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto())
     .setId(COMPONENT_ID)
     .setKey(COMPONENT_KEY);
   private static final int USER_ID = 42;

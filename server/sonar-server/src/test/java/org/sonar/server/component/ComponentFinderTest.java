@@ -26,10 +26,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 
 
@@ -95,7 +96,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_uuid() {
-    db.components().insertComponent(newProjectDto(db.organizations().insert(), "project-uuid"));
+    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, "project-uuid", null, ID_AND_KEY);
 
@@ -104,7 +105,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_key() {
-    db.components().insertComponent(newProjectDto(db.getDefaultOrganization()).setKey("project-key"));
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 

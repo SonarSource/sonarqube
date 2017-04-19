@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -54,7 +55,6 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonarqube.ws.MediaTypes.JSON;
@@ -92,7 +92,7 @@ public class ListDefinitionsActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = componentDb.insertComponent(newProjectDto(db.organizations().insert()));
+    project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
   }
 
   @Test

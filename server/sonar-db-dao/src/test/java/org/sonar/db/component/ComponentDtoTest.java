@@ -94,7 +94,7 @@ public class ComponentDtoTest {
 
   @Test
   public void test_formatUuidPathFromParent() {
-    ComponentDto parent = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), "123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    ComponentDto parent = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
     assertThat(ComponentDto.formatUuidPathFromParent(parent)).isEqualTo(".123.");
   }
 

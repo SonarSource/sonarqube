@@ -128,7 +128,7 @@ public class QualityProfileDaoTest {
   @Test
   public void deleteProjectAssociationsByProfileKeys_does_nothing_if_empty_keys() {
     QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    ComponentDto project1 = dbTester.components().insertProject();
+    ComponentDto project1 = dbTester.components().insertPrivateProject();
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profile1);
 
     underTest.deleteProjectAssociationsByProfileKeys(dbSession, Collections.emptyList());
@@ -140,9 +140,9 @@ public class QualityProfileDaoTest {
   public void deleteProjectAssociationsByProfileKeys_deletes_rows_from_table_project_profiles() {
     QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
     QualityProfileDto profile2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    ComponentDto project1 = dbTester.components().insertProject();
-    ComponentDto project2 = dbTester.components().insertProject();
-    ComponentDto project3 = dbTester.components().insertProject();
+    ComponentDto project1 = dbTester.components().insertPrivateProject();
+    ComponentDto project2 = dbTester.components().insertPrivateProject();
+    ComponentDto project3 = dbTester.components().insertPrivateProject();
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profile1);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profile1);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project3, profile2);
@@ -304,14 +304,14 @@ public class QualityProfileDaoTest {
   public void countProjectsByProfileKey() {
     QualityProfileDto profileWithoutProjects = dbTester.qualityProfiles().insert(organization);
     QualityProfileDto profileWithProjects = dbTester.qualityProfiles().insert(organization);
-    ComponentDto project1 = dbTester.components().insertProject(organization);
-    ComponentDto project2 = dbTester.components().insertProject(organization);
+    ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profileWithProjects);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profileWithProjects);
 
     OrganizationDto otherOrg = dbTester.organizations().insert();
     QualityProfileDto profileInOtherOrg = dbTester.qualityProfiles().insert(otherOrg);
-    ComponentDto projectInOtherOrg = dbTester.components().insertProject(otherOrg);
+    ComponentDto projectInOtherOrg = dbTester.components().insertPrivateProject(otherOrg);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(projectInOtherOrg, profileInOtherOrg);
 
     assertThat(underTest.countProjectsByProfileKey(dbTester.getSession(), organization)).containsOnly(
@@ -357,11 +357,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_selected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -384,11 +384,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_deselected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -410,11 +410,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_project_associations() throws Exception {
-    ComponentDto project1 = dbTester.components().insertProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
     OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QualityProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
@@ -437,7 +437,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void update_project_profile_association() {
-    ComponentDto project = dbTester.components().insertProject();
+    ComponentDto project = dbTester.components().insertPrivateProject();
     QualityProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
     QualityProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
     QualityProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");

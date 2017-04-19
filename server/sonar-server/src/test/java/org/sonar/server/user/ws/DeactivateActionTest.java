@@ -135,7 +135,7 @@ public class DeactivateActionTest {
   public void deactivate_user_deletes_his_properties() {
     logInAsSystemAdministrator();
     UserDto user = insertUser(newUserDto());
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.properties().insertProperty(newUserPropertyDto(user));
     db.properties().insertProperty(newUserPropertyDto(user));
     db.properties().insertProperty(newUserPropertyDto(user).setResourceId(project.getId()));
@@ -150,7 +150,7 @@ public class DeactivateActionTest {
   public void deactivate_user_deletes_his_permissions() {
     logInAsSystemAdministrator();
     UserDto user = insertUser(newUserDto());
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     db.users().insertPermissionOnUser(user, SCAN);
     db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_PROFILES);
     db.users().insertProjectPermissionOnUser(user, USER, project);
@@ -181,8 +181,8 @@ public class DeactivateActionTest {
   public void deactivate_user_deletes_his_default_assignee_settings() {
     logInAsSystemAdministrator();
     UserDto user = insertUser(newUserDto());
-    ComponentDto project = db.components().insertProject();
-    ComponentDto anotherProject = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(project.getId()));
     db.properties().insertProperty(new PropertyDto().setKey("sonar.issues.defaultAssigneeLogin").setValue(user.getLogin()).setResourceId(anotherProject.getId()));
     db.properties().insertProperty(new PropertyDto().setKey("other").setValue(user.getLogin()).setResourceId(anotherProject.getId()));

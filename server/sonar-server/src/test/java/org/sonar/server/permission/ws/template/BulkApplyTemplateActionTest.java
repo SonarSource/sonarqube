@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
@@ -39,7 +40,6 @@ import org.sonar.server.permission.ws.BasePermissionWsTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
@@ -97,9 +97,9 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
   public void bulk_apply_template_by_template_uuid() throws Exception {
     // this project should not be applied the template
     OrganizationDto otherOrganization = db.organizations().insert();
-    db.components().insertProject(otherOrganization);
+    db.components().insertPrivateProject(otherOrganization);
 
-    ComponentDto project = db.components().insertProject(organization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
     ComponentDto view = db.components().insertView(organization);
     loginAsAdmin(organization);
 
@@ -126,7 +126,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void bulk_apply_template_by_template_name() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization));
     loginAsAdmin(organization);
 
     newRequest()
@@ -139,7 +139,7 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_qualifier() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization));
     ComponentDto view = db.components().insertComponent(newView(organization));
     loginAsAdmin(organization);
 
@@ -153,12 +153,12 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void apply_template_by_query_on_name_and_key() throws Exception {
-    ComponentDto projectFoundByKey = newProjectDto(organization).setKey("sonar");
+    ComponentDto projectFoundByKey = ComponentTesting.newPrivateProjectDto(organization).setKey("sonar");
     db.components().insertProjectAndSnapshot(projectFoundByKey);
-    ComponentDto projectFoundByName = newProjectDto(organization).setName("name-sonar-name");
+    ComponentDto projectFoundByName = ComponentTesting.newPrivateProjectDto(organization).setName("name-sonar-name");
     db.components().insertProjectAndSnapshot(projectFoundByName);
     // match must be exact on key
-    ComponentDto projectUntouched = newProjectDto(organization).setKey("new-sonar").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPrivateProjectDto(organization).setKey("new-sonar").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin(organization);
 

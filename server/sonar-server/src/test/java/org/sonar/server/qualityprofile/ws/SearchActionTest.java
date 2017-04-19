@@ -61,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
@@ -135,8 +135,8 @@ public class SearchActionTest {
       .setDefault(true);
     qualityProfileDao.insert(dbSession, defaultProfile, parentProfile, childProfile, profileOnUnknownLang);
 
-    ComponentDto project1 = db.components().insertProject(organization);
-    ComponentDto project2 = db.components().insertProject(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
     db.qualityProfiles().associateProjectWithQualityProfile(project1, parentProfile);
     db.qualityProfiles().associateProjectWithQualityProfile(project2, parentProfile);
 
@@ -260,7 +260,7 @@ public class SearchActionTest {
       .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
       .setLastUsed(time)
       .setName("Another way");
-    ComponentDto project = newProjectDto(org, "project-uuid");
+    ComponentDto project = newPrivateProjectDto(org, "project-uuid");
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     qualityProfileDb.insertProjectWithQualityProfileAssociations(project, qualityProfileOnXoo1, qualityProfileOnXoo2);
 
@@ -328,7 +328,7 @@ public class SearchActionTest {
       .setName("Another way")
       .setDefault(true);
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
-    ComponentDto project = componentDb.insertComponent(newProjectDto(org, "project-uuid"));
+    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(org, "project-uuid"));
 
     String result = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, org.getKey())
@@ -385,7 +385,7 @@ public class SearchActionTest {
   @Test
   public void name_and_component_query_is_valid() throws Exception {
     minimalValidSetup();
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     SearchWsRequest request = new SearchWsRequest()
       .setProfileName("bla")

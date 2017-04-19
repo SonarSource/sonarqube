@@ -27,6 +27,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.component.ComponentFinder;
@@ -48,7 +49,6 @@ import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.protobuf.DbFileSources.Test.TestStatus.OK;
 import static org.sonar.server.test.db.TestTesting.newTest;
 import static org.sonar.server.test.ws.ListAction.SOURCE_FILE_ID;
@@ -82,7 +82,7 @@ public class ListActionTest {
 
   @Before
   public void setUp() throws Exception {
-    project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization()));
+    project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()));
     mainFile = db.components().insertComponent(newFileDto(project));
     testFile = db.components().insertComponent(newFileDto(project).setQualifier(UNIT_TEST_FILE));
   }

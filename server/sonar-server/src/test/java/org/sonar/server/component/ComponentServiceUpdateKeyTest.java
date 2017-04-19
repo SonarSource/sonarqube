@@ -40,7 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ComponentServiceUpdateKeyTest {
 
@@ -131,7 +130,7 @@ public class ComponentServiceUpdateKeyTest {
   @Test
   public void fail_if_old_key_and_new_key_are_the_same() {
     ComponentDto project = insertSampleRootProject();
-    ComponentDto anotherProject = componentDb.insertProject();
+    ComponentDto anotherProject = componentDb.insertPrivateProject();
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -176,7 +175,7 @@ public class ComponentServiceUpdateKeyTest {
 
   @Test
   public void bulk_update_key() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey("my_project"));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("my_project"));
     ComponentDto module = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:module"));
     ComponentDto inactiveModule = componentDb.insertComponent(newModuleDto(project).setKey("my_project:root:inactive_module").setEnabled(false));
     ComponentDto file = componentDb.insertComponent(newFileDto(module, null).setKey("my_project:root:module:src/File.xoo"));
@@ -205,7 +204,7 @@ public class ComponentServiceUpdateKeyTest {
   }
 
   private ComponentDto insertProject(String key) {
-    ComponentDto project = componentDb.insertComponent(newProjectDto(db.organizations().insert()).setKey(key));
+    ComponentDto project = componentDb.insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey(key));
     return project;
   }
 

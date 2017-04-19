@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class IssuesActionTest {
@@ -87,7 +87,7 @@ public class IssuesActionTest {
 
   @Test
   public void return_minimal_fields() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
     ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath(null));
     db.rules().insert(RULE_DEFINITION);
@@ -126,7 +126,7 @@ public class IssuesActionTest {
   @Test
   public void issues_from_project() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY));
     ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java"));
     db.rules().insert(RULE_DEFINITION);
@@ -162,7 +162,7 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_module() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
     ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java"));
     db.rules().insert(RULE_DEFINITION);
@@ -198,7 +198,7 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_file() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
     ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java"));
     db.rules().insert(RULE_DEFINITION);
@@ -235,7 +235,7 @@ public class IssuesActionTest {
   @Test
   public void issues_attached_on_module() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY));
     ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
     db.rules().insert(RULE_DEFINITION);
     db.issues().insert(RULE_DEFINITION, project, module, issue -> issue
@@ -270,7 +270,7 @@ public class IssuesActionTest {
 
   @Test
   public void project_issues_attached_file_on_removed_module() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
     // File and module are removed
     ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY).setEnabled(false));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false));
@@ -297,7 +297,7 @@ public class IssuesActionTest {
 
   @Test
   public void fail_without_browse_permission_on_file() throws Exception {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     thrown.expect(ForbiddenException.class);

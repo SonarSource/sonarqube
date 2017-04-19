@@ -232,13 +232,13 @@ public class SetTagsActionTest {
 
   private IssueDto newIssue() {
     RuleDefinitionDto rule = db.rules().insert();
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPublicProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     return IssueTesting.newIssue(rule, file, project);
   }
 
   private void setUserWithBrowsePermission(IssueDto issueDto) {
-    logInAndAddProjectPermission(issueDto, USER);
+    userSession.logIn("john").addProjectPermission(USER, dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
   }
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {

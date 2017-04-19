@@ -59,13 +59,13 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.index.ComponentIndexQuery.DEFAULT_LIMIT;
 import static org.sonar.server.component.ws.SuggestionsAction.EXTENDED_LIMIT;
-import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
+import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
 
@@ -113,7 +113,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void exact_match_in_one_qualifier() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -138,7 +138,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void must_not_search_if_no_valid_tokens_are_provided() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization).setName("SonarQube"));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("SonarQube"));
 
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
@@ -167,11 +167,11 @@ public class SuggestionsActionTest {
     OrganizationDto organization1 = db.organizations().insert(o -> o.setKey("org-1").setName("Organization One"));
     OrganizationDto organization2 = db.organizations().insert(o -> o.setKey("org-2").setName("Organization Two"));
 
-    ComponentDto project1 = db.components().insertComponent(newProjectDto(organization1).setName("Project1"));
+    ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organization1).setName("Project1"));
     componentIndexer.indexProject(project1.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     authorizationIndexerTester.allowOnlyAnyone(project1);
 
-    ComponentDto project2 = db.components().insertComponent(newProjectDto(organization2).setName("Project2"));
+    ComponentDto project2 = db.components().insertComponent(newPrivateProjectDto(organization2).setName("Project2"));
     componentIndexer.indexProject(project2.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
@@ -189,7 +189,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void should_contain_project_names() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     db.components().insertComponent(newModuleDto(project).setName("Module1"));
     db.components().insertComponent(newModuleDto(project).setName("Module2"));
     componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
@@ -213,7 +213,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void should_mark_recently_browsed_items() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     ComponentDto module1 = newModuleDto(project).setName("Module1");
     db.components().insertComponent(module1);
     ComponentDto module2 = newModuleDto(project).setName("Module2");
@@ -235,7 +235,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void should_mark_favorite_items() throws Exception {
-    ComponentDto project = db.components().insertComponent(newProjectDto(organization));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     ComponentDto favorite = newModuleDto(project).setName("Module1");
     db.components().insertComponent(favorite);
     doReturn(singletonList(favorite)).when(favoriteFinder).list();
@@ -280,7 +280,7 @@ public class SuggestionsActionTest {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)
-      .mapToObj(i -> db.components().insertComponent(newProjectDto(organization).setName(namePrefix + i)))
+      .mapToObj(i -> db.components().insertComponent(newPrivateProjectDto(organization).setName(namePrefix + i)))
       .collect(Collectors.toList());
 
     componentIndexer.indexOnStartup(null);

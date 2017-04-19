@@ -56,7 +56,7 @@ public class EnableAnalysisStepTest {
   @Test
   public void switch_islast_flag_and_mark_analysis_as_processed() {
     OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newProjectDto(organization, REPORT_PROJECT.getUuid());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organization, REPORT_PROJECT.getUuid());
     db.getDbClient().componentDao().insert(db.getSession(), project);
     insertAnalysis(project, PREVIOUS_ANALYSIS_UUID, SnapshotDto.STATUS_PROCESSED, true);
     insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
@@ -72,7 +72,7 @@ public class EnableAnalysisStepTest {
 
   @Test
   public void set_islast_flag_and_mark_as_processed_if_no_previous_analysis() {
-    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), REPORT_PROJECT.getUuid());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), REPORT_PROJECT.getUuid());
     db.getDbClient().componentDao().insert(db.getSession(), project);
     insertAnalysis(project, CURRENT_ANALYSIS_UUID, SnapshotDto.STATUS_UNPROCESSED, false);
     db.commit();

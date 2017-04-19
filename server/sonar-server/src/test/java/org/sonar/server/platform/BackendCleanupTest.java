@@ -141,6 +141,6 @@ public class BackendCleanupTest {
   }
 
   private ComponentDoc newComponentDoc() {
-    return ComponentIndexer.toDocument(ComponentTesting.newProjectDto(organization));
+    return ComponentIndexer.toDocument(ComponentTesting.newPrivateProjectDto(organization));
   }
 }

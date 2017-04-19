@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -40,7 +41,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
@@ -60,7 +61,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void delete_event() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     db.events().insertEvent(newEvent(analysis).setUuid("E2"));
@@ -74,7 +75,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void delete_version_event() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6.3").setLast(false));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
@@ -87,7 +88,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_version_for_last_analysis() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(project).setVersion("5.6.3").setLast(true));
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(VERSION.getLabel()));
     logInAsProjectAdministrator(project);
@@ -100,7 +101,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_category_different_than_other_and_version() {
-    ComponentDto project = newProjectDto(db.organizations().insert(), "P1");
+    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "P1");
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
     db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory("Profile"));
     logInAsProjectAdministrator(project);
@@ -121,7 +122,7 @@ public class DeleteEventActionTest {
 
   @Test
   public void fail_if_not_enough_permission() {
-    SnapshotDto analysis = db.components().insertProjectAndSnapshot(newProjectDto(db.organizations().insert()));
+    SnapshotDto analysis = db.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(db.organizations().insert()));
     db.events().insertEvent(newEvent(analysis).setUuid("E1"));
     userSession.logIn();
 

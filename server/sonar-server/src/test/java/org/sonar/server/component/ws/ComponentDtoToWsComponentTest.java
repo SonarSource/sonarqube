@@ -38,7 +38,7 @@ public class ComponentDtoToWsComponentTest {
   public void componentDtoToWsComponent_throws_IAE_if_organization_uuid_of_component_does_not_match_organizationDto_uuid() {
     OrganizationDto organizationDto1 = OrganizationTesting.newOrganizationDto();
     OrganizationDto organizationDto2 = OrganizationTesting.newOrganizationDto();
-    ComponentDto componentDto = ComponentTesting.newProjectDto(organizationDto1);
+    ComponentDto componentDto = ComponentTesting.newPrivateProjectDto(organizationDto1);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("OrganizationUuid (" + organizationDto1.getUuid() + ") of ComponentDto to convert " +

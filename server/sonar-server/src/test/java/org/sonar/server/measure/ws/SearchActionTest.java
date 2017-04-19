@@ -37,6 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -59,7 +60,6 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -106,7 +106,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures() throws Exception {
-    ComponentDto project = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto projectSnapshot = db.components().insertProjectAndSnapshot(project);
     setBrowsePermissionOnUser(project);
     MetricDto coverage = insertCoverageMetric();
@@ -124,7 +124,7 @@ public class SearchActionTest {
 
   @Test
   public void return_measures_on_leak_period() throws Exception {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto projectSnapshot = db.components().insertProjectAndSnapshot(project);
     setBrowsePermissionOnUser(project);
     MetricDto coverage = insertCoverageMetric();
@@ -151,11 +151,11 @@ public class SearchActionTest {
     MetricDto coverage = insertCoverageMetric();
     MetricDto complexity = insertComplexityMetric();
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = newProjectDto(organizationDto).setName("C");
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto).setName("C");
     SnapshotDto projectSnapshot1 = db.components().insertProjectAndSnapshot(project1);
-    ComponentDto project2 = newProjectDto(organizationDto).setName("A");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto).setName("A");
     SnapshotDto projectSnapshot2 = db.components().insertProjectAndSnapshot(project2);
-    ComponentDto project3 = newProjectDto(organizationDto).setName("B");
+    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organizationDto).setName("B");
     SnapshotDto projectSnapshot3 = db.components().insertProjectAndSnapshot(project3);
     setBrowsePermissionOnUser(project1, project2, project3);
     dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project1, projectSnapshot1).setValue(5.5d));
@@ -214,9 +214,9 @@ public class SearchActionTest {
   @Test
   public void only_returns_authorized_projects() {
     MetricDto metricDto = insertComplexityMetric();
-    ComponentDto project1 = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto projectSnapshot1 = db.components().insertProjectAndSnapshot(project1);
-    ComponentDto project2 = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto projectSnapshot2 = db.components().insertProjectAndSnapshot(project2);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(metricDto, project1, projectSnapshot1).setValue(15.5d),
@@ -232,7 +232,7 @@ public class SearchActionTest {
   @Test
   public void do_not_verify_permissions_if_user_is_root() {
     MetricDto metricDto = insertComplexityMetric();
-    ComponentDto project1 = newProjectDto(db.getDefaultOrganization());
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto projectSnapshot1 = db.components().insertProjectAndSnapshot(project1);
     dbClient.measureDao().insert(dbSession, newMeasureDto(metricDto, project1, projectSnapshot1).setValue(15.5d));
     db.commit();
@@ -248,7 +248,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_no_metric() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     setBrowsePermissionOnUser(project);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -259,7 +259,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_empty_metric() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     setBrowsePermissionOnUser(project);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -270,7 +270,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_unknown_metric() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     setBrowsePermissionOnUser(project);
     insertComplexityMetric();
 
@@ -303,7 +303,7 @@ public class SearchActionTest {
   @Test
   public void fail_if_more_than_100_project_keys() {
     List<String> keys = IntStream.rangeClosed(1, 101)
-      .mapToObj(i -> db.components().insertProject())
+      .mapToObj(i -> db.components().insertPrivateProject())
       .map(ComponentDto::key)
       .collect(Collectors.toList());
     insertComplexityMetric();
@@ -317,7 +317,7 @@ public class SearchActionTest {
   @Test
   public void does_not_fail_on_100_projects() {
     List<String> keys = IntStream.rangeClosed(1, 100)
-      .mapToObj(i -> db.components().insertProject())
+      .mapToObj(i -> db.components().insertPrivateProject())
       .map(ComponentDto::key)
       .collect(Collectors.toList());
     insertComplexityMetric();
@@ -327,7 +327,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_module() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     setBrowsePermissionOnUser(project);
     insertComplexityMetric();
@@ -340,7 +340,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_directory() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "dir"));
     setBrowsePermissionOnUser(project);
     insertComplexityMetric();
@@ -353,7 +353,7 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_file() {
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
     setBrowsePermissionOnUser(project);
     insertComplexityMetric();
@@ -460,9 +460,9 @@ public class SearchActionTest {
   private List<String> insertJsonExampleData() {
     List<String> projectKeys = new ArrayList<>();
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = newProjectDto(organizationDto).setKey("MY_PROJECT_1").setName("Project 1");
-    ComponentDto project2 = newProjectDto(organizationDto).setKey("MY_PROJECT_2").setName("Project 2");
-    ComponentDto project3 = newProjectDto(organizationDto).setKey("MY_PROJECT_3").setName("Project 3");
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto).setKey("MY_PROJECT_1").setName("Project 1");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto).setKey("MY_PROJECT_2").setName("Project 2");
+    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organizationDto).setKey("MY_PROJECT_3").setName("Project 3");
     projectKeys.addAll(asList(project1.key(), project2.key(), project3.key()));
     db.components().insertComponents(project1, project2, project3);
     SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)

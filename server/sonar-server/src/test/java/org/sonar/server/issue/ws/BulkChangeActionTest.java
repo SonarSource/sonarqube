@@ -123,7 +123,7 @@ public class BulkChangeActionTest {
     issueWorkflow.start();
     rule = db.rules().insertRule(newRuleDto());
     organization = db.organizations().insert();
-    project = db.components().insertProject(organization);
+    project = db.components().insertPrivateProject(organization);
     file = db.components().insertComponent(newFileDto(project));
     user = db.users().insertUser("john");
     when(system2.now()).thenReturn(NOW);
@@ -346,7 +346,7 @@ public class BulkChangeActionTest {
   @Test
   public void issues_on_which_user_has_not_browse_permission_are_ignored() throws Exception {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
-    ComponentDto anotherProject = db.components().insertProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     ComponentDto anotherFile = db.components().insertComponent(newFileDto(anotherProject));
     IssueDto authorizedIssue = db.issues().insertIssue(newUnresolvedIssue(rule, file, project).setType(BUG));
     // User has not browse permission on these 2 issues
@@ -370,7 +370,7 @@ public class BulkChangeActionTest {
   @Test
   public void does_not_update_type_when_no_issue_admin_permission() throws Exception {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
-    ComponentDto anotherProject = db.components().insertProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     ComponentDto anotherFile = db.components().insertComponent(newFileDto(anotherProject));
     addUserProjectPermissions(anotherProject, USER);
 
@@ -396,7 +396,7 @@ public class BulkChangeActionTest {
   @Test
   public void does_not_update_severity_when_no_issue_admin_permission() throws Exception {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
-    ComponentDto anotherProject = db.components().insertProject();
+    ComponentDto anotherProject = db.components().insertPrivateProject();
     ComponentDto anotherFile = db.components().insertComponent(newFileDto(anotherProject));
     addUserProjectPermissions(anotherProject, USER);
 

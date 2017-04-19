@@ -47,7 +47,6 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.test.ws.CoveredFilesAction.TEST_ID;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -75,7 +74,7 @@ public class CoveredFilesActionTest {
 
   @Test
   public void covered_files() {
-    ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), "SonarQube");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "SonarQube");
     ComponentDto file = ComponentTesting.newFileDto(project, null, "test-file-uuid");
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
@@ -86,8 +85,8 @@ public class CoveredFilesActionTest {
     OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(newProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(newProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     TestRequest request = ws.newRequest().setParam(TEST_ID, "test-uuid");
 
@@ -96,7 +95,7 @@ public class CoveredFilesActionTest {
 
   @Test
   public void fail_when_test_uuid_is_unknown() {
-    ComponentDto project = ComponentTesting.newProjectDto(OrganizationTesting.newOrganizationDto(), "SonarQube");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), "SonarQube");
     ComponentDto file = ComponentTesting.newFileDto(project);
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project, file);
 
@@ -107,8 +106,8 @@ public class CoveredFilesActionTest {
     OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
-        newFileDto(newProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
-        newFileDto(newProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(ComponentTesting.newPrivateProjectDto(organizationDto), null, FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Test with id 'test-uuid' is not found");

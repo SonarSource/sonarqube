@@ -89,7 +89,7 @@ public class RemoveMemberActionTest {
   @Before
   public void setUp() {
     organization = db.organizations().insert();
-    project = db.components().insertProject(organization);
+    project = db.components().insertPrivateProject(organization);
 
     user = db.users().insertUser();
     db.organizations().addMember(organization, user);
@@ -138,7 +138,7 @@ public class RemoveMemberActionTest {
   public void remove_organization_permissions() {
     UserDto anotherUser = db.users().insertUser();
     OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
+    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
     assertMember(organization.getUuid(), user);
     db.users().insertPermissionOnUser(organization, user, ADMINISTER);
     db.users().insertPermissionOnUser(organization, user, SCAN);
@@ -213,7 +213,7 @@ public class RemoveMemberActionTest {
   @Test
   public void remove_from_org_properties() {
     OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
+    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
     UserDto anotherUser = db.users().insertUser();
     insertProperty("KEY_11", "VALUE", project.getId(), user.getId());
     insertProperty("KEY_12", "VALUE", project.getId(), user.getId());
@@ -231,7 +231,7 @@ public class RemoveMemberActionTest {
   @Test
   public void remove_from_default_assignee_properties() {
     OrganizationDto anotherOrganization = db.organizations().insert();
-    ComponentDto anotherProject = db.components().insertProject(anotherOrganization);
+    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
     UserDto anotherUser = db.users().insertUser();
     insertProperty(DEFAULT_ISSUE_ASSIGNEE, user.getLogin(), project.getId(), null);
     insertProperty("ANOTHER_KEY", user.getLogin(), project.getId(), null);

@@ -74,9 +74,9 @@ public class BulkDeleteActionTest {
   @Test
   public void system_administrator_deletes_projects_by_uuids_in_all_organizations() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    ComponentDto toDeleteInOrg1 = db.components().insertProject(org1);
-    ComponentDto toDeleteInOrg2 = db.components().insertProject(org2);
-    ComponentDto toKeep = db.components().insertProject(org2);
+    ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
+    ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject(org2);
+    ComponentDto toKeep = db.components().insertPrivateProject(org2);
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
       .setParam("ids", toDeleteInOrg1.uuid() + "," + toDeleteInOrg2.uuid())
@@ -89,9 +89,9 @@ public class BulkDeleteActionTest {
   @Test
   public void system_administrator_deletes_projects_by_keys_in_all_organizations() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    ComponentDto toDeleteInOrg1 = db.components().insertProject(org1);
-    ComponentDto toDeleteInOrg2 = db.components().insertProject(org2);
-    ComponentDto toKeep = db.components().insertProject(org2);
+    ComponentDto toDeleteInOrg1 = db.components().insertPrivateProject(org1);
+    ComponentDto toDeleteInOrg2 = db.components().insertPrivateProject(org2);
+    ComponentDto toKeep = db.components().insertPrivateProject(org2);
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
       .setParam("keys", toDeleteInOrg1.key() + "," + toDeleteInOrg2.key())
@@ -104,8 +104,8 @@ public class BulkDeleteActionTest {
   @Test
   public void projects_that_dont_exist_are_ignored_and_dont_break_bulk_deletion() throws Exception {
     userSession.logIn().setSystemAdministrator();
-    ComponentDto toDelete1 = db.components().insertProject(org1);
-    ComponentDto toDelete2 = db.components().insertProject(org1);
+    ComponentDto toDelete1 = db.components().insertPrivateProject(org1);
+    ComponentDto toDelete2 = db.components().insertPrivateProject(org1);
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
       .setParam("keys", toDelete1.key() + ",missing," + toDelete2.key() + ",doesNotExist")
@@ -118,7 +118,7 @@ public class BulkDeleteActionTest {
   @Test
   public void throw_ForbiddenException_if_organization_administrator_does_not_set_organization_parameter() throws Exception {
     userSession.logIn().addPermission(ADMINISTER, org1);
-    ComponentDto project = db.components().insertProject(org1);
+    ComponentDto project = db.components().insertPrivateProject(org1);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -133,8 +133,8 @@ public class BulkDeleteActionTest {
   @Test
   public void organization_administrator_deletes_projects_by_keys_in_his_organization() throws Exception {
     userSession.logIn().addPermission(ADMINISTER, org1);
-    ComponentDto toDelete = db.components().insertProject(org1);
-    ComponentDto cantBeDeleted = db.components().insertProject(org2);
+    ComponentDto toDelete = db.components().insertPrivateProject(org1);
+    ComponentDto cantBeDeleted = db.components().insertPrivateProject(org2);
 
     WsTester.Result result = ws.newPostRequest("api/projects", ACTION)
       .setParam("organization", org1.getKey())

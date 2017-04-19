@@ -202,7 +202,7 @@ public class CreateActionTest {
   private ComponentDto insertProject() {
     OrganizationDto org = db.organizations().insert();
     return db.components().insertComponent(
-      ComponentTesting.newProjectDto(org, PROJECT_UUID).setKey(PROJECT_KEY));
+      ComponentTesting.newPrivateProjectDto(org, PROJECT_UUID).setKey(PROJECT_KEY));
   }
 
   private void createAndTest(ComponentDto project, String name, String url, String type) throws IOException {

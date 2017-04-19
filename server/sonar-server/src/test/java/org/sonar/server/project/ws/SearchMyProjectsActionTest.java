@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -48,7 +49,7 @@ import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -124,9 +125,9 @@ public class SearchMyProjectsActionTest {
   @Test
   public void sort_projects_by_name() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto b_project = db.components().insertComponent(newProjectDto(organizationDto).setName("B_project_name"));
-    ComponentDto c_project = db.components().insertComponent(newProjectDto(organizationDto).setName("c_project_name"));
-    ComponentDto a_project = db.components().insertComponent(newProjectDto(organizationDto).setName("A_project_name"));
+    ComponentDto b_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("B_project_name"));
+    ComponentDto c_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("c_project_name"));
+    ComponentDto a_project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("A_project_name"));
 
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, b_project);
     db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, a_project);
@@ -143,7 +144,7 @@ public class SearchMyProjectsActionTest {
   public void paginate_projects() {
     OrganizationDto organizationDto = db.organizations().insert();
     for (int i = 0; i < 10; i++) {
-      ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto).setName("project-" + i));
+      ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto).setName("project-" + i));
       db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, project);
     }
 
@@ -209,7 +210,7 @@ public class SearchMyProjectsActionTest {
     OrganizationDto org = db.organizations().insert();
     ComponentDto jdk7 = insertJdk7(org);
     ComponentDto cLang = insertClang(org);
-    ComponentDto sonarqube = db.components().insertProject(org);
+    ComponentDto sonarqube = db.components().insertPrivateProject(org);
 
     GroupDto group = db.users().insertGroup(org);
     db.users().insertMember(group, user);
@@ -241,13 +242,13 @@ public class SearchMyProjectsActionTest {
   }
 
   private ComponentDto insertClang(OrganizationDto organizationDto) {
-    return db.components().insertComponent(newProjectDto(organizationDto, Uuids.UUID_EXAMPLE_01)
+    return db.components().insertComponent(newPrivateProjectDto(organizationDto, Uuids.UUID_EXAMPLE_01)
       .setName("Clang")
       .setKey("clang"));
   }
 
   private ComponentDto insertJdk7(OrganizationDto organizationDto) {
-    return db.components().insertComponent(newProjectDto(organizationDto, Uuids.UUID_EXAMPLE_02)
+    return db.components().insertComponent(newPrivateProjectDto(organizationDto, Uuids.UUID_EXAMPLE_02)
       .setName("JDK 7")
       .setKey("net.java.openjdk:jdk7")
       .setDescription("JDK"));

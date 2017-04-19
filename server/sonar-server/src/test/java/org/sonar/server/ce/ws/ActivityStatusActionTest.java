@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -43,7 +44,7 @@ import org.sonarqube.ws.WsCe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
@@ -81,9 +82,9 @@ public class ActivityStatusActionTest {
     String projectUuid = "project-uuid";
     String anotherProjectUuid = "another-project-uuid";
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = newProjectDto(organizationDto, projectUuid);
+    ComponentDto project = newPrivateProjectDto(organizationDto, projectUuid);
     db.components().insertComponent(project);
-    db.components().insertComponent(newProjectDto(organizationDto, anotherProjectUuid));
+    db.components().insertComponent(newPrivateProjectDto(organizationDto, anotherProjectUuid));
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     // pending tasks returned
     insertInQueue(CeQueueDto.Status.PENDING, projectUuid);
@@ -115,7 +116,7 @@ public class ActivityStatusActionTest {
 
   @Test
   public void fail_if_component_uuid_and_key_are_provided() {
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     db.components().insertComponent(project);
     expectedException.expect(IllegalArgumentException.class);
 
@@ -149,7 +150,7 @@ public class ActivityStatusActionTest {
   @Test
   public void throw_ForbiddenException_if_not_administrator_of_requested_project() {
     userSession.logIn();
-    ComponentDto project = db.components().insertProject();
+    ComponentDto project = db.components().insertPrivateProject();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");

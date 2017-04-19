@@ -63,7 +63,7 @@ public class SelectActionTest {
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     underTest = new SelectAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertProject();
+    project = db.components().insertPrivateProject();
     gate = insertQualityGate();
   }
 

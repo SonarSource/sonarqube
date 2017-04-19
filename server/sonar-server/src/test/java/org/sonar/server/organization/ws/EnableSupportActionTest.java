@@ -121,7 +121,7 @@ public class EnableSupportActionTest {
     OrganizationDto defaultOrganization = db.getDefaultOrganization();
     UserDto user = db.users().insertUser();
     GroupDto sonarUsersGroup = db.users().insertDefaultGroup(defaultOrganization, "sonar-users");
-    ComponentDto project = db.components().insertProject(defaultOrganization);
+    ComponentDto project = db.components().insertPrivateProject(defaultOrganization);
     db.users().insertPermissionOnGroup(sonarUsersGroup, "user");
     db.users().insertProjectPermissionOnGroup(sonarUsersGroup, "codeviewer", project);
     // Should be ignored

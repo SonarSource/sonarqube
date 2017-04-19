@@ -41,6 +41,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.es.EsTester;
@@ -80,7 +81,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -159,16 +160,16 @@ public class SearchProjectsActionTest {
   public void json_example() {
     OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
     OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
-    ComponentDto project1 = insertProjectInDbAndEs(newProjectDto(organization1Dto)
+    ComponentDto project1 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1")
       .setTagsString("finance, java"));
-    insertProjectInDbAndEs(newProjectDto(organization1Dto)
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_02)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
       .setName("My Project 2"));
-    insertProjectInDbAndEs(newProjectDto(organization2Dto)
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization2Dto)
       .setUuid(Uuids.UUID_EXAMPLE_03)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3")
@@ -184,9 +185,9 @@ public class SearchProjectsActionTest {
 
   @Test
   public void order_by_name_case_insensitive() {
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Maven"));
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Apache"));
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("guava"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("Maven"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("Apache"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("guava"));
 
     SearchProjectsWsResponse result = call(request);
 
@@ -196,7 +197,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void paginate_result() {
-    IntStream.rangeClosed(1, 9).forEach(i -> insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("PROJECT-" + i)));
+    IntStream.rangeClosed(1, 9).forEach(i -> insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("PROJECT-" + i)));
 
     SearchProjectsWsResponse result = call(request.setPage(2).setPageSize(3));
 
@@ -223,7 +224,7 @@ public class SearchProjectsActionTest {
   @Test
   public void return_only_projects() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = newProjectDto(organizationDto).setName("SonarQube");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto).setName("SonarQube");
     ComponentDto directory = newDirectory(project, "path");
     insertProjectInDbAndEs(project);
     componentDb.insertComponents(newModuleDto(project), newView(organizationDto), directory, newFileDto(project, directory));
@@ -237,9 +238,9 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_with_query() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     insertMetrics(COVERAGE, NCLOC);
     request.setFilter("coverage <= 80 and ncloc <= 10000");
 
@@ -253,9 +254,9 @@ public class SearchProjectsActionTest {
   public void filter_projects_with_query_within_specified_organization() {
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
-    insertProjectInDbAndEs(newProjectDto(organization1).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organization1).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organization2).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization2).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     insertMetrics(COVERAGE, NCLOC);
 
     assertThat(call(request.setOrganization(null)).getComponentsList())
@@ -272,9 +273,9 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_by_quality_gate() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java"), "OK");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown"), "OK");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube"), "ERROR");
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Java"), "OK");
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Markdown"), "OK");
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Qube"), "ERROR");
     insertMetrics(COVERAGE, NCLOC);
     request.setFilter("alert_status = OK");
 
@@ -286,10 +287,10 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_by_languages() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java", "xoo"));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java", "xoo"));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("xoo"));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("<null>", "java", "xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java", "xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java", "xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("<null>", "java", "xoo"));
     insertMetrics(COVERAGE, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
     request.setFilter("languages IN (java, js, <null>)");
 
@@ -301,9 +302,9 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_by_tags() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Markdown").setTags(singletonList("marketing")));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setName("Sonar Qube").setTags(newArrayList("offshore")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Markdown").setTags(singletonList("marketing")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setName("Sonar Qube").setTags(newArrayList("offshore")));
     request.setFilter("tags in (finance, offshore)");
 
     SearchProjectsWsResponse result = call(request);
@@ -314,10 +315,10 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_by_text_query() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-key-1");
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonar-java").setName("Sonar Java"));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonar-groovy").setName("Sonar Groovy"));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonar-markdown").setName("Sonar Markdown"));
-    insertProjectInDbAndEs(newProjectDto(organizationDto).setKey("sonarqube").setName("Sonar Qube"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("sonar-java").setName("Sonar Java"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("sonar-groovy").setName("Sonar Groovy"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("sonar-markdown").setName("Sonar Markdown"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto).setKey("sonarqube").setName("Sonar Qube"));
 
     assertThat(call(request.setFilter("query = \"Groovy\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Groovy");
     assertThat(call(request.setFilter("query = \"oNar\"")).getComponentsList()).extracting(Component::getName).containsOnly("Sonar Java", "Sonar Groovy", "Sonar Markdown",
@@ -334,13 +335,13 @@ public class SearchProjectsActionTest {
     OrganizationDto organization4 = db.organizations().insert();
     OrganizationDto organization5 = db.organizations().insert();
     List<Map<String, Object>> someMeasure = singletonList(newMeasure(COVERAGE, 81));
-    ComponentDto favourite1_1 = insertProjectInDbAndEs(newProjectDto(organization1), someMeasure);
-    ComponentDto favourite1_2 = insertProjectInDbAndEs(newProjectDto(organization1), someMeasure);
-    ComponentDto nonFavourite1 = insertProjectInDbAndEs(newProjectDto(organization1), someMeasure);
-    ComponentDto favourite2 = insertProjectInDbAndEs(newProjectDto(organization2), someMeasure);
-    ComponentDto nonFavourite2 = insertProjectInDbAndEs(newProjectDto(organization2), someMeasure);
-    ComponentDto favourite3 = insertProjectInDbAndEs(newProjectDto(organization3), someMeasure);
-    ComponentDto nonFavourite4 = insertProjectInDbAndEs(newProjectDto(organization4), someMeasure);
+    ComponentDto favourite1_1 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1), someMeasure);
+    ComponentDto favourite1_2 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1), someMeasure);
+    ComponentDto nonFavourite1 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1), someMeasure);
+    ComponentDto favourite2 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization2), someMeasure);
+    ComponentDto nonFavourite2 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization2), someMeasure);
+    ComponentDto favourite3 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization3), someMeasure);
+    ComponentDto nonFavourite4 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization4), someMeasure);
     Stream.of(favourite1_1, favourite1_2, favourite2, favourite3)
       .forEach(this::addFavourite);
     insertMetrics(COVERAGE, NCLOC);
@@ -377,11 +378,11 @@ public class SearchProjectsActionTest {
   @Test
   public void filter_projects_on_favorites() {
     userSession.logIn();
-    ComponentDto javaProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"),
+    ComponentDto javaProject = insertProjectInDbAndEs(newPrivateProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"),
       newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
-    ComponentDto markDownProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "markdown-id").setName("Sonar Markdown"),
+    ComponentDto markDownProject = insertProjectInDbAndEs(newPrivateProjectDto(db.getDefaultOrganization(), "markdown-id").setName("Sonar Markdown"),
       newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(db.organizations().insert()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     addFavourite(javaProject);
     addFavourite(markDownProject);
     dbSession.commit();
@@ -395,9 +396,9 @@ public class SearchProjectsActionTest {
 
   @Test
   public void filtering_on_favorites_returns_empty_results_if_not_logged_in() {
-    ComponentDto javaProject = insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"),
+    ComponentDto javaProject = insertProjectInDbAndEs(newPrivateProjectDto(db.getDefaultOrganization(), "java-id").setName("Sonar Java"),
       newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(db.organizations().insert()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_001d)));
     addFavourite(javaProject);
     dbSession.commit();
     request.setFilter("isFavorite");
@@ -410,7 +411,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void do_not_return_isFavorite_if_anonymous_user() {
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
     insertMetrics(COVERAGE);
     userSession.anonymous();
 
@@ -422,7 +423,7 @@ public class SearchProjectsActionTest {
 
   @Test
   public void empty_list_if_isFavorite_filter_and_anonymous_user() {
-    insertProjectInDbAndEs(newProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81)));
     insertMetrics(COVERAGE);
     userSession.anonymous();
     request.setFilter("isFavorite");
@@ -435,10 +436,10 @@ public class SearchProjectsActionTest {
   @Test
   public void return_nloc_facet() {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
     insertMetrics(COVERAGE, NCLOC);
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(NCLOC)));
@@ -461,10 +462,10 @@ public class SearchProjectsActionTest {
   @Test
   public void return_languages_facet() {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java", "xoo"));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java", "xoo"));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("xoo"));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("<null>", "java", "xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java", "xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java", "xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("xoo"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d)), null, asList("<null>", "java", "xoo"));
     insertMetrics(COVERAGE, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_LANGUAGES)));
@@ -484,8 +485,8 @@ public class SearchProjectsActionTest {
   @Test
   public void return_languages_facet_with_language_having_no_project_if_language_is_in_filter() {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java"));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81d)), null, asList("<null>", "java"));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81)), null, asList("java"));
     insertMetrics(COVERAGE, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
 
     SearchProjectsWsResponse result = call(request.setFilter("languages = xoo").setFacets(singletonList(FILTER_LANGUAGES)));
@@ -504,9 +505,9 @@ public class SearchProjectsActionTest {
   @Test
   public void return_tags_facet() {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown").setTags(singletonList("offshore")));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube").setTags(newArrayList("offshore")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown").setTags(singletonList("offshore")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube").setTags(newArrayList("offshore")));
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_TAGS)));
 
@@ -525,9 +526,9 @@ public class SearchProjectsActionTest {
   @Test
   public void return_tags_facet_with_tags_having_no_project_if_tags_is_in_filter() {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown").setTags(singletonList("offshore")));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube").setTags(newArrayList("offshore")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java").setTags(newArrayList("finance", "platform")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown").setTags(singletonList("offshore")));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube").setTags(newArrayList("offshore")));
 
     SearchProjectsWsResponse result = call(request.setFilter("tags = marketing").setFacets(singletonList(FILTER_TAGS)));
 
@@ -546,10 +547,10 @@ public class SearchProjectsActionTest {
   @Test
   public void default_sort_is_by_ascending_name() throws Exception {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
 
     SearchProjectsWsResponse result = call(request);
 
@@ -559,10 +560,10 @@ public class SearchProjectsActionTest {
   @Test
   public void sort_by_name() throws Exception {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
 
     assertThat(call(request.setSort("name").setAsc(true)).getComponentsList()).extracting(Component::getName)
       .containsExactly("Sonar Groovy", "Sonar Java", "Sonar Markdown", "Sonar Qube");
@@ -573,10 +574,10 @@ public class SearchProjectsActionTest {
   @Test
   public void sort_by_coverage() throws Exception {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Groovy"), newArrayList(newMeasure(COVERAGE, 81), newMeasure(NCLOC, 5d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 10_000d)));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube"), newArrayList(newMeasure(COVERAGE, 80d), newMeasure(NCLOC, 500_001d)));
     insertMetrics(COVERAGE);
 
     assertThat(call(request.setSort(COVERAGE).setAsc(true)).getComponentsList()).extracting(Component::getName)
@@ -588,10 +589,10 @@ public class SearchProjectsActionTest {
   @Test
   public void sort_by_quality_gate() throws Exception {
     OrganizationDto organization = db.getDefaultOrganization();
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Java"), "ERROR");
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Groovy"), "WARN");
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Markdown"), "OK");
-    insertProjectInDbAndEs(newProjectDto(organization).setName("Sonar Qube"), "OK");
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Java"), "ERROR");
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Groovy"), "WARN");
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Markdown"), "OK");
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization).setName("Sonar Qube"), "OK");
     dbClient.metricDao().insert(dbSession, newMetricDto().setKey(QUALITY_GATE_STATUS).setValueType(LEVEL.name()).setEnabled(true).setHidden(false));
     db.commit();
 
@@ -604,13 +605,13 @@ public class SearchProjectsActionTest {
   @Test
   public void return_last_analysis_date() {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = insertProjectInDbAndEs(newProjectDto(organizationDto));
+    ComponentDto project1 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto));
     db.components().insertSnapshot(newAnalysis(project1).setCreatedAt(10_000_000_000L).setLast(false));
     db.components().insertSnapshot(newAnalysis(project1).setCreatedAt(20_000_000_000L).setLast(true));
-    ComponentDto project2 = insertProjectInDbAndEs(newProjectDto(organizationDto));
+    ComponentDto project2 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto));
     db.components().insertSnapshot(newAnalysis(project2).setCreatedAt(30_000_000_000L).setLast(true));
     // No snapshot on project 3
-    insertProjectInDbAndEs(newProjectDto(organizationDto));
+    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organizationDto));
 
     SearchProjectsWsResponse result = call(request.setAdditionalFields(singletonList("analysisDate")));
 

@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
@@ -47,7 +48,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
 public class ComponentCleanerServiceTest {
 
@@ -93,7 +94,7 @@ public class ComponentCleanerServiceTest {
   @Test
   public void fail_with_IAE_if_not_a_project() throws Exception {
     mockResourceTypeAsValidProject();
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     ComponentDto file = newFileDto(project, null);
     dbClient.componentDao().insert(dbSession, file);
@@ -108,7 +109,7 @@ public class ComponentCleanerServiceTest {
     ResourceType resourceType = mock(ResourceType.class);
     when(resourceType.getBooleanProperty("deletable")).thenReturn(false);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
@@ -119,7 +120,7 @@ public class ComponentCleanerServiceTest {
   @Test
   public void fail_to_delete_null_resource_type() throws Exception {
     when(mockResourceTypes.get(anyString())).thenReturn(null);
-    ComponentDto project = newProjectDto(db.organizations().insert());
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
@@ -129,7 +130,7 @@ public class ComponentCleanerServiceTest {
 
   private DbData insertData(int id) {
     String suffix = String.valueOf(id);
-    ComponentDto project = newProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
+    ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("sonarqube", "rule-" + suffix));
     dbClient.ruleDao().insert(dbSession, rule);

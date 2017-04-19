@@ -65,7 +65,7 @@ public class TaskActionTest {
   @Before
   public void setUp() {
     organizationDto = dbTester.organizations().insert();
-    project = dbTester.components().insertProject(organizationDto);
+    project = dbTester.components().insertPrivateProject(organizationDto);
   }
 
   @Test

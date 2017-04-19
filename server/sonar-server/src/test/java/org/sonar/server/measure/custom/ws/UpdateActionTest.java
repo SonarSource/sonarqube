@@ -90,7 +90,7 @@ public class UpdateActionTest {
   @Test
   public void update_text_value_and_description_in_db() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.STRING);
-    ComponentDto component = db.components().insertProject(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto component = db.components().insertPrivateProject(db.getDefaultOrganization(), "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setDescription("custom-measure-description")
       .setTextValue("text-measure-value");
@@ -117,7 +117,7 @@ public class UpdateActionTest {
   public void update_double_value_and_description_in_db() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.INT);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = db.components().insertProject(organizationDto, "project-uuid");
+    ComponentDto component = db.components().insertPrivateProject(organizationDto, "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setDescription("custom-measure-description")
       .setValue(42d);
@@ -144,7 +144,7 @@ public class UpdateActionTest {
       .setKey("metric-key");
     dbClient.metricDao().insert(dbSession, metric);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = ComponentTesting.newProjectDto(organizationDto, "project-uuid").setKey("project-key");
+    ComponentDto component = ComponentTesting.newPrivateProjectDto(organizationDto, "project-uuid").setKey("project-key");
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setCreatedAt(100_000_000L)
@@ -171,7 +171,7 @@ public class UpdateActionTest {
   @Test
   public void update_value_only() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.STRING);
-    ComponentDto component = db.components().insertProject(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto component = db.components().insertPrivateProject(db.getDefaultOrganization(), "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setDescription("custom-measure-description")
       .setTextValue("text-measure-value");
@@ -197,7 +197,7 @@ public class UpdateActionTest {
   public void update_description_only() throws Exception {
     MetricDto metric = insertNewMetric(ValueType.STRING);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = db.components().insertProject(organizationDto, "project-uuid");
+    ComponentDto component = db.components().insertPrivateProject(organizationDto, "project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setMetricId(metric.getId())
       .setComponentUuid(component.uuid())
@@ -249,7 +249,7 @@ public class UpdateActionTest {
     userSessionRule.logIn();
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);
-    ComponentDto component = ComponentTesting.newProjectDto(db.getDefaultOrganization(), "project-uuid");
+    ComponentDto component = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setMetricId(metric.getId())
@@ -276,7 +276,7 @@ public class UpdateActionTest {
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto component = ComponentTesting.newProjectDto(organizationDto, "project-uuid");
+    ComponentDto component = ComponentTesting.newPrivateProjectDto(organizationDto, "project-uuid");
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setMetricId(metric.getId())
