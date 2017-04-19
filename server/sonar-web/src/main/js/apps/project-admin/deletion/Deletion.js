@@ -23,7 +23,7 @@ import Header from './Header';
 import Form from './Form';
 import { getComponent } from '../../../store/rootReducer';
 
-class Deletion extends React.Component {
+class Deletion extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object
   };

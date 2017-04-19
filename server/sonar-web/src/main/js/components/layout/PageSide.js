@@ -60,14 +60,14 @@ const sideInnerStyles = css(
   media('(max-width: 1320px)', { marginLeft: 0 })
 );
 
-const PageSide = (props: Props) => (
-  <div className={sideStyles}>
-    <div className={sideStickyStyles} style={{ top: props.top || 30 }}>
-      <div className={sideInnerStyles}>
-        {props.children}
+export default function PageSide(props: Props) {
+  return (
+    <div className={sideStyles}>
+      <div className={sideStickyStyles} style={{ top: props.top || 30 }}>
+        <div className={sideInnerStyles}>
+          {props.children}
+        </div>
       </div>
     </div>
-  </div>
-);
-
-export default PageSide;
+  );
+}

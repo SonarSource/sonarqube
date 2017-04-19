@@ -22,9 +22,9 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { getSystemStatus } from '../../api/system';
 
-class MigrationContainer extends React.Component {
+class MigrationContainer extends React.PureComponent {
   props: {
-    children: Object,
+    children?: React.Element<*>,
     router: { push: (path: string) => void }
   };
 

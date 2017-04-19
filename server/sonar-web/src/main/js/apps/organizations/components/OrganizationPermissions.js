@@ -24,14 +24,12 @@ import GlobalPermissionsApp from '../../permissions/global/components/App';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import type { Organization } from '../../../store/organizations/duck';
 
-class OrganizationPermissions extends React.Component {
-  props: {
-    organization: Organization
-  };
+type Props = {
+  organization: Organization
+};
 
-  render() {
-    return <GlobalPermissionsApp organization={this.props.organization} />;
-  }
+function OrganizationPermissions(props: Props) {
+  return <GlobalPermissionsApp organization={props.organization} />;
 }
 
 const mapStateToProps = (state, ownProps) => ({

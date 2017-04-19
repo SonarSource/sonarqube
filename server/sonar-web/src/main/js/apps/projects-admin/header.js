@@ -21,7 +21,7 @@ import React from 'react';
 import CreateView from './create-view';
 import BulkApplyTemplateView from './views/BulkApplyTemplateView';
 
-export default class Header extends React.Component {
+export default class Header extends React.PureComponent {
   static propTypes = {
     hasProvisionPermission: React.PropTypes.bool.isRequired
   };

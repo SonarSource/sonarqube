@@ -18,20 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import moment from 'moment';
 import LicenseStatus from './LicenseStatus';
 import LicenseChangeForm from './LicenseChangeForm';
 
-export default class LicenseRow extends React.Component {
+export default class LicenseRow extends React.PureComponent {
   static propTypes = {
     license: React.PropTypes.object.isRequired,
     setLicense: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   handleSet(value) {
     return this.props.setLicense(this.props.license.key, value).catch(() => {

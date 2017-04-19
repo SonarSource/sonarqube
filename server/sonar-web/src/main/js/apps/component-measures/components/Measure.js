@@ -24,7 +24,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { formatLeak, isDiffMetric, getRatingTooltip } from '../utils';
 
-export default class Measure extends React.Component {
+export default class Measure extends React.PureComponent {
   static propTypes = {
     measure: React.PropTypes.object,
     metric: React.PropTypes.object

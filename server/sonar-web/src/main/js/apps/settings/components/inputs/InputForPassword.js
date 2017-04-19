@@ -21,7 +21,7 @@ import React from 'react';
 import { translate } from '../../../../helpers/l10n';
 import { defaultInputPropTypes } from '../../propTypes';
 
-export default class InputForPassword extends React.Component {
+export default class InputForPassword extends React.PureComponent {
   static propTypes = defaultInputPropTypes;
 
   state = {

@@ -22,18 +22,16 @@ import HomeMeasuresList from './HomeMeasuresList';
 import MeasureBubbleChartContainer from '../components/bubbleChart/MeasureBubbleChartContainer';
 import { hasBubbleChart } from '../utils';
 
-export default class DomainMeasures extends React.Component {
-  render() {
-    const { component, domains } = this.props;
-    const { domainName } = this.props.params;
-    const domain = domains.find(d => d.name === domainName);
+export default function DomainMeasures(props) {
+  const { component, domains } = props;
+  const { domainName } = props.params;
+  const domain = domains.find(d => d.name === domainName);
 
-    return (
-      <section id="component-measures-domain">
-        <HomeMeasuresList domain={domain} component={component} />
+  return (
+    <section id="component-measures-domain">
+      <HomeMeasuresList domain={domain} component={component} />
 
-        {hasBubbleChart(domainName) && <MeasureBubbleChartContainer domainName={domainName} />}
-      </section>
-    );
-  }
+      {hasBubbleChart(domainName) && <MeasureBubbleChartContainer domainName={domainName} />}
+    </section>
+  );
 }

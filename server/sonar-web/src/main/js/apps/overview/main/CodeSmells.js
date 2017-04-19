@@ -27,7 +27,7 @@ import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
 
-class CodeSmells extends React.Component {
+class CodeSmells extends React.PureComponent {
   renderHeader() {
     return this.props.renderHeader('Maintainability', translate('metric.code_smells.name'));
   }

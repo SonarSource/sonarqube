@@ -21,7 +21,7 @@ import React from 'react';
 import UpdateKeyConfirmation from './views/UpdateKeyConfirmation';
 import { translate } from '../../../helpers/l10n';
 
-export default class UpdateForm extends React.Component {
+export default class UpdateForm extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
     onKeyChange: React.PropTypes.func.isRequired

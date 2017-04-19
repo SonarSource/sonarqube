@@ -21,7 +21,7 @@
 import React from 'react';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
-export default class App extends React.Component {
+export default class App extends React.PureComponent {
   props: {
     location: {
       query: {

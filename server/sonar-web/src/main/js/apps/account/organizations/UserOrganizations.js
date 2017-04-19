@@ -29,13 +29,13 @@ import { getMyOrganizations, getSettingValue, getCurrentUser } from '../../../st
 import type { Organization } from '../../../store/organizations/duck';
 import { isUserAdmin } from '../../../helpers/users';
 
-class UserOrganizations extends React.Component {
+class UserOrganizations extends React.PureComponent {
   mounted: boolean;
 
   props: {
     anyoneCanCreate?: { value: string },
     currentUser: Object,
-    children: Object,
+    children?: React.Element<*>,
     organizations: Array<Organization>,
     fetchIfAnyoneCanCreateOrganizations: () => Promise<*>,
     fetchMyOrganizations: () => Promise<*>

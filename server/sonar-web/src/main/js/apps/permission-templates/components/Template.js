@@ -29,7 +29,7 @@ import * as api from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
 import withStore from '../../../store/utils/withStore';
 
-class Template extends React.Component {
+class Template extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     template: React.PropTypes.object.isRequired,

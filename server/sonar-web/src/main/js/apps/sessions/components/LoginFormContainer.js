@@ -25,7 +25,7 @@ import { doLogin } from '../../../store/rootActions';
 import { getAppState } from '../../../store/rootReducer';
 import { getIdentityProviders } from '../../../api/users';
 
-class LoginFormContainer extends React.Component {
+class LoginFormContainer extends React.PureComponent {
   mounted: boolean;
 
   static propTypes = {

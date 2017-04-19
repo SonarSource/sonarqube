@@ -22,7 +22,7 @@ import ItemBoolean from './item-boolean';
 import ItemObject from './item-object';
 import ItemLogLevel from './item-log-level';
 
-export default React.createClass({
+export default class ItemValue extends React.PureComponent {
   render() {
     if (this.props.name === 'Logs Level') {
       return <ItemLogLevel value={this.props.value} />;
@@ -42,4 +42,4 @@ export default React.createClass({
     }
     return formattedValue;
   }
-});
+}

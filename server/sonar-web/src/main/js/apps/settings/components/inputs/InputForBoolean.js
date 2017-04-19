@@ -22,7 +22,7 @@ import Toggle from '../../../../components/controls/Toggle';
 import { defaultInputPropTypes } from '../../propTypes';
 import { translate } from '../../../../helpers/l10n';
 
-export default class InputForBoolean extends React.Component {
+export default class InputForBoolean extends React.PureComponent {
   static propTypes = {
     ...defaultInputPropTypes,
     value: React.PropTypes.oneOfType([React.PropTypes.bool, React.PropTypes.string])

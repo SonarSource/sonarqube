@@ -22,7 +22,7 @@ import { sortBy } from 'lodash';
 import { translate } from '../../../helpers/l10n';
 import { PermissionTemplateType } from '../propTypes';
 
-export default class Defaults extends React.Component {
+export default class Defaults extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired

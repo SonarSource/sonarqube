@@ -20,8 +20,8 @@
 import React from 'react';
 import QualifierIcon from '../shared/QualifierIcon';
 
-export const TreemapBreadcrumbs = React.createClass({
-  propTypes: {
+export class TreemapBreadcrumbs extends React.PureComponent {
+  static propTypes = {
     breadcrumbs: React.PropTypes.arrayOf(
       React.PropTypes.shape({
         key: React.PropTypes.string.isRequired,
@@ -29,27 +29,27 @@ export const TreemapBreadcrumbs = React.createClass({
         qualifier: React.PropTypes.string.isRequired
       }).isRequired
     ).isRequired
-  },
+  };
 
-  handleItemClick(item, e) {
+  handleItemClick = (item, e) => {
     e.preventDefault();
     this.props.onRectangleClick(item);
-  },
+  };
 
-  handleReset(e) {
+  handleReset = e => {
     e.preventDefault();
     this.props.onReset();
-  },
+  };
 
-  renderHome() {
+  renderHome = () => {
     return (
       <span className="treemap-breadcrumbs-item">
         <a onClick={this.handleReset} className="icon-home" href="#" />
       </span>
     );
-  },
+  };
 
-  renderBreadcrumbsItems(b) {
+  renderBreadcrumbsItems = b => {
     return (
       <span key={b.key} className="treemap-breadcrumbs-item" title={b.name}>
         <i className="icon-chevron-right" />
@@ -57,7 +57,7 @@ export const TreemapBreadcrumbs = React.createClass({
         <a onClick={this.handleItemClick.bind(this, b)} href="#">{b.name}</a>
       </span>
     );
-  },
+  };
 
   render() {
     const breadcrumbs = this.props.breadcrumbs.map(this.renderBreadcrumbsItems);
@@ -68,4 +68,4 @@ export const TreemapBreadcrumbs = React.createClass({
       </div>
     );
   }
-});
+}

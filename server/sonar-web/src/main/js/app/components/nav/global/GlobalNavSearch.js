@@ -34,7 +34,7 @@ function contains(root, node) {
   return false;
 }
 
-class GlobalNavSearch extends React.Component {
+class GlobalNavSearch extends React.PureComponent {
   state = { open: false };
 
   componentDidMount() {

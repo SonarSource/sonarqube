@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
 import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 
-class PageHeader extends React.Component {
+class PageHeader extends React.PureComponent {
   props: {
     loading?: boolean,
     organization?: {}

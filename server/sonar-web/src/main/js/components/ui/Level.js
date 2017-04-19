@@ -22,7 +22,7 @@ import classNames from 'classnames';
 import { formatMeasure } from '../../helpers/measures';
 import './Level.css';
 
-export default class Level extends React.Component {
+export default class Level extends React.PureComponent {
   static propTypes = {
     level: React.PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired,
     small: React.PropTypes.bool,

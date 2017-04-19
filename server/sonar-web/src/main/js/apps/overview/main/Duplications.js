@@ -25,7 +25,7 @@ import { formatMeasure, getPeriodValue } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 
-class Duplications extends React.Component {
+class Duplications extends React.PureComponent {
   renderHeader() {
     return this.props.renderHeader('Duplications', translate('overview.domain.duplications'));
   }

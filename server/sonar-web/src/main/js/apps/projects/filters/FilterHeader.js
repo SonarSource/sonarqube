@@ -22,7 +22,7 @@ import React from 'react';
 
 type Props = {
   name: string,
-  children?: {}
+  children?: React.Element<*>
 };
 
 export default class FilterHeader extends React.PureComponent {

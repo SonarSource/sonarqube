@@ -23,7 +23,7 @@ import React from 'react';
 type Props = {
   loading: boolean,
   total?: number,
-  children?: {}
+  children?: React.Element<*>
 };
 
 export default class MembersPageHeader extends React.PureComponent {

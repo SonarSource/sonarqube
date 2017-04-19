@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getPermissionsAppError } from '../../../../store/rootReducer';
 
-class PageError extends React.Component {
+class PageError extends React.PureComponent {
   static propTypes = {
     message: React.PropTypes.string
   };

@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-export default class GenerateSecretKeyForm extends React.Component {
+export default class GenerateSecretKeyForm extends React.PureComponent {
   static propTypes = {
     secretKey: React.PropTypes.string,
     generateSecretKey: React.PropTypes.func.isRequired

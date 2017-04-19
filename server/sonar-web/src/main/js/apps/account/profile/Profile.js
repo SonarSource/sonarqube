@@ -25,48 +25,46 @@ import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
 import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 
-class Profile extends React.Component {
-  props: {
-    customOrganizations: boolean,
-    user: {
-      email?: string,
-      externalProvider?: string,
-      groups: Array<*>,
-      local: boolean,
-      login: string,
-      scmAccounts: Array<*>
-    }
-  };
-
-  render() {
-    const { customOrganizations, user } = this.props;
-
-    return (
-      <div className="account-body account-container">
-        <div className="spacer-bottom">
-          Login: <strong id="login">{user.login}</strong>
-        </div>
-
-        {!user.local &&
-          user.externalProvider !== 'sonarqube' &&
-          <div id="identity-provider" className="spacer-bottom">
-            <UserExternalIdentity user={user} />
-          </div>}
-
-        {!!user.email &&
-          <div className="spacer-bottom">
-            Email: <strong id="email">{user.email}</strong>
-          </div>}
-
-        {!customOrganizations && <hr className="account-separator" />}
-        {!customOrganizations && <UserGroups groups={user.groups} />}
-
-        <hr className="account-separator" />
-
-        <UserScmAccounts user={user} scmAccounts={user.scmAccounts} />
-      </div>
-    );
+type Props = {
+  customOrganizations: boolean,
+  user: {
+    email?: string,
+    externalProvider?: string,
+    groups: Array<*>,
+    local: boolean,
+    login: string,
+    scmAccounts: Array<*>
   }
+};
+
+function Profile(props: Props) {
+  const { customOrganizations, user } = props;
+
+  return (
+    <div className="account-body account-container">
+      <div className="spacer-bottom">
+        Login: <strong id="login">{user.login}</strong>
+      </div>
+
+      {!user.local &&
+        user.externalProvider !== 'sonarqube' &&
+        <div id="identity-provider" className="spacer-bottom">
+          <UserExternalIdentity user={user} />
+        </div>}
+
+      {!!user.email &&
+        <div className="spacer-bottom">
+          Email: <strong id="email">{user.email}</strong>
+        </div>}
+
+      {!customOrganizations && <hr className="account-separator" />}
+      {!customOrganizations && <UserGroups groups={user.groups} />}
+
+      <hr className="account-separator" />
+
+      <UserScmAccounts user={user} scmAccounts={user.scmAccounts} />
+    </div>
+  );
 }
 
 const mapStateToProps = state => ({

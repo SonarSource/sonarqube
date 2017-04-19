@@ -21,22 +21,20 @@ import React from 'react';
 import AllMeasuresDomain from './AllMeasuresDomain';
 import { getLeakPeriodLabel } from '../../../helpers/periods';
 
-export default class AllMeasures extends React.Component {
-  render() {
-    const { component, domains, periods } = this.props;
-    const leakPeriodLabel = getLeakPeriodLabel(periods);
+export default function AllMeasures(props) {
+  const { component, domains, periods } = props;
+  const leakPeriodLabel = getLeakPeriodLabel(periods);
 
-    return (
-      <ul className="measures-domains">
-        {domains.map(domain => (
-          <AllMeasuresDomain
-            key={domain.name}
-            domain={domain}
-            component={component}
-            leakPeriodLabel={leakPeriodLabel}
-          />
-        ))}
-      </ul>
-    );
-  }
+  return (
+    <ul className="measures-domains">
+      {domains.map(domain => (
+        <AllMeasuresDomain
+          key={domain.name}
+          domain={domain}
+          component={component}
+          leakPeriodLabel={leakPeriodLabel}
+        />
+      ))}
+    </ul>
+  );
 }

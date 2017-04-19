@@ -20,7 +20,6 @@
 import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
-import shallowCompare from 'react-addons-shallow-compare';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
@@ -37,12 +36,8 @@ import { getPeriodDate } from '../../../helpers/periods';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 
 export default function enhance(ComposedComponent) {
-  return class extends React.Component {
+  return class extends React.PureComponent {
     static displayName = `enhance(${ComposedComponent.displayName})}`;
-
-    shouldComponentUpdate(nextProps, nextState) {
-      return shallowCompare(this, nextProps, nextState);
-    }
 
     getValue(measure) {
       const { leakPeriod } = this.props;

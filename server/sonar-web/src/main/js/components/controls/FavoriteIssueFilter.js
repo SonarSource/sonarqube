@@ -21,7 +21,7 @@ import React from 'react';
 import FavoriteBase from './FavoriteBase';
 import { toggleIssueFilter } from '../../api/issue-filters';
 
-export default class FavoriteIssueFilter extends React.Component {
+export default class FavoriteIssueFilter extends React.PureComponent {
   static propTypes = {
     favorite: React.PropTypes.bool.isRequired,
     filter: React.PropTypes.shape({

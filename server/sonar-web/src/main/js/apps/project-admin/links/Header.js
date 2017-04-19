@@ -21,7 +21,7 @@ import React from 'react';
 import CreationModal from './views/CreationModal';
 import { translate } from '../../../helpers/l10n';
 
-export default class Header extends React.Component {
+export default class Header extends React.PureComponent {
   static propTypes = {
     onCreate: React.PropTypes.func.isRequired
   };

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import TaskStatus from './TaskStatus';
 import TaskComponent from './TaskComponent';
 import TaskId from './TaskId';
@@ -27,7 +26,7 @@ import TaskDate from './TaskDate';
 import TaskExecutionTime from './TaskExecutionTime';
 import TaskActions from './TaskActions';
 
-export default class Task extends React.Component {
+export default class Task extends React.PureComponent {
   static propTypes = {
     task: React.PropTypes.object.isRequired,
     index: React.PropTypes.number.isRequired,
@@ -37,10 +36,6 @@ export default class Task extends React.Component {
     onCancelTask: React.PropTypes.func.isRequired,
     onFilterTask: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   render() {
     const { task, index, tasks, component, types, onCancelTask, onFilterTask } = this.props;

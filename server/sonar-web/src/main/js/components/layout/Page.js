@@ -33,10 +33,10 @@ const styles = css({
   flexGrow: 1
 });
 
-const Page = ({ className, children, ...other }: Props) => (
-  <div className={styles + (className ? ` ${className}` : '')} {...other}>
-    {children}
-  </div>
-);
-
-export default Page;
+export default function Page({ className, children, ...other }: Props) {
+  return (
+    <div className={styles + (className ? ` ${className}` : '')} {...other}>
+      {children}
+    </div>
+  );
+}

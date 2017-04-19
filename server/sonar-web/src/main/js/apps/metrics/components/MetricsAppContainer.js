@@ -20,7 +20,7 @@
 import React from 'react';
 import init from '../init';
 
-export default class MetricsAppContainer extends React.Component {
+export default class MetricsAppContainer extends React.PureComponent {
   componentDidMount() {
     init(this.refs.container);
   }

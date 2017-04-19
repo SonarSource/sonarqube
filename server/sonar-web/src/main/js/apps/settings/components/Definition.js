@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
 import Input from './inputs/Input';
 import DefinitionDefaults from './DefinitionDefaults';
@@ -42,7 +41,7 @@ import {
   getSettingsAppValidationMessage
 } from '../../../store/rootReducer';
 
-class Definition extends React.Component {
+class Definition extends React.PureComponent {
   mounted: boolean;
   timeout: number;
 
@@ -66,10 +65,6 @@ class Definition extends React.Component {
 
   componentDidMount() {
     this.mounted = true;
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentWillUnmount() {

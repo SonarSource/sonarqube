@@ -22,7 +22,7 @@ import { translate } from '../../../helpers/l10n';
 import { getServerId, generateServerId } from '../../../api/settings';
 import { parseError } from '../../code/utils';
 
-export default class ServerIdApp extends React.Component {
+export default class ServerIdApp extends React.PureComponent {
   static propTypes = {
     addGlobalErrorMessage: React.PropTypes.func.isRequired,
     closeAllGlobalMessages: React.PropTypes.func.isRequired

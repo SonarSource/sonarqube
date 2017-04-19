@@ -23,16 +23,14 @@ import { translate } from '../../../helpers/l10n';
 
 const link = 'https://redirect.sonarsource.com/doc/issues.html';
 
-export default class AboutCleanCode extends React.Component {
-  render() {
-    return (
-      <div className="boxed-group">
-        <h2>{translate('about_page.clean_code')}</h2>
-        <div className="boxed-group-inner">
-          <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
-          <ReadMore link={link} />
-        </div>
+export default function AboutCleanCode() {
+  return (
+    <div className="boxed-group">
+      <h2>{translate('about_page.clean_code')}</h2>
+      <div className="boxed-group-inner">
+        <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
+        <ReadMore link={link} />
       </div>
-    );
-  }
+    </div>
+  );
 }

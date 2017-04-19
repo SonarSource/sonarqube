@@ -21,7 +21,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { ERROR, SUCCESS } from '../../store/globalMessages/duck';
 
-export default class GlobalMessages extends React.Component {
+export default class GlobalMessages extends React.PureComponent {
   static propTypes = {
     messages: React.PropTypes.arrayOf(
       React.PropTypes.shape({

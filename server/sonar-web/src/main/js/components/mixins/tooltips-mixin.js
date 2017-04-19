@@ -61,24 +61,24 @@ export const TooltipsMixin = {
   }
 };
 
-export const TooltipsContainer = React.createClass({
+export class TooltipsContainer extends React.PureComponent {
   componentDidMount() {
     this.initTooltips();
-  },
+  }
 
   componentWillUpdate() {
     this.destroyTooltips();
-  },
+  }
 
   componentDidUpdate() {
     this.initTooltips();
-  },
+  }
 
   componentWillUnmount() {
     this.destroyTooltips();
-  },
+  }
 
-  initTooltips() {
+  initTooltips = () => {
     if ($.fn && $.fn.tooltip) {
       const options = Object.assign(
         { container: 'body', placement: 'bottom', html: true },
@@ -86,21 +86,21 @@ export const TooltipsContainer = React.createClass({
       );
       $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this)).tooltip(options);
     }
-  },
+  };
 
-  hideTooltips() {
+  hideTooltips = () => {
     if ($.fn && $.fn.tooltip) {
       $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this)).tooltip('hide');
     }
-  },
+  };
 
-  destroyTooltips() {
+  destroyTooltips = () => {
     if ($.fn && $.fn.tooltip) {
       $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this)).tooltip('destroy');
     }
-  },
+  };
 
   render() {
     return this.props.children;
   }
-});
+}

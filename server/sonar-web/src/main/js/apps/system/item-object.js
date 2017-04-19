@@ -20,7 +20,7 @@
 import React from 'react';
 import ItemValue from './item-value';
 
-export default React.createClass({
+export default class ItemObject extends React.PureComponent {
   render() {
     const rows = Object.keys(this.props.value).map(key => {
       return (
@@ -36,4 +36,4 @@ export default React.createClass({
       </table>
     );
   }
-});
+}

@@ -27,7 +27,7 @@ type Props = {
   filter: ?string
 };
 
-export default class ProjectActivityPageHeader extends React.Component {
+export default class ProjectActivityPageHeader extends React.PureComponent {
   props: Props;
 
   handleChange = (option: null | { value: string }) => {

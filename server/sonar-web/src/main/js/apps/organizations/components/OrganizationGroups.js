@@ -24,7 +24,7 @@ import init from '../../groups/init';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import type { Organization } from '../../../store/organizations/duck';
 
-class OrganizationGroups extends React.Component {
+class OrganizationGroups extends React.PureComponent {
   props: {
     organization: Organization
   };

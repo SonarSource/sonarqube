@@ -26,7 +26,7 @@ import { getAnalyses, getPaging } from '../../../store/projectActivity/duck';
 import { fetchMoreProjectActivity } from '../actions';
 import type { Paging } from '../../../store/projectActivity/duck';
 
-class ProjectActivityPageFooter extends React.Component {
+class ProjectActivityPageFooter extends React.PureComponent {
   props: {
     analyses: Array<*>,
     paging: ?Paging,

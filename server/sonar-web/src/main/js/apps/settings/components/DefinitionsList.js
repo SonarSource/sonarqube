@@ -19,18 +19,13 @@
  */
 // @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import Definition from './Definition';
 
-export default class DefinitionsList extends React.Component {
+export default class DefinitionsList extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object,
     settings: React.PropTypes.array.isRequired
   };
-
-  shouldComponentUpdate(nextProps: {}, nextState: ?{}) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   render() {
     return (

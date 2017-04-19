@@ -20,7 +20,7 @@
 import React from 'react';
 import { isLicenseInvalid } from './licenseUtils';
 
-export default class LicenseStatus extends React.Component {
+export default class LicenseStatus extends React.PureComponent {
   static propTypes = {
     license: React.PropTypes.object.isRequired
   };

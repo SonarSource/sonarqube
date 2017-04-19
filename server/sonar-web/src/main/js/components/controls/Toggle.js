@@ -21,7 +21,7 @@ import React from 'react';
 import classNames from 'classnames';
 import './styles.css';
 
-export default class Toggle extends React.Component {
+export default class Toggle extends React.PureComponent {
   static propTypes = {
     value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool]).isRequired,
     name: React.PropTypes.string,

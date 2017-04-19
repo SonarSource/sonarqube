@@ -22,7 +22,7 @@ import GenerateSecretKeyForm from './GenerateSecretKeyForm';
 import EncryptionForm from './EncryptionForm';
 import { translate } from '../../../helpers/l10n';
 
-export default class EncryptionApp extends React.Component {
+export default class EncryptionApp extends React.PureComponent {
   static propTypes = {
     loading: React.PropTypes.bool.isRequired,
     secretKeyAvailable: React.PropTypes.bool,

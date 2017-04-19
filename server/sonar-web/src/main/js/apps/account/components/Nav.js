@@ -26,38 +26,38 @@ type Props = {
   customOrganizations: boolean
 };
 
-const Nav = ({ customOrganizations }: Props) => (
-  <nav className="account-nav clearfix">
-    <ul className="nav navbar-nav nav-tabs">
-      <li>
-        <IndexLink to="/account/" activeClassName="active">
-          {translate('my_account.profile')}
-        </IndexLink>
-      </li>
-      <li>
-        <Link to="/account/security/" activeClassName="active">
-          {translate('my_account.security')}
-        </Link>
-      </li>
-      <li>
-        <Link to="/account/notifications" activeClassName="active">
-          {translate('my_account.notifications')}
-        </Link>
-      </li>
-      {!customOrganizations &&
+export default function Nav({ customOrganizations }: Props) {
+  return (
+    <nav className="account-nav clearfix">
+      <ul className="nav navbar-nav nav-tabs">
         <li>
-          <Link to="/account/projects/" activeClassName="active">
-            {translate('my_account.projects')}
-          </Link>
-        </li>}
-      {customOrganizations &&
+          <IndexLink to="/account/" activeClassName="active">
+            {translate('my_account.profile')}
+          </IndexLink>
+        </li>
         <li>
-          <Link to="/account/organizations" activeClassName="active">
-            {translate('my_account.organizations')}
+          <Link to="/account/security/" activeClassName="active">
+            {translate('my_account.security')}
           </Link>
-        </li>}
-    </ul>
-  </nav>
-);
-
-export default Nav;
+        </li>
+        <li>
+          <Link to="/account/notifications" activeClassName="active">
+            {translate('my_account.notifications')}
+          </Link>
+        </li>
+        {!customOrganizations &&
+          <li>
+            <Link to="/account/projects/" activeClassName="active">
+              {translate('my_account.projects')}
+            </Link>
+          </li>}
+        {customOrganizations &&
+          <li>
+            <Link to="/account/organizations" activeClassName="active">
+              {translate('my_account.organizations')}
+            </Link>
+          </li>}
+      </ul>
+    </nav>
+  );
+}

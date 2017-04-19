@@ -21,7 +21,7 @@
 import React from 'react';
 import moment from 'moment';
 
-export default class FormattedDate extends React.Component {
+export default class FormattedDate extends React.PureComponent {
   props: {
     date: string | number,
     format?: string,

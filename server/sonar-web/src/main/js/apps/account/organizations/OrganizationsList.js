@@ -22,20 +22,18 @@ import React from 'react';
 import OrganizationCard from './OrganizationCard';
 import type { Organization } from '../../../store/organizations/duck';
 
-export default class OrganizationsList extends React.Component {
-  props: {
-    organizations: Array<Organization>
-  };
+type Props = {
+  organizations: Array<Organization>
+};
 
-  render() {
-    return (
-      <ul className="account-projects-list">
-        {this.props.organizations.map(organization => (
-          <li key={organization.key}>
-            <OrganizationCard organization={organization} />
-          </li>
-        ))}
-      </ul>
-    );
-  }
+export default function OrganizationsList(props: Props) {
+  return (
+    <ul className="account-projects-list">
+      {props.organizations.map(organization => (
+        <li key={organization.key}>
+          <OrganizationCard organization={organization} />
+        </li>
+      ))}
+    </ul>
+  );
 }

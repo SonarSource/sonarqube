@@ -21,7 +21,7 @@ import React from 'react';
 import Spinner from './../components/Spinner';
 import '../styles.css';
 
-export default class App extends React.Component {
+export default class App extends React.PureComponent {
   state = { componentSet: false };
 
   componentDidMount() {

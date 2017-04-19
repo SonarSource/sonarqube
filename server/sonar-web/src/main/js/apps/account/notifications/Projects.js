@@ -41,7 +41,7 @@ type State = {
   }>
 };
 
-class Projects extends React.Component {
+class Projects extends React.PureComponent {
   props: Props;
 
   state: State = {

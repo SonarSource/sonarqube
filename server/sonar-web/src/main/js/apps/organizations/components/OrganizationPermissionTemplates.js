@@ -24,15 +24,13 @@ import AppContainer from '../../permission-templates/components/AppContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import type { Organization } from '../../../store/organizations/duck';
 
-class OrganizationPermissionTemplates extends React.Component {
-  props: {
-    location: {},
-    organization: Organization
-  };
+type Props = {
+  location: {},
+  organization: Organization
+};
 
-  render() {
-    return <AppContainer location={this.props.location} organization={this.props.organization} />;
-  }
+function OrganizationPermissionTemplates(props: Props) {
+  return <AppContainer location={props.location} organization={props.organization} />;
 }
 
 const mapStateToProps = (state, ownProps) => ({

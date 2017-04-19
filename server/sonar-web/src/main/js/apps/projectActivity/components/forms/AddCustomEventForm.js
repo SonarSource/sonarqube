@@ -29,9 +29,9 @@ type Props = {
   analysis: Analysis
 };
 
-const AddCustomEventForm = (props: Props) => (
-  <AddEventForm {...props} addEventButtonText="project_activity.add_custom_event" />
-);
+function AddCustomEventForm(props: Props) {
+  return <AddEventForm {...props} addEventButtonText="project_activity.add_custom_event" />;
+}
 
 const mapStateToProps = null;
 

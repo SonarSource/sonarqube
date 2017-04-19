@@ -20,7 +20,6 @@
 import classNames from 'classnames';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import shallowCompare from 'react-addons-shallow-compare';
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
 import ComponentDetach from './ComponentDetach';
@@ -29,13 +28,9 @@ import ComponentPin from './ComponentPin';
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
 
-export default class Component extends React.Component {
+export default class Component extends React.PureComponent {
   componentDidMount() {
     this.handleUpdate();
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentDidUpdate() {

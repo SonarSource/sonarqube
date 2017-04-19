@@ -35,7 +35,7 @@ type State = {
   name: string
 };
 
-export default class AddEventForm extends React.Component {
+export default class AddEventForm extends React.PureComponent {
   mounted: boolean;
   props: Props;
 

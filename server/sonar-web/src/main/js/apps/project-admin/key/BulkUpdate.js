@@ -32,7 +32,7 @@ import {
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/nav/component/RecentHistory';
 
-class BulkUpdate extends React.Component {
+class BulkUpdate extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
     addGlobalErrorMessage: React.PropTypes.func.isRequired,

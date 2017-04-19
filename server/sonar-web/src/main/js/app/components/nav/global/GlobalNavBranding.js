@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import { getSettingValue, getCurrentUser } from '../../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 
-class GlobalNavBranding extends React.Component {
+class GlobalNavBranding extends React.PureComponent {
   static propTypes = {
     customLogoUrl: React.PropTypes.string,
     customLogoWidth: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number])

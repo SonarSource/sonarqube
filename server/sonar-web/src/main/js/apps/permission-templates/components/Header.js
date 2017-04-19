@@ -22,7 +22,7 @@ import CreateView from '../views/CreateView';
 import { translate } from '../../../helpers/l10n';
 import { CallbackType } from '../propTypes';
 
-export default class Header extends React.Component {
+export default class Header extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     ready: React.PropTypes.bool.isRequired,

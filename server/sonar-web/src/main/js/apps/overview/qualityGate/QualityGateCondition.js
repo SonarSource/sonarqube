@@ -29,7 +29,7 @@ import { getPeriod, getPeriodDate } from '../../../helpers/periods';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 
-export default class QualityGateCondition extends React.Component {
+export default class QualityGateCondition extends React.PureComponent {
   props: {
     component: { key: string },
     periods: Array<{
@@ -93,7 +93,7 @@ export default class QualityGateCondition extends React.Component {
       : this.getUrlForBugsOrVulnerabilities(type, sinceLeakPeriod);
   }
 
-  wrapWithLink(children: Object) {
+  wrapWithLink(children: React.Element<*>) {
     const { component, periods, condition } = this.props;
 
     const period = getPeriod(periods, condition.period);

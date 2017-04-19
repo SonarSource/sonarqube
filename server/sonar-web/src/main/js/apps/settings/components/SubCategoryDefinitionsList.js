@@ -19,21 +19,16 @@
  */
 // @flow
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { groupBy, sortBy } from 'lodash';
 import DefinitionsList from './DefinitionsList';
 import EmailForm from './EmailForm';
 import { getSubCategoryName, getSubCategoryDescription } from '../utils';
 
-export default class SubCategoryDefinitionsList extends React.Component {
+export default class SubCategoryDefinitionsList extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object,
     settings: React.PropTypes.array.isRequired
   };
-
-  shouldComponentUpdate(nextProps: {}, nextState: ?{}) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   renderEmailForm(subCategoryKey: string) {
     const isEmailSettings = this.props.category === 'general' && subCategoryKey === 'email';

@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import { getComponent } from '../../store/rootReducer';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
-class ProjectAdminContainer extends React.Component {
+class ProjectAdminContainer extends React.PureComponent {
   props: {
     project: {
       configuration?: {

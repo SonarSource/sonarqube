@@ -19,13 +19,12 @@
  */
 import { find, sortBy } from 'lodash';
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { Histogram } from './histogram';
 import { formatMeasure } from '../../helpers/measures';
 import { getLanguages } from '../../api/languages';
 import { translate } from '../../helpers/l10n';
 
-export default class LanguageDistribution extends React.Component {
+export default class LanguageDistribution extends React.PureComponent {
   static propTypes = {
     distribution: React.PropTypes.string.isRequired
   };
@@ -35,10 +34,6 @@ export default class LanguageDistribution extends React.Component {
   componentDidMount() {
     this.mounted = true;
     this.requestLanguages();
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentWillUnmount() {

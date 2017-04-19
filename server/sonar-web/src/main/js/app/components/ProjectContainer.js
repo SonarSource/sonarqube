@@ -27,10 +27,10 @@ import { addGlobalErrorMessage } from '../../store/globalMessages/duck';
 import { parseError } from '../../apps/code/utils';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
-class ProjectContainer extends React.Component {
+class ProjectContainer extends React.PureComponent {
   props: {
     addGlobalErrorMessage: () => void,
-    children: {},
+    children?: React.Element<*>,
     location: {
       query: { id: string }
     },
@@ -73,7 +73,12 @@ class ProjectContainer extends React.Component {
 
     return (
       <div>
-        {!isFile && <ComponentNav component={this.props.project} conf={configuration} />}
+        {!isFile &&
+          <ComponentNav
+            component={this.props.project}
+            conf={configuration}
+            location={this.props.location}
+          />}
         {this.props.children}
       </div>
     );

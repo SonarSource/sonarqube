@@ -45,7 +45,7 @@ const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provis
 
 const PERMISSIONS_FOR_CUSTOM_ORG = ['admin', 'scan', 'provisioning'];
 
-class AllHoldersList extends React.Component {
+class AllHoldersList extends React.PureComponent {
   componentDidMount() {
     this.props.loadHolders();
   }

@@ -21,14 +21,12 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class MetricNotFound extends React.Component {
-  render() {
-    return (
-      <div className="page page-limited">
-        <div className="alert alert-danger">
-          {translate('component_measures.not_found')}
-        </div>
+export default function MetricNotFound() {
+  return (
+    <div className="page page-limited">
+      <div className="alert alert-danger">
+        {translate('component_measures.not_found')}
       </div>
-    );
-  }
+    </div>
+  );
 }

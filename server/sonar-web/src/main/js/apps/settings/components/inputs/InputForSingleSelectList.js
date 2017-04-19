@@ -21,7 +21,7 @@ import React from 'react';
 import Select from 'react-select';
 import { defaultInputPropTypes } from '../../propTypes';
 
-export default class InputForSingleSelectList extends React.Component {
+export default class InputForSingleSelectList extends React.PureComponent {
   static propTypes = {
     ...defaultInputPropTypes,
     options: React.PropTypes.arrayOf(React.PropTypes.string).isRequired

@@ -24,14 +24,12 @@ import AppContainer from '../../projects-admin/AppContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import type { Organization } from '../../../store/organizations/duck';
 
-class OrganizationProjectsManagement extends React.Component {
-  props: {
-    organization: Organization
-  };
+type Props = {
+  organization: Organization
+};
 
-  render() {
-    return <AppContainer organization={this.props.organization} />;
-  }
+function OrganizationProjectsManagement(props: Props) {
+  return <AppContainer organization={props.organization} />;
 }
 
 const mapStateToProps = (state, ownProps) => ({

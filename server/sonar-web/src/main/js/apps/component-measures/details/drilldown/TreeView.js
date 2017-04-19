@@ -25,7 +25,7 @@ import Spinner from '../../components/Spinner';
 import SourceViewer from '../../../../components/SourceViewer/SourceViewer';
 import ListFooter from '../../../../components/controls/ListFooter';
 
-export default class TreeView extends React.Component {
+export default class TreeView extends React.PureComponent {
   componentDidMount() {
     this.handleChangeBaseComponent(this.props.component);
   }

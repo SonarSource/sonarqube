@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import ActionsCell from './ActionsCell';
 import { translate } from '../../../helpers/l10n';
 
-export default class TemplateHeader extends React.Component {
+export default class TemplateHeader extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     template: React.PropTypes.object.isRequired,

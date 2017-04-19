@@ -23,7 +23,7 @@ import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { getCurrentUser } from '../../store/rootReducer';
 
-class Landing extends React.Component {
+class Landing extends React.PureComponent {
   static propTypes = {
     currentUser: React.PropTypes.oneOfType([
       React.PropTypes.bool,

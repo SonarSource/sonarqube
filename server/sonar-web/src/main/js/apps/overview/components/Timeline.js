@@ -18,22 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { max } from 'd3-array';
 import { LineChart } from '../../../components/charts/line-chart';
 
 const HEIGHT = 80;
 
-export default class Timeline extends React.Component {
+export default class Timeline extends React.PureComponent {
   static propTypes = {
     history: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     before: React.PropTypes.object,
     after: React.PropTypes.object
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   filterSnapshots() {
     const { history, before, after } = this.props;

@@ -21,7 +21,7 @@ import React from 'react';
 import FavoriteBase from './FavoriteBase';
 import { addFavorite, removeFavorite } from '../../api/favorites';
 
-export default class Favorite extends React.Component {
+export default class Favorite extends React.PureComponent {
   static propTypes = {
     favorite: React.PropTypes.bool.isRequired,
     component: React.PropTypes.string.isRequired,

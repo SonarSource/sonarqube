@@ -20,18 +20,18 @@
 import React from 'react';
 import Breadcrumb from './Breadcrumb';
 
-const Breadcrumbs = ({ rootComponent, breadcrumbs }) => (
-  <ul className="code-breadcrumbs">
-    {breadcrumbs.map((component, index) => (
-      <li key={component.key}>
-        <Breadcrumb
-          rootComponent={rootComponent}
-          component={component}
-          canBrowse={index < breadcrumbs.length - 1}
-        />
-      </li>
-    ))}
-  </ul>
-);
-
-export default Breadcrumbs;
+export default function Breadcrumbs({ rootComponent, breadcrumbs }) {
+  return (
+    <ul className="code-breadcrumbs">
+      {breadcrumbs.map((component, index) => (
+        <li key={component.key}>
+          <Breadcrumb
+            rootComponent={rootComponent}
+            component={component}
+            canBrowse={index < breadcrumbs.length - 1}
+          />
+        </li>
+      ))}
+    </ul>
+  );
+}

@@ -24,7 +24,7 @@ import { withRouter } from 'react-router';
 import { areThereCustomOrganizations } from '../../store/rootReducer';
 
 const forSingleOrganization = (ComposedComponent: Object) => {
-  class X extends React.Component {
+  class X extends React.PureComponent {
     static displayName = `forSingleOrganization(${ComposedComponent.displayName})}`;
 
     render() {

@@ -19,7 +19,6 @@
  */
 /* @flow */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import classNames from 'classnames';
 import Task from './Task';
 import { translate } from '../../../helpers/l10n';
@@ -35,13 +34,9 @@ type Props = {
 
 type State = Object;
 
-export default class Tasks extends React.Component {
+export default class Tasks extends React.PureComponent {
   props: Props;
   state: State;
-
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   render() {
     const { tasks, component, types, loading, onCancelTask, onFilterTask } = this.props;

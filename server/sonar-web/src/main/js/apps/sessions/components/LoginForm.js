@@ -22,7 +22,7 @@ import React from 'react';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 
-export default class LoginForm extends React.Component {
+export default class LoginForm extends React.PureComponent {
   static propTypes = {
     identityProviders: React.PropTypes.array.isRequired,
     onSubmit: React.PropTypes.func.isRequired

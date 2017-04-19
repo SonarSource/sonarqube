@@ -36,7 +36,7 @@ type State = {
   url: string
 };
 
-class CreateOrganizationForm extends React.Component {
+class CreateOrganizationForm extends React.PureComponent {
   mounted: boolean;
   state: State;
   props: {

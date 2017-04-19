@@ -24,7 +24,7 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getMetricName } from '../helpers/metrics';
 import SizeRating from '../../../components/ui/SizeRating';
 
-export default class MetaSize extends React.Component {
+export default class MetaSize extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired,
     measures: React.PropTypes.array.isRequired

@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import { pick } from 'lodash';
 import './styles.css';
 
-export default class DateInput extends React.Component {
+export default class DateInput extends React.PureComponent {
   static propTypes = {
     className: React.PropTypes.string,
     value: React.PropTypes.string,

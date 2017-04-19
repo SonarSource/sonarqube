@@ -21,7 +21,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { translate } from '../../../helpers/l10n';
 
-export default class App extends React.Component {
+export default class App extends React.PureComponent {
   componentDidMount() {
     document.querySelector('html').classList.add('dashboard-page');
   }

@@ -20,7 +20,7 @@
 import React from 'react';
 import { defaultInputPropTypes } from '../../propTypes';
 
-export default class InputForText extends React.Component {
+export default class InputForText extends React.PureComponent {
   static propTypes = defaultInputPropTypes;
 
   handleInputChange(e) {

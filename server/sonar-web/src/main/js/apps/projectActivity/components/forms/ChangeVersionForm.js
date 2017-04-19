@@ -30,9 +30,9 @@ type Props = {
   onClose: () => void
 };
 
-const ChangeVersionForm = (props: Props) => (
-  <ChangeEventForm {...props} changeEventButtonText="project_activity.change_version" />
-);
+function ChangeVersionForm(props: Props) {
+  return <ChangeEventForm {...props} changeEventButtonText="project_activity.change_version" />;
+}
 
 const mapStateToProps = null;
 

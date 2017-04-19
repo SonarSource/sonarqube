@@ -22,7 +22,7 @@ import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
 import { isUserAdmin } from '../../../../helpers/users';
 
-export default class GlobalNavMenu extends React.Component {
+export default class GlobalNavMenu extends React.PureComponent {
   static propTypes = {
     appState: React.PropTypes.object.isRequired,
     currentUser: React.PropTypes.object.isRequired,

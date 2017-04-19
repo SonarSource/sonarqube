@@ -36,7 +36,7 @@ type State = {
   processing: boolean
 };
 
-export default class RemoveEventForm extends React.Component {
+export default class RemoveEventForm extends React.PureComponent {
   mounted: boolean;
   props: Props;
 

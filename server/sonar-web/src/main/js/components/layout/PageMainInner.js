@@ -25,10 +25,10 @@ type Props = {
   children?: React.Element<*>
 };
 
-const PageMainInner = (props: Props) => (
-  <div className={css({ minWidth: 740, maxWidth: 980 })}>
-    {props.children}
-  </div>
-);
-
-export default PageMainInner;
+export default function PageMainInner(props: Props) {
+  return (
+    <div className={css({ minWidth: 740, maxWidth: 980 })}>
+      {props.children}
+    </div>
+  );
+}

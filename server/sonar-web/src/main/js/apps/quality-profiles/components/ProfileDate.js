@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import moment from 'moment';
-import shallowCompare from 'react-addons-shallow-compare';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
@@ -29,10 +28,6 @@ type Props = {
 
 export default class ProfileDate extends React.PureComponent {
   props: Props;
-
-  shouldComponentUpdate(nextProps: Props) {
-    return shallowCompare(this, nextProps);
-  }
 
   render() {
     const { date } = this.props;

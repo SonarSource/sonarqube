@@ -21,7 +21,7 @@ import React from 'react';
 import LicenseValueView from './LicenseValueView';
 import { translate } from '../../../helpers/l10n';
 
-export default class LicenseChangeForm extends React.Component {
+export default class LicenseChangeForm extends React.PureComponent {
   static propTypes = {
     license: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func.isRequired

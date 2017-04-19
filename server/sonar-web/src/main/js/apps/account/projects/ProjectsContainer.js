@@ -23,7 +23,7 @@ import Projects from './Projects';
 import { getMyProjects } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 
-export default class ProjectsContainer extends React.Component {
+export default class ProjectsContainer extends React.PureComponent {
   state = {
     loading: true,
     page: 1,

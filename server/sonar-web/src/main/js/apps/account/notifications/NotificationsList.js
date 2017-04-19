@@ -27,7 +27,7 @@ import {
   TypesState
 } from '../../../store/notifications/duck';
 
-export default class NotificationsList extends React.Component {
+export default class NotificationsList extends React.PureComponent {
   props: {
     onAdd: (n: Notification) => void,
     onRemove: (n: Notification) => void,

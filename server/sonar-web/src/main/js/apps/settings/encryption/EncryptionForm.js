@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-export default class EncryptionForm extends React.Component {
+export default class EncryptionForm extends React.PureComponent {
   static propTypes = {
     encryptedValue: React.PropTypes.string,
     encryptValue: React.PropTypes.func.isRequired,

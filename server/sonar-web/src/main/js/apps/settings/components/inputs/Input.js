@@ -18,22 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import PropertySetInput from './PropertySetInput';
 import MultiValueInput from './MultiValueInput';
 import PrimitiveInput from './PrimitiveInput';
 import { TYPE_PROPERTY_SET } from '../../constants';
 
-export default class Input extends React.Component {
+export default class Input extends React.PureComponent {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
     value: React.PropTypes.any,
     onChange: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   render() {
     const { definition } = this.props.setting;

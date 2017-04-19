@@ -26,7 +26,7 @@ import Spinner from '../../components/Spinner';
 import SourceViewer from '../../../../components/SourceViewer/SourceViewer';
 import ListFooter from '../../../../components/controls/ListFooter';
 
-export default class ListView extends React.Component {
+export default class ListView extends React.PureComponent {
   static contextTypes = {
     router: React.PropTypes.object.isRequired
   };

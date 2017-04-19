@@ -21,18 +21,16 @@ import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
-export default class NoFavoriteProjects extends React.Component {
-  render() {
-    return (
-      <div className="projects-empty-list">
-        <h3>{translate('projects.no_favorite_projects')}</h3>
-        <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
-        <p className="big-spacer-top">
-          <Link to="/projects/all" className="button">
-            {translate('projects.explore_projects')}
-          </Link>
-        </p>
-      </div>
-    );
-  }
+export default function NoFavoriteProjects() {
+  return (
+    <div className="projects-empty-list">
+      <h3>{translate('projects.no_favorite_projects')}</h3>
+      <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
+      <p className="big-spacer-top">
+        <Link to="/projects/all" className="button">
+          {translate('projects.explore_projects')}
+        </Link>
+      </p>
+    </div>
+  );
 }

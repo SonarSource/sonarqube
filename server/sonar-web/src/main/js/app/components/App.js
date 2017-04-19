@@ -24,7 +24,7 @@ import GlobalLoading from './GlobalLoading';
 import { fetchCurrentUser } from '../../store/users/actions';
 import { fetchLanguages, fetchAppState, fetchOrganizations } from '../../store/rootActions';
 
-class App extends React.Component {
+class App extends React.PureComponent {
   mounted: boolean;
 
   static propTypes = {

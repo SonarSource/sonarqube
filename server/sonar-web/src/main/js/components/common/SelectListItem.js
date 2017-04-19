@@ -24,7 +24,7 @@ import Tooltip from '../controls/Tooltip';
 
 type Props = {
   active?: string,
-  children?: React.Component<*>,
+  children?: React.Element<*>,
   item: string,
   onSelect?: (string) => void,
   onHover?: (string) => void,

@@ -20,8 +20,6 @@
 import React from 'react';
 import IssuesFilter from './IssuesFilter';
 
-export default class SecurityFilter extends React.Component {
-  render() {
-    return <IssuesFilter {...this.props} name="Security" property="security" />;
-  }
+export default function SecurityFilter(props) {
+  return <IssuesFilter {...props} name="Security" property="security" />;
 }

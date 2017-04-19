@@ -20,16 +20,14 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class LicensesAppHeader extends React.Component {
-  render() {
-    return (
-      <header className="page-header">
-        <h1 className="page-title">{translate('property.category.licenses')}</h1>
-        <div
-          className="page-description"
-          dangerouslySetInnerHTML={{ __html: translate('property.category.licenses.description') }}
-        />
-      </header>
-    );
-  }
+export default function LicensesAppHeader() {
+  return (
+    <header className="page-header">
+      <h1 className="page-title">{translate('property.category.licenses')}</h1>
+      <div
+        className="page-description"
+        dangerouslySetInnerHTML={{ __html: translate('property.category.licenses.description') }}
+      />
+    </header>
+  );
 }

@@ -20,7 +20,7 @@
 import React from 'react';
 import ItemValue from './item-value';
 
-export default React.createClass({
+export default class Section extends React.PureComponent {
   render() {
     const items = this.props.items.map(item => {
       return (
@@ -46,4 +46,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

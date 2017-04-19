@@ -24,48 +24,46 @@ import { connect } from 'react-redux';
 import { getAppState } from '../../store/rootReducer';
 import GlobalFooterBranding from './GlobalFooterBranding';
 
-class GlobalFooter extends React.Component {
-  render() {
-    const { sonarqubeVersion, productionDatabase } = this.props;
+function GlobalFooter(props: Object) {
+  const { sonarqubeVersion, productionDatabase } = props;
 
-    return (
-      <div id="footer" className="page-footer page-container">
-        {productionDatabase === false &&
-          <div className="alert alert-danger">
-            <p className="big" id="evaluation_warning">
-              Embedded database should be used for evaluation purpose only
-            </p>
-            <p>
-              The embedded database will not scale, it will not support upgrading to newer
-              {' '}
-              versions of SonarQube, and there is no support for migrating your data out of it
-              {' '}
-              into a different database engine.
-            </p>
-          </div>}
+  return (
+    <div id="footer" className="page-footer page-container">
+      {productionDatabase === false &&
+        <div className="alert alert-danger">
+          <p className="big" id="evaluation_warning">
+            Embedded database should be used for evaluation purpose only
+          </p>
+          <p>
+            The embedded database will not scale, it will not support upgrading to newer
+            {' '}
+            versions of SonarQube, and there is no support for migrating your data out of it
+            {' '}
+            into a different database engine.
+          </p>
+        </div>}
 
-        <GlobalFooterBranding />
+      <GlobalFooterBranding />
 
-        <div>
-          Version {sonarqubeVersion}
-          {' - '}
-          <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">LGPL v3</a>
-          {' - '}
-          <a href="http://www.sonarqube.org">Community</a>
-          {' - '}
-          <a href="https://redirect.sonarsource.com/doc/home.html">Documentation</a>
-          {' - '}
-          <a href="https://redirect.sonarsource.com/doc/community.html">Get Support</a>
-          {' - '}
-          <a href="https://redirect.sonarsource.com/doc/plugin-library.html">Plugins</a>
-          {' - '}
-          <Link to="/web_api">Web API</Link>
-          {' - '}
-          <Link to="/about">About</Link>
-        </div>
+      <div>
+        Version {sonarqubeVersion}
+        {' - '}
+        <a href="http://www.gnu.org/licenses/lgpl-3.0.txt">LGPL v3</a>
+        {' - '}
+        <a href="http://www.sonarqube.org">Community</a>
+        {' - '}
+        <a href="https://redirect.sonarsource.com/doc/home.html">Documentation</a>
+        {' - '}
+        <a href="https://redirect.sonarsource.com/doc/community.html">Get Support</a>
+        {' - '}
+        <a href="https://redirect.sonarsource.com/doc/plugin-library.html">Plugins</a>
+        {' - '}
+        <Link to="/web_api">Web API</Link>
+        {' - '}
+        <Link to="/about">About</Link>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 const mapStateToProps = state => ({

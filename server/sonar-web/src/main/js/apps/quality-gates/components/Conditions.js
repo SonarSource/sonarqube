@@ -28,7 +28,7 @@ function getKey(condition, index) {
   return condition.id ? condition.id : `new-${index}`;
 }
 
-export default class Conditions extends React.Component {
+export default class Conditions extends React.PureComponent {
   state = {
     error: null
   };

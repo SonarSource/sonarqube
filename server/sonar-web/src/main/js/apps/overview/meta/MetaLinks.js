@@ -22,7 +22,7 @@ import MetaLink from './MetaLink';
 import { getProjectLinks } from '../../../api/projectLinks';
 import { orderLinks } from '../../project-admin/links/utils';
 
-export default class MetaLinks extends React.Component {
+export default class MetaLinks extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired
   };

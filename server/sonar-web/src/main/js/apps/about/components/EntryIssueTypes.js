@@ -26,7 +26,7 @@ import BugIcon from '../../../components/ui/BugIcon';
 import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
 import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
 
-export default class EntryIssueTypes extends React.Component {
+export default class EntryIssueTypes extends React.PureComponent {
   static propTypes = {
     bugs: React.PropTypes.number.isRequired,
     vulnerabilities: React.PropTypes.number.isRequired,

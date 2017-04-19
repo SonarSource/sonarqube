@@ -26,7 +26,7 @@ import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 
-export default class Projects extends React.Component {
+export default class Projects extends React.PureComponent {
   static propTypes = {
     projects: React.PropTypes.array.isRequired,
     selection: React.PropTypes.array.isRequired,

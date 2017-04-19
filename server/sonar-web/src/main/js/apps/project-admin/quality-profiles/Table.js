@@ -18,21 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { groupBy, orderBy } from 'lodash';
 import ProfileRow from './ProfileRow';
 import { translate } from '../../../helpers/l10n';
 
-export default class Table extends React.Component {
+export default class Table extends React.PureComponent {
   static propTypes = {
     allProfiles: React.PropTypes.array.isRequired,
     profiles: React.PropTypes.array.isRequired,
     onChangeProfile: React.PropTypes.func.isRequired
   };
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
 
   renderHeader() {
     // keep one empty cell for the spinner

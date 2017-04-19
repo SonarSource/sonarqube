@@ -20,7 +20,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class UserScmAccounts extends React.Component {
+export default class UserScmAccounts extends React.PureComponent {
   static propTypes = {
     user: React.PropTypes.object.isRequired,
     scmAccounts: React.PropTypes.arrayOf(React.PropTypes.string).isRequired

@@ -25,10 +25,10 @@ type Props = {
   children?: React.Element<*>
 };
 
-const PageMain = (props: Props) => (
-  <div className={css({ flexGrow: 1, minWidth: 740, padding: 20 })}>
-    {props.children}
-  </div>
-);
-
-export default PageMain;
+export default function PageMain(props: Props) {
+  return (
+    <div className={css({ flexGrow: 1, minWidth: 740, padding: 20 })}>
+      {props.children}
+    </div>
+  );
+}

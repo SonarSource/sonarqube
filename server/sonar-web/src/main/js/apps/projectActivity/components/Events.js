@@ -23,35 +23,33 @@ import { sortBy } from 'lodash';
 import Event from './Event';
 import type { Event as EventType } from '../../../store/projectActivity/duck';
 
-export default class Events extends React.Component {
-  props: {
-    analysis: string,
-    events: Array<EventType>,
-    isFirst: boolean,
-    canAdmin: boolean
-  };
+type Props = {
+  analysis: string,
+  events: Array<EventType>,
+  isFirst: boolean,
+  canAdmin: boolean
+};
 
-  render() {
-    const sortedEvents: Array<EventType> = sortBy(
-      this.props.events,
-      // versions first
-      (event: EventType) => event.category === 'VERSION' ? 0 : 1,
-      // then the rest sorted by category
-      'category'
-    );
+export default function Events(props: Props) {
+  const sortedEvents: Array<EventType> = sortBy(
+    props.events,
+    // versions first
+    (event: EventType) => event.category === 'VERSION' ? 0 : 1,
+    // then the rest sorted by category
+    'category'
+  );
 
-    return (
-      <div className="project-activity-events">
-        {sortedEvents.map(event => (
-          <Event
-            key={event.key}
-            analysis={this.props.analysis}
-            event={event}
-            isFirst={this.props.isFirst}
-            canAdmin={this.props.canAdmin}
-          />
-        ))}
-      </div>
-    );
-  }
+  return (
+    <div className="project-activity-events">
+      {sortedEvents.map(event => (
+        <Event
+          key={event.key}
+          analysis={props.analysis}
+          event={event}
+          isFirst={props.isFirst}
+          canAdmin={props.canAdmin}
+        />
+      ))}
+    </div>
+  );
 }

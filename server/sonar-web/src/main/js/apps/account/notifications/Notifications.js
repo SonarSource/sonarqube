@@ -26,7 +26,7 @@ import Projects from './Projects';
 import { translate } from '../../../helpers/l10n';
 import { fetchNotifications } from './actions';
 
-class Notifications extends React.Component {
+class Notifications extends React.PureComponent {
   props: {
     fetchNotifications: () => void
   };

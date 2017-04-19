@@ -24,7 +24,7 @@ import ApplyTemplateView from '../views/ApplyTemplateView';
 import { loadHolders } from '../store/actions';
 import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 
-class PageHeader extends React.Component {
+class PageHeader extends React.PureComponent {
   static propTypes = {
     project: React.PropTypes.object.isRequired,
     loadHolders: React.PropTypes.func.isRequired,

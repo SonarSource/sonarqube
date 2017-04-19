@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-export default React.createClass({
+export default class ItemBoolean extends React.PureComponent {
   render() {
     if (this.props.value) {
       return <i className="icon-check" />;
@@ -27,4 +27,4 @@ export default React.createClass({
       return <i className="icon-delete" />;
     }
   }
-});
+}

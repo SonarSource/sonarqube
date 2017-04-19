@@ -21,15 +21,19 @@
 import React from 'react';
 import getStore from '../../app/utils/getStore';
 
-export default class WithStore extends React.Component {
+type Props = {
+  children: React.Element<*>
+};
+
+export default class WithStore extends React.PureComponent {
+  props: Props;
   store: {};
-  props: { children: Object };
 
   static childContextTypes = {
     store: React.PropTypes.object
   };
 
-  constructor(props: { children: Object }) {
+  constructor(props: Props) {
     super(props);
     this.store = getStore();
   }

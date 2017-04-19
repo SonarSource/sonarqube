@@ -20,7 +20,7 @@
 import React from 'react';
 import Defaults from './Defaults';
 
-export default class TemplateDetails extends React.Component {
+export default class TemplateDetails extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     template: React.PropTypes.object.isRequired

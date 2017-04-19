@@ -25,7 +25,7 @@ import UsersView from '../views/UsersView';
 import GroupsView from '../views/GroupsView';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
 
-export default class ListItem extends React.Component {
+export default class ListItem extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     permissionTemplate: PermissionTemplateType.isRequired,

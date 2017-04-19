@@ -20,7 +20,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class ReadMore extends React.Component {
+export default class ReadMore extends React.PureComponent {
   static propTypes = {
     link: React.PropTypes.string.isRequired
   };

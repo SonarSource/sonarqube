@@ -23,7 +23,7 @@ import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getLeakPeriod } from '../../../helpers/periods';
 import { translate, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
-export default class Home extends React.Component {
+export default class Home extends React.PureComponent {
   componentDidMount() {
     document.querySelector('html').classList.add('dashboard-page');
     this.props.onDisplay();

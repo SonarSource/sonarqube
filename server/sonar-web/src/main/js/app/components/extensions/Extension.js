@@ -38,7 +38,7 @@ type Props = {
   router: Object
 };
 
-class Extension extends React.Component {
+class Extension extends React.PureComponent {
   container: Object;
   props: Props;
   stop: ?Function;

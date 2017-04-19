@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { deleteOrganization } from '../actions';
 
-class OrganizationDelete extends React.Component {
+class OrganizationDelete extends React.PureComponent {
   props: {
     organization: {
       key: string,

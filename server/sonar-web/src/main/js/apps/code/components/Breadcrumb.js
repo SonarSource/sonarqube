@@ -20,8 +20,8 @@
 import React from 'react';
 import ComponentName from './ComponentName';
 
-const Breadcrumb = ({ rootComponent, component, canBrowse }) => (
-  <ComponentName rootComponent={rootComponent} component={component} canBrowse={canBrowse} />
-);
-
-export default Breadcrumb;
+export default function Breadcrumb({ rootComponent, component, canBrowse }) {
+  return (
+    <ComponentName rootComponent={rootComponent} component={component} canBrowse={canBrowse} />
+  );
+}

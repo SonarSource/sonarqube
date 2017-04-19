@@ -21,7 +21,7 @@ import React from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import { translate } from '../../../helpers/l10n';
 
-export default class Form extends React.Component {
+export default class Form extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired
   };

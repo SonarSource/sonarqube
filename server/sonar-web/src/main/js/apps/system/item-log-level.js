@@ -23,17 +23,18 @@ import { translate } from '../../helpers/l10n';
 
 const LOG_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 
-export default React.createClass({
-  getInitialState() {
-    return { level: this.props.value };
-  },
+export default class ItemLogLevel extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = { level: props.value };
+  }
 
-  onChange() {
+  onChange = () => {
     const newValue = this.refs.select.value;
     setLogLevel(newValue).then(() => {
       this.setState({ level: newValue });
     });
-  },
+  };
 
   render() {
     const options = LOG_LEVELS.map(level => <option key={level} value={level}>{level}</option>);
@@ -49,4 +50,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

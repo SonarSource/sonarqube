@@ -20,7 +20,7 @@
 import React from 'react';
 import init from '../init';
 
-export default class GroupsAppContainer extends React.Component {
+export default class GroupsAppContainer extends React.PureComponent {
   componentDidMount() {
     init(this.refs.container);
   }

@@ -29,7 +29,7 @@ import { translate } from '../../../../helpers/l10n';
 
 const HEIGHT = 500;
 
-export default class MeasureHistory extends React.Component {
+export default class MeasureHistory extends React.PureComponent {
   state = {
     components: [],
     selected: null,

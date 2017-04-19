@@ -22,7 +22,7 @@ import React from 'react';
 import { getSettingValue, isEmptyValue, getDefaultValue } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
-export default class DefinitionDefaults extends React.Component {
+export default class DefinitionDefaults extends React.PureComponent {
   static propTypes = {
     setting: React.PropTypes.object.isRequired,
     isDefault: React.PropTypes.bool.isRequired,

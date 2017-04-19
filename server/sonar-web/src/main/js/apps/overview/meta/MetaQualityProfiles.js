@@ -27,7 +27,7 @@ import { getQualityProfileUrl } from '../../../helpers/urls';
 import { searchRules } from '../../../api/rules';
 import { getLanguages } from '../../../store/rootReducer';
 
-class MetaQualityProfiles extends React.Component {
+class MetaQualityProfiles extends React.PureComponent {
   mounted: boolean;
 
   props: {

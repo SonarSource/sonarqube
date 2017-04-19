@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import shallowCompare from 'react-addons-shallow-compare';
 import { sortBy } from 'lodash';
 import QualityGateCondition from './QualityGateCondition';
 import { ComponentType, ConditionsListType } from '../propTypes';
@@ -34,7 +33,7 @@ function enhanceConditions(conditions, measures) {
   });
 }
 
-export default class QualityGateConditions extends React.Component {
+export default class QualityGateConditions extends React.PureComponent {
   static propTypes = {
     component: ComponentType.isRequired,
     conditions: ConditionsListType.isRequired
@@ -47,10 +46,6 @@ export default class QualityGateConditions extends React.Component {
   componentDidMount() {
     this.mounted = true;
     this.loadFailedMeasures();
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
   }
 
   componentDidUpdate(prevProps) {

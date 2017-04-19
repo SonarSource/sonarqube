@@ -21,25 +21,19 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default class Header extends React.Component {
-  props: {
-    component: { qualifier: string }
-  };
+export default function Header(props: { component: { qualifier: string } }) {
+  const description = ['VW', 'SVW'].includes(props.component.qualifier)
+    ? translate('portfolio_deletion.page.description')
+    : translate('project_deletion.page.description');
 
-  render() {
-    const description = ['VW', 'SVW'].includes(this.props.component.qualifier)
-      ? translate('portfolio_deletion.page.description')
-      : translate('project_deletion.page.description');
-
-    return (
-      <header className="page-header">
-        <h1 className="page-title">
-          {translate('deletion.page')}
-        </h1>
-        <div className="page-description">
-          {description}
-        </div>
-      </header>
-    );
-  }
+  return (
+    <header className="page-header">
+      <h1 className="page-title">
+        {translate('deletion.page')}
+      </h1>
+      <div className="page-description">
+        {description}
+      </div>
+    </header>
+  );
 }

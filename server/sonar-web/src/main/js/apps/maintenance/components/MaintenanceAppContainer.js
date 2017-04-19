@@ -20,7 +20,7 @@
 import React from 'react';
 import init from '../init';
 
-export default class MaintenanceAppContainer extends React.Component {
+export default class MaintenanceAppContainer extends React.PureComponent {
   componentDidMount() {
     init(this.refs.container, false);
   }

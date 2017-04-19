@@ -26,7 +26,7 @@ import MetricNotFound from './MetricNotFound';
 import { getPeriod, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class MeasureDetails extends React.Component {
+export default class MeasureDetails extends React.PureComponent {
   mounted: boolean;
 
   state = {
