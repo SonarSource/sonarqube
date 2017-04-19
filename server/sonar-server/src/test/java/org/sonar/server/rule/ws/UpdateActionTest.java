@@ -21,10 +21,14 @@
 package org.sonar.server.rule.ws;
 
 import java.io.IOException;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -41,13 +45,15 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR_OFFSET;
@@ -63,45 +69,95 @@ import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_BASE_EF
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_GAP_MULTIPLIER;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_REMEDIATION_FN_TYPE;
 import static org.sonar.server.rule.ws.UpdateAction.PARAM_TAGS;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpdateActionTest {
 
-  @org.junit.Rule
-  public DbTester dbTester = DbTester.create();
-  @org.junit.Rule
-  public EsTester esTester = new EsTester(
-    new RuleIndexDefinition(new MapSettings()));
-  @org.junit.Rule
+  private static final long PAST = 10000L;
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public DbTester db = DbTester.create();
+
+  @Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+
+  @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
   private EsClient esClient = esTester.client();
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-  private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private Languages languages = new Languages();
-  private RuleMapper mapper = new RuleMapper(languages, macroInterpreter);
+  private RuleMapper mapper = new RuleMapper(languages, createMacroInterpreter());
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
   private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE);
   private RuleWsSupport ruleWsSupport = new RuleWsSupport(dbClient, userSession, defaultOrganizationProvider);
   private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, ruleWsSupport, defaultOrganizationProvider);
-  private WsActionTester actionTester = new WsActionTester(underTest);
-  private OrganizationDto defaultOrganization;
+  private WsActionTester ws = new WsActionTester(underTest);
 
-  @Before
-  public void setUp() {
-    defaultOrganization = dbTester.getDefaultOrganization();
+  @Test
+  public void update_custom_rule() throws Exception {
     logInAsQProfileAdministrator();
+    RuleDefinitionDto templateRule = db.rules().insert(
+      r -> r.setRuleKey(RuleKey.of("java", "S001")),
+      r -> r.setIsTemplate(true),
+      r -> r.setCreatedAt(PAST),
+      r -> r.setUpdatedAt(PAST));
+    db.rules().insertRuleParam(templateRule, param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
+    RuleDefinitionDto customRule = db.rules().insert(
+      r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
+      r -> r.setName("Old custom"),
+      r -> r.setDescription("Old description"),
+      r -> r.setSeverity(Severity.MINOR),
+      r -> r.setStatus(RuleStatus.BETA),
+      r -> r.setTemplateId(templateRule.getId()),
+      r -> r.setLanguage("js"),
+      r -> r.setCreatedAt(PAST),
+      r -> r.setUpdatedAt(PAST));
+    db.rules().insertRuleParam(customRule, param -> param.setName("regex").setType("a").setDescription("Reg ex"));
+
+    TestResponse request = ws.newRequest().setMethod("POST")
+      .setParam("key", customRule.getKey().toString())
+      .setParam("name", "My custom rule")
+      .setParam("markdown_description", "Description")
+      .setParam("severity", "MAJOR")
+      .setParam("status", "BETA")
+      .setParam("params", "regex=a.*")
+      .execute();
+
+    assertJson(request.getInput()).isSimilarTo("{\n" +
+      "  \"rule\": {\n" +
+      "    \"key\": \"java:MY_CUSTOM\",\n" +
+      "    \"repo\": \"java\",\n" +
+      "    \"name\": \"My custom rule\",\n" +
+      "    \"htmlDesc\": \"Description\",\n" +
+      "    \"severity\": \"MAJOR\",\n" +
+      "    \"status\": \"BETA\",\n" +
+      "    \"isTemplate\": false,\n" +
+      "    \"templateKey\": \"java:S001\",\n" +
+      "    \"params\": [\n" +
+      "      {\n" +
+      "        \"key\": \"regex\",\n" +
+      "        \"htmlDesc\": \"Reg ex\",\n" +
+      "        \"defaultValue\": \"a.*\"\n" +
+      "      }\n" +
+      "    ]\n" +
+      "  }\n" +
+      "}\n");
   }
 
   @Test
   public void update_tags_for_default_organization() throws IOException {
-    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+    logInAsQProfileAdministrator();
 
-    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("stag1", "stag2"));
-    dbTester.rules().insertOrUpdateMetadata(rule, defaultOrganization, setTags("tag1", "tag2"));
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
+    db.rules().insertOrUpdateMetadata(rule, db.getDefaultOrganization(), setTags("tag1", "tag2"));
 
-    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
+    Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(PARAM_TAGS, "tag2,tag3")
       .executeProtobuf(Rules.UpdateResponse.class);
@@ -116,14 +172,14 @@ public class UpdateActionTest {
 
   @Test
   public void update_tags_for_specific_organization() throws IOException {
-    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+    logInAsQProfileAdministrator();
 
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
 
-    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("stag1", "stag2"));
-    dbTester.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"));
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
+    db.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"));
 
-    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
+    Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(PARAM_TAGS, "tag2,tag3")
       .setParam(PARAM_ORGANIZATION, organization.getKey())
@@ -138,18 +194,18 @@ public class UpdateActionTest {
     assertThat(updatedRule.getTags().getTagsList()).containsExactly("tag2", "tag3");
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = dbTester.getDbClient().ruleDao().selectMetadataByKey(dbTester.getSession(), rule.getKey(), organization)
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization)
       .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
     assertThat(metadataOfSpecificOrg.getTags()).containsExactly("tag2", "tag3");
   }
 
   @Test
   public void update_rule_remediation_function() throws IOException {
-    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+    logInAsQProfileAdministrator();
 
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
 
-    RuleDefinitionDto rule = dbTester.rules().insert(
+    RuleDefinitionDto rule = db.rules().insert(
       r -> r.setDefRemediationFunction(LINEAR.toString()),
       r -> r.setDefRemediationGapMultiplier("10d"),
       r -> r.setDefRemediationBaseEffort(null));
@@ -158,7 +214,7 @@ public class UpdateActionTest {
     String newMultiplier = "15d";
     String newEffort = "5min";
 
-    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
+    Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam("key", rule.getKey().toString())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_REMEDIATION_FN_TYPE, newOffset)
@@ -180,7 +236,7 @@ public class UpdateActionTest {
     assertThat(updatedRule.getRemFnBaseEffort()).isEqualTo(newEffort);
 
     // check database
-    RuleMetadataDto metadataOfSpecificOrg = dbTester.getDbClient().ruleDao().selectMetadataByKey(dbTester.getSession(), rule.getKey(), organization)
+    RuleMetadataDto metadataOfSpecificOrg = db.getDbClient().ruleDao().selectMetadataByKey(db.getSession(), rule.getKey(), organization)
       .orElseThrow(() -> new IllegalStateException("Cannot load metadata"));
     assertThat(metadataOfSpecificOrg.getRemediationFunction()).isEqualTo(newOffset);
     assertThat(metadataOfSpecificOrg.getRemediationGapMultiplier()).isEqualTo(newMultiplier);
@@ -189,19 +245,19 @@ public class UpdateActionTest {
 
   @Test
   public void update_custom_rule_with_deprecated_remediation_function_parameters() throws Exception {
-    doReturn("interpreted").when(macroInterpreter).interpret(anyString());
+    logInAsQProfileAdministrator();
 
     RuleDefinitionDto rule = RuleTesting.newRule()
       .setDefRemediationFunction(LINEAR_OFFSET.toString())
       .setDefRemediationGapMultiplier("10d")
       .setDefRemediationBaseEffort("5min");
-    dbTester.rules().insert(rule);
+    db.rules().insert(rule);
 
     String newType = LINEAR_OFFSET.toString();
     String newCoeff = "11d";
     String newOffset = "6min";
 
-    Rules.UpdateResponse result = actionTester.newRequest().setMethod("POST")
+    Rules.UpdateResponse result = ws.newRequest().setMethod("POST")
       .setParam(PARAM_KEY, rule.getKey().toString())
       .setParam(DEPRECATED_PARAM_REMEDIATION_FN_TYPE, newType)
       .setParam(DEPRECATED_PARAM_REMEDIATION_FN_COEFF, newCoeff)
@@ -227,9 +283,41 @@ public class UpdateActionTest {
     assertThat(updatedRule.getGapDescription()).isEqualTo(rule.getGapDescription());
   }
 
+  @Test
+  public void fail_to_update_custom_when_description_is_empty() {
+    logInAsQProfileAdministrator();
+    RuleDefinitionDto templateRule = db.rules().insert(
+      r -> r.setRuleKey(RuleKey.of("java", "S001")),
+      r -> r.setIsTemplate(true),
+      r -> r.setCreatedAt(PAST),
+      r -> r.setUpdatedAt(PAST));
+    RuleDefinitionDto customRule = db.rules().insert(
+      r -> r.setRuleKey(RuleKey.of("java", "MY_CUSTOM")),
+      r -> r.setName("Old custom"),
+      r -> r.setDescription("Old description"),
+      r -> r.setTemplateId(templateRule.getId()),
+      r -> r.setCreatedAt(PAST),
+      r -> r.setUpdatedAt(PAST));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The description is missing");
+
+    ws.newRequest().setMethod("POST")
+      .setParam("key", customRule.getKey().toString())
+      .setParam("name", "My custom rule")
+      .setParam("markdown_description", "")
+      .execute();
+  }
+
   private void logInAsQProfileAdministrator() {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganization.getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization().getUuid());
+  }
+
+  private static MacroInterpreter createMacroInterpreter() {
+    MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+    doAnswer(returnsFirstArg()).when(macroInterpreter).interpret(anyString());
+    return macroInterpreter;
   }
 }
