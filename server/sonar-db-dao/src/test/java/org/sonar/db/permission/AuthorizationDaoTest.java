@@ -19,7 +19,6 @@
  */
 package org.sonar.db.permission;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import org.junit.Before;
@@ -111,24 +110,25 @@ public class AuthorizationDaoTest {
 
   @Test
   public void user_should_be_authorized() {
-    // but user is not in an authorized group
-    db.prepareDbUnit(getClass(), "user_should_be_authorized.xml");
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    ComponentDto project3 = db.components().insertPublicProject(organization);
+    UserDto user = db.users().insertUser("u1");
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project2);
+    db.users().insertProjectPermissionOnUser(user, UserRole.USER, project3);
+    db.users().insertMember(group, user);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project1);
 
-    Collection<Long> componentIds = underTest.keepAuthorizedProjectIds(dbSession,
-      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
-      USER, "user");
-
-    assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId(), project3.getId()), user.getId(), UserRole.USER))
+      .containsOnly(project2.getId(), project3.getId());
 
     // user does not have the role "admin"
-    componentIds = underTest.keepAuthorizedProjectIds(dbSession,
-      newHashSet(PROJECT_ID),
-      USER, "admin");
-    assertThat(componentIds).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId()), user.getId(), UserRole.ADMIN))
+      .isEmpty();
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession,
-      Collections.emptySet(),
-      USER, "admin")).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), user.getId(), UserRole.ADMIN))
+      .isEmpty();
   }
 
   @Test
@@ -226,118 +226,197 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keep_authorized_project_ids_for_user() {
-    db.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_user.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    UserDto user1 = db.users().insertUser("u1");
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.CODEVIEWER, project2);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId(), project2.getId()), user1.getId(), UserRole.USER))
+      .containsOnly(project1.getId());
 
     // user does not have the role "admin"
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId()), user1.getId(), UserRole.ADMIN)).isEmpty();
 
     // Empty list
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), USER, "admin")).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), user1.getId(), UserRole.ADMIN)).isEmpty();
   }
 
   @Test
   public void keep_authorized_project_ids_for_group() {
-    db.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_group.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    UserDto user1 = db.users().insertUser("u1");
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertMembers(group, user1);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, project2);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId(), project2.getId()), user1.getId(), UserRole.USER))
+      .containsOnly(project1.getId());
 
     // user does not have the role "admin"
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId()), user1.getId(), UserRole.ADMIN))
+      .isEmpty();
 
     // Empty list
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), USER, "admin")).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), user1.getId(), UserRole.ADMIN))
+      .isEmpty();
   }
 
   @Test
   public void keep_authorized_project_ids_for_anonymous() {
-    db.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_anonymous.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    UserDto user1 = db.users().insertUser("u1");
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertMembers(group, user1);
+    db.users().insertProjectPermissionOnAnyone(UserRole.USER, project1);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.CODEVIEWER, project2);
 
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), null, "user")).containsOnly(PROJECT_ID);
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId(), project2.getId()), null, UserRole.USER))
+      .containsOnly(project1.getId());
 
     // user does not have the role "admin"
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(PROJECT_ID), null, "admin")).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId()), null, UserRole.ADMIN))
+      .isEmpty();
 
     // Empty list
-    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), null, "admin")).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, Collections.emptySet(), null, UserRole.ADMIN))
+      .isEmpty();
   }
 
   @Test
   public void group_should_be_authorized() {
-    // user is in an authorized group
-    db.prepareDbUnit(getClass(), "group_should_be_authorized.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    ComponentDto project3 = db.components().insertPublicProject(organization);
+    UserDto user1 = db.users().insertUser("u1");
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertMembers(group, user1);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project2);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project3);
 
-    Collection<Long> componentIds = underTest.keepAuthorizedProjectIds(dbSession,
-      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
-      USER, "user");
-
-    assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId(), project3.getId()), user1.getId(), UserRole.USER))
+      .containsOnly(project2.getId(), project3.getId());
 
     // group does not have the role "admin"
-    componentIds = underTest.keepAuthorizedProjectIds(dbSession,
-      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
-      USER, "admin");
-    assertThat(componentIds).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project2.getId(), project3.getId()), user1.getId(), UserRole.ADMIN))
+      .isEmpty();
   }
 
   @Test
   public void anonymous_should_be_authorized() {
-    db.prepareDbUnit(getClass(), "anonymous_should_be_authorized.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    UserDto user1 = db.users().insertUser("u1");
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertMembers(group, user1);
+    db.users().insertProjectPermissionOnAnyone(UserRole.USER, project1);
+    db.users().insertProjectPermissionOnAnyone(UserRole.USER, project2);
 
-    Collection<Long> componentIds = underTest.keepAuthorizedProjectIds(dbSession,
-      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
-      null, "user");
-
-    assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId(), project2.getId()), null, UserRole.USER))
+      .containsOnly(project1.getId(), project2.getId());
 
     // group does not have the role "admin"
-    componentIds = underTest.keepAuthorizedProjectIds(dbSession,
-      newHashSet(PROJECT_ID),
-      null, "admin");
-    assertThat(componentIds).isEmpty();
+    assertThat(underTest.keepAuthorizedProjectIds(dbSession, newHashSet(project1.getId()), null, "admin"))
+      .isEmpty();
   }
 
   @Test
   public void keep_authorized_users_for_role_and_project_for_user() {
-    db.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_user.xml");
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user1 = db.users().insertUser("u1");
+    UserDto user2 = db.users().insertUser("u2");
+    UserDto user3 = db.users().insertUser("u3");
+    GroupDto group = db.users().insertGroup(organization);
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    db.users().insertMembers(group, user1);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user3, UserRole.ADMIN, project1);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project2);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.USER, project2);
+
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
+      newHashSet(user1.getId(), user2.getId(), user3.getId()), UserRole.USER, project1.getId()))
+        .containsOnly(user1.getId(), user2.getId());
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
       // Only 100 and 101 has 'user' role on project
-      newHashSet(100, 101, 102), "user", PROJECT_ID)).containsOnly(100, 101);
-
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
-      // Only 100 and 101 has 'user' role on project
-      newHashSet(100), "user", PROJECT_ID)).containsOnly(100);
+      newHashSet(user1.getId()), UserRole.USER, project1.getId())).containsOnly(user1.getId());
 
     // user does not have the role "admin"
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, newHashSet(100), "admin", PROJECT_ID)).isEmpty();
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, newHashSet(user1.getId()), UserRole.ADMIN, project1.getId()))
+      .isEmpty();
 
     // Empty list
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, Collections.emptySet(), "user", PROJECT_ID)).isEmpty();
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, Collections.emptySet(), UserRole.USER, project1.getId()))
+      .isEmpty();
   }
 
   @Test
   public void keep_authorized_users_for_role_and_project_for_group() {
-    db.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_group.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    ComponentDto project3 = db.components().insertPublicProject(organization);
+    UserDto user1 = db.users().insertUser("u1");
+    UserDto user2 = db.users().insertUser("u2");
+    UserDto user3 = db.users().insertUser("u3");
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user3, UserRole.USER, project1);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.users().insertMembers(group1, user1, user2);
+    db.users().insertMembers(group2, user3);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user3, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnGroup(group1, UserRole.USER, project2);
+    db.users().insertProjectPermissionOnGroup(group2, UserRole.USER, project3);
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
-      // Only 100 and 101 has 'user' role on project
-      newHashSet(100, 101, 102), "user", PROJECT_ID)).containsOnly(100, 101);
+      newHashSet(user1.getId(), user2.getId(), user3.getId()), UserRole.USER, project2.getId()))
+        .containsOnly(user1.getId(), user2.getId());
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
-      newHashSet(100), "user", PROJECT_ID)).containsOnly(100);
+      newHashSet(user1.getId()), UserRole.USER, project2.getId())).containsOnly(user1.getId());
 
-    // user does not have the role "admin"
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, newHashSet(100), "admin", PROJECT_ID)).isEmpty();
+    // no user has the role "admin"
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, newHashSet(user1.getId()), UserRole.ADMIN, project2.getId()))
+      .isEmpty();
 
-    // Empty list
-    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, Collections.emptySet(), "user", PROJECT_ID)).isEmpty();
+    // Empty user id set
+    assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession, Collections.emptySet(), UserRole.USER, project2.getId())).isEmpty();
   }
 
   @Test
   public void keep_authorized_users_returns_empty_list_for_role_and_project_for_anonymous() {
-    db.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_anonymous.xml");
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    ComponentDto project3 = db.components().insertPublicProject(organization);
+    UserDto user1 = db.users().insertUser("u1");
+    UserDto user2 = db.users().insertUser("u2");
+    UserDto user3 = db.users().insertUser("u3");
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.users().insertMembers(group1, user1, user2);
+    db.users().insertMembers(group2, user3);
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user2, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnUser(user3, UserRole.USER, project1);
+    db.users().insertProjectPermissionOnAnyone(UserRole.USER, project2);
+    db.users().insertProjectPermissionOnGroup(group2, UserRole.USER, project3);
 
     assertThat(underTest.keepAuthorizedUsersForRoleAndProject(dbSession,
       // Only 100 and 101 has 'user' role on project
