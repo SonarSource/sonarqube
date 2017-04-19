@@ -49,7 +49,6 @@ import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.copyOf;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
@@ -68,6 +67,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   static final String PARAM_MORE = "more";
   static final String PARAM_RECENTLY_BROWSED = "recentlyBrowsed";
   static final String SHORT_INPUT_WARNING = "short_input";
+  private static final long MAXIMUM_RECENTLY_BROWSED = 50;
 
   static final int DEFAULT_LIMIT = 6;
   static final int EXTENDED_LIMIT = 20;
@@ -112,7 +112,8 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setSince("6.4");
 
     action.createParam(PARAM_RECENTLY_BROWSED)
-      .setDescription("Comma separated list of component keys, that have recently been browsed by the user.")
+      .setDescription("Comma separated list of component keys, that have recently been browsed by the user. Only the first " + MAXIMUM_RECENTLY_BROWSED
+        + " items will be used. Order is not taken into account.")
       .setSince("6.4")
       .setExampleValue("org.sonarsource:sonarqube,some.other:project")
       .setRequired(false);
@@ -123,7 +124,12 @@ public class SuggestionsAction implements ComponentsWsAction {
     String query = wsRequest.param(PARAM_QUERY);
     String more = wsRequest.param(PARAM_MORE);
     List<String> recentlyBrowsedParam = wsRequest.paramAsStrings(PARAM_RECENTLY_BROWSED);
-    Set<String> recentlyBrowsedKeys = recentlyBrowsedParam == null ? emptySet() : copyOf(recentlyBrowsedParam);
+    Set<String> recentlyBrowsedKeys;
+    if (recentlyBrowsedParam == null) {
+      recentlyBrowsedKeys = emptySet();
+    } else {
+      recentlyBrowsedKeys = recentlyBrowsedParam.stream().limit(MAXIMUM_RECENTLY_BROWSED).collect(Collectors.toSet());
+    }
     Set<String> favoriteKeys = favoriteFinder.list().stream().map(ComponentDto::getKey).collect(Collectors.toSet());
 
     ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder()
