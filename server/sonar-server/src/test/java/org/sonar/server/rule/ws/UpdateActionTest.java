@@ -38,6 +38,8 @@ import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.RuleUpdater;
@@ -307,6 +309,22 @@ public class UpdateActionTest {
       .setParam("name", "My custom rule")
       .setParam("markdown_description", "")
       .execute();
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+    userSession.logIn();
+
+    expectedException.expect(ForbiddenException.class);
+
+    ws.newRequest().setMethod("POST").execute();
+  }
+
+  @Test
+  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+    expectedException.expect(UnauthorizedException.class);
+
+    ws.newRequest().setMethod("POST").execute();
   }
 
   private void logInAsQProfileAdministrator() {

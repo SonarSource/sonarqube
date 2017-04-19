@@ -93,7 +93,8 @@ public class UpdateAction implements RulesWsAction {
     WebService.NewAction action = controller
       .createAction("update")
       .setPost(true)
-      .setDescription("Update an existing rule")
+      .setDescription("Update an existing rule.<br>" +
+        "Requires the 'Administer Quality Profiles' permission")
       .setSince("4.4")
       .setHandler(this);
 
