@@ -124,14 +124,14 @@ public class SuggestionsActionTest {
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
-    assertThat(response.getSuggestionsList())
-      .filteredOn(q -> q.getSuggestionsCount() > 0)
-      .extracting(Category::getCategory)
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(Category::getQ)
       .containsExactly(Qualifiers.PROJECT);
 
     // assert correct id to be found
-    assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getSuggestionsList)
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getOrganization)
       .containsExactly(tuple(project.getKey(), organization.getKey()));
   }
@@ -148,7 +148,7 @@ public class SuggestionsActionTest {
       .setParam(PARAM_QUERY, "S o")
       .executeProtobuf(SuggestionsWsResponse.class);
 
-    assertThat(response.getSuggestionsList()).filteredOn(q -> q.getSuggestionsCount() > 0).isEmpty();
+    assertThat(response.getResultsList()).filteredOn(q -> q.getItemsCount() > 0).isEmpty();
     assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
   }
 
@@ -200,8 +200,8 @@ public class SuggestionsActionTest {
       .setParam(PARAM_QUERY, "Module")
       .executeProtobuf(SuggestionsWsResponse.class);
 
-    assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getSuggestionsList)
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getProject)
       .containsOnly(project.key());
 
@@ -227,8 +227,8 @@ public class SuggestionsActionTest {
       .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getKey()).collect(joining(",")))
       .executeProtobuf(SuggestionsWsResponse.class);
 
-    assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getSuggestionsList)
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getIsRecentlyBrowsed)
       .containsExactly(true, false);
   }
@@ -250,8 +250,8 @@ public class SuggestionsActionTest {
       .setParam(PARAM_QUERY, "Module")
       .executeProtobuf(SuggestionsWsResponse.class);
 
-    assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getSuggestionsList)
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
       .containsExactly(tuple(favorite.getKey(), true), tuple(nonFavorite.getKey(), false));
   }
@@ -294,19 +294,19 @@ public class SuggestionsActionTest {
       .executeProtobuf(SuggestionsWsResponse.class);
 
     // assert match in qualifier "TRK"
-    assertThat(response.getSuggestionsList())
-      .filteredOn(q -> q.getSuggestionsCount() > 0)
-      .extracting(Category::getCategory)
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(Category::getQ)
       .containsExactly(Qualifiers.PROJECT);
 
     // include limited number of results in the response
-    assertThat(response.getSuggestionsList())
-      .flatExtracting(Category::getSuggestionsList)
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
       .hasSize(Math.min(results, numberOfProjects));
 
     // indicate, that there are more results
-    assertThat(response.getSuggestionsList())
-      .filteredOn(q -> q.getSuggestionsCount() > 0)
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
       .extracting(Category::getMore)
       .containsExactly(numberOfMoreResults);
   }

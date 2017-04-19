@@ -48,14 +48,14 @@ message ShowWsResponse {
 
 // WS api/components/suggestions
 message SuggestionsWsResponse {
-  repeated Category suggestions = 1;
+  repeated Category results = 1;
   optional string warning = 2;
   repeated Organization organizations = 3;
   repeated Project projects = 4;
 
   message Category {
-  	optional string category = 1;
-  	repeated Suggestion suggestions = 2;
+  	optional string q = 1;
+  	repeated Suggestion items = 2;
     optional int64 more = 3;
   }
 
