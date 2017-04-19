@@ -157,11 +157,11 @@ public class OkHttpClientBuilder {
       builder.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS);
     }
     if (proxyLogin != null) {
-+      builder.proxyAuthenticator((route, response) -> {
-+        Request.Builder newRequest = response.request().newBuilder();
-+        return newRequest.header("Proxy-Authorization", Credentials.basic(proxyLogin, nullToEmpty(proxyPassword))).build();
-+      });
-+    }
+      builder.proxyAuthenticator((route, response) -> {
+        Request.Builder newRequest = response.request().newBuilder();
+        return newRequest.header("Proxy-Authorization", Credentials.basic(proxyLogin, nullToEmpty(proxyPassword))).build();
+      });
+    }
     builder.addInterceptor(this::completeHeaders);
 
     ConnectionSpec tls = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
