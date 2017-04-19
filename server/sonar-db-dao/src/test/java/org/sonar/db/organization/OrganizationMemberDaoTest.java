@@ -183,6 +183,20 @@ public class OrganizationMemberDaoTest {
     assertThat(underTest.select(dbSession, "O2", 512)).isPresent();
   }
 
+  @Test
+  public void delete_by_user_id() {
+    underTest.insert(dbSession, create("O1", 512));
+    underTest.insert(dbSession, create("O1", 513));
+    underTest.insert(dbSession, create("O2", 512));
+
+    underTest.deleteByUserId(dbSession, 512);
+    db.commit();
+
+    assertThat(db.select("select organization_uuid as \"organizationUuid\", user_id as \"userId\" from organization_members"))
+      .extracting((row) -> row.get("organizationUuid"), (row) -> row.get("userId"))
+      .containsOnly(tuple("O1", 513L));
+  }
+
   private OrganizationMemberDto create(String organizationUuid, Integer userId) {
     return new OrganizationMemberDto()
       .setOrganizationUuid(organizationUuid)

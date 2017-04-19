@@ -180,18 +180,17 @@ public class DeactivateActionTest {
 
   @Test
   public void deactivate_user_deletes_his_organization_membership() {
-    UserDto user = insertUser(newUserDto()
-      .setLogin("ada.lovelace")
-      .setEmail("ada.lovelace@noteg.com")
-      .setName("Ada Lovelace")
-      .setScmAccounts(singletonList("al")));
-    OrganizationDto organizationDto = db.organizations().insert();
-    db.organizations().addMember(organizationDto, user);
     logInAsSystemAdministrator();
+    UserDto user = insertUser(newUserDto());
+    OrganizationDto organization = db.organizations().insert();
+    db.organizations().addMember(organization, user);
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    db.organizations().addMember(anotherOrganization, user);
 
     deactivate(user.getLogin()).getInput();
 
-    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organizationDto.getUuid(), user.getId())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), organization.getUuid(), user.getId())).isNotPresent();
+    assertThat(dbClient.organizationMemberDao().select(db.getSession(), anotherOrganization.getUuid(), user.getId())).isNotPresent();
   }
 
   @Test

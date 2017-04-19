@@ -58,6 +58,10 @@ public class OrganizationMemberDao implements Dao {
     mapper(dbSession).deleteByOrganization(organizationMemberUuid);
   }
 
+  public void deleteByUserId(DbSession dbSession, int userId) {
+    mapper(dbSession).deleteByUserId(userId);
+  }
+
   public Set<String> selectOrganizationUuidsByUser(DbSession dbSession, int userId) {
     return mapper(dbSession).selectOrganizationUuidsByUser(userId);
   }

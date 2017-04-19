@@ -77,4 +77,9 @@
     where
     organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </delete>
+
+  <delete id="deleteByUserId" parameterType="int">
+    DELETE FROM organization_members WHERE user_id=#{userId,jdbcType=BIGINT}
+  </delete>
+
 </mapper>
