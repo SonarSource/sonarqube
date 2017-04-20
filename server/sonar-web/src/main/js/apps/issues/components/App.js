@@ -592,11 +592,11 @@ export default class App extends React.PureComponent {
           loading={this.state.loading}
           onBackClick={this.closeIssue}
           onReload={this.handleReloadAndOpenFirst}
-          paging={this.state.paging}
+          paging={paging}
           selectedIndex={this.getSelectedIndex()}
         />
         <ConciseIssuesList
-          issues={this.state.issues}
+          issues={issues}
           onIssueSelect={this.openIssue}
           selected={this.state.selected}
         />
@@ -607,10 +607,7 @@ export default class App extends React.PureComponent {
     );
   }
 
-  renderSide() {
-    const open = getOpen(this.props.location.query);
-    const openIssue = this.state.issues.find(issue => issue.key === open);
-
+  renderSide(openIssue?: Issue) {
     const top = this.props.component ? 95 : 30;
 
     return (
@@ -667,7 +664,7 @@ export default class App extends React.PureComponent {
       <Page className="issues" id="issues-page">
         <Helmet title={translate('issues.page')} titleTemplate="%s - SonarQube" />
 
-        {this.renderSide()}
+        {this.renderSide(openIssue)}
 
         <PageMain>
           <HeaderPanel border={true} top={top}>

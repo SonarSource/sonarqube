@@ -27,16 +27,16 @@ type Props = {|
   count: number
 |};
 
-const ConciseIssueLocationBadge = (props: Props) => (
-  <Tooltip
-    overlay={translateWithParameters(
-      'issue.this_issue_involves_x_code_locations',
-      formatMeasure(props.count)
-    )}>
-    <div className="concise-issue-location-badge">
-      {'+'}{props.count}
-    </div>
-  </Tooltip>
-);
-
-export default ConciseIssueLocationBadge;
+export default function ConciseIssueLocationBadge(props: Props) {
+  return (
+    <Tooltip
+      overlay={translateWithParameters(
+        'issue.this_issue_involves_x_code_locations',
+        formatMeasure(props.count)
+      )}>
+      <div className="concise-issue-location-badge">
+        {'+'}{props.count}
+      </div>
+    </Tooltip>
+  );
+}

@@ -22,10 +22,6 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssueLocationBadge from '../ConciseIssueLocationBadge';
 
-it('should render not selected', () => {
-  expect(shallow(<ConciseIssueLocationBadge count={7} />)).toMatchSnapshot();
-});
-
-it('should render selected', () => {
+it('should render', () => {
   expect(shallow(<ConciseIssueLocationBadge count={7} />)).toMatchSnapshot();
 });
