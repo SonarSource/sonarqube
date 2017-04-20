@@ -38,9 +38,10 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
+import org.sonarqube.ws.Organizations.SearchWsResponse;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,12 +123,12 @@ public class SearchActionTest {
 
   @Test
   public void request_on_empty_db_returns_an_empty_organization_list() {
-    assertThat(executeRequest(null, null)).isEmpty();
-    assertThat(executeRequest(null, 1)).isEmpty();
-    assertThat(executeRequest(1, null)).isEmpty();
-    assertThat(executeRequest(1, 10)).isEmpty();
-    assertThat(executeRequest(2, null)).isEmpty();
-    assertThat(executeRequest(2, 1)).isEmpty();
+    assertThat(executeRequestAndReturnList(null, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(null, 1)).isEmpty();
+    assertThat(executeRequestAndReturnList(1, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(1, 10)).isEmpty();
+    assertThat(executeRequestAndReturnList(2, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(2, 1)).isEmpty();
   }
 
   @Test
@@ -135,11 +136,11 @@ public class SearchActionTest {
     when(system2.now()).thenReturn(SOME_DATE);
     insertOrganization(ORGANIZATION_DTO);
 
-    assertThat(executeRequest(2, null)).isEmpty();
-    assertThat(executeRequest(2, 1)).isEmpty();
+    assertThat(executeRequestAndReturnList(2, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(2, 1)).isEmpty();
     int somePage = Math.abs(new Random().nextInt(10)) + 2;
-    assertThat(executeRequest(somePage, null)).isEmpty();
-    assertThat(executeRequest(somePage, 1)).isEmpty();
+    assertThat(executeRequestAndReturnList(somePage, null)).isEmpty();
+    assertThat(executeRequestAndReturnList(somePage, 1)).isEmpty();
   }
 
   @Test
@@ -151,33 +152,33 @@ public class SearchActionTest {
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
 
-    assertThat(executeRequest(1, 1))
+    assertThat(executeRequestAndReturnList(1, 1))
       .extracting(Organization::getKey)
       .containsExactly("key-4");
-    assertThat(executeRequest(2, 1))
+    assertThat(executeRequestAndReturnList(2, 1))
       .extracting(Organization::getKey)
       .containsExactly("key-5");
-    assertThat(executeRequest(3, 1))
+    assertThat(executeRequestAndReturnList(3, 1))
       .extracting(Organization::getKey)
       .containsExactly("key-2");
-    assertThat(executeRequest(4, 1))
+    assertThat(executeRequestAndReturnList(4, 1))
       .extracting(Organization::getKey)
       .containsExactly("key-1");
-    assertThat(executeRequest(5, 1))
+    assertThat(executeRequestAndReturnList(5, 1))
       .extracting(Organization::getKey)
       .containsExactly("key-3");
-    assertThat(executeRequest(6, 1))
+    assertThat(executeRequestAndReturnList(6, 1))
       .isEmpty();
 
-    assertThat(executeRequest(1, 5))
+    assertThat(executeRequestAndReturnList(1, 5))
       .extracting(Organization::getKey)
       .containsExactly("key-4", "key-5", "key-2", "key-1", "key-3");
-    assertThat(executeRequest(2, 5))
+    assertThat(executeRequestAndReturnList(2, 5))
       .isEmpty();
-    assertThat(executeRequest(1, 3))
+    assertThat(executeRequestAndReturnList(1, 3))
       .extracting(Organization::getKey)
       .containsExactly("key-4", "key-5", "key-2");
-    assertThat(executeRequest(2, 3))
+    assertThat(executeRequestAndReturnList(2, 3))
       .extracting(Organization::getKey)
       .containsExactly("key-1", "key-3");
   }
@@ -191,24 +192,39 @@ public class SearchActionTest {
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
 
-    assertThat(executeRequest(1, 10, "key-3", "key-1", "key-5"))
+    assertThat(executeRequestAndReturnList(1, 10, "key-3", "key-1", "key-5"))
       .extracting(Organization::getKey)
       .containsExactly("key-5", "key-1", "key-3");
     // ensure order of arguments doesn't change order of result
-    assertThat(executeRequest(1, 10, "key-1", "key-3", "key-5"))
+    assertThat(executeRequestAndReturnList(1, 10, "key-1", "key-3", "key-5"))
       .extracting(Organization::getKey)
       .containsExactly("key-5", "key-1", "key-3");
+  }
 
-    // verify paging
-    assertThat(executeRequest(1, 1, "key-1", "key-3", "key-5"))
-      .extracting(Organization::getKey)
-      .containsExactly("key-5");
-    assertThat(executeRequest(1, 2, "key-1", "key-3", "key-5"))
-      .extracting(Organization::getKey)
-      .containsExactly("key-5", "key-1");
-    assertThat(executeRequest(2, 2, "key-1", "key-3", "key-5"))
-      .extracting(Organization::getKey)
-      .containsExactly("key-3");
+  @Test
+  public void result_is_paginated() {
+    when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1_000, SOME_DATE + 2_000, SOME_DATE + 3_000, SOME_DATE + 5_000);
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid3").setKey("key-3"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid1").setKey("key-1"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid2").setKey("key-2"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
+    insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
+
+    SearchWsResponse response = executeRequest(1, 1, "key-1", "key-3", "key-5");
+    assertThat(response.getOrganizationsList()).extracting(Organization::getKey).containsOnly("key-5");
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 1, 3);
+
+    response = executeRequest(1, 2, "key-1", "key-3", "key-5");
+    assertThat(response.getOrganizationsList()).extracting(Organization::getKey).containsOnly("key-5", "key-1");
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 2, 3);
+
+    response = executeRequest(2, 2, "key-1", "key-3", "key-5");
+    assertThat(response.getOrganizationsList()).extracting(Organization::getKey).containsOnly("key-3");
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(2, 2, 3);
+
+    response = executeRequest(null, null);
+    assertThat(response.getOrganizationsList()).extracting(Organization::getKey).hasSize(5);
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 25, 5);
   }
 
   @Test
@@ -216,22 +232,25 @@ public class SearchActionTest {
     when(system2.now()).thenReturn(SOME_DATE);
     insertOrganization(ORGANIZATION_DTO);
 
-    assertThat(executeRequest(1, 10, ORGANIZATION_DTO.getKey()))
+    assertThat(executeRequestAndReturnList(1, 10, ORGANIZATION_DTO.getKey()))
       .extracting(Organization::getKey)
       .containsExactly(ORGANIZATION_DTO.getKey());
+  }
+
+  private List<Organization> executeRequestAndReturnList(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
+    return executeRequest(page, pageSize, keys).getOrganizationsList();
+  }
+
+  private SearchWsResponse executeRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
+    TestRequest request = wsTester.newRequest();
+    populateRequest(request, page, pageSize, keys);
+    return request.executeProtobuf(SearchWsResponse.class);
   }
 
   private void insertOrganization(OrganizationDto dto) {
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().organizationDao().insert(dbSession, dto);
     dbSession.commit();
-  }
-
-  private List<Organization> executeRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
-    TestRequest request = wsTester.newRequest();
-    populateRequest(request, page, pageSize, keys);
-    return request.executeProtobuf(Organizations.SearchWsResponse.class)
-      .getOrganizationsList();
   }
 
   private String executeJsonRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {

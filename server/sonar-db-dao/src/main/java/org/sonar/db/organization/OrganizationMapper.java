@@ -27,6 +27,8 @@ import org.sonar.db.Pagination;
 public interface OrganizationMapper {
   void insert(@Param("organization") OrganizationDto organization);
 
+  int countByQuery(@Param("query") OrganizationQuery organizationQuery);
+
   List<OrganizationDto> selectByQuery(@Param("query") OrganizationQuery organizationQuery,
     @Param("pagination") Pagination pagination);
 
@@ -64,7 +66,7 @@ public interface OrganizationMapper {
     @Param("defaultTemplates") DefaultTemplates defaultTemplates, @Param("now") long now);
 
   void updateDefaultGroupId(@Param("organizationUuid") String organizationUuid,
-                              @Param("defaultGroupId") int defaultGroupId, @Param("now") long now);
+    @Param("defaultGroupId") int defaultGroupId, @Param("now") long now);
 
   int deleteByUuid(@Param("uuid") String uuid);
 }

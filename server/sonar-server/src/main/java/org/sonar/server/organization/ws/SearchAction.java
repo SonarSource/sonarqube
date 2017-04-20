@@ -20,11 +20,11 @@
 package org.sonar.server.organization.ws;
 
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -35,6 +35,7 @@ import org.sonarqube.ws.Organizations.Organization;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.Common.Paging;
 
 public class SearchAction implements OrganizationsWsAction {
   private static final String PARAM_ORGANIZATIONS = "organizations";
@@ -56,6 +57,7 @@ public class SearchAction implements OrganizationsWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setInternal(true)
       .setSince("6.2")
+      .setChangelog(new Change("6.4", "Paging fields have been added to the response"))
       .setHandler(this);
 
     action.createParam(PARAM_ORGANIZATIONS)
@@ -70,27 +72,34 @@ public class SearchAction implements OrganizationsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE))
-        .withPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-        .andTotal(0);
       OrganizationQuery organizationQuery = newOrganizationQueryBuilder()
         .setKeys(request.paramAsStrings(PARAM_ORGANIZATIONS))
         .build();
 
+      int total = dbClient.organizationDao().countByQuery(dbSession, organizationQuery);
+      Paging paging = buildWsPaging(request, total);
       List<OrganizationDto> dtos = dbClient.organizationDao().selectByQuery(
         dbSession,
         organizationQuery,
-        forPage(paging.pageIndex()).andSize(paging.pageSize()));
-
-      writeResponse(request, response, dtos);
+        forPage(paging.getPageIndex()).andSize(paging.getPageSize()));
+      writeResponse(request, response, dtos, paging);
     }
   }
 
-  private void writeResponse(Request request, Response response, List<OrganizationDto> dtos) {
+  private void writeResponse(Request request, Response response, List<OrganizationDto> dtos, Paging paging) {
     Organizations.SearchWsResponse.Builder responseBuilder = Organizations.SearchWsResponse.newBuilder();
+    responseBuilder.setPaging(paging);
     Organization.Builder organizationBuilder = Organization.newBuilder();
     dtos.forEach(dto -> responseBuilder.addOrganizations(wsSupport.toOrganization(organizationBuilder, dto)));
     writeProtobuf(responseBuilder.build(), request, response);
+  }
+
+  private static Paging buildWsPaging(Request request, int total) {
+    return Paging.newBuilder()
+      .setPageIndex(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .setTotal(total)
+      .build();
   }
 
 }

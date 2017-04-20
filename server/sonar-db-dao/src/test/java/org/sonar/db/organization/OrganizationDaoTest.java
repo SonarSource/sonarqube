@@ -304,6 +304,19 @@ public class OrganizationDaoTest {
   }
 
   @Test
+  public void countByQuery() {
+    insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid3").setKey("key-3"));
+    insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid1").setKey("key-1"));
+    insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid2").setKey("key-2"));
+    insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid5").setKey("key-5"));
+    insertOrganization(copyOf(ORGANIZATION_DTO_1).setUuid("uuid4").setKey("key-4"));
+
+    assertThat(underTest.countByQuery(dbSession, returnAll())).isEqualTo(5);
+    assertThat(underTest.countByQuery(dbSession, newQueryWithKeys("key-1", "key-2"))).isEqualTo(2);
+    assertThat(underTest.countByQuery(dbSession, newQueryWithKeys("unknown"))).isZero();
+  }
+
+  @Test
   public void selectByQuery_returns_empty_when_table_is_empty() {
     assertThat(underTest.selectByQuery(dbSession, returnAll(), forPage(2).andSize(1))).isEmpty();
   }
