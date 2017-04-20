@@ -27,10 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.organization.OrganizationFlags;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -41,7 +38,7 @@ import static org.mockito.Mockito.mock;
 
 public class RuleDeleterTest {
 
-  static final long PAST = 10000L;
+  private static final long PAST = 10000L;
 
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -53,14 +50,11 @@ public class RuleDeleterTest {
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
   private RuleIndexer ruleIndexer = mock(RuleIndexer.class);
-  private OrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
-  private RuleDeleter deleter = new RuleDeleter(System2.INSTANCE, ruleIndexer, dbClient, ruleActivator, organizationFlags);
+  private RuleDeleter deleter = new RuleDeleter(System2.INSTANCE, ruleIndexer, dbClient, ruleActivator);
 
   @Test
   public void delete_custom_rule() {
-    OrganizationDto organization = dbTester.organizations().insert();
-
     RuleDefinitionDto templateRule = dbTester.rules().insert(
       r -> r.setIsTemplate(true),
       r -> r.setCreatedAt(PAST),
@@ -93,17 +87,6 @@ public class RuleDeleterTest {
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Only custom rules can be deleted");
-
-    deleter.delete(rule.getKey());
-  }
-
-  @Test
-  public void fail_if_organizations_enabled() {
-    RuleDefinitionDto rule = dbTester.rules().insert();
-    organizationFlags.enable(dbSession);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Organization support is enabled");
 
     deleter.delete(rule.getKey());
   }
