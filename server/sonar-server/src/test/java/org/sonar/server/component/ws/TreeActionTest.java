@@ -59,8 +59,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
-import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
@@ -234,7 +234,8 @@ public class TreeActionTest {
     componentDb.insertComponent(newProjectCopy("project-uuid-1-copy", project, view));
     componentDb.insertComponent(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"));
     db.commit();
-    logInWithBrowsePermission(view);
+    userSession.logIn()
+      .registerComponents(view, project);
 
     TreeWsResponse response = ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -268,7 +269,8 @@ public class TreeActionTest {
     ComponentDto view = newView(db.getDefaultOrganization(), "view-uuid");
     componentDb.insertViewAndSnapshot(view);
     componentDb.insertComponent(newProjectCopy("project-copy-uuid", project, view));
-    logInWithBrowsePermission(view);
+    userSession.logIn()
+      .registerComponents(project, view);
 
     TreeWsResponse response = ws.newRequest().setParam(PARAM_COMPONENT_ID, view.uuid()).executeProtobuf(TreeWsResponse.class);
 

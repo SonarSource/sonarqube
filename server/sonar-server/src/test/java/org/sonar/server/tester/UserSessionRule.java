@@ -187,6 +187,11 @@ public class UserSessionRule implements TestRule, UserSession {
     setCurrentUserSession(userSession);
   }
 
+  public UserSessionRule registerComponents(ComponentDto... componentDtos) {
+    ensureAbstractMockUserSession().registerComponents(componentDtos);
+    return this;
+  }
+
   public UserSessionRule addProjectPermission(String projectPermission, ComponentDto... components) {
     ensureAbstractMockUserSession().addProjectPermission(projectPermission, components);
     return this;

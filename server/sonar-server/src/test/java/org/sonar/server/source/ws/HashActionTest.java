@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.component.ComponentFinder;
@@ -62,7 +61,7 @@ public class HashActionTest {
   @Test
   public void show_hashes() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    loginAndAddProjectPermission(PROJECT_UUID, UserRole.USER);
+    loginAndRegisterComponent(PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
     assertThat(request.execute().outputAsString()).isEqualTo("987654");
@@ -71,7 +70,7 @@ public class HashActionTest {
   @Test
   public void show_hashes_on_test_file() throws Exception {
     db.prepareDbUnit(getClass(), "show_hashes_on_test_file.xml");
-    loginAndAddProjectPermission(PROJECT_UUID, UserRole.USER);
+    loginAndRegisterComponent(PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", "ActionTest.java");
     assertThat(request.execute().outputAsString()).isEqualTo("987654");
@@ -80,7 +79,7 @@ public class HashActionTest {
   @Test
   public void hashes_empty_if_no_source() throws Exception {
     db.prepareDbUnit(getClass(), "no_source.xml");
-    loginAndAddProjectPermission(PROJECT_UUID, UserRole.USER);
+    loginAndRegisterComponent(PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
     request.execute().assertNoContent();
@@ -105,7 +104,7 @@ public class HashActionTest {
     tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY).execute();
   }
 
-  private void loginAndAddProjectPermission(String componentUuid, String permission) {
-    userSessionRule.logIn("polop").addProjectPermission(permission, db.getDbClient().componentDao().selectByUuid(db.getSession(), componentUuid).get());
+  private void loginAndRegisterComponent(String componentUuid) {
+    userSessionRule.logIn("polop").registerComponents(db.getDbClient().componentDao().selectByUuid(db.getSession(), componentUuid).get());
   }
 }
