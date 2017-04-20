@@ -26,11 +26,6 @@
       "name": "Simon",
       "avatar": "ab0ec6adc38ad44a15105f207394946f",
       "active": true
-    },
-    {
-      "login": "admin",
-      "name": "Administrator",
-      "active": true
     }
   ]
 }

@@ -26,7 +26,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
@@ -46,17 +45,14 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.GroupPermissionChange;
-import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.permission.ProjectId;
+import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.usergroups.ws.GroupIdOrAnyone;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
@@ -90,7 +86,7 @@ public class IssueServiceMediumTest {
   @Test
   public void list_component_tags() {
     RuleDto rule = newRule();
-    ComponentDto project = newProject();
+    ComponentDto project = newPublicProject();
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "java8", "bug")));
     saveIssue(IssueTesting.newDto(rule, file, project).setTags(ImmutableSet.of("convention", "bug")));
@@ -110,7 +106,7 @@ public class IssueServiceMediumTest {
   @Test
   public void test_listAuthors() {
     RuleDto rule = newRule();
-    ComponentDto project = newProject();
+    ComponentDto project = newPublicProject();
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project).setAuthorLogin("luke.skywalker"));
     saveIssue(IssueTesting.newDto(rule, file, project).setAuthorLogin("luke@skywalker.name"));
@@ -126,7 +122,7 @@ public class IssueServiceMediumTest {
 
   @Test
   public void listAuthors_escapes_regexp_special_characters() {
-    saveIssue(IssueTesting.newDto(newRule(), newFile(newProject()), newProject()).setAuthorLogin("name++"));
+    saveIssue(IssueTesting.newDto(newRule(), newFile(newPublicProject()), newPublicProject()).setAuthorLogin("name++"));
 
     assertThat(service.listAuthors("invalidRegexp[", 5)).isEmpty();
     assertThat(service.listAuthors("nam+", 5)).isEmpty();
@@ -149,21 +145,14 @@ public class IssueServiceMediumTest {
     return rule;
   }
 
-  private ComponentDto newProject() {
+  private ComponentDto newPublicProject() {
     OrganizationDto organization = OrganizationTesting.newOrganizationDto();
     tester.get(OrganizationDao.class).insert(session, organization);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organization);
+    ComponentDto project = ComponentTesting.newPublicProjectDto(organization);
     tester.get(ComponentDao.class).insert(session, project);
-
-    userSessionRule.logIn().addProjectPermission(UserRole.USER, project);
     session.commit();
 
-    // project can be seen by group "anyone"
-    // TODO correctly feed default organization. Not a problem as long as issues search does not support "anyone"
-    // for each organization
-    GroupPermissionChange permissionChange = new GroupPermissionChange(PermissionChange.Operation.ADD, UserRole.USER, new ProjectId(project),
-      GroupIdOrAnyone.forAnyone(organization.getUuid()));
-    tester.get(PermissionUpdater.class).apply(session, asList(permissionChange));
+    tester.get(PermissionIndexer.class).indexProjectsByUuids(session, singletonList(project.uuid()));
     userSessionRule.logIn();
 
     return project;
