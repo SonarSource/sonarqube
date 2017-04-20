@@ -5,23 +5,38 @@
 
   <select id="groupsCountByProjectIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountPerProjectPermission">
-    SELECT count(1) as count, permission, componentId
-    FROM
-    (SELECT g.name as name, group_role.role as permission, group_role.resource_id as componentId
-    FROM groups g
-    INNER JOIN group_roles group_role ON group_role.group_id=g.id
-    UNION
-    -- Add Anyone group permission
-    SELECT #{anyoneGroup} as name, group_role.role as permission, group_role.resource_id as componentId
-    FROM group_roles group_role
-    where group_role.group_id IS NULL
+    SELECT
+      count(1) as count,
+      permission,
+      componentId
+    FROM (
+      SELECT
+        g.name as name,
+        group_role.role as permission,
+        group_role.resource_id as componentId
+      FROM
+        groups g
+      INNER JOIN group_roles group_role ON
+        group_role.group_id=g.id
+      UNION
+      -- Add Anyone group permission
+      SELECT
+        #{anyoneGroup} as name,
+        group_role.role as permission,
+        group_role.resource_id as componentId
+      FROM
+        group_roles group_role
+      where
+        group_role.group_id IS NULL
     ) groups
     where
       groups.componentId in
       <foreach collection="componentIds" open="(" close=")" item="id" separator=",">
         #{id,jdbcType=BIGINT}
       </foreach>
-    GROUP BY groups.permission, groups.componentId
+    GROUP BY
+      groups.permission,
+      groups.componentId
   </select>
 
   <select id="selectGroupNamesByQuery" parameterType="map" resultType="string">
