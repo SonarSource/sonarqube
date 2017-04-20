@@ -80,7 +80,6 @@ public class SetTypeActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-
   private System2 system2 = mock(System2.class);
 
   private DbClient dbClient = dbTester.getDbClient();

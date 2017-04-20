@@ -21,16 +21,23 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.io.Resources;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
-import org.sonar.server.issue.IssueService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.server.issue.IssueFieldsSetter;
+import org.sonar.server.issue.IssueFinder;
+import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.user.UserSession;
 
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -41,10 +48,21 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TAGS;
  */
 public class SetTagsAction implements IssuesWsAction {
 
-  private final IssueService service;
+  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final IssueFinder issueFinder;
+  private final IssueFieldsSetter issueFieldsSetter;
+  private final IssueUpdater issueUpdater;
+  private final OperationResponseWriter responseWriter;
 
-  public SetTagsAction(IssueService service) {
-    this.service = service;
+  public SetTagsAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
+    OperationResponseWriter responseWriter) {
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+    this.issueFinder = issueFinder;
+    this.issueFieldsSetter = issueFieldsSetter;
+    this.issueUpdater = issueUpdater;
+    this.responseWriter = responseWriter;
   }
 
   @Override
@@ -53,8 +71,8 @@ public class SetTagsAction implements IssuesWsAction {
       .setPost(true)
       .setSince("5.1")
       .setDescription("Set tags on an issue. <br/>" +
-    "Requires authentication and Browse permission on project<br/>" +
-    "Since 6.3, the parameter 'key' has been replaced by '%s'", PARAM_ISSUE)
+        "Requires authentication and Browse permission on project")
+      .setChangelog(new Change("6.4", "response contains issue information instead of list of tags"))
       .setResponseExample(Resources.getResource(this.getClass(), "set_tags-example.json"))
       .setHandler(this);
     action.createParam(PARAM_ISSUE)
@@ -72,12 +90,19 @@ public class SetTagsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam(PARAM_ISSUE);
     List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings(PARAM_TAGS), Collections.<String>emptyList());
-    Collection<String> resultTags = service.setTags(key, tags);
-    JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
-    for (String tag : resultTags) {
-      json.value(tag);
+    setTags(key, tags);
+    responseWriter.write(key, request, response);
+  }
+
+  private void setTags(String issueKey, List<String> tags) {
+    userSession.checkLoggedIn();
+    try (DbSession session = dbClient.openSession(false)) {
+      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
+      if (issueFieldsSetter.setTags(issue, tags, context)) {
+        issueUpdater.saveIssue(session, issue, context, null);
+      }
     }
-    json.endArray().endObject().close();
   }
 
 }

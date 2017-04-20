@@ -19,39 +19,21 @@
  */
 package org.sonar.server.issue;
 
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.user.UserSession;
 
 @ServerSide
 @ComputeEngineSide
 public class IssueService {
 
-  private final DbClient dbClient;
   private final IssueIndex issueIndex;
 
-  private final IssueFinder issueFinder;
-  private final IssueFieldsSetter issueFieldsSetter;
-  private final IssueUpdater issueUpdater;
-  private final UserSession userSession;
-
-  public IssueService(DbClient dbClient, IssueIndex issueIndex, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater, UserSession userSession) {
-    this.dbClient = dbClient;
+  public IssueService(IssueIndex issueIndex) {
     this.issueIndex = issueIndex;
-    this.issueFinder = issueFinder;
-    this.issueFieldsSetter = issueFieldsSetter;
-    this.issueUpdater = issueUpdater;
-    this.userSession = userSession;
   }
 
   public List<String> listAuthors(@Nullable String textQuery, int pageSize) {
@@ -59,23 +41,6 @@ public class IssueService {
       .checkAuthorization(false)
       .build();
     return issueIndex.listAuthors(query, textQuery, pageSize);
-  }
-
-  public Collection<String> setTags(String issueKey, Collection<String> tags) {
-    userSession.checkLoggedIn();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueFieldsSetter.setTags(issue, tags, context)) {
-        issueUpdater.saveIssue(session, issue, context, null);
-      }
-      return issue.tags();
-
-    } finally {
-      session.close();
-    }
   }
 
   public Map<String, Long> listTagsForComponent(IssueQuery query, int pageSize) {

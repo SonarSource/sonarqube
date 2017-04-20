@@ -20,7 +20,6 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -86,41 +85,6 @@ public class IssueServiceMediumTest {
   @After
   public void after() {
     session.close();
-  }
-
-  @Test
-  public void set_tags() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.logIn("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
-
-    assertThat(getIssueByKey(issue.getKey()).tags()).isEmpty();
-
-    // Tags are lowercased
-    service.setTags(issue.getKey(), ImmutableSet.of("bug", "Convention"));
-    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("bug", "convention");
-
-    // nulls and empty tags are ignored
-    service.setTags(issue.getKey(), Sets.newHashSet("security", null, "", "convention"));
-    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("security", "convention");
-
-    // tag validation
-    try {
-      service.setTags(issue.getKey(), ImmutableSet.of("pol op"));
-    } catch (Exception exception) {
-      assertThat(exception).isInstanceOf(IllegalArgumentException.class);
-    }
-    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("security", "convention");
-
-    // unchanged tags
-    service.setTags(issue.getKey(), ImmutableSet.of("convention", "security"));
-    assertThat(getIssueByKey(issue.getKey()).tags()).containsOnly("security", "convention");
-
-    service.setTags(issue.getKey(), ImmutableSet.<String>of());
-    assertThat(getIssueByKey(issue.getKey()).tags()).isEmpty();
   }
 
   @Test
