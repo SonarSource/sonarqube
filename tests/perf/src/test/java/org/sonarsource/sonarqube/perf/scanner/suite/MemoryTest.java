@@ -79,6 +79,7 @@ public class MemoryTest extends PerfTestCase {
     FileUtils.write(new File(baseDir, "sonar-project.properties"), "sonar.myBigProp=" + Strings.repeat("A", 10000), true);
 
     SonarScanner scanner = SonarScanner.create()
+      .setScannerVersion("2.4")
       .setProperties(
         "sonar.projectKey", "big-module-tree",
         "sonar.projectName", "Big Module Tree",
