@@ -35,7 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.ReactivationException;
 import org.sonar.server.rule.RuleCreator;
@@ -64,14 +63,12 @@ public class CreateAction implements RulesWsAction {
   private final DbClient dbClient;
   private final RuleCreator ruleCreator;
   private final RuleMapper ruleMapper;
-  private final OrganizationFlags organizationFlags;
   private final RuleWsSupport ruleWsSupport;
 
-  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper, OrganizationFlags organizationFlags, RuleWsSupport ruleWsSupport) {
+  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper, RuleWsSupport ruleWsSupport) {
     this.dbClient = dbClient;
     this.ruleCreator = ruleCreator;
     this.ruleMapper = ruleMapper;
-    this.organizationFlags = organizationFlags;
     this.ruleWsSupport = ruleWsSupport;
   }
 
@@ -83,8 +80,7 @@ public class CreateAction implements RulesWsAction {
         "Requires the 'Administer Quality Profiles' permission")
       .setSince("4.4")
       .setChangelog(
-        new Change("5.5", "Creating manual rule is not more possible"),
-        new Change("6.4", "Creating custom rules are not supported if the organization feature is enabled. In that case, the webservice will fail"))
+        new Change("5.5", "Creating manual rule is not more possible"))
       .setPost(true)
       .setHandler(this);
 
@@ -143,7 +139,6 @@ public class CreateAction implements RulesWsAction {
     ruleWsSupport.checkQProfileAdminPermission();
     String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      organizationFlags.checkDisabled(dbSession);
       try {
         NewCustomRule newRule = NewCustomRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
           .setName(request.mandatoryParam(PARAM_NAME))
