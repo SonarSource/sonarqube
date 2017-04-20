@@ -24,33 +24,33 @@ describe('highlightSymbol', () => {
   it('should not highlight symbols with similar beginning', () => {
     // test all positions of sym-X in the string: beginning, middle and ending
     const tokens = [
-      { className: 'sym-18 b', text: 'foo' },
-      { className: 'a sym-18', text: 'foo' },
-      { className: 'a sym-18 b', text: 'foo' },
-      { className: 'sym-1 d', text: 'bar' },
-      { className: 'c sym-1', text: 'bar' },
-      { className: 'c sym-1 d', text: 'bar' }
+      { className: 'sym-18 b', markers: [], text: 'foo' },
+      { className: 'a sym-18', markers: [], text: 'foo' },
+      { className: 'a sym-18 b', markers: [], text: 'foo' },
+      { className: 'sym-1 d', markers: [], text: 'bar' },
+      { className: 'c sym-1', markers: [], text: 'bar' },
+      { className: 'c sym-1 d', markers: [], text: 'bar' }
     ];
     expect(highlightSymbol(tokens, 'sym-1')).toEqual([
-      { className: 'sym-18 b', text: 'foo' },
-      { className: 'a sym-18', text: 'foo' },
-      { className: 'a sym-18 b', text: 'foo' },
-      { className: 'sym-1 d highlighted', text: 'bar' },
-      { className: 'c sym-1 highlighted', text: 'bar' },
-      { className: 'c sym-1 d highlighted', text: 'bar' }
+      { className: 'sym-18 b', markers: [], text: 'foo' },
+      { className: 'a sym-18', markers: [], text: 'foo' },
+      { className: 'a sym-18 b', markers: [], text: 'foo' },
+      { className: 'sym-1 d highlighted', markers: [], text: 'bar' },
+      { className: 'c sym-1 highlighted', markers: [], text: 'bar' },
+      { className: 'c sym-1 d highlighted', markers: [], text: 'bar' }
     ]);
   });
 
   it('should highlight symbols marked twice', () => {
     const tokens = [
-      { className: 'sym sym-1 sym sym-2', text: 'foo' },
-      { className: 'sym sym-1', text: 'bar' },
-      { className: 'sym sym-2', text: 'qux' }
+      { className: 'sym sym-1 sym sym-2', markers: [], text: 'foo' },
+      { className: 'sym sym-1', markers: [], text: 'bar' },
+      { className: 'sym sym-2', markers: [], text: 'qux' }
     ];
     expect(highlightSymbol(tokens, 'sym-1')).toEqual([
-      { className: 'sym sym-1 sym sym-2 highlighted', text: 'foo' },
-      { className: 'sym sym-1 highlighted', text: 'bar' },
-      { className: 'sym sym-2', text: 'qux' }
+      { className: 'sym sym-1 sym sym-2 highlighted', markers: [], text: 'foo' },
+      { className: 'sym sym-1 highlighted', markers: [], text: 'bar' },
+      { className: 'sym sym-2', markers: [], text: 'qux' }
     ]);
   });
 });

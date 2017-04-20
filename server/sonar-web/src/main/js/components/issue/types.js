@@ -27,7 +27,7 @@ export type TextRange = {
 
 export type FlowLocation = {
   msg: string,
-  textRange?: TextRange
+  textRange: TextRange
 };
 
 export type IssueComment = {
@@ -59,9 +59,7 @@ export type Issue = {
   creationDate: string,
   effort?: string,
   key: string,
-  flows: Array<{
-    locations?: Array<FlowLocation>
-  }>,
+  flows: Array<Array<FlowLocation>>,
   line?: number,
   message: string,
   organization: string,
@@ -72,6 +70,7 @@ export type Issue = {
   resolution?: string,
   rule: string,
   ruleName: string,
+  secondaryLocations: Array<FlowLocation>,
   severity: string,
   status: string,
   subProject?: string,

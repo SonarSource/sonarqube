@@ -20,37 +20,24 @@
 // @flow
 import React from 'react';
 import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
-import type { FlowLocation } from '../../../components/issue/types';
+import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
-  flows: Array<{
-    locations?: Array<FlowLocation>
-  }>
+  issue: Issue
 |};
 
 export default class ConciseIssueLocations extends React.PureComponent {
   props: Props;
 
   render() {
-    const { flows } = this.props;
-
-    const secondaryLocations = flows.filter(
-      flow => flow.locations != null && flow.locations.length === 1
-    ).length;
-
-    const realFlows = flows.filter(flow => flow.locations != null && flow.locations.length > 1);
+    const { secondaryLocations, flows } = this.props.issue;
 
     return (
       <div className="pull-right">
-        {secondaryLocations > 0 && <ConciseIssueLocationBadge count={secondaryLocations} />}
+        {secondaryLocations.length > 0 &&
+          <ConciseIssueLocationBadge count={secondaryLocations.length} />}
 
-        {realFlows.map((flow, index) => (
-          <ConciseIssueLocationBadge
-            // $FlowFixMe locations are not null
-            count={flow.locations.length}
-            key={index}
-          />
-        ))}
+        {flows.map((flow, index) => <ConciseIssueLocationBadge key={index} count={flow.length} />)}
       </div>
     );
   }

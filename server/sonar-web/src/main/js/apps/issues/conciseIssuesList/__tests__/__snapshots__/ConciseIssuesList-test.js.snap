@@ -1,16 +1,15 @@
 exports[`test should render 1`] = `
 <div>
   <ConciseIssue
-    innerRef={[Function]}
     issue={
       Object {
         "key": "foo",
       }
     }
     previousIssue={null}
+    scroll={[Function]}
     selected={false} />
   <ConciseIssue
-    innerRef={[Function]}
     issue={
       Object {
         "key": "bar",
@@ -21,6 +20,7 @@ exports[`test should render 1`] = `
         "key": "foo",
       }
     }
+    scroll={[Function]}
     selected={false} />
 </div>
 `;

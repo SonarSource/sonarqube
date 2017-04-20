@@ -30,11 +30,7 @@ import LineIssuesIndicator from './LineIssuesIndicator';
 import LineCode from './LineCode';
 import { TooltipsContainer } from '../../mixins/tooltips-mixin';
 import type { SourceLine } from '../types';
-import type {
-  LinearIssueLocation,
-  IndexedIssueLocation,
-  IndexedIssueLocationMessage
-} from '../helpers/indexing';
+import type { LinearIssueLocation } from '../helpers/indexing';
 import type { Issue } from '../../issue/types';
 
 type Props = {|
@@ -47,7 +43,8 @@ type Props = {|
   duplicationsCount: number,
   filtered: boolean | null,
   highlighted: boolean,
-  highlightedSymbols: Array<string>,
+  highlightedLocationMessage?: { index: number, text: string },
+  highlightedSymbols?: Array<string>,
   issueLocations: Array<LinearIssueLocation>,
   issues: Array<Issue>,
   line: SourceLine,
@@ -60,16 +57,20 @@ type Props = {|
   onIssueUnselect: () => void,
   onIssuesOpen: SourceLine => void,
   onIssuesClose: SourceLine => void,
+  onLocationSelect?: number => void,
   onSCMClick: (SourceLine, HTMLElement) => void,
-  onLocationSelect: (flowIndex: number, locationIndex: number) => void,
   onSymbolClick: Array<string> => void,
   openIssues: boolean,
   previousLine?: SourceLine,
-  selectedIssue: string | null,
-  secondaryIssueLocations: Array<IndexedIssueLocation>,
-  // $FlowFixMe
-  secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
-  selectedIssueLocation: IndexedIssueLocation | null
+  scroll?: HTMLElement => void,
+  secondaryIssueLocations: Array<{
+    from: number,
+    to: number,
+    line: number,
+    index: number,
+    startLine: number
+  }>,
+  selectedIssue: string | null
 |};
 
 export default class Line extends React.PureComponent {
@@ -138,6 +139,7 @@ export default class Line extends React.PureComponent {
             </td>}
 
           <LineCode
+            highlightedLocationMessage={this.props.highlightedLocationMessage}
             highlightedSymbols={this.props.highlightedSymbols}
             issues={this.props.issues}
             issueLocations={this.props.issueLocations}
@@ -146,10 +148,9 @@ export default class Line extends React.PureComponent {
             onIssueSelect={this.props.onIssueSelect}
             onLocationSelect={this.props.onLocationSelect}
             onSymbolClick={this.props.onSymbolClick}
-            secondaryIssueLocationMessages={this.props.secondaryIssueLocationMessages}
+            scroll={this.props.scroll}
             secondaryIssueLocations={this.props.secondaryIssueLocations}
             selectedIssue={this.props.selectedIssue}
-            selectedIssueLocation={this.props.selectedIssueLocation}
             showIssues={this.props.openIssues || this.props.displayAllIssues}
           />
         </tr>

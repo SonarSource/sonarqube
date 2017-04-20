@@ -1,0 +1,45 @@
+.location-index {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  line-height: 16px;
+  padding-left: 6px;
+  padding-right: 6px;
+  border-radius: 2px;
+  background-color: #d18582;
+  color: #fff;
+  font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.location-index.selected {
+  background-color: #bc5e5e;
+}
+
+.location-index.muted {
+  background-color: #ccc;
+}
+
+.location-index[tabindex] {
+  cursor: pointer;
+}
+
+.location-index[tabindex]:hover {
+  background-color: #bc5e5e;
+}
+
+.location-index[tabindex]:focus {
+  outline: none;
+}
+
+.source-line-code .location-index {
+  line-height: 16px;
+  margin: 1px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.source-line-code .location-index + .location-index {
+  margin-left: 0;
+}

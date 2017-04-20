@@ -17,34 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
 import { shallow } from 'enzyme';
 import ConciseIssueLocations from '../ConciseIssueLocations';
 
 const textRange = { startLine: 1, startOffset: 1, endLine: 1, endOffset: 1 };
 
-it('should render only secondary locations', () => {
-  const flows = [
-    { locations: [{ msg: '', textRange }] },
-    { locations: [{ msg: '', textRange }] },
-    { locations: [{ msg: '', textRange }] }
-  ];
-  expect(shallow(<ConciseIssueLocations flows={flows} />)).toMatchSnapshot();
+it('should render secondary locations', () => {
+  const issue = {
+    secondaryLocations: [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }],
+    flows: []
+  };
+  expect(shallow(<ConciseIssueLocations issue={issue} />)).toMatchSnapshot();
 });
 
 it('should render one flow', () => {
-  const flows = [
-    { locations: [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }] }
-  ];
-  expect(shallow(<ConciseIssueLocations flows={flows} />)).toMatchSnapshot();
+  const issue = {
+    secondaryLocations: [],
+    flows: [[{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }]]
+  };
+  expect(shallow(<ConciseIssueLocations issue={issue} />)).toMatchSnapshot();
 });
 
 it('should render several flows', () => {
-  const flows = [
-    { locations: [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }] },
-    { locations: [{ msg: '', textRange }, { msg: '', textRange }] },
-    { locations: [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }] }
-  ];
-  expect(shallow(<ConciseIssueLocations flows={flows} />)).toMatchSnapshot();
+  const issue = {
+    secondaryLocations: [],
+    flows: [
+      [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }],
+      [{ msg: '', textRange }, { msg: '', textRange }],
+      [{ msg: '', textRange }, { msg: '', textRange }, { msg: '', textRange }]
+    ]
+  };
+  expect(shallow(<ConciseIssueLocations issue={issue} />)).toMatchSnapshot();
 });

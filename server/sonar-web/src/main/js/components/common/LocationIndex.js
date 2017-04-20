@@ -17,28 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import { shallow } from 'enzyme';
-import LineCode from '../LineCode';
+import classNames from 'classnames';
+import './LocationIndex.css';
 
-it('render code', () => {
-  const line = {
-    line: 3,
-    code: '<span class="k">class</span> <span class="sym sym-1">Foo</span> {'
-  };
-  const issueLocations = [{ from: 0, to: 5, line: 3 }];
-  const wrapper = shallow(
-    <LineCode
-      highlightedSymbols={['sym1']}
-      issues={[{ key: 'issue-1' }, { key: 'issue-2' }]}
-      issueLocations={issueLocations}
-      line={line}
-      onIssueSelect={jest.fn()}
-      onSelectLocation={jest.fn()}
-      onSymbolClick={jest.fn()}
-      selectedIssue="issue-1"
-      showIssues={true}
-    />
+type Props = {
+  children?: React.Element<*>,
+  muted?: boolean,
+  onClick?: () => void,
+  selected?: boolean
+};
+
+export default function LocationIndex(props: Props) {
+  const clickAttributes = props.onClick
+    ? {
+        onClick: props.onClick,
+        role: 'button',
+        tabIndex: 0
+      }
+    : {};
+
+  return (
+    <div
+      className={classNames('location-index', {
+        muted: props.muted,
+        selected: props.selected && !props.muted
+      })}
+      {...clickAttributes}>
+      {props.children}
+    </div>
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}
+
+LocationIndex.defaultProps = {
+  muted: false,
+  selected: false
+};

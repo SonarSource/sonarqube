@@ -21,6 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import ConciseIssueLocations from './ConciseIssueLocations';
+import ConciseIssueLocationsNavigator from './ConciseIssueLocationsNavigator';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
 import TypeHelper from '../../../components/shared/TypeHelper';
 import type { Issue } from '../../../components/issue/types';
@@ -28,27 +29,60 @@ import type { Issue } from '../../../components/issue/types';
 type Props = {|
   issue: Issue,
   onClick: string => void,
-  selected: boolean
+  onLocationSelect: number => void,
+  scroll: HTMLElement => void,
+  selected: boolean,
+  selectedLocationIndex: ?number
 |};
 
-export default function ConciseIssueBox(props: Props) {
-  const { issue, selected } = props;
+export default class ConciseIssueBox extends React.PureComponent {
+  node: HTMLElement;
+  props: Props;
 
-  const handleClick = (event: Event) => {
+  componentDidMount() {
+    // scroll to the message element and not to the root element,
+    // because the root element can be huge and exceed the window height
+    if (this.props.selected) {
+      this.props.scroll(this.node);
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.selected && prevProps.selected !== this.props.selected) {
+      this.props.scroll(this.node);
+    }
+  }
+
+  handleClick = (event: Event) => {
     event.preventDefault();
-    props.onClick(issue.key);
+    this.props.onClick(this.props.issue.key);
   };
 
-  const clickAttributes = selected ? {} : { onClick: handleClick, role: 'listitem', tabIndex: 0 };
+  render() {
+    const { issue, selected } = this.props;
 
-  return (
-    <div className={classNames('concise-issue-box', { selected })} {...clickAttributes}>
-      <div className="concise-issue-box-message">{issue.message}</div>
-      <div className="concise-issue-box-attributes">
-        <TypeHelper type={issue.type} />
-        <SeverityHelper className="big-spacer-left" severity={issue.severity} />
-        <ConciseIssueLocations flows={issue.flows} />
+    const clickAttributes = selected
+      ? {}
+      : { onClick: this.handleClick, role: 'listitem', tabIndex: 0 };
+
+    return (
+      <div className={classNames('concise-issue-box', { selected })} {...clickAttributes}>
+        <div className="concise-issue-box-message" ref={node => (this.node = node)}>
+          {issue.message}
+        </div>
+        <div className="concise-issue-box-attributes">
+          <TypeHelper type={issue.type} />
+          <SeverityHelper className="big-spacer-left" severity={issue.severity} />
+          <ConciseIssueLocations issue={issue} />
+        </div>
+        {selected &&
+          <ConciseIssueLocationsNavigator
+            issue={issue}
+            onLocationSelect={this.props.onLocationSelect}
+            scroll={this.props.scroll}
+            selectedLocationIndex={this.props.selectedLocationIndex}
+          />}
       </div>
-    </div>
-  );
+    );
+  }
 }

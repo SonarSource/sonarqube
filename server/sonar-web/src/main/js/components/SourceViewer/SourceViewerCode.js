@@ -22,14 +22,10 @@ import React from 'react';
 import { intersection } from 'lodash';
 import Line from './components/Line';
 import { translate } from '../../helpers/l10n';
+import { getLinearLocations } from './helpers/issueLocations';
 import type { Duplication, SourceLine } from './types';
-import type { Issue } from '../issue/types';
-import type {
-  LinearIssueLocation,
-  IndexedIssueLocation,
-  IndexedIssueLocationsByIssueAndLine,
-  IndexedIssueLocationMessagesByIssueAndLine
-} from './helpers/indexing';
+import type { Issue, FlowLocation } from '../issue/types';
+import type { LinearIssueLocation } from './helpers/indexing';
 
 const EMPTY_ARRAY = [];
 
@@ -49,12 +45,12 @@ export default class SourceViewerCode extends React.PureComponent {
     hasSourcesAfter: boolean,
     hasSourcesBefore: boolean,
     highlightedLine: number | null,
+    highlightedLocations?: Array<FlowLocation>,
+    highlightedLocationMessage?: { index: number, text: string },
     highlightedSymbols: Array<string>,
     issues: Array<Issue>,
     issuesByLine: { [number]: Array<Issue> },
     issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
-    issueSecondaryLocationsByIssueByLine: IndexedIssueLocationsByIssueAndLine,
-    issueSecondaryLocationMessagesByIssueByLine: IndexedIssueLocationMessagesByIssueAndLine,
     loadDuplications: (SourceLine, HTMLElement) => void,
     loadSourcesAfter: () => void,
     loadSourcesBefore: () => void,
@@ -68,12 +64,12 @@ export default class SourceViewerCode extends React.PureComponent {
     onIssuesOpen: SourceLine => void,
     onIssuesClose: SourceLine => void,
     onLineClick: (SourceLine, HTMLElement) => void,
+    onLocationSelect?: number => void,
     onSCMClick: (SourceLine, HTMLElement) => void,
-    onLocationSelect: (flowIndex: number, locationIndex: number) => void,
     onSymbolClick: Array<string> => void,
     openIssuesByLine: { [number]: boolean },
+    scroll?: HTMLElement => void,
     selectedIssue: string | null,
-    selectedIssueLocation: IndexedIssueLocation | null,
     sources: Array<SourceLine>,
     symbolsByLine: { [number]: Array<string> }
   |};
@@ -90,20 +86,19 @@ export default class SourceViewerCode extends React.PureComponent {
     return this.props.issueLocationsByLine[line.line] || EMPTY_ARRAY;
   }
 
-  getSecondaryIssueLocationsForLine(line: SourceLine, issueKey: string) {
-    const index = this.props.issueSecondaryLocationsByIssueByLine;
-    if (index[issueKey] == null) {
+  getSecondaryIssueLocationsForLine(
+    line: SourceLine
+  ): Array<{ from: number, to: number, line: number, index: number, startLine: number }> {
+    const { highlightedLocations } = this.props;
+    if (!highlightedLocations) {
       return EMPTY_ARRAY;
     }
-    return index[issueKey][line.line] || EMPTY_ARRAY;
-  }
-
-  getSecondaryIssueLocationMessagesForLine(line: SourceLine, issueKey: string) {
-    const index = this.props.issueSecondaryLocationMessagesByIssueByLine;
-    if (index[issueKey] == null) {
-      return EMPTY_ARRAY;
-    }
-    return index[issueKey][line.line] || EMPTY_ARRAY;
+    return highlightedLocations.reduce((locations, location, index) => {
+      const linearLocations = getLinearLocations(location.textRange)
+        .filter(l => l.line === line.line)
+        .map(l => ({ ...l, startLine: location.textRange.startLine, index }));
+      return [...locations, ...linearLocations];
+    }, []);
   }
 
   renderLine = (
@@ -114,14 +109,10 @@ export default class SourceViewerCode extends React.PureComponent {
     displayFiltered: boolean,
     displayIssues: boolean
   ) => {
-    const { filterLine, selectedIssue, sources } = this.props;
+    const { filterLine, highlightedLocationMessage, selectedIssue, sources } = this.props;
     const filtered = filterLine ? filterLine(line) : null;
-    const secondaryIssueLocations = selectedIssue
-      ? this.getSecondaryIssueLocationsForLine(line, selectedIssue)
-      : EMPTY_ARRAY;
-    const secondaryIssueLocationMessages = selectedIssue
-      ? this.getSecondaryIssueLocationMessagesForLine(line, selectedIssue)
-      : EMPTY_ARRAY;
+
+    const secondaryIssueLocations = this.getSecondaryIssueLocationsForLine(line);
 
     const duplicationsCount = this.props.duplications ? this.props.duplications.length : 0;
 
@@ -132,7 +123,7 @@ export default class SourceViewerCode extends React.PureComponent {
     const { highlightedSymbols } = this.props;
     let optimizedHighlightedSymbols = intersection(symbolsForLine, highlightedSymbols);
     if (!optimizedHighlightedSymbols.length) {
-      optimizedHighlightedSymbols = EMPTY_ARRAY;
+      optimizedHighlightedSymbols = undefined;
     }
 
     const optimizedSelectedIssue = selectedIssue != null &&
@@ -140,15 +131,16 @@ export default class SourceViewerCode extends React.PureComponent {
       ? selectedIssue
       : null;
 
-    const { selectedIssueLocation } = this.props;
-    const optimizedSelectedIssueLocation = selectedIssueLocation != null &&
-      secondaryIssueLocations.some(
-        location =>
-          location.flowIndex === selectedIssueLocation.flowIndex &&
-          location.locationIndex === selectedIssueLocation.locationIndex
+    const optimizedSecondaryIssueLocations = secondaryIssueLocations.length > 0
+      ? secondaryIssueLocations
+      : EMPTY_ARRAY;
+
+    const optimizedLocationMessage = highlightedLocationMessage != null &&
+      optimizedSecondaryIssueLocations.some(
+        location => location.index === highlightedLocationMessage.index
       )
-      ? selectedIssueLocation
-      : null;
+      ? highlightedLocationMessage
+      : undefined;
 
     return (
       <Line
@@ -161,6 +153,7 @@ export default class SourceViewerCode extends React.PureComponent {
         duplicationsCount={duplicationsCount}
         filtered={filtered}
         highlighted={line.line === this.props.highlightedLine}
+        highlightedLocationMessage={optimizedLocationMessage}
         highlightedSymbols={optimizedHighlightedSymbols}
         issueLocations={this.getIssueLocationsForLine(line)}
         issues={issuesForLine}
@@ -175,15 +168,14 @@ export default class SourceViewerCode extends React.PureComponent {
         onIssueUnselect={this.props.onIssueUnselect}
         onIssuesOpen={this.props.onIssuesOpen}
         onIssuesClose={this.props.onIssuesClose}
-        onSCMClick={this.props.onSCMClick}
         onLocationSelect={this.props.onLocationSelect}
+        onSCMClick={this.props.onSCMClick}
         onSymbolClick={this.props.onSymbolClick}
         openIssues={this.props.openIssuesByLine[line.line] || false}
         previousLine={index > 0 ? sources[index - 1] : undefined}
-        secondaryIssueLocations={secondaryIssueLocations}
-        secondaryIssueLocationMessages={secondaryIssueLocationMessages}
+        scroll={this.props.scroll}
+        secondaryIssueLocations={optimizedSecondaryIssueLocations}
         selectedIssue={optimizedSelectedIssue}
-        selectedIssueLocation={optimizedSelectedIssueLocation}
       />
     );
   };
