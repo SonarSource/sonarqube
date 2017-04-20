@@ -212,7 +212,10 @@ export default class LineCode extends React.PureComponent {
     return (
       <td className={className} data-line-number={line.line}>
         <div className="source-line-code-inner">
-          <pre ref={node => this.codeNode = node} dangerouslySetInnerHTML={{ __html: finalCode }} />
+          <pre
+            ref={node => (this.codeNode = node)}
+            dangerouslySetInnerHTML={{ __html: finalCode }}
+          />
           {secondaryIssueLocationMessages != null &&
             secondaryIssueLocationMessages.length > 0 &&
             this.renderSecondaryIssueLocationMessages(secondaryIssueLocationMessages)}

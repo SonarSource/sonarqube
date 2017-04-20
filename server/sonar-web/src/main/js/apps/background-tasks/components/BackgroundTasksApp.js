@@ -91,7 +91,8 @@ class BackgroundTasksApp extends React.PureComponent {
 
   componentDidUpdate(prevProps: Props) {
     if (
-      prevProps.component !== this.props.component || prevProps.location !== this.props.location
+      prevProps.component !== this.props.component ||
+      prevProps.location !== this.props.location
     ) {
       this.loadTasksDebounced();
     }

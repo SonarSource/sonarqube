@@ -51,7 +51,7 @@ export default class IssuesSourceViewer extends React.PureComponent {
     const { openIssue } = this.props;
 
     return (
-      <div ref={node => this.node = node}>
+      <div ref={node => (this.node = node)}>
         <SourceViewer
           aroundLine={openIssue.line}
           component={openIssue.component}

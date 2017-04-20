@@ -241,7 +241,7 @@ export default class SourceViewerIssueLocations extends React.PureComponent {
     const selected = this.isLocationSelected(flowIndex, locations.length - locationIndex - 1);
 
     return (
-      <li key={key} ref={node => this.locations[key] = node} className="spacer-bottom">
+      <li key={key} ref={node => (this.locations[key] = node)} className="spacer-bottom">
         {line != null && <code className="source-issue-locations-line">L{line}</code>}
         <a
           className={classNames('issue-location-message', 'flash', 'flash-heavy', {
@@ -271,11 +271,11 @@ export default class SourceViewerIssueLocations extends React.PureComponent {
       <AutoSizer disableHeight={true}>
         {({ width }) => (
           <div
-            ref={node => this.rootNode = node}
+            ref={node => (this.rootNode = node)}
             className="source-issue-locations"
             style={{ width, height }}>
             <div
-              ref={node => this.fixedNode = node}
+              ref={node => (this.fixedNode = node)}
               className={className}
               style={{ width, height }}>
               <header className="source-issue-locations-header" />
@@ -289,7 +289,7 @@ export default class SourceViewerIssueLocations extends React.PureComponent {
                 {translate('source_viewer.to_navigate_issue_locations')}
               </div>
               <ul
-                ref={node => this.node = node}
+                ref={node => (this.node = node)}
                 className="source-issue-locations-list"
                 style={{ height: height - 15 }}>
                 {flows.map(

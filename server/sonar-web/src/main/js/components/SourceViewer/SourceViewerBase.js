@@ -615,7 +615,7 @@ export default class SourceViewerBase extends React.PureComponent {
       : null;
 
     return (
-      <div className={className} ref={node => this.node = node}>
+      <div className={className} ref={node => (this.node = node)}>
         <SourceViewerHeader
           component={this.state.component}
           openNewWindow={this.openNewWindow}

@@ -103,15 +103,15 @@ export default class MetaTags extends React.PureComponent {
 
     if (this.canUpdateTags()) {
       return (
-        <div className="overview-meta-card overview-meta-tags" ref={card => this.card = card}>
+        <div className="overview-meta-card overview-meta-tags" ref={card => (this.card = card)}>
           <button
             className="button-link"
             onClick={this.handleClick}
-            ref={tagsList => this.tagsList = tagsList}>
+            ref={tagsList => (this.tagsList = tagsList)}>
             <TagsList tags={tags.length ? tags : [translate('no_tags')]} allowUpdate={true} />
           </button>
           {popupOpen &&
-            <div ref={tagsSelector => this.tagsSelector = tagsSelector}>
+            <div ref={tagsSelector => (this.tagsSelector = tagsSelector)}>
               <ProjectTagsSelectorContainer
                 position={popupPosition}
                 project={key}

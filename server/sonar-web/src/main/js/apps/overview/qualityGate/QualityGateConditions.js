@@ -50,7 +50,8 @@ export default class QualityGateConditions extends React.PureComponent {
 
   componentDidUpdate(prevProps) {
     if (
-      prevProps.conditions !== this.props.conditions || prevProps.component !== this.props.component
+      prevProps.conditions !== this.props.conditions ||
+      prevProps.component !== this.props.component
     ) {
       this.loadFailedMeasures();
     }

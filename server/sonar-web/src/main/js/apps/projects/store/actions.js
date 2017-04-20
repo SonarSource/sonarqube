@@ -80,7 +80,7 @@ const onReceiveMeasures = (dispatch, expectedProjectKeys) => response => {
 
   // fill store with empty objects for expected projects
   // this is required to not have "null"s for provisioned projects
-  expectedProjectKeys.forEach(projectKey => toStore[projectKey] = {});
+  expectedProjectKeys.forEach(projectKey => (toStore[projectKey] = {}));
 
   Object.keys(byComponentKey).forEach(componentKey => {
     const measures = {};

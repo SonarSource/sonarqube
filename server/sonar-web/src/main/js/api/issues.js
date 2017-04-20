@@ -72,7 +72,7 @@ export function getTags(query: {}): Promise<*> {
 
 export function extractAssignees(facet: Array<{ val: string }>, response: IssuesResponse) {
   return facet.map(item => {
-    const user = response.users ? response.users.find(user => user.login = item.val) : null;
+    const user = response.users ? response.users.find(user => user.login === item.val) : null;
     return { ...item, user };
   });
 }
