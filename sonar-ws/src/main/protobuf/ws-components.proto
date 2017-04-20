@@ -63,6 +63,21 @@ message SearchProjectsWsResponse {
   optional sonarqube.ws.commons.Facets facets = 3;
 }
 
+// WS api/components/provisioned
+message ProvisionedWsResponse {
+  repeated Component projects = 1;
+  optional int64 total = 2;
+  optional int32 p = 3;
+  optional int64 ps = 4;
+
+  message Component {
+    optional string uuid = 1;
+    optional string key = 2;
+    optional string name = 3;
+    optional string creationDate = 4;
+  }
+}
+
 message Component {
   optional string organization = 12;
   optional string id = 1;
