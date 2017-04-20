@@ -183,6 +183,9 @@ public class OkHttpClientBuilder {
     if (userAgent != null) {
       newRequest.header("User-Agent", userAgent);
     }
+    if (proxyLogin != null) {
+      newRequest.header("Proxy-Authorization", Credentials.basic(proxyLogin, nullToEmpty(proxyPassword)));
+    }
     return chain.proceed(newRequest.build());
   }
 
