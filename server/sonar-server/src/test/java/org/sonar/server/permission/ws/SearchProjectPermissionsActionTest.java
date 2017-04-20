@@ -39,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -65,6 +65,58 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     PermissionWsSupport wsSupport = newPermissionWsSupport();
     SearchProjectPermissionsDataLoader dataLoader = new SearchProjectPermissionsDataLoader(db.getDbClient(), wsSupport, rootResourceTypes);
     return new SearchProjectPermissionsAction(db.getDbClient(), userSession, i18n, rootResourceTypes, dataLoader, wsSupport);
+  }
+
+  @Test
+  public void search_project_permissions_counts_0_users_and_0_groups_on_public_project_without_any_specified_permission_in_DB() {
+    ComponentDto project = db.components().insertPublicProject();
+
+    String result = newRequest().execute().getInput();
+
+    assertJson(result)
+      .ignoreFields("permissions")
+      .isSimilarTo("{" +
+        "  \"paging\": {" +
+        "    \"pageIndex\": 1," +
+        "    \"pageSize\": 25," +
+        "    \"total\": 1" +
+        "  }," +
+        "  \"projects\": [" +
+        "    {" +
+        "      \"id\": \"" + project.uuid() + "\"," +
+        "      \"key\": \"" + project.key() + "\"," +
+        "      \"name\": \"" + project.name() + "\"," +
+        "      \"qualifier\": \"TRK\"," +
+        "      \"permissions\": []" +
+        "    }" +
+        "  ]" +
+        "}");
+  }
+
+  @Test
+  public void search_project_permissions_counts_0_users_and_0_groups_on_private_project_without_any_specified_permission_in_DB() {
+    ComponentDto project = db.components().insertPrivateProject();
+
+    String result = newRequest().execute().getInput();
+
+    assertJson(result)
+      .ignoreFields("permissions")
+      .isSimilarTo("{" +
+        "  \"paging\": {" +
+        "    \"pageIndex\": 1," +
+        "    \"pageSize\": 25," +
+        "    \"total\": 1" +
+        "  }," +
+        "  \"projects\": [" +
+        "    {" +
+        "      \"id\": \"" + project.uuid() + "\"," +
+        "      \"key\": \"" + project.key() + "\"," +
+        "      \"name\": \"" + project.name() + "\"," +
+        "      \"qualifier\": \"TRK\"," +
+        "      \"permissions\": []" +
+        "    }" +
+        "  ]" +
+        "}");
   }
 
   @Test
