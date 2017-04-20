@@ -23,6 +23,8 @@ import com.google.common.io.Resources;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
@@ -30,7 +32,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -38,11 +40,16 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsComponents.ProvisionedWsResponse;
+import org.sonarqube.ws.WsComponents.ProvisionedWsResponse.Component;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static java.util.Optional.ofNullable;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProvisionedAction implements ProjectsWsAction {
 
@@ -98,36 +105,35 @@ public class ProvisionedAction implements ProjectsWsAction {
       RowBounds rowBounds = new RowBounds(options.getOffset(), options.getLimit());
       List<ComponentDto> projects = dbClient.componentDao().selectProvisioned(dbSession, organization.getUuid(), query, QUALIFIERS_FILTER, rowBounds);
       int nbOfProjects = dbClient.componentDao().countProvisioned(dbSession, organization.getUuid(), query, QUALIFIERS_FILTER);
-      JsonWriter json = response.newJsonWriter().beginObject();
-      writeProjects(projects, json, desiredFields);
-      options.writeJson(json, nbOfProjects);
-      json.endObject().close();
+      ProvisionedWsResponse result = ProvisionedWsResponse.newBuilder()
+        .addAllProjects(writeProjects(projects, desiredFields))
+        .setTotal(nbOfProjects)
+        .setP(options.getPage())
+        .setPs(options.getLimit())
+        .build();
+      writeProtobuf(result, request, response);
     }
   }
 
-  private static void writeProjects(List<ComponentDto> projects, JsonWriter json, Set<String> desiredFields) {
-    json.name("projects");
-    json.beginArray();
-    for (ComponentDto project : projects) {
-      json.beginObject();
-      json.prop("uuid", project.uuid());
-      writeIfNeeded(json, "key", project.key(), desiredFields);
-      writeIfNeeded(json, "name", project.name(), desiredFields);
-      writeIfNeeded(json, "creationDate", project.getCreatedAt(), desiredFields);
-      json.endObject();
-    }
-    json.endArray();
+  private static List<Component> writeProjects(List<ComponentDto> projects, Set<String> desiredFields) {
+    return projects.stream().map(project -> {
+      Component.Builder compBuilder = Component.newBuilder().setUuid(project.uuid());
+      writeIfNeeded("key", project.key(), compBuilder::setKey, desiredFields);
+      writeIfNeeded("name", project.name(), compBuilder::setName, desiredFields);
+      writeIfNeeded("creationDate", project.getCreatedAt(), compBuilder::setCreationDate, desiredFields);
+      return compBuilder.build();
+    }).collect(toList());
   }
 
-  private static void writeIfNeeded(JsonWriter json, String fieldName, String value, Set<String> desiredFields) {
+  private static void writeIfNeeded(String fieldName, String value, Consumer<String> setter, Set<String> desiredFields) {
     if (desiredFields.contains(fieldName)) {
-      json.prop(fieldName, value);
+      setter.accept(value);
     }
   }
 
-  private static void writeIfNeeded(JsonWriter json, String fieldName, Date date, Set<String> desiredFields) {
+  private static void writeIfNeeded(String fieldName, @Nullable Date value, Consumer<String> setter, Set<String> desiredFields) {
     if (desiredFields.contains(fieldName)) {
-      json.propDateTime(fieldName, date);
+      ofNullable(value).map(DateUtils::formatDateTime).ifPresent(setter);
     }
   }
 

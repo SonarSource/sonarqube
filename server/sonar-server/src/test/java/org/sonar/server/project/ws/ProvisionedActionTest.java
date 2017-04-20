@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
@@ -43,6 +44,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -69,6 +71,9 @@ public class ProvisionedActionTest {
     assertThat(action.description()).isEqualTo("Get the list of provisioned projects.<br /> " +
       "Require 'Create Projects' permission.");
     assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.4", "The 'uuid' field is deprecated in the response")
+    );
 
     assertThat(action.params()).hasSize(5);
 
