@@ -25,10 +25,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.AbstractUserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractMockUserSession<T extends AbstractMockUserSession> extends AbstractUserSession {
@@ -53,13 +56,34 @@ public abstract class AbstractMockUserSession<T extends AbstractMockUserSession>
     return permissionsByOrganizationUuid.get(organizationUuid).contains(permission);
   }
 
-  public T addProjectPermission(String permission, ComponentDto... components) {
-    this.projectPermissionsCheckedByUuid.add(permission);
+  /**
+   * Use this method to register public root component and non root components the UserSession must be aware of.
+   * (ie. this method can be used to emulate the content of the DB)
+   */
+  public T registerComponents(ComponentDto... components) {
     Arrays.stream(components)
       .forEach(component -> {
-        this.projectUuidByPermission.put(permission, component.projectUuid());
+        if (component.projectUuid().equals(component.uuid()) && !component.isPrivate()) {
+          this.projectUuidByPermission.put(UserRole.USER, component.uuid());
+          this.projectUuidByPermission.put(UserRole.CODEVIEWER, component.uuid());
+          this.projectPermissionsCheckedByUuid.add(UserRole.USER);
+          this.projectPermissionsCheckedByUuid.add(UserRole.CODEVIEWER);
+        }
         this.projectUuidByComponentUuid.put(component.uuid(), component.projectUuid());
       });
+    return clazz.cast(this);
+  }
+
+  public T addProjectPermission(String permission, ComponentDto... components) {
+    Arrays.stream(components).forEach(component -> {
+      checkArgument(
+        component.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission),
+        "public component %s can't be granted public permission %s", component.uuid(), permission);
+    });
+    registerComponents(components);
+    this.projectPermissionsCheckedByUuid.add(permission);
+    Arrays.stream(components)
+      .forEach(component -> this.projectUuidByPermission.put(permission, component.projectUuid()));
     return clazz.cast(this);
   }
 
