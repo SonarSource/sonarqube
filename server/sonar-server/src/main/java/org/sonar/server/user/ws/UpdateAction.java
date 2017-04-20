@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -64,8 +65,9 @@ public class UpdateAction implements UsersWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_UPDATE)
       .setDescription("Update a user. If a deactivated user account exists with the given login, it will be reactivated. " +
-        "Requires Administer System permission. Since 5.2, a user's password can only be changed using the 'change_password' action.")
+        "Requires Administer System permission")
       .setSince("3.7")
+      .setChangelog(new Change("5.2", "User's password can only be changed using the 'change_password' action."))
       .setPost(true)
       .setHandler(this)
       .setResponseExample(getClass().getResource("update-example.json"));

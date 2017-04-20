@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -65,10 +66,11 @@ public class CreateAction implements UsersWsAction {
     WebService.NewAction action = controller.createAction(ACTION_CREATE)
       .setDescription("Create a user.<br/>" +
         "If a deactivated user account exists with the given login, it will be reactivated.<br/>" +
-        "Requires Administer System permission<br/>" +
-        "Since 6.3, the password is only mandatory when creating local users, and should not be set on non local users<br/>" +
-        "Since 6.3, the 'infos' message is no more returned when a user is reactivated")
+        "Requires Administer System permission")
       .setSince("3.7")
+      .setChangelog(
+        new Change("6.3", "The password is only mandatory when creating local users, and should not be set on non local users"),
+        new Change("6.3", "The 'infos' message is no more returned when a user is reactivated"))
       .setPost(true)
       .setHandler(this);
 
