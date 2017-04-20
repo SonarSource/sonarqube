@@ -56,6 +56,11 @@
         </foreach>
   </select>
 
+  <select id="countByQuery" resultType="int">
+    select count(org.uuid)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
   <select id="selectByQuery" parameterType="map" resultType="Organization">
     select
       <include refid="selectColumns"/>

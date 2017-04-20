@@ -48,6 +48,11 @@ public class OrganizationDao implements Dao {
     getMapper(dbSession).insert(organization);
   }
 
+  public int countByQuery(DbSession dbSession, OrganizationQuery organizationQuery) {
+    requireNonNull(organizationQuery, "organizationQuery can't be null");
+    return getMapper(dbSession).countByQuery(organizationQuery);
+  }
+
   public List<OrganizationDto> selectByQuery(DbSession dbSession, OrganizationQuery organizationQuery, Pagination pagination) {
     requireNonNull(organizationQuery, "organizationQuery can't be null");
     return getMapper(dbSession).selectByQuery(organizationQuery, pagination);

@@ -39,6 +39,7 @@ message UpdateWsResponse {
 // WS api/organizations/search
 message SearchWsResponse {
   repeated Organization organizations = 1;
+  optional sonarqube.ws.commons.Paging paging = 2;
 }
 
 // WS api/organizations/search_members
