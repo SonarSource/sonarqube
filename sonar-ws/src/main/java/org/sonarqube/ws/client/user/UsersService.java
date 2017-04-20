@@ -19,18 +19,22 @@
  */
 package org.sonarqube.ws.client.user;
 
+import java.util.List;
 import org.sonarqube.ws.WsUsers.CreateWsResponse;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse;
+import org.sonarqube.ws.WsUsers.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_GROUPS;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.CONTROLLER_USERS;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -46,6 +50,16 @@ public class UsersService extends BaseService {
 
   public UsersService(WsConnector wsConnector) {
     super(wsConnector, CONTROLLER_USERS);
+  }
+
+  public SearchWsResponse search(SearchRequest request) {
+    List<String> additionalFields = request.getPossibleFields();
+    return call(new GetRequest(path(ACTION_SEARCH))
+      .setParam(PAGE, request.getPage())
+      .setParam(PAGE_SIZE, request.getPageSize())
+      .setParam(TEXT_QUERY, request.getQuery())
+      .setParam(FIELDS, !additionalFields.isEmpty() ? inlineMultipleParamValue(additionalFields) : null),
+      SearchWsResponse.parser());
   }
 
   public CreateWsResponse create(CreateRequest request) {

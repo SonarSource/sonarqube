@@ -46,7 +46,7 @@ public class UsersWsTest {
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class)),
       new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
-      new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserJsonWriter.class))));
+      new SearchAction(userSessionRule, mock(UserIndex.class), mock(DbClient.class))));
     controller = tester.controller("api/users");
   }
 

@@ -26,6 +26,34 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "WsUsers";
 option optimize_for = SPEED;
 
+// WS api/users/search
+message SearchWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional bool active = 3;
+    optional string email = 4;
+    optional ScmAccounts scmAccounts = 5;
+    optional Groups groups = 6;
+    optional int32 tokensCount = 7;
+    optional bool local = 8;
+    optional string externalIdentity = 9;
+    optional string externalProvider = 10;
+    optional string avatar = 11;
+  }
+
+  message Groups {
+    repeated string groups = 1;
+  }
+
+  message ScmAccounts {
+    repeated string scmAccounts = 1;
+  }
+}
+
 // WS api/users/identity_providers
 message IdentityProvidersWsResponse {
   repeated IdentityProvider identityProviders = 1;

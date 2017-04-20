@@ -67,7 +67,7 @@ public class SearchActionTest {
   private DbSession dbSession = db.getSession();
   private UserIndex index = new UserIndex(esTester.client());
   private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
-  private WsTester ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
+  private WsTester ws = new WsTester(new UsersWs(new SearchAction(userSession, index, dbClient)));
 
   @Test
   public void search_json_example() throws Exception {
@@ -103,7 +103,14 @@ public class SearchActionTest {
   @Test
   public void search_empty() throws Exception {
     loginAsSimpleUser();
-    ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "empty.json");
+    ws.newGetRequest("api/users", "search").execute().assertJson("{\n" +
+      "  \"paging\": {\n" +
+      "    \"pageIndex\": 1,\n" +
+      "    \"pageSize\": 50,\n" +
+      "    \"total\": 0\n" +
+      "  },\n" +
+      "  \"users\": []\n" +
+      "}");
   }
 
   @Test
@@ -196,13 +203,7 @@ public class SearchActionTest {
   @Test
   public void search_with_groups() throws Exception {
     loginAsSystemAdministrator();
-    List<UserDto> users = injectUsers(1);
-
-    GroupDto group1 = dbClient.groupDao().insert(dbSession, newGroupDto().setName("sonar-users"));
-    GroupDto group2 = dbClient.groupDao().insert(dbSession, newGroupDto().setName("sonar-admins"));
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(group1.getId()).setUserId(users.get(0).getId()));
-    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(group2.getId()).setUserId(users.get(0).getId()));
-    dbSession.commit();
+    injectUsers(1);
 
     ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "user_with_groups.json");
   }
@@ -229,6 +230,8 @@ public class SearchActionTest {
   private List<UserDto> injectUsers(int numberOfUsers) throws Exception {
     List<UserDto> userDtos = Lists.newArrayList();
     long createdAt = System.currentTimeMillis();
+    GroupDto group1 = db.users().insertGroup(newGroupDto().setName("sonar-users"));
+    GroupDto group2 = db.users().insertGroup(newGroupDto().setName("sonar-admins"));
     for (int index = 0; index < numberOfUsers; index++) {
       String email = String.format("user-%d@mail.com", index);
       String login = String.format("user-%d", index);
@@ -253,6 +256,8 @@ public class SearchActionTest {
           .setLogin(login)
           .setName(String.format("%s-%d", login, tokenIndex)));
       }
+      db.users().insertMember(group1, userDto);
+      db.users().insertMember(group2, userDto);
     }
     dbSession.commit();
     userIndexer.indexOnStartup(null);
