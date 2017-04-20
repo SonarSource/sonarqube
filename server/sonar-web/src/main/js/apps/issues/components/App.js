@@ -72,7 +72,7 @@ type Props = {
 };
 
 type State = {
-  bulkChange: "all" | "selected" | null,
+  bulkChange: 'all' | 'selected' | null,
   checked: Array<string>,
   facets: { [string]: Facet },
   issues: Array<Issue>,
@@ -473,7 +473,7 @@ export default class App extends React.PureComponent {
     }));
   };
 
-  openBulkChange = (mode: "all" | "selected") => {
+  openBulkChange = (mode: 'all' | 'selected') => {
     this.setState({ bulkChange: mode });
     key.setScope('issues-bulk-change');
   };

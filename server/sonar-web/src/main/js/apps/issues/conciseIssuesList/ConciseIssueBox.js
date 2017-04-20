@@ -27,7 +27,7 @@ import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
   issue: Issue,
-  onClick: (string) => void,
+  onClick: string => void,
   selected: boolean
 |};
 

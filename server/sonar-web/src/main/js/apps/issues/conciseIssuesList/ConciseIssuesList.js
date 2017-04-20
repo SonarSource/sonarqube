@@ -25,7 +25,7 @@ import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
   issues: Array<Issue>,
-  onIssueSelect: (string) => void,
+  onIssueSelect: string => void,
   selected?: string
 |};
 
@@ -61,10 +61,9 @@ export default class ConciseIssuesList extends React.PureComponent {
     }
   }
 
-  innerRef = (issue: string) =>
-    (node: HTMLElement) => {
-      this.nodes[issue] = node;
-    };
+  innerRef = (issue: string) => (node: HTMLElement) => {
+    this.nodes[issue] = node;
+  };
 
   render() {
     return (

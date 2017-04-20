@@ -24,9 +24,9 @@ import ConciseIssueComponent from './ConciseIssueComponent';
 import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
-  innerRef: (HTMLElement) => void,
+  innerRef: HTMLElement => void,
   issue: Issue,
-  onSelect: (string) => void,
+  onSelect: string => void,
   previousIssue: ?Issue,
   selected: boolean
 |};
