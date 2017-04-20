@@ -31,14 +31,14 @@ type Props = {|
   checked?: boolean,
   currentPopup: string,
   issue: Issue,
-  onAssign: (string) => void,
-  onChange: (Issue) => void,
-  onCheck?: (string) => void,
-  onClick: (string) => void,
-  onFail: (Error) => void,
+  onAssign: string => void,
+  onChange: Issue => void,
+  onCheck?: string => void,
+  onClick: string => void,
+  onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
   selected: boolean,
-  togglePopup: (string) => void
+  togglePopup: string => void
 |};
 
 export default class IssueView extends React.PureComponent {

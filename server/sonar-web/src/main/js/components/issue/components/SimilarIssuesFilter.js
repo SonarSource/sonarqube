@@ -27,8 +27,8 @@ import type { Issue } from '../types';
 type Props = {|
   isOpen: boolean,
   issue: Issue,
-  togglePopup: (string) => void,
-  onFail: (Error) => void,
+  togglePopup: string => void,
+  onFail: Error => void,
   onFilter: (property: string, issue: Issue) => void
 |};
 

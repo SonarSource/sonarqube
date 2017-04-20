@@ -19,5 +19,5 @@
  */
 module.exports = function(...args) {
   const list = args.slice(0, -1);
-  return list.reduce((prev, current) => prev != null ? prev : current, null);
+  return list.reduce((prev, current) => (prev != null ? prev : current), null);
 };

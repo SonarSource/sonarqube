@@ -42,8 +42,8 @@ type User = {
 
 type Props = {
   issue: Issue,
-  onFail: (Error) => void,
-  onSelect: (string) => void,
+  onFail: Error => void,
+  onSelect: string => void,
   popupPosition?: {}
 };
 

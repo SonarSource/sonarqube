@@ -33,9 +33,11 @@ export default Backbone.Model.extend({
   },
 
   match(query) {
-    return this._matchAttribute('name', query) ||
+    return (
+      this._matchAttribute('name', query) ||
       this._matchAttribute('category', query) ||
-      this._matchAttribute('description', query);
+      this._matchAttribute('description', query)
+    );
   },
 
   _action(options) {

@@ -31,9 +31,9 @@ type Props = {|
   canSetTags: boolean,
   isOpen: boolean,
   issue: Issue,
-  onChange: (Issue) => void,
-  onFail: (Error) => void,
-  togglePopup: (string) => void
+  onChange: Issue => void,
+  onFail: Error => void,
+  togglePopup: string => void
 |};
 
 export default class IssueTags extends React.PureComponent {

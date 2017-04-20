@@ -49,7 +49,8 @@ function groupByDomains(measures) {
     'name'
   );
   const [knownDomains, unknownDomains] = partition(domains, domain =>
-    KNOWN_DOMAINS.includes(domain.name));
+    KNOWN_DOMAINS.includes(domain.name)
+  );
   return [
     ...sortBy(knownDomains, domain => KNOWN_DOMAINS.indexOf(domain.name)),
     ...sortBy(unknownDomains, domain => domain.name)

@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class ViewSelect extends React.PureComponent {
   props: {
-    onChange: (string) => void,
+    onChange: string => void,
     view: string
   };
 

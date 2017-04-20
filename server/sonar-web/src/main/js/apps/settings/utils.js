@@ -84,7 +84,7 @@ export function getEmptyValue(definition) {
 
   if (definition.type === TYPE_PROPERTY_SET) {
     const value = {};
-    definition.fields.forEach(field => value[field.key] = getEmptyValue(field));
+    definition.fields.forEach(field => (value[field.key] = getEmptyValue(field)));
     return [value];
   }
 

@@ -51,8 +51,8 @@ class PageHeader extends React.PureComponent {
 
   render() {
     const configuration = this.props.project.configuration;
-    const canApplyPermissionTemplate = configuration != null &&
-      configuration.canApplyPermissionTemplate;
+    const canApplyPermissionTemplate =
+      configuration != null && configuration.canApplyPermissionTemplate;
 
     const description = ['VW', 'SVW'].includes(this.props.project.qualifier)
       ? translate('roles.page.description_portfolio')

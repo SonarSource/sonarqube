@@ -28,8 +28,8 @@ type Props = {
   isOpen: boolean,
   issue: Issue,
   creationDate: string,
-  togglePopup: (string) => void,
-  onFail: (Error) => void
+  togglePopup: string => void,
+  onFail: Error => void
 };
 
 export default class IssueChangelog extends React.PureComponent {

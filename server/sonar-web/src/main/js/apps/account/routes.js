@@ -26,7 +26,8 @@ const routes = [
       {
         getIndexRoute(_, callback) {
           require.ensure([], require =>
-            callback(null, { component: require('./profile/Profile').default }));
+            callback(null, { component: require('./profile/Profile').default })
+          );
         }
       },
       {
@@ -39,28 +40,32 @@ const routes = [
         path: 'projects',
         getComponent(_, callback) {
           require.ensure([], require =>
-            callback(null, require('./projects/ProjectsContainer').default));
+            callback(null, require('./projects/ProjectsContainer').default)
+          );
         }
       },
       {
         path: 'notifications',
         getComponent(_, callback) {
           require.ensure([], require =>
-            callback(null, require('./notifications/Notifications').default));
+            callback(null, require('./notifications/Notifications').default)
+          );
         }
       },
       {
         path: 'organizations',
         getComponent(_, callback) {
           require.ensure([], require =>
-            callback(null, require('./organizations/UserOrganizations').default));
+            callback(null, require('./organizations/UserOrganizations').default)
+          );
         },
         childRoutes: [
           {
             path: 'create',
             getComponent(_, callback) {
               require.ensure([], require =>
-                callback(null, require('./organizations/CreateOrganizationForm').default));
+                callback(null, require('./organizations/CreateOrganizationForm').default)
+              );
             }
           }
         ]

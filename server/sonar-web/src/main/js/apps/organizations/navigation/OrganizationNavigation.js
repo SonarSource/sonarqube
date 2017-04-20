@@ -131,11 +131,13 @@ export default class OrganizationNavigation extends React.PureComponent {
   render() {
     const { organization, location } = this.props;
 
-    const isHomeActive = location.pathname === `organizations/${organization.key}/projects` ||
+    const isHomeActive =
+      location.pathname === `organizations/${organization.key}/projects` ||
       location.pathname === `organizations/${organization.key}/projects/favorite`;
 
     const adminActive = ADMIN_PATHS.some(path =>
-      location.pathname.endsWith(`organizations/${organization.key}/${path}`));
+      location.pathname.endsWith(`organizations/${organization.key}/${path}`)
+    );
 
     const moreActive = !adminActive && location.pathname.includes('/extension/');
 

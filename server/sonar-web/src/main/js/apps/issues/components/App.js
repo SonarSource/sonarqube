@@ -65,7 +65,7 @@ type Props = {
   currentUser: CurrentUser,
   fetchIssues: () => Promise<*>,
   location: { pathname: string, query: { [string]: string } },
-  onRequestFail: (Error) => void,
+  onRequestFail: Error => void,
   router: { push: () => void, replace: () => void }
 };
 
@@ -404,7 +404,8 @@ export default class App extends React.PureComponent {
 
   getCheckedIssues = () => {
     const issues = this.state.checked.map(checked =>
-      this.state.issues.find(issue => issue.key === checked));
+      this.state.issues.find(issue => issue.key === checked)
+    );
     const paging = { pageIndex: 1, pageSize: issues.length, total: issues.length };
     return Promise.resolve({ issues, paging });
   };
@@ -465,7 +466,7 @@ export default class App extends React.PureComponent {
 
   handleIssueChange = (issue: Issue) => {
     this.setState(state => ({
-      issues: state.issues.map(candidate => candidate.key === issue.key ? issue : candidate)
+      issues: state.issues.map(candidate => (candidate.key === issue.key ? issue : candidate))
     }));
   };
 

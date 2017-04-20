@@ -44,7 +44,7 @@ export default CustomValuesFacet.extend({
 
   getLabelsSource() {
     const source = {};
-    this.options.app.repositories.forEach(repo => source[repo.key] = repo.name);
+    this.options.app.repositories.forEach(repo => (source[repo.key] = repo.name));
     return source;
   },
 

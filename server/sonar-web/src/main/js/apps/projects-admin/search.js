@@ -70,9 +70,10 @@ export default class Search extends React.PureComponent {
   };
 
   renderCheckbox = () => {
-    const isAllChecked = this.props.projects.length > 0 &&
-      this.props.selection.length === this.props.projects.length;
-    const thirdState = this.props.projects.length > 0 &&
+    const isAllChecked =
+      this.props.projects.length > 0 && this.props.selection.length === this.props.projects.length;
+    const thirdState =
+      this.props.projects.length > 0 &&
       this.props.selection.length > 0 &&
       this.props.selection.length < this.props.projects.length;
     const checked = isAllChecked || thirdState;

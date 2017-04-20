@@ -104,7 +104,8 @@ export default class PropertySetInput extends React.PureComponent {
           </thead>
           <tbody>
             {displayedValue.map((fieldValues, index) =>
-              this.renderFields(fieldValues, index, index === displayedValue.length - 1))}
+              this.renderFields(fieldValues, index, index === displayedValue.length - 1)
+            )}
           </tbody>
         </table>
       </div>

@@ -30,8 +30,8 @@ type Props = {
   hasTransitions: boolean,
   isOpen: boolean,
   issue: Issue,
-  onChange: (Issue) => void,
-  togglePopup: (string) => void
+  onChange: Issue => void,
+  togglePopup: string => void
 };
 
 export default class IssueTransition extends React.PureComponent {

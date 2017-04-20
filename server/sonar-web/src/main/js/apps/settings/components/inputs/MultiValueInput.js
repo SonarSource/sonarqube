@@ -85,7 +85,8 @@ export default class MultiValueInput extends React.PureComponent {
       <div>
         <ul>
           {displayedValue.map((value, index) =>
-            this.renderInput(value, index, index === displayedValue.length - 1))}
+            this.renderInput(value, index, index === displayedValue.length - 1)
+          )}
         </ul>
       </div>
     );

@@ -28,7 +28,7 @@ import type { IssueComment } from '../types';
 
 type Props = {
   comment: IssueComment,
-  onDelete: (string) => void,
+  onDelete: string => void,
   onEdit: (string, string) => void
 };
 

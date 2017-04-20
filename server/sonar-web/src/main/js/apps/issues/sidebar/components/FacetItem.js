@@ -28,7 +28,7 @@ type Props = {|
   facetMode: string,
   halfWidth: boolean,
   name: string | React.Element<*>,
-  onClick: (string) => void,
+  onClick: string => void,
   stat: ?number,
   value: string
 |};
@@ -55,7 +55,8 @@ export default class FacetItem extends React.PureComponent {
       'search-navigator-facet-half': this.props.halfWidth
     });
 
-    const formattedStat = stat &&
+    const formattedStat =
+      stat &&
       formatMeasure(stat, this.props.facetMode === 'effort' ? 'SHORT_WORK_DUR' : 'SHORT_INT');
 
     return this.props.disabled

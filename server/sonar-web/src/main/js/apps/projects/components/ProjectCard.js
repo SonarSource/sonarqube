@@ -53,7 +53,8 @@ export default class ProjectCard extends React.PureComponent {
     const isProjectAnalyzed = project.analysisDate != null;
     // check reliability_rating because only some measures can be loaded
     // if coming from visualizations tab
-    const areProjectMeasuresLoaded = !isProjectAnalyzed ||
+    const areProjectMeasuresLoaded =
+      !isProjectAnalyzed ||
       (this.props.measures != null &&
         this.props.measures['reliability_rating'] != null &&
         this.props.measures['sqale_rating'] != null);

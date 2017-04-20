@@ -67,7 +67,8 @@ export default class RuleFacet extends React.PureComponent {
       languages: languages.length ? languages.join() : undefined,
       q: query
     }).then(response =>
-      response.rules.map(rule => ({ label: `(${rule.langName}) ${rule.name}`, value: rule.key })));
+      response.rules.map(rule => ({ label: `(${rule.langName}) ${rule.name}`, value: rule.key }))
+    );
   };
 
   handleSelect = (rule: string) => {

@@ -32,7 +32,7 @@ const reducer = (state: State = {}, action: Object) => {
   if (action.type === 'SET_APP_STATE') {
     const settingsByKey = {};
     Object.keys(action.appState.settings).forEach(
-      key => settingsByKey[key] = { value: action.appState.settings[key] }
+      key => (settingsByKey[key] = { value: action.appState.settings[key] })
     );
     return { ...state, ...settingsByKey };
   }

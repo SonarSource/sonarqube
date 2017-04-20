@@ -27,10 +27,10 @@ type Props = {
   selectedElements: Array<string>,
   elements: Array<string>,
   listSize: number,
-  onSearch: (string) => void,
-  onSelect: (string) => void,
-  onUnselect: (string) => void,
-  validateSearchInput: (string) => string
+  onSearch: string => void,
+  onSelect: string => void,
+  onUnselect: string => void,
+  validateSearchInput: string => string
 };
 
 type State = {
@@ -225,7 +225,7 @@ export default class MultiSelect extends React.PureComponent {
     const activeElement = this.getAllElements(this.props, this.state)[activeIdx];
 
     return (
-      <div className="multi-select" ref={div => this.container = div}>
+      <div className="multi-select" ref={div => (this.container = div)}>
         <div className="search-box menu-search">
           <button className="search-box-submit button-clean">
             <i className="icon-search-new" />
@@ -237,7 +237,7 @@ export default class MultiSelect extends React.PureComponent {
             placeholder={translate('search_verb')}
             onChange={this.handleSearchChange}
             autoComplete="off"
-            ref={input => this.searchInput = input}
+            ref={input => (this.searchInput = input)}
           />
         </div>
         <ul className="menu">

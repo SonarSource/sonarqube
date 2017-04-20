@@ -83,8 +83,8 @@ export default class SourceViewerHeader extends React.PureComponent {
     const isUnitTest = q === 'UTS';
     // TODO check if source viewer is displayed inside workspace
     const workspace = false;
-    const rawSourcesLink = window.baseUrl +
-      `/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
+    const rawSourcesLink =
+      window.baseUrl + `/api/sources/raw?key=${encodeURIComponent(this.props.component.key)}`;
 
     // TODO favorite
     return (

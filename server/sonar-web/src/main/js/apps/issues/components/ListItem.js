@@ -28,9 +28,9 @@ type Props = {|
   checked: boolean,
   component?: Component,
   issue: IssueType,
-  onChange: (IssueType) => void,
-  onCheck?: (string) => void,
-  onClick: (string) => void,
+  onChange: IssueType => void,
+  onCheck?: string => void,
+  onClick: string => void,
   onFilterChange: (changes: {}) => void,
   previousIssue: ?Object,
   selected: boolean

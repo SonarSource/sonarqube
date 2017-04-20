@@ -127,7 +127,7 @@ export default class AssigneeFacet extends React.PureComponent {
     const assignees = sortBy(
       Object.keys(stats),
       // put unassigned first
-      key => key === '' ? 0 : 1,
+      key => (key === '' ? 0 : 1),
       // the sort by number
       key => -stats[key]
     );

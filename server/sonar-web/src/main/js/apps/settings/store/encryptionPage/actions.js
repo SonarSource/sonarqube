@@ -36,49 +36,45 @@ const startLoading = dispatch => {
   dispatch(closeAllGlobalMessages());
 };
 
-const handleError = dispatch =>
-  error => {
-    parseError(error).then(message => {
-      dispatch(addGlobalErrorMessage(message));
-      dispatch(updateEncryption({ loading: false }));
-    });
-  };
+const handleError = dispatch => error => {
+  parseError(error).then(message => {
+    dispatch(addGlobalErrorMessage(message));
+    dispatch(updateEncryption({ loading: false }));
+  });
+};
 
-export const checkSecretKey = () =>
-  dispatch => {
-    startLoading(dispatch);
-    api
-      .checkSecretKey()
-      .then(data => dispatch(updateEncryption({ ...data, loading: false })))
-      .catch(handleError(dispatch));
-  };
+export const checkSecretKey = () => dispatch => {
+  startLoading(dispatch);
+  api
+    .checkSecretKey()
+    .then(data => dispatch(updateEncryption({ ...data, loading: false })))
+    .catch(handleError(dispatch));
+};
 
-export const generateSecretKey = () =>
-  dispatch => {
-    startLoading(dispatch);
-    api
-      .generateSecretKey()
-      .then(data =>
-        dispatch(
-          updateEncryption({
-            ...data,
-            secretKeyAvailable: false,
-            loading: false
-          })
-        ))
-      .catch(handleError(dispatch));
-  };
+export const generateSecretKey = () => dispatch => {
+  startLoading(dispatch);
+  api
+    .generateSecretKey()
+    .then(data =>
+      dispatch(
+        updateEncryption({
+          ...data,
+          secretKeyAvailable: false,
+          loading: false
+        })
+      )
+    )
+    .catch(handleError(dispatch));
+};
 
-export const encryptValue = value =>
-  dispatch => {
-    startLoading(dispatch);
-    api
-      .encryptValue(value)
-      .then(data => dispatch(updateEncryption({ ...data, loading: false })))
-      .catch(handleError(dispatch));
-  };
+export const encryptValue = value => dispatch => {
+  startLoading(dispatch);
+  api
+    .encryptValue(value)
+    .then(data => dispatch(updateEncryption({ ...data, loading: false })))
+    .catch(handleError(dispatch));
+};
 
-export const startGeneration = () =>
-  dispatch => {
-    dispatch(updateEncryption({ secretKeyAvailable: false, secretKey: undefined }));
-  };
+export const startGeneration = () => dispatch => {
+  dispatch(updateEncryption({ secretKeyAvailable: false, secretKey: undefined }));
+};

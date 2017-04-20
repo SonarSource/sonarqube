@@ -38,7 +38,7 @@ type Changelog = {
 
 type Props = {
   issue: Issue,
-  onFail: (Error) => void,
+  onFail: Error => void,
   popupPosition?: {}
 };
 
@@ -63,14 +63,11 @@ export default class ChangelogPopup extends React.PureComponent {
   }
 
   loadChangelog() {
-    getIssueChangelog(this.props.issue.key).then(
-      changelogs => {
-        if (this.mounted) {
-          this.setState({ changelogs });
-        }
-      },
-      this.props.onFail
-    );
+    getIssueChangelog(this.props.issue.key).then(changelogs => {
+      if (this.mounted) {
+        this.setState({ changelogs });
+      }
+    }, this.props.onFail);
   }
 
   render() {

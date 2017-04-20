@@ -35,7 +35,7 @@ class CodingRulesAppContainer extends React.PureComponent {
       organizationKey?: string
     },
     router: {
-      replace: (string) => void
+      replace: string => void
     }
   };
 

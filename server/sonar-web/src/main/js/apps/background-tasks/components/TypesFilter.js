@@ -23,9 +23,11 @@ import Select from 'react-select';
 import { ALL_TYPES } from '../constants';
 import { translate } from '../../../helpers/l10n';
 
-const TypesFilter = (
-  { value, onChange, types }: { value: string, onChange: Function, types: string[] }
-) => {
+const TypesFilter = ({
+  value,
+  onChange,
+  types
+}: { value: string, onChange: Function, types: string[] }) => {
   const options = types.map(t => {
     return {
       value: t,

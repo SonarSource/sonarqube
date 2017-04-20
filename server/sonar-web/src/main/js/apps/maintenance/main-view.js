@@ -34,12 +34,9 @@ export default Marionette.ItemView.extend({
       type: 'GET',
       url: window.baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
     };
-    this.pollingInternal = setInterval(
-      () => {
-        this.refresh();
-      },
-      5000
-    );
+    this.pollingInternal = setInterval(() => {
+      this.refresh();
+    }, 5000);
     this.wasStarting = false;
   },
 
@@ -84,12 +81,9 @@ export default Marionette.ItemView.extend({
   },
 
   goHome() {
-    setInterval(
-      () => {
-        window.location = window.baseUrl + '/';
-      },
-      2500
-    );
+    setInterval(() => {
+      window.location = window.baseUrl + '/';
+    }, 2500);
   },
 
   serializeData() {

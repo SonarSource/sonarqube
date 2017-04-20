@@ -37,12 +37,9 @@ export default ModalView.extend({
   onRender() {
     ModalView.prototype.onRender.apply(this, arguments);
     const that = this;
-    setTimeout(
-      () => {
-        that.$(':tabbable').first().focus();
-      },
-      0
-    );
+    setTimeout(() => {
+      that.$(':tabbable').first().focus();
+    }, 0);
   },
 
   onInputKeydown(e) {

@@ -41,10 +41,10 @@ type Props = {|
   issues: Array<Issue>,
   issueLocations: Array<LinearIssueLocation>,
   line: SourceLine,
-  onIssueChange: (Issue) => void,
+  onIssueChange: Issue => void,
   onIssueSelect: (issueKey: string) => void,
   onLocationSelect: (flowIndex: number, locationIndex: number) => void,
-  onSymbolClick: (Array<string>) => void,
+  onSymbolClick: Array<string> => void,
   // $FlowFixMe
   secondaryIssueLocations: Array<IndexedIssueLocation>,
   secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
@@ -131,8 +131,10 @@ export default class LineCode extends React.PureComponent {
     if (selectedIssueLocation == null) {
       return false;
     } else {
-      return selectedIssueLocation.flowIndex === location.flowIndex &&
-        selectedIssueLocation.locationIndex === location.locationIndex;
+      return (
+        selectedIssueLocation.flowIndex === location.flowIndex &&
+        selectedIssueLocation.locationIndex === location.locationIndex
+      );
     }
   }
 
@@ -141,7 +143,7 @@ export default class LineCode extends React.PureComponent {
       selected: this.isSecondaryIssueLocationSelected(location)
     });
 
-    const limitString = (str: string) => str.length > 30 ? str.substr(0, 30) + '...' : str;
+    const limitString = (str: string) => (str.length > 30 ? str.substr(0, 30) + '...' : str);
 
     return (
       <a
@@ -193,7 +195,8 @@ export default class LineCode extends React.PureComponent {
       tokens = highlightIssueLocations(tokens, secondaryIssueLocations, 'issue-location');
       if (selectedIssueLocation != null) {
         const x = secondaryIssueLocations.find(location =>
-          this.isSecondaryIssueLocationSelected(location));
+          this.isSecondaryIssueLocationSelected(location)
+        );
         if (x) {
           tokens = highlightIssueLocations(tokens, [x], 'selected');
         }
@@ -209,7 +212,10 @@ export default class LineCode extends React.PureComponent {
     return (
       <td className={className} data-line-number={line.line}>
         <div className="source-line-code-inner">
-          <pre ref={node => this.codeNode = node} dangerouslySetInnerHTML={{ __html: finalCode }} />
+          <pre
+            ref={node => (this.codeNode = node)}
+            dangerouslySetInnerHTML={{ __html: finalCode }}
+          />
           {secondaryIssueLocationMessages != null &&
             secondaryIssueLocationMessages.length > 0 &&
             this.renderSecondaryIssueLocationMessages(secondaryIssueLocationMessages)}

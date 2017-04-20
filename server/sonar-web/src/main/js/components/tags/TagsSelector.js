@@ -28,13 +28,13 @@ type Props = {
   tags: Array<string>,
   selectedTags: Array<string>,
   listSize: number,
-  onSearch: (string) => void,
-  onSelect: (string) => void,
-  onUnselect: (string) => void
+  onSearch: string => void,
+  onSelect: string => void,
+  onUnselect: string => void
 };
 
 export default class TagsSelector extends React.PureComponent {
-  validateTag: (string) => string;
+  validateTag: string => string;
   props: Props;
 
   validateTag(value: string) {

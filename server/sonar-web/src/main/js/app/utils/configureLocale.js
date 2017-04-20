@@ -20,7 +20,7 @@
 import moment from 'moment';
 
 const getPreferredLanguage = () =>
-  window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
+  (window.navigator.languages ? window.navigator.languages[0] : window.navigator.language);
 
 const configureLocale = () => {
   moment.locale(getPreferredLanguage());

@@ -80,12 +80,9 @@ export default Marionette.ItemView.extend({
   flashPagination() {
     const flashElement = this.$('.search-navigator-header-pagination');
     flashElement.addClass('in');
-    setTimeout(
-      () => {
-        flashElement.removeClass('in');
-      },
-      2000
-    );
+    setTimeout(() => {
+      flashElement.removeClass('in');
+    }, 2000);
   },
 
   serializeData() {

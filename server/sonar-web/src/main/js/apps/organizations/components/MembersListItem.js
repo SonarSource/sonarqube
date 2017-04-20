@@ -31,7 +31,7 @@ type Props = {
   member: Member,
   organization: Organization,
   organizationGroups: Array<OrgGroup>,
-  removeMember: (Member) => void,
+  removeMember: Member => void,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
 

@@ -25,7 +25,7 @@ import { VISUALIZATIONS } from '../utils';
 
 export default class VisualizationsHeader extends React.PureComponent {
   props: {
-    onVisualizationChange: (string) => void,
+    onVisualizationChange: string => void,
     visualization: string
   };
 

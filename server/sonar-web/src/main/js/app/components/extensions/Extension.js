@@ -33,7 +33,7 @@ type Props = {
     key: string,
     title: string
   },
-  onFail: (string) => void,
+  onFail: string => void,
   options?: {},
   router: Object
 };
@@ -86,7 +86,7 @@ class Extension extends React.PureComponent {
   render() {
     return (
       <div>
-        <div ref={container => this.container = container} />
+        <div ref={container => (this.container = container)} />
       </div>
     );
   }

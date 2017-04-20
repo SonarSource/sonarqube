@@ -25,9 +25,9 @@ import { searchIssueTags } from '../../../api/issues';
 
 type Props = {
   popupPosition?: {},
-  onFail: (Error) => void,
+  onFail: Error => void,
   selectedTags: Array<string>,
-  setTags: (Array<string>) => void
+  setTags: Array<string> => void
 };
 
 type State = {
@@ -54,12 +54,9 @@ export default class SetIssueTagsPopup extends React.PureComponent {
     searchIssueTags({
       q: query || '',
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100)
-    }).then(
-      (tags: Array<string>) => {
-        this.setState({ searchResult: tags });
-      },
-      this.props.onFail
-    );
+    }).then((tags: Array<string>) => {
+      this.setState({ searchResult: tags });
+    }, this.props.onFail);
   };
 
   onSelect = (tag: string) => {

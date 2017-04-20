@@ -30,7 +30,7 @@ type Props = {|
   commentPlaceholder: string,
   currentPopup: string,
   issueKey: string,
-  onChange: (Issue) => void,
+  onChange: Issue => void,
   toggleComment: (open?: boolean, placeholder?: string) => void
 |};
 

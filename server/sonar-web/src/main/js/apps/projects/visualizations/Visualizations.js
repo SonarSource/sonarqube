@@ -32,7 +32,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 export default class Visualizations extends React.PureComponent {
   props: {
     displayOrganizations: boolean,
-    onVisualizationChange: (string) => void,
+    onVisualizationChange: string => void,
     projects?: Array<*>,
     sort?: string,
     total?: number,

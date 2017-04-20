@@ -61,13 +61,10 @@ describe('Search', () => {
     const component = shallow(<Search {...defaultProps} onFilterUpdate={searchSpy} />);
     const searchInput = component.find('.js-search');
     change(searchInput, 'some search query');
-    setTimeout(
-      () => {
-        expect(searchSpy).toBeCalledWith({ query: 'some search query' });
-        done();
-      },
-      DEBOUNCE_DELAY
-    );
+    setTimeout(() => {
+      expect(searchSpy).toBeCalledWith({ query: 'some search query' });
+      done();
+    }, DEBOUNCE_DELAY);
   });
 
   it('should reload', () => {

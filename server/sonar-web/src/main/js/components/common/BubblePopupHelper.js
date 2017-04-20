@@ -30,7 +30,7 @@ type Props = {
   },
   popup: Object,
   position: 'bottomleft' | 'bottomright',
-  togglePopup: (?boolean) => void
+  togglePopup: ?boolean => void
 };
 
 type State = {
@@ -92,13 +92,13 @@ export default class BubblePopupHelper extends React.PureComponent {
     return (
       <div
         className={classNames(this.props.className, 'bubble-popup-helper')}
-        ref={container => this.container = container}
+        ref={container => (this.container = container)}
         onClick={this.handleClick}
         tabIndex={0}
         role="tooltip">
         {this.props.children}
         {this.props.isOpen &&
-          <div ref={popupContainer => this.popupContainer = popupContainer}>
+          <div ref={popupContainer => (this.popupContainer = popupContainer)}>
             {React.cloneElement(this.props.popup, {
               popupPosition: this.state.position
             })}

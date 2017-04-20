@@ -30,7 +30,7 @@ class GlobalNavUser extends React.PureComponent {
       name: string
     },
     location: Object,
-    router: { push: (string) => void }
+    router: { push: string => void }
   };
 
   handleLogin = e => {
@@ -38,8 +38,8 @@ class GlobalNavUser extends React.PureComponent {
     const shouldReturnToCurrentPage = window.location.pathname !== `${window.baseUrl}/about`;
     if (shouldReturnToCurrentPage) {
       const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-      window.location = window.baseUrl +
-        `/sessions/new?return_to=${returnTo}${window.location.hash}`;
+      window.location =
+        window.baseUrl + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
     } else {
       window.location = `${window.baseUrl}/sessions/new`;
     }

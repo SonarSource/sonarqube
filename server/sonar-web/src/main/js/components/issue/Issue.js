@@ -28,9 +28,9 @@ import type { Issue } from './types';
 type Props = {|
   checked?: boolean,
   issue: Issue,
-  onChange: (Issue) => void,
-  onCheck?: (string) => void,
-  onClick: (string) => void,
+  onChange: Issue => void,
+  onCheck?: string => void,
+  onClick: string => void,
   onFilter?: (property: string, issue: Issue) => void,
   selected: boolean
 |};

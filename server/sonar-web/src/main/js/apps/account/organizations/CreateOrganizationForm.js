@@ -41,7 +41,7 @@ class CreateOrganizationForm extends React.PureComponent {
   state: State;
   props: {
     createOrganization: () => Promise<*>,
-    router: { push: (string) => void }
+    router: { push: string => void }
   };
 
   constructor(props) {

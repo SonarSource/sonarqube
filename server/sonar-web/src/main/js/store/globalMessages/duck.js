@@ -57,12 +57,11 @@ export const closeAllGlobalMessages = (id: string) => ({
   id
 });
 
-const addGlobalMessage = (message: string, level: Level) =>
-  (dispatch: Function) => {
-    const id = uniqueId('global-message-');
-    dispatch(addGlobalMessageActionCreator(id, message, level));
-    setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
-  };
+const addGlobalMessage = (message: string, level: Level) => (dispatch: Function) => {
+  const id = uniqueId('global-message-');
+  dispatch(addGlobalMessageActionCreator(id, message, level));
+  setTimeout(() => dispatch(closeGlobalMessage(id)), 5000);
+};
 
 export const addGlobalErrorMessage = (message: string) => addGlobalMessage(message, ERROR);
 

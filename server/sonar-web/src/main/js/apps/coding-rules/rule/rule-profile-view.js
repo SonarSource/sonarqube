@@ -129,8 +129,8 @@ export default Marionette.ItemView.extend({
     }
     const parentKey = myProfile.parentKey;
     const parent = { ...this.options.app.qualityProfiles.find(p => p.key === parentKey) };
-    const parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) ||
-      new Backbone.Model();
+    const parentActiveInfo =
+      this.model.collection.findWhere({ qProfile: parentKey }) || new Backbone.Model();
     Object.assign(parent, parentActiveInfo.toJSON());
     return parent;
   },

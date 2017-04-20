@@ -42,24 +42,21 @@ let smoothScrollTop = (y: number, parent) => {
   const step = Math.ceil(Math.abs(y - scrollTop) / SCROLLING_STEPS);
   let stepsDone = 0;
 
-  const interval = setInterval(
-    () => {
-      const scrollTop = getScrollPosition(parent);
-      if (scrollTop === y || SCROLLING_STEPS === stepsDone) {
-        clearInterval(interval);
+  const interval = setInterval(() => {
+    const scrollTop = getScrollPosition(parent);
+    if (scrollTop === y || SCROLLING_STEPS === stepsDone) {
+      clearInterval(interval);
+    } else {
+      let goal;
+      if (scrollingDown) {
+        goal = Math.min(y, scrollTop + step);
       } else {
-        let goal;
-        if (scrollingDown) {
-          goal = Math.min(y, scrollTop + step);
-        } else {
-          goal = Math.max(y, scrollTop - step);
-        }
-        stepsDone++;
-        scrollElement(parent, goal);
+        goal = Math.max(y, scrollTop - step);
       }
-    },
-    SCROLLING_INTERVAL
-  );
+      stepsDone++;
+      scrollElement(parent, goal);
+    }
+  }, SCROLLING_INTERVAL);
 };
 
 smoothScrollTop = debounce(smoothScrollTop, SCROLLING_DURATION, { leading: true });

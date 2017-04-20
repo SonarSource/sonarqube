@@ -41,7 +41,8 @@ export default class ResponseExample extends React.PureComponent {
   fetchResponseExample() {
     const { domain, action } = this.props;
     fetchResponseExampleApi(domain.path, action.key).then(responseExample =>
-      this.setState({ responseExample }));
+      this.setState({ responseExample })
+    );
   }
 
   render() {

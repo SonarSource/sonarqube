@@ -49,7 +49,8 @@ class App extends React.PureComponent {
           this.props.fetchAppState(),
           this.props.fetchOrganizations(),
           this.props.fetchLanguages()
-        ]))
+        ])
+      )
       .then(this.finishLoading, this.finishLoading);
   }
 

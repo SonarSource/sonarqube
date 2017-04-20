@@ -52,7 +52,8 @@ class MetaQualityProfiles extends React.PureComponent {
 
   loadDeprecatedRules() {
     const requests = this.props.profiles.map(profile =>
-      this.loadDeprecatedRulesForProfile(profile.key));
+      this.loadDeprecatedRulesForProfile(profile.key)
+    );
     Promise.all(requests).then(responses => {
       if (this.mounted) {
         const deprecatedByKey = {};

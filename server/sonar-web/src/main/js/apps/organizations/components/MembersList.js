@@ -27,7 +27,7 @@ type Props = {
   members: Array<Member>,
   organizationGroups: Array<OrgGroup>,
   organization: Organization,
-  removeMember: (Member) => void,
+  removeMember: Member => void,
   updateMemberGroups: (member: Member, add: Array<string>, remove: Array<string>) => void
 };
 

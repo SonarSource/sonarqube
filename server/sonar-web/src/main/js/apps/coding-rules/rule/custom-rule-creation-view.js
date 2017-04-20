@@ -85,10 +85,10 @@ export default ModalFormView.extend({
         return `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}`;
       }
     };
-    const severity = (this.model && this.model.get('severity')) ||
-      this.options.templateRule.get('severity');
-    const status = (this.model && this.model.get('status')) ||
-      this.options.templateRule.get('status');
+    const severity =
+      (this.model && this.model.get('severity')) || this.options.templateRule.get('severity');
+    const status =
+      (this.model && this.model.get('status')) || this.options.templateRule.get('status');
 
     this.ui.customRuleCreationSeverity.val(severity);
     this.ui.customRuleCreationSeverity.select2({

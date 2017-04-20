@@ -21,7 +21,8 @@ const routes = [
   {
     getIndexRoute(_, callback) {
       require.ensure([], require =>
-        callback(null, { component: require('./components/AboutApp').default }));
+        callback(null, { component: require('./components/AboutApp').default })
+      );
     }
   }
 ];

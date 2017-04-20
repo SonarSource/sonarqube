@@ -72,13 +72,15 @@ export default class ProjectFacet extends React.PureComponent {
             label: component.name,
             organization: component.organization,
             value: component.refId
-          })))
+          }))
+        )
       : searchComponents({ ps: 50, q: query, qualifiers: 'TRK' }).then(response =>
           response.components.map(component => ({
             label: component.name,
             organization: component.organization,
             value: component.id
-          })));
+          }))
+        );
   };
 
   handleSelect = (rule: string) => {

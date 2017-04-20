@@ -103,7 +103,8 @@ export default ModalView.extend({
   },
 
   calcAdditionalMeasures(measures) {
-    measures.issuesRemediationEffort = (Number(measures.sqale_index_raw) || 0) +
+    measures.issuesRemediationEffort =
+      (Number(measures.sqale_index_raw) || 0) +
       (Number(measures.reliability_remediation_effort_raw) || 0) +
       (Number(measures.security_remediation_effort_raw) || 0);
 
@@ -167,7 +168,8 @@ export default ModalView.extend({
 
         const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
         const sortedSeveritiesFacet = sortBy(severitiesFacet, facet =>
-          window.severityComparator(facet.val));
+          window.severityComparator(facet.val)
+        );
 
         const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
 

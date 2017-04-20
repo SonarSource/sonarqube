@@ -34,9 +34,8 @@ export default ModalFormView.extend({
 
     const { key } = this.options.profile;
 
-    const searchUrl = window.baseUrl +
-      '/api/qualityprofiles/projects?key=' +
-      encodeURIComponent(key);
+    const searchUrl =
+      window.baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
 
     new window.SelectList({
       searchUrl,

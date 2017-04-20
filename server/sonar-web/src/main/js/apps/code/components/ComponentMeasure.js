@@ -27,7 +27,8 @@ const ComponentMeasure = ({ component, metricKey, metricType }) => {
   const finalMetricKey = isProject && isReleasability ? 'alert_status' : metricKey;
   const finalMetricType = isProject && isReleasability ? 'LEVEL' : metricType;
 
-  const measure = Array.isArray(component.measures) &&
+  const measure =
+    Array.isArray(component.measures) &&
     component.measures.find(measure => measure.metric === finalMetricKey);
 
   if (!measure) {

@@ -56,14 +56,14 @@ export type Paging = {
 };
 
 const parseAsBoolean = (value: ?string, defaultValue: boolean = true): boolean =>
-  value === 'false' ? false : value === 'true' ? true : defaultValue;
+  (value === 'false' ? false : value === 'true' ? true : defaultValue);
 
 const parseAsString = (value: ?string): string => value || '';
 
-const parseAsStringArray = (value: ?string): Array<string> => value ? value.split(',') : [];
+const parseAsStringArray = (value: ?string): Array<string> => (value ? value.split(',') : []);
 
 const parseAsFacetMode = (facetMode: string) =>
-  facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count';
+  (facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count');
 
 export const parseQuery = (query: RawQuery): Query => ({
   assigned: parseAsBoolean(query.assigned),
@@ -96,7 +96,7 @@ export const areMyIssuesSelected = (query: RawQuery): boolean => query.myIssues 
 
 const serializeString = (value: string): ?string => value || undefined;
 
-const serializeValue = (value: Array<string>): ?string => value.length ? value.join() : undefined;
+const serializeValue = (value: Array<string>): ?string => (value.length ? value.join() : undefined);
 
 export const serializeQuery = (query: Query): RawQuery => {
   const filter = {
@@ -151,9 +151,9 @@ export const areQueriesEqual = (a: RawQuery, b: RawQuery) => {
 
   return keysA.every(
     key =>
-      Array.isArray(parsedA[key]) && Array.isArray(parsedB[key])
+      (Array.isArray(parsedA[key]) && Array.isArray(parsedB[key])
         ? areArraysEqual(parsedA[key], parsedB[key])
-        : parsedA[key] === parsedB[key]
+        : parsedA[key] === parsedB[key])
   );
 };
 
@@ -217,7 +217,8 @@ export const searchAssignees = (query: string, component?: Component) => {
           avatar: user.avatar,
           label: user.name,
           value: user.login
-        })))
+        }))
+      )
     : searchUsers(query, 50).then(response =>
         response.users.map(user => ({
           // TODO this WS returns no avatar
@@ -225,5 +226,6 @@ export const searchAssignees = (query: string, component?: Component) => {
           email: user.email,
           label: user.name,
           value: user.login
-        })));
+        }))
+      );
 };

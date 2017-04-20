@@ -38,7 +38,7 @@ class OrganizationPage extends React.PureComponent {
     location: Object,
     organization: null | Organization,
     params: { organizationKey: string },
-    fetchOrganization: (string) => Promise<*>
+    fetchOrganization: string => Promise<*>
   };
 
   state = {

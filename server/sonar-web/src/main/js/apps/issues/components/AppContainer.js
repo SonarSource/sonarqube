@@ -36,16 +36,13 @@ const mapStateToProps = (state, ownProps) => ({
   currentUser: getCurrentUser(state)
 });
 
-const fetchIssues = (query: Query) =>
-  (dispatch: Dispatch<*>) =>
-    searchIssues({ ...query, additionalFields: '_all' }).then(
-      response => {
-        const parsedIssues = response.issues.map(issue =>
-          parseIssueFromResponse(issue, response.components, response.users, response.rules));
-        return { ...response, issues: parsedIssues };
-      },
-      onFail(dispatch)
+const fetchIssues = (query: Query) => (dispatch: Dispatch<*>) =>
+  searchIssues({ ...query, additionalFields: '_all' }).then(response => {
+    const parsedIssues = response.issues.map(issue =>
+      parseIssueFromResponse(issue, response.components, response.users, response.rules)
     );
+    return { ...response, issues: parsedIssues };
+  }, onFail(dispatch));
 
 const onRequestFail = (error: Error) => (dispatch: Dispatch<*>) => onFail(dispatch)(error);
 

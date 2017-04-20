@@ -60,7 +60,8 @@ export default class TagFacet extends React.PureComponent {
 
   handleSearch = (query: string) => {
     return searchIssueTags({ ps: 50, q: query }).then(tags =>
-      tags.map(tag => ({ label: tag, value: tag })));
+      tags.map(tag => ({ label: tag, value: tag }))
+    );
   };
 
   handleSelect = (tag: string) => {

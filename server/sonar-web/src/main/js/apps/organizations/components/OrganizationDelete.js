@@ -34,9 +34,9 @@ class OrganizationDelete extends React.PureComponent {
       name: string
     },
     router: {
-      replace: (string) => void
+      replace: string => void
     },
-    deleteOrganization: (string) => Promise<*>
+    deleteOrganization: string => Promise<*>
   };
 
   state = {

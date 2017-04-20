@@ -28,8 +28,8 @@ import type { IssueComment } from '../types';
 type Props = {
   comment?: IssueComment,
   customClass?: string,
-  onComment: (string) => void,
-  toggleComment: (boolean) => void,
+  onComment: string => void,
+  toggleComment: boolean => void,
   placeholder: string,
   popupPosition?: {}
 };

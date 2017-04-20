@@ -78,7 +78,8 @@ class Projects extends React.PureComponent {
           value: project.key,
           label: project.name,
           organization: project.organization
-        })))
+        }))
+      )
       .then(options => {
         cb(null, { options });
       });

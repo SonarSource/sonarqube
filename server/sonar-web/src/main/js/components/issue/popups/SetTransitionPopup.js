@@ -26,7 +26,7 @@ import { translate } from '../../../helpers/l10n';
 
 type Props = {
   transitions: Array<string>,
-  onSelect: (string) => void,
+  onSelect: string => void,
   popupPosition?: {}
 };
 

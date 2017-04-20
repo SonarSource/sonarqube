@@ -28,7 +28,8 @@ const routes = [
       {
         getIndexRoute(_, callback) {
           require.ensure([], require =>
-            callback(null, { component: require('./components/DefaultPageSelector').default }));
+            callback(null, { component: require('./components/DefaultPageSelector').default })
+          );
         }
       },
       {
@@ -42,7 +43,8 @@ const routes = [
         path: 'favorite',
         getComponent(_, callback) {
           require.ensure([], require =>
-            callback(null, require('./components/FavoriteProjectsContainer').default));
+            callback(null, require('./components/FavoriteProjectsContainer').default)
+          );
         }
       }
     ]

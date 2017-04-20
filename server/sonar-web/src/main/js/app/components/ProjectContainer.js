@@ -38,7 +38,7 @@ class ProjectContainer extends React.PureComponent {
       configuration: {},
       qualifier: string
     },
-    fetchProject: (string) => Promise<*>
+    fetchProject: string => Promise<*>
   };
   componentDidMount() {
     this.fetchProject();

@@ -28,8 +28,8 @@ type Props = {
   query: {},
   options: [{ label: string, value: string }],
   router: { push: ({ pathname: string, query?: {} }) => void },
-  onInputChange?: (string) => void,
-  onOpen?: (void) => void,
+  onInputChange?: string => void,
+  onOpen?: void => void,
   isLoading?: boolean,
   isFavorite?: boolean,
   organization?: {}

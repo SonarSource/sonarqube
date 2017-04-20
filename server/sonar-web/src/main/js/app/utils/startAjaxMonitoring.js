@@ -55,7 +55,8 @@ const Process = Backbone.Model.extend({
     let msg = message || translate('process.fail');
     if (msg === 'process.fail') {
       // no translation
-      msg = 'An error happened, some parts of the page might not render correctly. ' +
+      msg =
+        'An error happened, some parts of the page might not render correctly. ' +
         'Please contact the administrator if you keep on experiencing this error.';
     }
     clearInterval(this.get('timer'));
@@ -64,12 +65,9 @@ const Process = Backbone.Model.extend({
       message: msg
     });
     this.set('state', 'failed');
-    setTimeout(
-      () => {
-        that.finish({ force: true });
-      },
-      5000
-    );
+    setTimeout(() => {
+      that.finish({ force: true });
+    }, 5000);
   }
 });
 
@@ -123,12 +121,9 @@ function addBackgroundProcess() {
   const uid = uniqueId('process');
   const process = new Process({
     id: uid,
-    timer: setTimeout(
-      () => {
-        process.timeout();
-      },
-      defaults.timeout
-    )
+    timer: setTimeout(() => {
+      process.timeout();
+    }, defaults.timeout)
   });
   processes.add(process);
   return uid;

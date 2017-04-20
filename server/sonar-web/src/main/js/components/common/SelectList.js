@@ -27,7 +27,7 @@ type Props = {
   children?: SelectListItem,
   items: Array<string>,
   currentItem: string,
-  onSelect: (string) => void
+  onSelect: string => void
 };
 
 type State = {

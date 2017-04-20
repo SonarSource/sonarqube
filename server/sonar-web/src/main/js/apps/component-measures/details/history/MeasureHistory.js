@@ -88,9 +88,9 @@ export default class MeasureHistory extends React.PureComponent {
       return Promise.resolve([]);
     }
 
-    return getProjectActivity(this.props.component.key, { category: 'VERSION' }).then(({
-      analyses
-    }) => {
+    return getProjectActivity(this.props.component.key, {
+      category: 'VERSION'
+    }).then(({ analyses }) => {
       const events = analyses.map(analysis => {
         const version = analysis.events.find(event => event.category === 'VERSION');
         return { version: version.name, date: moment(analysis.date).toDate() };

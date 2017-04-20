@@ -43,20 +43,17 @@ export function restart() {
 const POLLING_INTERVAL = 2000;
 
 function pollStatus(cb) {
-  setTimeout(
-    () => {
-      getSystemStatus()
-        .then(r => {
-          if (r.status === 'UP') {
-            cb();
-          } else {
-            pollStatus(cb);
-          }
-        })
-        .catch(() => pollStatus(cb));
-    },
-    POLLING_INTERVAL
-  );
+  setTimeout(() => {
+    getSystemStatus()
+      .then(r => {
+        if (r.status === 'UP') {
+          cb();
+        } else {
+          pollStatus(cb);
+        }
+      })
+      .catch(() => pollStatus(cb));
+  }, POLLING_INTERVAL);
 }
 
 function promiseStatus() {

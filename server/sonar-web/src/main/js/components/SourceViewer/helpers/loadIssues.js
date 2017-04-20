@@ -45,7 +45,8 @@ export const loadPage = (
     p: page,
     ps: pageSize
   }).then(r =>
-    r.issues.map(issue => parseIssueFromResponse(issue, r.components, r.users, r.rules)));
+    r.issues.map(issue => parseIssueFromResponse(issue, r.components, r.users, r.rules))
+  );
 };
 
 export const loadPageAndNext = (

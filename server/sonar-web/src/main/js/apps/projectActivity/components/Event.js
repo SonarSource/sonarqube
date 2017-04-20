@@ -78,8 +78,8 @@ export default class Event extends React.PureComponent {
   render() {
     const { event, canAdmin } = this.props;
     const canChange = ['OTHER', 'VERSION'].includes(event.category);
-    const canDelete = event.category === 'OTHER' ||
-      (event.category === 'VERSION' && !this.props.isFirst);
+    const canDelete =
+      event.category === 'OTHER' || (event.category === 'VERSION' && !this.props.isFirst);
     const showActions = canAdmin && (canChange || canDelete);
 
     return (

@@ -66,12 +66,12 @@ type Props = {
   displayAllIssues: boolean,
   filterLine?: (line: SourceLine) => boolean,
   highlightedLine?: number,
-  loadComponent: (string) => Promise<*>,
+  loadComponent: string => Promise<*>,
   loadIssues: (string, number, number) => Promise<*>,
   loadSources: (string, number, number) => Promise<*>,
   onLoaded?: (component: Object, sources: Array<*>, issues: Array<*>) => void,
-  onIssueChange?: (Issue) => void,
-  onIssueSelect?: (string) => void,
+  onIssueChange?: Issue => void,
+  onIssueSelect?: string => void,
   onIssueUnselect?: () => void,
   onReceiveComponent: ({ canMarkAsFavorite: boolean, fav: boolean, key: string }) => void,
   selectedIssue?: string
@@ -532,7 +532,9 @@ export default class SourceViewerBase extends React.PureComponent {
 
   handleIssueChange = (issue: Issue) => {
     this.setState(state => {
-      const issues = state.issues.map(candidate => candidate.key === issue.key ? issue : candidate);
+      const issues = state.issues.map(
+        candidate => (candidate.key === issue.key ? issue : candidate)
+      );
       return { issues, issuesByLine: issuesByLine(issues) };
     });
     if (this.props.onIssueChange) {
@@ -613,7 +615,7 @@ export default class SourceViewerBase extends React.PureComponent {
       : null;
 
     return (
-      <div className={className} ref={node => this.node = node}>
+      <div className={className} ref={node => (this.node = node)}>
         <SourceViewerHeader
           component={this.state.component}
           openNewWindow={this.openNewWindow}

@@ -24,11 +24,10 @@ import { onFail } from '../../store/rootActions';
 
 const PAGE_SIZE = 5;
 
-export const fetchRecentProjectActivity = (project: string) =>
-  (dispatch: Function) =>
-    api
-      .getProjectActivity(project, { pageSize: PAGE_SIZE })
-      .then(
-        ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
-        onFail(dispatch)
-      );
+export const fetchRecentProjectActivity = (project: string) => (dispatch: Function) =>
+  api
+    .getProjectActivity(project, { pageSize: PAGE_SIZE })
+    .then(
+      ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
+      onFail(dispatch)
+    );

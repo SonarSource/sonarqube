@@ -32,5 +32,5 @@ export const receiveUser = user => ({
   user
 });
 
-export const fetchCurrentUser = () =>
-  dispatch => getCurrentUser().then(user => dispatch(receiveCurrentUser(user)));
+export const fetchCurrentUser = () => dispatch =>
+  getCurrentUser().then(user => dispatch(receiveCurrentUser(user)));

@@ -22,7 +22,7 @@ import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
 import { Task } from './types';
 
 export function updateTask(tasks: Task[], newTask: Task) {
-  return tasks.map(task => task.id === newTask.id ? newTask : task);
+  return tasks.map(task => (task.id === newTask.id ? newTask : task));
 }
 
 export function mapFiltersToParameters(filters: Object = {}) {
