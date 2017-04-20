@@ -16,33 +16,18 @@ du -sh $HOME
 #du -sh $HOME/phantomjs
 ls -al $HOME
 
+printf "${RED}move original home${NC}\n"
+sudo mv /home/travis /home/travis.ori
 printf "${RED}create ramdisk mount point${NC}\n"
-sudo mkdir -p /mnt/ramdisk
+sudo mkdir -p /home/travis
 printf "${RED}create ramdisk${NC}\n"
-sudo mount -t tmpfs -o size=3584m tmpfs /mnt/ramdisk
-pushd /mnt/ramdisk
-printf "${RED}move build and cached directories to ramdisk${NC}\n"
-time sudo mv $HOME/build /mnt/ramdisk
-time sudo mv $HOME/.m2 /mnt/ramdisk
-time sudo mv $HOME/jvm /mnt/ramdisk
-time sudo mv $HOME/maven /mnt/ramdisk
-time sudo mv $HOME/phantomjs /mnt/ramdisk
-printf "${RED}create links to ramdisked directories${NC}\n"
-sudo ln -s /mnt/ramdisk/build $HOME/build
-sudo ln -s /mnt/ramdisk/.m2 $HOME/.m2
-sudo ln -s /mnt/ramdisk/jvm $HOME/jvm
-sudo ln -s /mnt/ramdisk/maven $HOME/maven
-sudo ln -s /mnt/ramdisk/phantomjs $HOME/phantomjs
+sudo mount -t tmpfs -o size=8192m tmps /home/travis
+printf "${RED}copy home to ramdisk${NC}\n"
+time sudo cp -R /home/travis.ori/. /home/travis
+printf "${RED}give permissions to travis on its home in ramdisk${NC}\n"
+sudo chown -R travis:travis /home/travis
 
-printf "${RED}give permissions to travis on the ramdisk${NC}\n"
-sudo chown -R travis:travis /mnt/ramdisk
-sudo chown -R travis:travis $HOME
-printf "${RED}File System after ramdisk setup:${NC}\n"
 printf "${RED}home content${NC}\n"
 ls -al $HOME
-printf "${RED}ramdisk content${NC}\n"
-ls -al /mnt/ramdisk
+printf "${RED}File System after ramdisk setup:${NC}\n"
 df -h
-popd
-printf "${RED}current dir content${NC}\n"
-ls -al

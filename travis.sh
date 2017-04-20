@@ -193,20 +193,5 @@ WEB_TESTS)
 
 esac
 
-#!/bin/bash
-set -euo pipefail
-
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-
-printf "${RED}disk size after build${NC}\n"
-df -h
-du -sh $HOME
-du -sh /mnt/ramdisk/.m2/repository
-du -sh /mnt/ramdisk/build
-du -sh /mnt/ramdisk/jvm
-du -sh /mnt/ramdisk/maven
-du -sh /mnt/ramdisk/phantomjs
-
 #stop the clock
 touch stop
