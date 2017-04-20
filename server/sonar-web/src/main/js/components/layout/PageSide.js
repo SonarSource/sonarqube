@@ -36,7 +36,6 @@ const width = css(
 const sideStyles = css(width, {
   flexGrow: 0,
   flexShrink: 0,
-  borderRight: '1px solid #e6e6e6',
   backgroundColor: '#f3f3f3'
 });
 
@@ -46,6 +45,7 @@ const sideStickyStyles = css(width, {
   top: 0,
   bottom: 0,
   left: 0,
+  borderRight: '1px solid #e6e6e6',
   overflowY: 'auto',
   overflowX: 'hidden',
   backgroundColor: '#f3f3f3'
@@ -63,7 +63,7 @@ const sideInnerStyles = css(
 export default function PageSide(props: Props) {
   return (
     <div className={sideStyles}>
-      <div className={sideStickyStyles} style={{ top: props.top || 30 }}>
+      <div className={`layout-page-side ${sideStickyStyles}`} style={{ top: props.top || 30 }}>
         <div className={sideInnerStyles}>
           {props.children}
         </div>

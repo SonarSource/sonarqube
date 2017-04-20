@@ -1,0 +1,26 @@
+exports[`test should render 1`] = `
+<div>
+  <ConciseIssue
+    innerRef={[Function]}
+    issue={
+      Object {
+        "key": "foo",
+      }
+    }
+    previousIssue={null}
+    selected={false} />
+  <ConciseIssue
+    innerRef={[Function]}
+    issue={
+      Object {
+        "key": "bar",
+      }
+    }
+    previousIssue={
+      Object {
+        "key": "foo",
+      }
+    }
+    selected={false} />
+</div>
+`;
