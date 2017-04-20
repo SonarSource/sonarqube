@@ -36,7 +36,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -72,19 +71,17 @@ public class CreateActionTest {
   @Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private WsActionTester ws = new WsActionTester(new CreateAction(db.getDbClient(),
     new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(),
       TestDefaultOrganizationProvider.from(db)),
-    new RuleMapper(new Languages(), createMacroInterpreter()), organizationFlags,
+    new RuleMapper(new Languages(), createMacroInterpreter()),
     new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
   @Test
   public void create_custom_rule() {
     logInAsQProfileAdministrator();
-    organizationFlags.setEnabled(false);
     // Template rule
     RuleDto templateRule = newTemplateRule(RuleKey.of("java", "S001"), db.getDefaultOrganization());
     db.rules().insert(templateRule.getDefinition());
@@ -129,7 +126,6 @@ public class CreateActionTest {
   @Test
   public void create_custom_rule_with_prevent_reactivation_param_to_true() {
     logInAsQProfileAdministrator();
-    organizationFlags.setEnabled(false);
     RuleDefinitionDto templateRule = newTemplateRule(RuleKey.of("java", "S001")).getDefinition();
     db.rules().insert(templateRule);
     // insert a removed rule
@@ -163,23 +159,6 @@ public class CreateActionTest {
       "    \"isTemplate\": false\n" +
       "  }\n" +
       "}\n");
-  }
-
-  @Test
-  public void fail_to_create_rule_when_organizations_are_enabled() throws Exception {
-    logInAsQProfileAdministrator();
-    organizationFlags.setEnabled(true);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Organization support is enabled");
-
-    ws.newRequest()
-      .setParam("custom_key", "MY_CUSTOM")
-      .setParam("template_key", "java:S001")
-      .setParam("name", "My custom rule")
-      .setParam("markdown_description", "Description")
-      .setParam("severity", "MAJOR")
-      .execute();
   }
 
   @Test
