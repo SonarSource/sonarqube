@@ -19,6 +19,7 @@
  */
 package org.sonar.server.permission.index;
 
+import com.google.common.collect.ImmutableList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -93,11 +93,6 @@ public class PermissionIndexerDao {
     }
   }
 
-  /**
-   * Number of "{projectsCondition}" in SQL template
-   */
-  private static final int NB_OF_CONDITION_PLACEHOLDERS = 4;
-
   private enum RowKind {
     USER, GROUP, ANYONE, NONE
   }
@@ -145,7 +140,7 @@ public class PermissionIndexerDao {
     "        AND group_id IS NOT NULL " +
     "      UNION " +
 
-    // Anyone virtual group
+    // public projects are accessible to any one
 
     "      SELECT '" + RowKind.ANYONE + "' as kind," +
     "      projects.uuid AS project, " +
@@ -154,15 +149,14 @@ public class PermissionIndexerDao {
     "      NULL         AS user_id, " +
     "      NULL     AS group_id " +
     "      FROM projects " +
-    "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
     "      WHERE " +
     "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
     "        AND projects.copy_component_uuid is NULL " +
+    "        AND projects.private = ? " +
     "        {projectsCondition} " +
-    "        AND group_roles.group_id IS NULL " +
     "      UNION " +
 
-    // project is returned when no authorization
+    // private project is returned when no authorization
     "      SELECT '" + RowKind.NONE + "' as kind," +
     "      projects.uuid AS project, " +
     "      projects.authorization_updated_at AS updated_at, " +
@@ -173,6 +167,7 @@ public class PermissionIndexerDao {
     "      WHERE " +
     "        (projects.qualifier = 'TRK' or  projects.qualifier = 'VW') " +
     "        AND projects.copy_component_uuid is NULL " +
+    "        AND projects.private = ? " +
     "        {projectsCondition} " +
 
     "    ) project_authorization";
@@ -188,18 +183,12 @@ public class PermissionIndexerDao {
   private static List<Dto> doSelectByProjects(DbClient dbClient, DbSession session, List<String> projectUuids) {
     try {
       Map<String, Dto> dtosByProjectUuid = new HashMap<>();
-      PreparedStatement stmt = null;
-      ResultSet rs = null;
-      try {
-        stmt = createStatement(dbClient, session, projectUuids);
-        rs = stmt.executeQuery();
+      try (PreparedStatement stmt = createStatement(dbClient, session, projectUuids);
+        ResultSet rs = stmt.executeQuery()) {
         while (rs.next()) {
           processRow(rs, dtosByProjectUuid);
         }
-        return new ArrayList<>(dtosByProjectUuid.values());
-      } finally {
-        DbUtils.closeQuietly(rs);
-        DbUtils.closeQuietly(stmt);
+        return ImmutableList.copyOf(dtosByProjectUuid.values());
       }
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to select authorizations", e);
@@ -215,13 +204,33 @@ public class PermissionIndexerDao {
     }
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
     int index = 1;
-    for (int i = 1; i <= NB_OF_CONDITION_PLACEHOLDERS; i++) {
-      for (String projectUuid : projectUuids) {
-        stmt.setString(index, projectUuid);
-        index++;
-      }
-    }
+    // query for RowKind.USER
+    index = populateProjectUuidPlaceholders(stmt, projectUuids, index);
+    // query for RowKind.GROUP
+    index = populateProjectUuidPlaceholders(stmt, projectUuids, index);
+    // query for RowKind.ANYONE
+    index = setPrivateProjectPlaceHolder(stmt, index, false);
+    index = populateProjectUuidPlaceholders(stmt, projectUuids, index);
+    // query for RowKind.NONE
+    index = setPrivateProjectPlaceHolder(stmt, index, true);
+    populateProjectUuidPlaceholders(stmt, projectUuids, index);
     return stmt;
+  }
+
+  private static int populateProjectUuidPlaceholders(PreparedStatement stmt, List<String> projectUuids, int index) throws SQLException {
+    int newIndex = index;
+    for (String projectUuid : projectUuids) {
+      stmt.setString(newIndex, projectUuid);
+      newIndex++;
+    }
+    return newIndex;
+  }
+
+  private static int setPrivateProjectPlaceHolder(PreparedStatement stmt, int index, boolean isPrivate) throws SQLException {
+    int newIndex = index;
+    stmt.setBoolean(newIndex, isPrivate);
+    newIndex++;
+    return newIndex;
   }
 
   private static void processRow(ResultSet rs, Map<String, Dto> dtosByProjectUuid) throws SQLException {
