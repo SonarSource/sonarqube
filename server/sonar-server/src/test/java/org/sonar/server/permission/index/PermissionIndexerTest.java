@@ -45,13 +45,10 @@ public class PermissionIndexerTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public EsTester esTester = new EsTester(new FooIndexDefinition());
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -59,12 +56,11 @@ public class PermissionIndexerTest {
   private UserDbTester userDbTester = new UserDbTester(dbTester);
   private FooIndex fooIndex = new FooIndex(esTester.client(), new AuthorizationTypeSupport(userSession));
   private FooIndexer fooIndexer = new FooIndexer(esTester.client());
-  private PermissionIndexer underTest = new PermissionIndexer(
-    dbTester.getDbClient(), esTester.client(), fooIndexer);
+  private PermissionIndexer underTest = new PermissionIndexer(dbTester.getDbClient(), esTester.client(), fooIndexer);
 
   @Test
   public void initializeOnStartup_grants_access_to_user() {
-    ComponentDto project = createAndIndexProject();
+    ComponentDto project = createAndIndexPrivateProject();
     UserDto user1 = userDbTester.insertUser();
     UserDto user2 = userDbTester.insertUser();
     userDbTester.insertProjectPermissionOnUser(user1, USER, project);
@@ -84,7 +80,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void initializeOnStartup_grants_access_to_group() {
-    ComponentDto project = createAndIndexProject();
+    ComponentDto project = createAndIndexPrivateProject();
     UserDto user1 = userDbTester.insertUser();
     UserDto user2 = userDbTester.insertUser();
     UserDto user3 = userDbTester.insertUser();
@@ -110,7 +106,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void initializeOnStartup_grants_access_to_user_and_group() {
-    ComponentDto project = createAndIndexProject();
+    ComponentDto project = createAndIndexPrivateProject();
     UserDto user1 = userDbTester.insertUser();
     UserDto user2 = userDbTester.insertUser();
     GroupDto group = userDbTester.insertGroup();
@@ -134,8 +130,8 @@ public class PermissionIndexerTest {
   }
 
   @Test
-  public void initializeOnStartup_does_not_grant_access_to_anybody() {
-    ComponentDto project = createAndIndexProject();
+  public void initializeOnStartup_does_not_grant_access_to_anybody_on_private_project() {
+    ComponentDto project = createAndIndexPrivateProject();
     UserDto user = userDbTester.insertUser();
     GroupDto group = userDbTester.insertGroup();
 
@@ -147,11 +143,23 @@ public class PermissionIndexerTest {
   }
 
   @Test
-  public void initializeOnStartup_grants_access_to_anyone() {
-    ComponentDto project = createAndIndexProject();
+  public void initializeOnStartup_grants_access_to_anybody_on_public_project() {
+    ComponentDto project = createAndIndexPublicProject();
     UserDto user = userDbTester.insertUser();
     GroupDto group = userDbTester.insertGroup();
-    userDbTester.insertProjectPermissionOnAnyone(USER, project);
+
+    indexOnStartup();
+
+    verifyAnyoneAuthorized(project);
+    verifyAuthorized(project, user);
+    verifyAuthorized(project, user, group);
+  }
+
+  @Test
+  public void initializeOnStartup_grants_access_to_anybody_on_view() {
+    ComponentDto project = createAndIndexView();
+    UserDto user = userDbTester.insertUser();
+    GroupDto group = userDbTester.insertGroup();
 
     indexOnStartup();
 
@@ -166,7 +174,7 @@ public class PermissionIndexerTest {
     UserDto user2 = userDbTester.insertUser();
     ComponentDto project = null;
     for (int i = 0; i < PermissionIndexer.MAX_BATCH_SIZE + 10; i++) {
-      project = createAndIndexProject();
+      project = createAndIndexPrivateProject();
       userDbTester.insertProjectPermissionOnUser(user1, USER, project);
     }
 
@@ -179,8 +187,8 @@ public class PermissionIndexerTest {
 
   @Test
   public void deleteProject_deletes_the_documents_related_to_the_project() {
-    ComponentDto project1 = createAndIndexProject();
-    ComponentDto project2 = createAndIndexProject();
+    ComponentDto project1 = createAndIndexPublicProject();
+    ComponentDto project2 = createAndIndexPublicProject();
     userDbTester.insertProjectPermissionOnAnyone(USER, project1);
     userDbTester.insertProjectPermissionOnAnyone(USER, project2);
     indexOnStartup();
@@ -192,7 +200,7 @@ public class PermissionIndexerTest {
 
   @Test
   public void indexProject_does_nothing_because_authorizations_are_triggered_outside_standard_indexer_lifecycle() {
-    ComponentDto project = createAndIndexProject();
+    ComponentDto project = createAndIndexPublicProject();
     userDbTester.insertProjectPermissionOnAnyone(USER, project);
 
     underTest.indexProject(project.uuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
@@ -203,20 +211,9 @@ public class PermissionIndexerTest {
   }
 
   @Test
-  public void projects_without_any_permission_are_not_returned() {
-    ComponentDto project = createAndIndexProject();
-    UserDto user1 = userDbTester.insertUser();
-
-    indexOnStartup();
-
-    verifyAnyoneNotAuthorized(project);
-    verifyNotAuthorized(project, user1);
-  }
-
-  @Test
-  public void permissions_on_anyone_should_not_conflict_between_organizations() {
-    ComponentDto projectOnOrg1 = createAndIndexProject(dbTester.organizations().insert());
-    ComponentDto projectOnOrg2 = createAndIndexProject(dbTester.organizations().insert());
+  public void public_projects_are_visible_to_any_body_which_ever_the_organization() {
+    ComponentDto projectOnOrg1 = createAndIndexPublicProject(dbTester.organizations().insert());
+    ComponentDto projectOnOrg2 = createAndIndexPublicProject(dbTester.organizations().insert());
     UserDto user = userDbTester.insertUser();
     userDbTester.insertProjectPermissionOnAnyone(USER, projectOnOrg1);
     userDbTester.insertProjectPermissionOnUser(user, USER, projectOnOrg2);
@@ -224,8 +221,8 @@ public class PermissionIndexerTest {
     indexOnStartup();
 
     verifyAnyoneAuthorized(projectOnOrg1);
-    verifyAnyoneNotAuthorized(projectOnOrg2);
-    verifyAuthorized(projectOnOrg1, user);// because anyone
+    verifyAnyoneAuthorized(projectOnOrg2);
+    verifyAuthorized(projectOnOrg1, user);
     verifyAuthorized(projectOnOrg2, user);
   }
 
@@ -272,13 +269,25 @@ public class PermissionIndexerTest {
     return userSession;
   }
 
-  private ComponentDto createAndIndexProject() {
+  private ComponentDto createAndIndexPublicProject() {
     ComponentDto project = componentDbTester.insertPublicProject();
     fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     return project;
   }
 
-  private ComponentDto createAndIndexProject(OrganizationDto org) {
+  private ComponentDto createAndIndexPrivateProject() {
+    ComponentDto project = componentDbTester.insertPrivateProject();
+    fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    return project;
+  }
+
+  private ComponentDto createAndIndexView() {
+    ComponentDto project = componentDbTester.insertView();
+    fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    return project;
+  }
+
+  private ComponentDto createAndIndexPublicProject(OrganizationDto org) {
     ComponentDto project = componentDbTester.insertPublicProject(org);
     fooIndexer.indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     return project;

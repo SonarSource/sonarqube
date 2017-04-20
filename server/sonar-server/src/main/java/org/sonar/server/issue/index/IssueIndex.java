@@ -212,7 +212,8 @@ public class IssueIndex {
     }
 
     configureStickyFacets(query, options, filters, esQuery, requestBuilder);
-    return new SearchResult<>(requestBuilder.get(), DOC_CONVERTER);
+    SearchResponse response = requestBuilder.get();
+    return new SearchResult<>(response, DOC_CONVERTER);
   }
 
   /**
