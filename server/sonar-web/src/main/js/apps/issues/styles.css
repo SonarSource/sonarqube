@@ -1,11 +1,53 @@
-.concise-issues-list-header {
+.issues-header-panel,
+.issues-header-panel-inner {
   height: 56px;
-  line-height: 24px;
+  box-sizing: border-box;
+}
+
+.issues-header-panel {
   margin-top: -20px;
+}
+
+.issues-header-panel-inner {
+  position: fixed;
+  z-index: 30;
+  line-height: 24px;
   padding-top: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e6e6e6;
-  box-sizing: border-box;
+  background-color: #f3f3f3;
+}
+
+.issues-main-header {
+  margin-bottom: 20px;
+}
+
+.issues-main-header .component-name {
+  line-height: 24px;
+}
+
+.issues-main-header-inner {
+  left: calc(50vw - 360px + 1px);
+  right: 0;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (max-width: 1320px) {
+  .issues-main-header-inner {
+    left: 301px;
+  }
+}
+
+.concise-issues-list-header,
+.concise-issues-list-header-inner {
+}
+
+.concise-issues-list-header {
+}
+
+.concise-issues-list-header-inner {
+  width: 260px;
   text-align: center;
 }
 

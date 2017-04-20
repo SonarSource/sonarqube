@@ -22,7 +22,6 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import key from 'keymaster';
 import { keyBy, without } from 'lodash';
-import HeaderPanel from './HeaderPanel';
 import PageActions from './PageActions';
 import FiltersHeader from './FiltersHeader';
 import MyIssuesFilter from './MyIssuesFilter';
@@ -658,8 +657,6 @@ export default class App extends React.PureComponent {
 
     const selectedIndex = this.getSelectedIndex();
 
-    const top = component ? 95 : 30;
-
     return (
       <Page className="issues" id="issues-page">
         <Helmet title={translate('issues.page')} titleTemplate="%s - SonarQube" />
@@ -667,20 +664,22 @@ export default class App extends React.PureComponent {
         {this.renderSide(openIssue)}
 
         <PageMain>
-          <HeaderPanel border={true} top={top}>
-            <PageMainInner>
-              {this.renderBulkChange(openIssue)}
-              {openIssue != null
-                ? <div className="pull-left">
-                    <ComponentBreadcrumbs component={component} issue={openIssue} />
-                  </div>
-                : <PageActions
-                    loading={this.state.loading}
-                    paging={paging}
-                    selectedIndex={selectedIndex}
-                  />}
-            </PageMainInner>
-          </HeaderPanel>
+          <div className="issues-header-panel issues-main-header">
+            <div className="issues-header-panel-inner issues-main-header-inner">
+              <PageMainInner>
+                {this.renderBulkChange(openIssue)}
+                {openIssue != null
+                  ? <div className="pull-left">
+                      <ComponentBreadcrumbs component={component} issue={openIssue} />
+                    </div>
+                  : <PageActions
+                      loading={this.state.loading}
+                      paging={paging}
+                      selectedIndex={selectedIndex}
+                    />}
+              </PageMainInner>
+            </div>
+          </div>
 
           <PageMainInner>
             <div>
