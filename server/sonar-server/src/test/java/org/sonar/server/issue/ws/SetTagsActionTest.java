@@ -65,7 +65,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.join;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -95,7 +94,7 @@ public class SetTagsActionTest {
   @Test
   public void set_tags() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     call(issueDto.getKey(), "bug", "todo");
 
@@ -107,7 +106,7 @@ public class SetTagsActionTest {
   @Test
   public void remove_existing_tags_when_value_is_not_set() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     call(issueDto.getKey());
 
@@ -118,7 +117,7 @@ public class SetTagsActionTest {
   @Test
   public void remove_existing_tags_when_value_is_empty_string() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     call(issueDto.getKey(), "");
 
@@ -129,7 +128,7 @@ public class SetTagsActionTest {
   @Test
   public void set_tags_using_deprecated_key_param() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     ws.newRequest().setParam("key", issueDto.getKey()).setParam("tags", "bug").execute();
 
@@ -140,7 +139,7 @@ public class SetTagsActionTest {
   @Test
   public void tags_are_stored_as_lowercase() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     call(issueDto.getKey(), "bug", "Convention");
 
@@ -151,7 +150,7 @@ public class SetTagsActionTest {
   @Test
   public void empty_tags_are_ignored() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     call(issueDto.getKey(), "security", "", "convention");
 
@@ -162,7 +161,7 @@ public class SetTagsActionTest {
   @Test
   public void insert_entry_in_changelog_when_setting_tags() throws Exception {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     call(issueDto.getKey(), "new-tag");
 
@@ -176,7 +175,7 @@ public class SetTagsActionTest {
   @Test
   public void fail_when_bad_tag_format() {
     IssueDto issueDto = db.issues().insertIssue(newIssue().setTags(singletonList("old-tag")));
-    setUserWithBrowsePermission(issueDto);
+    logIn(issueDto);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Tag 'pol op' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
@@ -237,8 +236,10 @@ public class SetTagsActionTest {
     return IssueTesting.newIssue(rule, file, project);
   }
 
-  private void setUserWithBrowsePermission(IssueDto issueDto) {
-    userSession.logIn("john").addProjectPermission(USER, dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
+  private void logIn(IssueDto issueDto) {
+    userSession.logIn("john").registerComponents(
+      dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get(),
+      dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getComponentUuid()).get());
   }
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
