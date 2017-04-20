@@ -19,41 +19,66 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
+import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.WsUsers.SearchWsResponse;
+import org.sonarqube.ws.client.user.SearchRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_ACTIVE;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EMAIL;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_IDENTITY;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_PROVIDER;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_GROUPS;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_LOCAL;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_NAME;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_SCM_ACCOUNTS;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_TOKENS_COUNT;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.WsUsers.SearchWsResponse.Groups;
+import static org.sonarqube.ws.WsUsers.SearchWsResponse.ScmAccounts;
+import static org.sonarqube.ws.WsUsers.SearchWsResponse.User;
+import static org.sonarqube.ws.WsUsers.SearchWsResponse.newBuilder;
 
 public class SearchAction implements UsersWsAction {
 
+  private static final int MAX_PAGE_SIZE = 500;
+
+  private final UserSession userSession;
   private final UserIndex userIndex;
   private final DbClient dbClient;
-  private final UserJsonWriter userWriter;
 
-  public SearchAction(UserIndex userIndex, DbClient dbClient, UserJsonWriter userWriter) {
+  public SearchAction(UserSession userSession, UserIndex userIndex, DbClient dbClient) {
+    this.userSession = userSession;
     this.userIndex = userIndex;
     this.dbClient = dbClient;
-    this.userWriter = userWriter;
   }
 
   @Override
@@ -63,6 +88,7 @@ public class SearchAction implements UsersWsAction {
         "Administer System permission is required to show the 'groups' field.<br/>" +
         "When accessed anonymously, only logins and names are returned.")
       .setSince("3.6")
+      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
 
@@ -70,47 +96,86 @@ public class SearchAction implements UsersWsAction {
       .setDeprecatedSince("5.4");
     action.addPagingParams(50, MAX_LIMIT);
 
-    action.createParam(Param.TEXT_QUERY)
+    action.createParam(TEXT_QUERY)
       .setDescription("Filter on login or name.");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchOptions options = new SearchOptions()
-      .setPage(request.mandatoryParamAsInt(Param.PAGE), request.mandatoryParamAsInt(Param.PAGE_SIZE));
-    List<String> fields = request.paramAsStrings(Param.FIELDS);
-    String textQuery = request.param(Param.TEXT_QUERY);
-    SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setTextQuery(textQuery).build(), options);
+    WsUsers.SearchWsResponse wsResponse = doHandle(toSearchRequest(request));
+    writeProtobuf(wsResponse, request, response);
+  }
 
+  private WsUsers.SearchWsResponse doHandle(SearchRequest request) {
+    SearchOptions options = new SearchOptions().setPage(request.getPage(), request.getPageSize());
+    List<String> fields = request.getPossibleFields();
+    SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setTextQuery(request.getQuery()).build(), options);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<String> logins = Lists.transform(result.getDocs(), UserDocToLogin.INSTANCE);
+      List<String> logins = result.getDocs().stream().map(UserDoc::login).collect(toList());
       Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
       Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByLogins(dbSession, logins);
-      JsonWriter json = response.newJsonWriter().beginObject();
-      options.writeJson(json, result.getTotal());
-      List<UserDto> userDtos = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
-      writeUsers(json, userDtos, groupsByLogin, tokenCountsByLogin, fields);
-      json.endObject().close();
+      List<UserDto> users = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
+      Paging paging = forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) result.getTotal());
+      return buildResponse(users, groupsByLogin, tokenCountsByLogin, fields, paging);
     }
   }
 
-  private void writeUsers(JsonWriter json, List<UserDto> userDtos, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
-    @Nullable List<String> fields) {
-
-    json.name("users").beginArray();
-    for (UserDto user : userDtos) {
-      Collection<String> groups = groupsByLogin.get(user.getLogin());
-      userWriter.write(json, user, firstNonNull(tokenCountsByLogin.get(user.getLogin()), 0), groups, fields);
-    }
-    json.endArray();
+  private SearchWsResponse buildResponse(List<UserDto> users, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
+    @Nullable List<String> fields, Paging paging) {
+    SearchWsResponse.Builder responseBuilder = newBuilder();
+    users.forEach(user -> responseBuilder.addUsers(towsUser(user, firstNonNull(tokenCountsByLogin.get(user.getLogin()), 0), groupsByLogin.get(user.getLogin()), fields)));
+    responseBuilder.getPagingBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total())
+      .build();
+    return responseBuilder.build();
   }
 
-  private enum UserDocToLogin implements Function<UserDoc, String> {
-    INSTANCE;
+  private User towsUser(UserDto user, @Nullable Integer tokensCount, Collection<String> groups, @Nullable Collection<String> fields) {
+    User.Builder userBuilder = User.newBuilder()
+      .setLogin(user.getLogin());
+    setIfNeeded(FIELD_NAME, fields, user.getName(), userBuilder::setName);
+    if (userSession.isLoggedIn()) {
+      setIfNeeded(FIELD_EMAIL, fields, user.getEmail(), userBuilder::setEmail);
+      setIfNeeded(FIELD_ACTIVE, fields, user.isActive(), userBuilder::setActive);
+      setIfNeeded(FIELD_LOCAL, fields, user.isLocal(), userBuilder::setLocal);
+      setIfNeeded(FIELD_EXTERNAL_IDENTITY, fields, user.getExternalIdentity(), userBuilder::setExternalIdentity);
+      setIfNeeded(FIELD_EXTERNAL_PROVIDER, fields, user.getExternalIdentityProvider(), userBuilder::setExternalProvider);
+      setIfNeeded(FIELD_TOKENS_COUNT, fields, tokensCount, userBuilder::setTokensCount);
+      setIfNeeded(isNeeded(FIELD_SCM_ACCOUNTS, fields) && !user.getScmAccountsAsList().isEmpty(), user.getScmAccountsAsList(),
+        scm -> userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(scm)));
+    }
+    if (userSession.isSystemAdministrator()) {
+      setIfNeeded(isNeeded(FIELD_GROUPS, fields) && !groups.isEmpty(), groups,
+        g -> userBuilder.setGroups(Groups.newBuilder().addAllGroups(g)));
+    }
+    return userBuilder.build();
+  }
 
-    @Override
-    public String apply(@Nonnull UserDoc input) {
-      return input.login();
+  private static <PARAM> void setIfNeeded(String field, @Nullable Collection<String> fields, @Nullable PARAM parameter, Function<PARAM, ?> setter) {
+    setIfNeeded(isNeeded(field, fields), parameter, setter);
+  }
+
+  private static <PARAM> void setIfNeeded(boolean condition, @Nullable PARAM parameter, Function<PARAM, ?> setter) {
+    if (parameter != null && condition) {
+      setter.apply(parameter);
     }
   }
+
+  private static boolean isNeeded(String field, @Nullable Collection<String> fields) {
+    return fields == null || fields.isEmpty() || fields.contains(field);
+  }
+
+  private static SearchRequest toSearchRequest(Request request) {
+    int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
+    checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", PAGE_SIZE, MAX_PAGE_SIZE);
+    return SearchRequest.builder()
+      .setQuery(request.param(TEXT_QUERY))
+      .setPage(request.mandatoryParamAsInt(PAGE))
+      .setPageSize(pageSize)
+      .setPossibleFields(request.paramAsStrings(FIELDS))
+      .build();
+  }
+
 }
