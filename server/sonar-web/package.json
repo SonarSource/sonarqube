@@ -89,7 +89,7 @@
     "less-loader": "2.2.3",
     "path-exists": "2.1.0",
     "postcss-loader": "0.8.0",
-    "prettier": "1.1.0",
+    "prettier": "1.2.2",
     "prettier-eslint": "5.1.0",
     "prettier-eslint-cli": "3.4.1",
     "react-addons-test-utils": "15.4.2",
