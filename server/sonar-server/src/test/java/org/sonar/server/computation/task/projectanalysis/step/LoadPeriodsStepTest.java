@@ -31,6 +31,7 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -268,8 +269,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1004");
 
-    assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs().get(0)).startsWith("Compare to previous analysis (");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Compare to previous analysis (");
   }
 
   @Test
@@ -282,6 +283,17 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute();
 
     assertThat(periodsHolder.getPeriod()).isNull();
+  }
+
+  @Test
+  public void display_warning_log_when_using_previous_analysis() {
+    setupRoot(PROJECT_ROOT);
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    settings.setProperty("sonar.leak.period", "previous_analysis");
+
+    underTest.execute();
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Leak period is set to deprecated value 'previous_analysis'. This value will be removed in next SonarQube LTS, please use another one instead.");
   }
 
   @Test
@@ -300,8 +312,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     assertThat(period.getSnapshotDate()).isEqualTo(1226494680000L);
     assertThat(period.getAnalysisUuid()).isEqualTo("u1001");
 
-    assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs().get(0)).startsWith("Compare to previous version (");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Compare to previous version (");
   }
 
   @Test

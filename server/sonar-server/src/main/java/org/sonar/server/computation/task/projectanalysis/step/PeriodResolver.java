@@ -70,6 +70,10 @@ public class PeriodResolver {
     if (StringUtils.isBlank(propertyValue)) {
       return null;
     }
+    if (propertyValue.equals(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS)) {
+      LOG.warn("Leak period is set to deprecated value '{}'. This value will be removed in next SonarQube LTS, please use another one instead.",
+        LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS);
+    }
     Period period = resolve(propertyValue);
     if (period == null && StringUtils.isNotBlank(propertyValue)) {
       LOG.debug("Property " + LEAK_PERIOD + " is not valid: " + propertyValue);
