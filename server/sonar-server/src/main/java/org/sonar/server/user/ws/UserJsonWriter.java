@@ -58,13 +58,6 @@ public class UserJsonWriter {
    * Serializes a user to the passed JsonWriter.
    */
   public void write(JsonWriter json, UserDto user, Collection<String> groups, @Nullable Collection<String> fields) {
-    write(json, user, null, groups, fields);
-  }
-
-  /**
-   * Serializes a user to the passed JsonWriter.
-   */
-  public void write(JsonWriter json, UserDto user, @Nullable Integer tokensCount, Collection<String> groups, @Nullable Collection<String> fields) {
     json.beginObject();
     json.prop(FIELD_LOGIN, user.getLogin());
     writeIfNeeded(json, user.getName(), FIELD_NAME, fields);
@@ -76,7 +69,6 @@ public class UserJsonWriter {
       writeIfNeeded(json, user.getExternalIdentityProvider(), FIELD_EXTERNAL_PROVIDER, fields);
       writeGroupsIfNeeded(json, groups, fields);
       writeScmAccountsIfNeeded(json, fields, user);
-      writeTokensCount(json, tokensCount);
     }
     json.endObject();
   }
@@ -111,11 +103,4 @@ public class UserJsonWriter {
     }
   }
 
-  private static void writeTokensCount(JsonWriter json, @Nullable Integer tokenCount) {
-    if (tokenCount == null) {
-      return;
-    }
-
-    json.prop(FIELD_TOKENS_COUNT, tokenCount);
-  }
 }

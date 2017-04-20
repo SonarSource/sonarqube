@@ -1,7 +1,9 @@
 {
-  "p": 1,
-  "ps": 50,
-  "total": 5,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 5
+  },
   "users": [
     {
       "login": "user-0",

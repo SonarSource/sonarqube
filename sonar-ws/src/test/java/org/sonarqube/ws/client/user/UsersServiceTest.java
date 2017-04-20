@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.user;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.WsUsers.CreateWsResponse;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import org.sonarqube.ws.client.ServiceTester;
@@ -29,6 +30,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -47,6 +49,24 @@ public class UsersServiceTest {
   public ServiceTester<UsersService> serviceTester = new ServiceTester<>(new UsersService(mock(WsConnector.class)));
 
   private UsersService underTest = serviceTester.getInstanceUnderTest();
+
+  @Test
+  public void search() {
+    underTest.search(SearchRequest.builder()
+      .setQuery("john")
+      .setPage(10)
+      .setPageSize(50)
+      .setPossibleFields(asList("email", "name"))
+      .build());
+
+    assertThat(serviceTester.getGetParser()).isSameAs(WsUsers.SearchWsResponse.parser());
+    serviceTester.assertThat(serviceTester.getGetRequest())
+      .hasParam(TEXT_QUERY, "john")
+      .hasParam(PAGE, 10)
+      .hasParam(PAGE_SIZE, 50)
+      .hasParam(FIELDS, "email,name")
+      .andNoOtherParam();
+  }
 
   @Test
   public void create() {
