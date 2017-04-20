@@ -4,6 +4,10 @@ install: true
 jdk: oraclejdk8
 script: ./travis.sh
 
+branches:
+  only:
+  - master
+
 env:
   - TARGET=BUILD
   - TARGET=WEB_TESTS
