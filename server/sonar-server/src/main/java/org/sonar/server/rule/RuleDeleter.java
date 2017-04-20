@@ -26,7 +26,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleIndexer;
 
@@ -37,20 +36,16 @@ public class RuleDeleter {
   private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
   private final RuleActivator ruleActivator;
-  private final OrganizationFlags organizationFlags;
 
-  public RuleDeleter(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, RuleActivator ruleActivator, OrganizationFlags organizationFlags) {
+  public RuleDeleter(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, RuleActivator ruleActivator) {
     this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
-    this.organizationFlags = organizationFlags;
   }
 
   public void delete(RuleKey ruleKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      organizationFlags.checkDisabled(dbSession);
-
       RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, ruleKey);
       if (!rule.isCustomRule()) {
         throw new IllegalStateException("Only custom rules can be deleted");
