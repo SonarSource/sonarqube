@@ -8,7 +8,7 @@
     {
       "login": "user-%_%-login",
       "name": "user-name",
-      "email": "user@mail.com",
+      "avatar": "6ad193f57f79ac444c3621370da955e9",
       "active": true,
       "scmAccounts": [
         "user1"
