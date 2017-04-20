@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
@@ -41,8 +42,11 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsComponents.ProvisionedWsResponse.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -69,6 +73,10 @@ public class ProvisionedActionTest {
     assertThat(action.description()).isEqualTo("Get the list of provisioned projects.<br /> " +
       "Require 'Create Projects' permission.");
     assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.4", "The 'uuid' field is deprecated in the response"),
+      tuple("6.4", "The 'private' field is added")
+    );
 
     assertThat(action.params()).hasSize(5);
 
@@ -203,6 +211,28 @@ public class ProvisionedActionTest {
     expectedException.expectMessage("No organization for key 'foo'");
 
     request.execute();
+  }
+
+  @Test
+  public void return_private_flag() {
+    OrganizationDto organization = db.organizations().insert();
+    userSessionRule.logIn().addPermission(PROVISION_PROJECTS, organization);
+    ComponentDto privateProject = db.components().insertProject(
+      p -> p.setOrganizationUuid(organization.getUuid()),
+      p -> p.setPrivate(true));
+    ComponentDto publicProject = db.components().insertProject(
+      p -> p.setOrganizationUuid(organization.getUuid()),
+      p -> p.setPrivate(false));
+
+    WsComponents.ProvisionedWsResponse result = underTest.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(Param.FIELDS, "private")
+      .executeProtobuf(WsComponents.ProvisionedWsResponse.class);
+
+    assertThat(result.getProjectsList()).extracting(Component::getUuid, Component::getPrivate)
+      .containsExactly(
+        tuple(privateProject.uuid(), privateProject.isPrivate()),
+        tuple(publicProject.uuid(), publicProject.isPrivate()));
   }
 
   private static ComponentDto newProvisionedProject(OrganizationDto organizationDto, String uuid) {
