@@ -60,7 +60,8 @@ public class ProvisionedAction implements ProjectsWsAction {
     UUID("uuid"),
     KEY("key"),
     NAME("name"),
-    CREATION_DATE("creationDate");
+    CREATION_DATE("creationDate"),
+    PRIVATE("private");
 
     private final String name;
 
@@ -103,7 +104,10 @@ public class ProvisionedAction implements ProjectsWsAction {
       .addSearchQuery("sonar", "names", "keys")
       .addFieldsParam(PossibleField.names());
 
-    action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
+    action.setChangelog(
+      new Change("6.4", "The 'uuid' field is deprecated in the response"),
+      new Change("6.4", "The 'private' field is added")
+    );
 
     support.addOrganizationParam(action);
   }
@@ -142,11 +146,12 @@ public class ProvisionedAction implements ProjectsWsAction {
       writeIfNeeded(PossibleField.KEY, project.key(), compBuilder::setKey, desiredFields);
       writeIfNeeded(PossibleField.NAME, project.name(), compBuilder::setName, desiredFields);
       writeIfNeeded(PossibleField.CREATION_DATE, project.getCreatedAt(), compBuilder::setCreationDate, desiredFields);
+      writeIfNeeded(PossibleField.PRIVATE, project.isPrivate(), compBuilder::setPrivate, desiredFields);
       return compBuilder.build();
     }).collect(toList());
   }
 
-  private static void writeIfNeeded(PossibleField fieldName, String value, Consumer<String> setter, List<String> desiredFields) {
+  private static <T> void writeIfNeeded(PossibleField fieldName, T value, Consumer<T> setter, List<String> desiredFields) {
     if (desiredFields.contains(fieldName.getName())) {
       setter.accept(value);
     }
