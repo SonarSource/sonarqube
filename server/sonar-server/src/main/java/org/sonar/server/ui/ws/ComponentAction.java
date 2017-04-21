@@ -67,7 +67,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class ComponentAction implements NavigationWsAction {
 
-  private static final String PARAM_COMPONENT_KEY = "componentKey";
+  static final String PARAM_COMPONENT = "component";
 
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
@@ -120,14 +120,15 @@ public class ComponentAction implements NavigationWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.2");
 
-    projectNavigation.createParam(PARAM_COMPONENT_KEY)
+    projectNavigation.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
+      .setDeprecatedKey("componentKey", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String componentKey = request.mandatoryParam(PARAM_COMPONENT_KEY);
+    String componentKey = request.mandatoryParam(PARAM_COMPONENT);
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
       if (!userSession.hasComponentPermission(USER, component) &&
