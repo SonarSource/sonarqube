@@ -128,10 +128,8 @@ export default class LineCode extends React.PureComponent {
   };
 
   renderMarker(index: number, message: ?string) {
-    const onClick = this.props.onLocationSelect
-      ? // $FlowFixMe are you kidding?!
-        () => this.props.onLocationSelect(index)
-      : undefined;
+    const { onLocationSelect } = this.props;
+    const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
     const ref = message != null ? node => (this.activeMarkerNode = node) : undefined;
     return (
       <LocationIndex key={`marker-${index}`} onClick={onClick} selected={message != null}>
