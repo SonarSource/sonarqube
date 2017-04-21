@@ -81,6 +81,26 @@
     group by ur.resource_id, ur.role
   </select>
 
+  <select id="selectUserIdsWithPermissionOnProjectBut" resultType="Integer">
+    select
+      distinct ur1.user_id
+    from
+      user_roles ur1
+    where
+      ur1.resource_id = #{projectId,jdbcType=BIGINT}
+      and role &lt;&gt; #{permission,jdbcType=VARCHAR}
+      and not exists (
+        select
+          1
+        from
+          user_roles ur2
+        where
+          ur2.resource_id = ur1.resource_id
+          and ur2.user_id = ur1.user_id
+          and role = #{permission,jdbcType=VARCHAR}
+      )
+  </select>
+
   <insert id="insert" parameterType="org.sonar.db.permission.UserPermissionDto" useGeneratedKeys="false">
     insert into user_roles (
     organization_uuid,
