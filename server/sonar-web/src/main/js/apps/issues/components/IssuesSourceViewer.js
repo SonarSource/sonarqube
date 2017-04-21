@@ -53,7 +53,8 @@ export default class IssuesSourceViewer extends React.PureComponent {
   };
 
   handleScroll = (element: HTMLElement) => {
-    scrollToElement(element, 150, 100);
+    const offset = window.innerHeight / 2;
+    scrollToElement(element, offset - 100, offset);
   };
 
   render() {
