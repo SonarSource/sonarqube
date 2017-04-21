@@ -23,8 +23,11 @@ import { Link } from 'react-router';
 import IssueChangelog from './IssueChangelog';
 import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
+import LocationIndex from '../../common/LocationIndex';
+import Tooltip from '../../controls/Tooltip';
 import { getSingleIssueUrl } from '../../../helpers/urls';
-import { translate } from '../../../helpers/l10n';
+import { formatMeasure } from '../../../helpers/measures';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import type { Issue } from '../types';
 
 type Props = {|
@@ -40,6 +43,24 @@ const stopPropagation = (event: Event) => event.stopPropagation();
 export default function IssueTitleBar(props: Props) {
   const { issue } = props;
   const hasSimilarIssuesFilter = props.onFilter != null;
+
+  const locationsCount =
+    issue.secondaryLocations.length +
+    issue.flows.reduce((sum, locations) => sum + locations.length, 0);
+
+  const locationsBadge = (
+    <Tooltip
+      overlay={translateWithParameters(
+        'issue.this_issue_involves_x_code_locations',
+        formatMeasure(locationsCount)
+      )}
+      placement="left">
+      <LocationIndex>{locationsCount}</LocationIndex>
+    </Tooltip>
+  );
+
+  // dirty trick :(
+  const onIssuesPage = document.getElementById('issues-page') != null;
 
   return (
     <table className="issue-table">
@@ -68,6 +89,14 @@ export default function IssueTitleBar(props: Props) {
                   <span className="issue-meta-label" title={translate('line_number')}>
                     L{issue.line}
                   </span>
+                </li>}
+              {locationsCount > 0 &&
+                <li className="issue-meta">
+                  {onIssuesPage
+                    ? locationsBadge
+                    : <Link onClick={stopPropagation} to={getSingleIssueUrl(issue.key)}>
+                        {locationsBadge}
+                      </Link>}
                 </li>}
               <li className="issue-meta">
                 <Link

@@ -21,11 +21,13 @@ exports[`test should render the titlebar correctly 1`] = `
               issue={
                 Object {
                   "creationDate": "2017-03-01T09:36:01+0100",
+                  "flows": Array [],
                   "key": "AVsae-CQS-9G3txfbFN2",
                   "line": 26,
                   "message": "Reduce the number of conditional operators (4) used in the expression",
                   "organization": "myorg",
                   "rule": "javascript:S1067",
+                  "secondaryLocations": Array [],
                 }
               }
               onFail={[Function]}
@@ -86,11 +88,13 @@ exports[`test should render the titlebar with the filter 1`] = `
               issue={
                 Object {
                   "creationDate": "2017-03-01T09:36:01+0100",
+                  "flows": Array [],
                   "key": "AVsae-CQS-9G3txfbFN2",
                   "line": 26,
                   "message": "Reduce the number of conditional operators (4) used in the expression",
                   "organization": "myorg",
                   "rule": "javascript:S1067",
+                  "secondaryLocations": Array [],
                 }
               }
               onFail={[Function]}
@@ -128,11 +132,13 @@ exports[`test should render the titlebar with the filter 1`] = `
               issue={
                 Object {
                   "creationDate": "2017-03-01T09:36:01+0100",
+                  "flows": Array [],
                   "key": "AVsae-CQS-9G3txfbFN2",
                   "line": 26,
                   "message": "Reduce the number of conditional operators (4) used in the expression",
                   "organization": "myorg",
                   "rule": "javascript:S1067",
+                  "secondaryLocations": Array [],
                 }
               }
               onFail={[Function]}
