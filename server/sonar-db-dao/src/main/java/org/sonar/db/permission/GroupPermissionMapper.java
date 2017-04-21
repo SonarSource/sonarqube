@@ -21,6 +21,7 @@ package org.sonar.db.permission;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
@@ -50,6 +51,13 @@ public interface GroupPermissionMapper {
 
   void selectAllPermissionsByGroupId(@Param("organizationUuid") String organizationUuid,
     @Param("groupId") Integer groupId, ResultHandler resultHandler);
+
+  /**
+   * Lists id of groups with at least one permission on the specified root component but which do not have the specified
+   * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Set} can't contain
+   * {@code null}).
+   */
+  Set<Integer> selectGroupIdsWithPermissionOnProjectBut(@Param("projectId") long projectId, @Param("role") String permission);
 
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
