@@ -19,9 +19,11 @@
  */
 package org.sonarqube.ws.client.project;
 
+import java.util.Optional;
+
 public class UpdateVisibilityRequest {
   private final String project;
-  private final String visibility;
+  private final Visibility visibility;
 
   public enum Visibility {
     PUBLIC, PRIVATE
@@ -29,14 +31,14 @@ public class UpdateVisibilityRequest {
 
   public UpdateVisibilityRequest(String project, Visibility visibility) {
     this.project = project;
-    this.visibility = visibility == Visibility.PUBLIC ? "public" : "private";
+    this.visibility = visibility;
   }
 
   public String getProject() {
     return project;
   }
 
-  public String getVisibility() {
-    return visibility;
+  public Optional<Visibility> getVisibility() {
+    return Optional.ofNullable(visibility);
   }
 }
