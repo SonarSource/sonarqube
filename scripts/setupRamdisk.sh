@@ -14,7 +14,8 @@ du -sh $HOME
 #du -sh $HOME/jvm
 #du -sh $HOME/maven
 #du -sh $HOME/phantomjs
-ls -al $HOME
+du -cksh $HOME/* | sort -hr | head -n 15
+du -cksh $HOME/.* | sort -hr | head -n 15
 
 printf "${RED}move original home${NC}\n"
 sudo mv /home/travis /home/travis.ori
