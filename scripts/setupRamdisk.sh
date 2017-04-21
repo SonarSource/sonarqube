@@ -32,8 +32,8 @@ time sudo cp -R /home/travis.ori/.sonar /home/travis
 time sudo cp -R /home/travis.ori/jvm /home/travis
 time sudo cp -R /home/travis.ori/maven /home/travis
 time sudo cp -R /home/travis.ori/phantomjs /home/travis
-#printf "${RED}give permissions to travis on its home in ramdisk${NC}\n"
-#sudo chown -R travis:travis /home/travis
+printf "${RED}give permissions to travis on its home in ramdisk${NC}\n"
+sudo chown -R travis:travis /home/travis
 
 printf "${RED}home content${NC}\n"
 ls -al $HOME
