@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client;
 
+import javax.net.ssl.SSLSocketFactory;
 import okhttp3.OkHttpClient;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,8 +27,6 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
-import javax.net.ssl.SSLSocketFactory;
 
 public class OkHttpClientBuilderTest {
 
@@ -41,7 +40,7 @@ public class OkHttpClientBuilderTest {
     OkHttpClient okHttpClient = underTest.build();
 
     assertThat(okHttpClient.proxy()).isNull();
-    assertThat(okHttpClient.interceptors()).hasSize(1);
+    assertThat(okHttpClient.networkInterceptors()).hasSize(1);
     assertThat(okHttpClient.sslSocketFactory()).isNotNull();
   }
 
