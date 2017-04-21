@@ -25,7 +25,6 @@ import it.Category1Suite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
@@ -33,9 +32,12 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
+import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonarqube.ws.client.project.UpdateVisibilityRequest.Visibility.PRIVATE;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 
@@ -70,7 +72,6 @@ public class ExecuteAnalysisPermissionTest {
   }
 
   @Test
-  @Ignore // FIXME disabled until WS is available to create a private project
   public void should_fail_if_logged_but_no_scan_permission() throws Exception {
     executeLoggedAnalysis();
 
@@ -84,7 +85,7 @@ public class ExecuteAnalysisPermissionTest {
         "You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.");
     }
 
-    removeProjectPermission("anyone", "sample", "user");
+    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(new UpdateVisibilityRequest(PROJECT_KEY, PRIVATE));
     try {
       // Execute anonymous analysis
       executeAnonymousAnalysis();

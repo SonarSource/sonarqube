@@ -44,6 +44,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
+import static org.sonarqube.ws.client.project.UpdateVisibilityRequest.Visibility.PUBLIC;
 
 /**
  * Maps web service {@code api/projects}.
@@ -109,8 +110,11 @@ public class ProjectsService extends BaseService {
 
   public void updateVisibility(UpdateVisibilityRequest request) {
     PostRequest post = new PostRequest(path("update_visibility"))
-        .setParam(PARAM_PROJECT, request.getProject())
-        .setParam("visibility", request.getVisibility());
+      .setParam(PARAM_PROJECT, request.getProject())
+      .setParam("visibility",
+        request.getVisibility()
+          .map(visibility -> visibility == PUBLIC ? "public" : "private")
+          .orElse(null));
 
     call(post);
   }
