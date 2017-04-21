@@ -25,6 +25,7 @@ import it.Category1Suite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
@@ -69,6 +70,7 @@ public class ExecuteAnalysisPermissionTest {
   }
 
   @Test
+  @Ignore // FIXME disabled until WS is available to create a private project
   public void should_fail_if_logged_but_no_scan_permission() throws Exception {
     executeLoggedAnalysis();
 
