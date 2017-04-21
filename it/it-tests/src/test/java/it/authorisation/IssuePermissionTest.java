@@ -24,7 +24,6 @@ import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
@@ -35,12 +34,13 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
+import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import util.ItUtils;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.client.project.UpdateVisibilityRequest.Visibility.PRIVATE;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
@@ -57,21 +57,23 @@ public class IssuePermissionTest {
 
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/authorisation/one-issue-per-line-profile.xml"));
 
-    orchestrator.getServer().provisionProject("sample", "Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
-    orchestrator.executeBuild(sampleProject);
+    orchestrator.getServer().provisionProject("privateProject", "PrivateProject");
+    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(new UpdateVisibilityRequest("privateProject", PRIVATE));
+    orchestrator.getServer().associateProjectToQualityProfile("privateProject", "xoo", "one-issue-per-line");
+    SonarScanner privateProject = SonarScanner.create(projectDir("shared/xoo-sample"))
+      .setProperty("sonar.projectKey", "privateProject")
+      .setProperty("sonar.projectName", "PrivateProject");
+    orchestrator.executeBuild(privateProject);
 
-    orchestrator.getServer().provisionProject("sample2", "Sample2");
-    orchestrator.getServer().associateProjectToQualityProfile("sample2", "xoo", "one-issue-per-line");
-    SonarScanner sampleProject2 = SonarScanner.create(projectDir("shared/xoo-sample"))
-      .setProperty("sonar.projectKey", "sample2")
-      .setProperty("sonar.projectName", "Sample2");
-    orchestrator.executeBuild(sampleProject2);
+    orchestrator.getServer().provisionProject("publicProject", "PublicProject");
+    orchestrator.getServer().associateProjectToQualityProfile("publicProject", "xoo", "one-issue-per-line");
+    SonarScanner publicProject = SonarScanner.create(projectDir("shared/xoo-sample"))
+      .setProperty("sonar.projectKey", "publicProject")
+      .setProperty("sonar.projectName", "PublicProject");
+    orchestrator.executeBuild(publicProject);
   }
 
   @Test
-  @Ignore // FIXME disabled until WS is available to create a private project
   public void need_user_permission_on_project_to_see_issue() {
     SonarClient client = orchestrator.getServer().adminWsClient();
 
@@ -81,20 +83,18 @@ public class IssuePermissionTest {
     try {
       client.userClient().create(UserParameters.create().login(withBrowsePermission).name(withBrowsePermission)
         .password("password").passwordConfirmation("password"));
-      addUserPermission(withBrowsePermission, "sample", "user");
+      addUserPermission(withBrowsePermission, "privateProject", "user");
 
       client.userClient().create(UserParameters.create().login(withoutBrowsePermission).name(withoutBrowsePermission)
         .password("password").passwordConfirmation("password"));
-      // By default, it's the group anyone that have the permission user, it would be better to remove all groups on this permission
-      removeGroupPermission("anyone", "sample", "user");
 
       // Without user permission, a user cannot see issues on the project
       assertThat(orchestrator.getServer().wsClient(withoutBrowsePermission, "password").issueClient().find(
-        IssueQuery.create().componentRoots("sample")).list()).isEmpty();
+        IssueQuery.create().componentRoots("privateProject")).list()).isEmpty();
 
       // With user permission, a user can see issues on the project
       assertThat(orchestrator.getServer().wsClient(withBrowsePermission, "password").issueClient().find(
-        IssueQuery.create().componentRoots("sample")).list()).isNotEmpty();
+        IssueQuery.create().componentRoots("privateProject")).list()).isNotEmpty();
 
     } finally {
       client.userClient().deactivate(withBrowsePermission);
@@ -106,10 +106,9 @@ public class IssuePermissionTest {
    * SONAR-4839
    */
   @Test
-  @Ignore // FIXME disabled until WS is available to create a private project
   public void need_user_permission_on_project_to_see_issue_changelog() {
     SonarClient client = orchestrator.getServer().adminWsClient();
-    Issue issue = client.issueClient().find(IssueQuery.create().componentRoots("sample")).list().get(0);
+    Issue issue = client.issueClient().find(IssueQuery.create().componentRoots("privateProject")).list().get(0);
     client.issueClient().assign(issue.key(), "admin");
 
     String withBrowsePermission = "with-browse-permission";
@@ -118,12 +117,10 @@ public class IssuePermissionTest {
     try {
       client.userClient().create(UserParameters.create().login(withBrowsePermission).name(withBrowsePermission)
         .password("password").passwordConfirmation("password"));
-      addUserPermission(withBrowsePermission, "sample", "user");
+      addUserPermission(withBrowsePermission, "privateProject", "user");
 
       client.userClient().create(UserParameters.create().login(withoutBrowsePermission).name(withoutBrowsePermission)
         .password("password").passwordConfirmation("password"));
-      // By default, it's the group anyone that have the permission user, it would be better to remove all groups on this permission
-      removeGroupPermission("anyone", "sample", "user");
 
       // Without user permission, a user cannot see issue changelog on the project
       try {
@@ -148,25 +145,25 @@ public class IssuePermissionTest {
   @Test
   public void need_administer_issue_permission_on_project_to_set_severity() {
     SonarClient client = orchestrator.getServer().adminWsClient();
-    Issue issueOnSample = client.issueClient().find(IssueQuery.create().componentRoots("sample")).list().get(0);
-    Issue issueOnSample2 = client.issueClient().find(IssueQuery.create().componentRoots("sample2")).list().get(0);
+    Issue issueOnPrivateProject = client.issueClient().find(IssueQuery.create().componentRoots("privateProject")).list().get(0);
+    Issue issueOnPublicProject = client.issueClient().find(IssueQuery.create().componentRoots("publicProject")).list().get(0);
 
     String user = "user";
 
     try {
       client.userClient().create(UserParameters.create().login(user).name(user).password("password").passwordConfirmation("password"));
-      addUserPermission(user, "sample", "issueadmin");
+      addUserPermission(user, "publicProject", "issueadmin");
 
       // Without issue admin permission, a user cannot set severity on the issue
       try {
-        orchestrator.getServer().wsClient(user, "password").issueClient().setSeverity(issueOnSample2.key(), "BLOCKER");
+        orchestrator.getServer().wsClient(user, "password").issueClient().setSeverity(issueOnPrivateProject.key(), "BLOCKER");
         fail();
       } catch (Exception e) {
         assertThat(e).isInstanceOf(HttpException.class).describedAs("404");
       }
 
       // With issue admin permission, a user can set severity on the issue
-      assertThat(orchestrator.getServer().wsClient(user, "password").issueClient().setSeverity(issueOnSample.key(), "BLOCKER").severity()).isEqualTo("BLOCKER");
+      assertThat(orchestrator.getServer().wsClient(user, "password").issueClient().setSeverity(issueOnPublicProject.key(), "BLOCKER").severity()).isEqualTo("BLOCKER");
 
     } finally {
       client.userClient().deactivate(user);
@@ -179,25 +176,25 @@ public class IssuePermissionTest {
   @Test
   public void need_administer_issue_permission_on_project_to_flag_as_false_positive() {
     SonarClient client = orchestrator.getServer().adminWsClient();
-    Issue issueOnSample = client.issueClient().find(IssueQuery.create().componentRoots("sample")).list().get(0);
-    Issue issueOnSample2 = client.issueClient().find(IssueQuery.create().componentRoots("sample2")).list().get(0);
+    Issue issueOnPrivateProject = client.issueClient().find(IssueQuery.create().componentRoots("privateProject")).list().get(0);
+    Issue issueOnPublicProject = client.issueClient().find(IssueQuery.create().componentRoots("publicProject")).list().get(0);
 
     String user = "user";
 
     try {
       client.userClient().create(UserParameters.create().login(user).name(user).password("password").passwordConfirmation("password"));
-      addUserPermission(user, "sample", "issueadmin");
+      addUserPermission(user, "publicProject", "issueadmin");
 
       // Without issue admin permission, a user cannot flag an issue as false positive
       try {
-        orchestrator.getServer().wsClient(user, "password").issueClient().doTransition(issueOnSample2.key(), "falsepositive");
+        orchestrator.getServer().wsClient(user, "password").issueClient().doTransition(issueOnPrivateProject.key(), "falsepositive");
         fail();
       } catch (Exception e) {
         assertThat(e).isInstanceOf(HttpException.class).describedAs("404");
       }
 
       // With issue admin permission, a user can flag an issue as false positive
-      assertThat(orchestrator.getServer().wsClient(user, "password").issueClient().doTransition(issueOnSample.key(), "falsepositive").status()).isEqualTo("RESOLVED");
+      assertThat(orchestrator.getServer().wsClient(user, "password").issueClient().doTransition(issueOnPublicProject.key(), "falsepositive").status()).isEqualTo("RESOLVED");
 
     } finally {
       client.userClient().deactivate(user);
@@ -210,28 +207,58 @@ public class IssuePermissionTest {
   @Test
   public void need_administer_issue_permission_on_project_to_bulk_change_severity_and_false_positive() {
     SonarClient client = orchestrator.getServer().adminWsClient();
-    Issue issueOnSample = client.issueClient().find(IssueQuery.create().componentRoots("sample")).list().get(0);
-    Issue issueOnSample2 = client.issueClient().find(IssueQuery.create().componentRoots("sample2")).list().get(0);
+    Issue issueOnPrivateProject = client.issueClient().find(IssueQuery.create().componentRoots("privateProject")).list().get(0);
+    Issue issueOnPublicProject = client.issueClient().find(IssueQuery.create().componentRoots("publicProject")).list().get(0);
 
     String user = "user";
 
     try {
       client.userClient().create(UserParameters.create().login(user).name(user).password("password").passwordConfirmation("password"));
-      addUserPermission(user, "sample", "issueadmin");
+      addUserPermission(user, "privateProject", "issueadmin");
 
-      Issues.BulkChangeWsResponse response = newUserWsClient(orchestrator, user, "password").issues()
-        .bulkChange(BulkChangeRequest.builder().setIssues(asList(issueOnSample.key(), issueOnSample2.key()))
-          .setSetSeverity("BLOCKER")
-          .setDoTransition("falsepositive")
-          .build());
+      Issues.BulkChangeWsResponse response = makeBlockerAndFalsePositive(user, issueOnPrivateProject, issueOnPublicProject);
 
+      // public project but no issueadmin permission on publicProject => issue visible but not updated
+      // no user permission on privateproject => issue invisible and not updated
+      assertThat(response.getTotal()).isEqualTo(1);
+      assertThat(response.getSuccess()).isEqualTo(0);
+      assertThat(response.getIgnored()).isEqualTo(1);
+
+      addUserPermission(user, "privateProject", "user");
+      response = makeBlockerAndFalsePositive(user, issueOnPrivateProject, issueOnPublicProject);
+
+      // public project but no issueadmin permission on publicProject => unsuccessful on issueOnPublicProject
+      // user and issueadmin permission on privateproject => successful and 1 more issue visible
       assertThat(response.getTotal()).isEqualTo(2);
       assertThat(response.getSuccess()).isEqualTo(1);
       assertThat(response.getIgnored()).isEqualTo(1);
 
+      addUserPermission(user, "publicProject", "issueadmin");
+      response = makeBlockerAndFalsePositive(user, issueOnPrivateProject, issueOnPublicProject);
+
+      // public and issueadmin permission on publicProject => successful on issueOnPublicProject
+      // issueOnPrivateProject already in specified state => unsuccessful
+      assertThat(response.getTotal()).isEqualTo(2);
+      assertThat(response.getSuccess()).isEqualTo(1);
+      assertThat(response.getIgnored()).isEqualTo(1);
+
+      response = makeBlockerAndFalsePositive(user, issueOnPrivateProject, issueOnPublicProject);
+
+      // issueOnPublicProject and issueOnPrivateProject already in specified state => unsuccessful
+      assertThat(response.getTotal()).isEqualTo(2);
+      assertThat(response.getSuccess()).isEqualTo(0);
+      assertThat(response.getIgnored()).isEqualTo(2);
     } finally {
       client.userClient().deactivate(user);
     }
+  }
+
+  private Issues.BulkChangeWsResponse makeBlockerAndFalsePositive(String user, Issue issueOnPrivateProject, Issue issueOnPublicProject) {
+    return newUserWsClient(orchestrator, user, "password").issues()
+      .bulkChange(BulkChangeRequest.builder().setIssues(asList(issueOnPrivateProject.key(), issueOnPublicProject.key()))
+        .setSetSeverity("BLOCKER")
+        .setDoTransition("falsepositive")
+        .build());
   }
 
   private void addUserPermission(String login, String projectKey, String permission) {
@@ -240,13 +267,6 @@ public class IssuePermissionTest {
         .setLogin(login)
         .setProjectKey(projectKey)
         .setPermission(permission));
-  }
-
-  private void removeGroupPermission(String groupName, String projectKey, String permission) {
-    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest()
-      .setGroupName(groupName)
-      .setProjectKey(projectKey)
-      .setPermission(permission));
   }
 
   private static Issues.ChangelogWsResponse changelog(String issueKey, String login, String password) {
