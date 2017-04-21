@@ -55,7 +55,7 @@ public class ScannerWsClientProvider extends ProviderAdapter {
 
       // OkHttp detect 'http.proxyHost' java property, but credentials should be filled
       final String proxyUser = System.getProperty("http.proxyUser", "");
-      if (!System.getProperty("http.proxyHost", "").isEmpty() && !proxyUser.isEmpty()) {
+      if (!proxyUser.isEmpty()) {
         connectorBuilder.proxyCredentials(proxyUser, System.getProperty("http.proxyPassword"));
       }
 
