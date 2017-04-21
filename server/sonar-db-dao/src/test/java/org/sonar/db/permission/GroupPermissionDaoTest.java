@@ -486,6 +486,66 @@ public class GroupPermissionDaoTest {
   }
 
   @Test
+  public void selectGroupIdsWithPermissionOnProjectBut_returns_empty_if_project_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnGroup(group, "foo", project);
+
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, 1234, UserRole.USER))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectGroupIdsWithPermissionOnProjectBut_returns_only_groups_of_project_which_do_not_have_permission() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnGroup(group1, "p1", project);
+    db.users().insertProjectPermissionOnGroup(group2, "p2", project);
+
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p2"))
+      .containsOnly(group1.getId());
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p1"))
+      .containsOnly(group2.getId());
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p3"))
+      .containsOnly(group1.getId(), group2.getId());
+  }
+
+  @Test
+  public void selectGroupIdsWithPermissionOnProjectBut_does_not_returns_group_AnyOne_of_project_when_it_does_not_have_permission() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnGroup(group1, "p1", project);
+    db.users().insertProjectPermissionOnGroup(group2, "p2", project);
+    db.users().insertProjectPermissionOnAnyone("p2", project);
+
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p2"))
+      .containsOnly(group1.getId());
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p1"))
+      .containsOnly(group2.getId());
+  }
+
+  @Test
+  public void selectGroupIdsWithPermissionOnProjectBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    GroupDto group3 = db.users().insertGroup(organization);
+    db.users().insertProjectPermissionOnGroup(group1, "p1", project);
+    db.users().insertProjectPermissionOnGroup(group2, "p2", project);
+
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p2"))
+      .containsOnly(group1.getId());
+    assertThat(underTest.selectGroupIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p1"))
+      .containsOnly(group2.getId());
+  }
+
+  @Test
   public void deleteByRootComponentId_on_private_project() {
     OrganizationDto org = db.organizations().insert();
     GroupDto group1 = db.users().insertGroup(org);
