@@ -19,40 +19,39 @@
  */
 package org.sonar.server.batch;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-import org.junit.Before;
+import com.google.common.base.Throwables;
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.issue.IssueDocTesting;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
-import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
-import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.rule.RuleTesting.newRule;
 
 public class IssuesActionTest {
 
@@ -77,28 +76,22 @@ public class IssuesActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
+  private static RuleDefinitionDto RULE_DEFINITION = newRule(RuleKey.of("squid", "AvoidCycle"));
+
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(db.getDbClient()));
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
-  private ServerFileSystem fs = mock(ServerFileSystem.class);
-  private WsTester tester;
-
-  @Before
-  public void before() {
-    IssueIndex issueIndex = new IssueIndex(es.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-    IssuesAction issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
-    tester = new WsTester(new BatchWs(issuesAction));
-  }
+  private WsActionTester tester = new WsActionTester(new IssuesAction(db.getDbClient(),
+    new IssueIndex(es.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule)),
+    userSessionRule, new ComponentFinder(db.getDbClient())));
 
   @Test
   public void return_minimal_fields() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath(null);
-    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
-    db.getSession().commit();
-
-    indexIssues(IssueDocTesting.newDoc("EFGH", file)
-      .setRuleKey("squid:AvoidCycle")
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath(null));
+    db.rules().insert(RULE_DEFINITION);
+    db.issues().insert(RULE_DEFINITION, project, file, issue -> issue
+      .setKee("EFGH")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
       .setResolution(null)
@@ -107,11 +100,11 @@ public class IssuesActionTest {
       .setLine(null)
       .setChecksum(null)
       .setAssignee(null));
-
+    indexIssues(project);
     addBrowsePermissionOnComponent(project);
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
-    ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    ServerIssue serverIssue = call(PROJECT_KEY);
+
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
     assertThat(serverIssue.hasPath()).isFalse();
@@ -130,14 +123,12 @@ public class IssuesActionTest {
   @Test
   public void issues_from_project() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
-    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
-    db.getSession().commit();
-
-    indexIssues(IssueDocTesting.newDoc("EFGH", file)
-      .setRuleKey("squid:AvoidCycle")
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java"));
+    db.rules().insert(RULE_DEFINITION);
+    db.issues().insert(RULE_DEFINITION, project, file, issue -> issue
+      .setKee("EFGH")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
       .setResolution("FALSE-POSITIVE")
@@ -146,11 +137,11 @@ public class IssuesActionTest {
       .setLine(200)
       .setChecksum("123456")
       .setAssignee("john"));
-
+    indexIssues(project);
     addBrowsePermissionOnComponent(project);
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
-    ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    ServerIssue serverIssue = call(PROJECT_KEY);
+
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
     assertThat(serverIssue.getPath()).isEqualTo("src/org/struts/Action.java");
@@ -168,14 +159,12 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
-    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
-    db.getSession().commit();
-
-    indexIssues(IssueDocTesting.newDoc("EFGH", file)
-      .setRuleKey("squid:AvoidCycle")
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java"));
+    db.rules().insert(RULE_DEFINITION);
+    db.issues().insert(RULE_DEFINITION, project, file, issue -> issue
+      .setKee("EFGH")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
       .setResolution("FALSE-POSITIVE")
@@ -184,11 +173,11 @@ public class IssuesActionTest {
       .setLine(200)
       .setChecksum("123456")
       .setAssignee("john"));
-
+    indexIssues(project);
     addBrowsePermissionOnComponent(project);
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
-    ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    ServerIssue serverIssue = call(PROJECT_KEY);
+
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
     assertThat(serverIssue.getPath()).isEqualTo("src/org/struts/Action.java");
@@ -206,14 +195,12 @@ public class IssuesActionTest {
 
   @Test
   public void issues_from_file() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java");
-    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
-    db.getSession().commit();
-
-    indexIssues(IssueDocTesting.newDoc("EFGH", file)
-      .setRuleKey("squid:AvoidCycle")
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java"));
+    db.rules().insert(RULE_DEFINITION);
+    db.issues().insert(RULE_DEFINITION, project, file, issue -> issue
+      .setKee("EFGH")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
       .setResolution("FALSE-POSITIVE")
@@ -222,11 +209,11 @@ public class IssuesActionTest {
       .setLine(200)
       .setChecksum("123456")
       .setAssignee("john"));
-
+    indexIssues(project);
     addBrowsePermissionOnComponent(project);
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", FILE_KEY);
 
-    ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    ServerIssue serverIssue = call(FILE_KEY);
+
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
     assertThat(serverIssue.getPath()).isEqualTo("src/org/struts/Action.java");
@@ -245,13 +232,11 @@ public class IssuesActionTest {
   @Test
   public void issues_attached_on_module() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project = ComponentTesting.newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY);
-    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY);
-    db.getDbClient().componentDao().insert(db.getSession(), project, module);
-    db.getSession().commit();
-
-    indexIssues(IssueDocTesting.newDoc("EFGH", module)
-      .setRuleKey("squid:AvoidCycle")
+    ComponentDto project = db.components().insertComponent(newProjectDto(organizationDto, PROJECT_UUID).setKey(PROJECT_KEY));
+    ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY));
+    db.rules().insert(RULE_DEFINITION);
+    db.issues().insert(RULE_DEFINITION, project, module, issue -> issue
+      .setKee("EFGH")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
       .setResolution("FALSE-POSITIVE")
@@ -260,37 +245,35 @@ public class IssuesActionTest {
       .setLine(200)
       .setChecksum("123456")
       .setAssignee("john"));
-
+    indexIssues(project);
     addBrowsePermissionOnComponent(project);
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
 
-    ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
-    assertThat(previousIssue.getKey()).isEqualTo("EFGH");
-    assertThat(previousIssue.getModuleKey()).isEqualTo(MODULE_KEY);
-    assertThat(previousIssue.hasPath()).isFalse();
-    assertThat(previousIssue.getRuleRepository()).isEqualTo("squid");
-    assertThat(previousIssue.getRuleKey()).isEqualTo("AvoidCycle");
-    assertThat(previousIssue.getLine()).isEqualTo(200);
-    assertThat(previousIssue.getMsg()).isEqualTo("Do not use this method");
-    assertThat(previousIssue.getResolution()).isEqualTo("FALSE-POSITIVE");
-    assertThat(previousIssue.getStatus()).isEqualTo("RESOLVED");
-    assertThat(previousIssue.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(previousIssue.getManualSeverity()).isFalse();
-    assertThat(previousIssue.getChecksum()).isEqualTo("123456");
-    assertThat(previousIssue.getAssigneeLogin()).isEqualTo("john");
+    ServerIssue serverIssue = call(MODULE_KEY);
+
+    assertThat(serverIssue.getKey()).isEqualTo("EFGH");
+    assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
+    assertThat(serverIssue.hasPath()).isFalse();
+    assertThat(serverIssue.getRuleRepository()).isEqualTo("squid");
+    assertThat(serverIssue.getRuleKey()).isEqualTo("AvoidCycle");
+    assertThat(serverIssue.getLine()).isEqualTo(200);
+    assertThat(serverIssue.getMsg()).isEqualTo("Do not use this method");
+    assertThat(serverIssue.getResolution()).isEqualTo("FALSE-POSITIVE");
+    assertThat(serverIssue.getStatus()).isEqualTo("RESOLVED");
+    assertThat(serverIssue.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(serverIssue.getManualSeverity()).isFalse();
+    assertThat(serverIssue.getChecksum()).isEqualTo("123456");
+    assertThat(serverIssue.getAssigneeLogin()).isEqualTo("john");
   }
 
   @Test
   public void project_issues_attached_file_on_removed_module() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY);
+    ComponentDto project = db.components().insertComponent(newProjectDto(db.getDefaultOrganization(), PROJECT_UUID).setKey(PROJECT_KEY));
     // File and module are removed
-    ComponentDto module = ComponentTesting.newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY).setEnabled(false);
-    ComponentDto file = ComponentTesting.newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);
-    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
-    db.getSession().commit();
-
-    indexIssues(IssueDocTesting.newDoc("EFGH", file)
-      .setRuleKey("squid:AvoidCycle")
+    ComponentDto module = db.components().insertComponent(newModuleDto(MODULE_UUID, project).setKey(MODULE_KEY).setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, null, FILE_UUID).setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false));
+    db.rules().insert(RULE_DEFINITION);
+    db.issues().insert(RULE_DEFINITION, project, file, issue -> issue
+      .setKee("EFGH")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
       .setResolution("FALSE-POSITIVE")
@@ -299,11 +282,11 @@ public class IssuesActionTest {
       .setLine(200)
       .setChecksum("123456")
       .setAssignee("john"));
-
+    indexIssues(project);
     addBrowsePermissionOnComponent(project);
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
-    ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    ServerIssue serverIssue = call(PROJECT_KEY);
+
     assertThat(serverIssue.getKey()).isEqualTo("EFGH");
     // Module key of removed file should be returned
     assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
@@ -312,27 +295,28 @@ public class IssuesActionTest {
   @Test
   public void fail_without_browse_permission_on_file() throws Exception {
     ComponentDto project = db.components().insertProject();
-    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
 
     thrown.expect(ForbiddenException.class);
 
-    tester.newGetRequest("batch", "issues").setParam("key", file.key()).execute();
+    tester.newRequest().setParam("key", file.key()).execute();
   }
 
-  private void indexIssues(IssueDoc... issues) {
-    issueIndexer.index(Arrays.asList(issues).iterator());
-    for (IssueDoc issue : issues) {
-      addIssueAuthorization(issue.projectUuid());
-    }
-  }
-
-  private void addIssueAuthorization(String projectUuid) {
-    PermissionIndexerDao.Dto access = new PermissionIndexerDao.Dto(projectUuid, system2.now(), Qualifiers.PROJECT);
-    access.allowAnyone();
-    authorizationIndexerTester.allow(access);
+  private void indexIssues(ComponentDto project) {
+    issueIndexer.indexOnStartup(null);
+    authorizationIndexerTester.allowOnlyAnyone(project);
   }
 
   private void addBrowsePermissionOnComponent(ComponentDto project) {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, project.uuid());
+  }
+
+  private ServerIssue call(String componentKey) {
+    try {
+      TestResponse response = tester.newRequest().setParam("key", componentKey).execute();
+      return ServerIssue.parseDelimitedFrom(response.getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 }
