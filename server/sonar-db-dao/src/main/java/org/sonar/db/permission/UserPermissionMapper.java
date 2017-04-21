@@ -21,6 +21,7 @@ package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -44,6 +45,11 @@ public interface UserPermissionMapper {
    * @param projectIds a non-null and non-empty list of project ids
    */
   List<CountPerProjectPermission> countUsersByProjectPermission(@Param("projectIds") List<Long> projectIds);
+
+  /**
+   * select id of users with at least one permission on the specified project but which do not have the specified permission.
+   */
+  Set<Integer> selectUserIdsWithPermissionOnProjectBut(@Param("projectId") long projectId, @Param("permission") String permission);
 
   void insert(UserPermissionDto dto);
 

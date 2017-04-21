@@ -21,6 +21,7 @@ package org.sonar.db.permission;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -97,6 +98,10 @@ public class UserPermissionDao implements Dao {
    */
   public List<String> selectProjectPermissionsOfUser(DbSession dbSession, int userId, long projectId) {
     return mapper(dbSession).selectProjectPermissionsOfUser(userId, projectId);
+  }
+
+  public Set<Integer> selectUserIdsWithPermissionOnProjectBut(DbSession session, long projectId, String permission) {
+    return mapper(session).selectUserIdsWithPermissionOnProjectBut(projectId, permission);
   }
 
   public void insert(DbSession dbSession, UserPermissionDto dto) {
