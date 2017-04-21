@@ -205,6 +205,22 @@ public class IssuesModeTest {
     assertThat(result.getLogs()).doesNotContain("'One Issue Per Line' skipped because there is no related file in current project");
     ItUtils.assertIssuesInJsonReport(result, 3, 0, 17);
   }
+  
+  // SONAR-8518
+  @Test
+  public void shoud_support_sonar_profile_prop() throws IOException {
+    restoreProfile("one-issue-per-line.xml");
+    restoreProfile("empty.xml");
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
+    
+    SonarScanner runner = configureRunner("shared/xoo-sample", 
+      "sonar.verbose", "true",
+      "sonar.analysis.mode", "issues",
+      "sonar.profile", "one-issue-per-line");
+    BuildResult result = orchestrator.executeBuild(runner);
+    ItUtils.assertIssuesInJsonReport(result, 17, 0, 0);
+  }
 
   // SONAR-8518
   @Test
