@@ -89,10 +89,8 @@ message SearchProjectsWsResponse {
 
 // WS api/components/provisioned
 message ProvisionedWsResponse {
-  repeated Component projects = 1;
-  optional int64 total = 2;
-  optional int32 p = 3;
-  optional int64 ps = 4;
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Component projects = 2;
 
   message Component {
     optional string uuid = 1;

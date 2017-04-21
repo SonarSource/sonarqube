@@ -40,6 +40,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.WsComponents.ProvisionedWsResponse;
 import org.sonarqube.ws.WsComponents.ProvisionedWsResponse.Component;
 
@@ -82,7 +83,9 @@ public class ProvisionedAction implements ProjectsWsAction {
       .addSearchQuery("sonar", "names", "keys")
       .addFieldsParam(POSSIBLE_FIELDS);
 
-    action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
+    action.setChangelog(
+      new Change("6.4", "The 'uuid' field is deprecated in the response"),
+      new Change("6.4", "Paging response fields is now in a Paging object"));
 
     support.addOrganizationParam(action);
   }
@@ -107,9 +110,10 @@ public class ProvisionedAction implements ProjectsWsAction {
       int nbOfProjects = dbClient.componentDao().countProvisioned(dbSession, organization.getUuid(), query, QUALIFIERS_FILTER);
       ProvisionedWsResponse result = ProvisionedWsResponse.newBuilder()
         .addAllProjects(writeProjects(projects, desiredFields))
-        .setTotal(nbOfProjects)
-        .setP(options.getPage())
-        .setPs(options.getLimit())
+        .setPaging(Paging.newBuilder()
+          .setTotal(nbOfProjects)
+          .setPageIndex(options.getPage())
+          .setPageSize(options.getLimit()))
         .build();
       writeProtobuf(result, request, response);
     }
