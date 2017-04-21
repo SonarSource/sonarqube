@@ -119,7 +119,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private void updatePermissionsToPrivate(DbSession dbSession, ComponentDto component) {
     // delete project permissions for group AnyOne
     dbClient.groupPermissionDao().deleteByRootComponentIdAndGroupId(dbSession, component.getId(), null);
-    // grant UserRole.CODEVIEWER and UserRole.USER
+    // grant UserRole.CODEVIEWER and UserRole.USER to any group or user with at least one permission on project
     PUBLIC_PERMISSIONS.forEach(permission -> {
       dbClient.groupPermissionDao().selectGroupIdsWithPermissionOnProjectBut(dbSession, component.getId(), permission)
         .forEach(groupId -> insertProjectPermissionOnGroup(dbSession, component, permission, groupId));
