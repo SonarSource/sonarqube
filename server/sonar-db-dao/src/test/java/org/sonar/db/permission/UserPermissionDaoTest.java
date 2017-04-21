@@ -368,6 +368,50 @@ public class UserPermissionDaoTest {
   }
 
   @Test
+  public void selectGroupIdsWithPermissionOnProjectBut_returns_empty_if_project_does_not_exist() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    UserDto user = dbTester.users().insertUser();
+    dbTester.users().insertProjectPermissionOnUser(user, "foo", project);
+
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, 1234, UserRole.USER))
+      .isEmpty();
+  }
+
+  @Test
+  public void selectGroupIdsWithPermissionOnProjectBut_returns_only_users_of_projects_which_do_not_have_permission() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    dbTester.users().insertProjectPermissionOnUser(user1, "p1", project);
+    dbTester.users().insertProjectPermissionOnUser(user2, "p2", project);
+
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p2"))
+      .containsOnly(user1.getId());
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p1"))
+      .containsOnly(user2.getId());
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p3"))
+      .containsOnly(user1.getId(), user2.getId());
+  }
+
+  @Test
+  public void selectGroupIdsWithPermissionOnProjectBut_does_not_return_groups_which_have_no_permission_at_all_on_specified_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = randomPublicOrPrivateProject(organization);
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    UserDto user3 = dbTester.users().insertUser();
+    dbTester.users().insertProjectPermissionOnUser(user1, "p1", project);
+    dbTester.users().insertProjectPermissionOnUser(user2, "p2", project);
+
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p2"))
+      .containsOnly(user1.getId());
+    assertThat(underTest.selectUserIdsWithPermissionOnProjectBut(dbSession, project.getId(), "p1"))
+      .containsOnly(user2.getId());
+  }
+
+  @Test
   public void deleteByOrganization_does_not_fail_if_table_is_empty() {
     underTest.deleteByOrganization(dbSession, "some uuid");
     dbSession.commit();
