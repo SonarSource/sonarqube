@@ -94,7 +94,8 @@ public class UserRule extends ExternalResource implements GroupManagement {
         .setParam("login", login)
         .setParam("name", name)
         .setParam("email", email)
-        .setParam("password", password));
+        .setParam("password", password))
+      .failIfNotSuccessful();
   }
 
   public void createUser(String login, String password) {
@@ -115,8 +116,8 @@ public class UserRule extends ExternalResource implements GroupManagement {
 
   public Users getUsers() {
     WsResponse response = adminWsClient().wsConnector().call(
-      new GetRequest("api/users/search"));
-    assertThat(response.code()).isEqualTo(200);
+      new GetRequest("api/users/search"))
+      .failIfNotSuccessful();
     return Users.parse(response.content());
   }
 
@@ -159,7 +160,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
         .setParam("name", name)
         .setParam("description", description);
       addOrganizationParam(request);
-      adminWsClient().wsConnector().call(request);
+      adminWsClient().wsConnector().call(request).failIfNotSuccessful();
     }
 
     private void addOrganizationParam(PostRequest request) {
@@ -181,7 +182,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
           PostRequest request = new PostRequest("api/user_groups/delete")
             .setParam("name", groupName);
           addOrganizationParam(request);
-          adminWsClient().wsConnector().call(request);
+          adminWsClient().wsConnector().call(request).failIfNotSuccessful();
         }
       }
     }
@@ -200,8 +201,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
     public Groups getGroups() {
       GetRequest request = new GetRequest("api/user_groups/search");
       addOrganizationParam(request);
-      WsResponse response = adminWsClient().wsConnector().call(request);
-      assertThat(response.code()).isEqualTo(200);
+      WsResponse response = adminWsClient().wsConnector().call(request).failIfNotSuccessful();
       return Groups.parse(response.content());
     }
 

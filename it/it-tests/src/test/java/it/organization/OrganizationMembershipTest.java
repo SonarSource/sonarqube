@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -177,7 +176,6 @@ public class OrganizationMembershipTest {
     String user1 = createUser();
     String user2 = createUser();
     createUser();
-
     adminClient.organizations().addMember(orgKey, user1);
     adminClient.organizations().addMember(orgKey, user2);
 
@@ -195,26 +193,25 @@ public class OrganizationMembershipTest {
   @Test
   public void admin_can_add_members() {
     String orgKey = createOrganization();
-    userRule.createUser("foo", "pwd");
+    String user = createUser();
     createUser();
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page
       .shouldHaveTotal(1)
-      .addMember("foo")
+      .addMember(user)
       .shouldHaveTotal(2);
     page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator").shouldHaveGroups(2);
-    page.getMembersByIdx(1).shouldBeNamed("foo", "foo").shouldHaveGroups(1);
+    page.getMembersByIdx(1).shouldBeNamed(user, user).shouldHaveGroups(1);
   }
 
   @Test
   public void admin_can_remove_members() {
     String orgKey = createOrganization();
-    userRule.createUser("foo", "pwd");
-    userRule.createUser("bar", "pwd");
-
-    adminClient.organizations().addMember(orgKey, "foo");
-    adminClient.organizations().addMember(orgKey, "bar");
+    String user1 = createUser();
+    String user2 = createUser();
+    adminClient.organizations().addMember(orgKey, user1);
+    adminClient.organizations().addMember(orgKey, user2);
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page.shouldHaveTotal(3)
@@ -225,9 +222,8 @@ public class OrganizationMembershipTest {
   @Test
   public void admin_can_manage_groups() {
     String orgKey = createOrganization();
-    userRule.createUser("foo", "pwd");
-
-    adminClient.organizations().addMember(orgKey, "foo");
+    String user = createUser();
+    adminClient.organizations().addMember(orgKey, user);
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     // foo user
@@ -247,11 +243,10 @@ public class OrganizationMembershipTest {
   @Test
   public void groups_count_should_be_updated_when_a_member_was_just_added() {
     String orgKey = createOrganization();
-    userRule.createUser("foo", "pwd");
-
+    String user = createUser();
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page
-      .addMember("foo")
+      .addMember(user)
       .getMembersByIdx(1)
       .shouldHaveGroups(1)
       .manageGroupsOpen()
