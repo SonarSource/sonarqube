@@ -89,6 +89,7 @@ export type State = {
   referencedRules: { [string]: { name: string } },
   referencedUsers: { [string]: ReferencedUser },
   selected?: string,
+  selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 };
 
@@ -117,6 +118,7 @@ export default class App extends React.PureComponent {
       referencedRules: {},
       referencedUsers: {},
       selected: getOpen(props.location.query),
+      selectedFlowIndex: null,
       selectedLocationIndex: null
     };
   }
@@ -137,11 +139,15 @@ export default class App extends React.PureComponent {
     const openIssue = this.getOpenIssue(nextProps, this.state.issues);
 
     if (openIssue != null && openIssue.key !== this.state.selected) {
-      this.setState({ selected: openIssue.key, selectedLocationIndex: null });
+      this.setState({
+        selected: openIssue.key,
+        selectedFlowIndex: null,
+        selectedLocationIndex: null
+      });
     }
 
     if (openIssue == null) {
-      this.setState({ selectedLocationIndex: null });
+      this.setState({ selectedFlowIndex: null, selectedLocationIndex: null });
     }
 
     this.setState({
@@ -252,7 +258,11 @@ export default class App extends React.PureComponent {
       if (this.state.openIssue) {
         this.openIssue(issues[selectedIndex + 1].key);
       } else {
-        this.setState({ selected: issues[selectedIndex + 1].key, selectedLocationIndex: null });
+        this.setState({
+          selected: issues[selectedIndex + 1].key,
+          selectedFlowIndex: null,
+          selectedLocationIndex: null
+        });
       }
     }
   };
@@ -264,7 +274,11 @@ export default class App extends React.PureComponent {
       if (this.state.openIssue) {
         this.openIssue(issues[selectedIndex - 1].key);
       } else {
-        this.setState({ selected: issues[selectedIndex - 1].key, selectedLocationIndex: null });
+        this.setState({
+          selected: issues[selectedIndex - 1].key,
+          selectedFlowIndex: null,
+          selectedLocationIndex: null
+        });
       }
     }
   };
@@ -372,6 +386,7 @@ export default class App extends React.PureComponent {
           selected: issues.length > 0
             ? openIssue != null ? openIssue.key : issues[0].key
             : undefined,
+          selectedFlowIndex: null,
           selectedLocationIndex: null
         });
       }
@@ -560,6 +575,7 @@ export default class App extends React.PureComponent {
   selectLocation = (index: ?number) => this.setState(actions.selectLocation(index));
   selectNextLocation = () => this.setState(actions.selectNextLocation);
   selectPreviousLocation = () => this.setState(actions.selectPreviousLocation);
+  selectFlow = (index: ?number) => this.setState(actions.selectFlow(index));
 
   renderBulkChange(openIssue: ?Issue) {
     const { component, currentUser } = this.props;
@@ -649,9 +665,11 @@ export default class App extends React.PureComponent {
         />
         <ConciseIssuesList
           issues={issues}
+          onFlowSelect={this.selectFlow}
           onIssueSelect={this.openIssue}
           onLocationSelect={this.selectLocation}
           selected={this.state.selected}
+          selectedFlowIndex={this.state.selectedFlowIndex}
           selectedLocationIndex={this.state.selectedLocationIndex}
         />
         {paging != null &&
@@ -755,6 +773,7 @@ export default class App extends React.PureComponent {
                   onIssueChange={this.handleIssueChange}
                   onIssueSelect={this.openIssue}
                   onLocationSelect={this.selectLocation}
+                  selectedFlowIndex={this.state.selectedFlowIndex}
                   selectedLocationIndex={
                     this.state.locationsNavigator ? this.state.selectedLocationIndex : null
                   }

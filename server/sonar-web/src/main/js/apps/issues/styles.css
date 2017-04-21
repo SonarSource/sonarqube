@@ -114,3 +114,19 @@
 .concise-issue-box:not(.selected) .location-index {
   background-color: #ccc;
 }
+
+.concise-issue-locations {
+  margin-right: -4px;
+  margin-bottom: -4px;
+}
+
+.concise-issue-locations .location-index {
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+
+.consice-issue-locations-navigator-location {
+  display: flex;
+  align-items: flex-start;
+  border: none;
+}

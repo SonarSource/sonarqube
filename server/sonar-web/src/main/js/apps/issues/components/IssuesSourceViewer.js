@@ -29,6 +29,7 @@ type Props = {|
   onIssueSelect: string => void,
   onLocationSelect: number => void,
   openIssue: Issue,
+  selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
 
@@ -58,9 +59,11 @@ export default class IssuesSourceViewer extends React.PureComponent {
   };
 
   render() {
-    const { openIssue, selectedLocationIndex } = this.props;
+    const { openIssue, selectedFlowIndex, selectedLocationIndex } = this.props;
 
-    const locations = openIssue.secondaryLocations;
+    const locations = selectedFlowIndex != null
+      ? openIssue.flows[selectedFlowIndex]
+      : openIssue.flows.length > 0 ? openIssue.flows[0] : openIssue.secondaryLocations;
 
     const locationMessage = locations != null &&
       selectedLocationIndex != null &&

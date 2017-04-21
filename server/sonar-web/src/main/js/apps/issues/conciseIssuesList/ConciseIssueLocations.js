@@ -23,22 +23,67 @@ import ConciseIssueLocationBadge from './ConciseIssueLocationBadge';
 import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
-  issue: Issue
+  issue: Issue,
+  onFlowSelect: number => void,
+  selectedFlowIndex: ?number
 |};
+
+type State = {
+  collapsed: boolean
+};
+
+const LIMIT = 3;
 
 export default class ConciseIssueLocations extends React.PureComponent {
   props: Props;
+  state: State = { collapsed: true };
+
+  handleExpandClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ collapsed: false });
+  };
+
+  renderExpandButton() {
+    return (
+      <a className="little-spacer-left link-no-underline" href="#" onClick={this.handleExpandClick}>
+        ...
+      </a>
+    );
+  }
 
   render() {
     const { secondaryLocations, flows } = this.props.issue;
 
-    return (
-      <div className="pull-right">
-        {secondaryLocations.length > 0 &&
-          <ConciseIssueLocationBadge count={secondaryLocations.length} />}
+    const badges = [];
 
-        {flows.map((flow, index) => <ConciseIssueLocationBadge key={index} count={flow.length} />)}
-      </div>
-    );
+    if (secondaryLocations.length > 0) {
+      badges.push(
+        <ConciseIssueLocationBadge
+          key="-1"
+          count={secondaryLocations.length}
+          selected={this.props.selectedFlowIndex == null}
+        />
+      );
+    }
+
+    flows.forEach((flow, index) => {
+      badges.push(
+        <ConciseIssueLocationBadge
+          key={index}
+          count={flow.length}
+          onClick={() => this.props.onFlowSelect(index)}
+          selected={index === this.props.selectedFlowIndex}
+        />
+      );
+    });
+
+    return this.state.collapsed
+      ? <div className="concise-issue-locations pull-right">
+          {badges.slice(0, LIMIT)}
+          {badges.length > LIMIT && this.renderExpandButton()}
+        </div>
+      : <div className="concise-issue-locations spacer-top">
+          {badges}
+        </div>;
   }
 }

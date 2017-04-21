@@ -25,9 +25,11 @@ import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
   issues: Array<Issue>,
+  onFlowSelect: number => void,
   onIssueSelect: string => void,
   onLocationSelect: number => void,
   selected?: string,
+  selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
 
@@ -48,11 +50,13 @@ export default class ConciseIssuesList extends React.PureComponent {
           <ConciseIssue
             key={issue.key}
             issue={issue}
+            onFlowSelect={this.props.onFlowSelect}
             onLocationSelect={this.props.onLocationSelect}
             onSelect={this.props.onIssueSelect}
             previousIssue={index > 0 ? this.props.issues[index - 1] : null}
             scroll={this.handleScroll}
             selected={issue.key === this.props.selected}
+            selectedFlowIndex={this.props.selectedFlowIndex}
             selectedLocationIndex={this.props.selectedLocationIndex}
           />
         ))}

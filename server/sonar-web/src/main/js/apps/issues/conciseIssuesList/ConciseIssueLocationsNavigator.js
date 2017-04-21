@@ -26,6 +26,7 @@ type Props = {|
   issue: Issue,
   onLocationSelect: number => void,
   scroll: HTMLElement => void,
+  selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
 
@@ -38,16 +39,20 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent 
   };
 
   render() {
-    const { selectedLocationIndex } = this.props;
-    const { secondaryLocations } = this.props.issue;
+    const { selectedFlowIndex, selectedLocationIndex } = this.props;
+    const { flows, secondaryLocations } = this.props.issue;
 
-    if (secondaryLocations.length === 0) {
+    const locations = selectedFlowIndex != null
+      ? flows[selectedFlowIndex]
+      : flows.length > 0 ? flows[0] : secondaryLocations;
+
+    if (locations == null || locations.length === 0) {
       return null;
     }
 
     return (
       <div className="spacer-top">
-        {secondaryLocations.map((location, index) => (
+        {locations.map((location, index) => (
           <ConciseIssueLocationsNavigatorLocation
             key={index}
             index={index}

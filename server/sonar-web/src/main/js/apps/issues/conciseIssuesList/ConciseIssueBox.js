@@ -29,9 +29,11 @@ import type { Issue } from '../../../components/issue/types';
 type Props = {|
   issue: Issue,
   onClick: string => void,
+  onFlowSelect: number => void,
   onLocationSelect: number => void,
   scroll: HTMLElement => void,
   selected: boolean,
+  selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
 
@@ -66,20 +68,27 @@ export default class ConciseIssueBox extends React.PureComponent {
       : { onClick: this.handleClick, role: 'listitem', tabIndex: 0 };
 
     return (
-      <div className={classNames('concise-issue-box', { selected })} {...clickAttributes}>
+      <div
+        className={classNames('concise-issue-box', 'clearfix', { selected })}
+        {...clickAttributes}>
         <div className="concise-issue-box-message" ref={node => (this.node = node)}>
           {issue.message}
         </div>
         <div className="concise-issue-box-attributes">
           <TypeHelper type={issue.type} />
           <SeverityHelper className="big-spacer-left" severity={issue.severity} />
-          <ConciseIssueLocations issue={issue} />
+          <ConciseIssueLocations
+            issue={issue}
+            onFlowSelect={this.props.onFlowSelect}
+            selectedFlowIndex={this.props.selectedFlowIndex}
+          />
         </div>
         {selected &&
           <ConciseIssueLocationsNavigator
             issue={issue}
             onLocationSelect={this.props.onLocationSelect}
             scroll={this.props.scroll}
+            selectedFlowIndex={this.props.selectedFlowIndex}
             selectedLocationIndex={this.props.selectedLocationIndex}
           />}
       </div>

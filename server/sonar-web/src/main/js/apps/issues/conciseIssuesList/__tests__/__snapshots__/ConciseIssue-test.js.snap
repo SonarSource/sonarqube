@@ -5,6 +5,7 @@ exports[`test should render 1`] = `
     issue={Object {}}
     onClick={[Function]}
     selected={false}
+    selectedFlowIndex={null}
     selectedLocationIndex={null} />
 </div>
 `;

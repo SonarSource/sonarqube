@@ -22,6 +22,8 @@ import type { State } from './components/App';
 
 export const enableLocationsNavigator = (state: State) => ({
   locationsNavigator: true,
+  selectedFlowIndex: state.selectedFlowIndex ||
+    (state.openIssue && state.openIssue.flows.length > 0 ? 0 : null),
   selectedLocationIndex: state.selectedLocationIndex || 0
 });
 
@@ -47,12 +49,13 @@ export const selectLocation = (nextIndex: ?number) => (state: State) => {
 };
 
 export const selectNextLocation = (state: State) => {
-  const { selectedLocationIndex: index, openIssue } = state;
+  const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
+    const locations = selectedFlowIndex != null
+      ? openIssue.flows[selectedFlowIndex]
+      : openIssue.secondaryLocations;
     return {
-      selectedLocationIndex: index != null && openIssue.secondaryLocations.length > index + 1
-        ? index + 1
-        : index
+      selectedLocationIndex: index != null && locations.length > index + 1 ? index + 1 : index
     };
   }
 };
@@ -62,4 +65,8 @@ export const selectPreviousLocation = (state: State) => {
   if (openIssue) {
     return { selectedLocationIndex: index != null && index > 0 ? index - 1 : index };
   }
+};
+
+export const selectFlow = (nextIndex: ?number) => () => {
+  return { selectedFlowIndex: nextIndex, selectedLocationIndex: 0 };
 };
