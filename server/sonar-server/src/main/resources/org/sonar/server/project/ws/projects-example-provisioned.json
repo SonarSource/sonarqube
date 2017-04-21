@@ -1,4 +1,9 @@
 {
+  "paging": {
+    "total": 2,
+    "pageIndex": 1,
+    "pageSize": 100
+  },
   "projects": [
     {
       "uuid": "ce4c03d6-430f-40a9-b777-ad877c00aa4d",
@@ -12,8 +17,5 @@
       "name": "Roslyn",
       "creationDate": "2013-03-04T23:03:44+0100"
     }
-  ],
-  "total": 2,
-  "p": 1,
-  "ps": 100
+  ]
 }

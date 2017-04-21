@@ -72,7 +72,8 @@ public class ProvisionedActionTest {
       "Require 'Create Projects' permission.");
     assertThat(action.since()).isEqualTo("5.2");
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
-      tuple("6.4", "The 'uuid' field is deprecated in the response")
+      tuple("6.4", "The 'uuid' field is deprecated in the response"),
+      tuple("6.4", "Paging response fields is now in a Paging object")
     );
 
     assertThat(action.params()).hasSize(5);
