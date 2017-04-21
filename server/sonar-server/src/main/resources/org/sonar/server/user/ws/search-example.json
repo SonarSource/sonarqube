@@ -17,7 +17,8 @@
       "tokensCount": 1,
       "local": true,
       "externalIdentity": "fmallet",
-      "externalProvider": "sonarqube"
+      "externalProvider": "sonarqube",
+      "avatar": "2f9dff586d3f74f825b059e3798a3bbb"
     },
     {
       "login": "sbrandhof",
@@ -34,7 +35,8 @@
       "tokensCount": 3,
       "local": false,
       "externalIdentity": "sbrandhof@ldap.com",
-      "externalProvider": "LDAP"
+      "externalProvider": "LDAP",
+      "avatar": "3930ad855bc7fe48db8e9a663174cdd3"
     }
   ]
 }
