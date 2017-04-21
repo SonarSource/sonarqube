@@ -685,7 +685,7 @@ public class IssueIndex {
           IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, IssueIndexDefinition.FIELD_ISSUE_SEVERITY, IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY,
           IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, IssueIndexDefinition.FIELD_ISSUE_STATUS, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE,
           IssueIndexDefinition.FIELD_ISSUE_LINE, IssueIndexDefinition.FIELD_ISSUE_MESSAGE, IssueIndexDefinition.FIELD_ISSUE_CHECKSUM,
-          IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT},
+          IssueIndexDefinition.FIELD_ISSUE_TYPE, IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT},
         null)
       .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
     SearchResponse response = requestBuilder.get();

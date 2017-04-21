@@ -40,6 +40,7 @@ import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class IssuesAction implements BatchWsAction {
@@ -95,35 +96,18 @@ public class IssuesAction implements BatchWsAction {
   private static void handleIssue(IssueDoc issue, ScannerInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
     issueBuilder.setKey(issue.key());
     issueBuilder.setModuleKey(keysByUUid.get(issue.moduleUuid()));
-    String path = issue.filePath();
-    if (path != null) {
-      issueBuilder.setPath(path);
-    }
+    setNullable(issue.filePath(), issueBuilder::setPath);
     issueBuilder.setRuleRepository(issue.ruleKey().repository());
     issueBuilder.setRuleKey(issue.ruleKey().rule());
-    String checksum = issue.checksum();
-    if (checksum != null) {
-      issueBuilder.setChecksum(checksum);
-    }
-    String assigneeLogin = issue.assignee();
-    if (assigneeLogin != null) {
-      issueBuilder.setAssigneeLogin(assigneeLogin);
-    }
-    Integer line = issue.line();
-    if (line != null) {
-      issueBuilder.setLine(line);
-    }
-    String message = issue.message();
-    if (message != null) {
-      issueBuilder.setMsg(message);
-    }
+    setNullable(issue.checksum(), issueBuilder::setChecksum);
+    setNullable(issue.assignee(), issueBuilder::setAssigneeLogin);
+    setNullable(issue.line(), issueBuilder::setLine);
+    setNullable(issue.message(), issueBuilder::setMsg);
     issueBuilder.setSeverity(org.sonar.scanner.protocol.Constants.Severity.valueOf(issue.severity()));
     issueBuilder.setManualSeverity(issue.isManualSeverity());
     issueBuilder.setStatus(issue.status());
-    String resolution = issue.resolution();
-    if (resolution != null) {
-      issueBuilder.setResolution(resolution);
-    }
+    setNullable(issue.resolution(), issueBuilder::setResolution);
+    issueBuilder.setType(issue.type().name());
     issueBuilder.setCreationDate(issue.creationDate().getTime());
     try {
       issueBuilder.build().writeDelimitedTo(out);

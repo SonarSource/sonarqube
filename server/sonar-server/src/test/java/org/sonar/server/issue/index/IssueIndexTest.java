@@ -68,6 +68,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -98,8 +99,7 @@ public class IssueIndexTest {
   private RuleIndexer ruleIndexer = new RuleIndexer(tester.client(), db.getDbClient());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
 
-  private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule)
-  );
+  private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
 
   @Before
   public void setUp() {
@@ -1250,6 +1250,7 @@ public class IssueIndexTest {
       .setManualSeverity(true)
       .setStatus(Issue.STATUS_RESOLVED)
       .setResolution(Issue.RESOLUTION_FIXED)
+      .setType(BUG)
       .setFuncCreationDate(new Date());
     indexIssues(issue);
 
@@ -1268,6 +1269,7 @@ public class IssueIndexTest {
     assertThat(result.isManualSeverity()).isTrue();
     assertThat(result.status()).isEqualTo(Issue.STATUS_RESOLVED);
     assertThat(result.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(result.type()).isEqualTo(BUG);
     assertThat(result.creationDate()).isNotNull();
   }
 

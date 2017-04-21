@@ -226,13 +226,8 @@ public class IssueDoc extends BaseDoc implements Issue {
     return null;
   }
 
-  @CheckForNull
   public RuleType type() {
-    String type = getNullableField(IssueIndexDefinition.FIELD_ISSUE_TYPE);
-    if (type != null) {
-      return RuleType.valueOf(type);
-    }
-    return null;
+    return RuleType.valueOf(getField(IssueIndexDefinition.FIELD_ISSUE_TYPE));
   }
 
   @Override

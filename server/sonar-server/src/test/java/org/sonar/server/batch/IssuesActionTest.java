@@ -48,6 +48,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -94,6 +95,7 @@ public class IssuesActionTest {
       .setKee("EFGH")
       .setSeverity("BLOCKER")
       .setStatus("RESOLVED")
+      .setType(BUG)
       .setResolution(null)
       .setManualSeverity(false)
       .setMessage(null)
@@ -115,6 +117,7 @@ public class IssuesActionTest {
     assertThat(serverIssue.hasResolution()).isFalse();
     assertThat(serverIssue.getStatus()).isEqualTo("RESOLVED");
     assertThat(serverIssue.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(serverIssue.getType()).isEqualTo(BUG.name());
     assertThat(serverIssue.getManualSeverity()).isFalse();
     assertThat(serverIssue.hasChecksum()).isFalse();
     assertThat(serverIssue.hasAssigneeLogin()).isFalse();
