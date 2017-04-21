@@ -22,6 +22,7 @@ package org.sonar.db.permission;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -101,6 +102,15 @@ public class GroupPermissionDao implements Dao {
    */
   public List<String> selectProjectPermissionsOfGroup(DbSession session, String organizationUuid, @Nullable Integer groupId, long projectId) {
     return mapper(session).selectProjectPermissionsOfGroup(organizationUuid, groupId, projectId);
+  }
+
+  /**
+   * Lists id of groups with at least one permission on the specified root component but which do not have the specified
+   * permission, <strong>excluding group "AnyOne"</strong> (which implies the returned {@code Sett} can't contain
+   * {@code null}).
+   */
+  public Set<Integer> selectGroupIdsWithPermissionOnProjectBut(DbSession session, long projectId, String permission) {
+    return mapper(session).selectGroupIdsWithPermissionOnProjectBut(projectId, permission);
   }
 
   public void insert(DbSession dbSession, GroupPermissionDto dto) {
