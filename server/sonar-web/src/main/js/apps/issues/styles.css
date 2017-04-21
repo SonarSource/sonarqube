@@ -111,16 +111,6 @@
   font-size: 12px;
 }
 
-.concise-issue-location-badge {
-  display: inline-block;
-  padding-left: 4px;
-  padding-right: 4px;
-  border-radius: 2px;
+.concise-issue-box:not(.selected) .location-index {
   background-color: #ccc;
-  color: #fff;
-  transition: background-color 0.3s ease;
-}
-
-.concise-issue-box.selected .concise-issue-location-badge {
-  background-color: #d18582;
 }

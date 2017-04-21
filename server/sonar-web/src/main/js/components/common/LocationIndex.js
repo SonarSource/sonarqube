@@ -24,7 +24,6 @@ import './LocationIndex.css';
 
 type Props = {
   children?: React.Element<*>,
-  muted?: boolean,
   onClick?: () => void,
   selected?: boolean
 };
@@ -40,10 +39,7 @@ export default function LocationIndex(props: Props) {
 
   return (
     <div
-      className={classNames('location-index', {
-        muted: props.muted,
-        selected: props.selected && !props.muted
-      })}
+      className={classNames('location-index', { selected: props.selected })}
       {...clickAttributes}>
       {props.children}
     </div>
@@ -51,6 +47,5 @@ export default function LocationIndex(props: Props) {
 }
 
 LocationIndex.defaultProps = {
-  muted: false,
   selected: false
 };

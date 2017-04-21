@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
+import LocationIndex from '../../../components/common/LocationIndex';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -34,9 +35,9 @@ export default function ConciseIssueLocationBadge(props: Props) {
         'issue.this_issue_involves_x_code_locations',
         formatMeasure(props.count)
       )}>
-      <div className="concise-issue-location-badge">
+      <LocationIndex>
         {'+'}{props.count}
-      </div>
+      </LocationIndex>
     </Tooltip>
   );
 }
