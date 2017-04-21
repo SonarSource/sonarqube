@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -53,6 +54,7 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.user.ws.UserJsonWriter.FIELD_ACTIVE;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_AVATAR;
 import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EMAIL;
 import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_IDENTITY;
 import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_PROVIDER;
@@ -74,11 +76,13 @@ public class SearchAction implements UsersWsAction {
   private final UserSession userSession;
   private final UserIndex userIndex;
   private final DbClient dbClient;
+  private final AvatarResolver avatarResolver;
 
-  public SearchAction(UserSession userSession, UserIndex userIndex, DbClient dbClient) {
+  public SearchAction(UserSession userSession, UserIndex userIndex, DbClient dbClient, AvatarResolver avatarResolver) {
     this.userSession = userSession;
     this.userIndex = userIndex;
     this.dbClient = dbClient;
+    this.avatarResolver = avatarResolver;
   }
 
   @Override
@@ -88,7 +92,10 @@ public class SearchAction implements UsersWsAction {
         "Administer System permission is required to show the 'groups' field.<br/>" +
         "When accessed anonymously, only logins and names are returned.")
       .setSince("3.6")
-      .setChangelog(new Change("6.4", "Paging response fields moved to a Paging object"))
+      .setChangelog(
+        new Change("6.4", "Paging response fields moved to a Paging object"),
+        new Change("6.4", "Avatar has been added to the response"),
+        new Change("6.4", "Email is only returned when user has Administer System permission"))
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
 
@@ -137,7 +144,7 @@ public class SearchAction implements UsersWsAction {
       .setLogin(user.getLogin());
     setIfNeeded(FIELD_NAME, fields, user.getName(), userBuilder::setName);
     if (userSession.isLoggedIn()) {
-      setIfNeeded(FIELD_EMAIL, fields, user.getEmail(), userBuilder::setEmail);
+      setIfNeeded(FIELD_AVATAR, fields, user.getEmail(), u -> userBuilder.setAvatar(avatarResolver.create(user)));
       setIfNeeded(FIELD_ACTIVE, fields, user.isActive(), userBuilder::setActive);
       setIfNeeded(FIELD_LOCAL, fields, user.isLocal(), userBuilder::setLocal);
       setIfNeeded(FIELD_EXTERNAL_IDENTITY, fields, user.getExternalIdentity(), userBuilder::setExternalIdentity);
@@ -147,6 +154,7 @@ public class SearchAction implements UsersWsAction {
         scm -> userBuilder.setScmAccounts(ScmAccounts.newBuilder().addAllScmAccounts(scm)));
     }
     if (userSession.isSystemAdministrator()) {
+      setIfNeeded(FIELD_EMAIL, fields, user.getEmail(), userBuilder::setEmail);
       setIfNeeded(isNeeded(FIELD_GROUPS, fields) && !groups.isEmpty(), groups,
         g -> userBuilder.setGroups(Groups.newBuilder().addAllGroups(g)));
     }

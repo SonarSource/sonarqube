@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
+import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserUpdater;
@@ -46,7 +47,7 @@ public class UsersWsTest {
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class)),
       new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
-      new SearchAction(userSessionRule, mock(UserIndex.class), mock(DbClient.class))));
+      new SearchAction(userSessionRule, mock(UserIndex.class), mock(DbClient.class), mock(AvatarResolver.class))));
     controller = tester.controller("api/users");
   }
 

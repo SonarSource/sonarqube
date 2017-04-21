@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -34,6 +35,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -67,7 +69,7 @@ public class SearchActionTest {
   private DbSession dbSession = db.getSession();
   private UserIndex index = new UserIndex(esTester.client());
   private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
-  private WsTester ws = new WsTester(new UsersWs(new SearchAction(userSession, index, dbClient)));
+  private WsTester ws = new WsTester(new UsersWs(new SearchAction(userSession, index, dbClient, new AvatarResolverImpl())));
 
   @Test
   public void search_json_example() throws Exception {
@@ -158,28 +160,28 @@ public class SearchActionTest {
     assertThat(ws.newGetRequest("api/users", "search").execute().outputAsString())
       .contains("login")
       .contains("name")
-      .contains("email")
+      .contains("avatar")
       .contains("scmAccounts")
       .doesNotContain("groups");
 
     assertThat(ws.newGetRequest("api/users", "search").setParam(Param.FIELDS, "").execute().outputAsString())
       .contains("login")
       .contains("name")
-      .contains("email")
+      .contains("avatar")
       .contains("scmAccounts")
       .doesNotContain("groups");
 
     assertThat(ws.newGetRequest("api/users", "search").setParam(Param.FIELDS, "scmAccounts").execute().outputAsString())
       .contains("login")
       .doesNotContain("name")
-      .doesNotContain("email")
+      .doesNotContain("avatar")
       .contains("scmAccounts")
       .doesNotContain("groups");
 
     assertThat(ws.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
       .contains("login")
       .doesNotContain("name")
-      .doesNotContain("email")
+      .doesNotContain("avatar")
       .doesNotContain("scmAccounts")
       .doesNotContain("groups");
 
@@ -189,6 +191,7 @@ public class SearchActionTest {
       .contains("login")
       .contains("name")
       .contains("email")
+      .contains("avatar")
       .contains("scmAccounts")
       .contains("groups");
 
@@ -196,6 +199,7 @@ public class SearchActionTest {
       .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
+      .doesNotContain("avatar")
       .doesNotContain("scmAccounts")
       .contains("groups");
   }
@@ -206,6 +210,57 @@ public class SearchActionTest {
     injectUsers(1);
 
     ws.newGetRequest("api/users", "search").execute().assertJson(getClass(), "user_with_groups.json");
+  }
+
+  @Test
+  public void does_not_return_email_when_not_when_system_administer() throws Exception {
+    loginAsSimpleUser();
+    insertUser(user -> user.setLogin("john").setName("John").setEmail("john@email.com"));
+
+    ws.newGetRequest("api/users", "search").execute().assertJson(
+      "{" +
+        "  \"users\": [" +
+        "    {" +
+        "      \"login\": \"john\"," +
+        "      \"name\": \"John\"," +
+        "      \"avatar\": \"41193cdbffbf06be0cdf231b28c54b18\"" +
+        "    }" +
+        "  ]" +
+        "}");
+  }
+
+  @Test
+  public void return_email_and_avatar_when_system_administer() throws Exception {
+    loginAsSystemAdministrator();
+    insertUser(user -> user.setLogin("john").setName("John").setEmail("john@email.com"));
+
+    ws.newGetRequest("api/users", "search").execute().assertJson(
+      "{" +
+        "  \"users\": [" +
+        "    {" +
+        "      \"login\": \"john\"," +
+        "      \"name\": \"John\"," +
+        "      \"email\": \"john@email.com\"," +
+        "      \"avatar\": \"41193cdbffbf06be0cdf231b28c54b18\"" +
+        "    }" +
+        "  ]" +
+        "}");
+  }
+
+  @Test
+  public void does_not_fail_when_user_has_no_email() throws Exception {
+    loginAsSystemAdministrator();
+    insertUser(user -> user.setLogin("john").setName("John").setEmail(null));
+
+    ws.newGetRequest("api/users", "search").execute().assertJson(
+      "{" +
+        "  \"users\": [" +
+        "    {" +
+        "      \"login\": \"john\"," +
+        "      \"name\": \"John\"" +
+        "    }" +
+        "  ]" +
+        "}");
   }
 
   @Test
@@ -262,6 +317,12 @@ public class SearchActionTest {
     dbSession.commit();
     userIndexer.indexOnStartup(null);
     return userDtos;
+  }
+
+  private UserDto insertUser(Consumer<UserDto> populateUserDto) {
+    UserDto user = db.users().insertUser(populateUserDto);
+    userIndexer.indexOnStartup(null);
+    return user;
   }
 
   private void loginAsSystemAdministrator() {
