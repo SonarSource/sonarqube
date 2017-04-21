@@ -16,7 +16,9 @@ du -sh $HOME
 #du -sh $HOME/phantomjs
 du -cksh $HOME/* | sort -hr | head -n 15
 du -cksh $HOME/otp/* | sort -hr | head -n 15
-ls -al $HOME/otp
+ls -alh $HOME/otp/
+ls -alh $HOME/otp/18.2.1
+ls -alh $HOME/otp/R16B03
 
 printf "${RED}move original home${NC}\n"
 sudo mv /home/travis /home/travis.ori
