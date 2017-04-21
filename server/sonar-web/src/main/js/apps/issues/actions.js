@@ -37,9 +37,10 @@ export const selectLocation = (nextIndex: ?number) => (state: State) => {
         return { locationsNavigator: true, selectedLocationIndex: nextIndex };
       }
     } else if (index != null) {
+      // disable locations when selecting (clicking) the same location
       return {
-        locationsNavigator: true,
-        selectedLocationIndex: nextIndex === index ? null : nextIndex
+        locationsNavigator: nextIndex !== index,
+        selectedLocationIndex: nextIndex
       };
     }
   }
