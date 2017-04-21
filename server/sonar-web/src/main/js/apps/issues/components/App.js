@@ -703,6 +703,18 @@ export default class App extends React.PureComponent {
     );
   }
 
+  renderShortcutsForLocations() {
+    return (
+      <div className="pull-right note">
+        <span className="shortcut-button little-spacer-right">alt</span>
+        <span className="little-spacer-right">{'+'}</span>
+        <span className="shortcut-button little-spacer-right">↑</span>
+        <span className="shortcut-button little-spacer-right">↓</span>
+        {translate('issues.to_navigate_issue_locations')}
+      </div>
+    );
+  }
+
   render() {
     const { component } = this.props;
     const { openIssue, paging } = this.state;
@@ -729,6 +741,7 @@ export default class App extends React.PureComponent {
                       paging={paging}
                       selectedIndex={selectedIndex}
                     />}
+                {openIssue != null && this.renderShortcutsForLocations()}
               </PageMainInner>
             </div>
           </div>
