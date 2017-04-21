@@ -27,6 +27,7 @@ sudo mkdir -p /home/travis
 printf "${RED}create ramdisk${NC}\n"
 sudo mount -t tmpfs -o size=10240m tmps /home/travis
 printf "${RED}copy home to ramdisk${NC}\n"
+time sudo cp -R /home/travis.ori/build /home/travis
 time sudo cp -R /home/travis.ori/.m2 /home/travis
 time sudo cp -R /home/travis.ori/.sonar /home/travis
 time sudo cp -R /home/travis.ori/jvm /home/travis
