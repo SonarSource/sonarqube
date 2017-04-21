@@ -26,6 +26,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 type Option = { label: string, value: string };
 
 type Props = {|
+  autofocus: boolean,
   minimumQueryLength: number,
   onSearch: (query: string) => Promise<Array<Option>>,
   onSelect: (value: string) => void,
@@ -46,6 +47,7 @@ export default class SearchSelect extends React.PureComponent {
   state: State;
 
   static defaultProps = {
+    autofocus: true,
     minimumQueryLength: 2,
     resetOnBlur: true
   };
@@ -95,7 +97,7 @@ export default class SearchSelect extends React.PureComponent {
   render() {
     return (
       <Select
-        autofocus={true}
+        autofocus={this.props.autofocus}
         cache={false}
         className="input-super-large"
         clearable={false}

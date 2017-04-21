@@ -47,7 +47,6 @@ class LanguageFacetFooter extends React.PureComponent {
     return (
       <div className="search-navigator-facet-footer">
         <Select
-          autofocus={true}
           className="input-super-large"
           clearable={false}
           noResultsText={translate('select2.noMatches')}
