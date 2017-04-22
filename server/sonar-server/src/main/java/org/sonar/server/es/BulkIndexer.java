@@ -19,18 +19,19 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestBuilder;
 import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkProcessor.Listener;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -63,16 +64,15 @@ public class BulkIndexer implements Startable {
   private static final long FLUSH_BYTE_SIZE = new ByteSizeValue(1, ByteSizeUnit.MB).bytes();
   private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
   private static final String ALREADY_STARTED_MESSAGE = "Bulk indexing is already started";
+  private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
 
   private final EsClient client;
   private final String indexName;
   private Size size = Size.REGULAR;
   private long flushByteSize = FLUSH_BYTE_SIZE;
-  private BulkRequestBuilder bulkRequest = null;
+  private BulkProcessor bulkRequest = null;
   private Map<String, Object> largeInitialSettings = null;
   private final AtomicLong counter = new AtomicLong(0L);
-  private final int concurrentRequests;
-  private final Semaphore semaphore;
   private final ProgressLogger progress;
 
   public BulkIndexer(EsClient client, String indexName) {
@@ -80,18 +80,88 @@ public class BulkIndexer implements Startable {
     this.indexName = indexName;
     this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", indexName), counter, LOGGER)
       .setPluralLabel("requests");
-
-    // see https://jira.sonarsource.com/browse/SONAR-8075
-    this.concurrentRequests = Math.max(1, Runtime.getRuntime().availableProcessors() / 5);
-    this.semaphore = new Semaphore(concurrentRequests);
   }
 
   public enum Size {
     /** Use this size for a limited number of documents. */
-    REGULAR,
+    REGULAR {
+
+      @Override
+      int getConcurrentRequests(BulkIndexer bulkIndexer) {
+        // do not parallalize, send request one after another
+        return 0;
+      }
+    },
 
     /** Use this size for initial indexing and if you expect unusual huge numbers of documents. */
-    LARGE;
+    LARGE {
+
+      @Override
+      void beforeStart(BulkIndexer bulkIndexer) {
+        bulkIndexer.setLargeInitialSettings(Maps.newHashMap());
+        Map<String, Object> bulkSettings = Maps.newHashMap();
+        GetSettingsResponse settingsResp = bulkIndexer.client.nativeClient().admin().indices().prepareGetSettings(bulkIndexer.indexName).get();
+
+        // deactivate replicas
+        int initialReplicas = Integer.parseInt(settingsResp.getSetting(bulkIndexer.indexName, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
+        if (initialReplicas > 0) {
+          bulkIndexer.getLargeInitialSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
+          bulkSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
+        }
+
+        // deactivate periodical refresh
+        String refreshInterval = settingsResp.getSetting(bulkIndexer.indexName, REFRESH_INTERVAL_SETTING);
+        bulkIndexer.getLargeInitialSettings().put(REFRESH_INTERVAL_SETTING, refreshInterval);
+        bulkSettings.put(REFRESH_INTERVAL_SETTING, "-1");
+
+        updateSettings(bulkIndexer, bulkSettings);
+      }
+
+      @Override
+      int getConcurrentRequests(BulkIndexer bulkIndexer) {
+        int simultaniousRequests = Math.max(1, bulkIndexer.getProcesses() / getNumberOfShards(bulkIndexer));
+        return simultaniousRequests - 1;
+      }
+
+      private Integer getNumberOfShards(BulkIndexer bulkIndexer) {
+        Object shards = bulkIndexer.getLargeInitialSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS);
+        Integer currentNumberOfShards = null;
+        if (shards != null && shards instanceof Number) {
+          currentNumberOfShards = ((Number) shards).intValue();
+        }
+        if (currentNumberOfShards == null || currentNumberOfShards < 1) {
+          currentNumberOfShards = DEFAULT_NUMBER_OF_SHARDS;
+        }
+        return currentNumberOfShards;
+      }
+
+      @Override
+      void afterStop(BulkIndexer bulkIndexer) {
+        // optimize lucene segments and revert index settings
+        // Optimization must be done before re-applying replicas:
+        // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
+        bulkIndexer.client.prepareForceMerge(bulkIndexer.indexName).get();
+
+        updateSettings(bulkIndexer, bulkIndexer.getLargeInitialSettings());
+      }
+
+      private void updateSettings(BulkIndexer bulkIndexer, Map<String, Object> settings) {
+        UpdateSettingsRequestBuilder req = bulkIndexer.client.nativeClient().admin().indices().prepareUpdateSettings(bulkIndexer.indexName);
+        req.setSettings(settings);
+        req.get();
+      }
+    };
+
+    void beforeStart(BulkIndexer bulkIndexer) {
+      // can be overwritten
+    }
+
+    /** @see https://jira.sonarsource.com/browse/SONAR-8075 */
+    abstract int getConcurrentRequests(BulkIndexer bulkIndexer);
+
+    void afterStop(BulkIndexer bulkIndexer) {
+      // can be overwritten
+    }
   }
 
   /**
@@ -112,35 +182,17 @@ public class BulkIndexer implements Startable {
   @Override
   public void start() {
     Preconditions.checkState(bulkRequest == null, ALREADY_STARTED_MESSAGE);
-    if (size == Size.LARGE) {
-      largeInitialSettings = Maps.newHashMap();
-      Map<String, Object> bulkSettings = Maps.newHashMap();
-      GetSettingsResponse settingsResp = client.nativeClient().admin().indices().prepareGetSettings(indexName).get();
-
-      // deactivate replicas
-      int initialReplicas = Integer.parseInt(settingsResp.getSetting(indexName, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
-      if (initialReplicas > 0) {
-        largeInitialSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
-        bulkSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
-      }
-
-      // deactivate periodical refresh
-      String refreshInterval = settingsResp.getSetting(indexName, REFRESH_INTERVAL_SETTING);
-      largeInitialSettings.put(REFRESH_INTERVAL_SETTING, refreshInterval);
-      bulkSettings.put(REFRESH_INTERVAL_SETTING, "-1");
-
-      updateSettings(bulkSettings);
-    }
-    bulkRequest = client.prepareBulk().setRefresh(false);
+    size.beforeStart(this);
+    bulkRequest = client.prepareBulkProcessor(new BulkProcessorListener())
+      .setBulkSize(new ByteSizeValue(flushByteSize))
+      .setConcurrentRequests(size.getConcurrentRequests(this))
+      .build();
     counter.set(0L);
     progress.start();
   }
 
   public void add(ActionRequest<?> request) {
-    bulkRequest.request().add(request);
-    if (bulkRequest.request().estimatedSizeInBytes() >= flushByteSize) {
-      executeBulk();
-    }
+    bulkRequest.add(request);
   }
 
   public void addDeletion(SearchRequestBuilder searchRequest) {
@@ -200,52 +252,40 @@ public class BulkIndexer implements Startable {
 
   @Override
   public void stop() {
-    if (bulkRequest.numberOfActions() > 0) {
-      executeBulk();
-    }
     try {
-      if (semaphore.tryAcquire(concurrentRequests, 10, TimeUnit.MINUTES)) {
-        semaphore.release(concurrentRequests);
-      }
+      bulkRequest.awaitClose(10, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 10 minutes", e);
     }
     progress.stop();
     client.prepareRefresh(indexName).get();
-    if (size == Size.LARGE) {
-      // optimize lucene segments and revert index settings
-      // Optimization must be done before re-applying replicas:
-      // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      client.prepareForceMerge(indexName).get();
-
-      updateSettings(largeInitialSettings);
-    }
+    size.afterStop(this);
     bulkRequest = null;
   }
 
-  private void updateSettings(Map<String, Object> settings) {
-    UpdateSettingsRequestBuilder req = client.nativeClient().admin().indices().prepareUpdateSettings(indexName);
-    req.setSettings(settings);
-    req.get();
+  @VisibleForTesting
+  Map<String, Object> getLargeInitialSettings() {
+    return largeInitialSettings;
   }
 
-  private void executeBulk() {
-    final BulkRequestBuilder req = this.bulkRequest;
-    this.bulkRequest = client.prepareBulk().setRefresh(false);
-    semaphore.acquireUninterruptibly();
-    req.execute(new BulkResponseActionListener(req));
+  @VisibleForTesting
+  int getProcesses() {
+    return Runtime.getRuntime().availableProcessors();
   }
 
-  private class BulkResponseActionListener implements ActionListener<BulkResponse> {
-    private final BulkRequestBuilder req;
+  private void setLargeInitialSettings(Map<String, Object> largeInitialSettings) {
+    this.largeInitialSettings = largeInitialSettings;
+  }
 
-    BulkResponseActionListener(BulkRequestBuilder req) {
-      this.req = req;
+  private final class BulkProcessorListener implements Listener {
+
+    @Override
+    public void beforeBulk(long executionId, BulkRequest request) {
+      // no action required
     }
 
     @Override
-    public void onResponse(BulkResponse response) {
-      semaphore.release();
+    public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
       counter.addAndGet(response.getItems().length);
 
       for (BulkItemResponse item : response.getItems()) {
@@ -256,8 +296,7 @@ public class BulkIndexer implements Startable {
     }
 
     @Override
-    public void onFailure(Throwable e) {
-      semaphore.release();
+    public void afterBulk(long executionId, BulkRequest req, Throwable e) {
       LOGGER.error("Fail to execute bulk index request: " + req, e);
     }
   }

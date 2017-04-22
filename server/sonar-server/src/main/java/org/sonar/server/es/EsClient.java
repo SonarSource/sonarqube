@@ -32,6 +32,9 @@ import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequestBuilde
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkProcessor.Builder;
+import org.elasticsearch.action.bulk.BulkProcessor.Listener;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
@@ -164,6 +167,10 @@ public class EsClient implements Closeable {
 
   public BulkRequestBuilder prepareBulk() {
     return new ProxyBulkRequestBuilder(nativeClient());
+  }
+
+  public Builder prepareBulkProcessor(Listener listener) {
+    return BulkProcessor.builder(nativeClient(), listener);
   }
 
   public DeleteRequestBuilder prepareDelete(IndexType indexType, String id) {
