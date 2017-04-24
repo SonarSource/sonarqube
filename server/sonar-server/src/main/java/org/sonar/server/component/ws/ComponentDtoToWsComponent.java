@@ -57,6 +57,9 @@ class ComponentDtoToWsComponent {
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
     setTags(dto, wsComponent);
     lastAnalysis.ifPresent(analysis -> wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt())));
+    if (Qualifiers.PROJECT.equals(dto.qualifier())) {
+      wsComponent.setVisibility(dto.isPrivate() ? "private" : "public");
+    }
     return wsComponent;
   }
 

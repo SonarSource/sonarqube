@@ -14,7 +14,8 @@
       "tags": [
         "finance",
         "java"
-      ]
+      ],
+      "visibility": "public"
     },
     {
       "organization": "my-org-key-1",
@@ -22,7 +23,8 @@
       "key": "another_project",
       "name": "My Project 2",
       "isFavorite": false,
-      "tags": []
+      "tags": [],
+      "visibility": "public"
     },
     {
       "organization": "my-org-key-2",
@@ -34,7 +36,8 @@
         "sales",
         "offshore",
         "java"
-      ]
+      ],
+      "visibility": "public"
     }
   ]
 }
