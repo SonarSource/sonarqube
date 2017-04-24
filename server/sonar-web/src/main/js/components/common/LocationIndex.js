@@ -29,19 +29,13 @@ type Props = {
 };
 
 export default function LocationIndex(props: Props) {
-  const clickAttributes = props.onClick
-    ? {
-        onClick: props.onClick,
-        role: 'button',
-        tabIndex: 0
-      }
-    : {};
+  const { children, onClick, selected, ...other } = props;
+  const clickAttributes = onClick ? { onClick, role: 'button', tabIndex: 0 } : {};
 
+  // put {...others} because Tooltip sets some event handlers
   return (
-    <div
-      className={classNames('location-index', { selected: props.selected })}
-      {...clickAttributes}>
-      {props.children}
+    <div className={classNames('location-index', { selected })} {...clickAttributes} {...other}>
+      {children}
     </div>
   );
 }

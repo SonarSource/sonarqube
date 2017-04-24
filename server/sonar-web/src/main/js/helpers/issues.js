@@ -108,6 +108,12 @@ const ensureTextRange = (issue: RawIssue) => {
     : {};
 };
 
+const reverseLocations = (locations: Array<*>) => {
+  const x = [...locations];
+  x.reverse();
+  return x;
+};
+
 const splitFlows = (
   issue: RawIssue
   // $FlowFixMe textRange is not null
@@ -121,7 +127,7 @@ const splitFlows = (
 
   return onlySecondaryLocations
     ? { secondaryLocations: flatten(parsedFlows), flows: [] }
-    : { secondaryLocations: [], flows: parsedFlows };
+    : { secondaryLocations: [], flows: parsedFlows.map(reverseLocations) };
 };
 
 export const parseIssueFromResponse = (
