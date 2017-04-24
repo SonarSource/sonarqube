@@ -256,6 +256,15 @@
       uuid = #{organizationUuid, jdbcType=VARCHAR}
   </update>
 
+  <update id="updateNewProjectPrivate">
+    update organizations
+    set
+      new_project_private = #{newProjectPrivate, jdbcType=INTEGER},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </update>
+
   <delete id="deleteByUuid">
     delete from organizations
     where
