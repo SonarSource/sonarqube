@@ -101,7 +101,7 @@ public class OrganizationDaoTest {
   public void insert_fails_with_NPE_if_OrganizationDto_is_null() {
     expectDtoCanNotBeNull();
 
-    underTest.insert(dbSession, null);
+    underTest.insert(dbSession, null, false);
   }
 
   @Test
@@ -185,7 +185,7 @@ public class OrganizationDaoTest {
 
     expectedException.expect(PersistenceException.class);
 
-    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto, false);
   }
 
   @Test
@@ -955,7 +955,7 @@ public class OrganizationDaoTest {
   }
 
   private void insertOrganization(OrganizationDto dto) {
-    underTest.insert(dbSession, dto);
+    underTest.insert(dbSession, dto, false);
     dbSession.commit();
   }
 
@@ -969,12 +969,14 @@ public class OrganizationDaoTest {
           "      name," +
           "      default_perm_template_project," +
           "      default_perm_template_view," +
+          "      new_project_private," +
           "      guarded," +
           "      created_at," +
           "      updated_at" +
           "    )" +
           "    values" +
           "    (" +
+          "      ?," +
           "      ?," +
           "      ?," +
           "      ?," +
@@ -990,8 +992,9 @@ public class OrganizationDaoTest {
       preparedStatement.setString(4, project);
       preparedStatement.setString(5, view);
       preparedStatement.setBoolean(6, false);
-      preparedStatement.setLong(7, 1000L);
-      preparedStatement.setLong(8, 2000L);
+      preparedStatement.setBoolean(7, false);
+      preparedStatement.setLong(8, 1000L);
+      preparedStatement.setLong(9, 2000L);
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new RuntimeException("dirty insert failed", e);

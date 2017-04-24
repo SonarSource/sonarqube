@@ -25,7 +25,7 @@ import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
 
 public interface OrganizationMapper {
-  void insert(@Param("organization") OrganizationDto organization);
+  void insert(@Param("organization") OrganizationDto organization, @Param("newProjectPrivate") boolean newProjectPrivate);
 
   int countByQuery(@Param("query") OrganizationQuery organizationQuery);
 

@@ -62,7 +62,7 @@ public class GroupDaoTest {
   @Before
   public void setUp() {
     when(system2.now()).thenReturn(NOW);
-    db.getDbClient().organizationDao().insert(dbSession, AN_ORGANIZATION);
+    db.getDbClient().organizationDao().insert(dbSession, AN_ORGANIZATION, false);
   }
 
   @Test
