@@ -25,7 +25,7 @@
 
 
 .issues {
-
+  
   &.sticky {
 
     .issues-workspace-list,
@@ -57,6 +57,14 @@
 
   .search-navigator-facet-footer {
     padding: 0 0 10px 0;
+  }
+
+  .issue {
+    cursor: pointer;
+
+    &:hover {
+      border-color: @issueBorderColor;
+    } 
   }
 }
 
