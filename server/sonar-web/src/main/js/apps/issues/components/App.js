@@ -311,6 +311,7 @@ export default class App extends React.PureComponent {
           open: undefined
         }
       });
+      this.scrollToSelectedIssue(false);
     }
   };
 
@@ -321,12 +322,12 @@ export default class App extends React.PureComponent {
     }
   };
 
-  scrollToSelectedIssue = () => {
+  scrollToSelectedIssue = (smooth: boolean = true) => {
     const { selected } = this.state;
     if (selected) {
       const element = document.querySelector(`[data-issue="${selected}"]`);
       if (element) {
-        scrollToElement(element, 150, 100);
+        scrollToElement(element, { topOffset: 150, bottomOffset: 100, smooth });
       }
     }
   };

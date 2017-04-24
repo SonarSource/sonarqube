@@ -37,13 +37,12 @@ const scrollElement = (element: HTMLElement, position: number) => {
 };
 
 let smoothScrollTop = (y: number, parent) => {
-  const scrollTop = getScrollPosition(parent);
+  let scrollTop = getScrollPosition(parent);
   const scrollingDown = y > scrollTop;
   const step = Math.ceil(Math.abs(y - scrollTop) / SCROLLING_STEPS);
   let stepsDone = 0;
 
   const interval = setInterval(() => {
-    const scrollTop = getScrollPosition(parent);
     if (scrollTop === y || SCROLLING_STEPS === stepsDone) {
       clearInterval(interval);
     } else {
@@ -54,6 +53,7 @@ let smoothScrollTop = (y: number, parent) => {
         goal = Math.max(y, scrollTop - step);
       }
       stepsDone++;
+      scrollTop = goal;
       scrollElement(parent, goal);
     }
   }, SCROLLING_INTERVAL);
@@ -63,23 +63,41 @@ smoothScrollTop = debounce(smoothScrollTop, SCROLLING_DURATION, { leading: true 
 
 export const scrollToElement = (
   element: HTMLElement,
-  topOffset: number = 0,
-  bottomOffset: number = 0,
-  parent: HTMLElement = window
+  options: {
+    topOffset?: number,
+    bottomOffset?: number,
+    parent?: HTMLElement,
+    smooth?: boolean
+  }
 ) => {
+  const opts = { topOffset: 0, bottomOffset: 0, parent: window, smooth: true, ...options };
+  const { parent } = opts;
+
   const { top, bottom } = element.getBoundingClientRect();
+
   const scrollTop = getScrollPosition(parent);
+
   const height: number = parent === window
     ? window.innerHeight
     : parent.getBoundingClientRect().height;
 
   const parentTop = parent === window ? 0 : parent.getBoundingClientRect().top;
 
-  if (top - parentTop < topOffset) {
-    smoothScrollTop(scrollTop - topOffset + top - parentTop, parent);
+  if (top - parentTop < opts.topOffset) {
+    const goal = scrollTop - opts.topOffset + top - parentTop;
+    if (opts.smooth) {
+      smoothScrollTop(goal, parent);
+    } else {
+      scrollElement(parent, goal);
+    }
   }
 
-  if (bottom - parentTop > height - bottomOffset) {
-    smoothScrollTop(scrollTop + bottom - parentTop - height + bottomOffset, parent);
+  if (bottom - parentTop > height - opts.bottomOffset) {
+    const goal = scrollTop + bottom - parentTop - height + opts.bottomOffset;
+    if (opts.smooth) {
+      smoothScrollTop(goal, parent);
+    } else {
+      scrollElement(parent, goal);
+    }
   }
 };

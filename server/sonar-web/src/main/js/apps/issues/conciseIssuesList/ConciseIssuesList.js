@@ -39,7 +39,7 @@ export default class ConciseIssuesList extends React.PureComponent {
   handleScroll = (element: HTMLElement) => {
     const scrollableElement = document.querySelector('.layout-page-side');
     if (element && scrollableElement) {
-      scrollToElement(element, 150, 100, scrollableElement);
+      scrollToElement(element, { topOffset: 150, bottomOffset: 100, parent: scrollableElement });
     }
   };
 
