@@ -70,5 +70,7 @@ public interface OrganizationMapper {
   void updateDefaultGroupId(@Param("organizationUuid") String organizationUuid,
     @Param("defaultGroupId") int defaultGroupId, @Param("now") long now);
 
+  void updateNewProjectPrivate(@Param("organizationUuid") String organizationUuid, @Param("newProjectPrivate") boolean newProjectPrivate, @Param("now") long now);
+
   int deleteByUuid(@Param("uuid") String uuid);
 }
