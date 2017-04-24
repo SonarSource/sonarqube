@@ -27,7 +27,7 @@ it('render duplicated line', () => {
   const onClick = jest.fn();
   const wrapper = shallow(<LineDuplications line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
-  click(wrapper);
+  click(wrapper.find('[tabIndex]'));
   expect(onClick).toHaveBeenCalled();
 });
 

@@ -29,7 +29,7 @@ it('render duplicated line', () => {
     <LineDuplicationBlock index={1} duplicated={true} line={line} onClick={onClick} />
   );
   expect(wrapper).toMatchSnapshot();
-  click(wrapper);
+  click(wrapper.find('[tabIndex]'));
   expect(onClick).toHaveBeenCalled();
 });
 
