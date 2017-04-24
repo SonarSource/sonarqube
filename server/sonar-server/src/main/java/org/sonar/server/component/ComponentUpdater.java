@@ -99,6 +99,7 @@ public class ComponentUpdater {
       .setLongName(newComponent.name())
       .setScope(Scopes.PROJECT)
       .setQualifier(newComponent.qualifier())
+      .setPrivate(newComponent.isPrivate())
       .setCreatedAt(new Date(system2.now()));
     dbClient.componentDao().insert(session, component);
     return component;
