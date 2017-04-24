@@ -339,7 +339,7 @@ export default class App extends React.PureComponent {
       componentKeys: component && component.key,
       ...serializeQuery(query),
       s: 'FILE_LINE',
-      ps: 25,
+      ps: 100,
       facets: requestFacets
         ? [
             'assignees',
