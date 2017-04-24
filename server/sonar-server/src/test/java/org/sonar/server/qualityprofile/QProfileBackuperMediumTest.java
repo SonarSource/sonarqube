@@ -109,7 +109,7 @@ public class QProfileBackuperMediumTest {
     ruleIndexer.indexRuleDefinition(xooRule2.getDefinition().getKey());
 
     this.organization = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(dbSession, organization);
+    db.organizationDao().insert(dbSession, organization, false);
   }
 
   @After

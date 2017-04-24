@@ -179,7 +179,7 @@ public class DefaultOrganizationProviderImplTest {
 
   private void insertOrganization(OrganizationDto dto, long createdAt) {
     when(system2.now()).thenReturn(createdAt);
-    dbClient.organizationDao().insert(dbSession, dto);
+    dbClient.organizationDao().insert(dbSession, dto, false);
     dbSession.commit();
   }
 }
