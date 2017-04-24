@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -82,6 +83,7 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -131,6 +133,9 @@ public class SearchProjectsActionTest {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p", "f");
+    assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.4", "The 'languages' parameter accepts 'filter' to filter by language"),
+      tuple("6.4", "The 'visibility' field is added"));
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -160,16 +165,16 @@ public class SearchProjectsActionTest {
   public void json_example() {
     OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
     OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
-    ComponentDto project1 = insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1Dto)
+    ComponentDto project1 = insertProjectInDbAndEs(ComponentTesting.newPublicProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1")
       .setTagsString("finance, java"));
-    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization1Dto)
+    insertProjectInDbAndEs(ComponentTesting.newPublicProjectDto(organization1Dto)
       .setUuid(Uuids.UUID_EXAMPLE_02)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
       .setName("My Project 2"));
-    insertProjectInDbAndEs(ComponentTesting.newPrivateProjectDto(organization2Dto)
+    insertProjectInDbAndEs(ComponentTesting.newPublicProjectDto(organization2Dto)
       .setUuid(Uuids.UUID_EXAMPLE_03)
       .setKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3")
@@ -617,6 +622,20 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList()).extracting(Component::getAnalysisDate)
       .containsOnly(formatDateTime(new Date(20_000_000_000L)), formatDateTime(new Date(30_000_000_000L)), "");
+  }
+
+  @Test
+  public void return_visibility_flag() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto privateProject = insertProjectInDbAndEs(newPrivateProjectDto(organization));
+    ComponentDto publicProject = insertProjectInDbAndEs(newPublicProjectDto(organization));
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getVisibility)
+      .containsExactly(
+              tuple(privateProject.getKey(), privateProject.isPrivate() ? "private" : "public"),
+              tuple(publicProject.getKey(), publicProject.isPrivate() ? "private" : "public"));
   }
 
   @Test

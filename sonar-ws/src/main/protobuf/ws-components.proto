@@ -115,6 +115,7 @@ message Component {
   optional bool isFavorite = 11;
   optional string analysisDate = 13;
   optional Tags tags = 14;
+  optional string visibility = 15;
 
   message Tags {
     repeated string tags = 1;
