@@ -65,6 +65,9 @@ public class DbVersion64 implements DbVersion {
       .add(1634, "Make PROJECTS.PROJECT_UUID not nullable", MakeProjectUuidNotNullable.class)
       .add(1635, "Add column PROJECTS.PRIVATE", AddColumnProjectsPrivate.class)
       .add(1636, "Populate column PROJECTS.PRIVATE", PopulateColumnProjectsPrivate.class)
-      .add(1637, "Make column PROJECTS.PRIVATE not nullable", MakeColumnProjectsPrivateNotNullable.class);
+      .add(1637, "Make column PROJECTS.PRIVATE not nullable", MakeColumnProjectsPrivateNotNullable.class)
+      .add(1638, "Add column ORGANIZATIONS.NEW_PROJECT_PRIVATE", AddColumnNewProjectPrivate.class)
+      .add(1639, "Set ORGANIZATIONS.NEW_PROJECT_PRIVATE to false", SetNewProjectPrivateToFalse.class)
+      .add(1640, "Make column ORGANIZATIONS.NEW_PROJECT_PRIVATE not nullable", MakeColumnNewProjectPrivateNotNullable.class);
   }
 }
