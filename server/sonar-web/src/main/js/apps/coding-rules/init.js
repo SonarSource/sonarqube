@@ -43,6 +43,7 @@ App.on('start', function(
     isDefaultOrganization: boolean
   }
 ) {
+  App.organization = options.organization;
   const data = options.organization ? { organization: options.organization } : {};
   $.get(window.baseUrl + '/api/rules/app', data)
     .done(r => {
