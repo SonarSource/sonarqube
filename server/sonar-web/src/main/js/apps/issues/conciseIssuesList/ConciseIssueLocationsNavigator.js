@@ -19,41 +19,42 @@
  */
 // @flow
 import React from 'react';
-import ConciseIssue from './ConciseIssue';
-import { scrollToElement } from '../../../helpers/scrolling';
+import ConciseIssueLocationsNavigatorLocation from './ConciseIssueLocationsNavigatorLocation';
 import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
-  issues: Array<Issue>,
-  onIssueSelect: string => void,
+  issue: Issue,
   onLocationSelect: number => void,
-  selected?: string,
+  scroll: HTMLElement => void,
   selectedLocationIndex: ?number
 |};
 
-export default class ConciseIssuesList extends React.PureComponent {
+export default class ConciseIssueLocationsNavigator extends React.PureComponent {
   props: Props;
 
-  handleScroll = (element: HTMLElement) => {
-    const scrollableElement = document.querySelector('.layout-page-side');
-    if (element && scrollableElement) {
-      scrollToElement(element, 150, 100, scrollableElement);
-    }
+  handleClick = (index: number) => (event: Event) => {
+    event.preventDefault();
+    this.props.onLocationSelect(index);
   };
 
   render() {
+    const { selectedLocationIndex } = this.props;
+    const { secondaryLocations } = this.props.issue;
+
+    if (secondaryLocations.length === 0) {
+      return null;
+    }
+
     return (
-      <div>
-        {this.props.issues.map((issue, index) => (
-          <ConciseIssue
-            key={issue.key}
-            issue={issue}
-            onLocationSelect={this.props.onLocationSelect}
-            onSelect={this.props.onIssueSelect}
-            previousIssue={index > 0 ? this.props.issues[index - 1] : null}
-            scroll={this.handleScroll}
-            selected={issue.key === this.props.selected}
-            selectedLocationIndex={this.props.selectedLocationIndex}
+      <div className="spacer-top">
+        {secondaryLocations.map((location, index) => (
+          <ConciseIssueLocationsNavigatorLocation
+            key={index}
+            index={index}
+            message={location.msg}
+            onClick={this.props.onLocationSelect}
+            scroll={this.props.scroll}
+            selected={index === selectedLocationIndex}
           />
         ))}
       </div>

@@ -19,9 +19,9 @@
  */
 // @flow
 import escapeHtml from 'escape-html';
-import type { LinearIssueLocation } from './indexing';
+import { uniq } from 'lodash';
 
-export type Token = { className: string, text: string };
+export type Token = { className: string, markers: Array<number>, text: string };
 export type Tokens = Array<Token>;
 
 const ISSUE_LOCATION_CLASS = 'source-line-code-issue';
@@ -39,7 +39,7 @@ export const splitByTokens = (code: string, rootClassName: string = ''): Tokens 
     }
     if (node.nodeType === 3) {
       // TEXT NODE
-      tokens.push({ className: rootClassName, text: node.nodeValue });
+      tokens.push({ className: rootClassName, markers: [], text: node.nodeValue });
     }
   });
   return tokens;
@@ -88,28 +88,36 @@ const part = (str: string, from: number, to: number, acc: number): string => {
  */
 export const highlightIssueLocations = (
   tokens: Tokens,
-  issueLocations: Array<LinearIssueLocation>,
+  issueLocations: Array<*>,
   rootClassName: string = ISSUE_LOCATION_CLASS
 ): Tokens => {
   issueLocations.forEach(location => {
     const nextTokens = [];
     let acc = 0;
+    let markerAdded = location.line !== location.startLine;
     tokens.forEach(token => {
       const x = intersect(acc, acc + token.text.length, location.from, location.to);
       const p1 = part(token.text, acc, x.from, acc);
       const p2 = part(token.text, x.from, x.to, acc);
       const p3 = part(token.text, x.to, acc + token.text.length, acc);
       if (p1.length) {
-        nextTokens.push({ className: token.className, text: p1 });
+        nextTokens.push({ ...token, text: p1 });
       }
       if (p2.length) {
         const newClassName = token.className.indexOf(rootClassName) === -1
           ? `${token.className} ${rootClassName}`
           : token.className;
-        nextTokens.push({ className: newClassName, text: p2 });
+        nextTokens.push({
+          className: newClassName,
+          markers: !markerAdded && location.index != null
+            ? uniq([...token.markers, location.index])
+            : token.markers,
+          text: p2
+        });
+        markerAdded = true;
       }
       if (p3.length) {
-        nextTokens.push({ className: token.className, text: p3 });
+        nextTokens.push({ ...token, text: p3 });
       }
       acc += token.text.length;
     });

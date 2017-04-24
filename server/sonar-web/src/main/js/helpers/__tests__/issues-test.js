@@ -41,21 +41,19 @@ it('should populate comments data', () => {
       }
     ]
   };
-  expect(parseIssueFromResponse(issue, undefined, users, undefined)).toEqual({
-    comments: [
-      {
-        author: 'admin',
-        authorActive: true,
-        authorAvatar: 'c1244e6857f7be3dc4549d9e9d51c631',
-        authorLogin: 'admin',
-        authorName: 'Admin Admin',
-        createdAt: '2017-04-11T10:38:09+0200',
-        htmlText: 'comment!',
-        key: 'AVtcKbZkQmGLa7yW8J71',
-        login: undefined,
-        markdown: 'comment!',
-        updatable: true
-      }
-    ]
-  });
+  expect(parseIssueFromResponse(issue, undefined, users, undefined).comments).toEqual([
+    {
+      author: 'admin',
+      authorActive: true,
+      authorAvatar: 'c1244e6857f7be3dc4549d9e9d51c631',
+      authorLogin: 'admin',
+      authorName: 'Admin Admin',
+      createdAt: '2017-04-11T10:38:09+0200',
+      htmlText: 'comment!',
+      key: 'AVtcKbZkQmGLa7yW8J71',
+      login: undefined,
+      markdown: 'comment!',
+      updatable: true
+    }
+  ]);
 });

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { sortBy } from 'lodash';
+import { flatten, sortBy } from 'lodash';
 import { SEVERITIES } from './constants';
-import type { Issue } from '../components/issue/types';
+import type { Issue, FlowLocation } from '../components/issue/types';
 
 type TextRange = {
   startLine: number,
@@ -42,11 +42,8 @@ type RawIssue = {
   author: string,
   comments?: Array<Comment>,
   component: string,
-  flows: Array<{
-    locations: Array<{
-      msg: string,
-      textRange: TextRange
-    }>
+  flows?: Array<{
+    locations?: Array<{ msg: string, textRange?: TextRange }>
   }>,
   key: string,
   line?: number,
@@ -111,12 +108,29 @@ const ensureTextRange = (issue: RawIssue) => {
     : {};
 };
 
+const splitFlows = (
+  issue: RawIssue
+  // $FlowFixMe textRange is not null
+): { secondaryLocations: Array<FlowLocation>, flows: Array<Array<FlowLocation>> } => {
+  const parsedFlows = (issue.flows || [])
+    .filter(flow => flow.locations != null)
+    // $FlowFixMe flow.locations is not null
+    .map(flow => flow.locations.filter(location => location.textRange != null));
+
+  const onlySecondaryLocations = parsedFlows.every(flow => flow.length === 1);
+
+  return onlySecondaryLocations
+    ? { secondaryLocations: flatten(parsedFlows), flows: [] }
+    : { secondaryLocations: [], flows: parsedFlows };
+};
+
 export const parseIssueFromResponse = (
   issue: Object,
   components?: Array<*>,
   users?: Array<*>,
   rules?: Array<*>
 ): Issue => {
+  const { secondaryLocations, flows } = splitFlows(issue);
   return {
     ...issue,
     ...injectRelational(issue, components, 'component', 'key'),
@@ -126,6 +140,8 @@ export const parseIssueFromResponse = (
     ...injectRelational(issue, users, 'assignee', 'login'),
     ...injectCommentsRelational(issue, users),
     ...prepareClosed(issue),
-    ...ensureTextRange(issue)
+    ...ensureTextRange(issue),
+    secondaryLocations,
+    flows
   };
 };

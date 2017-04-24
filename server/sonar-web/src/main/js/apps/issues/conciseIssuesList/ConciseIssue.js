@@ -24,11 +24,13 @@ import ConciseIssueComponent from './ConciseIssueComponent';
 import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
-  innerRef: HTMLElement => void,
   issue: Issue,
+  onLocationSelect: number => void,
   onSelect: string => void,
   previousIssue: ?Issue,
-  selected: boolean
+  scroll: HTMLElement => void,
+  selected: boolean,
+  selectedLocationIndex: ?number
 |};
 
 export default class ConciseIssue extends React.PureComponent {
@@ -40,9 +42,16 @@ export default class ConciseIssue extends React.PureComponent {
     const displayComponent = previousIssue == null || previousIssue.component !== issue.component;
 
     return (
-      <div ref={this.props.innerRef}>
+      <div>
         {displayComponent && <ConciseIssueComponent path={issue.componentLongName} />}
-        <ConciseIssueBox issue={issue} onClick={this.props.onSelect} selected={selected} />
+        <ConciseIssueBox
+          issue={issue}
+          onClick={this.props.onSelect}
+          onLocationSelect={this.props.onLocationSelect}
+          scroll={this.props.scroll}
+          selected={selected}
+          selectedLocationIndex={selected ? this.props.selectedLocationIndex : null}
+        />
       </div>
     );
   }

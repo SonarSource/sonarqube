@@ -27,7 +27,9 @@ type Props = {|
   loadIssues: () => Promise<*>,
   onIssueChange: Issue => void,
   onIssueSelect: string => void,
-  openIssue: Issue
+  onLocationSelect: number => void,
+  openIssue: Issue,
+  selectedLocationIndex: ?number
 |};
 
 export default class IssuesSourceViewer extends React.PureComponent {
@@ -35,7 +37,10 @@ export default class IssuesSourceViewer extends React.PureComponent {
   props: Props;
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.openIssue.component === this.props.openIssue.component) {
+    if (
+      prevProps.openIssue !== this.props.openIssue &&
+      prevProps.openIssue.component === this.props.openIssue.component
+    ) {
       this.scrollToIssue();
     }
   }
@@ -43,12 +48,25 @@ export default class IssuesSourceViewer extends React.PureComponent {
   scrollToIssue = () => {
     const element = this.node.querySelector(`[data-issue="${this.props.openIssue.key}"]`);
     if (element) {
-      scrollToElement(element, 100, 100);
+      this.handleScroll(element);
     }
   };
 
+  handleScroll = (element: HTMLElement) => {
+    const offset = window.innerHeight / 2;
+    scrollToElement(element, offset - 100, offset);
+  };
+
   render() {
-    const { openIssue } = this.props;
+    const { openIssue, selectedLocationIndex } = this.props;
+
+    const locations = openIssue.secondaryLocations;
+
+    const locationMessage = locations != null &&
+      selectedLocationIndex != null &&
+      locations.length >= selectedLocationIndex
+      ? { index: selectedLocationIndex, text: locations[selectedLocationIndex].msg }
+      : undefined;
 
     return (
       <div ref={node => (this.node = node)}>
@@ -56,10 +74,14 @@ export default class IssuesSourceViewer extends React.PureComponent {
           aroundLine={openIssue.line}
           component={openIssue.component}
           displayAllIssues={true}
+          highlightedLocations={locations}
+          highlightedLocationMessage={locationMessage}
           loadIssues={this.props.loadIssues}
           onLoaded={this.scrollToIssue}
+          onLocationSelect={this.props.onLocationSelect}
           onIssueChange={this.props.onIssueChange}
           onIssueSelect={this.props.onIssueSelect}
+          scroll={this.handleScroll}
           selectedIssue={openIssue.key}
         />
       </div>

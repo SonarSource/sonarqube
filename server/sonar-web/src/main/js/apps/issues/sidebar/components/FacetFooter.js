@@ -36,7 +36,7 @@ export default class FacetFooter extends React.PureComponent {
   render() {
     return (
       <div className="search-navigator-facet-footer">
-        <SearchSelect {...this.props} />
+        <SearchSelect autofocus={false} {...this.props} />
       </div>
     );
   }

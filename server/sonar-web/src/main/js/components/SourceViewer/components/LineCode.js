@@ -21,35 +21,33 @@
 import React from 'react';
 import classNames from 'classnames';
 import LineIssuesList from './LineIssuesList';
-import {
-  splitByTokens,
-  highlightSymbol,
-  highlightIssueLocations,
-  generateHTML
-} from '../helpers/highlight';
+import LocationIndex from '../../common/LocationIndex';
+import LocationMessage from '../../common/LocationMessage';
+import { splitByTokens, highlightSymbol, highlightIssueLocations } from '../helpers/highlight';
 import type { Tokens } from '../helpers/highlight';
 import type { SourceLine } from '../types';
-import type {
-  LinearIssueLocation,
-  IndexedIssueLocation,
-  IndexedIssueLocationMessage
-} from '../helpers/indexing';
+import type { LinearIssueLocation } from '../helpers/indexing';
 import type { Issue } from '../../issue/types';
 
 type Props = {|
-  highlightedSymbols: Array<string>,
+  highlightedLocationMessage?: { index: number, text: string },
+  highlightedSymbols?: Array<string>,
   issues: Array<Issue>,
   issueLocations: Array<LinearIssueLocation>,
   line: SourceLine,
   onIssueChange: Issue => void,
   onIssueSelect: (issueKey: string) => void,
-  onLocationSelect: (flowIndex: number, locationIndex: number) => void,
+  onLocationSelect?: number => void,
   onSymbolClick: Array<string> => void,
-  // $FlowFixMe
-  secondaryIssueLocations: Array<IndexedIssueLocation>,
-  secondaryIssueLocationMessages: Array<IndexedIssueLocationMessage>,
+  scroll?: HTMLElement => void,
+  secondaryIssueLocations: Array<{
+    from: number,
+    to: number,
+    line: number,
+    index: number,
+    startLine: number
+  }>,
   selectedIssue: string | null,
-  selectedIssueLocation: IndexedIssueLocation | null,
   showIssues: boolean
 |};
 
@@ -58,6 +56,7 @@ type State = {
 };
 
 export default class LineCode extends React.PureComponent {
+  activeMarkerNode: ?HTMLElement;
   codeNode: HTMLElement;
   props: Props;
   state: State;
@@ -72,6 +71,9 @@ export default class LineCode extends React.PureComponent {
 
   componentDidMount() {
     this.attachEvents();
+    if (this.props.highlightedLocationMessage && this.activeMarkerNode && this.props.scroll) {
+      this.props.scroll(this.activeMarkerNode);
+    }
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -86,8 +88,16 @@ export default class LineCode extends React.PureComponent {
     this.detachEvents();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
     this.attachEvents();
+    if (
+      this.props.highlightedLocationMessage &&
+      prevProps.highlightedLocationMessage !== this.props.highlightedLocationMessage &&
+      this.activeMarkerNode &&
+      this.props.scroll
+    ) {
+      this.props.scroll(this.activeMarkerNode);
+    }
   }
 
   componentWillUnmount() {
@@ -117,75 +127,38 @@ export default class LineCode extends React.PureComponent {
     }
   };
 
-  handleLocationMessageClick = (
-    e: SyntheticInputEvent,
-    flowIndex: number,
-    locationIndex: number
-  ) => {
-    e.preventDefault();
-    this.props.onLocationSelect(flowIndex, locationIndex);
-  };
-
-  isSecondaryIssueLocationSelected(location: IndexedIssueLocation | IndexedIssueLocationMessage) {
-    const { selectedIssueLocation } = this.props;
-    if (selectedIssueLocation == null) {
-      return false;
-    } else {
-      return (
-        selectedIssueLocation.flowIndex === location.flowIndex &&
-        selectedIssueLocation.locationIndex === location.locationIndex
-      );
-    }
-  }
-
-  renderSecondaryIssueLocationMessage = (location: IndexedIssueLocationMessage) => {
-    const className = classNames('source-viewer-issue-location', 'issue-location-message', {
-      selected: this.isSecondaryIssueLocationSelected(location)
-    });
-
-    const limitString = (str: string) => (str.length > 30 ? str.substr(0, 30) + '...' : str);
-
+  renderMarker(index: number, message: ?string) {
+    const { onLocationSelect } = this.props;
+    const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
+    const ref = message != null ? node => (this.activeMarkerNode = node) : undefined;
     return (
-      <a
-        key={`${location.flowIndex}-${location.locationIndex}`}
-        href="#"
-        className={className}
-        title={location.msg}
-        onClick={e =>
-          this.handleLocationMessageClick(e, location.flowIndex, location.locationIndex)}>
-        {location.index && <strong>{location.index}: </strong>}
-        {location.msg ? limitString(location.msg) : ''}
-      </a>
-    );
-  };
-
-  renderSecondaryIssueLocationMessages(locations: Array<IndexedIssueLocationMessage>) {
-    return (
-      <div className="source-line-issue-locations">
-        {locations.map(this.renderSecondaryIssueLocationMessage)}
-      </div>
+      <LocationIndex key={`marker-${index}`} onClick={onClick} selected={message != null}>
+        <span href="#" ref={ref}>{index + 1}</span>
+        {message != null && <LocationMessage selected={true}>{message}</LocationMessage>}
+      </LocationIndex>
     );
   }
 
   render() {
     const {
+      highlightedLocationMessage,
       highlightedSymbols,
       issues,
       issueLocations,
       line,
       onIssueSelect,
-      secondaryIssueLocationMessages,
       secondaryIssueLocations,
       selectedIssue,
-      selectedIssueLocation,
       showIssues
     } = this.props;
 
     let tokens = [...this.state.tokens];
 
-    highlightedSymbols.forEach(symbol => {
-      tokens = highlightSymbol(tokens, symbol);
-    });
+    if (highlightedSymbols) {
+      highlightedSymbols.forEach(symbol => {
+        tokens = highlightSymbol(tokens, symbol);
+      });
+    }
 
     if (issueLocations.length > 0) {
       tokens = highlightIssueLocations(tokens, issueLocations);
@@ -193,32 +166,39 @@ export default class LineCode extends React.PureComponent {
 
     if (secondaryIssueLocations) {
       tokens = highlightIssueLocations(tokens, secondaryIssueLocations, 'issue-location');
-      if (selectedIssueLocation != null) {
-        const x = secondaryIssueLocations.find(location =>
-          this.isSecondaryIssueLocationSelected(location)
+
+      if (highlightedLocationMessage) {
+        const location = secondaryIssueLocations.find(
+          location => location.index === highlightedLocationMessage.index
         );
-        if (x) {
-          tokens = highlightIssueLocations(tokens, [x], 'selected');
+        if (location) {
+          tokens = highlightIssueLocations(tokens, [location], 'selected');
         }
       }
     }
-
-    const finalCode = generateHTML(tokens);
 
     const className = classNames('source-line-code', 'code', {
       'has-issues': issues.length > 0
     });
 
+    const renderedTokens = [];
+    tokens.forEach((token, index) => {
+      if (token.markers.length > 0) {
+        token.markers.forEach(marker => {
+          const message = highlightedLocationMessage != null &&
+            highlightedLocationMessage.index === marker
+            ? highlightedLocationMessage.text
+            : null;
+          renderedTokens.push(this.renderMarker(marker, message));
+        });
+      }
+      renderedTokens.push(<span className={token.className} key={index}>{token.text}</span>);
+    });
+
     return (
       <td className={className} data-line-number={line.line}>
         <div className="source-line-code-inner">
-          <pre
-            ref={node => (this.codeNode = node)}
-            dangerouslySetInnerHTML={{ __html: finalCode }}
-          />
-          {secondaryIssueLocationMessages != null &&
-            secondaryIssueLocationMessages.length > 0 &&
-            this.renderSecondaryIssueLocationMessages(secondaryIssueLocationMessages)}
+          <pre ref={node => (this.codeNode = node)}>{renderedTokens}</pre>
         </div>
         {showIssues &&
           issues.length > 0 &&

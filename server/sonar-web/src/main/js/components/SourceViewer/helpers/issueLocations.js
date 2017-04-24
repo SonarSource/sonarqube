@@ -48,7 +48,7 @@ export const getIssueLocations = (
   index?: number
 }> => {
   const allLocations = [];
-  issue.flows.forEach(({ locations }, flowIndex) => {
+  issue.flows.forEach((locations, flowIndex) => {
     if (locations) {
       const locationsCount = locations.length;
       locations.forEach((location, index) => {

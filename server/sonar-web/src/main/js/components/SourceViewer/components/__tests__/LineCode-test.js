@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-// import { click } from '../../../../helpers/testUtils';
 import LineCode from '../LineCode';
 
 it('render code', () => {
@@ -28,9 +27,6 @@ it('render code', () => {
     code: '<span class="k">class</span> <span class="sym sym-1">Foo</span> {'
   };
   const issueLocations = [{ from: 0, to: 5, line: 3 }];
-  const secondaryIssueLocations = [{ from: 6, to: 9, line: 3 }];
-  const secondaryIssueLocationMessages = [{ msg: 'Fix that', flowIndex: 0, locationIndex: 0 }];
-  const selectedIssueLocation = { from: 6, to: 9, line: 3, flowIndex: 0, locationIndex: 0 };
   const wrapper = shallow(
     <LineCode
       highlightedSymbols={['sym1']}
@@ -40,40 +36,9 @@ it('render code', () => {
       onIssueSelect={jest.fn()}
       onSelectLocation={jest.fn()}
       onSymbolClick={jest.fn()}
-      secondaryIssueLocations={secondaryIssueLocations}
-      secondaryIssueLocationMessages={secondaryIssueLocationMessages}
       selectedIssue="issue-1"
-      selectedIssueLocation={selectedIssueLocation}
       showIssues={true}
     />
   );
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should handle empty location message', () => {
-  const line = {
-    line: 3,
-    code: '<span class="k">class</span>'
-  };
-  const issueLocations = [{ from: 0, to: 5, line: 3 }];
-  const secondaryIssueLocations = [{ from: 6, to: 9, line: 3 }];
-  const secondaryIssueLocationMessages = [{ flowIndex: 0, locationIndex: 0 }];
-  const selectedIssueLocation = { from: 6, to: 9, line: 3, flowIndex: 0, locationIndex: 0 };
-  const wrapper = shallow(
-    <LineCode
-      highlightedSymbols={['sym1']}
-      issues={[{ key: 'issue-1' }, { key: 'issue-2' }]}
-      issueLocations={issueLocations}
-      line={line}
-      onIssueSelect={jest.fn()}
-      onSelectLocation={jest.fn()}
-      onSymbolClick={jest.fn()}
-      secondaryIssueLocations={secondaryIssueLocations}
-      secondaryIssueLocationMessages={secondaryIssueLocationMessages}
-      selectedIssue="issue-1"
-      selectedIssueLocation={selectedIssueLocation}
-      showIssues={true}
-    />
-  );
-  expect(wrapper.find('.source-line-issue-locations')).toMatchSnapshot();
 });

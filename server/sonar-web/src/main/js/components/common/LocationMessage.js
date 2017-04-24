@@ -19,25 +19,18 @@
  */
 // @flow
 import React from 'react';
-import Tooltip from '../../../components/controls/Tooltip';
-import LocationIndex from '../../../components/common/LocationIndex';
-import { translateWithParameters } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import classNames from 'classnames';
+import './LocationMessage.css';
 
-type Props = {|
-  count: number
-|};
+type Props = {
+  children?: React.Element<*>,
+  selected: boolean
+};
 
-export default function ConciseIssueLocationBadge(props: Props) {
+export default function LocationMessage(props: Props) {
   return (
-    <Tooltip
-      overlay={translateWithParameters(
-        'issue.this_issue_involves_x_code_locations',
-        formatMeasure(props.count)
-      )}>
-      <LocationIndex>
-        {'+'}{props.count}
-      </LocationIndex>
-    </Tooltip>
+    <div className={classNames('location-message', { selected: props.selected })}>
+      {props.children}
+    </div>
   );
 }
