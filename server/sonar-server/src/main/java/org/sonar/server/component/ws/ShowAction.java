@@ -70,7 +70,9 @@ public class ShowAction implements ComponentsWsAction {
       .setSince("5.4")
       .setChangelog(
         new Change("6.4", "Analysis date has been added to the response"),
-        new Change("6.4", "The field 'id' is deprecated in the response"))
+        new Change("6.4", "The field 'id' is deprecated in the response"),
+        new Change("6.4", "The 'visibility' field is added")
+      )
       .setHandler(this);
 
     action.createParam(PARAM_COMPONENT_ID)
