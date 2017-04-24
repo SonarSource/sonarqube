@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -67,7 +68,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class ComponentAction implements NavigationWsAction {
 
-  private static final String PARAM_COMPONENT_KEY = "componentKey";
+  static final String PARAM_COMPONENT = "component";
 
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
@@ -118,16 +119,20 @@ public class ComponentAction implements NavigationWsAction {
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("component-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(
+        new Change("6.4" ,"The 'private' field is added")
+      );
 
-    projectNavigation.createParam(PARAM_COMPONENT_KEY)
+    projectNavigation.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
+      .setDeprecatedKey("componentKey", "6.4")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String componentKey = request.mandatoryParam(PARAM_COMPONENT_KEY);
+    String componentKey = request.mandatoryParam(PARAM_COMPONENT);
     try (DbSession session = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
       if (!userSession.hasComponentPermission(USER, component) &&
@@ -160,6 +165,9 @@ public class ComponentAction implements NavigationWsAction {
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isFavorite", isFavourite(session, component));
+    if (Qualifiers.PROJECT.equals(component.qualifier())) {
+      json.prop("private", component.isPrivate());
+    }
     List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
     writeExtensions(json, component, pages);
     if (analysis != null) {

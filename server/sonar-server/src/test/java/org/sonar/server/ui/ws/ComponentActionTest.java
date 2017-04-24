@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -40,6 +42,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -59,6 +62,7 @@ import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -73,6 +77,7 @@ import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.ui.ws.ComponentAction.PARAM_COMPONENT;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentActionTest {
@@ -99,6 +104,27 @@ public class ComponentActionTest {
       .setName("Polop")
       .setDescription("test project")
       .setLanguage("xoo");
+  }
+
+  @Test
+  public void check_definition() throws Exception {
+    init();
+    WebService.Action action = ws.getDef();
+
+    assertThat(action.since()).isEqualTo("5.2");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.description()).isNotNull();
+    assertThat(action.responseExample()).isNotNull();
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.4", "The 'private' field is added"));
+
+    WebService.Param componentId = action.param(PARAM_COMPONENT);
+    assertThat(componentId.isRequired()).isFalse();
+    assertThat(componentId.description()).isNotNull();
+    assertThat(componentId.exampleValue()).isNotNull();
+    assertThat(componentId.deprecatedKey()).isEqualTo("componentKey");
+    assertThat(componentId.deprecatedKeySince()).isEqualTo("6.4");
   }
 
   @Test
@@ -392,6 +418,44 @@ public class ComponentActionTest {
 
     String result = execute(project.key());
     assertJson(result).ignoreFields("snapshotDate", "key", "qualityGate.key").isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void should_return_private_flag_for_project() throws Exception {
+    init();
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(org, p -> p.setPrivate(true));
+
+    userSession.logIn()
+      .addProjectUuidPermissions(UserRole.ADMIN, project.uuid())
+      .addPermission(OrganizationPermission.ADMINISTER, org);
+    assertJson(execute(project.key())).isSimilarTo("{\"private\": true}");
+  }
+
+  @Test
+  public void should_return_public_flag_for_project() throws Exception {
+    init();
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(org, p -> p.setPrivate(false));
+
+    userSession.logIn()
+      .addProjectUuidPermissions(UserRole.ADMIN, project.uuid())
+      .addPermission(OrganizationPermission.ADMINISTER, org);
+    assertJson(execute(project.key())).isSimilarTo("{\"private\": false}");
+  }
+
+  @Test
+  public void should_not_return_private_flag_for_module() throws Exception {
+    init();
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertProject(org, p -> p.setPrivate(false));
+    ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project));
+
+    userSession.logIn()
+      .addProjectUuidPermissions(UserRole.ADMIN, project.uuid())
+      .addPermission(OrganizationPermission.ADMINISTER, org);
+    String json = execute(module.key());
+    assertThat(json).doesNotContain("private");
   }
 
   @Test
