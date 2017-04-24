@@ -192,7 +192,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       .setUrl(newOrganization.getUrl())
       .setAvatarUrl(newOrganization.getAvatar());
     extendCreation.accept(res);
-    dbClient.organizationDao().insert(dbSession, res);
+    dbClient.organizationDao().insert(dbSession, res, false);
     return res;
   }
 

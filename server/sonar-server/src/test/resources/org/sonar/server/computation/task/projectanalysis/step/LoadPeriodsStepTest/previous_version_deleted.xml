@@ -4,6 +4,7 @@
                  kee="org1_key"
                  name="org1_name"
                  guarded="[false]"
+                 new_project_private="[false]"
                  created_at="1000"
                  updated_at="2000"/>
 

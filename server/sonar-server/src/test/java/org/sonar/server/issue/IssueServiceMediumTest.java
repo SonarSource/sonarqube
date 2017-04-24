@@ -147,7 +147,7 @@ public class IssueServiceMediumTest {
 
   private ComponentDto newPublicProject() {
     OrganizationDto organization = OrganizationTesting.newOrganizationDto();
-    tester.get(OrganizationDao.class).insert(session, organization);
+    tester.get(OrganizationDao.class).insert(session, organization, false);
     ComponentDto project = ComponentTesting.newPublicProjectDto(organization);
     tester.get(ComponentDao.class).insert(session, project);
     session.commit();

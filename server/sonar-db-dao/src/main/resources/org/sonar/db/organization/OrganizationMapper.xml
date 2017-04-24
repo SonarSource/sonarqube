@@ -187,7 +187,7 @@
     org.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
-  <insert id="insert" parameterType="Organization" useGeneratedKeys="false">
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
     insert into organizations
     (
       uuid,
@@ -197,6 +197,7 @@
       url,
       avatar_url,
       guarded,
+      new_project_private,
       user_id,
       created_at,
       updated_at
@@ -210,6 +211,7 @@
       #{organization.url, jdbcType=VARCHAR},
       #{organization.avatarUrl, jdbcType=VARCHAR},
       #{organization.guarded, jdbcType=BOOLEAN},
+      #{newProjectPrivate, jdbcType=BOOLEAN},
       #{organization.userId, jdbcType=INTEGER},
       #{organization.createdAt, jdbcType=BIGINT},
       #{organization.updatedAt, jdbcType=BIGINT}
