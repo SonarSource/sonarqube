@@ -116,12 +116,15 @@ public class ReportSubmitter {
       throw insufficientPrivilegesException();
     }
 
+    boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
+
     NewComponent newProject = newComponentBuilder()
       .setOrganizationUuid(organization.getUuid())
       .setKey(projectKey)
       .setName(StringUtils.defaultIfBlank(projectName, projectKey))
       .setBranch(projectBranch)
       .setQualifier(Qualifiers.PROJECT)
+      .setPrivate(newProjectPrivate)
       .build();
     return componentUpdater.create(dbSession, newProject, userId);
   }

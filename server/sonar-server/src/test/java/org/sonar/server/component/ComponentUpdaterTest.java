@@ -27,6 +27,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.exceptions.BadRequestException;
@@ -67,10 +68,11 @@ public class ComponentUpdaterTest {
   @Test
   public void should_persist_and_index_when_creating_project() throws Exception {
     NewComponent project = NewComponent.newComponentBuilder()
-        .setKey(DEFAULT_PROJECT_KEY)
-        .setName(DEFAULT_PROJECT_NAME)
-        .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-        .build();
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .setPrivate(true)
+      .build();
     ComponentDto returned = underTest.create(db.getSession(), project, null);
 
     ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
@@ -85,10 +87,39 @@ public class ComponentUpdaterTest {
     assertThat(loaded.projectUuid()).isEqualTo(loaded.uuid());
     assertThat(loaded.moduleUuid()).isNull();
     assertThat(loaded.moduleUuidPath()).isEqualTo("." + loaded.uuid() + ".");
+    assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
     assertThat(loaded.getCreatedAt()).isNotNull();
     assertThat(db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isNotNull();
 
     verify(projectIndexer).indexProject(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+  }
+
+  @Test
+  public void should_persist_private_flag_true_when_creating_project() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setOrganizationUuid(organization.getUuid())
+      .setPrivate(true)
+      .build();
+    ComponentDto returned = underTest.create(db.getSession(), project, null);
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
+  }
+
+  @Test
+  public void should_persist_private_flag_false_when_creating_project() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    NewComponent project = NewComponent.newComponentBuilder()
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .setOrganizationUuid(organization.getUuid())
+      .setPrivate(false)
+      .build();
+    ComponentDto returned = underTest.create(db.getSession(), project, null);
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    assertThat(loaded.isPrivate()).isEqualTo(project.isPrivate());
   }
 
   @Test
