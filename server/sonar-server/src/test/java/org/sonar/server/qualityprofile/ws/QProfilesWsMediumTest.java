@@ -88,7 +88,7 @@ public class QProfilesWsMediumTest {
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuIndexer = tester.get(ActiveRuleIndexer.class);
     organization = OrganizationTesting.newOrganizationDto().setKey("org-123");
-    db.organizationDao().insert(session, organization);
+    db.organizationDao().insert(session, organization, false);
   }
 
   @After

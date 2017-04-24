@@ -152,7 +152,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private void insertDefaultOrganization() {
     defaultOrganization = OrganizationTesting.newOrganizationDto().setUuid(defaultOrganizationUuid);
     try (DbSession dbSession = db.getMyBatis().openSession(false)) {
-      client.organizationDao().insert(dbSession, defaultOrganization);
+      client.organizationDao().insert(dbSession, defaultOrganization, false);
       client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
       dbSession.commit();
     }
