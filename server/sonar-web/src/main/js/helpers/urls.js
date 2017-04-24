@@ -59,7 +59,7 @@ export function getComponentIssuesUrlAsString(componentKey, query) {
  * Generate URL for a single issue
  */
 export function getSingleIssueUrl(issues) {
-  return { pathname: '/issues', query: { issues } };
+  return { pathname: '/issues', query: { issues, open: issues } };
 }
 
 /**
