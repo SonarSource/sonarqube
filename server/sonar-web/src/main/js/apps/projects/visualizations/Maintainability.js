@@ -21,7 +21,7 @@
 import React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 
-export default class CodeSmells extends React.PureComponent {
+export default class Maintainability extends React.PureComponent {
   render() {
     return (
       <SimpleBubbleChart

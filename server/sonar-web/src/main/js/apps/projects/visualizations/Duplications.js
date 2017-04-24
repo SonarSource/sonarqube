@@ -21,15 +21,14 @@
 import React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 
-export default class Bugs extends React.PureComponent {
+export default class Duplications extends React.PureComponent {
   render() {
     return (
       <SimpleBubbleChart
         {...this.props}
         xMetric={{ key: 'ncloc', type: 'SHORT_INT' }}
-        yMetric={{ key: 'reliability_remediation_effort', type: 'SHORT_WORK_DUR' }}
-        sizeMetric={{ key: 'bugs', type: 'SHORT_INT' }}
-        colorMetric="reliability_rating"
+        yMetric={{ key: 'duplicated_lines', type: 'SHORT_INT' }}
+        sizeMetric={{ key: 'duplicated_blocks', type: 'SHORT_INT' }}
       />
     );
   }
