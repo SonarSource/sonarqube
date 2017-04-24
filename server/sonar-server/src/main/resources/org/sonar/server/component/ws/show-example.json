@@ -30,7 +30,8 @@
       "tags": [
         "language",
         "plugin"
-      ]
+      ],
+      "visibility": "private"
     }
   ]
 }
