@@ -53,6 +53,8 @@ public interface OrganizationMapper {
 
   Integer selectDefaultGroupIdByUuid(@Param("uuid") String uuid);
 
+  boolean selectNewProjectPrivateByUuid(@Param("uuid") String uuid);
+
   /**
    * Update the organization with UUID specified by {@link OrganizationDto#getUuid()}.
    * <p>
