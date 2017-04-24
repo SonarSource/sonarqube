@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 
 /**
@@ -47,6 +48,11 @@ export function getIssuesUrl(query) {
  */
 export function getComponentIssuesUrl(componentKey, query) {
   return { pathname: '/project/issues', query: { ...query, id: componentKey } };
+}
+
+export function getComponentIssuesUrlAsString(componentKey, query) {
+  const path = getComponentIssuesUrl(componentKey, query);
+  return `${window.baseUrl}${path.pathname}?${stringify(path.query)}`;
 }
 
 /**
