@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -33,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
@@ -46,12 +48,33 @@ public class RegisterPermissionTemplatesTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private RegisterPermissionTemplates underTest = new RegisterPermissionTemplates(db.getDbClient(), defaultOrganizationProvider);
 
   @Test
+  public void fail_with_ISE_if_default_template_must_be_created_and_no_default_group_is_defined() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Default group for organization " + db.getDefaultOrganization().getUuid() + " is not defined");
+
+    underTest.start();
+  }
+
+  @Test
+  public void fail_with_ISE_if_default_template_must_be_created_and_default_group_does_not_exist() {
+    setDefaultGroupId(new GroupDto().setId(22));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Default group with id 22 for organization " + db.getDefaultOrganization().getUuid() + " doesn't exist");
+
+    underTest.start();
+  }
+
+  @Test
   public void insert_default_permission_template_if_fresh_install() {
+    GroupDto defaultGroup = createAndSetDefaultGroup();
     db.users().insertGroup(db.getDefaultOrganization(), DefaultGroups.ADMINISTRATORS);
 
     underTest.start();
@@ -63,8 +86,8 @@ public class RegisterPermissionTemplatesTest {
     assertThat(groupPermissions).hasSize(4);
     expectGroupPermission(groupPermissions, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     expectGroupPermission(groupPermissions, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
-    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
-    expectGroupPermission(groupPermissions, UserRole.USER, DefaultGroups.ANYONE);
+    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
 
     verifyDefaultTemplates();
 
@@ -73,6 +96,8 @@ public class RegisterPermissionTemplatesTest {
 
   @Test
   public void ignore_administrators_permissions_if_group_does_not_exist() {
+    GroupDto defaultGroup = createAndSetDefaultGroup();
+
     underTest.start();
 
     PermissionTemplateDto defaultTemplate = selectTemplate();
@@ -80,8 +105,8 @@ public class RegisterPermissionTemplatesTest {
 
     List<PermissionTemplateGroupDto> groupPermissions = selectGroupPermissions(defaultTemplate);
     assertThat(groupPermissions).hasSize(2);
-    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
-    expectGroupPermission(groupPermissions, UserRole.USER, DefaultGroups.ANYONE);
+    expectGroupPermission(groupPermissions, UserRole.CODEVIEWER, defaultGroup.getName());
+    expectGroupPermission(groupPermissions, UserRole.USER, defaultGroup.getName());
 
     verifyDefaultTemplates();
 
@@ -131,5 +156,16 @@ public class RegisterPermissionTemplatesTest {
     assertThat(defaultTemplates)
       .isPresent();
     assertThat(defaultTemplates.get().getProjectUuid()).isEqualTo(DEFAULT_TEMPLATE_UUID);
+  }
+
+  private void setDefaultGroupId(GroupDto defaultGroup) {
+    db.getDbClient().organizationDao().setDefaultGroupId(db.getSession(), db.getDefaultOrganization().getUuid(), defaultGroup);
+    db.commit();
+  }
+
+  private GroupDto createAndSetDefaultGroup() {
+    GroupDto res = db.users().insertGroup(db.getDefaultOrganization());
+    setDefaultGroupId(res);
+    return res;
   }
 }
