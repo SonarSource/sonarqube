@@ -653,7 +653,7 @@ public class CreateActionTest {
       .setName(key + "_name")
       .setCreatedAt((long) key.hashCode())
       .setUpdatedAt((long) key.hashCode());
-    dbClient.organizationDao().insert(dbTester.getSession(), dto);
+    dbClient.organizationDao().insert(dbTester.getSession(), dto, false);
     dbTester.commit();
     return dto;
   }

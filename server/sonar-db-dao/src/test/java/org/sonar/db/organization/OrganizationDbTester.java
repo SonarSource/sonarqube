@@ -61,7 +61,7 @@ public class OrganizationDbTester {
    */
   public OrganizationDto insert(OrganizationDto dto) {
     DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().insert(dbSession, dto);
+    dbTester.getDbClient().organizationDao().insert(dbSession, dto, false);
     dbSession.commit();
     return dto;
   }

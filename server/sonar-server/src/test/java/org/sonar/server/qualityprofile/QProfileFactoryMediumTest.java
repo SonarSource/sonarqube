@@ -57,7 +57,7 @@ public class QProfileFactoryMediumTest {
     dbSession = db.openSession(false);
     factory = tester.get(QProfileFactory.class);
     organization = OrganizationTesting.newOrganizationDto();
-    db.organizationDao().insert(dbSession, organization);
+    db.organizationDao().insert(dbSession, organization, false);
   }
 
   @After

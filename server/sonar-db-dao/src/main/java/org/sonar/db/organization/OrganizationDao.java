@@ -40,12 +40,12 @@ public class OrganizationDao implements Dao {
     this.system2 = system2;
   }
 
-  public void insert(DbSession dbSession, OrganizationDto organization) {
+  public void insert(DbSession dbSession, OrganizationDto organization, boolean newProjectPrivate) {
     checkDto(organization);
     long now = system2.now();
     organization.setCreatedAt(now);
     organization.setUpdatedAt(now);
-    getMapper(dbSession).insert(organization);
+    getMapper(dbSession).insert(organization, newProjectPrivate);
   }
 
   public int countByQuery(DbSession dbSession, OrganizationQuery organizationQuery) {
