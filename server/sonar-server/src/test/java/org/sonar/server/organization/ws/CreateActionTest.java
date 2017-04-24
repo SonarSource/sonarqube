@@ -524,7 +524,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void request_creates_default_template_for_owner_group_and_anyone() {
+  public void request_creates_default_template_for_owner_group() {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     UserDto user = dbTester.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
@@ -544,7 +544,6 @@ public class CreateActionTest {
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(
         tuple(ownersGroup.getId(), UserRole.ADMIN), tuple(ownersGroup.getId(), UserRole.ISSUE_ADMIN), tuple(ownersGroup.getId(), GlobalPermissions.SCAN_EXECUTION),
-        tuple(0, UserRole.USER), tuple(0, UserRole.CODEVIEWER),
         tuple(defaultGroup.getId(), UserRole.USER), tuple(defaultGroup.getId(), UserRole.CODEVIEWER));
   }
 
