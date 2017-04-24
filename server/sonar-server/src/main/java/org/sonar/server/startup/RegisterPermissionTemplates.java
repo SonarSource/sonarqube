@@ -21,7 +21,6 @@ package org.sonar.server.startup;
 
 import java.util.Date;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -33,6 +32,8 @@ import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+
+import static java.lang.String.format;
 
 public class RegisterPermissionTemplates {
 
@@ -84,6 +85,11 @@ public class RegisterPermissionTemplates {
   }
 
   private void insertDefaultGroupPermissions(DbSession dbSession, PermissionTemplateDto template) {
+    insertPermissionForAdministrators(dbSession, template);
+    insertPermissionsForDefaultGroup(dbSession, template);
+  }
+
+  private void insertPermissionForAdministrators(DbSession dbSession, PermissionTemplateDto template) {
     Optional<GroupDto> admins = dbClient.groupDao().selectByName(dbSession, template.getOrganizationUuid(), DefaultGroups.ADMINISTRATORS);
     if (admins.isPresent()) {
       insertGroupPermission(dbSession, template, UserRole.ADMIN, admins.get());
@@ -91,16 +97,20 @@ public class RegisterPermissionTemplates {
     } else {
       LOG.error("Cannot setup default permission for group: " + DefaultGroups.ADMINISTRATORS);
     }
-    insertGroupPermission(dbSession, template, UserRole.USER, null);
-    insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, null);
   }
 
-  private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, @Nullable GroupDto group) {
-    if (group == null) {
-      dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), null, permission);
-    } else {
-      dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group.getId(), permission);
-    }
+  private void insertPermissionsForDefaultGroup(DbSession dbSession, PermissionTemplateDto template) {
+    String organizationUuid = template.getOrganizationUuid();
+    Integer defaultGroupId = dbClient.organizationDao().getDefaultGroupId(dbSession, organizationUuid)
+      .orElseThrow(() -> new IllegalStateException(format("Default group for organization %s is not defined", organizationUuid)));
+    GroupDto defaultGroup = Optional.ofNullable(dbClient.groupDao().selectById(dbSession, defaultGroupId))
+      .orElseThrow(() -> new IllegalStateException(format("Default group with id %s for organization %s doesn't exist", defaultGroupId, organizationUuid)));
+    insertGroupPermission(dbSession, template, UserRole.USER, defaultGroup);
+    insertGroupPermission(dbSession, template, UserRole.CODEVIEWER, defaultGroup);
+  }
+
+  private void insertGroupPermission(DbSession dbSession, PermissionTemplateDto template, String permission, GroupDto group) {
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group.getId(), permission);
   }
 
 }
