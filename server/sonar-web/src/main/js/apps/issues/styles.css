@@ -102,6 +102,8 @@
 }
 
 .concise-issue-box-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: bold;
 }
 
