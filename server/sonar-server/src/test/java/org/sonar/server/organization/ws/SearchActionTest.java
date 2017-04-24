@@ -223,7 +223,7 @@ public class SearchActionTest {
 
   private void insertOrganization(OrganizationDto dto) {
     DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().insert(dbSession, dto);
+    dbTester.getDbClient().organizationDao().insert(dbSession, dto, false);
     dbSession.commit();
   }
 

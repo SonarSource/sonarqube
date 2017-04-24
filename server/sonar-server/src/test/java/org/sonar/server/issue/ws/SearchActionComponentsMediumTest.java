@@ -99,8 +99,8 @@ public class SearchActionComponentsMediumTest {
     this.defaultOrganization = organizationDao.selectByUuid(session, defaultOrganization.getUuid()).get();
     this.otherOrganization1 = OrganizationTesting.newOrganizationDto().setKey("my-org-1");
     this.otherOrganization2 = OrganizationTesting.newOrganizationDto().setKey("my-org-2");
-    organizationDao.insert(session, this.otherOrganization1);
-    organizationDao.insert(session, this.otherOrganization2);
+    organizationDao.insert(session, this.otherOrganization1, false);
+    organizationDao.insert(session, this.otherOrganization2, false);
     session.commit();
   }
 
