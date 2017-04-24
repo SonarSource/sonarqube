@@ -751,7 +751,7 @@ export default class App extends React.PureComponent {
               <PageMainInner>
                 {this.renderBulkChange(openIssue)}
                 {openIssue != null
-                  ? <div className="pull-left">
+                  ? <div className="pull-left width-60">
                       <ComponentBreadcrumbs component={component} issue={openIssue} />
                     </div>
                   : <PageActions

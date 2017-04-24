@@ -42,7 +42,7 @@ export default class ComponentBreadcrumbs extends React.PureComponent {
     const displaySubProject = component == null || !['BRC', 'DIR'].includes(component.qualifier);
 
     return (
-      <div className="component-name">
+      <div className="component-name text-ellipsis">
         {displayOrganization &&
           <Organization linkClassName="link-no-underline" organizationKey={issue.organization} />}
 
