@@ -56,6 +56,7 @@ public class BackendCleanup {
   private static final Map<String, TableCleaner> TABLE_CLEANERS = ImmutableMap.of(
     "organizations", BackendCleanup::truncateOrganizations,
     "users", BackendCleanup::truncateUsers,
+    "groups", BackendCleanup::truncateGroups,
     "internal_properties", BackendCleanup::truncateInternalProperties,
     "schema_migrations", BackendCleanup::truncateSchemaMigrations);
 
@@ -190,6 +191,18 @@ public class BackendCleanup {
     // "admin" is not flagged as root by default
     try (PreparedStatement preparedStatement = connection.prepareStatement("update users set is_root=?")) {
       preparedStatement.setBoolean(1, false);
+      preparedStatement.execute();
+      // commit is useless on some databases
+      connection.commit();
+    }
+  }
+
+  /**
+   * Groups sonar-users is referenced by the default organization as its default group.
+   */
+  private static void truncateGroups(String tableName, Statement ddlStatement, Connection connection) throws SQLException {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("delete from groups where name <> ?")) {
+      preparedStatement.setString(1, "sonar-users");
       preparedStatement.execute();
       // commit is useless on some databases
       connection.commit();
