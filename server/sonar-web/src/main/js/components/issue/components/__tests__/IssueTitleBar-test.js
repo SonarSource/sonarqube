@@ -27,7 +27,9 @@ const issue = {
   organization: 'myorg',
   key: 'AVsae-CQS-9G3txfbFN2',
   rule: 'javascript:S1067',
-  message: 'Reduce the number of conditional operators (4) used in the expression'
+  message: 'Reduce the number of conditional operators (4) used in the expression',
+  flows: [],
+  secondaryLocations: []
 };
 
 it('should render the titlebar correctly', () => {
@@ -48,4 +50,14 @@ it('should render the titlebar with the filter', () => {
     />
   );
   expect(element).toMatchSnapshot();
+});
+
+it('should count all code locations', () => {
+  const issueWithLocations = {
+    ...issue,
+    flows: [[{}, {}, {}], [{}, {}]],
+    secondaryLocations: [{}, {}]
+  };
+  const element = shallow(<IssueTitleBar issue={issueWithLocations} />);
+  expect(element.find('LocationIndex').children().text()).toBe('7');
 });

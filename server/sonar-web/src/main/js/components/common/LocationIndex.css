@@ -25,7 +25,8 @@
   cursor: pointer;
 }
 
-.location-index[tabindex]:hover {
+.location-index[tabindex]:hover,
+a:hover > .location-index {
   background-color: #bc5e5e;
 }
 
@@ -33,13 +34,13 @@
   outline: none;
 }
 
-.source-line-code .location-index {
+.source-line-code-inner .location-index {
   line-height: 16px;
   margin: 1px;
   margin-left: 4px;
   margin-right: 4px;
 }
 
-.source-line-code .location-index + .location-index {
+.source-line-code-inner .location-index + .location-index {
   margin-left: 0;
 }
