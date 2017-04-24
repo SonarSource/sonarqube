@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -118,7 +119,10 @@ public class ComponentAction implements NavigationWsAction {
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("component-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(
+        new Change("6.4" ,"The 'visibility' field is added")
+      );
 
     projectNavigation.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
@@ -161,6 +165,9 @@ public class ComponentAction implements NavigationWsAction {
       .prop("name", component.name())
       .prop("description", component.description())
       .prop("isFavorite", isFavourite(session, component));
+    if (Qualifiers.PROJECT.equals(component.qualifier())) {
+      json.prop("visibility", component.isPrivate() ? "private" : "public");
+    }
     List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
     writeExtensions(json, component, pages);
     if (analysis != null) {
