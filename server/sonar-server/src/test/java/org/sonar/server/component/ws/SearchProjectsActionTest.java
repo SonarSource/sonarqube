@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -55,7 +56,6 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
@@ -132,6 +132,9 @@ public class SearchProjectsActionTest {
     assertThat(def.isPost()).isFalse();
     assertThat(def.responseExampleAsString()).isNotEmpty();
     assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p", "f");
+    assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.4", "The 'languages' parameter accepts 'filter' to filter by language"),
+      tuple("6.4", "The 'private' field is added"));
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -618,6 +621,20 @@ public class SearchProjectsActionTest {
 
     assertThat(result.getComponentsList()).extracting(Component::getAnalysisDate)
       .containsOnly(formatDateTime(new Date(20_000_000_000L)), formatDateTime(new Date(30_000_000_000L)), "");
+  }
+
+  @Test
+  public void return_private_flag() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto privateProject = insertProjectInDbAndEs(newProjectDto(organization).setPrivate(true));
+    ComponentDto publicProject = insertProjectInDbAndEs(newProjectDto(organization).setPrivate(false));
+
+    SearchProjectsWsResponse result = call(request);
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::getPrivate)
+      .containsExactly(
+        tuple(privateProject.getKey(), privateProject.isPrivate()),
+        tuple(publicProject.getKey(), publicProject.isPrivate()));
   }
 
   @Test
