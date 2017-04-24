@@ -17,25 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v64;
 
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class MakeColumnNewProjectPrivateNotNullableTest {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeColumnNewProjectPrivateNotNullableTest.class, "organizations_with_nullable_new_project_private_column.sql");
 
-public class DbVersion64Test {
-  private DbVersion64 underTest = new DbVersion64();
-
-  @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1600);
-  }
+  private MakeColumnNewProjectPrivateNotNullable underTest = new MakeColumnNewProjectPrivateNotNullable(db.database());
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 36);
-  }
+  public void execute_makes_column_private_not_nullable() throws SQLException {
+    db.assertColumnDefinition("organizations", "new_project_private", Types.BOOLEAN, null, true);
 
+    underTest.execute();
+
+    db.assertColumnDefinition("organizations", "new_project_private", Types.BOOLEAN, null, false);
+  }
 }

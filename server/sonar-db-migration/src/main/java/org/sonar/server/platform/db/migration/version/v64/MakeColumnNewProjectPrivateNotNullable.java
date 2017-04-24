@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v64;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
-public class DbVersion64Test {
-  private DbVersion64 underTest = new DbVersion64();
-
-  @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1600);
+public class MakeColumnNewProjectPrivateNotNullable extends DdlChange {
+  public MakeColumnNewProjectPrivateNotNullable(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 36);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), "organizations")
+      .updateColumn(newBooleanColumnDefBuilder()
+        .setColumnName("new_project_private")
+        .setIsNullable(false)
+        .build())
+      .build());
   }
-
 }
