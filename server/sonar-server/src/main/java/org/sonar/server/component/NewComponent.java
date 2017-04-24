@@ -36,6 +36,7 @@ public class NewComponent {
   private final String branch;
   private final String qualifier;
   private final String name;
+  private final boolean isPrivate;
 
   private NewComponent(NewComponent.Builder builder) {
     this.organizationUuid = builder.organizationUuid;
@@ -43,6 +44,7 @@ public class NewComponent {
     this.branch = builder.branch;
     this.qualifier = builder.qualifier;
     this.name = builder.name;
+    this.isPrivate = builder.isPrivate;
   }
 
   public static Builder newComponentBuilder() {
@@ -70,12 +72,17 @@ public class NewComponent {
     return qualifier;
   }
 
+  public boolean isPrivate() {
+    return isPrivate;
+  }
+
   public static class Builder {
     private String organizationUuid;
     private String key;
     private String branch;
     private String qualifier = PROJECT;
     private String name;
+    private boolean isPrivate = false;
 
     private Builder() {
       // use static factory method newComponentBuilder()
@@ -103,6 +110,11 @@ public class NewComponent {
 
     public Builder setName(String name) {
       this.name = name;
+      return this;
+    }
+
+    public Builder setPrivate(boolean isPrivate) {
+      this.isPrivate = isPrivate;
       return this;
     }
 
