@@ -36,6 +36,7 @@ type State = {
 
 export default class SelectList extends React.PureComponent {
   currentKeyScope: string;
+  previousFilter: Function;
   previousKeyScope: string;
   props: Props;
   state: State;
@@ -66,8 +67,17 @@ export default class SelectList extends React.PureComponent {
 
   attachShortcuts = () => {
     this.previousKeyScope = key.getScope();
+    this.previousFilter = key.filter;
     this.currentKeyScope = uniqueId('key-scope');
     key.setScope(this.currentKeyScope);
+
+    // sometimes there is a *focused* search field next to the SelectList component
+    // we need to allow shortcuts in this case, but only for the used keys
+    key.filter = (event: KeyboardEvent & { target: HTMLElement }) => {
+      const tagName = (event.target || event.srcElement).tagName;
+      const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+      return [13, 38, 40].includes(event.keyCode) || !isInput;
+    };
 
     key('down', this.currentKeyScope, () => {
       this.setState(this.selectNextElement);
@@ -80,7 +90,7 @@ export default class SelectList extends React.PureComponent {
     });
 
     key('return', this.currentKeyScope, () => {
-      if (this.state.active) {
+      if (this.state.active != null) {
         this.handleSelect(this.state.active);
       }
       return false;
@@ -90,6 +100,7 @@ export default class SelectList extends React.PureComponent {
   detachShortcuts = () => {
     key.setScope(this.previousKeyScope);
     key.deleteScope(this.currentKeyScope);
+    key.filter = this.previousFilter;
   };
 
   handleSelect = (item: string) => {
