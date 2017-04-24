@@ -117,6 +117,10 @@ public class OrganizationDao implements Dao {
     return getMapper(dbSession).selectNewProjectPrivateByUuid(organization.getUuid());
   }
 
+  public void setNewProjectPrivate(DbSession dbSession, OrganizationDto organization, boolean newProjectPrivate) {
+    getMapper(dbSession).updateNewProjectPrivate(organization.getUuid(), newProjectPrivate, system2.now());
+  }
+
   public int update(DbSession dbSession, OrganizationDto organization) {
     checkDto(organization);
     organization.setUpdatedAt(system2.now());
