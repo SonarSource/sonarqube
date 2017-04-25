@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -69,11 +70,11 @@ public class PermissionTemplateService {
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
-  
+
   public boolean wouldUserHaveScanPermissionWithDefaultTemplate(DbSession dbSession,
-                                                                String organizationUuid, @Nullable Integer userId,
-                                                                @Nullable String branch, String projectKey,
-                                                                String qualifier) {
+    String organizationUuid, @Nullable Integer userId,
+    @Nullable String branch, String projectKey,
+    String qualifier) {
     if (userSession.hasPermission(OrganizationPermission.SCAN, organizationUuid)) {
       return true;
     }
@@ -141,20 +142,26 @@ public class PermissionTemplateService {
     List<PermissionTemplateUserDto> usersPermissions = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, template.getId());
     String organizationUuid = template.getOrganizationUuid();
     usersPermissions
+      .stream()
+      .filter(up -> permissionValidForProject(project, up.getPermission()))
       .forEach(up -> {
         UserPermissionDto dto = new UserPermissionDto(organizationUuid, up.getPermission(), up.getUserId(), project.getId());
         dbClient.userPermissionDao().insert(dbSession, dto);
       });
 
     List<PermissionTemplateGroupDto> groupsPermissions = dbClient.permissionTemplateDao().selectGroupPermissionsByTemplateId(dbSession, template.getId());
-    groupsPermissions.forEach(gp -> {
-      GroupPermissionDto dto = new GroupPermissionDto()
-        .setOrganizationUuid(organizationUuid)
-        .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
-        .setRole(gp.getPermission())
-        .setResourceId(project.getId());
-      dbClient.groupPermissionDao().insert(dbSession, dto);
-    });
+    groupsPermissions
+      .stream()
+      .filter(gp -> groupNameValidForProject(project, gp.getGroupName()))
+      .filter(gp -> permissionValidForProject(project, gp.getPermission()))
+      .forEach(gp -> {
+        GroupPermissionDto dto = new GroupPermissionDto()
+          .setOrganizationUuid(organizationUuid)
+          .setGroupId(isAnyone(gp.getGroupName()) ? null : gp.getGroupId())
+          .setRole(gp.getPermission())
+          .setResourceId(project.getId());
+        dbClient.groupPermissionDao().insert(dbSession, dto);
+      });
 
     List<PermissionTemplateCharacteristicDto> characteristics = dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, asList(template.getId()));
     if (projectCreatorUserId != null) {
@@ -164,12 +171,21 @@ public class PermissionTemplateService {
         .collect(java.util.stream.Collectors.toSet());
       characteristics.stream()
         .filter(PermissionTemplateCharacteristicDto::getWithProjectCreator)
+        .filter(up -> permissionValidForProject(project, up.getPermission()))
         .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
         .forEach(c -> {
           UserPermissionDto dto = new UserPermissionDto(organizationUuid, c.getPermission(), projectCreatorUserId, project.getId());
           dbClient.userPermissionDao().insert(dbSession, dto);
         });
     }
+  }
+
+  private static boolean permissionValidForProject(ComponentDto project, String permission) {
+    return project.isPrivate() || !ProjectPermissions.PUBLIC_PERMISSIONS.contains(permission);
+  }
+
+  private static boolean groupNameValidForProject(ComponentDto project, String groupName) {
+    return !project.isPrivate() || !isAnyone(groupName);
   }
 
   /**

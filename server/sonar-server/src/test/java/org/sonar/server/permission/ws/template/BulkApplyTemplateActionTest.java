@@ -99,14 +99,16 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     OrganizationDto otherOrganization = db.organizations().insert();
     db.components().insertPrivateProject(otherOrganization);
 
-    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto privateProject = db.components().insertPrivateProject(organization);
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
     ComponentDto view = db.components().insertView(organization);
     loginAsAdmin(organization);
 
     newRequest().setParam(PARAM_TEMPLATE_ID, template1.getUuid()).execute();
 
-    assertTemplate1AppliedToProject(project);
-    assertTemplate1AppliedToProject(view);
+    assertTemplate1AppliedToPrivateProject(privateProject);
+    assertTemplate1AppliedToPublicProject(publicProject);
+    assertTemplate1AppliedToPublicProject(view);
   }
 
   @Test
@@ -126,7 +128,8 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
 
   @Test
   public void bulk_apply_template_by_template_name() throws Exception {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization));
+    ComponentDto privateProject = db.components().insertPrivateProject(organization);
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
     loginAsAdmin(organization);
 
     newRequest()
@@ -134,31 +137,34 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
       .setParam(PARAM_TEMPLATE_NAME, template1.getName())
       .execute();
 
-    assertTemplate1AppliedToProject(project);
+    assertTemplate1AppliedToPrivateProject(privateProject);
+    assertTemplate1AppliedToPublicProject(publicProject);
   }
 
   @Test
   public void apply_template_by_qualifier() throws Exception {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization));
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
+    ComponentDto privateProject = db.components().insertPrivateProject(organization);
     ComponentDto view = db.components().insertComponent(newView(organization));
     loginAsAdmin(organization);
 
     newRequest()
       .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
-      .setParam(PARAM_QUALIFIER, project.qualifier()).execute();
+      .setParam(PARAM_QUALIFIER, privateProject.qualifier()).execute();
 
-    assertTemplate1AppliedToProject(project);
+    assertTemplate1AppliedToPrivateProject(privateProject);
+    assertTemplate1AppliedToPublicProject(publicProject);
     assertNoPermissionOnProject(view);
   }
 
   @Test
-  public void apply_template_by_query_on_name_and_key() throws Exception {
-    ComponentDto projectFoundByKey = ComponentTesting.newPrivateProjectDto(organization).setKey("sonar");
-    db.components().insertProjectAndSnapshot(projectFoundByKey);
-    ComponentDto projectFoundByName = ComponentTesting.newPrivateProjectDto(organization).setName("name-sonar-name");
-    db.components().insertProjectAndSnapshot(projectFoundByName);
+  public void apply_template_by_query_on_name_and_key_public_project() throws Exception {
+    ComponentDto publicProjectFoundByKey = ComponentTesting.newPublicProjectDto(organization).setKey("sonar");
+    db.components().insertProjectAndSnapshot(publicProjectFoundByKey);
+    ComponentDto publicProjectFoundByName = ComponentTesting.newPublicProjectDto(organization).setName("name-sonar-name");
+    db.components().insertProjectAndSnapshot(publicProjectFoundByName);
     // match must be exact on key
-    ComponentDto projectUntouched = ComponentTesting.newPrivateProjectDto(organization).setKey("new-sonar").setName("project-name");
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(organization).setKey("new-sonar").setName("project-name");
     db.components().insertProjectAndSnapshot(projectUntouched);
     loginAsAdmin(organization);
 
@@ -167,8 +173,29 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
       .setParam(Param.TEXT_QUERY, "sonar")
       .execute();
 
-    assertTemplate1AppliedToProject(projectFoundByKey);
-    assertTemplate1AppliedToProject(projectFoundByName);
+    assertTemplate1AppliedToPublicProject(publicProjectFoundByKey);
+    assertTemplate1AppliedToPublicProject(publicProjectFoundByName);
+    assertNoPermissionOnProject(projectUntouched);
+  }
+
+  @Test
+  public void apply_template_by_query_on_name_and_key() throws Exception {
+    ComponentDto privateProjectFoundByKey = ComponentTesting.newPrivateProjectDto(organization).setKey("sonar");
+    db.components().insertProjectAndSnapshot(privateProjectFoundByKey);
+    ComponentDto privateProjectFoundByName = ComponentTesting.newPrivateProjectDto(organization).setName("name-sonar-name");
+    db.components().insertProjectAndSnapshot(privateProjectFoundByName);
+    // match must be exact on key
+    ComponentDto projectUntouched = ComponentTesting.newPublicProjectDto(organization).setKey("new-sonar").setName("project-name");
+    db.components().insertProjectAndSnapshot(projectUntouched);
+    loginAsAdmin(organization);
+
+    newRequest()
+      .setParam(PARAM_TEMPLATE_ID, template1.getUuid())
+      .setParam(Param.TEXT_QUERY, "sonar")
+      .execute();
+
+    assertTemplate1AppliedToPrivateProject(privateProjectFoundByKey);
+    assertTemplate1AppliedToPrivateProject(privateProjectFoundByName);
     assertNoPermissionOnProject(projectUntouched);
   }
 
@@ -192,7 +219,15 @@ public class BulkApplyTemplateActionTest extends BasePermissionWsTest<BulkApplyT
     newRequest().setParam(PARAM_TEMPLATE_ID, "unknown-template-uuid").execute();
   }
 
-  private void assertTemplate1AppliedToProject(ComponentDto project) throws Exception {
+  private void assertTemplate1AppliedToPublicProject(ComponentDto project) throws Exception {
+    assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
+    assertThat(selectProjectPermissionGroups(project, UserRole.USER)).isEmpty();
+    assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
+    assertThat(selectProjectPermissionUsers(project, UserRole.CODEVIEWER)).isEmpty();
+    assertThat(selectProjectPermissionUsers(project, UserRole.ISSUE_ADMIN)).containsExactly(user2.getId());
+  }
+
+  private void assertTemplate1AppliedToPrivateProject(ComponentDto project) throws Exception {
     assertThat(selectProjectPermissionGroups(project, UserRole.ADMIN)).containsExactly(group1.getName());
     assertThat(selectProjectPermissionGroups(project, UserRole.USER)).containsExactly(group2.getName());
     assertThat(selectProjectPermissionUsers(project, UserRole.ADMIN)).isEmpty();
