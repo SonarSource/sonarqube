@@ -87,10 +87,10 @@ export default class ModuleFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.modules.length > 0}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.modules.length}
         />
 
         {this.props.open &&

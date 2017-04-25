@@ -23,20 +23,10 @@ exports[`test should render closed facet with value 1`] = `
    
   foo
    
-  <svg
-    height="8"
-    style={
-      Object {
-        "paddingLeft": 8,
-        "paddingTop": 5,
-      }
-    }
-    viewBox="0 0 1792 1792"
-    width="8">
-    <path
-      d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"
-      fill="#4b9fd5" />
-  </svg>
+  <span
+    className="spacer-left badge is-rounded">
+    1
+  </span>
 </a>
 `;
 

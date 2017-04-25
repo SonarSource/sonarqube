@@ -86,10 +86,10 @@ export default class TypeFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.types.length > 0}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.types.length}
         />
 
         {this.props.open &&

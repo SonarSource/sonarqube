@@ -135,10 +135,10 @@ export default class AssigneeFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={!this.props.assigned || this.props.assignees.length > 0}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.assignees.length + (this.props.assigned ? 0 : 1)}
         />
 
         {this.props.open &&

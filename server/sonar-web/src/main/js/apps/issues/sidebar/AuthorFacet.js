@@ -73,10 +73,10 @@ export default class AuthorFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.authors.length > 0}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.authors.length}
         />
 
         {this.props.open &&

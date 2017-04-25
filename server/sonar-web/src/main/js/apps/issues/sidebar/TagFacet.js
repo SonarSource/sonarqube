@@ -95,10 +95,10 @@ export default class TagFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.tags.length > 0}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.tags.length}
         />
 
         {this.props.open &&

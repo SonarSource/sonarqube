@@ -128,10 +128,10 @@ export default class ProjectFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.projects.length > 0}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.projects.length}
         />
 
         {this.props.open &&

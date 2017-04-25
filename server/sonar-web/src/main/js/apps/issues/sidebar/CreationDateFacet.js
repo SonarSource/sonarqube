@@ -261,10 +261,10 @@ export default class CreationDateFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={hasValue}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={hasValue ? 1 : 0}
         />
 
         {this.props.open && this.renderInner()}

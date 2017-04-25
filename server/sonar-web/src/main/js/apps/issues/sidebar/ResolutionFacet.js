@@ -103,10 +103,10 @@ export default class ResolutionFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={!this.props.resolved || this.props.resolutions.length > 0}
           name={translate('issues.facet', this.property)}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.resolutions.length + (this.props.resolved ? 0 : 1)}
         />
 
         {this.props.open &&

@@ -4,10 +4,10 @@ exports[`test should render 1`] = `
 <FacetBox
   property="assignees">
   <FacetHeader
-    hasValue={false}
     name="issues.facet.assignees"
     onClick={[Function]}
-    open={true} />
+    open={true}
+    values={0} />
   <FacetItemsList>
     <FacetItem
       active={false}
@@ -66,10 +66,10 @@ exports[`test should select unassigned 1`] = `
 <FacetBox
   property="assignees">
   <FacetHeader
-    hasValue={true}
     name="issues.facet.assignees"
     onClick={[Function]}
-    open={true} />
+    open={true}
+    values={1} />
   <FacetItemsList>
     <FacetItem
       active={true}
@@ -118,10 +118,10 @@ exports[`test should select user 1`] = `
 <FacetBox
   property="assignees">
   <FacetHeader
-    hasValue={true}
     name="issues.facet.assignees"
     onClick={[Function]}
-    open={true} />
+    open={true}
+    values={1} />
   <FacetItemsList>
     <FacetItem
       active={false}

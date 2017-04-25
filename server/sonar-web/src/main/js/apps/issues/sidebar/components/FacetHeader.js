@@ -21,18 +21,17 @@
 /* eslint-disable max-len */
 import React from 'react';
 
-type Props = {
-  hasValue: boolean,
+type Props = {|
   name: string,
   onClick?: () => void,
-  open: boolean
-};
+  open: boolean,
+  values?: number
+|};
 
 export default class FacetHeader extends React.PureComponent {
   props: Props;
 
   static defaultProps = {
-    hasValue: false,
     open: true
   };
 
@@ -61,14 +60,10 @@ export default class FacetHeader extends React.PureComponent {
   }
 
   renderValueIndicator() {
-    return this.props.hasValue && !this.props.open
-      ? <svg viewBox="0 0 1792 1792" width="8" height="8" style={{ paddingTop: 5, paddingLeft: 8 }}>
-          <path
-            d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"
-            fill="#4b9fd5"
-          />
-        </svg>
-      : null;
+    if (this.props.open || !this.props.values) {
+      return null;
+    }
+    return <span className="spacer-left badge is-rounded">{this.props.values}</span>;
   }
 
   render() {
