@@ -75,7 +75,10 @@ public class SearchAction implements ProjectsWsAction {
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
 
-    action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
+    action.setChangelog(
+      new Change("6.4", "The 'uuid' field is deprecated in the response"),
+      new Change("6.4", "The 'private' field is added")
+    );
 
     action.createParam(PARAM_QUALIFIERS)
       .setDescription("Comma-separated list of component qualifiers. Filter the results with the specified qualifiers")
@@ -151,7 +154,8 @@ public class SearchAction implements ProjectsWsAction {
       .setId(dto.uuid())
       .setKey(dto.key())
       .setName(dto.name())
-      .setQualifier(dto.qualifier());
+      .setQualifier(dto.qualifier())
+      .setPrivate(dto.isPrivate());
     return builder.build();
   }
 

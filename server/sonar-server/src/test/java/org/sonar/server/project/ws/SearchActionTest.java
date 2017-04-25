@@ -28,6 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -48,6 +49,7 @@ import org.sonarqube.ws.client.project.SearchWsRequest;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -224,6 +226,11 @@ public class SearchActionTest {
     assertThat(action.handler()).isEqualTo(ws.getDef().handler());
     assertThat(action.params()).hasSize(5);
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(
+        tuple("6.4", "The 'uuid' field is deprecated in the response"),
+        tuple("6.4", "The 'private' field is added")
+      );
 
     WebService.Param organization = action.param("organization");
     Assertions.assertThat(organization.description()).isEqualTo("The key of the organization");
@@ -265,6 +272,22 @@ public class SearchActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
     assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void should_return_private_flag() throws URISyntaxException, IOException {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER, organization);
+    ComponentDto privateProject = db.components().insertComponent(newProjectDto(organization).setPrivate(true));
+    ComponentDto publicProject = db.components().insertComponent(newProjectDto(organization).setPrivate(false));
+
+    SearchWsResponse response = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(SearchWsResponse.class);
+    assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getPrivate)
+      .containsExactly(
+        tuple(privateProject.getKey(), privateProject.isPrivate()),
+        tuple(publicProject.getKey(), publicProject.isPrivate()));
   }
 
   private SearchWsResponse call(SearchWsRequest wsRequest) {
