@@ -22,6 +22,7 @@ package org.sonar.server.ui.ws;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -63,7 +64,8 @@ public class OrganizationAction implements NavigationWsAction {
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("organization-example.json"))
-      .setSince("6.3");
+      .setSince("6.3")
+      .setChangelog(new Change("6.4", "The field 'projectVisibility' is added"));
 
     projectNavigation.createParam(PARAM_ORGANIZATION)
       .setRequired(true)
@@ -78,22 +80,24 @@ public class OrganizationAction implements NavigationWsAction {
       OrganizationDto organization = checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "No organization with key '%s'", organizationKey);
+      boolean newProjectPrivate = dbClient.organizationDao().getNewProjectPrivate(dbSession, organization);
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeOrganization(json, organization);
+      writeOrganization(json, organization, newProjectPrivate);
       json.endObject()
         .close();
     }
   }
 
-  private void writeOrganization(JsonWriter json, OrganizationDto organization) {
+  private void writeOrganization(JsonWriter json, OrganizationDto organization, boolean newProjectPrivate) {
     json.name("organization")
       .beginObject()
       .prop("canAdmin", userSession.hasPermission(OrganizationPermission.ADMINISTER, organization))
       .prop("canProvisionProjects", userSession.hasPermission(OrganizationPermission.PROVISION_PROJECTS, organization))
       .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasPermission(OrganizationPermission.ADMINISTER, organization))
-      .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()));
+      .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
+      .prop("projectVisibility", newProjectPrivate ? "private" : "public");
     Predicate<Page> personalOrgForBilling = page -> organization.getUserId() == null || !page.getKey().startsWith("billing/");
     List<Page> pages = pageRepository.getOrganizationPages(false).stream().filter(personalOrgForBilling).collect(toList());
     json.name("pages");
