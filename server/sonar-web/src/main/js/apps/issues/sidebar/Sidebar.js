@@ -65,8 +65,9 @@ export default class Sidebar extends React.PureComponent {
 
     const displayProjectsFacet: boolean =
       component == null || !['TRK', 'BRC', 'DIR', 'DEV_PRJ'].includes(component.qualifier);
-    const displayModulesFacet = component == null || component.qualifier !== 'DIR';
-    const displayDirectoriesFacet = component == null || component.qualifier !== 'DIR';
+    const displayModulesFacet = component != null && component.qualifier !== 'DIR';
+    const displayDirectoriesFacet = component != null && component.qualifier !== 'DIR';
+    const displayFilesFacet = component != null;
     const displayAuthorFacet = component == null || component.qualifier !== 'DEV';
 
     return (
@@ -167,15 +168,16 @@ export default class Sidebar extends React.PureComponent {
             referencedComponents={this.props.referencedComponents}
             stats={facets.directories}
           />}
-        <FileFacet
-          facetMode={query.facetMode}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.files}
-          files={query.files}
-          referencedComponents={this.props.referencedComponents}
-          stats={facets.files}
-        />
+        {displayFilesFacet &&
+          <FileFacet
+            facetMode={query.facetMode}
+            onChange={this.props.onFilterChange}
+            onToggle={this.props.onFacetToggle}
+            open={!!openFacets.files}
+            files={query.files}
+            referencedComponents={this.props.referencedComponents}
+            stats={facets.files}
+          />}
         {!this.props.myIssues &&
           <AssigneeFacet
             component={component}
