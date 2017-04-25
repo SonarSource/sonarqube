@@ -1,11 +1,16 @@
-exports[`test should not render breadcrumbs with one element 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render breadcrumbs with one element 1`] = `
 <h2
-  className="navbar-context-title">
+  className="navbar-context-title"
+>
   <span>
     <span
-      className="navbar-context-title-qualifier little-spacer-right">
+      className="navbar-context-title-qualifier little-spacer-right"
+    >
       <QualifierIcon
-        qualifier="TRK" />
+        qualifier="TRK"
+      />
     </span>
     <Link
       className="link-base-color"
@@ -18,7 +23,8 @@ exports[`test should not render breadcrumbs with one element 1`] = `
             "id": "my-project",
           },
         }
-      }>
+      }
+    >
       <strong>
         My Project
       </strong>
@@ -27,14 +33,17 @@ exports[`test should not render breadcrumbs with one element 1`] = `
 </h2>
 `;
 
-exports[`test should render organization 1`] = `
+exports[`should render organization 1`] = `
 <h2
-  className="navbar-context-title">
+  className="navbar-context-title"
+>
   <span>
     <span
-      className="navbar-context-title-qualifier little-spacer-right">
+      className="navbar-context-title-qualifier little-spacer-right"
+    >
       <QualifierIcon
-        qualifier="TRK" />
+        qualifier="TRK"
+      />
     </span>
     <OrganizationLink
       className="link-base-color"
@@ -43,11 +52,13 @@ exports[`test should render organization 1`] = `
           "key": "foo",
           "name": "The Foo Organization",
         }
-      }>
+      }
+    >
       The Foo Organization
     </OrganizationLink>
     <span
-      className="slash-separator" />
+      className="slash-separator"
+    />
   </span>
   <span>
     <Link
@@ -61,7 +72,8 @@ exports[`test should render organization 1`] = `
             "id": "my-project",
           },
         }
-      }>
+      }
+    >
       <strong>
         My Project
       </strong>

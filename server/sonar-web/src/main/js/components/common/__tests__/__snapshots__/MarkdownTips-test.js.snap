@@ -1,27 +1,34 @@
-exports[`test should render the tips 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the tips 1`] = `
 <div
-  className="markdown-tips">
+  className="markdown-tips"
+>
   <a
     className="little-spacer-right"
     href="#"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     markdown.helplink
   </a>
   :
   <span
-    className="spacer-left">
+    className="spacer-left"
+  >
     *
     bold
     *
   </span>
   <span
-    className="spacer-left">
+    className="spacer-left"
+  >
     \`\`
     code
     \`\`
   </span>
   <span
-    className="spacer-left">
+    className="spacer-left"
+  >
     * 
     bulleted_point
   </span>

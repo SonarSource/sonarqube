@@ -1,4 +1,6 @@
-exports[`test should match snapshot 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should match snapshot 1`] = `
 <span>
   <OrganizationLink
     organization={
@@ -6,14 +8,16 @@ exports[`test should match snapshot 1`] = `
         "key": "foo",
         "name": "foo",
       }
-    }>
+    }
+  >
     foo
   </OrganizationLink>
   <span
-    className="slash-separator" />
+    className="slash-separator"
+  />
 </span>
 `;
 
-exports[`test should not be displayed 1`] = `null`;
+exports[`should not be displayed 1`] = `null`;
 
-exports[`test should not be displayed 2`] = `null`;
+exports[`should not be displayed 2`] = `null`;

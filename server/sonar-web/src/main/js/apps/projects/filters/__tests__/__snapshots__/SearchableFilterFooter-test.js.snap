@@ -1,8 +1,11 @@
-exports[`test should render the languages without the ones in the facet 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the languages without the ones in the facet 1`] = `
 <div
-  className="search-navigator-facet-footer projects-facet-footer">
+  className="search-navigator-facet-footer projects-facet-footer"
+>
   <Select
-    addLabelText="Add \"{label}\"?"
+    addLabelText="Add \\"{label}\\"?"
     arrowRenderer={[Function]}
     autosize={true}
     backspaceRemoves={true}
@@ -56,15 +59,17 @@ exports[`test should render the languages without the ones in the facet 1`] = `
     simpleValue={false}
     tabSelectsValue={true}
     valueComponent={[Function]}
-    valueKey="value" />
+    valueKey="value"
+  />
 </div>
 `;
 
-exports[`test should render the tags without the ones in the facet 1`] = `
+exports[`should render the tags without the ones in the facet 1`] = `
 <div
-  className="search-navigator-facet-footer projects-facet-footer">
+  className="search-navigator-facet-footer projects-facet-footer"
+>
   <Select
-    addLabelText="Add \"{label}\"?"
+    addLabelText="Add \\"{label}\\"?"
     arrowRenderer={[Function]}
     autosize={true}
     backspaceRemoves={true}
@@ -118,6 +123,7 @@ exports[`test should render the tags without the ones in the facet 1`] = `
     simpleValue={false}
     tabSelectsValue={true}
     valueComponent={[Function]}
-    valueKey="value" />
+    valueKey="value"
+  />
 </div>
 `;

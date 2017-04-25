@@ -1,6 +1,8 @@
-exports[`test reducer 1`] = `Object {}`;
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`test reducer 2`] = `
+exports[`reducer 1`] = `Object {}`;
+
+exports[`reducer 2`] = `
 Object {
   "project-foo": Array [
     "AVgFqeOSKpGuA48ADATE",
@@ -9,7 +11,7 @@ Object {
 }
 `;
 
-exports[`test reducer 3`] = `
+exports[`reducer 3`] = `
 Object {
   "project-foo": Array [
     "AVgFqeOSKpGuA48ADATE",
@@ -19,7 +21,7 @@ Object {
 }
 `;
 
-exports[`test reducer 4`] = `
+exports[`reducer 4`] = `
 Object {
   "project-bar": Array [
     "AVgGkRvCrrTJiPpCD-rG",
@@ -32,7 +34,7 @@ Object {
 }
 `;
 
-exports[`test reducer 5`] = `
+exports[`reducer 5`] = `
 Object {
   "project-bar": Array [
     "AVgGkRvCrrTJiPpCD-rG",
@@ -44,7 +46,7 @@ Object {
 }
 `;
 
-exports[`test reducer 6`] = `
+exports[`reducer 6`] = `
 Object {
   "project-bar": Array [],
   "project-foo": Array [

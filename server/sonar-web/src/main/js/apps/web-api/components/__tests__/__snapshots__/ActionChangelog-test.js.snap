@@ -1,18 +1,25 @@
-exports[`test should render 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
 <ul
-  className="big-spacer-top">
+  className="big-spacer-top"
+>
   <li
-    className="spacer-top">
+    className="spacer-top"
+  >
     <span
-      className="spacer-right badge">
+      className="spacer-right badge"
+    >
       5.0
     </span>
     foo
   </li>
   <li
-    className="spacer-top">
+    className="spacer-top"
+  >
     <span
-      className="spacer-right badge">
+      className="spacer-right badge"
+    >
       5.1
     </span>
     bar

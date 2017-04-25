@@ -1,36 +1,46 @@
-exports[`test should render one flow 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render one flow 1`] = `
 <div
-  className="concise-issue-locations pull-right">
+  className="concise-issue-locations pull-right"
+>
   <ConciseIssueLocationBadge
     count={3}
     onClick={[Function]}
-    selected={false} />
+    selected={false}
+  />
 </div>
 `;
 
-exports[`test should render secondary locations 1`] = `
+exports[`should render secondary locations 1`] = `
 <div
-  className="concise-issue-locations pull-right">
+  className="concise-issue-locations pull-right"
+>
   <ConciseIssueLocationBadge
     count={3}
-    selected={true} />
+    selected={true}
+  />
 </div>
 `;
 
-exports[`test should render several flows 1`] = `
+exports[`should render several flows 1`] = `
 <div
-  className="concise-issue-locations pull-right">
+  className="concise-issue-locations pull-right"
+>
   <ConciseIssueLocationBadge
     count={3}
     onClick={[Function]}
-    selected={false} />
+    selected={false}
+  />
   <ConciseIssueLocationBadge
     count={2}
     onClick={[Function]}
-    selected={false} />
+    selected={false}
+  />
   <ConciseIssueLocationBadge
     count={3}
     onClick={[Function]}
-    selected={false} />
+    selected={false}
+  />
 </div>
 `;

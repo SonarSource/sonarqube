@@ -1,4 +1,6 @@
-exports[`test should open the popup when the button is clicked 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open the popup when the button is clicked 1`] = `
 Array [
   Array [
     "assign",
@@ -16,7 +18,7 @@ Array [
 ]
 `;
 
-exports[`test should open the popup when the button is clicked 2`] = `
+exports[`should open the popup when the button is clicked 2`] = `
 <BubblePopupHelper
   isOpen={true}
   popup={
@@ -29,33 +31,40 @@ exports[`test should open the popup when the button is clicked 2`] = `
         }
       }
       onFail={[Function]}
-      onSelect={[Function]} />
+      onSelect={[Function]}
+    />
   }
   position="bottomleft"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="button-link issue-action issue-action-with-options js-issue-assign"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <span>
       <span
-        className="text-top">
+        className="text-top"
+      >
         <Connect(Avatar)
           className="little-spacer-right"
           hash="gravatarhash"
-          size={16} />
+          size={16}
+        />
       </span>
       <span
-        className="issue-meta-label">
+        className="issue-meta-label"
+      >
         John Doe
       </span>
     </span>
     <i
-      className="little-spacer-left icon-dropdown" />
+      className="little-spacer-left icon-dropdown"
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render with the action 1`] = `
+exports[`should render with the action 1`] = `
 <BubblePopupHelper
   isOpen={false}
   popup={
@@ -68,43 +77,53 @@ exports[`test should render with the action 1`] = `
         }
       }
       onFail={[Function]}
-      onSelect={[Function]} />
+      onSelect={[Function]}
+    />
   }
   position="bottomleft"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="button-link issue-action issue-action-with-options js-issue-assign"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <span>
       <span
-        className="text-top">
+        className="text-top"
+      >
         <Connect(Avatar)
           className="little-spacer-right"
           hash="gravatarhash"
-          size={16} />
+          size={16}
+        />
       </span>
       <span
-        className="issue-meta-label">
+        className="issue-meta-label"
+      >
         John Doe
       </span>
     </span>
     <i
-      className="little-spacer-left icon-dropdown" />
+      className="little-spacer-left icon-dropdown"
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render without the action when the correct rights are missing 1`] = `
+exports[`should render without the action when the correct rights are missing 1`] = `
 <span>
   <span
-    className="text-top">
+    className="text-top"
+  >
     <Connect(Avatar)
       className="little-spacer-right"
       hash="gravatarhash"
-      size={16} />
+      size={16}
+    />
   </span>
   <span
-    className="issue-meta-label">
+    className="issue-meta-label"
+  >
     John Doe
   </span>
 </span>

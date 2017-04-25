@@ -1,6 +1,8 @@
-exports[`test reducer 1`] = `Object {}`;
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`test reducer 2`] = `
+exports[`reducer 1`] = `Object {}`;
+
+exports[`reducer 2`] = `
 Object {
   "project-foo": Object {
     "pageIndex": 1,
@@ -10,7 +12,7 @@ Object {
 }
 `;
 
-exports[`test reducer 3`] = `
+exports[`reducer 3`] = `
 Object {
   "project-foo": Object {
     "pageIndex": 2,

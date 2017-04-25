@@ -1,7 +1,10 @@
-exports[`test should render 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
 <div
   className="search-navigator-facet-box"
-  data-property="foo">
+  data-property="foo"
+>
   <div />
 </div>
 `;

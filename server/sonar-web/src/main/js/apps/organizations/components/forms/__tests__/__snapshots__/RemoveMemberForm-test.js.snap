@@ -1,4 +1,6 @@
-exports[`test should correctly handle user interactions 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly handle user interactions 1`] = `
 Array [
   Array [
     Object {
@@ -11,18 +13,20 @@ Array [
 ]
 `;
 
-exports[`test should render and open the modal 1`] = `
+exports[`should render and open the modal 1`] = `
 <a
   href="#"
-  onClick={[Function]}>
+  onClick={[Function]}
+>
   organization.members.remove
 </a>
 `;
 
-exports[`test should render and open the modal 2`] = `
+exports[`should render and open the modal 2`] = `
 <a
   href="#"
-  onClick={[Function]}>
+  onClick={[Function]}
+>
   organization.members.remove
   <Modal
     ariaHideApp={true}
@@ -34,17 +38,21 @@ exports[`test should render and open the modal 2`] = `
     overlayClassName="modal-overlay"
     parentSelector={[Function]}
     portalClassName="ReactModalPortal"
-    shouldCloseOnOverlayClick={true}>
+    shouldCloseOnOverlayClick={true}
+  >
     <header
-      className="modal-head">
+      className="modal-head"
+    >
       <h2>
         users.remove
       </h2>
     </header>
     <form
-      onSubmit={[Function]}>
+      onSubmit={[Function]}
+    >
       <div
-        className="modal-body markdown">
+        className="modal-body markdown"
+      >
         <p>
           organization.members.remove_x.Admin Istrator.MyOrg
         </p>
@@ -64,18 +72,21 @@ exports[`test should render and open the modal 2`] = `
         </ul>
       </div>
       <footer
-        className="modal-foot">
+        className="modal-foot"
+      >
         <div>
           <button
             autoFocus={true}
             className="button-red"
-            type="submit">
+            type="submit"
+          >
             remove
           </button>
           <button
             className="button-link"
             onClick={[Function]}
-            type="reset">
+            type="reset"
+          >
             cancel
           </button>
         </div>

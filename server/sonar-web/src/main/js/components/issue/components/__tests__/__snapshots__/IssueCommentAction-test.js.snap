@@ -1,21 +1,28 @@
-exports[`test should open the popup when the button is clicked 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open the popup when the button is clicked 1`] = `
 <li
-  className="issue-meta">
+  className="issue-meta"
+>
   <BubblePopupHelper
     isOpen={true}
     popup={
       <CommentPopup
         customClass="issue-comment-bubble-popup"
         onComment={[Function]}
-        toggleComment={[Function]} />
+        toggleComment={[Function]}
+      />
     }
     position="bottomleft"
-    togglePopup={[Function]}>
+    togglePopup={[Function]}
+  >
     <button
       className="button-link issue-action js-issue-comment"
-      onClick={[Function]}>
+      onClick={[Function]}
+    >
       <span
-        className="issue-meta-label">
+        className="issue-meta-label"
+      >
         issue.comment.formlink
       </span>
     </button>
@@ -23,24 +30,29 @@ exports[`test should open the popup when the button is clicked 1`] = `
 </li>
 `;
 
-exports[`test should render correctly 1`] = `
+exports[`should render correctly 1`] = `
 <li
-  className="issue-meta">
+  className="issue-meta"
+>
   <BubblePopupHelper
     isOpen={false}
     popup={
       <CommentPopup
         customClass="issue-comment-bubble-popup"
         onComment={[Function]}
-        toggleComment={[Function]} />
+        toggleComment={[Function]}
+      />
     }
     position="bottomleft"
-    togglePopup={[Function]}>
+    togglePopup={[Function]}
+  >
     <button
       className="button-link issue-action js-issue-comment"
-      onClick={[Function]}>
+      onClick={[Function]}
+    >
       <span
-        className="issue-meta-label">
+        className="issue-meta-label"
+      >
         issue.comment.formlink
       </span>
     </button>

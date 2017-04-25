@@ -1,16 +1,21 @@
-exports[`test should not render icon 1`] = `null`;
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`test should render icon 1`] = `
+exports[`should not render icon 1`] = `null`;
+
+exports[`should render icon 1`] = `
 <i
-  className="icon-qualifier-trk" />
+  className="icon-qualifier-trk"
+/>
 `;
 
-exports[`test should render icon 2`] = `
+exports[`should render icon 2`] = `
 <i
-  className="icon-qualifier-trk" />
+  className="icon-qualifier-trk"
+/>
 `;
 
-exports[`test should render with custom class 1`] = `
+exports[`should render with custom class 1`] = `
 <i
-  className="icon-qualifier-trk spacer-right" />
+  className="icon-qualifier-trk spacer-right"
+/>
 `;

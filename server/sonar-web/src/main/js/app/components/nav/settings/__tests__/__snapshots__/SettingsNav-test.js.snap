@@ -1,68 +1,85 @@
-exports[`test should work with extensions 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should work with extensions 1`] = `
 <nav
   className="navbar navbar-context page-container"
-  id="context-navigation">
+  id="context-navigation"
+>
   <div
-    className="navbar-context-inner">
+    className="navbar-context-inner"
+  >
     <div
-      className="container">
+      className="container"
+    >
       <ul
-        className="nav navbar-nav nav-crumbs">
+        className="nav navbar-nav nav-crumbs"
+      >
         <li>
           <IndexLink
-            to="/settings">
+            to="/settings"
+          >
             layout.settings
           </IndexLink>
         </li>
       </ul>
       <ul
-        className="nav navbar-nav nav-tabs">
+        className="nav navbar-nav nav-tabs"
+      >
         <li
-          className="dropdown active">
+          className="dropdown active"
+        >
           <a
             className="dropdown-toggle"
             data-toggle="dropdown"
             href="#"
-            id="settings-navigation-configuration">
+            id="settings-navigation-configuration"
+          >
             sidebar.project_settings
              
             <i
-              className="icon-dropdown" />
+              className="icon-dropdown"
+            />
           </a>
           <ul
-            className="dropdown-menu">
+            className="dropdown-menu"
+          >
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/settings">
+                to="/settings"
+              >
                 settings.page
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/settings/licenses">
+                to="/settings/licenses"
+              >
                 property.category.licenses
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/settings/encryption">
+                to="/settings/encryption"
+              >
                 property.category.security.encryption
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/settings/server_id">
+                to="/settings/server_id"
+              >
                 property.category.server_id
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/metrics">
+                to="/metrics"
+              >
                 Custom Metrics
               </IndexLink>
             </li>
@@ -71,108 +88,129 @@ exports[`test should work with extensions 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/admin/extension/foo">
+                to="/admin/extension/foo"
+              >
                 Foo
               </Link>
             </li>
           </ul>
         </li>
         <li
-          className="dropdown">
+          className="dropdown"
+        >
           <a
             className="dropdown-toggle"
             data-toggle="dropdown"
-            href="#">
+            href="#"
+          >
             sidebar.security
              
             <i
-              className="icon-dropdown" />
+              className="icon-dropdown"
+            />
           </a>
           <ul
-            className="dropdown-menu">
+            className="dropdown-menu"
+          >
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/users">
+                to="/users"
+              >
                 users.page
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/groups">
+                to="/groups"
+              >
                 user_groups.page
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/roles/global">
+                to="/roles/global"
+              >
                 global_permissions.page
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/permission_templates">
+                to="/permission_templates"
+              >
                 permission_templates
               </IndexLink>
             </li>
           </ul>
         </li>
         <li
-          className="dropdown">
+          className="dropdown"
+        >
           <a
             className="dropdown-toggle"
             data-toggle="dropdown"
-            href="#">
+            href="#"
+          >
             sidebar.projects
              
             <i
-              className="icon-dropdown" />
+              className="icon-dropdown"
+            />
           </a>
           <ul
-            className="dropdown-menu">
+            className="dropdown-menu"
+          >
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/projects_admin">
+                to="/projects_admin"
+              >
                 Management
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/background_tasks">
+                to="/background_tasks"
+              >
                 background_tasks.page
               </IndexLink>
             </li>
           </ul>
         </li>
         <li
-          className="dropdown">
+          className="dropdown"
+        >
           <a
             className="dropdown-toggle"
             data-toggle="dropdown"
-            href="#">
+            href="#"
+          >
             sidebar.system
              
             <i
-              className="icon-dropdown" />
+              className="icon-dropdown"
+            />
           </a>
           <ul
-            className="dropdown-menu">
+            className="dropdown-menu"
+          >
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/updatecenter">
+                to="/updatecenter"
+              >
                 update_center.page
               </IndexLink>
             </li>
             <li>
               <IndexLink
                 activeClassName="active"
-                to="/system">
+                to="/system"
+              >
                 system_info.page
               </IndexLink>
             </li>

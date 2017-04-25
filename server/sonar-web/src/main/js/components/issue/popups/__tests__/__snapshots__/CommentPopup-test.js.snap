@@ -1,73 +1,91 @@
-exports[`test should render the comment popup correctly when changing a comment 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the comment popup correctly when changing a comment 1`] = `
 <BubblePopup
-  customClass="bubble-popup-bottom-right">
+  customClass="bubble-popup-bottom-right"
+>
   <div
-    className="issue-comment-form-text">
+    className="issue-comment-form-text"
+  >
     <textarea
       autoFocus={true}
       onChange={[Function]}
       onKeyDown={[Function]}
       placeholder=""
       rows="2"
-      value="*test*" />
+      value="*test*"
+    />
   </div>
   <div
-    className="issue-comment-form-footer">
+    className="issue-comment-form-footer"
+  >
     <div
-      className="issue-comment-form-actions">
+      className="issue-comment-form-actions"
+    >
       <button
         className="js-issue-comment-submit little-spacer-right"
         disabled={false}
-        onClick={[Function]}>
+        onClick={[Function]}
+      >
         save
       </button>
       <a
         className="js-issue-comment-cancel"
         href="#"
-        onClick={[Function]}>
+        onClick={[Function]}
+      >
         cancel
       </a>
     </div>
     <div
-      className="issue-comment-form-tips">
+      className="issue-comment-form-tips"
+    >
       <MarkdownTips />
     </div>
   </div>
 </BubblePopup>
 `;
 
-exports[`test should render the comment popup correctly without existing comment 1`] = `
+exports[`should render the comment popup correctly without existing comment 1`] = `
 <BubblePopup
-  customClass="myclass bubble-popup-bottom-right">
+  customClass="myclass bubble-popup-bottom-right"
+>
   <div
-    className="issue-comment-form-text">
+    className="issue-comment-form-text"
+  >
     <textarea
       autoFocus={true}
       onChange={[Function]}
       onKeyDown={[Function]}
       placeholder="placeholder test"
       rows="2"
-      value="" />
+      value=""
+    />
   </div>
   <div
-    className="issue-comment-form-footer">
+    className="issue-comment-form-footer"
+  >
     <div
-      className="issue-comment-form-actions">
+      className="issue-comment-form-actions"
+    >
       <button
         className="js-issue-comment-submit little-spacer-right"
         disabled={true}
-        onClick={[Function]}>
+        onClick={[Function]}
+      >
         issue.comment.submit
       </button>
       <a
         className="js-issue-comment-cancel"
         href="#"
-        onClick={[Function]}>
+        onClick={[Function]}
+      >
         cancel
       </a>
     </div>
     <div
-      className="issue-comment-form-tips">
+      className="issue-comment-form-tips"
+    >
       <MarkdownTips />
     </div>
   </div>

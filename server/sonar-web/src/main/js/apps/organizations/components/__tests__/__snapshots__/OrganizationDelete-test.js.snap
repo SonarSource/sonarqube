@@ -1,17 +1,24 @@
-exports[`test smoke test 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`smoke test 1`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <HelmetWrapper
     title="organization.delete - Foo"
-    titleTemplate="%s - SonarQube" />
+    titleTemplate="%s - SonarQube"
+  />
   <header
-    className="page-header">
+    className="page-header"
+  >
     <h1
-      className="page-title">
+      className="page-title"
+    >
       organization.delete
     </h1>
     <div
-      className="page-description">
+      className="page-description"
+    >
       organization.delete.description
     </div>
   </header>
@@ -19,27 +26,33 @@ exports[`test smoke test 1`] = `
     <button
       className="button-red"
       disabled={false}
-      onClick={[Function]}>
+      onClick={[Function]}
+    >
       delete
     </button>
   </div>
 </div>
 `;
 
-exports[`test smoke test 2`] = `
+exports[`smoke test 2`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <HelmetWrapper
     title="organization.delete - Foo"
-    titleTemplate="%s - SonarQube" />
+    titleTemplate="%s - SonarQube"
+  />
   <header
-    className="page-header">
+    className="page-header"
+  >
     <h1
-      className="page-title">
+      className="page-title"
+    >
       organization.delete
     </h1>
     <div
-      className="page-description">
+      className="page-description"
+    >
       organization.delete.description
     </div>
   </header>
@@ -47,7 +60,8 @@ exports[`test smoke test 2`] = `
     <button
       className="button-red"
       disabled={true}
-      onClick={[Function]}>
+      onClick={[Function]}
+    >
       delete
     </button>
     <Modal
@@ -60,31 +74,38 @@ exports[`test smoke test 2`] = `
       overlayClassName="modal-overlay"
       parentSelector={[Function]}
       portalClassName="ReactModalPortal"
-      shouldCloseOnOverlayClick={true}>
+      shouldCloseOnOverlayClick={true}
+    >
       <header
-        className="modal-head">
+        className="modal-head"
+      >
         <h2>
           organization.delete
         </h2>
       </header>
       <form
-        onSubmit={[Function]}>
+        onSubmit={[Function]}
+      >
         <div
-          className="modal-body">
+          className="modal-body"
+        >
           organization.delete.question
         </div>
         <footer
-          className="modal-foot">
+          className="modal-foot"
+        >
           <div>
             <button
               className="button-red"
-              type="submit">
+              type="submit"
+            >
               delete
             </button>
             <button
               className="button-link"
               onClick={[Function]}
-              type="reset">
+              type="reset"
+            >
               cancel
             </button>
           </div>
@@ -95,20 +116,25 @@ exports[`test smoke test 2`] = `
 </div>
 `;
 
-exports[`test smoke test 3`] = `
+exports[`smoke test 3`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <HelmetWrapper
     title="organization.delete - Foo"
-    titleTemplate="%s - SonarQube" />
+    titleTemplate="%s - SonarQube"
+  />
   <header
-    className="page-header">
+    className="page-header"
+  >
     <h1
-      className="page-title">
+      className="page-title"
+    >
       organization.delete
     </h1>
     <div
-      className="page-description">
+      className="page-description"
+    >
       organization.delete.description
     </div>
   </header>
@@ -116,7 +142,8 @@ exports[`test smoke test 3`] = `
     <button
       className="button-red"
       disabled={true}
-      onClick={[Function]}>
+      onClick={[Function]}
+    >
       delete
     </button>
     <Modal
@@ -129,23 +156,29 @@ exports[`test smoke test 3`] = `
       overlayClassName="modal-overlay"
       parentSelector={[Function]}
       portalClassName="ReactModalPortal"
-      shouldCloseOnOverlayClick={true}>
+      shouldCloseOnOverlayClick={true}
+    >
       <header
-        className="modal-head">
+        className="modal-head"
+      >
         <h2>
           organization.delete
         </h2>
       </header>
       <form
-        onSubmit={[Function]}>
+        onSubmit={[Function]}
+      >
         <div
-          className="modal-body">
+          className="modal-body"
+        >
           organization.delete.question
         </div>
         <footer
-          className="modal-foot">
+          className="modal-foot"
+        >
           <i
-            className="spinner" />
+            className="spinner"
+          />
         </footer>
       </form>
     </Modal>

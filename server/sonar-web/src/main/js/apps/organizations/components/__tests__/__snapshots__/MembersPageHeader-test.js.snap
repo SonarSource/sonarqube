@@ -1,25 +1,32 @@
-exports[`test should render its children 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render its children 1`] = `
 <header
-  className="page-header">
+  className="page-header"
+>
   <i
-    className="spinner" />
+    className="spinner"
+  />
   <span>
     children test
   </span>
 </header>
 `;
 
-exports[`test should render the members page header 1`] = `
+exports[`should render the members page header 1`] = `
 <header
-  className="page-header" />
+  className="page-header"
+/>
 `;
 
-exports[`test should render the members page header 2`] = `
+exports[`should render the members page header 2`] = `
 <i
-  className="spinner" />
+  className="spinner"
+/>
 `;
 
-exports[`test should render the members page header with the total 1`] = `
+exports[`should render the members page header with the total 1`] = `
 <header
-  className="page-header" />
+  className="page-header"
+/>
 `;

@@ -1,3 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`Reducer should have initial state 1`] = `
 Object {
   "byKey": Object {},

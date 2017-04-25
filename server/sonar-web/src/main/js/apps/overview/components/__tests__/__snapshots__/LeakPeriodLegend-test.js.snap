@@ -1,34 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`check note 10 days 1`] = `
 <span
-  className="note">
+  className="note"
+>
   overview.last_analysis_x.4 years ago
 </span>
 `;
 
 exports[`check note date 1`] = `
 <span
-  className="note">
+  className="note"
+>
   overview.last_analysis_x.4 years ago
 </span>
 `;
 
 exports[`check note previous_analysis 1`] = `
 <span
-  className="note">
+  className="note"
+>
   overview.started_x.4 years ago
 </span>
 `;
 
 exports[`check note previous_version 1`] = `
 <span
-  className="note">
+  className="note"
+>
   overview.started_x.4 years ago
 </span>
 `;
 
 exports[`check note version 1`] = `
 <span
-  className="note">
+  className="note"
+>
   overview.started_x.4 years ago
 </span>
 `;

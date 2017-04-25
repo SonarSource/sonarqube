@@ -1,6 +1,9 @@
-exports[`test render issues list 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render issues list 1`] = `
 <div
-  className="issue-list">
+  className="issue-list"
+>
   <BaseIssue
     issue={
       Object {
@@ -8,7 +11,8 @@ exports[`test render issues list 1`] = `
       }
     }
     onClick={[Function]}
-    selected={true} />
+    selected={true}
+  />
   <BaseIssue
     issue={
       Object {
@@ -16,6 +20,7 @@ exports[`test render issues list 1`] = `
       }
     }
     onClick={[Function]}
-    selected={false} />
+    selected={false}
+  />
 </div>
 `;

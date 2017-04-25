@@ -1,24 +1,32 @@
-exports[`test render code 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render code 1`] = `
 <td
   className="source-line-code code has-issues"
-  data-line-number={3}>
+  data-line-number={3}
+>
   <div
-    className="source-line-code-inner">
+    className="source-line-code-inner"
+  >
     <pre>
       <span
-        className="k source-line-code-issue">
+        className="k source-line-code-issue"
+      >
         class
       </span>
       <span
-        className="">
+        className=""
+      >
          
       </span>
       <span
-        className="sym sym-1">
+        className="sym sym-1"
+      >
         Foo
       </span>
       <span
-        className="">
+        className=""
+      >
          {
       </span>
     </pre>
@@ -35,6 +43,7 @@ exports[`test render code 1`] = `
       ]
     }
     onIssueClick={[Function]}
-    selectedIssue="issue-1" />
+    selectedIssue="issue-1"
+  />
 </td>
 `;

@@ -1,4 +1,6 @@
-exports[`test should render 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
 <div>
   <ConciseIssue
     issue={
@@ -8,7 +10,8 @@ exports[`test should render 1`] = `
     }
     previousIssue={null}
     scroll={[Function]}
-    selected={false} />
+    selected={false}
+  />
   <ConciseIssue
     issue={
       Object {
@@ -21,6 +24,7 @@ exports[`test should render 1`] = `
       }
     }
     scroll={[Function]}
-    selected={false} />
+    selected={false}
+  />
 </div>
 `;

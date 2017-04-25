@@ -1,70 +1,84 @@
-exports[`test should display a help message when there is less than 2 characters 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display a help message when there is less than 2 characters 1`] = `
 <div
   className="projects-facet-search"
-  data-key="search">
+  data-key="search"
+>
   <input
     autoComplete="off"
     className="input-super-large touched"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
-    value="a" />
+    value="a"
+  />
   <span
-    className="note spacer-left">
+    className="note spacer-left"
+  >
     select2.tooShort.2
   </span>
 </div>
 `;
 
-exports[`test should display a help message when there is less than 2 characters 2`] = `
+exports[`should display a help message when there is less than 2 characters 2`] = `
 <div
   className="projects-facet-search"
-  data-key="search">
+  data-key="search"
+>
   <input
     autoComplete="off"
     className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
-    value="foo" />
+    value="foo"
+  />
   <span
-    className="note spacer-left">
+    className="note spacer-left"
+  >
     select2.tooShort.2
   </span>
 </div>
 `;
 
-exports[`test should render correctly without any search query 1`] = `
+exports[`should render correctly without any search query 1`] = `
 <div
   className="projects-facet-search"
-  data-key="search">
+  data-key="search"
+>
   <input
     autoComplete="off"
     className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
-    value="" />
+    value=""
+  />
   <span
-    className="note spacer-left">
+    className="note spacer-left"
+  >
     select2.tooShort.2
   </span>
 </div>
 `;
 
-exports[`test should render with a search query 1`] = `
+exports[`should render with a search query 1`] = `
 <div
   className="projects-facet-search"
-  data-key="search">
+  data-key="search"
+>
   <input
     autoComplete="off"
     className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
-    value="foo" />
+    value="foo"
+  />
   <span
-    className="note spacer-left">
+    className="note spacer-left"
+  >
     select2.tooShort.2
   </span>
 </div>

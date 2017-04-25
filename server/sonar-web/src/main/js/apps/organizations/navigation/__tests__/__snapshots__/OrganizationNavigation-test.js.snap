@@ -1,37 +1,48 @@
-exports[`test admin 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`admin 1`] = `
 <nav
   className="navbar navbar-context page-container"
-  id="context-navigation">
+  id="context-navigation"
+>
   <div
-    className="navbar-context-inner">
+    className="navbar-context-inner"
+  >
     <div
-      className="container">
+      className="container"
+    >
       <h2
-        className="navbar-context-title">
+        className="navbar-context-title"
+      >
         <span
-          className="navbar-context-title-qualifier little-spacer-right">
+          className="navbar-context-title-qualifier little-spacer-right"
+        >
           <OrganizationIcon />
         </span>
         <Link
           className="link-base-color"
           onlyActiveOnIndex={false}
           style={Object {}}
-          to="/organizations/foo">
+          to="/organizations/foo"
+        >
           <strong>
             Foo
           </strong>
         </Link>
       </h2>
       <div
-        className="navbar-context-meta" />
+        className="navbar-context-meta"
+      />
       <ul
-        className="nav navbar-nav nav-tabs">
+        className="nav navbar-nav nav-tabs"
+      >
         <li>
           <Link
             className=""
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/projects">
+            to="/organizations/foo/projects"
+          >
             projects.page
           </Link>
         </li>
@@ -40,7 +51,8 @@ exports[`test admin 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/members">
+            to="/organizations/foo/members"
+          >
             organization.members.page
           </Link>
         </li>
@@ -49,7 +61,8 @@ exports[`test admin 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/quality_profiles">
+            to="/organizations/foo/quality_profiles"
+          >
             quality_profiles.page
           </Link>
         </li>
@@ -58,29 +71,35 @@ exports[`test admin 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/rules">
+            to="/organizations/foo/rules"
+          >
             coding_rules.page
           </Link>
         </li>
         <li
-          className="">
+          className=""
+        >
           <a
             className="dropdown-toggle navbar-admin-link"
             data-toggle="dropdown"
-            href="#">
+            href="#"
+          >
             layout.settings
              
             <i
-              className="icon-dropdown" />
+              className="icon-dropdown"
+            />
           </a>
           <ul
-            className="dropdown-menu">
+            className="dropdown-menu"
+          >
             <li>
               <Link
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/groups">
+                to="/organizations/foo/groups"
+              >
                 user_groups.page
               </Link>
             </li>
@@ -89,7 +108,8 @@ exports[`test admin 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/permissions">
+                to="/organizations/foo/permissions"
+              >
                 permissions.page
               </Link>
             </li>
@@ -98,7 +118,8 @@ exports[`test admin 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/permission_templates">
+                to="/organizations/foo/permission_templates"
+              >
                 permission_templates
               </Link>
             </li>
@@ -107,7 +128,8 @@ exports[`test admin 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/projects_management">
+                to="/organizations/foo/projects_management"
+              >
                 projects_management
               </Link>
             </li>
@@ -116,7 +138,8 @@ exports[`test admin 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/edit">
+                to="/organizations/foo/edit"
+              >
                 edit
               </Link>
             </li>
@@ -125,7 +148,8 @@ exports[`test admin 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/delete">
+                to="/organizations/foo/delete"
+              >
                 delete
               </Link>
             </li>
@@ -137,40 +161,49 @@ exports[`test admin 1`] = `
 </nav>
 `;
 
-exports[`test regular user 1`] = `
+exports[`regular user 1`] = `
 <nav
   className="navbar navbar-context page-container"
-  id="context-navigation">
+  id="context-navigation"
+>
   <div
-    className="navbar-context-inner">
+    className="navbar-context-inner"
+  >
     <div
-      className="container">
+      className="container"
+    >
       <h2
-        className="navbar-context-title">
+        className="navbar-context-title"
+      >
         <span
-          className="navbar-context-title-qualifier little-spacer-right">
+          className="navbar-context-title-qualifier little-spacer-right"
+        >
           <OrganizationIcon />
         </span>
         <Link
           className="link-base-color"
           onlyActiveOnIndex={false}
           style={Object {}}
-          to="/organizations/foo">
+          to="/organizations/foo"
+        >
           <strong>
             Foo
           </strong>
         </Link>
       </h2>
       <div
-        className="navbar-context-meta" />
+        className="navbar-context-meta"
+      />
       <ul
-        className="nav navbar-nav nav-tabs">
+        className="nav navbar-nav nav-tabs"
+      >
         <li>
           <Link
             className=""
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/projects">
+            to="/organizations/foo/projects"
+          >
             projects.page
           </Link>
         </li>
@@ -179,7 +212,8 @@ exports[`test regular user 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/members">
+            to="/organizations/foo/members"
+          >
             organization.members.page
           </Link>
         </li>
@@ -188,7 +222,8 @@ exports[`test regular user 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/quality_profiles">
+            to="/organizations/foo/quality_profiles"
+          >
             quality_profiles.page
           </Link>
         </li>
@@ -197,7 +232,8 @@ exports[`test regular user 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/rules">
+            to="/organizations/foo/rules"
+          >
             coding_rules.page
           </Link>
         </li>
@@ -207,40 +243,49 @@ exports[`test regular user 1`] = `
 </nav>
 `;
 
-exports[`test undeletable org 1`] = `
+exports[`undeletable org 1`] = `
 <nav
   className="navbar navbar-context page-container"
-  id="context-navigation">
+  id="context-navigation"
+>
   <div
-    className="navbar-context-inner">
+    className="navbar-context-inner"
+  >
     <div
-      className="container">
+      className="container"
+    >
       <h2
-        className="navbar-context-title">
+        className="navbar-context-title"
+      >
         <span
-          className="navbar-context-title-qualifier little-spacer-right">
+          className="navbar-context-title-qualifier little-spacer-right"
+        >
           <OrganizationIcon />
         </span>
         <Link
           className="link-base-color"
           onlyActiveOnIndex={false}
           style={Object {}}
-          to="/organizations/foo">
+          to="/organizations/foo"
+        >
           <strong>
             Foo
           </strong>
         </Link>
       </h2>
       <div
-        className="navbar-context-meta" />
+        className="navbar-context-meta"
+      />
       <ul
-        className="nav navbar-nav nav-tabs">
+        className="nav navbar-nav nav-tabs"
+      >
         <li>
           <Link
             className=""
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/projects">
+            to="/organizations/foo/projects"
+          >
             projects.page
           </Link>
         </li>
@@ -249,7 +294,8 @@ exports[`test undeletable org 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/members">
+            to="/organizations/foo/members"
+          >
             organization.members.page
           </Link>
         </li>
@@ -258,7 +304,8 @@ exports[`test undeletable org 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/quality_profiles">
+            to="/organizations/foo/quality_profiles"
+          >
             quality_profiles.page
           </Link>
         </li>
@@ -267,29 +314,35 @@ exports[`test undeletable org 1`] = `
             activeClassName="active"
             onlyActiveOnIndex={false}
             style={Object {}}
-            to="/organizations/foo/rules">
+            to="/organizations/foo/rules"
+          >
             coding_rules.page
           </Link>
         </li>
         <li
-          className="">
+          className=""
+        >
           <a
             className="dropdown-toggle navbar-admin-link"
             data-toggle="dropdown"
-            href="#">
+            href="#"
+          >
             layout.settings
              
             <i
-              className="icon-dropdown" />
+              className="icon-dropdown"
+            />
           </a>
           <ul
-            className="dropdown-menu">
+            className="dropdown-menu"
+          >
             <li>
               <Link
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/groups">
+                to="/organizations/foo/groups"
+              >
                 user_groups.page
               </Link>
             </li>
@@ -298,7 +351,8 @@ exports[`test undeletable org 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/permissions">
+                to="/organizations/foo/permissions"
+              >
                 permissions.page
               </Link>
             </li>
@@ -307,7 +361,8 @@ exports[`test undeletable org 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/permission_templates">
+                to="/organizations/foo/permission_templates"
+              >
                 permission_templates
               </Link>
             </li>
@@ -316,7 +371,8 @@ exports[`test undeletable org 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/projects_management">
+                to="/organizations/foo/projects_management"
+              >
                 projects_management
               </Link>
             </li>
@@ -325,7 +381,8 @@ exports[`test undeletable org 1`] = `
                 activeClassName="active"
                 onlyActiveOnIndex={false}
                 style={Object {}}
-                to="/organizations/foo/edit">
+                to="/organizations/foo/edit"
+              >
                 edit
               </Link>
             </li>

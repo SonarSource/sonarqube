@@ -1,6 +1,9 @@
-exports[`test should render a list of members of an organization 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render a list of members of an organization 1`] = `
 <table
-  className="data zebra">
+  className="data zebra"
+>
   <tbody>
     <MembersListItem
       member={
@@ -16,7 +19,8 @@ exports[`test should render a list of members of an organization 1`] = `
           "key": "foo",
           "name": "Foo",
         }
-      } />
+      }
+    />
     <MembersListItem
       member={
         Object {
@@ -31,7 +35,8 @@ exports[`test should render a list of members of an organization 1`] = `
           "key": "foo",
           "name": "Foo",
         }
-      } />
+      }
+    />
   </tbody>
 </table>
 `;

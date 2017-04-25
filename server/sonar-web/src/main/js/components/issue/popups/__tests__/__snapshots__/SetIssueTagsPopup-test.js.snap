@@ -1,4 +1,6 @@
-exports[`test should render tags popup correctly 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render tags popup correctly 1`] = `
 <TagsSelector
   listSize={10}
   onSearch={[Function]}
@@ -11,5 +13,6 @@ exports[`test should render tags popup correctly 1`] = `
       "test",
       "second",
     ]
-  } />
+  }
+/>
 `;

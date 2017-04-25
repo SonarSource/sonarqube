@@ -1,4 +1,6 @@
-exports[`test should correctly handle the submit event and close the modal 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly handle the submit event and close the modal 1`] = `
 Array [
   Array [
     Object {
@@ -17,7 +19,7 @@ Array [
 ]
 `;
 
-exports[`test should correctly handle the submit event and close the modal 2`] = `
+exports[`should correctly handle the submit event and close the modal 2`] = `
 Object {
   "loading": false,
   "open": false,
@@ -36,7 +38,7 @@ Object {
 }
 `;
 
-exports[`test should correctly handle user interactions 1`] = `
+exports[`should correctly handle user interactions 1`] = `
 Object {
   "loading": false,
   "open": true,
@@ -51,7 +53,7 @@ Object {
 }
 `;
 
-exports[`test should correctly select the groups 1`] = `
+exports[`should correctly select the groups 1`] = `
 Object {
   "11": Object {
     "description": "Technical accounts",
@@ -66,18 +68,20 @@ Object {
 }
 `;
 
-exports[`test should render and open the modal 1`] = `
+exports[`should render and open the modal 1`] = `
 <a
   href="#"
-  onClick={[Function]}>
+  onClick={[Function]}
+>
   organization.members.manage_groups
 </a>
 `;
 
-exports[`test should render and open the modal 2`] = `
+exports[`should render and open the modal 2`] = `
 <a
   href="#"
-  onClick={[Function]}>
+  onClick={[Function]}
+>
   organization.members.manage_groups
   <Modal
     ariaHideApp={true}
@@ -89,23 +93,28 @@ exports[`test should render and open the modal 2`] = `
     overlayClassName="modal-overlay"
     parentSelector={[Function]}
     portalClassName="ReactModalPortal"
-    shouldCloseOnOverlayClick={true}>
+    shouldCloseOnOverlayClick={true}
+  >
     <header
-      className="modal-head">
+      className="modal-head"
+    >
       <h2>
         organization.members.manage_groups
       </h2>
     </header>
     <form
-      onSubmit={[Function]}>
+      onSubmit={[Function]}
+    >
       <div
-        className="modal-body">
+        className="modal-body"
+      >
         <strong>
           organization.members.members_groups.Admin Istrator
         </strong>
          
         <ul
-          className="list-spaced">
+          className="list-spaced"
+        >
           <OrganizationGroupCheckbox
             checked={false}
             group={
@@ -116,7 +125,8 @@ exports[`test should render and open the modal 2`] = `
                 "name": "professionals",
               }
             }
-            onCheck={[Function]} />
+            onCheck={[Function]}
+          />
           <OrganizationGroupCheckbox
             checked={false}
             group={
@@ -127,7 +137,8 @@ exports[`test should render and open the modal 2`] = `
                 "name": "pull-request-analysers",
               }
             }
-            onCheck={[Function]} />
+            onCheck={[Function]}
+          />
           <OrganizationGroupCheckbox
             checked={false}
             group={
@@ -138,20 +149,24 @@ exports[`test should render and open the modal 2`] = `
                 "name": "sonar-administrators",
               }
             }
-            onCheck={[Function]} />
+            onCheck={[Function]}
+          />
         </ul>
       </div>
       <footer
-        className="modal-foot">
+        className="modal-foot"
+      >
         <div>
           <button
-            type="submit">
+            type="submit"
+          >
             save
           </button>
           <button
             className="button-link"
             onClick={[Function]}
-            type="reset">
+            type="reset"
+          >
             cancel
           </button>
         </div>
@@ -161,7 +176,7 @@ exports[`test should render and open the modal 2`] = `
 </a>
 `;
 
-exports[`test should reset the selected groups when the modal is opened 1`] = `
+exports[`should reset the selected groups when the modal is opened 1`] = `
 Object {
   "loading": false,
   "open": true,
@@ -180,7 +195,7 @@ Object {
 }
 `;
 
-exports[`test should reset the selected groups when the modal is opened 2`] = `
+exports[`should reset the selected groups when the modal is opened 2`] = `
 Object {
   "loading": false,
   "open": true,

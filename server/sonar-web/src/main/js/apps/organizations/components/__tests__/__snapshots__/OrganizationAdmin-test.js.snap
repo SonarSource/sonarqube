@@ -1,6 +1,8 @@
-exports[`test should not render anything 1`] = `null`;
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`test should render children 1`] = `
+exports[`should not render anything 1`] = `null`;
+
+exports[`should render children 1`] = `
 <div>
   hello
 </div>

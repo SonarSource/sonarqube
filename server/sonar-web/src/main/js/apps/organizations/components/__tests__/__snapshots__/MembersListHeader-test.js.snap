@@ -1,11 +1,16 @@
-exports[`test should render with the total 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with the total 1`] = `
 <div
-  className="panel panel-vertical bordered-bottom spacer-bottom">
+  className="panel panel-vertical bordered-bottom spacer-bottom"
+>
   <UsersSearch
     className="display-inline-block"
-    onSearch={[Function]} />
+    onSearch={[Function]}
+  />
   <span
-    className="pull-right little-spacer-top">
+    className="pull-right little-spacer-top"
+  >
     <strong>
       8
     </strong>
@@ -15,11 +20,13 @@ exports[`test should render with the total 1`] = `
 </div>
 `;
 
-exports[`test should render without the total 1`] = `
+exports[`should render without the total 1`] = `
 <div
-  className="panel panel-vertical bordered-bottom spacer-bottom">
+  className="panel panel-vertical bordered-bottom spacer-bottom"
+>
   <UsersSearch
     className="display-inline-block"
-    onSearch={[Function]} />
+    onSearch={[Function]}
+  />
 </div>
 `;

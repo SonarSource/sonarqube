@@ -1,22 +1,24 @@
-exports[`test should correclty handle user actions 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correclty handle user actions 1`] = `
 Object {
   "active": "third",
 }
 `;
 
-exports[`test should correclty handle user actions 2`] = `
+exports[`should correclty handle user actions 2`] = `
 Object {
   "active": "item",
 }
 `;
 
-exports[`test should correclty handle user actions 3`] = `
+exports[`should correclty handle user actions 3`] = `
 Object {
   "active": "third",
 }
 `;
 
-exports[`test should correclty handle user actions 4`] = `
+exports[`should correclty handle user actions 4`] = `
 Array [
   Array [
     "third",
@@ -24,56 +26,67 @@ Array [
 ]
 `;
 
-exports[`test should render correctly with children 1`] = `
+exports[`should render correctly with children 1`] = `
 <ul
-  className="menu">
+  className="menu"
+>
   <SelectListItem
     active="seconditem"
     item="item"
     onHover={[Function]}
-    onSelect={[Function]}>
+    onSelect={[Function]}
+  >
     <i
-      className="myicon" />
+      className="myicon"
+    />
     item
   </SelectListItem>
   <SelectListItem
     active="seconditem"
     item="seconditem"
     onHover={[Function]}
-    onSelect={[Function]}>
+    onSelect={[Function]}
+  >
     <i
-      className="myicon" />
+      className="myicon"
+    />
     item
   </SelectListItem>
   <SelectListItem
     active="seconditem"
     item="third"
     onHover={[Function]}
-    onSelect={[Function]}>
+    onSelect={[Function]}
+  >
     <i
-      className="myicon" />
+      className="myicon"
+    />
     item
   </SelectListItem>
 </ul>
 `;
 
-exports[`test should render correctly without children 1`] = `
+exports[`should render correctly without children 1`] = `
 <ul
-  className="menu">
+  className="menu"
+>
   <SelectListItem
     active="seconditem"
     item="item"
     onHover={[Function]}
-    onSelect={[Function]} />
+    onSelect={[Function]}
+  />
   <SelectListItem
     active="seconditem"
     item="seconditem"
     onHover={[Function]}
-    onSelect={[Function]} />
+    onSelect={[Function]}
+  />
   <SelectListItem
     active="seconditem"
     item="third"
     onHover={[Function]}
-    onSelect={[Function]} />
+    onSelect={[Function]}
+  />
 </ul>
 `;

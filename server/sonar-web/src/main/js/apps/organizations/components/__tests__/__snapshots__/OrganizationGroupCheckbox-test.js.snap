@@ -1,20 +1,24 @@
-exports[`test should be able to toggle check 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should be able to toggle check 1`] = `
 <li
   className="capitalize list-item-checkable-link"
   disabled={false}
   onClick={[Function]}
   role="listitem"
-  tabIndex={0}>
+  tabIndex={0}
+>
   <Checkbox
     checked={true}
     onCheck={[Function]}
-    thirdState={false} />
+    thirdState={false}
+  />
    
   professionals
 </li>
 `;
 
-exports[`test should be able to toggle check 2`] = `
+exports[`should be able to toggle check 2`] = `
 Array [
   Array [
     "professionals",
@@ -23,49 +27,55 @@ Array [
 ]
 `;
 
-exports[`test should be able to toggle check 3`] = `
+exports[`should be able to toggle check 3`] = `
 <li
   className="capitalize list-item-checkable-link"
   disabled={false}
   onClick={[Function]}
   role="listitem"
-  tabIndex={0}>
+  tabIndex={0}
+>
   <Checkbox
     checked={false}
     onCheck={[Function]}
-    thirdState={false} />
+    thirdState={false}
+  />
    
   professionals
 </li>
 `;
 
-exports[`test should disabled default groups 1`] = `
+exports[`should disabled default groups 1`] = `
 <li
   className="capitalize list-item-checkable-link"
   disabled={true}
   onClick={[Function]}
   role="listitem"
-  tabIndex={0}>
+  tabIndex={0}
+>
   <Checkbox
     checked={true}
     onCheck={[Function]}
-    thirdState={false} />
+    thirdState={false}
+  />
    
   professionals
 </li>
 `;
 
-exports[`test should render unchecked 1`] = `
+exports[`should render unchecked 1`] = `
 <li
   className="capitalize list-item-checkable-link"
   disabled={false}
   onClick={[Function]}
   role="listitem"
-  tabIndex={0}>
+  tabIndex={0}
+>
   <Checkbox
     checked={false}
     onCheck={[Function]}
-    thirdState={false} />
+    thirdState={false}
+  />
    
   professionals
 </li>

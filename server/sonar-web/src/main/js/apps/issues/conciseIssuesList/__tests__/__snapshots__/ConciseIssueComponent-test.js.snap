@@ -1,6 +1,9 @@
-exports[`test should render 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
 <div
-  className="concise-issue-component note text-ellipsis">
+  className="concise-issue-component note text-ellipsis"
+>
   src/.../long-folder/name/app.js
 </div>
 `;
