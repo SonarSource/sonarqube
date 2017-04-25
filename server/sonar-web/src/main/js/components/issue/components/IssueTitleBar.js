@@ -94,7 +94,10 @@ export default function IssueTitleBar(props: Props) {
                 <li className="issue-meta">
                   {onIssuesPage
                     ? locationsBadge
-                    : <Link onClick={stopPropagation} to={getSingleIssueUrl(issue.key)}>
+                    : <Link
+                        onClick={stopPropagation}
+                        target="_blank"
+                        to={getSingleIssueUrl(issue.key)}>
                         {locationsBadge}
                       </Link>}
                 </li>}
@@ -102,6 +105,7 @@ export default function IssueTitleBar(props: Props) {
                 <Link
                   className="js-issue-permalink icon-link"
                   onClick={stopPropagation}
+                  target="_blank"
                   to={getSingleIssueUrl(issue.key)}
                 />
               </li>
