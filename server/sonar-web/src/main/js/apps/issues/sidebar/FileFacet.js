@@ -60,6 +60,10 @@ export default class FileFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getStat(file: string): ?number {
     const { stats } = this.props;
     return stats ? stats[file] : null;
@@ -91,6 +95,7 @@ export default class FileFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.files.length}

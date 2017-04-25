@@ -60,6 +60,10 @@ export default class RuleFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   handleSearch = (query: string) => {
     const { languages } = this.props;
     return searchRules({
@@ -99,6 +103,7 @@ export default class RuleFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.rules.length}

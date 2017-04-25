@@ -69,6 +69,10 @@ export default class AssigneeFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ assigned: true, assignees: [] });
+  };
+
   handleSearch = (query: string) => searchAssignees(query, this.props.component);
 
   handleSelect = (assignee: string) => {
@@ -136,6 +140,7 @@ export default class AssigneeFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.assignees.length + (this.props.assigned ? 0 : 1)}

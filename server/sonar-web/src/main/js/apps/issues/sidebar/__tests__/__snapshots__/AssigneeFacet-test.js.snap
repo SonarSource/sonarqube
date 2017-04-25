@@ -5,6 +5,7 @@ exports[`test should render 1`] = `
   property="assignees">
   <FacetHeader
     name="issues.facet.assignees"
+    onClear={[Function]}
     onClick={[Function]}
     open={true}
     values={0} />
@@ -67,6 +68,7 @@ exports[`test should select unassigned 1`] = `
   property="assignees">
   <FacetHeader
     name="issues.facet.assignees"
+    onClear={[Function]}
     onClick={[Function]}
     open={true}
     values={1} />
@@ -119,6 +121,7 @@ exports[`test should select user 1`] = `
   property="assignees">
   <FacetHeader
     name="issues.facet.assignees"
+    onClear={[Function]}
     onClick={[Function]}
     open={true}
     values={1} />

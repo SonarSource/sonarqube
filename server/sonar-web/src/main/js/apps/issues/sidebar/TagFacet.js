@@ -58,6 +58,10 @@ export default class TagFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   handleSearch = (query: string) => {
     return searchIssueTags({ ps: 50, q: query }).then(tags =>
       tags.map(tag => ({ label: tag, value: tag }))
@@ -96,6 +100,7 @@ export default class TagFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.tags.length}

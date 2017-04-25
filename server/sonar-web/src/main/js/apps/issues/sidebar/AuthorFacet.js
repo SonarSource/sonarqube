@@ -56,6 +56,10 @@ export default class AuthorFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getStat(author: string): ?number {
     const { stats } = this.props;
     return stats ? stats[author] : null;
@@ -74,6 +78,7 @@ export default class AuthorFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.authors.length}

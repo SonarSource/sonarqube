@@ -59,6 +59,10 @@ export default class LanguageFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getLanguageName(language: string): string {
     const { referencedLanguages } = this.props;
     return referencedLanguages[language] ? referencedLanguages[language].name : language;
@@ -87,6 +91,7 @@ export default class LanguageFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.languages.length}

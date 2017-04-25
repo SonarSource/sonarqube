@@ -20,9 +20,11 @@
 // @flow
 /* eslint-disable max-len */
 import React from 'react';
+import { translate } from '../../../../helpers/l10n';
 
 type Props = {|
   name: string,
+  onClear?: () => void,
   onClick?: () => void,
   open: boolean,
   values?: number
@@ -35,9 +37,17 @@ export default class FacetHeader extends React.PureComponent {
     open: true
   };
 
-  handleClick = (e: Event & { currentTarget: HTMLElement }) => {
-    e.preventDefault();
-    e.currentTarget.blur();
+  handleClearClick = (event: Event & { currentTarget: HTMLElement }) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    if (this.props.onClear) {
+      this.props.onClear();
+    }
+  };
+
+  handleClick = (event: Event & { currentTarget: HTMLElement }) => {
+    event.preventDefault();
+    event.currentTarget.blur();
     if (this.props.onClick) {
       this.props.onClick();
     }
@@ -67,12 +77,25 @@ export default class FacetHeader extends React.PureComponent {
   }
 
   render() {
-    return this.props.onClick
-      ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
-          {this.renderCheckbox()}{' '}{this.props.name}{' '}{this.renderValueIndicator()}
-        </a>
-      : <span className="search-navigator-facet-header">
-          {this.props.name}
-        </span>;
+    const showClearButton: boolean = !!this.props.values && this.props.onClear != null;
+
+    return (
+      <div>
+        {showClearButton &&
+          <button
+            className="search-navigator-facet-header-button button-small button-red"
+            onClick={this.handleClearClick}>
+            {translate('clear')}
+          </button>}
+
+        {this.props.onClick
+          ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
+              {this.renderCheckbox()}{' '}{this.props.name}{' '}{this.renderValueIndicator()}
+            </a>
+          : <span className="search-navigator-facet-header">
+              {this.props.name}
+            </span>}
+      </div>
+    );
   }
 }

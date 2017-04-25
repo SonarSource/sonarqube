@@ -63,6 +63,10 @@ export default class ProjectFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   handleSearch = (query: string) => {
     const { component } = this.props;
 
@@ -129,6 +133,7 @@ export default class ProjectFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.projects.length}

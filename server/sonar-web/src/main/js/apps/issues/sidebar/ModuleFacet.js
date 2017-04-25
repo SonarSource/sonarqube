@@ -59,6 +59,10 @@ export default class ModuleFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getStat(module: string): ?number {
     const { stats } = this.props;
     return stats ? stats[module] : null;
@@ -88,6 +92,7 @@ export default class ModuleFacet extends React.PureComponent {
       <FacetBox property={this.property}>
         <FacetHeader
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
           values={this.props.modules.length}

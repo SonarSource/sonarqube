@@ -50,6 +50,6 @@ it('should render without link', () => {
 it('should call onClick', () => {
   const onClick = jest.fn();
   const wrapper = shallow(<FacetHeader name="foo" onClick={onClick} open={false} />);
-  click(wrapper);
+  click(wrapper.find('a'));
   expect(onClick).toHaveBeenCalled();
 });
