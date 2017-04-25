@@ -43,6 +43,8 @@ import org.sonar.ce.CeConfigurationModule;
 import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
+import org.sonar.ce.cluster.ClusterClientProperties;
+import org.sonar.ce.cluster.ClusterClient;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
@@ -171,6 +173,14 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
     this.level4 = level3.createChild();
     this.level4.add(level4Components());
+
+    // TODO refactoring levelXComponents()
+    if (props.valueAsBoolean("sonar.cluster.enabled")) {
+      this.level4.add(
+        ClusterClientProperties.class,
+        ClusterClient.class
+      );
+    }
     configureFromModules(this.level4);
     ServerExtensionInstaller extensionInstaller = this.level4.getComponentByType(ServerExtensionInstaller.class);
     extensionInstaller.installExtensions(this.level4);

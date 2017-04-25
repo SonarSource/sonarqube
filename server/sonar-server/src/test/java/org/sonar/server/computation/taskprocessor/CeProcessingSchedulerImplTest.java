@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.taskprocessor;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
@@ -63,12 +64,13 @@ public class CeProcessingSchedulerImplTest {
   @Rule
   public CeConfigurationRule ceConfiguration = new CeConfigurationRule();
 
-  private CeWorkerCallable ceWorkerRunnable = mock(CeWorkerCallable.class);
+  private CeWorker ceWorkerRunnable = mock(CeWorker.class);
+  private CeWorkerFactory ceWorkerFactory = new CeWorkerFactoryTest();
   private StubCeProcessingSchedulerExecutorService processingExecutorService = new StubCeProcessingSchedulerExecutorService();
-  private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorkerRunnable, 2000L, TimeUnit.MILLISECONDS);
+  private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorkerRunnable, 2000L, MILLISECONDS);
   private SchedulerCall notDelayedPoll = new SchedulerCall(ceWorkerRunnable);
 
-  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerRunnable);
+  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory);
 
   @Test
   public void polls_without_delay_when_CeWorkerCallable_returns_true() throws Exception {
@@ -189,7 +191,7 @@ public class CeProcessingSchedulerImplTest {
 
     ListenableScheduledFuture listenableScheduledFuture = mock(ListenableScheduledFuture.class);
     CeProcessingSchedulerExecutorService processingExecutorService = mock(CeProcessingSchedulerExecutorService.class);
-    CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerRunnable);
+    CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory);
     when(processingExecutorService.schedule(ceWorkerRunnable, ceConfiguration.getQueuePollingDelay(), MILLISECONDS))
         .thenReturn(listenableScheduledFuture);
 
@@ -539,4 +541,24 @@ public class CeProcessingSchedulerImplTest {
     }
   }
 
+  public class CeWorkerFactoryTest implements CeWorkerFactory {
+    private List<String> workerUUIDs = new ArrayList<>();
+    private final List<Listener> listeners = new ArrayList<>();
+
+    @Override
+    public CeWorker create() {
+      listeners.stream().forEach(l -> l.onChange());
+      return ceWorkerRunnable;
+    }
+
+    @Override
+    public List<String> getWorkerUUIDs() {
+      return ImmutableList.copyOf(workerUUIDs);
+    }
+
+    @Override
+    public void addListener(Listener listener) {
+      listeners.add(listener);
+    }
+  }
 }

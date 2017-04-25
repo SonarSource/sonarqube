@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.configuration;
 
-import org.sonar.server.computation.taskprocessor.CeWorker;
+package org.sonar.server.computation.taskprocessor;
 
-public interface CeConfiguration {
+import org.junit.Test;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.server.computation.queue.InternalCeQueue;
 
-  /**
-   * The number of workers to process CeTasks concurrently.
-   */
-  int getWorkerCount();
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  /**
-   * The delay in milliseconds before calling another {@link CeWorker}
-   * when previous one had nothing to do.
-   */
-  long getQueuePollingDelay();
+public class CeWorkerFactoryImplTest {
+  @Test
+  public void ceworker_created_by_factory_must_contain_uuid() {
+    CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class), mock(CeLogging.class), mock(CeTaskProcessorRepository.class));
+    CeWorker ceWorker = underTest.create();
+    assertThat(ceWorker).isInstanceOf(CeWorkerImpl.class);
+    assertThat(((CeWorkerImpl) ceWorker).getUuid()).isNotEmpty();
+  }
 }
