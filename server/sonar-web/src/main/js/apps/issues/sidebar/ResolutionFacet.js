@@ -66,7 +66,7 @@ export default class ResolutionFacet extends React.PureComponent {
   };
 
   handleClear = () => {
-    this.props.onChange({ resolved: true, resolution: [] });
+    this.props.onChange({ resolved: false, resolutions: [] });
   };
 
   isFacetItemActive(resolution: string) {
@@ -111,7 +111,7 @@ export default class ResolutionFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.resolutions.length + (this.props.resolved ? 0 : 1)}
+          values={this.props.resolutions.length}
         />
 
         {this.props.open &&
