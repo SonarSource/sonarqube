@@ -35,8 +35,8 @@ import org.sonarqube.ws.client.project.CreateRequest;
 
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
-import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -68,9 +68,7 @@ public class CreateAction implements ProjectsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_CREATE)
       .setDescription("Create a project.<br/>" +
-        "Requires 'Create Projects' permission<br/>" +
-        "Since 6.3, the response format has been updated and does not contain the database ID anymore<br/>" +
-        "Since 6.3, the 'key' parameter has been renamed 'project'")
+        "Requires 'Create Projects' permission")
       .setSince("4.0")
       .setPost(true)
       .setResponseExample(getClass().getResource("create-example.json"))
