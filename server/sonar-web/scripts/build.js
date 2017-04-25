@@ -17,25 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable no-console */
+/* eslint-disable import/order */
 process.env.NODE_ENV = 'production';
 
-var chalk = require('chalk');
-var fs = require('fs-extra');
-var path = require('path');
-var rimrafSync = require('rimraf').sync;
-var webpack = require('webpack');
-var paths = require('../config/paths');
-var formatSize = require('./utils/formatSize');
+const chalk = require('chalk');
+const fs = require('fs-extra');
+const rimrafSync = require('rimraf').sync;
+const webpack = require('webpack');
+const paths = require('../config/paths');
+const formatSize = require('./utils/formatSize');
 
-var isFastBuild = process.argv.some(arg => arg.indexOf('--fast') > -1);
+const isFastBuild = process.argv.some(arg => arg.indexOf('--fast') > -1);
 
-var config = isFastBuild ?
-    require('../config/webpack/webpack.config.fast') :
-    require('../config/webpack/webpack.config.prod');
+const config = isFastBuild
+  ? require('../config/webpack/webpack.config.fast')
+  : require('../config/webpack/webpack.config.prod');
 
-function clean () {
-// Remove all content but keep the directory so that
-// if you're in it, you don't end up in Trash
+function clean() {
+  // Remove all content but keep the directory so that
+  // if you're in it, you don't end up in Trash
   console.log(chalk.cyan.bold('Cleaning output directories and files...'));
 
   console.log(paths.jsBuild + '/*');
@@ -50,7 +51,7 @@ function clean () {
   console.log();
 }
 
-function build () {
+function build() {
   if (isFastBuild) {
     console.log(chalk.magenta.bold('Running fast build...'));
   } else {
@@ -71,20 +72,20 @@ function build () {
       process.exit(1);
     }
 
-    var jsonStats = stats.toJson();
+    const jsonStats = stats.toJson();
 
     console.log('Assets:');
-    var assets = jsonStats.assets.slice();
+    const assets = jsonStats.assets.slice();
     assets.sort((a, b) => b.size - a.size);
     assets.forEach(asset => {
-      var sizeLabel = formatSize(asset.size);
-      var leftPadding = ' '.repeat(Math.max(0, 8 - sizeLabel.length));
+      let sizeLabel = formatSize(asset.size);
+      const leftPadding = ' '.repeat(Math.max(0, 8 - sizeLabel.length));
       sizeLabel = leftPadding + sizeLabel;
       console.log('', chalk.yellow(sizeLabel), asset.name);
     });
     console.log();
 
-    var seconds = jsonStats.time / 1000;
+    const seconds = jsonStats.time / 1000;
     console.log('Duration: ' + seconds.toFixed(2) + 's');
     console.log();
 
@@ -92,13 +93,12 @@ function build () {
   });
 }
 
-function copyPublicFolder () {
+function copyPublicFolder() {
   fs.copySync(paths.appPublic, paths.appBuild, {
     dereference: true,
     filter: file => file !== paths.appHtml
   });
 }
-
 
 clean();
 build();

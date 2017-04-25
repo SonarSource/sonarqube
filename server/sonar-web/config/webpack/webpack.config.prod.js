@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var config = require('./webpack.config.base');
-var getClientEnvironment = require('../env');
-var paths = require('../paths');
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const config = require('./webpack.config.base');
+const getClientEnvironment = require('../env');
+const paths = require('../paths');
 
 // Get environment variables to inject into our app.
-var env = getClientEnvironment();
+const env = getClientEnvironment();
 
 // Assert this just to be safe.
 // Development builds of React are slow and not intended for production.
@@ -37,9 +37,12 @@ if (env['process.env.NODE_ENV'] !== '"production"') {
 config.bail = true;
 
 config.plugins = [
-  new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.[chunkhash:8].js'),
+  new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' }),
 
-  new ExtractTextPlugin('css/sonar.[chunkhash:8].css', { allChunks: true }),
+  new ExtractTextPlugin({
+    filename: 'css/sonar.[chunkhash:8].css',
+    allChunks: true
+  }),
 
   new HtmlWebpackPlugin({
     inject: false,
@@ -63,12 +66,6 @@ config.plugins = [
   // It is absolutely essential that NODE_ENV was set to production here.
   // Otherwise React will be compiled in the very slow development mode.
   new webpack.DefinePlugin(env),
-
-  // This helps ensure the builds are consistent if source hasn't changed:
-  new webpack.optimize.OccurrenceOrderPlugin(),
-
-  // Try to dedupe duplicated modules, if any:
-  new webpack.optimize.DedupePlugin(),
 
   // Minify the code.
   new webpack.optimize.UglifyJsPlugin({

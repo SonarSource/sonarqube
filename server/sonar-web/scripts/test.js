@@ -35,4 +35,3 @@ if (!process.env.CI) {
 }
 
 jest.run(argv);
-

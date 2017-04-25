@@ -1,6 +1,8 @@
 {
   "presets": [
     ["env", {
+      // let webpack handle modules
+      "modules": false,
       "targets": {
         "browsers": [
           "last 3 Chrome versions",
@@ -35,6 +37,7 @@
     },
     "test": {
       "plugins": [
+        "transform-es2015-modules-commonjs",
         "transform-react-jsx-source",
         "transform-react-jsx-self"
       ]

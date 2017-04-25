@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-var WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
-var paths = require('../paths');
-var config = require('./webpack.config.base');
-var getClientEnvironment = require('../env');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
+const paths = require('../paths');
+const config = require('./webpack.config.base');
+const getClientEnvironment = require('../env');
 
-var webContext = '';
-var env = getClientEnvironment();
+const webContext = '';
+const env = getClientEnvironment();
 
 // This makes the bundle appear split into separate modules in the devtools.
 // We don't use source maps here because they can be confusing:
@@ -55,10 +55,22 @@ config.output.pathinfo = true;
 config.output.filename = 'js/[name].js';
 config.output.chunkFilename = 'js/[name].chunk.js';
 
-config.plugins = [
-  new webpack.optimize.CommonsChunkPlugin('vendor', 'js/vendor.js'),
+// First, run the linter.
+// It's important to do this before Babel processes the JS.
+config.module.rules.unshift({
+  test: /\.js$/,
+  enforce: 'pre',
+  loader: 'eslint-loader',
+  include: paths.appSrc
+});
 
-  new ExtractTextPlugin('css/sonar.css', { allChunks: true }),
+config.plugins = [
+  new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' }),
+
+  new ExtractTextPlugin({
+    filename: 'css/sonar.css',
+    allChunks: true
+  }),
 
   // Makes the web context available as %WEB_CONTEXT% in index.html, e.g.:
   // <link rel="shortcut icon" href="%WEB_CONTEXT%/favicon.ico">

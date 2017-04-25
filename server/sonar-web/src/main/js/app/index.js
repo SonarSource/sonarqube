@@ -23,12 +23,11 @@ import startAjaxMonitoring from './utils/startAjaxMonitoring';
 import startReactApp from './utils/startReactApp';
 import installExtensionsHandler from './utils/installExtensionsHandler';
 import { installGlobal } from '../helpers/l10n';
+import '../libs/select2-jquery-ui-fix';
+import '../libs/inputs';
+import '../libs/jquery-isolated-scroll';
+import '../libs/application';
 import './styles/index';
-
-require('script!../libs/select2-jquery-ui-fix.js');
-require('script!../libs/inputs.js');
-require('script!../libs/jquery-isolated-scroll.js');
-require('script!../libs/application.js');
 
 configureLocale();
 startAjaxMonitoring();

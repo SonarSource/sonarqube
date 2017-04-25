@@ -1,9 +1,6 @@
-var path = require('path');
-var autoprefixer = require('autoprefixer');
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var paths = require('../paths');
-var autoprefixerOptions = require('../autoprefixer');
+const path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const paths = require('../paths');
 
 module.exports = {
   entry: {
@@ -40,65 +37,66 @@ module.exports = {
     filename: 'js/[name].[chunkhash:8].js',
     chunkFilename: 'js/[name].[chunkhash:8].chunk.js'
   },
-  resolve: {
-    // This allows you to set a fallback for where Webpack should look for modules.
-    // We read `NODE_PATH` environment variable in `paths.js` and pass paths here.
-    // We use `fallback` instead of `root` because we want `node_modules` to "win"
-    // if there any conflicts. This matches Node resolution mechanism.
-    // https://github.com/facebookincubator/create-react-app/issues/253
-    fallback: paths.nodePaths
-  },
   module: {
-    // First, run the linter.
-    // It's important to do this before Babel processes the JS.
-    preLoaders: [
+    rules: [
       {
         test: /\.js$/,
-        loader: 'eslint',
-        include: paths.appSrc
-      }
-    ],
-    loaders: [
-      {
-        test: /\.js$/,
-        loader: 'babel',
+        loader: 'babel-loader',
         exclude: /(node_modules|libs)/
       },
       {
         test: /(blueimp-md5|numeral)/,
-        loader: 'imports?define=>false'
+        loader: 'imports-loader?define=>false'
       },
       {
         test: /\.hbs$/,
-        loader: 'handlebars',
-        query: {
+        loader: 'handlebars-loader',
+        options: {
           helperDirs: path.join(__dirname, '../../src/main/js/helpers/handlebars')
         }
       },
       {
         test: /\.css$/,
-        loader: 'style!css!postcss'
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins() {
+                return [require('autoprefixer')];
+              }
+            }
+          }
+        ]
       },
       {
         test: /\.less$/,
-        loader: ExtractTextPlugin.extract('style', 'css?-url!postcss!less')
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: { url: false }
+            },
+            {
+              loader: 'postcss-loader',
+              options: {
+                plugins() {
+                  return [require('autoprefixer')];
+                }
+              }
+            },
+            'less-loader'
+          ]
+        })
       },
-      { test: require.resolve('jquery'), loader: 'expose?$!expose?jQuery' },
-      { test: require.resolve('underscore'), loader: 'expose?_' },
-      { test: require.resolve('backbone'), loader: 'expose?Backbone' },
-      { test: require.resolve('backbone.marionette'), loader: 'expose?Marionette' },
-      { test: require.resolve('react'), loader: 'expose?React' },
-      { test: require.resolve('react-dom'), loader: 'expose?ReactDOM' }
+      { test: require.resolve('jquery'), loader: 'expose-loader?$!expose-loader?jQuery' },
+      { test: require.resolve('underscore'), loader: 'expose-loader?_' },
+      { test: require.resolve('backbone'), loader: 'expose-loader?Backbone' },
+      { test: require.resolve('backbone.marionette'), loader: 'expose-loader?Marionette' },
+      { test: require.resolve('react'), loader: 'expose-loader?React' },
+      { test: require.resolve('react-dom'), loader: 'expose-loader?ReactDOM' }
     ]
-  },
-  postcss() {
-    return [autoprefixer(autoprefixerOptions)];
-  },
-  // Some libraries import Node modules but don't use them in the browser.
-  // Tell Webpack to provide empty mocks for them so importing them works.
-  node: {
-    fs: 'empty',
-    net: 'empty',
-    tls: 'empty'
   }
 };
