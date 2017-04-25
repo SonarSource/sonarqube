@@ -39,7 +39,8 @@ import {
   areQueriesEqual,
   getOpen,
   serializeQuery,
-  parseFacets
+  parseFacets,
+  mapFacet
 } from '../utils';
 import type {
   Query,
@@ -334,31 +335,18 @@ export default class App extends React.PureComponent {
 
   fetchIssues = (additional?: {}, requestFacets?: boolean = false): Promise<*> => {
     const { component } = this.props;
-    const { myIssues, query } = this.state;
+    const { myIssues, openFacets, query } = this.state;
+
+    const facets = requestFacets
+      ? Object.keys(openFacets).filter(facet => openFacets[facet]).map(mapFacet).join(',')
+      : undefined;
 
     const parameters = {
       componentKeys: component && component.key,
       ...serializeQuery(query),
       s: 'FILE_LINE',
       ps: 100,
-      facets: requestFacets
-        ? [
-            'assignees',
-            'authors',
-            'createdAt',
-            'directories',
-            'fileUuids',
-            'languages',
-            'moduleUuids',
-            'projectUuids',
-            'resolutions',
-            'rules',
-            'severities',
-            'statuses',
-            'tags',
-            'types'
-          ].join()
-        : undefined,
+      facets,
       ...additional
     };
 
@@ -465,6 +453,32 @@ export default class App extends React.PureComponent {
     });
   };
 
+  fetchFacet = (facet: string) => {
+    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }).then(({ facets, ...other }) => {
+      if (this.mounted) {
+        this.setState(state => ({
+          facets: { ...state.facets, ...parseFacets(facets) },
+          referencedComponents: {
+            ...state.referencedComponents,
+            ...keyBy(other.components, 'uuid')
+          },
+          referencedLanguages: {
+            ...state.referencedLanguages,
+            ...keyBy(other.languages, 'key')
+          },
+          referencedRules: {
+            ...state.referencedRules,
+            ...keyBy(other.rules, 'key')
+          },
+          referencedUsers: {
+            ...state.referencedUsers,
+            ...keyBy(other.users, 'login')
+          }
+        }));
+      }
+    });
+  };
+
   isFiltered = () => {
     const serialized = serializeQuery(this.state.query);
     return !areQueriesEqual(serialized, DEFAULT_QUERY);
@@ -511,6 +525,9 @@ export default class App extends React.PureComponent {
     this.setState(state => ({
       openFacets: { ...state.openFacets, [property]: !state.openFacets[property] }
     }));
+    if (!this.state.facets[property]) {
+      this.fetchFacet(property);
+    }
   };
 
   handleReset = () => {

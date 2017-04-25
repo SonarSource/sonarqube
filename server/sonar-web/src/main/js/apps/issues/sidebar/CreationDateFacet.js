@@ -256,12 +256,6 @@ export default class CreationDateFacet extends React.PureComponent {
       this.props.createdInLast.length > 0 ||
       this.props.sinceLeakPeriod;
 
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
     return (
       <FacetBox property={this.property}>
         <FacetHeader

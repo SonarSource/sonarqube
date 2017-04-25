@@ -1,5 +1,3 @@
-exports[`test should not render without stats 1`] = `null`;
-
 exports[`test should render 1`] = `
 <FacetBox
   property="assignees">
@@ -61,6 +59,18 @@ exports[`test should render footer select option 1`] = `
     size={16} />
   name-foo
 </span>
+`;
+
+exports[`test should render without stats 1`] = `
+<FacetBox
+  property="assignees">
+  <FacetHeader
+    name="issues.facet.assignees"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={0} />
+</FacetBox>
 `;
 
 exports[`test should select unassigned 1`] = `

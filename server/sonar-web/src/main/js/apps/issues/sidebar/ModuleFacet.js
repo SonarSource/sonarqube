@@ -79,7 +79,7 @@ export default class ModuleFacet extends React.PureComponent {
     );
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -88,6 +88,24 @@ export default class ModuleFacet extends React.PureComponent {
 
     const modules = sortBy(Object.keys(stats), key => -stats[key]);
 
+    return (
+      <FacetItemsList>
+        {modules.map(module => (
+          <FacetItem
+            active={this.props.modules.includes(module)}
+            facetMode={this.props.facetMode}
+            key={module}
+            name={this.renderName(module)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(module)}
+            value={module}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  render() {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -98,20 +116,7 @@ export default class ModuleFacet extends React.PureComponent {
           values={this.props.modules.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {modules.map(module => (
-              <FacetItem
-                active={this.props.modules.includes(module)}
-                facetMode={this.props.facetMode}
-                key={module}
-                name={this.renderName(module)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(module)}
-                value={module}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
       </FacetBox>
     );
   }

@@ -82,7 +82,7 @@ export default class FileFacet extends React.PureComponent {
     );
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -91,6 +91,24 @@ export default class FileFacet extends React.PureComponent {
 
     const files = sortBy(Object.keys(stats), key => -stats[key]);
 
+    return (
+      <FacetItemsList>
+        {files.map(file => (
+          <FacetItem
+            active={this.props.files.includes(file)}
+            facetMode={this.props.facetMode}
+            key={file}
+            name={this.renderName(file)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(file)}
+            value={file}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  render() {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -101,20 +119,7 @@ export default class FileFacet extends React.PureComponent {
           values={this.props.files.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {files.map(file => (
-              <FacetItem
-                active={this.props.files.includes(file)}
-                facetMode={this.props.facetMode}
-                key={file}
-                name={this.renderName(file)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(file)}
-                value={file}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
       </FacetBox>
     );
   }

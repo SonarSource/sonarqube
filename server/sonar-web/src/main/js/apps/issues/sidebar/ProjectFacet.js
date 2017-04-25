@@ -120,7 +120,7 @@ export default class ProjectFacet extends React.PureComponent {
     );
   };
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -129,6 +129,39 @@ export default class ProjectFacet extends React.PureComponent {
 
     const projects = sortBy(Object.keys(stats), key => -stats[key]);
 
+    return (
+      <FacetItemsList>
+        {projects.map(project => (
+          <FacetItem
+            active={this.props.projects.includes(project)}
+            facetMode={this.props.facetMode}
+            key={project}
+            name={this.renderName(project)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(project)}
+            value={project}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  renderFooter() {
+    if (!this.props.stats) {
+      return null;
+    }
+
+    return (
+      <FacetFooter
+        minimumQueryLength={3}
+        onSearch={this.handleSearch}
+        onSelect={this.handleSelect}
+        renderOption={this.renderOption}
+      />
+    );
+  }
+
+  render() {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -139,28 +172,8 @@ export default class ProjectFacet extends React.PureComponent {
           values={this.props.projects.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {projects.map(project => (
-              <FacetItem
-                active={this.props.projects.includes(project)}
-                facetMode={this.props.facetMode}
-                key={project}
-                name={this.renderName(project)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(project)}
-                value={project}
-              />
-            ))}
-          </FacetItemsList>}
-
-        {this.props.open &&
-          <FacetFooter
-            minimumQueryLength={3}
-            onSearch={this.handleSearch}
-            onSelect={this.handleSelect}
-            renderOption={this.renderOption}
-          />}
+        {this.props.open && this.renderList()}
+        {this.props.open && this.renderFooter()}
       </FacetBox>
     );
   }

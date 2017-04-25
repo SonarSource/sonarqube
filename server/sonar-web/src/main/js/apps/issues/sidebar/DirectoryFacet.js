@@ -86,7 +86,7 @@ export default class DirectoryFacet extends React.PureComponent {
     );
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -95,6 +95,24 @@ export default class DirectoryFacet extends React.PureComponent {
 
     const directories = sortBy(Object.keys(stats), key => -stats[key]);
 
+    return (
+      <FacetItemsList>
+        {directories.map(directory => (
+          <FacetItem
+            active={this.props.directories.includes(directory)}
+            facetMode={this.props.facetMode}
+            key={directory}
+            name={this.renderName(directory)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(directory)}
+            value={directory}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  render() {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
@@ -105,20 +123,7 @@ export default class DirectoryFacet extends React.PureComponent {
           values={this.props.directories.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {directories.map(directory => (
-              <FacetItem
-                active={this.props.directories.includes(directory)}
-                facetMode={this.props.facetMode}
-                key={directory}
-                name={this.renderName(directory)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(directory)}
-                value={directory}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
       </FacetBox>
     );
   }
