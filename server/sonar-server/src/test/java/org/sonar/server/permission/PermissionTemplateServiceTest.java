@@ -21,12 +21,15 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -57,15 +60,215 @@ public class PermissionTemplateServiceTest {
   private PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
   private DbSession session = dbTester.getSession();
   private PermissionIndexer permissionIndexer = mock(PermissionIndexer.class);
+
+  private OrganizationDto organization;
+  private ComponentDto privateProject;
+  private ComponentDto publicProject;
+  private GroupDto group;
+  private UserDto user;
+  private UserDto creator;
+
   private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), permissionIndexer, userSession, defaultTemplatesResolver);
+
+  @Before
+  public void setUp() throws Exception {
+    organization = dbTester.organizations().insert();
+    privateProject = dbTester.components().insertPrivateProject(organization);
+    publicProject = dbTester.components().insertPublicProject(organization);
+    group = dbTester.users().insertGroup(organization);
+    user = dbTester.users().insertUser();
+    creator = dbTester.users().insertUser();
+  }
+
+  @Test
+  public void apply_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
+
+    underTest.apply(session, permissionTemplate, singletonList(privateProject));
+
+    assertThat(selectProjectPermissionsOfGroup(organization, null, privateProject)).isEmpty();
+  }
+
+  @Test
+  public void apply_default_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), privateProject, creator.getId());
+
+    assertThat(selectProjectPermissionsOfGroup(organization, null, privateProject)).isEmpty();
+  }
+
+  @Test
+  public void apply_inserts_permissions_to_group_AnyOne_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
+
+    underTest.apply(session, permissionTemplate, singletonList(publicProject));
+
+    assertThat(selectProjectPermissionsOfGroup(organization, null, publicProject))
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void applyDefault_inserts_permissions_to_group_AnyOne_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
+    dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), publicProject, null);
+
+    assertThat(selectProjectPermissionsOfGroup(organization, null, publicProject))
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void apply_inserts_any_permissions_to_group_when_applying_template_on_private_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
+
+    underTest.apply(session, permissionTemplate, singletonList(privateProject));
+
+    assertThat(selectProjectPermissionsOfGroup(organization, group, privateProject))
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void applyDefault_inserts_any_permissions_to_group_when_applying_template_on_private_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), privateProject, null);
+
+    assertThat(selectProjectPermissionsOfGroup(organization, group, privateProject))
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void apply_inserts_permissions_to_group_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
+
+    underTest.apply(session, permissionTemplate, singletonList(publicProject));
+
+    assertThat(selectProjectPermissionsOfGroup(organization, group, publicProject))
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void applyDefault_inserts_permissions_to_group_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), publicProject, null);
+
+    assertThat(selectProjectPermissionsOfGroup(organization, group, publicProject))
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void apply_inserts_permissions_to_user_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
+    dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
+
+    underTest.apply(session, permissionTemplate, singletonList(publicProject));
+
+    assertThat(selectProjectPermissionsOfUser(user, publicProject))
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void applyDefault_inserts_permissions_to_user_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
+    dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), publicProject, null);
+
+    assertThat(selectProjectPermissionsOfUser(user, publicProject))
+      .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void apply_inserts_any_permissions_to_user_when_applying_template_on_private_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
+    dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
+
+    underTest.apply(session, permissionTemplate, singletonList(privateProject));
+
+    assertThat(selectProjectPermissionsOfUser(user, privateProject))
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void applyDefault_inserts_any_permissions_to_user_when_applying_template_on_private_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
+    dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), privateProject, null);
+
+    assertThat(selectProjectPermissionsOfUser(user, privateProject))
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void applyDefault_inserts_permissions_to_ProjectCreator_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+        .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
+    dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), publicProject, user.getId());
+
+    assertThat(selectProjectPermissionsOfUser(user, publicProject))
+        .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
+
+  @Test
+  public void applyDefault_inserts_any_permissions_to_ProjectCreator_when_applying_template_on_private_project() {
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ProjectPermissions.ALL
+      .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
+    dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
+    dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
+
+    underTest.applyDefault(session, organization.getUuid(), privateProject, user.getId());
+
+    assertThat(selectProjectPermissionsOfUser(user, privateProject))
+      .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
+  }
 
   @Test
   public void apply_permission_template() {
-    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     GroupDto adminGroup = dbTester.users().insertGroup(organization);
     GroupDto userGroup = dbTester.users().insertGroup(organization);
-    UserDto user = dbTester.users().insertUser();
     dbTester.users().insertPermissionOnGroup(adminGroup, "admin");
     dbTester.users().insertPermissionOnGroup(userGroup, "user");
     dbTester.users().insertPermissionOnUser(organization, user, "admin");
@@ -87,7 +290,7 @@ public class PermissionTemplateServiceTest {
 
     assertThat(selectProjectPermissionsOfGroup(organization, adminGroup, project)).containsOnly("admin", "issueadmin");
     assertThat(selectProjectPermissionsOfGroup(organization, userGroup, project)).containsOnly("user", "codeviewer");
-    assertThat(selectProjectPermissionsOfGroup(organization, null, project)).containsOnly("user", "codeviewer");
+    assertThat(selectProjectPermissionsOfGroup(organization, null, project)).isEmpty();
     assertThat(selectProjectPermissionsOfUser(user, project)).containsOnly("admin");
 
     checkAuthorizationUpdatedAtIsUpdated(project);
@@ -105,9 +308,6 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void would_user_have_scan_permission_with_default_permission_template() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    UserDto user = dbTester.users().insertUser();
-    GroupDto group = dbTester.users().insertGroup(organization);
     dbTester.users().insertMember(group, user);
     PermissionTemplateDto template = templateDb.insertTemplate(organization);
     dbTester.organizations().setDefaultTemplates(template, null);

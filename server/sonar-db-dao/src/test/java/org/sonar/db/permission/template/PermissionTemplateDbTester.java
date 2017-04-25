@@ -78,6 +78,10 @@ public class PermissionTemplateDbTester {
     db.commit();
   }
 
+  public void addProjectCreatorToTemplate(PermissionTemplateDto permissionTemplate, String permission) {
+    addProjectCreatorToTemplate(permissionTemplate.getId(), permission);
+  }
+
   public void addProjectCreatorToTemplate(long templateId, String permission) {
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, newPermissionTemplateCharacteristicDto()
       .setWithProjectCreator(true)
