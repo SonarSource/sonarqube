@@ -93,4 +93,12 @@ public class OrganizationDbTester {
     dbTester.commit();
   }
 
+  public void setNewProjectPrivate(OrganizationDto organization, boolean newProjectPrivate) {
+    dbTester.getDbClient().organizationDao().setNewProjectPrivate(dbTester.getSession(), organization, newProjectPrivate);
+    dbTester.commit();
+  }
+
+  public boolean getNewProjectPrivate(OrganizationDto organization) {
+    return dbTester.getDbClient().organizationDao().getNewProjectPrivate(dbTester.getSession(), organization);
+  }
 }
