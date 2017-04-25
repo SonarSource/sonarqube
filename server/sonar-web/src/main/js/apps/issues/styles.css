@@ -140,3 +140,20 @@
   align-items: flex-start;
   border: none;
 }
+
+.issues-filters-header {
+  margin-bottom: 12px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.issues-my-issues-filter {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.issues-page-actions {
+  display: inline-block;
+  min-width: 80px;
+  text-align: right;
+}

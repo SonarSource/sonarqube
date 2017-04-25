@@ -19,15 +19,12 @@
  */
 // @flow
 import React from 'react';
-import { css } from 'glamor';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
   displayReset: boolean,
   onReset: () => void
 };
-
-const styles = css({ marginBottom: 12, paddingBottom: 11, borderBottom: '1px solid #e6e6e6' });
 
 export default class FiltersHeader extends React.PureComponent {
   props: Props;
@@ -40,9 +37,9 @@ export default class FiltersHeader extends React.PureComponent {
 
   render() {
     return (
-      <div className={styles}>
+      <div className="issues-filters-header">
         {this.props.displayReset &&
-          <div className={css({ float: 'right' })}>
+          <div className="pull-right">
             <button className="button-red" onClick={this.handleResetClick}>
               {translate('clear_all_filters')}
             </button>

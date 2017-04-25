@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import { css } from 'glamor';
 import IssuesCounter from './IssuesCounter';
 import ReloadButton from './ReloadButton';
 import type { Paging } from '../utils';
@@ -60,7 +59,7 @@ export default class PageActions extends React.PureComponent {
       <div className="pull-right">
         {this.renderShortcuts()}
 
-        <div className={css({ display: 'inline-block', minWidth: 80, textAlign: 'right' })}>
+        <div className="issues-page-actions">
           {this.props.loading
             ? <i className="issues-main-header-spinner spinner" />
             : <ReloadButton className="spacer-right" onClick={this.props.onReload} />}

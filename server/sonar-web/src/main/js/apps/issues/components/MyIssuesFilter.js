@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import { css } from 'glamor';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {|
@@ -40,7 +39,7 @@ export default class MyIssuesFilter extends React.PureComponent {
     const { myIssues } = this.props;
 
     return (
-      <div className={css({ marginBottom: 24, textAlign: 'center' })}>
+      <div className="issues-my-issues-filter">
         <div className="button-group">
           <button
             className={myIssues ? 'button-active' : undefined}

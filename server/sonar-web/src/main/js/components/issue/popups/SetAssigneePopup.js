@@ -19,8 +19,6 @@
  */
 // @flow
 import React from 'react';
-import classNames from 'classnames';
-import { css } from 'glamor';
 import { debounce, map } from 'lodash';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
@@ -54,7 +52,6 @@ type State = {
 };
 
 const LIST_SIZE = 10;
-const USER_MARGIN = css({ marginLeft: '24px' });
 
 export default class SetAssigneePopup extends React.PureComponent {
   defaultUsersArray: Array<User>;
@@ -152,9 +149,8 @@ export default class SetAssigneePopup extends React.PureComponent {
                     size={16}
                   />}
                 <span
-                  className={classNames('vertical-middle', {
-                    [USER_MARGIN]: !(user.avatar || user.email)
-                  })}>
+                  className="vertical-middle"
+                  style={{ marginLeft: !user.avatar && !user.email ? 24 : undefined }}>
                   {user.name}
                 </span>
               </SelectListItem>

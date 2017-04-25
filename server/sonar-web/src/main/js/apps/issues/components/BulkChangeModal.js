@@ -21,7 +21,6 @@
 import React from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select';
-import { css } from 'glamor';
 import { pickBy, sortBy } from 'lodash';
 import SearchSelect from './SearchSelect';
 import Checkbox from '../../../components/controls/Checkbox';
@@ -228,11 +227,7 @@ export default class BulkChangeModal extends React.PureComponent {
   );
 
   renderCheckbox = (field: string) => (
-    <Checkbox
-      className={css({ paddingTop: 6, paddingRight: 8 })}
-      checked={this.state[field] != null}
-      onCheck={this.handleFieldCheck(field)}
-    />
+    <Checkbox checked={this.state[field] != null} onCheck={this.handleFieldCheck(field)} />
   );
 
   renderAffected = (affected: number) => (

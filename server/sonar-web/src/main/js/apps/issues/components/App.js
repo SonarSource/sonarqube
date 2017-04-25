@@ -54,11 +54,6 @@ import type {
 } from '../utils';
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
-import Page from '../../../components/layout/Page';
-import PageMain from '../../../components/layout/PageMain';
-import PageMainInner from '../../../components/layout/PageMainInner';
-import PageSide from '../../../components/layout/PageSide';
-import PageFilters from '../../../components/layout/PageFilters';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import type { Issue } from '../../../components/issue/types';
@@ -649,7 +644,7 @@ export default class App extends React.PureComponent {
     const { query } = this.state;
 
     return (
-      <PageFilters>
+      <div className="layout-page-filters">
         {currentUser.isLoggedIn &&
           <MyIssuesFilter
             myIssues={this.state.myIssues}
@@ -669,7 +664,7 @@ export default class App extends React.PureComponent {
           referencedRules={this.state.referencedRules}
           referencedUsers={this.state.referencedUsers}
         />
-      </PageFilters>
+      </div>
     );
   }
 
@@ -677,7 +672,7 @@ export default class App extends React.PureComponent {
     const { issues, paging } = this.state;
 
     return (
-      <PageFilters>
+      <div className="layout-page-filters">
         <ConciseIssuesListHeader
           loading={this.state.loading}
           onBackClick={this.closeIssue}
@@ -697,7 +692,7 @@ export default class App extends React.PureComponent {
         {paging != null &&
           paging.total > 0 &&
           <ListFooter total={paging.total} count={issues.length} loadMore={this.fetchMoreIssues} />}
-      </PageFilters>
+      </div>
     );
   }
 
@@ -705,9 +700,13 @@ export default class App extends React.PureComponent {
     const top = this.props.component ? 95 : 30;
 
     return (
-      <PageSide top={top}>
-        {openIssue == null ? this.renderFacets() : this.renderConciseIssuesList()}
-      </PageSide>
+      <div className="layout-page-side-outer">
+        <div className="layout-page-side" style={{ top }}>
+          <div className="layout-page-side-inner">
+            {openIssue == null ? this.renderFacets() : this.renderConciseIssuesList()}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -762,15 +761,15 @@ export default class App extends React.PureComponent {
     const selectedIndex = this.getSelectedIndex();
 
     return (
-      <Page className="issues" id="issues-page">
+      <div className="layout-page issues" id="issues-page">
         <Helmet title={translate('issues.page')} titleTemplate="%s - SonarQube" />
 
         {this.renderSide(openIssue)}
 
-        <PageMain>
+        <div className="layout-page-main">
           <div className="issues-header-panel issues-main-header">
             <div className="issues-header-panel-inner issues-main-header-inner">
-              <PageMainInner>
+              <div className="layout-page-main-inner">
                 {this.renderBulkChange(openIssue)}
                 {openIssue != null
                   ? <div className="pull-left width-60">
@@ -783,11 +782,11 @@ export default class App extends React.PureComponent {
                       selectedIndex={selectedIndex}
                     />}
                 {openIssue != null && this.renderShortcutsForLocations()}
-              </PageMainInner>
+              </div>
             </div>
           </div>
 
-          <PageMainInner>
+          <div className="layout-page-main-inner">
             <div>
               {openIssue != null &&
                 <IssuesSourceViewer
@@ -804,9 +803,9 @@ export default class App extends React.PureComponent {
 
               {this.renderList(openIssue)}
             </div>
-          </PageMainInner>
-        </PageMain>
-      </Page>
+          </div>
+        </div>
+      </div>
     );
   }
 }
