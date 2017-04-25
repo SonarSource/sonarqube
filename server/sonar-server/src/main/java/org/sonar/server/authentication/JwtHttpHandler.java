@@ -180,11 +180,11 @@ public class JwtHttpHandler {
     int minutes;
     if (settings.hasKey(SESSION_TIMEOUT_IN_MINUTES_PROPERTY)) {
       minutes = settings.getInt(SESSION_TIMEOUT_IN_MINUTES_PROPERTY);
-      checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s.", SESSION_TIMEOUT_IN_MINUTES_PROPERTY, minutes);
+      checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s", SESSION_TIMEOUT_IN_MINUTES_PROPERTY, minutes);
     } else {
       minutes = SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES;
     }
-    checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES, "Property %s must not be greater than %s. Got %s.",
+    checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES, "Property %s must not be greater than 3 months (%s minutes). Got %s minutes",
       SESSION_TIMEOUT_IN_MINUTES_PROPERTY, MAX_SESSION_TIMEOUT_IN_MINUTES, minutes);
     return minutes * 60;
   }

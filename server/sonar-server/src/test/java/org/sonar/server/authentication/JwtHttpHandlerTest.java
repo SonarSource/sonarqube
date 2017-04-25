@@ -33,8 +33,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -153,7 +153,7 @@ public class JwtHttpHandlerTest {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 0);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got 0.");
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got 0");
 
     new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
   }
@@ -163,7 +163,7 @@ public class JwtHttpHandlerTest {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", -10);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got -10.");
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must be strictly positive. Got -10");
 
     new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
   }
@@ -173,7 +173,7 @@ public class JwtHttpHandlerTest {
     settings.setProperty("sonar.web.sessionTimeoutInMinutes", 4 * 30 * 24 * 60);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must not be greater than 129600. Got 172800.");
+    expectedException.expectMessage("Property sonar.web.sessionTimeoutInMinutes must not be greater than 3 months (129600 minutes). Got 172800 minutes");
 
     new JwtHttpHandler(system2, dbClient, settings, jwtSerializer, jwtCsrfVerifier);
   }
