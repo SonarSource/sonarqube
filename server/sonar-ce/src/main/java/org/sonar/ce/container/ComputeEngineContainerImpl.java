@@ -96,6 +96,7 @@ import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionTemplateService;
@@ -289,6 +290,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ResourceTypes.class,
       DefaultResourceTypes.get(),
       Periods.class,
+      BillingValidationsProxyImpl.class,
 
       // quality profile
       ActiveRuleIndexer.class,
