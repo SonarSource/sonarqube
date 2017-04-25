@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.queue.CeTask;
@@ -34,11 +35,17 @@ import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysi
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidations.BillingValidationsException;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class LoadReportAnalysisMetadataHolderStepTest {
@@ -58,6 +65,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
   private ComputationStep underTest;
 
   @Before
@@ -308,8 +316,40 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     underTest.execute();
   }
 
+  @Test
+  public void execute_fails_with_MessageException_when_organization_is_not_allowed_to_execute_analysis() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    reportReader.setMetadata(newBatchReportBuilder()
+      .setOrganizationKey(organization.getKey())
+      .build());
+    ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, organization.getUuid()));
+    doThrow(new BillingValidationsException("This organization cannot execute project analysis")).when(billingValidations)
+      .checkOnProjectAnalysis(any(BillingValidations.Organization.class));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("This organization cannot execute project analysis");
+
+    underTest.execute();
+  }
+
+  @Test
+  public void execute_does_no_fails_when_organization_is_allowed_to_execute_analysis() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    reportReader.setMetadata(newBatchReportBuilder()
+      .setOrganizationKey(organization.getKey())
+      .build());
+    ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, organization.getUuid()));
+
+    underTest.execute();
+
+    ArgumentCaptor<BillingValidations.Organization> argumentCaptor = ArgumentCaptor.forClass(BillingValidations.Organization.class);
+    verify(billingValidations).checkOnProjectAnalysis(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getKey()).isEqualTo(organization.getKey());
+    assertThat(argumentCaptor.getValue().getUuid()).isEqualTo(organization.getUuid());
+  }
+
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {
-    return new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder, defaultOrganizationProvider, dbClient);
+    return new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder, defaultOrganizationProvider, dbClient, billingValidations);
   }
 
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {
