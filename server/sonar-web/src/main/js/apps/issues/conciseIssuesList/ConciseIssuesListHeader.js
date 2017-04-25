@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import BackButton from './BackButton';
-import ReloadButton from './ReloadButton';
+import ReloadButton from '../components/ReloadButton';
 import IssuesCounter from '../components/IssuesCounter';
 import type { Paging } from '../utils';
 

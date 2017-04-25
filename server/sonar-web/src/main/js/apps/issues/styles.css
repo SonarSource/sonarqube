@@ -39,6 +39,12 @@
   }
 }
 
+.issues-main-header-spinner {
+  margin-left: 1px;
+  margin-right: 9px;
+  margin-top: -1px;
+}
+
 .concise-issues-list-header,
 .concise-issues-list-header-inner {
 }

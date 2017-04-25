@@ -565,6 +565,10 @@ export default class App extends React.PureComponent {
     this.closeBulkChange();
   };
 
+  handleReload = () => {
+    this.fetchFirstIssues();
+  };
+
   handleReloadAndOpenFirst = () => {
     this.fetchFirstIssues().then(issues => {
       if (issues.length > 0) {
@@ -757,6 +761,7 @@ export default class App extends React.PureComponent {
                     </div>
                   : <PageActions
                       loading={this.state.loading}
+                      onReload={this.handleReload}
                       paging={paging}
                       selectedIndex={selectedIndex}
                     />}
