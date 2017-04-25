@@ -33,7 +33,7 @@ public class OrganizationsWsModuleTest {
     ComponentContainer container = new ComponentContainer();
     underTest.configure(container);
     assertThat(container.getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 11);
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 12);
   }
 
 }
