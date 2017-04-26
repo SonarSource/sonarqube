@@ -21,11 +21,14 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import java.util.Optional;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.UserPermissionDto;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.PermissionChange.Operation.ADD;
+import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -40,6 +43,10 @@ public class UserPermissionChanger {
   }
 
   public boolean apply(DbSession dbSession, UserPermissionChange change) {
+    ensureConsistencyWithVisibility(change);
+    if (isImplicitlyAlreadyDone(change)) {
+      return false;
+    }
     switch (change.getOperation()) {
       case ADD:
         return addPermission(dbSession, change);
@@ -48,6 +55,35 @@ public class UserPermissionChanger {
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());
     }
+  }
+
+  private static boolean isImplicitlyAlreadyDone(UserPermissionChange change) {
+    return change.getProjectId()
+      .map(projectId -> isImplicitlyAlreadyDone(projectId, change))
+      .orElse(false);
+  }
+
+  private static boolean isImplicitlyAlreadyDone(ProjectId projectId, UserPermissionChange change) {
+    return isAttemptToAddPublicPermissionToPublicComponent(change, projectId);
+  }
+
+  private static boolean isAttemptToAddPublicPermissionToPublicComponent(UserPermissionChange change, ProjectId projectId) {
+    return !projectId.isPrivate()
+      && change.getOperation() == ADD
+      && ProjectPermissions.PUBLIC_PERMISSIONS.contains(change.getPermission());
+  }
+
+  private static void ensureConsistencyWithVisibility(UserPermissionChange change) {
+    change.getProjectId()
+      .ifPresent(projectId -> checkRequest(
+        !isAttemptToRemovePublicPermissionFromPublicComponent(change, projectId),
+        "Permission %s can't be removed from a public component", change.getPermission()));
+  }
+
+  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(UserPermissionChange change, ProjectId projectId) {
+    return !projectId.isPrivate()
+      && change.getOperation() == REMOVE
+      && ProjectPermissions.PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private boolean addPermission(DbSession dbSession, UserPermissionChange change) {

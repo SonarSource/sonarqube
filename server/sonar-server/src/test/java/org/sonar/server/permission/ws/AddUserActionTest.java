@@ -31,7 +31,9 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -298,6 +300,38 @@ public class AddUserActionTest extends BasePermissionWsTest<AddUserAction> {
       .setParam(PARAM_USER_LOGIN, user.getLogin())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
+  }
+
+  @Test
+  public void no_effect_when_adding_USER_permission_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    addUserAsMemberOfOrganization(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, USER)
+      .execute();
+
+    assertThat(db.users().selectAnyonePermissions(organization, project)).isEmpty();
+  }
+
+  @Test
+  public void no_effect_when_adding_CODEVIEWER_permission_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    addUserAsMemberOfOrganization(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .execute();
+
+    assertThat(db.users().selectAnyonePermissions(organization, project)).isEmpty();
   }
 
   private void addUserAsMemberOfOrganization(OrganizationDto organization) {
