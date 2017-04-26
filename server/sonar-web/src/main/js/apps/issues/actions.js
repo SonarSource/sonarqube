@@ -74,3 +74,17 @@ export const selectPreviousLocation = (state: State) => {
 export const selectFlow = (nextIndex: ?number) => () => {
   return { selectedFlowIndex: nextIndex, selectedLocationIndex: 0 };
 };
+
+export const selectNextFlow = (state: State) => {
+  const { openIssue, selectedFlowIndex } = state;
+  if (openIssue && selectedFlowIndex != null && openIssue.flows.length > selectedFlowIndex + 1) {
+    return { selectedFlowIndex: selectedFlowIndex + 1, selectedLocationIndex: 0 };
+  }
+};
+
+export const selectPreviousFlow = (state: State) => {
+  const { openIssue, selectedFlowIndex } = state;
+  if (openIssue && selectedFlowIndex != null && selectedFlowIndex > 0) {
+    return { selectedFlowIndex: selectedFlowIndex - 1, selectedLocationIndex: 0 };
+  }
+};

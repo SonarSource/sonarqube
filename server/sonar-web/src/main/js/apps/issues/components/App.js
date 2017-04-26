@@ -223,6 +223,14 @@ export default class App extends React.PureComponent {
       // alt + down
       event.preventDefault();
       this.selectPreviousLocation();
+    } else if (event.keyCode === 37 && event.altKey) {
+      // alt + left
+      event.preventDefault();
+      this.selectPreviousFlow();
+    } else if (event.keyCode === 39 && event.altKey) {
+      // alt + right
+      event.preventDefault();
+      this.selectNextFlow();
     }
   };
 
@@ -593,6 +601,8 @@ export default class App extends React.PureComponent {
   selectNextLocation = () => this.setState(actions.selectNextLocation);
   selectPreviousLocation = () => this.setState(actions.selectPreviousLocation);
   selectFlow = (index: ?number) => this.setState(actions.selectFlow(index));
+  selectNextFlow = () => this.setState(actions.selectNextFlow);
+  selectPreviousFlow = () => this.setState(actions.selectPreviousFlow);
 
   renderBulkChange(openIssue: ?Issue) {
     const { component, currentUser } = this.props;
@@ -747,12 +757,18 @@ export default class App extends React.PureComponent {
     if (openIssue == null || (!openIssue.secondaryLocations.length && !openIssue.flows.length)) {
       return null;
     }
+    const hasSeveralFlows = openIssue.flows.length > 1;
     return (
       <div className="pull-right note">
         <span className="shortcut-button little-spacer-right">alt</span>
         <span className="little-spacer-right">{'+'}</span>
         <span className="shortcut-button little-spacer-right">↑</span>
         <span className="shortcut-button little-spacer-right">↓</span>
+        {hasSeveralFlows &&
+          <span>
+            <span className="shortcut-button little-spacer-right">←</span>
+            <span className="shortcut-button little-spacer-right">→</span>
+          </span>}
         {translate('issues.to_navigate_issue_locations')}
       </div>
     );
