@@ -33,6 +33,7 @@ import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
 import FiltersView from './filters-view';
+import { areThereCustomOrganizations } from '../../store/organizations/utils';
 
 const App = new Marionette.Application();
 
@@ -43,10 +44,11 @@ App.on('start', function(
     isDefaultOrganization: boolean
   }
 ) {
+  App.organization = options.organization;
   const data = options.organization ? { organization: options.organization } : {};
   $.get(window.baseUrl + '/api/rules/app', data)
     .done(r => {
-      App.customRules = options.organization == null || options.isDefaultOrganization;
+      App.customRules = !areThereCustomOrganizations();
       App.canWrite = r.canWrite;
       App.organization = options.organization;
       App.qualityProfiles = sortBy(r.qualityprofiles, ['name', 'lang']);

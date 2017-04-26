@@ -114,6 +114,9 @@ export default Controller.extend({
       key: rule.id,
       actives: true
     };
+    if (this.app.organization) {
+      options.organization = this.app.organization;
+    }
     return $.get(url, options).done(data => {
       rule.set(data.rule);
       rule.addExtraAttributes(that.app.repositories);
