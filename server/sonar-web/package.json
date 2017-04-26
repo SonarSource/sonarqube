@@ -56,7 +56,7 @@
     "case-sensitive-paths-webpack-plugin": "1.1.4",
     "chalk": "1.1.3",
     "connect-history-api-fallback": "1.3.0",
-    "cross-env": "2.0.0",
+    "cross-env": "4.0.0",
     "cross-spawn": "4.0.0",
     "css-loader": "0.23.1",
     "detect-port": "1.0.0",
@@ -107,13 +107,12 @@
     "start": "node scripts/start.js",
     "build-fast": "node scripts/build.js --fast",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js",
-    "coverage": "npm test -- --coverage",
+    "test": "cross-env NODE_ENV=test jest",
     "format": "prettier-eslint --write \"src/main/js/!(libs)/**/*.js\"",
     "format-css": "prettier-css \"src/main/js/**/*.css\"",
     "lint": "eslint src/main/js",
     "typecheck": "flow src/main/js",
-    "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest --runInBand"
+    "validate": "eslint src/main/js && flow check src/main/js && yarn test --runInBand"
   },
   "engines": {
     "node": ">=6"
@@ -131,14 +130,8 @@
       "<rootDir>/node_modules",
       "<rootDir>/tests"
     ],
-    "moduleFileExtensions": [
-      "jsx",
-      "js",
-      "json"
-    ],
     "moduleNameMapper": {
-      "^.+\\.(hbs|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/FileStub.js",
-      "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
+      "^.+\\.(css|hbs)$": "<rootDir>/config/jest/FileStub.js"
     },
     "setupFiles": [
       "<rootDir>/config/polyfills.js",
