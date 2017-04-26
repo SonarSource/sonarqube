@@ -20,6 +20,7 @@
 package org.sonar.api.batch.events;
 
 import org.sonar.api.batch.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonar.api.ExtensionPoint;
 
 /**
@@ -29,6 +30,7 @@ import org.sonar.api.ExtensionPoint;
  * @since 2.8
  */
 @ScannerSide
+@SonarLintSide
 @ExtensionPoint
 public interface EventHandler {
 
