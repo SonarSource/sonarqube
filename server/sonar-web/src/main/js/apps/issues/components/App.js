@@ -710,18 +710,18 @@ export default class App extends React.PureComponent {
     );
   }
 
-  renderList(openIssue: ?Issue) {
+  renderList() {
     const { component, currentUser } = this.props;
-    const { issues, paging } = this.state;
+    const { issues, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex != null ? issues[selectedIndex] : null;
 
-    if (paging == null) {
+    if (paging == null || openIssue != null) {
       return null;
     }
 
     return (
-      <div className={openIssue != null ? 'hidden' : undefined}>
+      <div>
         {paging.total > 0 &&
           <IssuesList
             checked={this.state.checked}
@@ -792,20 +792,19 @@ export default class App extends React.PureComponent {
 
           <div className="layout-page-main-inner">
             <div>
-              {openIssue != null &&
-                <IssuesSourceViewer
-                  openIssue={openIssue}
-                  loadIssues={this.fetchIssuesForComponent}
-                  onIssueChange={this.handleIssueChange}
-                  onIssueSelect={this.openIssue}
-                  onLocationSelect={this.selectLocation}
-                  selectedFlowIndex={this.state.selectedFlowIndex}
-                  selectedLocationIndex={
-                    this.state.locationsNavigator ? this.state.selectedLocationIndex : null
-                  }
-                />}
-
-              {this.renderList(openIssue)}
+              {openIssue
+                ? <IssuesSourceViewer
+                    openIssue={openIssue}
+                    loadIssues={this.fetchIssuesForComponent}
+                    onIssueChange={this.handleIssueChange}
+                    onIssueSelect={this.openIssue}
+                    onLocationSelect={this.selectLocation}
+                    selectedFlowIndex={this.state.selectedFlowIndex}
+                    selectedLocationIndex={
+                      this.state.locationsNavigator ? this.state.selectedLocationIndex : null
+                    }
+                  />
+                : this.renderList()}
             </div>
           </div>
         </div>
