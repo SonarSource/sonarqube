@@ -20,12 +20,12 @@
 // @flow
 import React from 'react';
 import VisualizationsHeader from './VisualizationsHeader';
-import QualityModel from './QualityModel';
-import Bugs from './Bugs';
-import Vulnerabilities from './Vulnerabilities';
-import CodeSmells from './CodeSmells';
-import UncoveredLines from './UncoveredLines';
-import DuplicatedBlocks from './DuplicatedBlocks';
+import Risk from './Risk';
+import Reliability from './Reliability';
+import Security from './Security';
+import Maintainability from './Maintainability';
+import Coverage from './Coverage';
+import Duplications from './Duplications';
 import { localizeSorting } from '../utils';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -41,12 +41,12 @@ export default class Visualizations extends React.PureComponent {
 
   renderVisualization(projects: Array<*>) {
     const visualizationToComponent = {
-      quality: QualityModel,
-      bugs: Bugs,
-      vulnerabilities: Vulnerabilities,
-      code_smells: CodeSmells,
-      uncovered_lines: UncoveredLines,
-      duplicated_blocks: DuplicatedBlocks
+      risk: Risk,
+      reliability: Reliability,
+      security: Security,
+      maintainability: Maintainability,
+      coverage: Coverage,
+      duplications: Duplications
     };
     const Component = visualizationToComponent[this.props.visualization];
 

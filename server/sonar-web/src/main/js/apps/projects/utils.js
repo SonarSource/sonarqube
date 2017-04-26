@@ -48,12 +48,12 @@ export const saveAll = () => save(LOCALSTORAGE_ALL);
 export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);
 
 export const VISUALIZATIONS = [
-  'quality',
-  'bugs',
-  'vulnerabilities',
-  'code_smells',
-  'uncovered_lines',
-  'duplicated_blocks'
+  'risk',
+  'reliability',
+  'security',
+  'maintainability',
+  'coverage',
+  'duplications'
 ];
 
 export const localizeSorting = (sort?: string) => {

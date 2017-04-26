@@ -42,7 +42,7 @@ const COLOR_METRIC_1 = 'reliability_rating';
 const COLOR_METRIC_2 = 'security_rating';
 const COLOR_METRIC_TYPE = 'RATING';
 
-export default class QualityModel extends React.PureComponent {
+export default class Risk extends React.PureComponent {
   props: {
     displayOrganizations: boolean,
     projects: Array<Project>

@@ -47,13 +47,13 @@ const METRICS = [
 ];
 
 const METRICS_BY_VISUALIZATION = {
-  quality: ['reliability_rating', 'security_rating', 'coverage', 'ncloc', 'sqale_index'],
+  risk: ['reliability_rating', 'security_rating', 'coverage', 'ncloc', 'sqale_index'],
   // x, y, size, color
-  bugs: ['ncloc', 'reliability_remediation_effort', 'bugs', 'reliability_rating'],
-  vulnerabilities: ['ncloc', 'security_remediation_effort', 'vulnerabilities', 'security_rating'],
-  code_smells: ['ncloc', 'sqale_index', 'code_smells', 'sqale_rating'],
-  uncovered_lines: ['complexity', 'coverage', 'uncovered_lines'],
-  duplicated_blocks: ['ncloc', 'duplicated_lines', 'duplicated_blocks']
+  reliability: ['ncloc', 'reliability_remediation_effort', 'bugs', 'reliability_rating'],
+  security: ['ncloc', 'security_remediation_effort', 'vulnerabilities', 'security_rating'],
+  maintainability: ['ncloc', 'sqale_index', 'code_smells', 'sqale_rating'],
+  coverage: ['complexity', 'coverage', 'uncovered_lines'],
+  duplications: ['ncloc', 'duplicated_lines', 'duplicated_blocks']
 };
 
 const FACETS = [
@@ -99,7 +99,7 @@ const onReceiveOrganizations = dispatch => response => {
 
 const defineMetrics = query => {
   if (query.view === 'visualizations') {
-    return METRICS_BY_VISUALIZATION[query.visualization || 'quality'];
+    return METRICS_BY_VISUALIZATION[query.visualization || 'risk'];
   } else {
     return METRICS;
   }

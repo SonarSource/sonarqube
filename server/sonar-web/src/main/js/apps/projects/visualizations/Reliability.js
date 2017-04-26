@@ -21,15 +21,15 @@
 import React from 'react';
 import SimpleBubbleChart from './SimpleBubbleChart';
 
-export default class Vulnerabilities extends React.PureComponent {
+export default class Reliability extends React.PureComponent {
   render() {
     return (
       <SimpleBubbleChart
         {...this.props}
         xMetric={{ key: 'ncloc', type: 'SHORT_INT' }}
-        yMetric={{ key: 'security_remediation_effort', type: 'SHORT_WORK_DUR' }}
-        sizeMetric={{ key: 'vulnerabilities', type: 'SHORT_INT' }}
-        colorMetric="security_rating"
+        yMetric={{ key: 'reliability_remediation_effort', type: 'SHORT_WORK_DUR' }}
+        sizeMetric={{ key: 'bugs', type: 'SHORT_INT' }}
+        colorMetric="reliability_rating"
       />
     );
   }
