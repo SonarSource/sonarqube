@@ -34,6 +34,11 @@ public interface BillingValidations {
    */
   void checkOnProjectAnalysis(Organization organization);
 
+  /**
+   * @return true if the organization can use private projects
+   */
+  boolean canUpdateProjectVisibilityToPrivate(Organization organization);
+
   class Organization {
     private final String key;
     private final String uuid;
