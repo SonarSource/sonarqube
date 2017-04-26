@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -275,6 +277,38 @@ public class RemoveUserActionTest extends BasePermissionWsTest<RemoveUserAction>
       .execute();
 
     assertThat(db.users().selectProjectPermissionsOfUser(user, project)).containsOnly(CODEVIEWER);
+  }
+
+  @Test
+  public void fail_when_removing_USER_permission_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Permission user can't be removed from a public component");
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, USER)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_removing_CODEVIEWER_permission_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
+
+    newRequest()
+      .setParam(PARAM_USER_LOGIN, user.getLogin())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .execute();
   }
 
 }
