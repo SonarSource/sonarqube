@@ -76,17 +76,6 @@ export default class RemoveMemberForm extends React.PureComponent {
                 this.props.organization.name
               )}
             </p>
-            <p>
-              {translateWithParameters(
-                'organization.members.remove_warning_x',
-                this.props.member.name
-              )}
-            </p>
-            <ul>
-              <li>{translate('organization.members.browse_projects')}</li>
-              <li>{translate('projects_role.codeviewer')}</li>
-              <li>{translate('projects_role.issueadmin')}</li>
-            </ul>
           </div>
           <footer className="modal-foot">
             <div>
