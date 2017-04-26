@@ -1,0 +1,44 @@
+
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+import org.sonar.api.config.Settings;
+import org.sonar.server.organization.BillingValidationsExtension;
+
+import static java.lang.String.format;
+
+public class BillingValidations implements BillingValidationsExtension {
+
+  private static final String PREVENT_PROJECT_ANALYSIS_SETTING = "sonar.billing.preventProjectAnalysis";
+
+  private final Settings settings;
+
+  public BillingValidations(Settings settings) {
+    this.settings = settings;
+  }
+
+  @Override
+  public void checkOnProjectAnalysis(Organization organization) {
+    boolean preventProjectAnalysis = settings.getBoolean(PREVENT_PROJECT_ANALYSIS_SETTING);
+    if (preventProjectAnalysis) {
+      throw new BillingValidationsException(format("Organization %s cannot perform analysis", organization.getKey()));
+    }
+  }
+}
