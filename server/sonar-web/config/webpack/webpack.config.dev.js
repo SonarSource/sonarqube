@@ -21,42 +21,21 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 const paths = require('../paths');
 const config = require('./webpack.config.base');
-const getClientEnvironment = require('../env');
 
-const webContext = '';
-const env = getClientEnvironment();
+const port = 3000;
+const host = '0.0.0.0';
 
-// This makes the bundle appear split into separate modules in the devtools.
-// We don't use source maps here because they can be confusing:
-// https://github.com/facebookincubator/create-react-app/issues/343#issuecomment-237241875
-// You may want 'cheap-module-source-map' instead if you prefer source maps.
-config.devtool = 'eval';
+config.devtool = 'cheap-module-source-map';
 
-// Include an alternative client for WebpackDevServer. A client's job is to
-// connect to WebpackDevServer by a socket and get notified about changes.
-// When you save a file, the client will either apply hot updates (in case
-// of CSS changes), or refresh the page (in case of JS changes). When you
-// make a syntax error, this client will display a syntax error overlay.
-// Note: instead of the default WebpackDevServer client, we use a custom one
-// to bring better experience for Create React App users. You can replace
-// the line below with these two lines if you prefer the stock client:
-// require.resolve('webpack-dev-server/client') + '?/',
-// require.resolve('webpack/hot/dev-server'),
-config.entry.vendor.unshift(require.resolve('react-dev-utils/webpackHotDevClient'));
+config.entry.vendor.unshift('webpack/hot/only-dev-server');
+config.entry.vendor.unshift(`webpack-dev-server/client?http://${host}:${port}`);
 
-// Add /* filename */ comments to generated require()s in the output.
 config.output.pathinfo = true;
-
-// This is the URL that app is served from.
 config.output.filename = 'js/[name].js';
 config.output.chunkFilename = 'js/[name].chunk.js';
 
-// First, run the linter.
-// It's important to do this before Babel processes the JS.
 config.module.rules.unshift({
   test: /\.js$/,
   enforce: 'pre',
@@ -66,42 +45,43 @@ config.module.rules.unshift({
 
 config.plugins = [
   new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' }),
-
-  new ExtractTextPlugin({
-    filename: 'css/sonar.css',
-    allChunks: true
-  }),
-
-  // Makes the web context available as %WEB_CONTEXT% in index.html, e.g.:
-  // <link rel="shortcut icon" href="%WEB_CONTEXT%/favicon.ico">
-  // In development, this will be an empty string.
-  new InterpolateHtmlPlugin({
-    WEB_CONTEXT: webContext
-  }),
-
-  // Generates an `index.html` file with the <script> injected.
-  new HtmlWebpackPlugin({
-    inject: false,
-    template: paths.appHtml
-  }),
-
-  // Makes some environment variables available to the JS code, for example:
-  // if (process.env.NODE_ENV === 'development') { ... }. See `./env.js`.
-  new webpack.DefinePlugin(env),
-
-  // This is necessary to emit hot updates (currently CSS only):
-  new webpack.HotModuleReplacementPlugin(),
-
-  // Watcher doesn't work well if you mistype casing in a path so we use
-  // a plugin that prints an error when you attempt to do this.
-  // See https://github.com/facebookincubator/create-react-app/issues/240
-  new CaseSensitivePathsPlugin(),
-
-  // If you require a missing module and then `npm install` it, you still have
-  // to restart the development server for Webpack to discover it. This plugin
-  // makes the discovery automatic so you don't have to restart.
-  // See https://github.com/facebookincubator/create-react-app/issues/186
-  new WatchMissingNodeModulesPlugin(paths.appNodeModules)
+  new ExtractTextPlugin({ filename: 'css/sonar.css', allChunks: true }),
+  new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
+  new HtmlWebpackPlugin({ inject: false, template: paths.appHtml }),
+  new webpack.DefinePlugin({ 'process.env.NODE_ENV': '"development"' }),
+  new webpack.HotModuleReplacementPlugin()
 ];
+
+// docs: https://webpack.js.org/configuration/dev-server/
+config.devServer = {
+  compress: true,
+
+  contentBase: paths.appPublic,
+  historyApiFallback: true,
+  proxy: [
+    {
+      context: ['/api/**', '/fonts/**', '/images/**'],
+      target: 'http://localhost:9000'
+    }
+  ],
+
+  port,
+  host,
+
+  hot: true,
+  overlay: true,
+
+  quiet: false,
+  noInfo: false,
+  stats: {
+    assets: false,
+    colors: true,
+    version: false,
+    hash: false,
+    timings: true,
+    chunks: false,
+    chunkModules: false
+  }
+};
 
 module.exports = config;
