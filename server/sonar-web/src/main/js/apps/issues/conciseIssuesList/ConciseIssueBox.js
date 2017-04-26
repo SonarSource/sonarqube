@@ -31,29 +31,46 @@ type Props = {|
   onClick: string => void,
   onFlowSelect: number => void,
   onLocationSelect: number => void,
-  scroll: HTMLElement => void,
+  scroll: (element: HTMLElement, bottomOffset: ?number) => void,
   selected: boolean,
   selectedFlowIndex: ?number,
   selectedLocationIndex: ?number
 |};
 
 export default class ConciseIssueBox extends React.PureComponent {
-  node: HTMLElement;
+  messageElement: HTMLElement;
+  rootElement: HTMLElement;
   props: Props;
 
   componentDidMount() {
-    // scroll to the message element and not to the root element,
-    // because the root element can be huge and exceed the window height
     if (this.props.selected) {
-      this.props.scroll(this.node);
+      this.handleScroll();
     }
   }
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.selected && prevProps.selected !== this.props.selected) {
-      this.props.scroll(this.node);
+      this.handleScroll();
     }
   }
+
+  handleScroll = () => {
+    const { selectedFlowIndex } = this.props;
+    const { flows, secondaryLocations } = this.props.issue;
+
+    const locations = selectedFlowIndex != null
+      ? flows[selectedFlowIndex]
+      : flows.length > 0 ? flows[0] : secondaryLocations;
+
+    if (locations == null || locations.length < 15) {
+      // if there are no locations, or there are just few
+      // then ensuse that the whole box is visible
+      this.props.scroll(this.rootElement);
+    } else {
+      // otherwise scroll until the the message element is located on top
+      this.props.scroll(this.messageElement, window.innerHeight - 200);
+    }
+  };
 
   handleClick = (event: Event) => {
     event.preventDefault();
@@ -70,8 +87,9 @@ export default class ConciseIssueBox extends React.PureComponent {
     return (
       <div
         className={classNames('concise-issue-box', 'clearfix', { selected })}
+        ref={node => (this.rootElement = node)}
         {...clickAttributes}>
-        <div className="concise-issue-box-message" ref={node => (this.node = node)}>
+        <div className="concise-issue-box-message" ref={node => (this.messageElement = node)}>
           {issue.message}
         </div>
         <div className="concise-issue-box-attributes">
