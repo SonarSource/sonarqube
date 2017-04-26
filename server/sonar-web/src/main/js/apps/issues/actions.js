@@ -20,12 +20,16 @@
 // @flow
 import type { State } from './components/App';
 
-export const enableLocationsNavigator = (state: State) => ({
-  locationsNavigator: true,
-  selectedFlowIndex: state.selectedFlowIndex ||
-    (state.openIssue && state.openIssue.flows.length > 0 ? 0 : null),
-  selectedLocationIndex: state.selectedLocationIndex || 0
-});
+export const enableLocationsNavigator = (state: State) => {
+  const { openIssue } = state;
+  if (openIssue && (openIssue.secondaryLocations.length > 0 || openIssue.flows.length > 0)) {
+    return {
+      locationsNavigator: true,
+      selectedFlowIndex: state.selectedFlowIndex || (openIssue.flows.length > 0 ? 0 : null),
+      selectedLocationIndex: state.selectedLocationIndex || 0
+    };
+  }
+};
 
 export const disableLocationsNavigator = () => ({
   locationsNavigator: false
