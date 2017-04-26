@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.util.Uuids;
 import org.sonar.scanner.issue.tracking.SourceHashHolder;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
@@ -42,7 +41,7 @@ public class IssueTransformer {
     // static only
   }
 
-  public static TrackedIssue toTrackedIssue(ServerIssue serverIssue) {
+  public static TrackedIssue toTrackedIssue(ServerIssue serverIssue, String componentKey) {
     TrackedIssue issue = new TrackedIssue();
     issue.setKey(serverIssue.getKey());
     issue.setStatus(serverIssue.getStatus());
@@ -52,7 +51,8 @@ public class IssueTransformer {
     issue.setEndLine(serverIssue.hasLine() ? serverIssue.getLine() : null);
     issue.setSeverity(serverIssue.getSeverity().name());
     issue.setAssignee(serverIssue.hasAssigneeLogin() ? serverIssue.getAssigneeLogin() : null);
-    issue.setComponentKey(ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.hasPath() ? serverIssue.getPath() : null));
+    // key in serverIssue might have branch, so don't use it
+    issue.setComponentKey(componentKey);
     issue.setCreationDate(new Date(serverIssue.getCreationDate()));
     issue.setRuleKey(RuleKey.of(serverIssue.getRuleRepository(), serverIssue.getRuleKey()));
     issue.setNew(false);
