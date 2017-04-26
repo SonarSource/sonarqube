@@ -209,8 +209,7 @@ public class OrganizationActionTest {
   @Test
   public void returns_project_visibility_private() {
     OrganizationDto organization = dbTester.organizations().insert();
-    dbClient.organizationDao().setNewProjectPrivate(dbTester.getSession(), organization, true);
-    dbTester.commit();
+    dbTester.organizations().setNewProjectPrivate(organization, true);
     userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
     assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"private\"}}");
   }
@@ -218,8 +217,7 @@ public class OrganizationActionTest {
   @Test
   public void returns_project_visibility_public() {
     OrganizationDto organization = dbTester.organizations().insert();
-    dbClient.organizationDao().setNewProjectPrivate(dbTester.getSession(), organization, false);
-    dbTester.commit();
+    dbTester.organizations().setNewProjectPrivate(organization, false);
     userSession.logIn().addPermission(PROVISION_PROJECTS, organization);
     assertJson(executeRequest(organization).getInput()).isSimilarTo("{\"organization\": {\"projectVisibility\": \"public\"}}");
   }

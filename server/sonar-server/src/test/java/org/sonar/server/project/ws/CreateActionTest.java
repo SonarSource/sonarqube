@@ -216,8 +216,7 @@ public class CreateActionTest {
   @Test
   public void apply_default_project_visibility_public() {
     OrganizationDto organization = db.organizations().insert();
-    db.getDbClient().organizationDao().setNewProjectPrivate(db.getSession(), organization, false);
-    db.commit();
+    db.organizations().setNewProjectPrivate(organization, false);
     userSession.addPermission(PROVISION_PROJECTS, organization);
     expectSuccessfulCallToComponentUpdater();
 
@@ -233,8 +232,7 @@ public class CreateActionTest {
   @Test
   public void apply_default_project_visibility_private() {
     OrganizationDto organization = db.organizations().insert();
-    db.getDbClient().organizationDao().setNewProjectPrivate(db.getSession(), organization, true);
-    db.commit();
+    db.organizations().setNewProjectPrivate(organization, true);
     userSession.addPermission(PROVISION_PROJECTS, organization);
     expectSuccessfulCallToComponentUpdater();
 
