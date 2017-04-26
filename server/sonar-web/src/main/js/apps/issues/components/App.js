@@ -743,6 +743,10 @@ export default class App extends React.PureComponent {
   }
 
   renderShortcutsForLocations() {
+    const { openIssue } = this.state;
+    if (openIssue == null || (!openIssue.secondaryLocations.length && !openIssue.flows.length)) {
+      return null;
+    }
     return (
       <div className="pull-right note">
         <span className="shortcut-button little-spacer-right">alt</span>
@@ -781,7 +785,7 @@ export default class App extends React.PureComponent {
                       paging={paging}
                       selectedIndex={selectedIndex}
                     />}
-                {openIssue != null && this.renderShortcutsForLocations()}
+                {this.renderShortcutsForLocations()}
               </div>
             </div>
           </div>
