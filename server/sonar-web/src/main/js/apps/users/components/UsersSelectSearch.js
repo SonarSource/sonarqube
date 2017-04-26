@@ -51,6 +51,7 @@ type State = {
 const LIST_SIZE = 10;
 
 export default class UsersSelectSearch extends React.PureComponent {
+  mounted: boolean;
   props: Props;
   state: State;
 
@@ -59,8 +60,8 @@ export default class UsersSelectSearch extends React.PureComponent {
     this.handleSearch = debounce(this.handleSearch, 250);
     this.state = { searchResult: [], isLoading: false, search: '' };
   }
-
   componentDidMount() {
+    this.mounted = true;
     this.handleSearch(this.state.search);
   }
 
@@ -70,17 +71,31 @@ export default class UsersSelectSearch extends React.PureComponent {
     }
   }
 
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   filterSearchResult = ({ users }: { users: Array<Option> }) =>
     users.filter(user => !this.props.excludedUsers.includes(user.login)).slice(0, LIST_SIZE);
 
   handleSearch = (search: string) => {
-    this.setState({ isLoading: true, search });
     this.props
       .searchUsers(search, Math.min(this.props.excludedUsers.length + LIST_SIZE, 500))
       .then(this.filterSearchResult)
       .then(searchResult => {
-        this.setState({ isLoading: false, searchResult });
+        if (this.mounted) {
+          this.setState({ isLoading: false, searchResult });
+        }
       });
+  };
+
+  handleInputChange = (search: string) => {
+    if (search == null || search.length === 1) {
+      this.setState({ search });
+    } else {
+      this.setState({ isLoading: true, search });
+      this.handleSearch(search);
+    }
   };
 
   render() {
@@ -96,7 +111,7 @@ export default class UsersSelectSearch extends React.PureComponent {
         optionComponent={UsersSelectSearchOption}
         valueComponent={UsersSelectSearchValue}
         onChange={this.props.handleValueChange}
-        onInputChange={this.handleSearch}
+        onInputChange={this.handleInputChange}
         value={this.props.selectedUser}
         placeholder=""
         noResultsText={noResult}

@@ -15,12 +15,12 @@ exports[`should render correctly with a user 1`] = `
     <strong
       className="spacer-left"
     >
-      admin
+      Administrator
     </strong>
     <span
       className="note little-spacer-left"
     >
-      Administrator
+      admin
     </span>
   </div>
 </div>
@@ -41,12 +41,12 @@ exports[`should render correctly with email instead of hash 1`] = `
     <strong
       className="spacer-left"
     >
-      admin
+      Administrator
     </strong>
     <span
       className="note little-spacer-left"
     >
-      Administrator
+      admin
     </span>
   </div>
 </div>

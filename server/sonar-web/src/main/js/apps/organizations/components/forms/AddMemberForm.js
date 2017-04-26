@@ -21,13 +21,15 @@
 import React from 'react';
 import Modal from 'react-modal';
 import UsersSelectSearch from '../../../users/components/UsersSelectSearch';
-import { searchUsers } from '../../../../api/users';
+import { searchMembers } from '../../../../api/organizations';
 import { translate } from '../../../../helpers/l10n';
+import type { Organization } from '../../../../store/organizations/duck';
 import type { Member } from '../../../../store/organizationsMembers/actions';
 
 type Props = {
-  memberLogins: Array<string>,
-  addMember: (member: Member) => void
+  addMember: (member: Member) => void,
+  organization: Organization,
+  memberLogins: Array<string>
 };
 
 type State = {
@@ -48,6 +50,14 @@ export default class AddMemberForm extends React.PureComponent {
 
   closeForm = () => {
     this.setState({ open: false, selectedMember: undefined });
+  };
+
+  handleSearch = (query?: string, ps: number): Promise<*> => {
+    const data = { organization: this.props.organization.key, ps, selected: 'deselected' };
+    if (!query) {
+      return searchMembers(data);
+    }
+    return searchMembers({ ...data, q: query });
   };
 
   handleSubmit = (e: Object) => {
@@ -81,7 +91,7 @@ export default class AddMemberForm extends React.PureComponent {
                 autoFocus={true}
                 selectedUser={this.state.selectedMember}
                 excludedUsers={this.props.memberLogins}
-                searchUsers={searchUsers}
+                searchUsers={this.handleSearch}
                 handleValueChange={this.selectedMemberChange}
               />
             </div>

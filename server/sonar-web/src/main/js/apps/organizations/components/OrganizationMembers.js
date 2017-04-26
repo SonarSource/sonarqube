@@ -84,7 +84,11 @@ export default class OrganizationMembers extends React.PureComponent {
           {organization.canAdmin &&
             <div className="page-actions">
               <div className="button-group">
-                <AddMemberForm memberLogins={this.props.memberLogins} addMember={this.addMember} />
+                <AddMemberForm
+                  addMember={this.addMember}
+                  organization={organization}
+                  memberLogins={this.props.memberLogins}
+                />
               </div>
             </div>}
         </MembersPageHeader>
