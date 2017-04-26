@@ -20,6 +20,8 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 
 type Props = {|
   className?: string,
@@ -41,11 +43,13 @@ export default function BackButton(props: Props) {
   };
 
   return (
-    <a
-      className={classNames('concise-issues-list-header-button', props.className)}
-      href="#"
-      onClick={handleClick}>
-      {icon}
-    </a>
+    <Tooltip overlay={translate('issues.return_to_list')}>
+      <a
+        className={classNames('concise-issues-list-header-button', props.className)}
+        href="#"
+        onClick={handleClick}>
+        {icon}
+      </a>
+    </Tooltip>
   );
 }
