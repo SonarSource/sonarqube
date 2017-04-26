@@ -33,6 +33,7 @@
     <module>access-secured-props-plugin</module>
     <module>base-auth-plugin</module>
     <module>batch-plugin</module>
+    <module>billing-plugin</module>
     <module>extension-lifecycle-plugin</module>
     <module>global-property-change-plugin</module>
     <module>issue-filter-plugin</module>

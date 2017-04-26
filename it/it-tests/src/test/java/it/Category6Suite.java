@@ -21,6 +21,7 @@ package it;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.issue.OrganizationIssueAssignTest;
+import it.organization.BillingTest;
 import it.organization.OrganizationMembershipTest;
 import it.organization.OrganizationTest;
 import it.qualityProfile.OrganizationQualityProfilesPageTest;
@@ -46,6 +47,7 @@ import static util.ItUtils.xooPlugin;
   OrganizationQualityProfilesPageTest.class,
   OrganizationTest.class,
   OrganizationUiExtensionsTest.class,
+  BillingTest.class
 })
 public class Category6Suite {
 
@@ -54,6 +56,7 @@ public class Category6Suite {
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("base-auth-plugin"))
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
+    .addPlugin(pluginArtifact("billing-plugin"))
     .build();
 
   @BeforeClass
