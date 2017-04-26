@@ -21,11 +21,14 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import java.util.Optional;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.GroupPermissionDto;
 
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.permission.PermissionChange.Operation.ADD;
+import static org.sonar.server.permission.PermissionChange.Operation.REMOVE;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -38,6 +41,10 @@ public class GroupPermissionChanger {
   }
 
   public boolean apply(DbSession dbSession, GroupPermissionChange change) {
+    ensureConsistencyWithVisibility(change);
+    if (isImplicitlyAlreadyDone(change)) {
+      return false;
+    }
     switch (change.getOperation()) {
       case ADD:
         return addPermission(dbSession, change);
@@ -46,6 +53,53 @@ public class GroupPermissionChanger {
       default:
         throw new UnsupportedOperationException("Unsupported permission change: " + change.getOperation());
     }
+  }
+
+  private static boolean isImplicitlyAlreadyDone(GroupPermissionChange change) {
+    return change.getProjectId()
+      .map(projectId -> isImplicitlyAlreadyDone(projectId, change))
+      .orElse(false);
+  }
+
+  private static boolean isImplicitlyAlreadyDone(ProjectId projectId, GroupPermissionChange change) {
+    return isAttemptToAddPublicPermissionToPublicComponent(change, projectId)
+      || isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(change, projectId);
+  }
+
+  private static boolean isAttemptToAddPublicPermissionToPublicComponent(GroupPermissionChange change, ProjectId projectId) {
+    return !projectId.isPrivate()
+      && change.getOperation() == ADD
+      && ProjectPermissions.PUBLIC_PERMISSIONS.contains(change.getPermission());
+  }
+
+  private static boolean isAttemptToRemovePermissionFromAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectId projectId) {
+    return projectId.isPrivate()
+      && change.getOperation() == REMOVE
+      && change.getGroupIdOrAnyone().isAnyone();
+  }
+
+  private static void ensureConsistencyWithVisibility(GroupPermissionChange change) {
+    change.getProjectId()
+      .ifPresent(projectId -> {
+        checkRequest(
+          !isAttemptToAddPermissionToAnyoneOnPrivateComponent(change, projectId),
+          "No permission can be granted to AnyOne on a private component");
+        checkRequest(
+          !isAttemptToRemovePublicPermissionFromPublicComponent(change, projectId),
+          "Permission %s can't be removed from a public component", change.getPermission());
+      });
+  }
+
+  private static boolean isAttemptToAddPermissionToAnyoneOnPrivateComponent(GroupPermissionChange change, ProjectId projectId) {
+    return projectId.isPrivate()
+      && change.getOperation() == ADD
+      && change.getGroupIdOrAnyone().isAnyone();
+  }
+
+  private static boolean isAttemptToRemovePublicPermissionFromPublicComponent(GroupPermissionChange change, ProjectId projectId) {
+    return !projectId.isPrivate()
+      && change.getOperation() == REMOVE
+      && ProjectPermissions.PUBLIC_PERMISSIONS.contains(change.getPermission());
   }
 
   private boolean addPermission(DbSession dbSession, GroupPermissionChange change) {

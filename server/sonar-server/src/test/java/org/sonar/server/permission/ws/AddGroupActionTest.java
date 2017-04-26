@@ -21,6 +21,7 @@ package org.sonar.server.permission.ws;
 
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
@@ -31,7 +32,10 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -312,12 +316,88 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     assertThat(db.users().selectGroupPermissions(group, project)).containsOnly(ISSUE_ADMIN);
   }
 
-  private void executeRequest(GroupDto groupDto, OrganizationDto organizationDto, String permission) throws Exception {
+  @Test
+  public void fails_when_adding_any_permission_to_group_AnyOne_on_a_private_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    ProjectPermissions.ALL
+      .forEach(permission -> {
+        try {
+          newRequest()
+            .setParam(PARAM_GROUP_NAME, "anyone")
+            .setParam(PARAM_PROJECT_ID, project.uuid())
+            .setParam(PARAM_PERMISSION, permission)
+            .execute();
+          fail("a BadRequestException should have been raised for " + permission);
+        } catch (BadRequestException e) {
+          assertThat(e).hasMessage("No permission can be granted to AnyOne on a private component");
+        }
+      });
+  }
+
+  @Test
+  public void no_effect_when_adding_USER_permission_to_group_AnyOne_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
     newRequest()
-      .setParam(PARAM_GROUP_NAME, groupDto.getName())
-      .setParam(PARAM_PERMISSION, permission)
-      .setParam(PARAM_ORGANIZATION, organizationDto.getKey())
+      .setParam(PARAM_GROUP_NAME, "anyone")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, USER)
       .execute();
+
+    assertThat(db.users().selectAnyonePermissions(organization, project)).isEmpty();
+  }
+
+  @Test
+  public void no_effect_when_adding_CODEVIEWER_permission_to_group_AnyOne_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "anyone")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .execute();
+
+    assertThat(db.users().selectAnyonePermissions(organization, project)).isEmpty();
+  }
+
+  @Test
+  public void no_effect_when_adding_USER_permission_to_group_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, USER)
+      .execute();
+
+    assertThat(db.users().selectAnyonePermissions(organization, project)).isEmpty();
+  }
+
+  @Test
+  public void no_effect_when_adding_CODEVIEWER_permission_to_group_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    newRequest()
+        .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .execute();
+
+    assertThat(db.users().selectAnyonePermissions(organization, project)).isEmpty();
   }
 
   private void executeRequest(GroupDto groupDto, String permission) throws Exception {

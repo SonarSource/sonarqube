@@ -36,10 +36,12 @@ public class ProjectId {
 
   private final long id;
   private final String uuid;
+  private final boolean isPrivate;
 
   public ProjectId(ComponentDto project) {
     this.id = requireNonNull(project.getId());
     this.uuid = requireNonNull(project.uuid());
+    this.isPrivate = project.isPrivate();
   }
 
   public long getId() {
@@ -48,5 +50,9 @@ public class ProjectId {
 
   public String getUuid() {
     return uuid;
+  }
+
+  public boolean isPrivate() {
+    return isPrivate;
   }
 }
