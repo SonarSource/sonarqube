@@ -53,3 +53,13 @@ it('should call onClick', () => {
   click(wrapper.find('a'));
   expect(onClick).toHaveBeenCalled();
 });
+
+it('should clear', () => {
+  const onClear = jest.fn();
+  const wrapper = shallow(
+    <FacetHeader name="foo" onClear={onClear} onClick={jest.fn()} open={false} values={3} />
+  );
+  expect(wrapper).toMatchSnapshot();
+  click(wrapper.find('.button-red'));
+  expect(onClear).toHaveBeenCalled();
+});
