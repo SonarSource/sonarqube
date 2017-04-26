@@ -22,9 +22,11 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -34,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -304,5 +307,102 @@ public class RemoveGroupActionTest extends BasePermissionWsTest<RemoveGroupActio
       .execute();
 
     assertThat(db.users().selectGroupPermissions(aGroup, project)).containsOnly(CODEVIEWER);
+  }
+
+  @Test
+  public void no_effect_when_removing_any_permission_from_group_AnyOne_on_a_private_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ProjectPermissions.ALL
+      .forEach(perm -> unsafeInsertProjectPermissionOnAnyone(perm, project));
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    ProjectPermissions.ALL
+      .forEach(permission -> {
+        newRequest()
+          .setParam(PARAM_GROUP_NAME, "anyone")
+          .setParam(PARAM_PROJECT_ID, project.uuid())
+          .setParam(PARAM_PERMISSION, permission)
+          .execute();
+
+        assertThat(db.users().selectAnyonePermissions(db.getDefaultOrganization(), project)).contains(permission);
+      });
+  }
+
+  @Test
+  public void fail_when_removing_USER_permission_from_group_AnyOne_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Permission user can't be removed from a public component");
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "anyone")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, USER)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_removing_CODEVIEWER_permission_from_group_AnyOne_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "anyone")
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_removing_USER_permission_from_group_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Permission user can't be removed from a public component");
+
+    newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, USER)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_removing_CODEVIEWER_permission_from_group_on_a_public_project() {
+    OrganizationDto organization = db.organizations().insert();
+    GroupDto group = db.users().insertGroup(organization);
+    ComponentDto project = db.components().insertPublicProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Permission codeviewer can't be removed from a public component");
+
+    newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .execute();
+  }
+
+  private void unsafeInsertProjectPermissionOnAnyone(String perm, ComponentDto project) {
+    GroupPermissionDto dto = new GroupPermissionDto()
+      .setOrganizationUuid(project.getOrganizationUuid())
+      .setGroupId(null)
+      .setRole(perm)
+      .setResourceId(project.getId());
+    db.getDbClient().groupPermissionDao().insert(db.getSession(), dto);
+    db.commit();
   }
 }
