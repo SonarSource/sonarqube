@@ -101,8 +101,8 @@ public class ExecuteAnalysisPermissionTest {
     // Do a first analysis, no error
     executeAnonymousAnalysis();
 
-    // Remove browse permission for groups Anyone on the project
-    removeProjectPermission("anyone", "sample", "user");
+    // make project private
+    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(new UpdateVisibilityRequest("sample", PRIVATE));
 
     // still no error
     executeAnonymousAnalysis();
