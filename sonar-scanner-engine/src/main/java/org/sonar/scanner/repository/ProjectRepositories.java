@@ -68,8 +68,8 @@ public class ProjectRepositories {
   }
 
   @CheckForNull
-  public FileData fileData(String projectKey, String path) {
-    return fileDataByModuleAndPath.get(projectKey, path);
+  public FileData fileData(String projectKeyWithBranch, String path) {
+    return fileDataByModuleAndPath.get(projectKeyWithBranch, path);
   }
 
   @CheckForNull

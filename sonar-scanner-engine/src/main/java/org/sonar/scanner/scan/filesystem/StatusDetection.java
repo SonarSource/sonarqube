@@ -32,8 +32,8 @@ class StatusDetection {
     this.projectSettings = projectSettings;
   }
 
-  InputFile.Status status(String projectKey, String relativePath, String hash) {
-    FileData fileDataPerPath = projectSettings.fileData(projectKey, relativePath);
+  InputFile.Status status(String projectKeyWithBranch, String relativePath, String hash) {
+    FileData fileDataPerPath = projectSettings.fileData(projectKeyWithBranch, relativePath);
     if (fileDataPerPath == null) {
       return InputFile.Status.ADDED;
     }

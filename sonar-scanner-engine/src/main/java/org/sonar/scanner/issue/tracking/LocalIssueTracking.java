@@ -84,7 +84,7 @@ public class LocalIssueTracking {
 
       if (shouldCopyServerIssues(component)) {
         // raw issues should be empty, we just need to deal with server issues (SONAR-6931)
-        copyServerIssues(serverIssues, trackedIssues);
+        copyServerIssues(serverIssues, trackedIssues, component.key());
       } else {
 
         SourceHashHolder sourceHashHolder = loadSourceHashes(component);
@@ -95,7 +95,7 @@ public class LocalIssueTracking {
 
         Tracking<TrackedIssue, ServerIssueFromWs> track = tracker.track(rawIssues, baseIssues);
 
-        addUnmatchedFromServer(track.getUnmatchedBases(), trackedIssues);
+        addUnmatchedFromServer(track.getUnmatchedBases(), trackedIssues, component.key());
         mergeMatched(track, trackedIssues, rIssues);
         addUnmatchedFromReport(track.getUnmatchedRaws(), trackedIssues, analysisDate);
       }
@@ -104,7 +104,7 @@ public class LocalIssueTracking {
     if (hasServerAnalysis && componentTree.getParent(component) == null) {
       Preconditions.checkState(component instanceof InputModule, "Object without parent is of type: " + component.getClass());
       // issues that relate to deleted components
-      addIssuesOnDeletedComponents(trackedIssues);
+      addIssuesOnDeletedComponents(trackedIssues, component.key());
     }
 
     return trackedIssues;
@@ -143,10 +143,10 @@ public class LocalIssueTracking {
     return false;
   }
 
-  private void copyServerIssues(Collection<ServerIssueFromWs> serverIssues, List<TrackedIssue> trackedIssues) {
+  private void copyServerIssues(Collection<ServerIssueFromWs> serverIssues, List<TrackedIssue> trackedIssues, String componentKey) {
     for (ServerIssueFromWs serverIssue : serverIssues) {
       org.sonar.scanner.protocol.input.ScannerInput.ServerIssue unmatchedPreviousIssue = serverIssue.getDto();
-      TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue);
+      TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue, componentKey);
 
       ActiveRule activeRule = activeRules.find(unmatched.getRuleKey());
       unmatched.setNew(false);
@@ -205,10 +205,10 @@ public class LocalIssueTracking {
     }
   }
 
-  private void addUnmatchedFromServer(Iterable<ServerIssueFromWs> unmatchedIssues, Collection<TrackedIssue> mergeTo) {
+  private void addUnmatchedFromServer(Iterable<ServerIssueFromWs> unmatchedIssues, Collection<TrackedIssue> mergeTo, String componentKey) {
     for (ServerIssueFromWs unmatchedIssue : unmatchedIssues) {
       org.sonar.scanner.protocol.input.ScannerInput.ServerIssue unmatchedPreviousIssue = unmatchedIssue.getDto();
-      TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue);
+      TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue, componentKey);
       updateUnmatchedIssue(unmatched);
       mergeTo.add(unmatched);
     }
@@ -221,9 +221,9 @@ public class LocalIssueTracking {
     }
   }
 
-  private void addIssuesOnDeletedComponents(Collection<TrackedIssue> issues) {
+  private void addIssuesOnDeletedComponents(Collection<TrackedIssue> issues, String componentKey) {
     for (org.sonar.scanner.protocol.input.ScannerInput.ServerIssue previous : serverIssueRepository.issuesOnMissingComponents()) {
-      TrackedIssue dead = IssueTransformer.toTrackedIssue(previous);
+      TrackedIssue dead = IssueTransformer.toTrackedIssue(previous, componentKey);
       updateUnmatchedIssue(dead);
       issues.add(dead);
     }
