@@ -56,20 +56,6 @@ exports[`should render and open the modal 2`] = `
         <p>
           organization.members.remove_x.Admin Istrator.MyOrg
         </p>
-        <p>
-          organization.members.remove_warning_x.Admin Istrator
-        </p>
-        <ul>
-          <li>
-            organization.members.browse_projects
-          </li>
-          <li>
-            projects_role.codeviewer
-          </li>
-          <li>
-            projects_role.issueadmin
-          </li>
-        </ul>
       </div>
       <footer
         className="modal-foot"
