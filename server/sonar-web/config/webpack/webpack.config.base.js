@@ -11,6 +11,7 @@ module.exports = {
       require.resolve('../polyfills'),
       'jquery',
       'underscore',
+      'glamor',
       'lodash',
       'd3-array',
       'd3-hierarchy',

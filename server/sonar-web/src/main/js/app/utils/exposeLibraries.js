@@ -19,10 +19,13 @@
  */
 import moment from 'moment';
 import * as ReactRedux from 'react-redux';
+import Select from 'react-select';
+import Modal from 'react-modal';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
 import ListFooter from '../../components/controls/ListFooter';
+import Tooltip from '../../components/controls/Tooltip';
 
 const exposeLibraries = () => {
   window.moment = moment;
@@ -31,7 +34,10 @@ const exposeLibraries = () => {
   window.SonarRequest = request;
   window.SonarComponents = {
     FavoriteContainer,
-    ListFooter
+    ListFooter,
+    Modal,
+    Tooltip,
+    Select
   };
 };
 

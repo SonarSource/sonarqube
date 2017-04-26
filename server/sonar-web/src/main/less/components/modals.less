@@ -122,6 +122,12 @@ ul.modal-head-metadata li {
   padding: 20px 40px;
 }
 
+.modal-two-lines-field {
+  clear: both;
+  display: block;
+  padding: 5px 0;
+}
+
 .modal-field label {
   position: relative;
   left: -140px;
@@ -148,6 +154,13 @@ ul.modal-head-metadata li {
   }
 }
 
+.modal-two-lines-field label {
+  display: block;
+  width: 380px;
+  padding-bottom: 4px;
+  font-weight: bold;
+}
+
 .modal-large-field label {
   display: inline-block;
   padding-bottom: 15px;
@@ -160,7 +173,7 @@ ul.modal-head-metadata li {
   line-height: 1;
 }
 
-.modal-field, .modal-large-field {
+.modal-field, .modal-large-field, .modal-two-lines-field {
   input,
   select,
   textarea,
@@ -195,6 +208,17 @@ ul.modal-head-metadata li {
   select,
   .Select {
     width: 100%;
+  }
+}
+
+.modal-two-lines-field {
+  input[type=text],
+  input[type=email],
+  input[type=password],
+  textarea,
+  select,
+  .Select {
+    width: 380px;
   }
 }
 
