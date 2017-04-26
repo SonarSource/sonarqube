@@ -24,12 +24,15 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category6Suite;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import util.ItUtils;
 import util.user.UserRule;
@@ -41,11 +44,15 @@ import static org.sonarqube.ws.WsCe.TaskResponse;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrganizationKey;
 import static util.ItUtils.newProjectKey;
+import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
 public class BillingTest {
+
+  private static final String USER_LOGIN = "USER_LOGIN";
+
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
@@ -58,15 +65,21 @@ public class BillingTest {
   private static WsClient adminClient;
 
   @BeforeClass
-  public static void setUp() throws Exception {
+  public static void prepare() throws Exception {
     adminClient = newAdminWsClient(orchestrator);
     enableOrganizationsSupport();
     resetSettings(orchestrator, "sonar.billing.preventProjectAnalysis");
   }
 
+  @Before
+  public void setUp() throws Exception {
+    userRule.deactivateUsers(USER_LOGIN);
+  }
+
   @AfterClass
   public static void tearDown() throws Exception {
     resetSettings(orchestrator, "sonar.billing.preventProjectAnalysis");
+    userRule.deactivateUsers(USER_LOGIN);
   }
 
   @Test
@@ -92,6 +105,22 @@ public class BillingTest {
     assertThat(taskResponse.getTask().getErrorMessage()).contains(format("Organization %s cannot perform analysis", organizationKey));
   }
 
+  @Test
+  public void api_navigation_organization_return_canUpdateProjectsVisibilityToPrivate() {
+    String organizationKey = createOrganization();
+    userRule.createUser(USER_LOGIN, USER_LOGIN);
+    adminClient.organizations().addMember(organizationKey, USER_LOGIN);
+
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    assertWsResponseAsAdmin(new GetRequest("api/navigation/organization").setParam("organization", organizationKey), "\"canUpdateProjectsVisibilityToPrivate\":true");
+
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    assertWsResponseAsAdmin(new GetRequest("api/navigation/organization").setParam("organization", organizationKey), "\"canUpdateProjectsVisibilityToPrivate\":false");
+
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    assertWsResponseAsUser(new GetRequest("api/navigation/organization").setParam("organization", organizationKey), "\"canUpdateProjectsVisibilityToPrivate\":false");
+  }
+
   private static String createOrganization() {
     String key = newOrganizationKey();
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(key).setName(key).build()).getOrganization();
@@ -105,5 +134,15 @@ public class BillingTest {
       "sonar.login", "admin",
       "sonar.password", "admin"));
     return ItUtils.extractCeTaskId(buildResult);
+  }
+
+  private void assertWsResponseAsAdmin(GetRequest request, String expectedContent){
+    WsResponse response = adminClient.wsConnector().call(request).failIfNotSuccessful();
+    assertThat(response.content()).contains(expectedContent);
+  }
+
+  private void assertWsResponseAsUser(GetRequest request, String expectedContent){
+    WsResponse response = newUserWsClient(orchestrator, USER_LOGIN, USER_LOGIN).wsConnector().call(request).failIfNotSuccessful();
+    assertThat(response.content()).contains(expectedContent);
   }
 }
