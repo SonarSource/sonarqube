@@ -52,6 +52,15 @@
       <version>${orchestrator.version}</version>
     </dependency>
     <dependency>
+      <!-- required for downloading the scanner used
+      by some performance tests -->
+      <groupId>org.codehaus.sonar.runner</groupId>
+      <artifactId>sonar-runner-dist</artifactId>
+      <version>2.4</version>
+      <type>zip</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-update-center-common</artifactId>
       <version>1.12.1</version>
