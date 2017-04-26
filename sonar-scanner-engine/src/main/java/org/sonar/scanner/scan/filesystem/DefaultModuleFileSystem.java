@@ -74,7 +74,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
 
     // filter the files sensors have access to
     if (!mode.scanAllFiles()) {
-      setDefaultPredicate(new SameInputFilePredicate(projectRepositories, moduleKey));
+      setDefaultPredicate(new SameInputFilePredicate(projectRepositories, module.definition().getKeyWithBranch()));
     }
   }
 

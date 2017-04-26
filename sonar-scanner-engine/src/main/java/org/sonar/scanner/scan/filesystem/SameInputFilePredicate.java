@@ -32,16 +32,16 @@ import org.sonar.scanner.repository.ProjectRepositories;
 public class SameInputFilePredicate implements Predicate<InputFile> {
   private static final Logger LOG = LoggerFactory.getLogger(SameInputFilePredicate.class);
   private final ProjectRepositories projectRepositories;
-  private final String moduleKey;
+  private final String moduleKeyWithBranch;
 
-  public SameInputFilePredicate(ProjectRepositories projectRepositories, String moduleKey) {
+  public SameInputFilePredicate(ProjectRepositories projectRepositories, String moduleKeyWithBranch) {
     this.projectRepositories = projectRepositories;
-    this.moduleKey = moduleKey;
+    this.moduleKeyWithBranch = moduleKeyWithBranch;
   }
 
   @Override
   public boolean test(InputFile inputFile) {
-    FileData fileDataPerPath = projectRepositories.fileData(moduleKey, inputFile.relativePath());
+    FileData fileDataPerPath = projectRepositories.fileData(moduleKeyWithBranch, inputFile.relativePath());
     if (fileDataPerPath == null) {
       // ADDED
       return true;
