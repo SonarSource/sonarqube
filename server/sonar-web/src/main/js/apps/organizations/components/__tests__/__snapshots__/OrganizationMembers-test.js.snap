@@ -62,6 +62,13 @@ exports[`should render actions for admin 1`] = `
       >
         <AddMemberForm
           addMember={[Function]}
+          organization={
+            Object {
+              "canAdmin": true,
+              "key": "foo",
+              "name": "Foo",
+            }
+          }
         />
       </div>
     </div>
