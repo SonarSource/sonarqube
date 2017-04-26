@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import key from 'keymaster';
 import IssueView from './IssueView';
 import { updateIssue } from './actions';
 import { setIssueAssignee } from '../../api/issues';
@@ -86,11 +87,39 @@ export default class BaseIssue extends React.PureComponent {
   }
 
   bindShortcuts() {
-    document.addEventListener('keypress', this.handleKeyPress);
+    key('f', 'issues', () => {
+      this.togglePopup('transition');
+      return false;
+    });
+    key('a', 'issues', () => {
+      this.togglePopup('assign');
+      return false;
+    });
+    key('m', 'issues', () => {
+      this.props.issue.actions.includes('assign_to_me') && this.handleAssignement('_me');
+      return false;
+    });
+    key('i', 'issues', () => {
+      this.togglePopup('set-severity');
+      return false;
+    });
+    key('c', 'issues', () => {
+      this.togglePopup('comment');
+      return false;
+    });
+    key('t', 'issues', () => {
+      this.togglePopup('edit-tags');
+      return false;
+    });
   }
 
   unbindShortcuts() {
-    document.removeEventListener('keypress', this.handleKeyPress);
+    key.unbind('f', 'issues');
+    key.unbind('a', 'issues');
+    key.unbind('m', 'issues');
+    key.unbind('i', 'issues');
+    key.unbind('c', 'issues');
+    key.unbind('t', 'issues');
   }
 
   togglePopup = (popupName: string, open?: boolean) => {
@@ -116,30 +145,6 @@ export default class BaseIssue extends React.PureComponent {
 
   handleFail = (error: Error) => {
     onFail(this.context.store.dispatch)(error);
-  };
-
-  handleKeyPress = (e: Object) => {
-    const tagName = e.target.tagName.toUpperCase();
-    const shouldHandle = tagName !== 'INPUT' && tagName !== 'TEXTAREA' && tagName !== 'BUTTON';
-
-    if (shouldHandle) {
-      switch (e.key) {
-        case 'f':
-          return this.togglePopup('transition');
-        case 'a':
-          return this.togglePopup('assign');
-        case 'm':
-          return this.props.issue.actions.includes('assign_to_me') && this.handleAssignement('_me');
-        case 'p':
-          return this.togglePopup('plan');
-        case 'i':
-          return this.togglePopup('set-severity');
-        case 'c':
-          return this.togglePopup('comment');
-        case 't':
-          return this.togglePopup('edit-tags');
-      }
-    }
   };
 
   render() {

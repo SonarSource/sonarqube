@@ -61,6 +61,10 @@ export default class DirectoryFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getStat(directory: string): ?number {
     const { stats } = this.props;
     return stats ? stats[directory] : null;
@@ -82,7 +86,7 @@ export default class DirectoryFacet extends React.PureComponent {
     );
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -92,28 +96,34 @@ export default class DirectoryFacet extends React.PureComponent {
     const directories = sortBy(Object.keys(stats), key => -stats[key]);
 
     return (
+      <FacetItemsList>
+        {directories.map(directory => (
+          <FacetItem
+            active={this.props.directories.includes(directory)}
+            facetMode={this.props.facetMode}
+            key={directory}
+            name={this.renderName(directory)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(directory)}
+            value={directory}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  render() {
+    return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.directories.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.directories.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {directories.map(directory => (
-              <FacetItem
-                active={this.props.directories.includes(directory)}
-                facetMode={this.props.facetMode}
-                key={directory}
-                name={this.renderName(directory)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(directory)}
-                value={directory}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
       </FacetBox>
     );
   }

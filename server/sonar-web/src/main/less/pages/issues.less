@@ -25,7 +25,7 @@
 
 
 .issues {
-
+  
   &.sticky {
 
     .issues-workspace-list,
@@ -57,6 +57,26 @@
 
   .search-navigator-facet-footer {
     padding: 0 0 10px 0;
+  }
+
+  .issue-list {
+    /* no math, just a good guess */
+    min-width: 640px;
+    width: 800px;
+
+    @media (max-width: 1320px) {
+      & {
+        width: ~"calc(60vw - 40px)";
+      }
+    }
+  }
+
+  .issue {
+    cursor: pointer;
+
+    &:hover {
+      border-color: @issueBorderColor;
+    } 
   }
 }
 

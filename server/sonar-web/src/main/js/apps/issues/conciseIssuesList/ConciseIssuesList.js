@@ -36,10 +36,10 @@ type Props = {|
 export default class ConciseIssuesList extends React.PureComponent {
   props: Props;
 
-  handleScroll = (element: HTMLElement) => {
+  handleScroll = (element: HTMLElement, bottomOffset: number = 100) => {
     const scrollableElement = document.querySelector('.layout-page-side');
     if (element && scrollableElement) {
-      scrollToElement(element, 150, 100, scrollableElement);
+      scrollToElement(element, { topOffset: 150, bottomOffset, parent: scrollableElement });
     }
   };
 

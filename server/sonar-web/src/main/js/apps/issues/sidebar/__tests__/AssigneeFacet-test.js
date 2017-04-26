@@ -42,7 +42,7 @@ it('should render', () => {
   expect(renderAssigneeFacet()).toMatchSnapshot();
 });
 
-it('should not render without stats', () => {
+it('should render without stats', () => {
   expect(renderAssigneeFacet({ stats: null })).toMatchSnapshot();
 });
 

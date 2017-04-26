@@ -19,13 +19,14 @@
  */
 // @flow
 import React from 'react';
-import { css } from 'glamor';
 import IssuesCounter from './IssuesCounter';
+import ReloadButton from './ReloadButton';
 import type { Paging } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {|
   loading: boolean,
+  onReload: () => void,
   paging: ?Paging,
   selectedIndex: ?number
 |};
@@ -55,11 +56,13 @@ export default class PageActions extends React.PureComponent {
     const { paging, selectedIndex } = this.props;
 
     return (
-      <div className={css({ float: 'right' })}>
+      <div className="pull-right">
         {this.renderShortcuts()}
 
-        <div className={css({ display: 'inline-block', minWidth: 80, textAlign: 'right' })}>
-          {this.props.loading && <i className="spinner spacer-right" />}
+        <div className="issues-page-actions">
+          {this.props.loading
+            ? <i className="issues-main-header-spinner spinner" />
+            : <ReloadButton className="spacer-right" onClick={this.props.onReload} />}
           {paging != null && <IssuesCounter current={selectedIndex} total={paging.total} />}
         </div>
       </div>

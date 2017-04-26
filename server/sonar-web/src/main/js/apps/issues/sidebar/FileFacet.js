@@ -60,6 +60,10 @@ export default class FileFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getStat(file: string): ?number {
     const { stats } = this.props;
     return stats ? stats[file] : null;
@@ -78,7 +82,7 @@ export default class FileFacet extends React.PureComponent {
     );
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -88,28 +92,34 @@ export default class FileFacet extends React.PureComponent {
     const files = sortBy(Object.keys(stats), key => -stats[key]);
 
     return (
+      <FacetItemsList>
+        {files.map(file => (
+          <FacetItem
+            active={this.props.files.includes(file)}
+            facetMode={this.props.facetMode}
+            key={file}
+            name={this.renderName(file)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(file)}
+            value={file}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  render() {
+    return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.files.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.files.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {files.map(file => (
-              <FacetItem
-                active={this.props.files.includes(file)}
-                facetMode={this.props.facetMode}
-                key={file}
-                name={this.renderName(file)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(file)}
-                value={file}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
       </FacetBox>
     );
   }

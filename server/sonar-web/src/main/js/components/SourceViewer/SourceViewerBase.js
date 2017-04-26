@@ -180,7 +180,7 @@ export default class SourceViewerBase extends React.PureComponent {
       `.source-line-code[data-line-number="${line}"] .source-line-issue-locations`
     );
     if (lineElement) {
-      scrollToElement(lineElement, 125, 75);
+      scrollToElement(lineElement, { topOffset: 125, bottomOffset: 75 });
     }
   }
 

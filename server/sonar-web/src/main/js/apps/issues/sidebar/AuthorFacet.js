@@ -56,12 +56,16 @@ export default class AuthorFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getStat(author: string): ?number {
     const { stats } = this.props;
     return stats ? stats[author] : null;
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -71,28 +75,34 @@ export default class AuthorFacet extends React.PureComponent {
     const authors = sortBy(Object.keys(stats), key => -stats[key]);
 
     return (
+      <FacetItemsList>
+        {authors.map(author => (
+          <FacetItem
+            active={this.props.authors.includes(author)}
+            facetMode={this.props.facetMode}
+            key={author}
+            name={author}
+            onClick={this.handleItemClick}
+            stat={this.getStat(author)}
+            value={author}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  render() {
+    return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.authors.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.authors.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {authors.map(author => (
-              <FacetItem
-                active={this.props.authors.includes(author)}
-                facetMode={this.props.facetMode}
-                key={author}
-                name={author}
-                onClick={this.handleItemClick}
-                stat={this.getStat(author)}
-                value={author}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
       </FacetBox>
     );
   }

@@ -58,6 +58,10 @@ export default class TagFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   handleSearch = (query: string) => {
     return searchIssueTags({ ps: 50, q: query }).then(tags =>
       tags.map(tag => ({ label: tag, value: tag }))
@@ -83,7 +87,7 @@ export default class TagFacet extends React.PureComponent {
     );
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -93,31 +97,44 @@ export default class TagFacet extends React.PureComponent {
     const tags = sortBy(Object.keys(stats), key => -stats[key]);
 
     return (
+      <FacetItemsList>
+        {tags.map(tag => (
+          <FacetItem
+            active={this.props.tags.includes(tag)}
+            facetMode={this.props.facetMode}
+            key={tag}
+            name={this.renderTag(tag)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(tag)}
+            value={tag}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  renderFooter() {
+    if (!this.props.stats) {
+      return null;
+    }
+
+    return <FacetFooter onSearch={this.handleSearch} onSelect={this.handleSelect} />;
+  }
+
+  render() {
+    return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.tags.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.tags.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {tags.map(tag => (
-              <FacetItem
-                active={this.props.tags.includes(tag)}
-                facetMode={this.props.facetMode}
-                key={tag}
-                name={this.renderTag(tag)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(tag)}
-                value={tag}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
 
-        {this.props.open &&
-          <FacetFooter onSearch={this.handleSearch} onSelect={this.handleSelect} />}
+        {this.props.open && this.renderFooter()}
       </FacetBox>
     );
   }

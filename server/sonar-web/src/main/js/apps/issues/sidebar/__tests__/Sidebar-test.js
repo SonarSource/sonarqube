@@ -28,7 +28,7 @@ const renderSidebar = props =>
     .children()
     .map(node => node.name());
 
-it('should render all facets', () => {
+it('should render facets for global page', () => {
   expect(renderSidebar()).toMatchSnapshot();
 });
 

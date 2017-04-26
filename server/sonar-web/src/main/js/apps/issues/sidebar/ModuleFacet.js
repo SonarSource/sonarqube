@@ -59,6 +59,10 @@ export default class ModuleFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getStat(module: string): ?number {
     const { stats } = this.props;
     return stats ? stats[module] : null;
@@ -75,7 +79,7 @@ export default class ModuleFacet extends React.PureComponent {
     );
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -85,28 +89,34 @@ export default class ModuleFacet extends React.PureComponent {
     const modules = sortBy(Object.keys(stats), key => -stats[key]);
 
     return (
+      <FacetItemsList>
+        {modules.map(module => (
+          <FacetItem
+            active={this.props.modules.includes(module)}
+            facetMode={this.props.facetMode}
+            key={module}
+            name={this.renderName(module)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(module)}
+            value={module}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  render() {
+    return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.modules.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.modules.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {modules.map(module => (
-              <FacetItem
-                active={this.props.modules.includes(module)}
-                facetMode={this.props.facetMode}
-                key={module}
-                name={this.renderName(module)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(module)}
-                value={module}
-              />
-            ))}
-          </FacetItemsList>}
+        {this.props.open && this.renderList()}
       </FacetBox>
     );
   }

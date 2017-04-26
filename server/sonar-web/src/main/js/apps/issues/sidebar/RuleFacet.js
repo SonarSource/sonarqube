@@ -60,6 +60,10 @@ export default class RuleFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   handleSearch = (query: string) => {
     const { languages } = this.props;
     return searchRules({
@@ -86,7 +90,7 @@ export default class RuleFacet extends React.PureComponent {
     return stats ? stats[rule] : null;
   }
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -96,31 +100,43 @@ export default class RuleFacet extends React.PureComponent {
     const rules = sortBy(Object.keys(stats), key => -stats[key]);
 
     return (
+      <FacetItemsList>
+        {rules.map(rule => (
+          <FacetItem
+            active={this.props.rules.includes(rule)}
+            facetMode={this.props.facetMode}
+            key={rule}
+            name={this.getRuleName(rule)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(rule)}
+            value={rule}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  renderFooter() {
+    if (!this.props.stats) {
+      return null;
+    }
+
+    return <FacetFooter onSearch={this.handleSearch} onSelect={this.handleSelect} />;
+  }
+
+  render() {
+    return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.rules.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.rules.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {rules.map(rule => (
-              <FacetItem
-                active={this.props.rules.includes(rule)}
-                facetMode={this.props.facetMode}
-                key={rule}
-                name={this.getRuleName(rule)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(rule)}
-                value={rule}
-              />
-            ))}
-          </FacetItemsList>}
-
-        {this.props.open &&
-          <FacetFooter onSearch={this.handleSearch} onSelect={this.handleSelect} />}
+        {this.props.open && this.renderList()}
+        {this.props.open && this.renderFooter()}
       </FacetBox>
     );
   }

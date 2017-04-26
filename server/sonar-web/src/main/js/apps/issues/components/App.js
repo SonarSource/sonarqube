@@ -39,7 +39,8 @@ import {
   areQueriesEqual,
   getOpen,
   serializeQuery,
-  parseFacets
+  parseFacets,
+  mapFacet
 } from '../utils';
 import type {
   Query,
@@ -53,11 +54,6 @@ import type {
 } from '../utils';
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
-import Page from '../../../components/layout/Page';
-import PageMain from '../../../components/layout/PageMain';
-import PageMainInner from '../../../components/layout/PageMainInner';
-import PageSide from '../../../components/layout/PageSide';
-import PageFilters from '../../../components/layout/PageFilters';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import type { Issue } from '../../../components/issue/types';
@@ -227,6 +223,14 @@ export default class App extends React.PureComponent {
       // alt + down
       event.preventDefault();
       this.selectPreviousLocation();
+    } else if (event.keyCode === 37 && event.altKey) {
+      // alt + left
+      event.preventDefault();
+      this.selectPreviousFlow();
+    } else if (event.keyCode === 39 && event.altKey) {
+      // alt + right
+      event.preventDefault();
+      this.selectNextFlow();
     }
   };
 
@@ -311,6 +315,7 @@ export default class App extends React.PureComponent {
           open: undefined
         }
       });
+      this.scrollToSelectedIssue(false);
     }
   };
 
@@ -321,43 +326,30 @@ export default class App extends React.PureComponent {
     }
   };
 
-  scrollToSelectedIssue = () => {
+  scrollToSelectedIssue = (smooth: boolean = true) => {
     const { selected } = this.state;
     if (selected) {
       const element = document.querySelector(`[data-issue="${selected}"]`);
       if (element) {
-        scrollToElement(element, 150, 100);
+        scrollToElement(element, { topOffset: 150, bottomOffset: 100, smooth });
       }
     }
   };
 
   fetchIssues = (additional?: {}, requestFacets?: boolean = false): Promise<*> => {
     const { component } = this.props;
-    const { myIssues, query } = this.state;
+    const { myIssues, openFacets, query } = this.state;
+
+    const facets = requestFacets
+      ? Object.keys(openFacets).filter(facet => openFacets[facet]).map(mapFacet).join(',')
+      : undefined;
 
     const parameters = {
       componentKeys: component && component.key,
       ...serializeQuery(query),
       s: 'FILE_LINE',
-      ps: 25,
-      facets: requestFacets
-        ? [
-            'assignees',
-            'authors',
-            'createdAt',
-            'directories',
-            'fileUuids',
-            'languages',
-            'moduleUuids',
-            'projectUuids',
-            'resolutions',
-            'rules',
-            'severities',
-            'statuses',
-            'tags',
-            'types'
-          ].join()
-        : undefined,
+      ps: 100,
+      facets,
       ...additional
     };
 
@@ -464,6 +456,32 @@ export default class App extends React.PureComponent {
     });
   };
 
+  fetchFacet = (facet: string) => {
+    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }).then(({ facets, ...other }) => {
+      if (this.mounted) {
+        this.setState(state => ({
+          facets: { ...state.facets, ...parseFacets(facets) },
+          referencedComponents: {
+            ...state.referencedComponents,
+            ...keyBy(other.components, 'uuid')
+          },
+          referencedLanguages: {
+            ...state.referencedLanguages,
+            ...keyBy(other.languages, 'key')
+          },
+          referencedRules: {
+            ...state.referencedRules,
+            ...keyBy(other.rules, 'key')
+          },
+          referencedUsers: {
+            ...state.referencedUsers,
+            ...keyBy(other.users, 'login')
+          }
+        }));
+      }
+    });
+  };
+
   isFiltered = () => {
     const serialized = serializeQuery(this.state.query);
     return !areQueriesEqual(serialized, DEFAULT_QUERY);
@@ -510,6 +528,9 @@ export default class App extends React.PureComponent {
     this.setState(state => ({
       openFacets: { ...state.openFacets, [property]: !state.openFacets[property] }
     }));
+    if (!this.state.facets[property]) {
+      this.fetchFacet(property);
+    }
   };
 
   handleReset = () => {
@@ -564,6 +585,10 @@ export default class App extends React.PureComponent {
     this.closeBulkChange();
   };
 
+  handleReload = () => {
+    this.fetchFirstIssues();
+  };
+
   handleReloadAndOpenFirst = () => {
     this.fetchFirstIssues().then(issues => {
       if (issues.length > 0) {
@@ -576,6 +601,8 @@ export default class App extends React.PureComponent {
   selectNextLocation = () => this.setState(actions.selectNextLocation);
   selectPreviousLocation = () => this.setState(actions.selectPreviousLocation);
   selectFlow = (index: ?number) => this.setState(actions.selectFlow(index));
+  selectNextFlow = () => this.setState(actions.selectNextFlow);
+  selectPreviousFlow = () => this.setState(actions.selectPreviousFlow);
 
   renderBulkChange(openIssue: ?Issue) {
     const { component, currentUser } = this.props;
@@ -627,7 +654,7 @@ export default class App extends React.PureComponent {
     const { query } = this.state;
 
     return (
-      <PageFilters>
+      <div className="layout-page-filters">
         {currentUser.isLoggedIn &&
           <MyIssuesFilter
             myIssues={this.state.myIssues}
@@ -647,7 +674,7 @@ export default class App extends React.PureComponent {
           referencedRules={this.state.referencedRules}
           referencedUsers={this.state.referencedUsers}
         />
-      </PageFilters>
+      </div>
     );
   }
 
@@ -655,7 +682,7 @@ export default class App extends React.PureComponent {
     const { issues, paging } = this.state;
 
     return (
-      <PageFilters>
+      <div className="layout-page-filters">
         <ConciseIssuesListHeader
           loading={this.state.loading}
           onBackClick={this.closeIssue}
@@ -675,7 +702,7 @@ export default class App extends React.PureComponent {
         {paging != null &&
           paging.total > 0 &&
           <ListFooter total={paging.total} count={issues.length} loadMore={this.fetchMoreIssues} />}
-      </PageFilters>
+      </div>
     );
   }
 
@@ -683,24 +710,28 @@ export default class App extends React.PureComponent {
     const top = this.props.component ? 95 : 30;
 
     return (
-      <PageSide top={top}>
-        {openIssue == null ? this.renderFacets() : this.renderConciseIssuesList()}
-      </PageSide>
+      <div className="layout-page-side-outer">
+        <div className="layout-page-side" style={{ top }}>
+          <div className="layout-page-side-inner">
+            {openIssue == null ? this.renderFacets() : this.renderConciseIssuesList()}
+          </div>
+        </div>
+      </div>
     );
   }
 
-  renderList(openIssue: ?Issue) {
+  renderList() {
     const { component, currentUser } = this.props;
-    const { issues, paging } = this.state;
+    const { issues, openIssue, paging } = this.state;
     const selectedIndex = this.getSelectedIndex();
     const selectedIssue = selectedIndex != null ? issues[selectedIndex] : null;
 
-    if (paging == null) {
+    if (paging == null || openIssue != null) {
       return null;
     }
 
     return (
-      <div className={openIssue != null ? 'hidden' : undefined}>
+      <div>
         {paging.total > 0 &&
           <IssuesList
             checked={this.state.checked}
@@ -722,12 +753,22 @@ export default class App extends React.PureComponent {
   }
 
   renderShortcutsForLocations() {
+    const { openIssue } = this.state;
+    if (openIssue == null || (!openIssue.secondaryLocations.length && !openIssue.flows.length)) {
+      return null;
+    }
+    const hasSeveralFlows = openIssue.flows.length > 1;
     return (
       <div className="pull-right note">
         <span className="shortcut-button little-spacer-right">alt</span>
         <span className="little-spacer-right">{'+'}</span>
         <span className="shortcut-button little-spacer-right">↑</span>
         <span className="shortcut-button little-spacer-right">↓</span>
+        {hasSeveralFlows &&
+          <span>
+            <span className="shortcut-button little-spacer-right">←</span>
+            <span className="shortcut-button little-spacer-right">→</span>
+          </span>}
         {translate('issues.to_navigate_issue_locations')}
       </div>
     );
@@ -740,50 +781,50 @@ export default class App extends React.PureComponent {
     const selectedIndex = this.getSelectedIndex();
 
     return (
-      <Page className="issues" id="issues-page">
+      <div className="layout-page issues" id="issues-page">
         <Helmet title={translate('issues.page')} titleTemplate="%s - SonarQube" />
 
         {this.renderSide(openIssue)}
 
-        <PageMain>
+        <div className="layout-page-main">
           <div className="issues-header-panel issues-main-header">
             <div className="issues-header-panel-inner issues-main-header-inner">
-              <PageMainInner>
+              <div className="layout-page-main-inner">
                 {this.renderBulkChange(openIssue)}
                 {openIssue != null
-                  ? <div className="pull-left">
+                  ? <div className="pull-left width-60">
                       <ComponentBreadcrumbs component={component} issue={openIssue} />
                     </div>
                   : <PageActions
                       loading={this.state.loading}
+                      onReload={this.handleReload}
                       paging={paging}
                       selectedIndex={selectedIndex}
                     />}
-                {openIssue != null && this.renderShortcutsForLocations()}
-              </PageMainInner>
+                {this.renderShortcutsForLocations()}
+              </div>
             </div>
           </div>
 
-          <PageMainInner>
+          <div className="layout-page-main-inner">
             <div>
-              {openIssue != null &&
-                <IssuesSourceViewer
-                  openIssue={openIssue}
-                  loadIssues={this.fetchIssuesForComponent}
-                  onIssueChange={this.handleIssueChange}
-                  onIssueSelect={this.openIssue}
-                  onLocationSelect={this.selectLocation}
-                  selectedFlowIndex={this.state.selectedFlowIndex}
-                  selectedLocationIndex={
-                    this.state.locationsNavigator ? this.state.selectedLocationIndex : null
-                  }
-                />}
-
-              {this.renderList(openIssue)}
+              {openIssue
+                ? <IssuesSourceViewer
+                    openIssue={openIssue}
+                    loadIssues={this.fetchIssuesForComponent}
+                    onIssueChange={this.handleIssueChange}
+                    onIssueSelect={this.openIssue}
+                    onLocationSelect={this.selectLocation}
+                    selectedFlowIndex={this.state.selectedFlowIndex}
+                    selectedLocationIndex={
+                      this.state.locationsNavigator ? this.state.selectedLocationIndex : null
+                    }
+                  />
+                : this.renderList()}
             </div>
-          </PageMainInner>
-        </PageMain>
-      </Page>
+          </div>
+        </div>
+      </div>
     );
   }
 }

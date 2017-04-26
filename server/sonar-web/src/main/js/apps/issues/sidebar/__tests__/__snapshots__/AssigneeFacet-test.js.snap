@@ -1,13 +1,12 @@
-exports[`test should not render without stats 1`] = `null`;
-
 exports[`test should render 1`] = `
 <FacetBox
   property="assignees">
   <FacetHeader
-    hasValue={false}
     name="issues.facet.assignees"
+    onClear={[Function]}
     onClick={[Function]}
-    open={true} />
+    open={true}
+    values={0} />
   <FacetItemsList>
     <FacetItem
       active={false}
@@ -62,14 +61,27 @@ exports[`test should render footer select option 1`] = `
 </span>
 `;
 
+exports[`test should render without stats 1`] = `
+<FacetBox
+  property="assignees">
+  <FacetHeader
+    name="issues.facet.assignees"
+    onClear={[Function]}
+    onClick={[Function]}
+    open={true}
+    values={0} />
+</FacetBox>
+`;
+
 exports[`test should select unassigned 1`] = `
 <FacetBox
   property="assignees">
   <FacetHeader
-    hasValue={true}
     name="issues.facet.assignees"
+    onClear={[Function]}
     onClick={[Function]}
-    open={true} />
+    open={true}
+    values={1} />
   <FacetItemsList>
     <FacetItem
       active={true}
@@ -118,10 +130,11 @@ exports[`test should select user 1`] = `
 <FacetBox
   property="assignees">
   <FacetHeader
-    hasValue={true}
     name="issues.facet.assignees"
+    onClear={[Function]}
     onClick={[Function]}
-    open={true} />
+    open={true}
+    values={1} />
   <FacetItemsList>
     <FacetItem
       active={false}

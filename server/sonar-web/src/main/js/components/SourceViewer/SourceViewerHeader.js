@@ -22,7 +22,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import QualifierIcon from '../shared/QualifierIcon';
 import FavoriteContainer from '../controls/FavoriteContainer';
-import { getProjectUrl, getIssuesUrl } from '../../helpers/urls';
+import { getProjectUrl, getComponentIssuesUrl } from '../../helpers/urls';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
@@ -171,7 +171,7 @@ export default class SourceViewerHeader extends React.PureComponent {
           <div className="source-viewer-header-measure">
             <span className="source-viewer-header-measure-value">
               <Link
-                to={getIssuesUrl({ resolved: 'false', fileUuids: uuid })}
+                to={getComponentIssuesUrl(project, { resolved: 'false', fileUuids: uuid })}
                 className="source-viewer-header-external-link"
                 target="_blank">
                 {measures.issues != null ? formatMeasure(measures.issues, 'SHORT_INT') : 0}

@@ -20,25 +20,34 @@
 // @flow
 /* eslint-disable max-len */
 import React from 'react';
+import { translate } from '../../../../helpers/l10n';
 
-type Props = {
-  hasValue: boolean,
+type Props = {|
   name: string,
+  onClear?: () => void,
   onClick?: () => void,
-  open: boolean
-};
+  open: boolean,
+  values?: number
+|};
 
 export default class FacetHeader extends React.PureComponent {
   props: Props;
 
   static defaultProps = {
-    hasValue: false,
     open: true
   };
 
-  handleClick = (e: Event & { currentTarget: HTMLElement }) => {
-    e.preventDefault();
-    e.currentTarget.blur();
+  handleClearClick = (event: Event & { currentTarget: HTMLElement }) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    if (this.props.onClear) {
+      this.props.onClear();
+    }
+  };
+
+  handleClick = (event: Event & { currentTarget: HTMLElement }) => {
+    event.preventDefault();
+    event.currentTarget.blur();
     if (this.props.onClick) {
       this.props.onClick();
     }
@@ -61,23 +70,32 @@ export default class FacetHeader extends React.PureComponent {
   }
 
   renderValueIndicator() {
-    return this.props.hasValue && !this.props.open
-      ? <svg viewBox="0 0 1792 1792" width="8" height="8" style={{ paddingTop: 5, paddingLeft: 8 }}>
-          <path
-            d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"
-            fill="#4b9fd5"
-          />
-        </svg>
-      : null;
+    if (this.props.open || !this.props.values) {
+      return null;
+    }
+    return <span className="spacer-left badge is-rounded">{this.props.values}</span>;
   }
 
   render() {
-    return this.props.onClick
-      ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
-          {this.renderCheckbox()}{' '}{this.props.name}{' '}{this.renderValueIndicator()}
-        </a>
-      : <span className="search-navigator-facet-header">
-          {this.props.name}
-        </span>;
+    const showClearButton: boolean = !!this.props.values && this.props.onClear != null;
+
+    return (
+      <div>
+        {showClearButton &&
+          <button
+            className="search-navigator-facet-header-button button-small button-red"
+            onClick={this.handleClearClick}>
+            {translate('clear')}
+          </button>}
+
+        {this.props.onClick
+          ? <a className="search-navigator-facet-header" href="#" onClick={this.handleClick}>
+              {this.renderCheckbox()}{' '}{this.props.name}{' '}{this.renderValueIndicator()}
+            </a>
+          : <span className="search-navigator-facet-header">
+              {this.props.name}
+            </span>}
+      </div>
+    );
   }
 }

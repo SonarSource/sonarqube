@@ -65,6 +65,10 @@ export default class ResolutionFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ resolved: false, resolutions: [] });
+  };
+
   isFacetItemActive(resolution: string) {
     return resolution === '' ? !this.props.resolved : this.props.resolutions.includes(resolution);
   }
@@ -103,10 +107,11 @@ export default class ResolutionFacet extends React.PureComponent {
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={!this.props.resolved || this.props.resolutions.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.resolutions.length}
         />
 
         {this.props.open &&

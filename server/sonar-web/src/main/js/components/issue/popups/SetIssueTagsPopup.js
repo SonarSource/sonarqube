@@ -37,6 +37,7 @@ type State = {
 const LIST_SIZE = 10;
 
 export default class SetIssueTagsPopup extends React.PureComponent {
+  mounted: boolean;
   props: Props;
   state: State;
 
@@ -47,7 +48,12 @@ export default class SetIssueTagsPopup extends React.PureComponent {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.onSearch('');
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   onSearch = (query: string) => {
@@ -55,7 +61,9 @@ export default class SetIssueTagsPopup extends React.PureComponent {
       q: query || '',
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100)
     }).then((tags: Array<string>) => {
-      this.setState({ searchResult: tags });
+      if (this.mounted) {
+        this.setState({ searchResult: tags });
+      }
     }, this.props.onFail);
   };
 

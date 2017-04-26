@@ -44,9 +44,7 @@ export default class Checkbox extends React.PureComponent {
   }
 
   render() {
-    const className = classNames('icon-checkbox', {
-      // trick to work with glamor
-      [this.props.className]: true,
+    const className = classNames('icon-checkbox', this.props.className, {
       'icon-checkbox-checked': this.props.checked,
       'icon-checkbox-single': this.props.thirdState
     });

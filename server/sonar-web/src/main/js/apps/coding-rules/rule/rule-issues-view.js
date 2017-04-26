@@ -20,7 +20,7 @@
 import $ from 'jquery';
 import Marionette from 'backbone.marionette';
 import Template from '../templates/rule/coding-rules-rule-issues.hbs';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getComponentIssuesUrlAsString } from '../../../helpers/urls';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -55,7 +55,7 @@ export default Marionette.ItemView.extend({
           ...project,
           name: projectBase != null ? projectBase.longName : '',
           issuesUrl: projectBase != null &&
-            getComponentIssuesUrl(projectBase.key, {
+            getComponentIssuesUrlAsString(projectBase.key, {
               resolved: 'false',
               rules: this.model.id
             })

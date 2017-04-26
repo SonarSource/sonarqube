@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
+import Tooltip from '../../controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import type { SourceLine } from '../types';
 
@@ -44,20 +45,23 @@ export default class LineDuplicationBlock extends React.PureComponent {
       'source-line-duplicated': duplicated
     });
 
-    return (
+    const cell = (
       <td
         key={index}
         className={className}
         data-line-number={line.line}
         data-index={index}
-        title={duplicated ? translate('source_viewer.tooltip.duplicated_block') : undefined}
-        data-placement={duplicated ? 'right' : undefined}
-        data-toggle={duplicated ? 'tooltip' : undefined}
         role={duplicated ? 'button' : undefined}
         tabIndex={duplicated ? '0' : undefined}
         onClick={duplicated ? this.handleClick : undefined}>
         <div className="source-line-bar" />
       </td>
     );
+
+    return duplicated
+      ? <Tooltip overlay={translate('source_viewer.tooltip.duplicated_block')} placement="right">
+          {cell}
+        </Tooltip>
+      : cell;
   }
 }

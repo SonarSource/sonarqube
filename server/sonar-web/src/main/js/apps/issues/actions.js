@@ -20,12 +20,16 @@
 // @flow
 import type { State } from './components/App';
 
-export const enableLocationsNavigator = (state: State) => ({
-  locationsNavigator: true,
-  selectedFlowIndex: state.selectedFlowIndex ||
-    (state.openIssue && state.openIssue.flows.length > 0 ? 0 : null),
-  selectedLocationIndex: state.selectedLocationIndex || 0
-});
+export const enableLocationsNavigator = (state: State) => {
+  const { openIssue } = state;
+  if (openIssue && (openIssue.secondaryLocations.length > 0 || openIssue.flows.length > 0)) {
+    return {
+      locationsNavigator: true,
+      selectedFlowIndex: state.selectedFlowIndex || (openIssue.flows.length > 0 ? 0 : null),
+      selectedLocationIndex: state.selectedLocationIndex || 0
+    };
+  }
+};
 
 export const disableLocationsNavigator = () => ({
   locationsNavigator: false
@@ -69,4 +73,18 @@ export const selectPreviousLocation = (state: State) => {
 
 export const selectFlow = (nextIndex: ?number) => () => {
   return { selectedFlowIndex: nextIndex, selectedLocationIndex: 0 };
+};
+
+export const selectNextFlow = (state: State) => {
+  const { openIssue, selectedFlowIndex } = state;
+  if (openIssue && selectedFlowIndex != null && openIssue.flows.length > selectedFlowIndex + 1) {
+    return { selectedFlowIndex: selectedFlowIndex + 1, selectedLocationIndex: 0 };
+  }
+};
+
+export const selectPreviousFlow = (state: State) => {
+  const { openIssue, selectedFlowIndex } = state;
+  if (openIssue && selectedFlowIndex != null && selectedFlowIndex > 0) {
+    return { selectedFlowIndex: selectedFlowIndex - 1, selectedLocationIndex: 0 };
+  }
 };

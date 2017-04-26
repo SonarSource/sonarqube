@@ -59,6 +59,10 @@ export default class LanguageFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.props.onChange({ [this.property]: [] });
+  };
+
   getLanguageName(language: string): string {
     const { referencedLanguages } = this.props;
     return referencedLanguages[language] ? referencedLanguages[language].name : language;
@@ -74,7 +78,7 @@ export default class LanguageFacet extends React.PureComponent {
     this.props.onChange({ [this.property]: uniq([...languages, language]) });
   };
 
-  render() {
+  renderList() {
     const { stats } = this.props;
 
     if (!stats) {
@@ -84,30 +88,43 @@ export default class LanguageFacet extends React.PureComponent {
     const languages = sortBy(Object.keys(stats), key => -stats[key]);
 
     return (
+      <FacetItemsList>
+        {languages.map(language => (
+          <FacetItem
+            active={this.props.languages.includes(language)}
+            facetMode={this.props.facetMode}
+            key={language}
+            name={this.getLanguageName(language)}
+            onClick={this.handleItemClick}
+            stat={this.getStat(language)}
+            value={language}
+          />
+        ))}
+      </FacetItemsList>
+    );
+  }
+
+  renderFooter() {
+    if (!this.props.stats) {
+      return null;
+    }
+
+    return <LanguageFacetFooter onSelect={this.handleSelect} />;
+  }
+
+  render() {
+    return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={this.props.languages.length > 0}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={this.props.languages.length}
         />
 
-        {this.props.open &&
-          <FacetItemsList>
-            {languages.map(language => (
-              <FacetItem
-                active={this.props.languages.includes(language)}
-                facetMode={this.props.facetMode}
-                key={language}
-                name={this.getLanguageName(language)}
-                onClick={this.handleItemClick}
-                stat={this.getStat(language)}
-                value={language}
-              />
-            ))}
-          </FacetItemsList>}
-
-        {this.props.open && <LanguageFacetFooter onSelect={this.handleSelect} />}
+        {this.props.open && this.renderList()}
+        {this.props.open && this.renderFooter()}
       </FacetBox>
     );
   }

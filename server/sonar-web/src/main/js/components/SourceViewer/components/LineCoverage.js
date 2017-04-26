@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Tooltip from '../../controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import type { SourceLine } from '../types';
 
@@ -40,21 +41,23 @@ export default class LineCoverage extends React.PureComponent {
     const className =
       'source-meta source-line-coverage' +
       (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
-    const title = line.coverageStatus != null
-      ? translate('source_viewer.tooltip', line.coverageStatus)
-      : undefined;
-    return (
+    const cell = (
       <td
         className={className}
         data-line-number={line.line}
-        title={title}
-        data-placement={line.coverageStatus != null ? 'right' : undefined}
-        data-toggle={line.coverageStatus != null ? 'tooltip' : undefined}
         role={line.coverageStatus != null ? 'button' : undefined}
         tabIndex={line.coverageStatus != null ? 0 : undefined}
         onClick={line.coverageStatus != null ? this.handleClick : undefined}>
         <div className="source-line-bar" />
       </td>
     );
+
+    return line.coverageStatus != null
+      ? <Tooltip
+          overlay={translate('source_viewer.tooltip', line.coverageStatus)}
+          placement="right">
+          {cell}
+        </Tooltip>
+      : cell;
   }
 }

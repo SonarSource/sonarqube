@@ -25,37 +25,41 @@ import FacetHeader from '../FacetHeader';
 
 it('should render open facet with value', () => {
   expect(
-    shallow(<FacetHeader hasValue={true} name="foo" onClick={jest.fn()} open={true} />)
+    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={true} values={1} />)
   ).toMatchSnapshot();
 });
 
 it('should render open facet without value', () => {
-  expect(
-    shallow(<FacetHeader hasValue={false} name="foo" onClick={jest.fn()} open={true} />)
-  ).toMatchSnapshot();
+  expect(shallow(<FacetHeader name="foo" onClick={jest.fn()} open={true} />)).toMatchSnapshot();
 });
 
 it('should render closed facet with value', () => {
   expect(
-    shallow(<FacetHeader hasValue={true} name="foo" onClick={jest.fn()} open={false} />)
+    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={false} values={1} />)
   ).toMatchSnapshot();
 });
 
 it('should render closed facet without value', () => {
-  expect(
-    shallow(<FacetHeader hasValue={false} name="foo" onClick={jest.fn()} open={false} />)
-  ).toMatchSnapshot();
+  expect(shallow(<FacetHeader name="foo" onClick={jest.fn()} open={false} />)).toMatchSnapshot();
 });
 
 it('should render without link', () => {
-  expect(shallow(<FacetHeader hasValue={false} name="foo" open={false} />)).toMatchSnapshot();
+  expect(shallow(<FacetHeader name="foo" open={false} />)).toMatchSnapshot();
 });
 
 it('should call onClick', () => {
   const onClick = jest.fn();
-  const wrapper = shallow(
-    <FacetHeader hasValue={false} name="foo" onClick={onClick} open={false} />
-  );
-  click(wrapper);
+  const wrapper = shallow(<FacetHeader name="foo" onClick={onClick} open={false} />);
+  click(wrapper.find('a'));
   expect(onClick).toHaveBeenCalled();
+});
+
+it('should clear', () => {
+  const onClear = jest.fn();
+  const wrapper = shallow(
+    <FacetHeader name="foo" onClear={onClear} onClick={jest.fn()} open={false} values={3} />
+  );
+  expect(wrapper).toMatchSnapshot();
+  click(wrapper.find('.button-red'));
+  expect(onClear).toHaveBeenCalled();
 });

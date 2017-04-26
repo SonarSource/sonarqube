@@ -49,11 +49,13 @@ exports[`test should render the titlebar correctly 1`] = `
               onClick={[Function]}
               onlyActiveOnIndex={false}
               style={Object {}}
+              target="_blank"
               to={
                 Object {
                   "pathname": "/issues",
                   "query": Object {
                     "issues": "AVsae-CQS-9G3txfbFN2",
+                    "open": "AVsae-CQS-9G3txfbFN2",
                   },
                 }
               } />
@@ -116,11 +118,13 @@ exports[`test should render the titlebar with the filter 1`] = `
               onClick={[Function]}
               onlyActiveOnIndex={false}
               style={Object {}}
+              target="_blank"
               to={
                 Object {
                   "pathname": "/issues",
                   "query": Object {
                     "issues": "AVsae-CQS-9G3txfbFN2",
+                    "open": "AVsae-CQS-9G3txfbFN2",
                   },
                 }
               } />

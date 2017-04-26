@@ -24,11 +24,6 @@ import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
 import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
-import Page from '../../../components/layout/Page';
-import PageMain from '../../../components/layout/PageMain';
-import PageMainInner from '../../../components/layout/PageMainInner';
-import PageSide from '../../../components/layout/PageSide';
-import PageFilters from '../../../components/layout/PageFilters';
 import '../styles.css';
 
 export default class AllProjects extends React.PureComponent {
@@ -100,19 +95,23 @@ export default class AllProjects extends React.PureComponent {
     const top = this.props.organization ? 95 : 30;
 
     return (
-      <Page className="projects-page">
-        <PageSide top={top}>
-          <PageFilters>
-            <PageSidebar
-              query={query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-            />
-          </PageFilters>
-        </PageSide>
+      <div className="layout-page projects-page">
+        <div className="layout-page-side-outer">
+          <div className="layout-page-side" style={{ top }}>
+            <div className="layout-page-side-inner">
+              <div className="layout-page-filters">
+                <PageSidebar
+                  query={query}
+                  isFavorite={this.props.isFavorite}
+                  organization={this.props.organization}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <PageMain>
-          <PageMainInner>
+        <div className="layout-page-main">
+          <div className="layout-page-main-inner">
             <PageHeaderContainer onViewChange={this.handleViewChange} view={view} />
             {view === 'list' &&
               <ProjectsListContainer
@@ -132,9 +131,9 @@ export default class AllProjects extends React.PureComponent {
                 sort={query.sort}
                 visualization={visualization}
               />}
-          </PageMainInner>
-        </PageMain>
-      </Page>
+          </div>
+        </div>
+      </div>
     );
   }
 }

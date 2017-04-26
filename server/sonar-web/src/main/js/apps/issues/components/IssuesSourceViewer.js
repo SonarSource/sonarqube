@@ -46,16 +46,20 @@ export default class IssuesSourceViewer extends React.PureComponent {
     }
   }
 
-  scrollToIssue = () => {
+  scrollToIssue = (smooth: boolean = true) => {
     const element = this.node.querySelector(`[data-issue="${this.props.openIssue.key}"]`);
     if (element) {
-      this.handleScroll(element);
+      this.handleScroll(element, smooth);
     }
   };
 
-  handleScroll = (element: HTMLElement) => {
+  handleScroll = (element: HTMLElement, smooth: boolean = true) => {
     const offset = window.innerHeight / 2;
-    scrollToElement(element, offset - 100, offset);
+    scrollToElement(element, { topOffset: offset - 100, bottomOffset: offset, smooth });
+  };
+
+  handleLoaded = () => {
+    this.scrollToIssue(false);
   };
 
   render() {
@@ -80,7 +84,7 @@ export default class IssuesSourceViewer extends React.PureComponent {
           highlightedLocations={locations}
           highlightedLocationMessage={locationMessage}
           loadIssues={this.props.loadIssues}
-          onLoaded={this.scrollToIssue}
+          onLoaded={this.handleLoaded}
           onLocationSelect={this.props.onLocationSelect}
           onIssueChange={this.props.onIssueChange}
           onIssueSelect={this.props.onIssueSelect}

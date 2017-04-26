@@ -164,6 +164,15 @@ type RawFacet = {
 
 export type Facet = { [string]: number };
 
+export const mapFacet = (facet: string): string => {
+  const propertyMapping = {
+    files: 'fileUuids',
+    modules: 'moduleUuids',
+    projects: 'projectUuids'
+  };
+  return propertyMapping[facet] || facet;
+};
+
 export const parseFacets = (facets: Array<RawFacet>): { [string]: Facet } => {
   // for readability purpose
   const propertyMapping = {

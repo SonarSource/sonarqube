@@ -59,6 +59,10 @@ export default class CreationDateFacet extends React.PureComponent {
     this.props.onToggle(this.property);
   };
 
+  handleClear = () => {
+    this.resetTo({});
+  };
+
   resetTo = (changes: {}) => {
     this.props.onChange({
       createdAfter: undefined,
@@ -252,19 +256,14 @@ export default class CreationDateFacet extends React.PureComponent {
       this.props.createdInLast.length > 0 ||
       this.props.sinceLeakPeriod;
 
-    const { stats } = this.props;
-
-    if (!stats) {
-      return null;
-    }
-
     return (
       <FacetBox property={this.property}>
         <FacetHeader
-          hasValue={hasValue}
           name={translate('issues.facet', this.property)}
+          onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
+          values={hasValue ? 1 : 0}
         />
 
         {this.props.open && this.renderInner()}
