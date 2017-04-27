@@ -168,6 +168,16 @@ export default class SourceViewerBase extends React.PureComponent {
       this.isLineOutsideOfRange(this.props.aroundLine)
     ) {
       this.fetchSources();
+    } else {
+      const { selectedIssue } = this.props;
+      const { issues } = this.state;
+      if (
+        selectedIssue != null &&
+        issues != null &&
+        issues.find(issue => issue.key === selectedIssue) == null
+      ) {
+        this.reloadIssues();
+      }
     }
   }
 
@@ -273,6 +283,25 @@ export default class SourceViewerBase extends React.PureComponent {
     });
   }
 
+  reloadIssues() {
+    if (!this.state.sources) {
+      return;
+    }
+    const firstSourceLine = this.state.sources[0];
+    const lastSourceLine = this.state.sources[this.state.sources.length - 1];
+    this.props
+      .loadIssues(this.props.component, firstSourceLine.line, lastSourceLine.line)
+      .then(issues => {
+        if (this.mounted) {
+          this.setState({
+            issues,
+            issuesByLine: issuesByLine(issues),
+            issueLocationsByLine: locationsByLine(issues)
+          });
+        }
+      });
+  }
+
   loadSources() {
     return new Promise((resolve, reject) => {
       const onFailLoadSources = ({ response }) => {
@@ -312,12 +341,17 @@ export default class SourceViewerBase extends React.PureComponent {
     this.props.loadSources(this.props.component, from, firstSourceLine.line - 1).then(sources => {
       this.props.loadIssues(this.props.component, from, firstSourceLine.line - 1).then(issues => {
         if (this.mounted) {
-          this.setState(prevState => ({
-            issues: uniqBy([...issues, ...prevState.issues], issue => issue.key),
-            loadingSourcesBefore: false,
-            sources: [...this.computeCoverageStatus(sources), ...prevState.sources],
-            symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources) }
-          }));
+          this.setState(prevState => {
+            const nextIssues = uniqBy([...issues, ...prevState.issues], issue => issue.key);
+            return {
+              issues: nextIssues,
+              issuesByLine: issuesByLine(nextIssues),
+              issueLocationsByLine: locationsByLine(nextIssues),
+              loadingSourcesBefore: false,
+              sources: [...this.computeCoverageStatus(sources), ...prevState.sources],
+              symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources) }
+            };
+          });
         }
       });
     });
@@ -335,13 +369,24 @@ export default class SourceViewerBase extends React.PureComponent {
     this.props.loadSources(this.props.component, fromLine, toLine).then(sources => {
       this.props.loadIssues(this.props.component, fromLine, toLine).then(issues => {
         if (this.mounted) {
-          this.setState(prevState => ({
-            issues: uniqBy([...prevState.issues, ...issues], issue => issue.key),
-            hasSourcesAfter: sources.length > LINES,
-            loadingSourcesAfter: false,
-            sources: [...prevState.sources, ...this.computeCoverageStatus(sources.slice(0, LINES))],
-            symbolsByLine: { ...prevState.symbolsByLine, ...symbolsByLine(sources.slice(0, LINES)) }
-          }));
+          this.setState(prevState => {
+            const nextIssues = uniqBy([...prevState.issues, ...issues], issue => issue.key);
+            return {
+              issues: nextIssues,
+              issuesByLine: issuesByLine(nextIssues),
+              issueLocationsByLine: locationsByLine(nextIssues),
+              hasSourcesAfter: sources.length > LINES,
+              loadingSourcesAfter: false,
+              sources: [
+                ...prevState.sources,
+                ...this.computeCoverageStatus(sources.slice(0, LINES))
+              ],
+              symbolsByLine: {
+                ...prevState.symbolsByLine,
+                ...symbolsByLine(sources.slice(0, LINES))
+              }
+            };
+          });
         }
       });
     });

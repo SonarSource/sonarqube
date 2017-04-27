@@ -24,7 +24,7 @@ import { scrollToElement } from '../../../helpers/scrolling';
 import type { Issue } from '../../../components/issue/types';
 
 type Props = {|
-  loadIssues: () => Promise<*>,
+  loadIssues: (string, number, number) => Promise<*>,
   onIssueChange: Issue => void,
   onIssueSelect: string => void,
   onLocationSelect: number => void,

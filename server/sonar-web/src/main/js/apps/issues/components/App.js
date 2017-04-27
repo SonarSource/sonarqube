@@ -426,8 +426,15 @@ export default class App extends React.PureComponent {
     });
   };
 
-  fetchIssuesForComponent = (): Promise<Array<Issue>> => {
+  fetchIssuesForComponent = (
+    component: string,
+    from: number,
+    to: number
+  ): Promise<Array<Issue>> => {
     const { issues, openIssue, paging } = this.state;
+
+    /* eslint-disable no-console */
+    console.log(`loadin issues from line ${from} to line ${to}`);
 
     if (!openIssue || !paging) {
       return Promise.reject();
@@ -435,9 +442,16 @@ export default class App extends React.PureComponent {
 
     const isSameComponent = (issue: Issue): boolean => issue.component === openIssue.component;
 
-    const done = (issues: Array<Issue>, paging: Paging): boolean =>
-      paging.total <= paging.pageIndex * paging.pageSize ||
-      issues[issues.length - 1].component !== openIssue.component;
+    const done = (issues: Array<Issue>, paging: Paging): boolean => {
+      if (paging.total <= paging.pageIndex * paging.pageSize) {
+        return true;
+      }
+      const lastIssue = issues[issues.length - 1];
+      if (lastIssue.component !== openIssue.component) {
+        return true;
+      }
+      return lastIssue.line != null && lastIssue.line > to;
+    };
 
     if (done(issues, paging)) {
       return Promise.resolve(issues.filter(isSameComponent));
