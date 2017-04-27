@@ -105,4 +105,11 @@ public class OrganizationService extends BaseService {
 
     call(post);
   }
+
+  public void updateProjectVisibility(UpdateProjectVisibilityWsRequest request) {
+    PostRequest post = new PostRequest(path("update_project_visibility"))
+      .setParam("organization", request.getOrganization())
+      .setParam("projectVisibility", request.getProjectVisibility());
+    call(post, UpdateWsResponse.parser());
+  }
 }

@@ -44,6 +44,14 @@ public class BillingValidations implements BillingValidationsExtension {
   }
 
   @Override
+  public void checkCanUpdateProjectVisibility(Organization organization, boolean updateToPrivate) {
+    boolean preventUpdatingProjectsToPrivate = settings.getBoolean(PREVENT_UPDATING_PROJECTS_VISIBILITY_TO_PRIVATE_SETTING);
+    if (preventUpdatingProjectsToPrivate) {
+      throw new BillingValidationsException(format("Organization %s cannot use private project", organization.getKey()));
+    }
+  }
+
+  @Override
   public boolean canUpdateProjectVisibilityToPrivate(Organization organization) {
     if (!settings.hasKey(PREVENT_UPDATING_PROJECTS_VISIBILITY_TO_PRIVATE_SETTING)) {
       return true;

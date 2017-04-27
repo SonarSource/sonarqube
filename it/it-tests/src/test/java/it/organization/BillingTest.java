@@ -31,15 +31,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
+import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
+import org.sonarqube.ws.client.project.CreateRequest;
 import util.ItUtils;
 import util.user.UserRule;
 
 import static it.Category6Suite.enableOrganizationsSupport;
 import static java.lang.String.format;
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.sonarqube.ws.WsCe.TaskResponse;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrganizationKey;
@@ -73,12 +77,12 @@ public class BillingTest {
   @Before
   public void setUp() throws Exception {
     userRule.deactivateUsers(USER_LOGIN);
-    resetSettings(orchestrator, "sonar.billing.preventProjectAnalysis");
+    resetSettings(orchestrator, null, "sonar.billing.preventProjectAnalysis", "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
-    resetSettings(orchestrator, "sonar.billing.preventProjectAnalysis");
+    resetSettings(orchestrator, null, "sonar.billing.preventProjectAnalysis", "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
     userRule.deactivateUsers(USER_LOGIN);
   }
 
@@ -124,8 +128,7 @@ public class BillingTest {
   @Test
   public void api_navigation_component_returns_canUpdateProjectVisibilityToPrivate() {
     String organizationKey = createOrganization();
-    String projectKey = newProjectKey();
-    executeAnalysis(projectKey, organizationKey);
+    String projectKey = createPublicProject(organizationKey);
 
     setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
     assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"canUpdateProjectVisibilityToPrivate\":true");
@@ -134,10 +137,40 @@ public class BillingTest {
     assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"canUpdateProjectVisibilityToPrivate\":false");
   }
 
+  @Test
+  public void does_not_fail_to_update_default_projects_visibility_to_private() {
+    String organizationKey = createOrganization();
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+
+    adminClient.organizations().updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder().setOrganization(organizationKey).setProjectVisibility("private").build());
+
+    assertWsResponseAsAdmin(new GetRequest("api/navigation/organization").setParam("organization", organizationKey), "\"projectVisibility\":\"private\"");
+  }
+
+  @Test
+  public void fail_to_update_default_projects_visibility_to_private() {
+    String organizationKey = createOrganization();
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+
+    try {
+      adminClient.organizations().updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder().setOrganization(organizationKey).setProjectVisibility("private").build());
+      fail();
+    } catch (HttpException ex) {
+      assertThat(ex.code()).isEqualTo(400);
+      assertThat(ex.content()).contains(format("Organization %s cannot use private project", organizationKey));
+    }
+  }
+
   private static String createOrganization() {
     String key = newOrganizationKey();
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(key).setName(key).build()).getOrganization();
     return key;
+  }
+
+  private static String createPublicProject(String organizationKey) {
+    String projectKey = newProjectKey();
+    adminClient.projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organizationKey).setVisibility("public").build());
+    return projectKey;
   }
 
   private static String executeAnalysis(String organizationKey) {
@@ -153,12 +186,12 @@ public class BillingTest {
     return ItUtils.extractCeTaskId(buildResult);
   }
 
-  private void assertWsResponseAsAdmin(GetRequest request, String expectedContent){
+  private void assertWsResponseAsAdmin(GetRequest request, String expectedContent) {
     WsResponse response = adminClient.wsConnector().call(request).failIfNotSuccessful();
     assertThat(response.content()).contains(expectedContent);
   }
 
-  private void assertWsResponseAsUser(GetRequest request, String expectedContent){
+  private void assertWsResponseAsUser(GetRequest request, String expectedContent) {
     WsResponse response = newUserWsClient(orchestrator, USER_LOGIN, USER_LOGIN).wsConnector().call(request).failIfNotSuccessful();
     assertThat(response.content()).contains(expectedContent);
   }

@@ -28,6 +28,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
@@ -40,10 +42,12 @@ public class UpdateProjectVisibilityAction implements OrganizationsWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
+  private final BillingValidationsProxy billingValidations;
 
-  public UpdateProjectVisibilityAction(UserSession userSession, DbClient dbClient) {
+  public UpdateProjectVisibilityAction(UserSession userSession, DbClient dbClient, BillingValidationsProxy billingValidations) {
     this.userSession = userSession;
     this.dbClient = dbClient;
+    this.billingValidations = billingValidations;
   }
 
   @Override
@@ -74,9 +78,18 @@ public class UpdateProjectVisibilityAction implements OrganizationsWsAction {
       Optional<OrganizationDto> optionalOrganization = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
       OrganizationDto organization = checkFoundWithOptional(optionalOrganization, "No organization with key '" + organizationKey + "' can be found.");
       userSession.checkPermission(OrganizationPermission.ADMINISTER, organization.getUuid());
+      checkCanUpdateProjectsVisibility(organization, newProjectsPrivate);
       dbClient.organizationDao().setNewProjectPrivate(dbSession, organization, newProjectsPrivate);
       dbSession.commit();
     }
     response.noContent();
+  }
+
+  private void checkCanUpdateProjectsVisibility(OrganizationDto organization, boolean newProjectsPrivate) {
+    try {
+      billingValidations.checkCanUpdateProjectVisibility(new BillingValidations.Organization(organization.getKey(), organization.getUuid()), newProjectsPrivate);
+    } catch (BillingValidations.BillingValidationsException e) {
+      throw new IllegalArgumentException(e.getMessage());
+    }
   }
 }

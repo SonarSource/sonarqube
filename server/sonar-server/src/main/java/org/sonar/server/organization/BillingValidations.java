@@ -35,6 +35,11 @@ public interface BillingValidations {
   void checkOnProjectAnalysis(Organization organization);
 
   /**
+   * @throws BillingValidationsException when the organization cannot use private projects
+   */
+  void checkCanUpdateProjectVisibility(Organization organization, boolean updateToPrivate);
+
+  /**
    * @return true if the organization can use private projects
    */
   boolean canUpdateProjectVisibilityToPrivate(Organization organization);
