@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`does not show current 1`] = `
+<span>
+  <strong>
+    987,654,321
+  </strong>
+   
+  issues.issues
+</span>
+`;
+
+exports[`formats numbers 1`] = `
+<span>
+  <strong>
+    <span>
+      1,235
+       / 
+    </span>
+    987,654,321
+  </strong>
+   
+  issues.issues
+</span>
+`;
