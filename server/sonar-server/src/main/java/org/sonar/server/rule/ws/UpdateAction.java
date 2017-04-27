@@ -45,6 +45,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.RuleUpdate;
 import org.sonar.server.rule.RuleUpdater;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Rules.UpdateResponse;
 
 import static java.lang.String.format;
@@ -190,8 +191,9 @@ public class UpdateAction implements RulesWsAction {
   private OrganizationDto getOrganization(Request request, DbSession dbSession) {
     String organizationKey = ofNullable(request.param(PARAM_ORGANIZATION))
       .orElseGet(() -> defaultOrganizationProvider.get().getKey());
-    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
-      .orElseThrow(() -> new IllegalStateException(format("Cannot load organization '%s'", organizationKey)));
+    return WsUtils.checkFoundWithOptional(
+      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+      "No organization with key '%s'", organizationKey);
   }
 
   private RuleUpdate readRequest(DbSession dbSession, Request request, OrganizationDto organization) {

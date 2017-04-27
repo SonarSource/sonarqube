@@ -39,6 +39,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -325,6 +326,19 @@ public class UpdateActionTest {
     expectedException.expect(UnauthorizedException.class);
 
     ws.newRequest().setMethod("POST").execute();
+  }
+
+  @Test
+  public void throw_NotFoundException_if_organization_cannot_be_found() throws Exception {
+    logInAsQProfileAdministrator();
+    RuleDefinitionDto rule = db.rules().insert();
+
+    expectedException.expect(NotFoundException.class);
+
+    ws.newRequest().setMethod("POST")
+      .setParam("key", rule.getKey().toString())
+      .setParam("organization", "foo")
+      .execute();
   }
 
   private void logInAsQProfileAdministrator() {
