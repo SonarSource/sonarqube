@@ -34,9 +34,9 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Rules.ShowResponse;
 
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -126,8 +126,9 @@ public class ShowAction implements RulesWsAction {
   private OrganizationDto getOrganization(Request request, DbSession dbSession) {
     String organizationKey = ofNullable(request.param(PARAM_ORGANIZATION))
       .orElseGet(() -> defaultOrganizationProvider.get().getKey());
-    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
-      .orElseThrow(() -> new IllegalStateException(format("Cannot load organization '%s'", organizationKey)));
+    return WsUtils.checkFoundWithOptional(
+      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+      "No organization with key '%s'", organizationKey);
   }
 
   private ShowResponse buildResponse(DbSession dbSession, OrganizationDto organization, Request request, SearchAction.SearchResult searchResult) {
