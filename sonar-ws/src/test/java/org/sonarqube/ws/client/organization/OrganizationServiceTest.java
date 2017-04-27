@@ -96,4 +96,18 @@ public class OrganizationServiceTest {
       .hasParam("login", "login-1")
       .andNoOtherParam();
   }
+
+  @Test
+  public void update_project_visibility() {
+    underTest.updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder()
+      .setOrganization("O1")
+      .setProjectVisibility("private")
+    .build());
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("update_project_visibility")
+      .hasParam("organization", "O1")
+      .hasParam("projectVisibility", "private")
+      .andNoOtherParam();
+  }
 }

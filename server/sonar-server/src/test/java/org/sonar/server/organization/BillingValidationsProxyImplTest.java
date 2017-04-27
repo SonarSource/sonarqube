@@ -59,6 +59,26 @@ public class BillingValidationsProxyImplTest {
   }
 
   @Test
+  public void checkCanUpdateProjectsVisibility_calls_extension_when_available() {
+    underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
+    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
+
+    underTest.checkCanUpdateProjectVisibility(organization, true);
+
+    verify(billingValidationsExtension).checkCanUpdateProjectVisibility(organization, true);
+  }
+
+  @Test
+  public void checkCanUpdateProjectsVisibility_does_nothing_when_no_extension_available() {
+    underTest = new BillingValidationsProxyImpl();
+    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
+
+    underTest.checkCanUpdateProjectVisibility(organization, true);
+
+    verifyZeroInteractions(billingValidationsExtension);
+  }
+
+  @Test
   public void canUpdateProjectsVisibilityToPrivate_calls_extension_when_available() {
     underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
     Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);

@@ -27,11 +27,17 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.server.organization.ws.UpdateProjectVisibilityAction.ACTION;
@@ -45,7 +51,9 @@ public class UpdateProjectVisibilityActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UpdateProjectVisibilityAction underTest = new UpdateProjectVisibilityAction(userSession, dbTester.getDbClient());
+  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+
+  private UpdateProjectVisibilityAction underTest = new UpdateProjectVisibilityAction(userSession, dbTester.getDbClient(), billingValidations);
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Test
@@ -71,7 +79,7 @@ public class UpdateProjectVisibilityActionTest {
   }
 
   @Test
-  public void should_change_project_visibility_to_private() {
+  public void change_project_visibility_to_private() {
     OrganizationDto organization = dbTester.organizations().insert();
     dbTester.organizations().setNewProjectPrivate(organization, false);
     userSession.logIn().addPermission(ADMINISTER, organization);
@@ -85,7 +93,7 @@ public class UpdateProjectVisibilityActionTest {
   }
 
   @Test
-  public void should_change_project_visibility_to_public() {
+  public void change_project_visibility_to_public() {
     OrganizationDto organization = dbTester.organizations().insert();
     dbTester.organizations().setNewProjectPrivate(organization, true);
     userSession.logIn().addPermission(ADMINISTER, organization);
@@ -100,7 +108,40 @@ public class UpdateProjectVisibilityActionTest {
   }
 
   @Test
-  public void should_fail_if_organization_does_not_exist() {
+  public void fail_to_update_visibility_to_private_when_organization_is_not_allowed_to_use_private_projects() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.organizations().setNewProjectPrivate(organization, true);
+    userSession.logIn().addPermission(ADMINISTER, organization);
+    doThrow(new BillingValidations.BillingValidationsException("This organization cannot use project private")).when(billingValidations)
+      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("This organization cannot use project private");
+
+    wsTester.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_PROJECT_VISIBILITY, "private")
+      .execute();
+  }
+
+  @Test
+  public void does_not_fail_to_update_visibility_to_public_when_organization_is_not_allowed_to_use_private_projects() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.organizations().setNewProjectPrivate(organization, true);
+    userSession.logIn().addPermission(ADMINISTER, organization);
+    doThrow(new BillingValidations.BillingValidationsException("This organization cannot use project private")).when(billingValidations)
+      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
+
+    wsTester.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_PROJECT_VISIBILITY, "public")
+      .execute();
+
+    assertThat(dbTester.organizations().getNewProjectPrivate(organization)).isFalse();
+  }
+
+  @Test
+  public void fail_if_organization_does_not_exist() {
     TestRequest request = wsTester.newRequest()
       .setParam(PARAM_ORGANIZATION, "does not exist")
       .setParam(PARAM_PROJECT_VISIBILITY, "private");
@@ -119,5 +160,4 @@ public class UpdateProjectVisibilityActionTest {
     expectedException.expect(ForbiddenException.class);
     request.execute();
   }
-
 }
