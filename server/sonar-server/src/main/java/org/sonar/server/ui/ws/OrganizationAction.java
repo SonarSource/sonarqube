@@ -21,6 +21,7 @@ package org.sonar.server.ui.ws;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -34,6 +35,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
@@ -92,11 +94,12 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("canProvisionProjects", userSession.hasPermission(OrganizationPermission.PROVISION_PROJECTS, organization))
       .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasPermission(OrganizationPermission.ADMINISTER, organization))
       .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()));
-    List<Page> pages = pageRepository.getOrganizationPages(false);
+    Predicate<Page> personalOrgForBilling = page -> organization.getUserId() == null || !page.getKey().startsWith("billing/");
+    List<Page> pages = pageRepository.getOrganizationPages(false).stream().filter(personalOrgForBilling).collect(toList());
     json.name("pages");
     writePages(json, pages);
     if (userSession.hasPermission(OrganizationPermission.ADMINISTER, organization)) {
-      List<Page> adminPages = pageRepository.getOrganizationPages(true);
+      List<Page> adminPages = pageRepository.getOrganizationPages(true).stream().filter(personalOrgForBilling).collect(toList());
       json.name("adminPages");
       writePages(json, adminPages);
     }
