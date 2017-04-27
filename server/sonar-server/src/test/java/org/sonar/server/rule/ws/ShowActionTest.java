@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.MapSettings;
@@ -34,12 +35,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
@@ -53,7 +54,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.Rule;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -72,6 +73,8 @@ public class ShowActionTest {
   @org.junit.Rule
   public EsTester esTester = new EsTester(
     new RuleIndexDefinition(new MapSettings()));
+  @org.junit.Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
   private EsClient esClient = esTester.client();
@@ -145,9 +148,8 @@ public class ShowActionTest {
       .setInherit(randomAlphanumeric(5))
       .setSeverity(randomAlphanumeric(5))
       .build();
-    Mockito.doReturn(asList(active)).when(activeRuleCompleter).completeShow(any(DbSession.class), orgCaptor.capture(), ruleCaptor.capture());
+    Mockito.doReturn(singletonList(active)).when(activeRuleCompleter).completeShow(any(DbSession.class), orgCaptor.capture(), ruleCaptor.capture());
 
-    ActiveRuleDto activeRule = dbTester.qualityProfiles().activateRule(profile, rule, a -> a.setSeverity("BLOCKER"));
     new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient).index();
 
     TestResponse response = actionTester.newRequest().setMethod("GET")
@@ -196,6 +198,18 @@ public class ShowActionTest {
 
     List<Rules.Active> actives = result.getActivesList();
     assertThat(actives).isEmpty();
+  }
+
+  @Test
+  public void throw_NotFoundException_if_organization_cannot_be_found() throws Exception {
+    RuleDefinitionDto rule = dbTester.rules().insert();
+
+    thrown.expect(NotFoundException.class);
+
+    actionTester.newRequest().setMethod("POST")
+      .setParam("key", rule.getKey().toString())
+      .setParam("organization", "foo")
+      .execute();
   }
 
   private void assertEqual(RuleDefinitionDto rule, RuleMetadataDto ruleMetadata, Rule resultRule) {
