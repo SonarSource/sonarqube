@@ -157,3 +157,62 @@
   min-width: 80px;
   text-align: right;
 }
+
+.issues .search-navigator-facet-header,
+.issues .search-navigator-facet-list {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.issues .search-navigator-facet-header {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.issues .search-navigator-facet-box:not(.hidden) + .search-navigator-facet-box {
+  border-top: none;
+}
+
+.issues .search-navigator-facet-footer {
+  padding: 0 0 10px 0;
+}
+
+.issues .issue-list {
+  /* no math, just a good guess */
+  min-width: 640px;
+  width: 800px;
+}
+
+.issues .issue {
+  cursor: pointer;
+}
+
+.issues .issue:hover {
+  border-color: #dd4040;
+} 
+
+@media (max-width: 1320px) {
+  .issues .issue-list {
+    width: calc(60vw - 40px);
+  }
+}
+
+.issues-workspace-list-component {
+  padding: 10px 10px 6px;
+}
+
+.issues-workspace-list-item + .issues-workspace-list-item {
+  margin-top: 5px;
+}
+
+.issues-workspace-list-component + .issues-workspace-list-item {
+  margin-top: 10px;
+}
+
+.issues-workspace-list-item:first-child .issues-workspace-list-component {
+  padding-top: 0;
+}
+
+.issues-workspace-list-component + .issues-workspace-list-item {
+  margin-top: 0;
+}
