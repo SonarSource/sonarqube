@@ -33,6 +33,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class DeleteAction implements QProfileWsAction {
@@ -86,14 +87,12 @@ public class DeleteAction implements QProfileWsAction {
   }
 
   private static void ensureNoneIsMarkedAsDefault(QualityProfileDto profile, List<QualityProfileDto> descendants) {
-    if (profile.isDefault()) {
-      throw new IllegalStateException("Profile is marked as 'default' and cannot be deleted");
-    }
+    checkArgument(!profile.isDefault(), "Profile '%s' cannot be deleted because it is marked as default", profile.getName());
     descendants.stream()
       .filter(QualityProfileDto::isDefault)
       .findFirst()
       .ifPresent(p -> {
-        throw new IllegalStateException("Profile cannot be deleted because its descendant named [" + p.getName() + "] is marked as 'default'");
+        throw new IllegalArgumentException(String.format("Profile '%s' cannot be deleted because its descendant named '%s' is marked as default", profile.getName(), p.getName()));
       });
   }
 

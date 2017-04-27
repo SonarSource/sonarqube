@@ -243,8 +243,8 @@ public class DeleteActionTest {
     QualityProfileDto profile = createDefaultProfile(organization);
     logInAsQProfileAdministrator(organization);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Profile is marked as 'default' and cannot be deleted");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Profile '" + profile.getName() + "' cannot be deleted because it is marked as default");
 
     tester.newRequest()
       .setMethod("POST")
@@ -256,11 +256,13 @@ public class DeleteActionTest {
   public void throw_ISE_if_a_descendant_is_marked_as_default() {
     OrganizationDto organization = dbTester.organizations().insert();
     QualityProfileDto parentProfile = createProfile(organization);
-    QualityProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setDefault(true), p -> p.setParentKee(parentProfile.getKey()));
+    QualityProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setDefault(true),
+      p -> p.setParentKee(parentProfile.getKey()));
     logInAsQProfileAdministrator(organization);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Profile cannot be deleted because its descendant named [" + childProfile.getName() + "] is marked as 'default'");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Profile '" + parentProfile.getName() + "' cannot be deleted because its descendant named '" + childProfile.getName() +
+      "' is marked as default");
 
     tester.newRequest()
       .setMethod("POST")
