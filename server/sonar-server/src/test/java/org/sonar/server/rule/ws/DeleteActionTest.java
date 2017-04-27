@@ -116,8 +116,8 @@ public class DeleteActionTest {
     logInAsQProfileAdministrator();
     RuleDefinitionDto rule = dbTester.rules().insert();
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only custom rules can be deleted");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Rule '" + rule.getKey().toString() + "' cannot be deleted because it is not a custom rule");
 
     tester.newRequest()
       .setMethod("POST")

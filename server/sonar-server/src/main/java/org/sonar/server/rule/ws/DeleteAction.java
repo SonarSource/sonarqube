@@ -31,6 +31,8 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleIndexer;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class DeleteAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
@@ -76,9 +78,7 @@ public class DeleteAction implements RulesWsAction {
   public void delete(RuleKey ruleKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, ruleKey);
-      if (!rule.isCustomRule()) {
-        throw new IllegalStateException("Only custom rules can be deleted");
-      }
+      checkArgument(rule.isCustomRule(), "Rule '%s' cannot be deleted because it is not a custom rule", rule.getKey().toString());
 
       // For custom rule, first deactivate the rule on all profiles
       if (rule.isCustomRule()) {
