@@ -158,6 +158,7 @@ export default class SourceViewerCode extends React.PureComponent {
         issueLocations={this.getIssueLocationsForLine(line)}
         issues={issuesForLine}
         key={line.line}
+        last={index === this.props.sources.length - 1 && !this.props.hasSourcesAfter}
         line={line}
         loadDuplications={this.props.loadDuplications}
         onClick={this.props.onLineClick}
