@@ -82,8 +82,10 @@ export default Marionette.LayoutView.extend({
       height: 200,
       readOnly: !this.options.canWrite,
       focusSearch: false,
-      format: item => escapeHtml(item.name),
-      searchUrl: window.baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key),
+      dangerouslyUnescapedHtmlFormat: item => escapeHtml(item.name),
+      searchUrl: window.baseUrl +
+        '/api/qualityprofiles/projects?key=' +
+        encodeURIComponent(key),
       selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
       deselectUrl: window.baseUrl + '/api/qualityprofiles/remove_project',
       extra: {

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import _ from 'underscore';
+import escapeHtml from 'escape-html';
 import Modal from '../../components/common/modals';
 import '../../components/SelectList';
 import Template from './templates/project-permissions-groups.hbs';
@@ -36,8 +37,8 @@ export default Modal.extend({
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format (item) {
-        return item.name;
+      dangerouslyUnescapedHtmlFormat(item) {
+        return escapeHtml(item.name);
       },
       queryParam: 'q',
       searchUrl: getSearchUrl(this.options.permission, this.options.project),
