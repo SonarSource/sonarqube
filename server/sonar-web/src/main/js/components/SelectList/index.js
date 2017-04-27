@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import Backbone from 'backbone';
 import { debounce, throttle } from 'lodash';
+import escapeHtml from 'escape-html';
 import { translate } from '../../helpers/l10n';
 import ItemTemplate from './templates/item.hbs';
 import ListTemplate from './templates/list.hbs';
@@ -89,7 +90,7 @@ const SelectListItemView = Backbone.View.extend({
   },
 
   render() {
-    this.$el.html(this.template(this.settings.format(this.model.toJSON())));
+    this.$el.html(this.template(this.settings.dangerouslyUnescapedHtmlFormat(this.model.toJSON())));
     this.$('input').prop('name', this.model.get('name'));
     this.$el.toggleClass('selected', this.model.get('selected'));
     this.$('.select-list-list-checkbox')
@@ -412,8 +413,8 @@ window.SelectList.defaults = {
   readOnly: false,
   focusSearch: true,
 
-  format(item) {
-    return item.value;
+  dangerouslyUnescapedHtmlFormat(item) {
+    return escapeHtml(item.value);
   },
 
   parse(r) {
