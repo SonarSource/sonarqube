@@ -1,13 +1,17 @@
-exports[`test render line 0 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render line 0 1`] = `
 <td
-  className="source-meta source-line-number" />
+  className="source-meta source-line-number"
+/>
 `;
 
-exports[`test render line 3 1`] = `
+exports[`render line 3 1`] = `
 <td
   className="source-meta source-line-number"
   data-line-number={3}
   onClick={[Function]}
   role="button"
-  tabIndex={0} />
+  tabIndex={0}
+/>
 `;

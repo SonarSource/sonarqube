@@ -1,40 +1,53 @@
-exports[`test should groups at 0 if the groupCount field is not defined (just added user) 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should groups at 0 if the groupCount field is not defined (just added user) 1`] = `
 <tr>
   <td
-    className="thin nowrap">
+    className="thin nowrap"
+  >
     <Connect(Avatar)
       hash="7daf6c79d4802916d83f6266e24850af"
-      size={36} />
+      size={36}
+    />
   </td>
   <td
-    className="nowrap text-middle">
+    className="nowrap text-middle"
+  >
     <strong>
       john
     </strong>
     <span
-      className="note little-spacer-left">
+      className="note little-spacer-left"
+    >
       John Doe
     </span>
   </td>
   <td
-    className="text-right text-middle">
+    className="text-right text-middle"
+  >
     organization.members.x_groups.0
   </td>
   <td
-    className="nowrap text-middle text-right">
+    className="nowrap text-middle text-right"
+  >
     <div
-      className="dropdown">
+      className="dropdown"
+    >
       <button
         className="dropdown-toggle little-spacer-right"
-        data-toggle="dropdown">
+        data-toggle="dropdown"
+      >
         <i
-          className="icon-settings" />
+          className="icon-settings"
+        />
          
         <i
-          className="icon-dropdown" />
+          className="icon-dropdown"
+        />
       </button>
       <ul
-        className="dropdown-menu dropdown-menu-right">
+        className="dropdown-menu dropdown-menu-right"
+      >
         <li>
           <ManageMemberGroupsForm
             member={
@@ -50,11 +63,13 @@ exports[`test should groups at 0 if the groupCount field is not defined (just ad
                 "key": "foo",
                 "name": "Foo",
               }
-            } />
+            }
+          />
         </li>
         <li
           className="divider"
-          role="separator" />
+          role="separator"
+        />
         <li>
           <RemoveMemberForm
             member={
@@ -70,7 +85,8 @@ exports[`test should groups at 0 if the groupCount field is not defined (just ad
                 "key": "foo",
                 "name": "Foo",
               }
-            } />
+            }
+          />
         </li>
       </ul>
     </div>
@@ -78,64 +94,79 @@ exports[`test should groups at 0 if the groupCount field is not defined (just ad
 </tr>
 `;
 
-exports[`test should not render actions and groups for non admin 1`] = `
+exports[`should not render actions and groups for non admin 1`] = `
 <tr>
   <td
-    className="thin nowrap">
+    className="thin nowrap"
+  >
     <Connect(Avatar)
       hash=""
-      size={36} />
+      size={36}
+    />
   </td>
   <td
-    className="nowrap text-middle">
+    className="nowrap text-middle"
+  >
     <strong>
       admin
     </strong>
     <span
-      className="note little-spacer-left">
+      className="note little-spacer-left"
+    >
       Admin Istrator
     </span>
   </td>
 </tr>
 `;
 
-exports[`test should render actions and groups for admin 1`] = `
+exports[`should render actions and groups for admin 1`] = `
 <tr>
   <td
-    className="thin nowrap">
+    className="thin nowrap"
+  >
     <Connect(Avatar)
       hash=""
-      size={36} />
+      size={36}
+    />
   </td>
   <td
-    className="nowrap text-middle">
+    className="nowrap text-middle"
+  >
     <strong>
       admin
     </strong>
     <span
-      className="note little-spacer-left">
+      className="note little-spacer-left"
+    >
       Admin Istrator
     </span>
   </td>
   <td
-    className="text-right text-middle">
+    className="text-right text-middle"
+  >
     organization.members.x_groups.3
   </td>
   <td
-    className="nowrap text-middle text-right">
+    className="nowrap text-middle text-right"
+  >
     <div
-      className="dropdown">
+      className="dropdown"
+    >
       <button
         className="dropdown-toggle little-spacer-right"
-        data-toggle="dropdown">
+        data-toggle="dropdown"
+      >
         <i
-          className="icon-settings" />
+          className="icon-settings"
+        />
          
         <i
-          className="icon-dropdown" />
+          className="icon-dropdown"
+        />
       </button>
       <ul
-        className="dropdown-menu dropdown-menu-right">
+        className="dropdown-menu dropdown-menu-right"
+      >
         <li>
           <ManageMemberGroupsForm
             member={
@@ -152,11 +183,13 @@ exports[`test should render actions and groups for admin 1`] = `
                 "key": "foo",
                 "name": "Foo",
               }
-            } />
+            }
+          />
         </li>
         <li
           className="divider"
-          role="separator" />
+          role="separator"
+        />
         <li>
           <RemoveMemberForm
             member={
@@ -173,7 +206,8 @@ exports[`test should render actions and groups for admin 1`] = `
                 "key": "foo",
                 "name": "Foo",
               }
-            } />
+            }
+          />
         </li>
       </ul>
     </div>

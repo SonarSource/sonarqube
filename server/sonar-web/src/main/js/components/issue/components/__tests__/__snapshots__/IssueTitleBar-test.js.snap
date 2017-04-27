@@ -1,20 +1,27 @@
-exports[`test should render the titlebar correctly 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the titlebar correctly 1`] = `
 <table
-  className="issue-table">
+  className="issue-table"
+>
   <tbody>
     <tr>
       <td>
         <IssueMessage
           message="Reduce the number of conditional operators (4) used in the expression"
           organization="myorg"
-          rule="javascript:S1067" />
+          rule="javascript:S1067"
+        />
       </td>
       <td
-        className="issue-table-meta-cell issue-table-meta-cell-first">
+        className="issue-table-meta-cell issue-table-meta-cell-first"
+      >
         <ul
-          className="list-inline issue-meta-list">
+          className="list-inline issue-meta-list"
+        >
           <li
-            className="issue-meta">
+            className="issue-meta"
+          >
             <IssueChangelog
               creationDate="2017-03-01T09:36:01+0100"
               isOpen={false}
@@ -31,19 +38,23 @@ exports[`test should render the titlebar correctly 1`] = `
                 }
               }
               onFail={[Function]}
-              togglePopup={[Function]} />
+              togglePopup={[Function]}
+            />
           </li>
           <li
-            className="issue-meta">
+            className="issue-meta"
+          >
             <span
               className="issue-meta-label"
-              title="line_number">
+              title="line_number"
+            >
               L
               26
             </span>
           </li>
           <li
-            className="issue-meta">
+            className="issue-meta"
+          >
             <Link
               className="js-issue-permalink icon-link"
               onClick={[Function]}
@@ -58,7 +69,8 @@ exports[`test should render the titlebar correctly 1`] = `
                     "open": "AVsae-CQS-9G3txfbFN2",
                   },
                 }
-              } />
+              }
+            />
           </li>
         </ul>
       </td>
@@ -67,23 +79,28 @@ exports[`test should render the titlebar correctly 1`] = `
 </table>
 `;
 
-exports[`test should render the titlebar with the filter 1`] = `
+exports[`should render the titlebar with the filter 1`] = `
 <table
-  className="issue-table">
+  className="issue-table"
+>
   <tbody>
     <tr>
       <td>
         <IssueMessage
           message="Reduce the number of conditional operators (4) used in the expression"
           organization="myorg"
-          rule="javascript:S1067" />
+          rule="javascript:S1067"
+        />
       </td>
       <td
-        className="issue-table-meta-cell issue-table-meta-cell-first">
+        className="issue-table-meta-cell issue-table-meta-cell-first"
+      >
         <ul
-          className="list-inline issue-meta-list">
+          className="list-inline issue-meta-list"
+        >
           <li
-            className="issue-meta">
+            className="issue-meta"
+          >
             <IssueChangelog
               creationDate="2017-03-01T09:36:01+0100"
               isOpen={false}
@@ -100,19 +117,23 @@ exports[`test should render the titlebar with the filter 1`] = `
                 }
               }
               onFail={[Function]}
-              togglePopup={[Function]} />
+              togglePopup={[Function]}
+            />
           </li>
           <li
-            className="issue-meta">
+            className="issue-meta"
+          >
             <span
               className="issue-meta-label"
-              title="line_number">
+              title="line_number"
+            >
               L
               26
             </span>
           </li>
           <li
-            className="issue-meta">
+            className="issue-meta"
+          >
             <Link
               className="js-issue-permalink icon-link"
               onClick={[Function]}
@@ -127,10 +148,12 @@ exports[`test should render the titlebar with the filter 1`] = `
                     "open": "AVsae-CQS-9G3txfbFN2",
                   },
                 }
-              } />
+              }
+            />
           </li>
           <li
-            className="issue-meta">
+            className="issue-meta"
+          >
             <SimilarIssuesFilter
               isOpen={false}
               issue={
@@ -147,7 +170,8 @@ exports[`test should render the titlebar with the filter 1`] = `
               }
               onFail={[Function]}
               onFilter={[Function]}
-              togglePopup={[Function]} />
+              togglePopup={[Function]}
+            />
           </li>
         </ul>
       </td>

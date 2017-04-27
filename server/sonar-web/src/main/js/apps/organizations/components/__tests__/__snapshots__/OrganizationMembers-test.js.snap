@@ -1,11 +1,16 @@
-exports[`test should not render actions for non admin 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render actions for non admin 1`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <MembersPageHeader
-    total={2} />
+    total={2}
+  />
   <MembersListHeader
     handleSearch={[Function]}
-    total={2} />
+    total={2}
+  />
   <MembersList
     members={
       Array [
@@ -30,33 +35,41 @@ exports[`test should not render actions for non admin 1`] = `
       }
     }
     removeMember={[Function]}
-    updateMemberGroups={[Function]} />
+    updateMemberGroups={[Function]}
+  />
   <ListFooter
     count={2}
     loadMore={[Function]}
     ready={true}
-    total={2} />
+    total={2}
+  />
 </div>
 `;
 
-exports[`test should render actions for admin 1`] = `
+exports[`should render actions for admin 1`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <MembersPageHeader
     loading={true}
-    total={2}>
+    total={2}
+  >
     <div
-      className="page-actions">
+      className="page-actions"
+    >
       <div
-        className="button-group">
+        className="button-group"
+      >
         <AddMemberForm
-          addMember={[Function]} />
+          addMember={[Function]}
+        />
       </div>
     </div>
   </MembersPageHeader>
   <MembersListHeader
     handleSearch={[Function]}
-    total={2} />
+    total={2}
+  />
   <MembersList
     members={
       Array [
@@ -82,11 +95,13 @@ exports[`test should render actions for admin 1`] = `
       }
     }
     removeMember={[Function]}
-    updateMemberGroups={[Function]} />
+    updateMemberGroups={[Function]}
+  />
   <ListFooter
     count={2}
     loadMore={[Function]}
     ready={false}
-    total={2} />
+    total={2}
+  />
 </div>
 `;

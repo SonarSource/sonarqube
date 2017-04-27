@@ -1,67 +1,88 @@
-exports[`test should not render coverage 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render coverage 1`] = `
 <div
-  className="project-card-measures">
+  className="project-card-measures"
+>
   <div
     className="project-card-measure"
-    data-key="reliability_rating">
+    data-key="reliability_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Reliability
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="security_rating">
+    data-key="security_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Security
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="sqale_rating">
+    data-key="sqale_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Maintainability
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="coverage">
+    data-key="coverage"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Measure
           measure={
             Object {
@@ -73,27 +94,34 @@ exports[`test should not render coverage 1`] = `
               "key": "coverage",
               "type": "PERCENT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric.coverage.name
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="duplicated_lines_density">
+    data-key="duplicated_lines_density"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <span
-          className="spacer-right">
+          className="spacer-right"
+        >
           <DuplicationsRating
             muted={false}
             small={false}
-            value="9.8" />
+            value="9.8"
+          />
         </span>
         <Measure
           measure={
@@ -106,27 +134,34 @@ exports[`test should not render coverage 1`] = `
               "key": "duplicated_lines_density",
               "type": "PERCENT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric.duplicated_lines_density.short_name
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="ncloc">
+    data-key="ncloc"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <span
-          className="spacer-right">
+          className="spacer-right"
+        >
           <SizeRating
             muted={false}
             small={false}
-            value="2053" />
+            value="2053"
+          />
         </span>
         <Measure
           measure={
@@ -139,10 +174,12 @@ exports[`test should not render coverage 1`] = `
               "key": "ncloc",
               "type": "SHORT_INT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         <Connect(ProjectCardLanguages) />
       </div>
     </div>
@@ -150,76 +187,97 @@ exports[`test should not render coverage 1`] = `
 </div>
 `;
 
-exports[`test should not render duplications 1`] = `
+exports[`should not render duplications 1`] = `
 <div
-  className="project-card-measures">
+  className="project-card-measures"
+>
   <div
     className="project-card-measure"
-    data-key="reliability_rating">
+    data-key="reliability_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Reliability
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="security_rating">
+    data-key="security_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Security
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="sqale_rating">
+    data-key="sqale_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Maintainability
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="coverage">
+    data-key="coverage"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <span
-          className="spacer-right">
+          className="spacer-right"
+        >
           <CoverageRating
             muted={false}
             size="normal"
-            value="88.3" />
+            value="88.3"
+          />
         </span>
         <Measure
           measure={
@@ -232,21 +290,26 @@ exports[`test should not render duplications 1`] = `
               "key": "coverage",
               "type": "PERCENT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric.coverage.name
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="duplicated_lines_density">
+    data-key="duplicated_lines_density"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Measure
           measure={
             Object {
@@ -258,27 +321,34 @@ exports[`test should not render duplications 1`] = `
               "key": "duplicated_lines_density",
               "type": "PERCENT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric.duplicated_lines_density.short_name
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="ncloc">
+    data-key="ncloc"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <span
-          className="spacer-right">
+          className="spacer-right"
+        >
           <SizeRating
             muted={false}
             small={false}
-            value="2053" />
+            value="2053"
+          />
         </span>
         <Measure
           measure={
@@ -291,10 +361,12 @@ exports[`test should not render duplications 1`] = `
               "key": "ncloc",
               "type": "SHORT_INT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         <Connect(ProjectCardLanguages) />
       </div>
     </div>
@@ -302,76 +374,97 @@ exports[`test should not render duplications 1`] = `
 </div>
 `;
 
-exports[`test should not render ncloc 1`] = `
+exports[`should not render ncloc 1`] = `
 <div
-  className="project-card-measures">
+  className="project-card-measures"
+>
   <div
     className="project-card-measure"
-    data-key="reliability_rating">
+    data-key="reliability_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Reliability
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="security_rating">
+    data-key="security_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Security
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="sqale_rating">
+    data-key="sqale_rating"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <Rating
           muted={false}
           small={false}
-          value="1.0" />
+          value="1.0"
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric_domain.Maintainability
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="coverage">
+    data-key="coverage"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <span
-          className="spacer-right">
+          className="spacer-right"
+        >
           <CoverageRating
             muted={false}
             size="normal"
-            value="88.3" />
+            value="88.3"
+          />
         </span>
         <Measure
           measure={
@@ -384,27 +477,34 @@ exports[`test should not render ncloc 1`] = `
               "key": "coverage",
               "type": "PERCENT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric.coverage.name
       </div>
     </div>
   </div>
   <div
     className="project-card-measure"
-    data-key="duplicated_lines_density">
+    data-key="duplicated_lines_density"
+  >
     <div
-      className="project-card-measure-inner">
+      className="project-card-measure-inner"
+    >
       <div
-        className="project-card-measure-number">
+        className="project-card-measure-number"
+      >
         <span
-          className="spacer-right">
+          className="spacer-right"
+        >
           <DuplicationsRating
             muted={false}
             small={false}
-            value="9.8" />
+            value="9.8"
+          />
         </span>
         <Measure
           measure={
@@ -417,10 +517,12 @@ exports[`test should not render ncloc 1`] = `
               "key": "duplicated_lines_density",
               "type": "PERCENT",
             }
-          } />
+          }
+        />
       </div>
       <div
-        className="project-card-measure-label">
+        className="project-card-measure-label"
+      >
         metric.duplicated_lines_density.short_name
       </div>
     </div>

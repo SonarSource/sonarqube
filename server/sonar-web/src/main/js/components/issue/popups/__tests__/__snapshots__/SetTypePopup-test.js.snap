@@ -1,6 +1,9 @@
-exports[`test should render tags popup correctly 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render tags popup correctly 1`] = `
 <BubblePopup
-  customClass="bubble-popup-menu bubble-popup-bottom">
+  customClass="bubble-popup-menu bubble-popup-bottom"
+>
   <SelectList
     currentItem="BUG"
     items={
@@ -10,26 +13,33 @@ exports[`test should render tags popup correctly 1`] = `
         "CODE_SMELL",
       ]
     }
-    onSelect={[Function]}>
+    onSelect={[Function]}
+  >
     <SelectListItem
-      item="BUG">
+      item="BUG"
+    >
       <IssueTypeIcon
         className="little-spacer-right"
-        query="BUG" />
+        query="BUG"
+      />
       issue.type.BUG
     </SelectListItem>
     <SelectListItem
-      item="VULNERABILITY">
+      item="VULNERABILITY"
+    >
       <IssueTypeIcon
         className="little-spacer-right"
-        query="VULNERABILITY" />
+        query="VULNERABILITY"
+      />
       issue.type.VULNERABILITY
     </SelectListItem>
     <SelectListItem
-      item="CODE_SMELL">
+      item="CODE_SMELL"
+    >
       <IssueTypeIcon
         className="little-spacer-right"
-        query="CODE_SMELL" />
+        query="CODE_SMELL"
+      />
       issue.type.CODE_SMELL
     </SelectListItem>
   </SelectList>

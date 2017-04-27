@@ -1,4 +1,6 @@
-exports[`test should open the popup when the button is clicked 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open the popup when the button is clicked 1`] = `
 Array [
   Array [
     "changelog",
@@ -7,7 +9,7 @@ Array [
 ]
 `;
 
-exports[`test should open the popup when the button is clicked 2`] = `
+exports[`should open the popup when the button is clicked 2`] = `
 <BubblePopupHelper
   isOpen={true}
   popup={
@@ -19,25 +21,30 @@ exports[`test should open the popup when the button is clicked 2`] = `
           "key": "issuekey",
         }
       }
-      onFail={[Function]} />
+      onFail={[Function]}
+    />
   }
   position="bottomright"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="button-link issue-action issue-action-with-options js-issue-show-changelog"
     onClick={[Function]}
-    title="March 1, 2017 9:36 AM">
+    title="March 1, 2017 9:36 AM"
+  >
     <span
-      className="issue-meta-label">
+      className="issue-meta-label"
+    >
       a month ago
     </span>
     <i
-      className="icon-dropdown little-spacer-left" />
+      className="icon-dropdown little-spacer-left"
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render correctly 1`] = `
+exports[`should render correctly 1`] = `
 <BubblePopupHelper
   isOpen={false}
   popup={
@@ -49,20 +56,25 @@ exports[`test should render correctly 1`] = `
           "key": "issuekey",
         }
       }
-      onFail={[Function]} />
+      onFail={[Function]}
+    />
   }
   position="bottomright"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="button-link issue-action issue-action-with-options js-issue-show-changelog"
     onClick={[Function]}
-    title="March 1, 2017 9:36 AM">
+    title="March 1, 2017 9:36 AM"
+  >
     <span
-      className="issue-meta-label">
+      className="issue-meta-label"
+    >
       a month ago
     </span>
     <i
-      className="icon-dropdown little-spacer-left" />
+      className="icon-dropdown little-spacer-left"
+    />
   </button>
 </BubblePopupHelper>
 `;

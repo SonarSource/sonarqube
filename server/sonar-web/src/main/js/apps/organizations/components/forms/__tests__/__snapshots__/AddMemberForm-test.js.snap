@@ -1,13 +1,17 @@
-exports[`test should render and open the modal 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render and open the modal 1`] = `
 <button
-  onClick={[Function]}>
+  onClick={[Function]}
+>
   organization.members.add
 </button>
 `;
 
-exports[`test should render and open the modal 2`] = `
+exports[`should render and open the modal 2`] = `
 <button
-  onClick={[Function]}>
+  onClick={[Function]}
+>
   organization.members.add
   <Modal
     ariaHideApp={true}
@@ -19,19 +23,24 @@ exports[`test should render and open the modal 2`] = `
     overlayClassName="modal-overlay"
     parentSelector={[Function]}
     portalClassName="ReactModalPortal"
-    shouldCloseOnOverlayClick={true}>
+    shouldCloseOnOverlayClick={true}
+  >
     <header
-      className="modal-head">
+      className="modal-head"
+    >
       <h2>
         users.add
       </h2>
     </header>
     <form
-      onSubmit={[Function]}>
+      onSubmit={[Function]}
+    >
       <div
-        className="modal-body">
+        className="modal-body"
+      >
         <div
-          className="modal-large-field">
+          className="modal-large-field"
+        >
           <label>
             users.search_description
           </label>
@@ -43,20 +52,24 @@ exports[`test should render and open the modal 2`] = `
               ]
             }
             handleValueChange={[Function]}
-            searchUsers={[Function]} />
+            searchUsers={[Function]}
+          />
         </div>
       </div>
       <footer
-        className="modal-foot">
+        className="modal-foot"
+      >
         <div>
           <button
-            type="submit">
+            type="submit"
+          >
             organization.members.add_to_members
           </button>
           <button
             className="button-link"
             onClick={[Function]}
-            type="reset">
+            type="reset"
+          >
             cancel
           </button>
         </div>

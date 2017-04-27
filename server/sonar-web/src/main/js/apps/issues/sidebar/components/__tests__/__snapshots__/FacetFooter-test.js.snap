@@ -1,11 +1,15 @@
-exports[`test should render 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
 <div
-  className="search-navigator-facet-footer">
+  className="search-navigator-facet-footer"
+>
   <SearchSelect
     autofocus={false}
     minimumQueryLength={2}
     onSearch={[Function]}
     onSelect={[Function]}
-    resetOnBlur={true} />
+    resetOnBlur={true}
+  />
 </div>
 `;

@@ -1,4 +1,6 @@
-exports[`test should open the popup when the button is clicked 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open the popup when the button is clicked 1`] = `
 Array [
   Array [
     "transition",
@@ -16,7 +18,7 @@ Array [
 ]
 `;
 
-exports[`test should open the popup when the button is clicked 2`] = `
+exports[`should open the popup when the button is clicked 2`] = `
 <BubblePopupHelper
   isOpen={true}
   popup={
@@ -29,23 +31,28 @@ exports[`test should open the popup when the button is clicked 2`] = `
           "falsepositive",
           "wontfix",
         ]
-      } />
+      }
+    />
   }
   position="bottomleft"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="button-link issue-action issue-action-with-options js-issue-transition"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <StatusHelper
       className="issue-meta-label little-spacer-right"
-      status="OPEN" />
+      status="OPEN"
+    />
     <i
-      className="little-spacer-left icon-dropdown" />
+      className="little-spacer-left icon-dropdown"
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render with a resolution 1`] = `
+exports[`should render with a resolution 1`] = `
 <BubblePopupHelper
   isOpen={false}
   popup={
@@ -55,24 +62,29 @@ exports[`test should render with a resolution 1`] = `
         Array [
           "reopen",
         ]
-      } />
+      }
+    />
   }
   position="bottomleft"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="button-link issue-action issue-action-with-options js-issue-transition"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <StatusHelper
       className="issue-meta-label little-spacer-right"
       resolution="FIXED"
-      status="RESOLVED" />
+      status="RESOLVED"
+    />
     <i
-      className="little-spacer-left icon-dropdown" />
+      className="little-spacer-left icon-dropdown"
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render with the action 1`] = `
+exports[`should render with the action 1`] = `
 <BubblePopupHelper
   isOpen={false}
   popup={
@@ -85,24 +97,30 @@ exports[`test should render with the action 1`] = `
           "falsepositive",
           "wontfix",
         ]
-      } />
+      }
+    />
   }
   position="bottomleft"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="button-link issue-action issue-action-with-options js-issue-transition"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <StatusHelper
       className="issue-meta-label little-spacer-right"
-      status="OPEN" />
+      status="OPEN"
+    />
     <i
-      className="little-spacer-left icon-dropdown" />
+      className="little-spacer-left icon-dropdown"
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render without the action when there is no transitions 1`] = `
+exports[`should render without the action when there is no transitions 1`] = `
 <StatusHelper
   className="issue-meta-label"
-  status="CLOSED" />
+  status="CLOSED"
+/>
 `;

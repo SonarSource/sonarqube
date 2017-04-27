@@ -1,66 +1,78 @@
-exports[`test should expand and collapse link 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should expand and collapse link 1`] = `
 <li>
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
     onClick={[Function]}
-    target="_blank">
+    target="_blank"
+  >
     <i
-      className="icon-color-link icon-detach" />
+      className="icon-color-link icon-detach"
+    />
      
     Foo
   </a>
 </li>
 `;
 
-exports[`test should expand and collapse link 2`] = `
+exports[`should expand and collapse link 2`] = `
 <li>
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
     onClick={[Function]}
-    target="_blank">
+    target="_blank"
+  >
     <i
-      className="icon-color-link icon-detach" />
+      className="icon-color-link icon-detach"
+    />
      
     Foo
   </a>
   <div
-    className="little-spacer-top">
+    className="little-spacer-top"
+  >
     <input
       className="overview-key"
       onClick={[Function]}
       readOnly={true}
       type="text"
-      value="scm:git:git@github.com" />
+      value="scm:git:git@github.com"
+    />
   </div>
 </li>
 `;
 
-exports[`test should expand and collapse link 3`] = `
+exports[`should expand and collapse link 3`] = `
 <li>
   <a
     className="link-with-icon"
     href="scm:git:git@github.com"
     onClick={[Function]}
-    target="_blank">
+    target="_blank"
+  >
     <i
-      className="icon-color-link icon-detach" />
+      className="icon-color-link icon-detach"
+    />
      
     Foo
   </a>
 </li>
 `;
 
-exports[`test should match snapshot 1`] = `
+exports[`should match snapshot 1`] = `
 <li>
   <a
     className="link-with-icon"
     href="http://example.com"
     onClick={false}
-    target="_blank">
+    target="_blank"
+  >
     <i
-      className="icon-color-link icon-detach" />
+      className="icon-color-link icon-detach"
+    />
      
     Foo
   </a>

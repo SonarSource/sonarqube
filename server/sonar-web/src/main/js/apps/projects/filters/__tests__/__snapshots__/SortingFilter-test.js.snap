@@ -1,11 +1,15 @@
-exports[`test should render correctly with matching query 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly with matching query 1`] = `
 <div
-  className="projects-facet-sort">
+  className="projects-facet-sort"
+>
   <span>
     projects.sort_list
   </span>
   <div
-    className="spacer-left button-group">
+    className="spacer-left button-group"
+  >
     <Link
       className="button button-small button-grey"
       onClick={[Function]}
@@ -19,7 +23,8 @@ exports[`test should render correctly with matching query 1`] = `
             "sort": "foo",
           },
         }
-      }>
+      }
+    >
       worst
     </Link>
     <Link
@@ -34,21 +39,24 @@ exports[`test should render correctly with matching query 1`] = `
             "languages": "php,cpp",
           },
         }
-      }>
+      }
+    >
       best
     </Link>
   </div>
 </div>
 `;
 
-exports[`test should render correctly with no matching query 1`] = `
+exports[`should render correctly with no matching query 1`] = `
 <div
-  className="projects-facet-sort">
+  className="projects-facet-sort"
+>
   <span>
     projects.sort_list
   </span>
   <div
-    className="spacer-left button-group">
+    className="spacer-left button-group"
+  >
     <Link
       className="button button-small button-grey"
       onClick={[Function]}
@@ -61,7 +69,8 @@ exports[`test should render correctly with no matching query 1`] = `
             "sort": "-foo",
           },
         }
-      }>
+      }
+    >
       worst
     </Link>
     <Link
@@ -76,21 +85,24 @@ exports[`test should render correctly with no matching query 1`] = `
             "sort": "foo",
           },
         }
-      }>
+      }
+    >
       best
     </Link>
   </div>
 </div>
 `;
 
-exports[`test should render with custom parameters 1`] = `
+exports[`should render with custom parameters 1`] = `
 <div
-  className="projects-facet-sort">
+  className="projects-facet-sort"
+>
   <span>
     projects.sort_list
   </span>
   <div
-    className="spacer-left button-group">
+    className="spacer-left button-group"
+  >
     <Link
       className="button button-small button-grey"
       onClick={[Function]}
@@ -103,7 +115,8 @@ exports[`test should render with custom parameters 1`] = `
             "sort": "foo",
           },
         }
-      }>
+      }
+    >
       worst
     </Link>
     <Link
@@ -118,21 +131,24 @@ exports[`test should render with custom parameters 1`] = `
             "sort": "-foo",
           },
         }
-      }>
+      }
+    >
       best
     </Link>
   </div>
 </div>
 `;
 
-exports[`test should render with default parameters and empty query 1`] = `
+exports[`should render with default parameters and empty query 1`] = `
 <div
-  className="projects-facet-sort">
+  className="projects-facet-sort"
+>
   <span>
     projects.sort_list
   </span>
   <div
-    className="spacer-left button-group">
+    className="spacer-left button-group"
+  >
     <Link
       className="button button-small button-grey"
       onClick={[Function]}
@@ -145,7 +161,8 @@ exports[`test should render with default parameters and empty query 1`] = `
             "sort": "-foo",
           },
         }
-      }>
+      }
+    >
       worst
     </Link>
     <Link
@@ -160,7 +177,8 @@ exports[`test should render with default parameters and empty query 1`] = `
             "sort": "foo",
           },
         }
-      }>
+      }
+    >
       best
     </Link>
   </div>

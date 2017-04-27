@@ -1,43 +1,55 @@
-exports[`test should render correctly with email instead of hash 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly with email instead of hash 1`] = `
 <div
   onMouseDown={[Function]}
   onMouseEnter={[Function]}
   onMouseMove={[Function]}
-  title="Administrator">
+  title="Administrator"
+>
   <div
-    className="little-spacer-bottom little-spacer-top">
+    className="little-spacer-bottom little-spacer-top"
+  >
     <Connect(Avatar)
       email="admin@admin.ch"
-      size={20} />
+      size={20}
+    />
     <strong
-      className="spacer-left">
+      className="spacer-left"
+    >
       admin
     </strong>
     <span
-      className="note little-spacer-left">
+      className="note little-spacer-left"
+    >
       Administrator
     </span>
   </div>
 </div>
 `;
 
-exports[`test should render correctly without all parameters 1`] = `
+exports[`should render correctly without all parameters 1`] = `
 <div
   onMouseDown={[Function]}
   onMouseEnter={[Function]}
   onMouseMove={[Function]}
-  title="Administrator">
+  title="Administrator"
+>
   <div
-    className="little-spacer-bottom little-spacer-top">
+    className="little-spacer-bottom little-spacer-top"
+  >
     <Connect(Avatar)
       hash="7daf6c79d4802916d83f6266e24850af"
-      size={20} />
+      size={20}
+    />
     <strong
-      className="spacer-left">
+      className="spacer-left"
+    >
       admin
     </strong>
     <span
-      className="note little-spacer-left">
+      className="note little-spacer-left"
+    >
       Administrator
     </span>
   </div>

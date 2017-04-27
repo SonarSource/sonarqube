@@ -1,8 +1,10 @@
-exports[`test not found 1`] = `<NotFound />`;
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`test smoke test 1`] = `null`;
+exports[`not found 1`] = `<NotFound />`;
 
-exports[`test smoke test 2`] = `
+exports[`smoke test 1`] = `null`;
+
+exports[`smoke test 2`] = `
 <div>
   <OrganizationNavigation
     organization={
@@ -12,7 +14,8 @@ exports[`test smoke test 2`] = `
         "key": "foo",
         "name": "Foo",
       }
-    } />
+    }
+  />
   <div>
     hello
   </div>

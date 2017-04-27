@@ -1,22 +1,29 @@
-exports[`test render duplicated line 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render duplicated line 1`] = `
 <Tooltip
   overlay="source_viewer.tooltip.duplicated_line"
-  placement="right">
+  placement="right"
+>
   <td
     className="source-meta source-line-duplications source-line-duplicated"
     onClick={[Function]}
     role="button"
-    tabIndex={0}>
+    tabIndex={0}
+  >
     <div
-      className="source-line-bar" />
+      className="source-line-bar"
+    />
   </td>
 </Tooltip>
 `;
 
-exports[`test render not duplicated line 1`] = `
+exports[`render not duplicated line 1`] = `
 <td
-  className="source-meta source-line-duplications">
+  className="source-meta source-line-duplications"
+>
   <div
-    className="source-line-bar" />
+    className="source-line-bar"
+  />
 </td>
 `;

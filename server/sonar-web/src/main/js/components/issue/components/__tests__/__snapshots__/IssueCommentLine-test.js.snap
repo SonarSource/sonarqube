@@ -1,25 +1,30 @@
-exports[`test should open the right popups when the buttons are clicked 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open the right popups when the buttons are clicked 1`] = `
 Object {
   "openPopup": "edit",
 }
 `;
 
-exports[`test should open the right popups when the buttons are clicked 2`] = `
+exports[`should open the right popups when the buttons are clicked 2`] = `
 Object {
   "openPopup": "delete",
 }
 `;
 
-exports[`test should open the right popups when the buttons are clicked 3`] = `
+exports[`should open the right popups when the buttons are clicked 3`] = `
 <div
-  className="issue-comment">
+  className="issue-comment"
+>
   <div
     className="issue-comment-author"
-    title="John Doe">
+    title="John Doe"
+  >
     <Connect(Avatar)
       className="little-spacer-right"
       hash="gravatarhash"
-      size={16} />
+      size={16}
+    />
     John Doe
   </div>
   <div
@@ -28,15 +33,18 @@ exports[`test should open the right popups when the buttons are clicked 3`] = `
       Object {
         "__html": "<b>test</b>",
       }
-    } />
+    }
+  />
   <div
-    className="issue-comment-age">
+    className="issue-comment-age"
+  >
     (
     a month ago
     )
   </div>
   <div
-    className="issue-comment-actions">
+    className="issue-comment-actions"
+  >
     <BubblePopupHelper
       className="bubble-popup-helper-inline"
       isOpen={false}
@@ -61,13 +69,16 @@ exports[`test should open the right popups when the buttons are clicked 3`] = `
           customClass="issue-edit-comment-bubble-popup"
           onComment={[Function]}
           placeholder=""
-          toggleComment={[Function]} />
+          toggleComment={[Function]}
+        />
       }
       position="bottomright"
-      togglePopup={[Function]}>
+      togglePopup={[Function]}
+    >
       <button
         className="js-issue-comment-edit button-link icon-edit icon-half-transparent"
-        onClick={[Function]} />
+        onClick={[Function]}
+      />
     </BubblePopupHelper>
     <BubblePopupHelper
       className="bubble-popup-helper-inline"
@@ -80,28 +91,34 @@ exports[`test should open the right popups when the buttons are clicked 3`] = `
       }
       popup={
         <CommentDeletePopup
-          onDelete={[Function]} />
+          onDelete={[Function]}
+        />
       }
       position="bottomright"
-      togglePopup={[Function]}>
+      togglePopup={[Function]}
+    >
       <button
         className="js-issue-comment-delete button-link icon-delete icon-half-transparent"
-        onClick={[Function]} />
+        onClick={[Function]}
+      />
     </BubblePopupHelper>
   </div>
 </div>
 `;
 
-exports[`test should render correctly a comment that is not updatable 1`] = `
+exports[`should render correctly a comment that is not updatable 1`] = `
 <div
-  className="issue-comment">
+  className="issue-comment"
+>
   <div
     className="issue-comment-author"
-    title="John Doe">
+    title="John Doe"
+  >
     <Connect(Avatar)
       className="little-spacer-right"
       hash="gravatarhash"
-      size={16} />
+      size={16}
+    />
     John Doe
   </div>
   <div
@@ -110,28 +127,34 @@ exports[`test should render correctly a comment that is not updatable 1`] = `
       Object {
         "__html": "<b>test</b>",
       }
-    } />
+    }
+  />
   <div
-    className="issue-comment-age">
+    className="issue-comment-age"
+  >
     (
     a month ago
     )
   </div>
   <div
-    className="issue-comment-actions" />
+    className="issue-comment-actions"
+  />
 </div>
 `;
 
-exports[`test should render correctly a comment that is updatable 1`] = `
+exports[`should render correctly a comment that is updatable 1`] = `
 <div
-  className="issue-comment">
+  className="issue-comment"
+>
   <div
     className="issue-comment-author"
-    title="John Doe">
+    title="John Doe"
+  >
     <Connect(Avatar)
       className="little-spacer-right"
       hash="gravatarhash"
-      size={16} />
+      size={16}
+    />
     John Doe
   </div>
   <div
@@ -140,15 +163,18 @@ exports[`test should render correctly a comment that is updatable 1`] = `
       Object {
         "__html": "<b>test</b>",
       }
-    } />
+    }
+  />
   <div
-    className="issue-comment-age">
+    className="issue-comment-age"
+  >
     (
     a month ago
     )
   </div>
   <div
-    className="issue-comment-actions">
+    className="issue-comment-actions"
+  >
     <BubblePopupHelper
       className="bubble-popup-helper-inline"
       isOpen={false}
@@ -173,13 +199,16 @@ exports[`test should render correctly a comment that is updatable 1`] = `
           customClass="issue-edit-comment-bubble-popup"
           onComment={[Function]}
           placeholder=""
-          toggleComment={[Function]} />
+          toggleComment={[Function]}
+        />
       }
       position="bottomright"
-      togglePopup={[Function]}>
+      togglePopup={[Function]}
+    >
       <button
         className="js-issue-comment-edit button-link icon-edit icon-half-transparent"
-        onClick={[Function]} />
+        onClick={[Function]}
+      />
     </BubblePopupHelper>
     <BubblePopupHelper
       className="bubble-popup-helper-inline"
@@ -192,13 +221,16 @@ exports[`test should render correctly a comment that is updatable 1`] = `
       }
       popup={
         <CommentDeletePopup
-          onDelete={[Function]} />
+          onDelete={[Function]}
+        />
       }
       position="bottomright"
-      togglePopup={[Function]}>
+      togglePopup={[Function]}
+    >
       <button
         className="js-issue-comment-delete button-link icon-delete icon-half-transparent"
-        onClick={[Function]} />
+        onClick={[Function]}
+      />
     </BubblePopupHelper>
   </div>
 </div>

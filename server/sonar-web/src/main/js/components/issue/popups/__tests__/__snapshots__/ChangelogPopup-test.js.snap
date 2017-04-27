@@ -1,38 +1,50 @@
-exports[`test should render the changelog popup correctly 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the changelog popup correctly 1`] = `
 <BubblePopup
-  customClass="bubble-popup-bottom-right">
+  customClass="bubble-popup-bottom-right"
+>
   <div
-    className="issue-changelog">
+    className="issue-changelog"
+  >
     <table
-      className="spaced">
+      className="spaced"
+    >
       <tbody>
         <tr>
           <td
-            className="thin text-left text-top nowrap">
+            className="thin text-left text-top nowrap"
+          >
             March 1, 2017 9:36 AM
           </td>
           <td
-            className="thin text-left text-top nowrap" />
+            className="thin text-left text-top nowrap"
+          />
           <td
-            className="text-left text-top">
+            className="text-left text-top"
+          >
             created_by john.david.dalton@gmail.com
           </td>
         </tr>
         <tr>
           <td
-            className="thin text-left text-top nowrap">
+            className="thin text-left text-top nowrap"
+          >
             March 1, 2017 9:36 AM
           </td>
           <td
-            className="thin text-left text-top nowrap">
+            className="thin text-left text-top nowrap"
+          >
             <Connect(Avatar)
               className="little-spacer-right"
               hash="gravatarhash"
-              size={16} />
+              size={16}
+            />
             john.doe
           </td>
           <td
-            className="text-left text-top">
+            className="text-left text-top"
+          >
             <IssueChangelogDiff
               diff={
                 Object {
@@ -40,7 +52,8 @@ exports[`test should render the changelog popup correctly 1`] = `
                   "newValue": "MINOR",
                   "oldValue": "CRITICAL",
                 }
-              } />
+              }
+            />
           </td>
         </tr>
       </tbody>

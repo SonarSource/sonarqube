@@ -1,18 +1,24 @@
-exports[`test should display analysis date 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display analysis date 1`] = `
 <div
-  className="project-card-analysis-date note">
+  className="project-card-analysis-date note"
+>
   overview.last_analysis_on_x.January 1, 2017 12:00 AM
 </div>
 `;
 
-exports[`test should display loading 1`] = `
+exports[`should display loading 1`] = `
 <div
   className="boxed-group project-card boxed-group-loading"
-  data-key="foo">
+  data-key="foo"
+>
   <div
-    className="boxed-group-header">
+    className="boxed-group-header"
+  >
     <h2
-      className="project-card-name">
+      className="project-card-name"
+    >
       <Link
         onlyActiveOnIndex={false}
         style={Object {}}
@@ -23,28 +29,34 @@ exports[`test should display loading 1`] = `
               "id": "foo",
             },
           }
-        }>
+        }
+      >
         Foo
       </Link>
     </h2>
   </div>
   <div
-    className="boxed-group-inner" />
+    className="boxed-group-inner"
+  />
   <div
-    className="project-card-analysis-date note">
+    className="project-card-analysis-date note"
+  >
     overview.last_analysis_on_x.January 1, 2017 12:00 AM
   </div>
 </div>
 `;
 
-exports[`test should display tags 1`] = `
+exports[`should display tags 1`] = `
 <div
   className="boxed-group project-card boxed-group-loading"
-  data-key="foo">
+  data-key="foo"
+>
   <div
-    className="boxed-group-header">
+    className="boxed-group-header"
+  >
     <h2
-      className="project-card-name">
+      className="project-card-name"
+    >
       <Link
         onlyActiveOnIndex={false}
         style={Object {}}
@@ -55,7 +67,8 @@ exports[`test should display tags 1`] = `
               "id": "foo",
             },
           }
-        }>
+        }
+      >
         Foo
       </Link>
     </h2>
@@ -67,12 +80,15 @@ exports[`test should display tags 1`] = `
           "foo",
           "bar",
         ]
-      } />
+      }
+    />
   </div>
   <div
-    className="boxed-group-inner" />
+    className="boxed-group-inner"
+  />
   <div
-    className="project-card-analysis-date note">
+    className="project-card-analysis-date note"
+  >
     overview.last_analysis_on_x.January 1, 2017 12:00 AM
   </div>
 </div>

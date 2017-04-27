@@ -1,4 +1,6 @@
-exports[`test should render options 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render options 1`] = `
 <RadioToggle
   disabled={false}
   name="view"
@@ -15,5 +17,6 @@ exports[`test should render options 1`] = `
       },
     ]
   }
-  value="visualizations" />
+  value="visualizations"
+/>
 `;

@@ -1,6 +1,8 @@
-exports[`test should render correctly 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
 <Select
-  addLabelText="Add \"{label}\"?"
+  addLabelText="Add \\"{label}\\"?"
   arrowRenderer={[Function]}
   autosize={true}
   backspaceRemoves={true}
@@ -47,10 +49,11 @@ exports[`test should render correctly 1`] = `
     }
   }
   valueComponent={[Function]}
-  valueKey="login" />
+  valueKey="login"
+/>
 `;
 
-exports[`test should render correctly 2`] = `
+exports[`should render correctly 2`] = `
 Array [
   Object {
     "email": "tester@testing.ch",
@@ -65,9 +68,9 @@ Array [
 ]
 `;
 
-exports[`test should render correctly 3`] = `
+exports[`should render correctly 3`] = `
 <Select
-  addLabelText="Add \"{label}\"?"
+  addLabelText="Add \\"{label}\\"?"
   arrowRenderer={[Function]}
   autosize={true}
   backspaceRemoves={true}
@@ -127,5 +130,6 @@ exports[`test should render correctly 3`] = `
     }
   }
   valueComponent={[Function]}
-  valueKey="login" />
+  valueKey="login"
+/>
 `;

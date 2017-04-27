@@ -1,29 +1,35 @@
-exports[`test should render active tag 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render active tag 1`] = `
 <li>
   <a
     className="active"
     href="#"
     onClick={[Function]}
     onFocus={[Function]}
-    onMouseOver={[Function]}>
+    onMouseOver={[Function]}
+  >
     <i
-      className="icon-checkbox icon-checkbox-checked" />
+      className="icon-checkbox icon-checkbox-checked"
+    />
      
     mytag
   </a>
 </li>
 `;
 
-exports[`test should render custom tag 1`] = `
+exports[`should render custom tag 1`] = `
 <li>
   <a
     className=""
     href="#"
     onClick={[Function]}
     onFocus={[Function]}
-    onMouseOver={[Function]}>
+    onMouseOver={[Function]}
+  >
     <i
-      className="icon-checkbox" />
+      className="icon-checkbox"
+    />
      
     + 
     mytag
@@ -31,32 +37,36 @@ exports[`test should render custom tag 1`] = `
 </li>
 `;
 
-exports[`test should render selected tag 1`] = `
+exports[`should render selected tag 1`] = `
 <li>
   <a
     className=""
     href="#"
     onClick={[Function]}
     onFocus={[Function]}
-    onMouseOver={[Function]}>
+    onMouseOver={[Function]}
+  >
     <i
-      className="icon-checkbox icon-checkbox-checked" />
+      className="icon-checkbox icon-checkbox-checked"
+    />
      
     mytag
   </a>
 </li>
 `;
 
-exports[`test should render standard tag 1`] = `
+exports[`should render standard tag 1`] = `
 <li>
   <a
     className=""
     href="#"
     onClick={[Function]}
     onFocus={[Function]}
-    onMouseOver={[Function]}>
+    onMouseOver={[Function]}
+  >
     <i
-      className="icon-checkbox" />
+      className="icon-checkbox"
+    />
      
     mytag
   </a>

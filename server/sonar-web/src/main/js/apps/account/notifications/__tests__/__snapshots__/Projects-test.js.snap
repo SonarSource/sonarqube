@@ -1,7 +1,10 @@
-exports[`test should render projects 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render projects 1`] = `
 <section>
   <h2
-    className="spacer-bottom">
+    className="spacer-bottom"
+  >
     my_profile.per_project_notifications.title
   </h2>
   <Connect(ProjectNotifications)
@@ -10,18 +13,22 @@ exports[`test should render projects 1`] = `
         "key": "foo",
         "name": "Foo",
       }
-    } />
+    }
+  />
   <Connect(ProjectNotifications)
     project={
       Object {
         "key": "bar",
         "name": "Bar",
       }
-    } />
+    }
+  />
   <div
-    className="spacer-top panel bg-muted">
+    className="spacer-top panel bg-muted"
+  >
     <span
-      className="text-middle spacer-right">
+      className="text-middle spacer-right"
+    >
       Set notifications for:
     </span>
     <Async
@@ -42,15 +49,17 @@ exports[`test should render projects 1`] = `
         Object {
           "width": "300px",
         }
-      } />
+      }
+    />
   </div>
 </section>
 `;
 
-exports[`test should render projects 2`] = `
+exports[`should render projects 2`] = `
 <section>
   <h2
-    className="spacer-bottom">
+    className="spacer-bottom"
+  >
     my_profile.per_project_notifications.title
   </h2>
   <Connect(ProjectNotifications)
@@ -59,25 +68,30 @@ exports[`test should render projects 2`] = `
         "key": "foo",
         "name": "Foo",
       }
-    } />
+    }
+  />
   <Connect(ProjectNotifications)
     project={
       Object {
         "key": "bar",
         "name": "Bar",
       }
-    } />
+    }
+  />
   <Connect(ProjectNotifications)
     project={
       Object {
         "key": "qux",
         "name": "Qux",
       }
-    } />
+    }
+  />
   <div
-    className="spacer-top panel bg-muted">
+    className="spacer-top panel bg-muted"
+  >
     <span
-      className="text-middle spacer-right">
+      className="text-middle spacer-right"
+    >
       Set notifications for:
     </span>
     <Async
@@ -98,15 +112,17 @@ exports[`test should render projects 2`] = `
         Object {
           "width": "300px",
         }
-      } />
+      }
+    />
   </div>
 </section>
 `;
 
-exports[`test should render projects 3`] = `
+exports[`should render projects 3`] = `
 <section>
   <h2
-    className="spacer-bottom">
+    className="spacer-bottom"
+  >
     my_profile.per_project_notifications.title
   </h2>
   <Connect(ProjectNotifications)
@@ -115,25 +131,30 @@ exports[`test should render projects 3`] = `
         "key": "foo",
         "name": "Foo",
       }
-    } />
+    }
+  />
   <Connect(ProjectNotifications)
     project={
       Object {
         "key": "bar",
         "name": "Bar",
       }
-    } />
+    }
+  />
   <Connect(ProjectNotifications)
     project={
       Object {
         "key": "qux",
         "name": "Qux",
       }
-    } />
+    }
+  />
   <div
-    className="spacer-top panel bg-muted">
+    className="spacer-top panel bg-muted"
+  >
     <span
-      className="text-middle spacer-right">
+      className="text-middle spacer-right"
+    >
       Set notifications for:
     </span>
     <Async
@@ -154,12 +175,13 @@ exports[`test should render projects 3`] = `
         Object {
           "width": "300px",
         }
-      } />
+      }
+    />
   </div>
 </section>
 `;
 
-exports[`test should render projects 4`] = `
+exports[`should render projects 4`] = `
 Object {
   "addedProjects": Array [],
 }

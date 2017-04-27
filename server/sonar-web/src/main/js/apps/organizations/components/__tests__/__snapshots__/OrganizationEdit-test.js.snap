@@ -1,22 +1,31 @@
-exports[`test smoke test 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`smoke test 1`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <header
-    className="page-header">
+    className="page-header"
+  >
     <h1
-      className="page-title">
+      className="page-title"
+    >
       organization.edit
     </h1>
   </header>
   <form
-    onSubmit={[Function]}>
+    onSubmit={[Function]}
+  >
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-name">
+        htmlFor="organization-name"
+      >
         organization.name
         <em
-          className="mandatory">
+          className="mandatory"
+        >
           *
         </em>
       </label>
@@ -28,16 +37,20 @@ exports[`test smoke test 1`] = `
         onChange={[Function]}
         required={true}
         type="text"
-        value="Foo" />
+        value="Foo"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.name.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-avatar">
+        htmlFor="organization-avatar"
+      >
         organization.avatar
       </label>
       <input
@@ -47,16 +60,20 @@ exports[`test smoke test 1`] = `
         name="avatar"
         onChange={[Function]}
         type="text"
-        value="" />
+        value=""
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.avatar.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-description">
+        htmlFor="organization-description"
+      >
         description
       </label>
       <textarea
@@ -66,16 +83,20 @@ exports[`test smoke test 1`] = `
         name="description"
         onChange={[Function]}
         rows="3"
-        value="" />
+        value=""
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.description.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-url">
+        htmlFor="organization-url"
+      >
         organization.url
       </label>
       <input
@@ -85,17 +106,21 @@ exports[`test smoke test 1`] = `
         name="url"
         onChange={[Function]}
         type="text"
-        value="" />
+        value=""
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.url.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <button
         disabled={false}
-        type="submit">
+        type="submit"
+      >
         save
       </button>
     </div>
@@ -103,25 +128,32 @@ exports[`test smoke test 1`] = `
 </div>
 `;
 
-exports[`test smoke test 2`] = `
+exports[`smoke test 2`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <header
-    className="page-header">
+    className="page-header"
+  >
     <h1
-      className="page-title">
+      className="page-title"
+    >
       organization.edit
     </h1>
   </header>
   <form
-    onSubmit={[Function]}>
+    onSubmit={[Function]}
+  >
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-name">
+        htmlFor="organization-name"
+      >
         organization.name
         <em
-          className="mandatory">
+          className="mandatory"
+        >
           *
         </em>
       </label>
@@ -133,16 +165,20 @@ exports[`test smoke test 2`] = `
         onChange={[Function]}
         required={true}
         type="text"
-        value="New Foo" />
+        value="New Foo"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.name.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-avatar">
+        htmlFor="organization-avatar"
+      >
         organization.avatar
       </label>
       <input
@@ -152,28 +188,35 @@ exports[`test smoke test 2`] = `
         name="avatar"
         onChange={[Function]}
         type="text"
-        value="foo-avatar" />
+        value="foo-avatar"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.avatar.description
       </div>
       <div
-        className="spacer-top spacer-bottom">
+        className="spacer-top spacer-bottom"
+      >
         <div
-          className="little-spacer-bottom">
+          className="little-spacer-bottom"
+        >
           organization.avatar.preview
           :
         </div>
         <img
           alt=""
           height={30}
-          src="foo-avatar-image" />
+          src="foo-avatar-image"
+        />
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-description">
+        htmlFor="organization-description"
+      >
         description
       </label>
       <textarea
@@ -183,16 +226,20 @@ exports[`test smoke test 2`] = `
         name="description"
         onChange={[Function]}
         rows="3"
-        value="foo-description" />
+        value="foo-description"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.description.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-url">
+        htmlFor="organization-url"
+      >
         organization.url
       </label>
       <input
@@ -202,17 +249,21 @@ exports[`test smoke test 2`] = `
         name="url"
         onChange={[Function]}
         type="text"
-        value="foo-url" />
+        value="foo-url"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.url.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <button
         disabled={false}
-        type="submit">
+        type="submit"
+      >
         save
       </button>
     </div>
@@ -220,25 +271,32 @@ exports[`test smoke test 2`] = `
 </div>
 `;
 
-exports[`test smoke test 3`] = `
+exports[`smoke test 3`] = `
 <div
-  className="page page-limited">
+  className="page page-limited"
+>
   <header
-    className="page-header">
+    className="page-header"
+  >
     <h1
-      className="page-title">
+      className="page-title"
+    >
       organization.edit
     </h1>
   </header>
   <form
-    onSubmit={[Function]}>
+    onSubmit={[Function]}
+  >
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-name">
+        htmlFor="organization-name"
+      >
         organization.name
         <em
-          className="mandatory">
+          className="mandatory"
+        >
           *
         </em>
       </label>
@@ -250,16 +308,20 @@ exports[`test smoke test 3`] = `
         onChange={[Function]}
         required={true}
         type="text"
-        value="New Foo" />
+        value="New Foo"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.name.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-avatar">
+        htmlFor="organization-avatar"
+      >
         organization.avatar
       </label>
       <input
@@ -269,28 +331,35 @@ exports[`test smoke test 3`] = `
         name="avatar"
         onChange={[Function]}
         type="text"
-        value="foo-avatar" />
+        value="foo-avatar"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.avatar.description
       </div>
       <div
-        className="spacer-top spacer-bottom">
+        className="spacer-top spacer-bottom"
+      >
         <div
-          className="little-spacer-bottom">
+          className="little-spacer-bottom"
+        >
           organization.avatar.preview
           :
         </div>
         <img
           alt=""
           height={30}
-          src="foo-avatar-image" />
+          src="foo-avatar-image"
+        />
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-description">
+        htmlFor="organization-description"
+      >
         description
       </label>
       <textarea
@@ -300,16 +369,20 @@ exports[`test smoke test 3`] = `
         name="description"
         onChange={[Function]}
         rows="3"
-        value="foo-description" />
+        value="foo-description"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.description.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <label
-        htmlFor="organization-url">
+        htmlFor="organization-url"
+      >
         organization.url
       </label>
       <input
@@ -319,21 +392,26 @@ exports[`test smoke test 3`] = `
         name="url"
         onChange={[Function]}
         type="text"
-        value="foo-url" />
+        value="foo-url"
+      />
       <div
-        className="modal-field-description">
+        className="modal-field-description"
+      >
         organization.url.description
       </div>
     </div>
     <div
-      className="modal-field">
+      className="modal-field"
+    >
       <button
         disabled={true}
-        type="submit">
+        type="submit"
+      >
         save
       </button>
       <i
-        className="spinner spacer-left" />
+        className="spinner spacer-left"
+      />
     </div>
   </form>
 </div>

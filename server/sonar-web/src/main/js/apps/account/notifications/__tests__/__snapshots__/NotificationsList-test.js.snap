@@ -1,24 +1,30 @@
-exports[`test should match snapshot 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should match snapshot 1`] = `
 <tbody>
   <tr>
     <td>
       notification.dispatcher.type1
     </td>
     <td
-      className="text-center">
+      className="text-center"
+    >
       <Checkbox
         checked={true}
         id="checkbox-io-type1-channel1"
         onCheck={[Function]}
-        thirdState={false} />
+        thirdState={false}
+      />
     </td>
     <td
-      className="text-center">
+      className="text-center"
+    >
       <Checkbox
         checked={false}
         id="checkbox-io-type1-channel2"
         onCheck={[Function]}
-        thirdState={false} />
+        thirdState={false}
+      />
     </td>
   </tr>
   <tr>
@@ -26,20 +32,24 @@ exports[`test should match snapshot 1`] = `
       notification.dispatcher.type2
     </td>
     <td
-      className="text-center">
+      className="text-center"
+    >
       <Checkbox
         checked={true}
         id="checkbox-io-type2-channel1"
         onCheck={[Function]}
-        thirdState={false} />
+        thirdState={false}
+      />
     </td>
     <td
-      className="text-center">
+      className="text-center"
+    >
       <Checkbox
         checked={true}
         id="checkbox-io-type2-channel2"
         onCheck={[Function]}
-        thirdState={false} />
+        thirdState={false}
+      />
     </td>
   </tr>
 </tbody>

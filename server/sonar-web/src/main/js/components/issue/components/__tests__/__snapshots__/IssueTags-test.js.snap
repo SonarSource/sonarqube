@@ -1,4 +1,6 @@
-exports[`test should open the popup when the button is clicked 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open the popup when the button is clicked 1`] = `
 Array [
   Array [
     "edit-tags",
@@ -16,7 +18,7 @@ Array [
 ]
 `;
 
-exports[`test should open the popup when the button is clicked 2`] = `
+exports[`should open the popup when the button is clicked 2`] = `
 <BubblePopupHelper
   isOpen={true}
   popup={
@@ -28,13 +30,16 @@ exports[`test should open the popup when the button is clicked 2`] = `
           "test",
         ]
       }
-      setTags={[Function]} />
+      setTags={[Function]}
+    />
   }
   position="bottomright"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="js-issue-edit-tags button-link issue-action issue-action-with-options"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <TagsList
       allowUpdate={true}
       tags={
@@ -42,12 +47,13 @@ exports[`test should open the popup when the button is clicked 2`] = `
           "mytag",
           "test",
         ]
-      } />
+      }
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render with the action 1`] = `
+exports[`should render with the action 1`] = `
 <BubblePopupHelper
   isOpen={false}
   popup={
@@ -59,13 +65,16 @@ exports[`test should render with the action 1`] = `
           "test",
         ]
       }
-      setTags={[Function]} />
+      setTags={[Function]}
+    />
   }
   position="bottomright"
-  togglePopup={[Function]}>
+  togglePopup={[Function]}
+>
   <button
     className="js-issue-edit-tags button-link issue-action issue-action-with-options"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <TagsList
       allowUpdate={true}
       tags={
@@ -73,17 +82,19 @@ exports[`test should render with the action 1`] = `
           "mytag",
           "test",
         ]
-      } />
+      }
+    />
   </button>
 </BubblePopupHelper>
 `;
 
-exports[`test should render without the action when the correct rights are missing 1`] = `
+exports[`should render without the action when the correct rights are missing 1`] = `
 <TagsList
   allowUpdate={false}
   tags={
     Array [
       "issue.no_tag",
     ]
-  } />
+  }
+/>
 `;

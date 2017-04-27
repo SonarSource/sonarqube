@@ -1,6 +1,8 @@
-exports[`test should render Select 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render Select 1`] = `
 <Select
-  addLabelText="Add \"{label}\"?"
+  addLabelText="Add \\"{label}\\"?"
   arrowRenderer={[Function]}
   autofocus={true}
   autosize={true}
@@ -44,5 +46,6 @@ exports[`test should render Select 1`] = `
   simpleValue={false}
   tabSelectsValue={true}
   valueComponent={[Function]}
-  valueKey="value" />
+  valueKey="value"
+/>
 `;

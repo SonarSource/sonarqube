@@ -1,8 +1,11 @@
-exports[`test should display bubbles 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display bubbles 1`] = `
 <Bubble
   r={45}
   x={-10}
-  y={52.3015873015873}>
+  y={52.3015873015873}
+>
   <circle
     className="bubble-chart-bubble"
     r={45}
@@ -12,15 +15,17 @@ exports[`test should display bubbles 1`] = `
         "stroke": undefined,
       }
     }
-    transform="translate(-10, 52.3015873015873)" />
+    transform="translate(-10, 52.3015873015873)"
+  />
 </Bubble>
 `;
 
-exports[`test should display bubbles 2`] = `
+exports[`should display bubbles 2`] = `
 <Bubble
   r={33.57142857142857}
   x={-75}
-  y={33.57142857142857}>
+  y={33.57142857142857}
+>
   <circle
     className="bubble-chart-bubble"
     r={33.57142857142857}
@@ -30,23 +35,27 @@ exports[`test should display bubbles 2`] = `
         "stroke": undefined,
       }
     }
-    transform="translate(-75, 33.57142857142857)" />
+    transform="translate(-75, 33.57142857142857)"
+  />
 </Bubble>
 `;
 
-exports[`test should render bubble links 1`] = `
+exports[`should render bubble links 1`] = `
 <Bubble
   link="foo"
   r={45}
   x={-10}
-  y={52.3015873015873}>
+  y={52.3015873015873}
+>
   <Link
     onlyActiveOnIndex={false}
     style={Object {}}
-    to="foo">
+    to="foo"
+  >
     <a
       onClick={[Function]}
-      style={Object {}}>
+      style={Object {}}
+    >
       <circle
         className="bubble-chart-bubble"
         r={45}
@@ -56,25 +65,29 @@ exports[`test should render bubble links 1`] = `
             "stroke": undefined,
           }
         }
-        transform="translate(-10, 52.3015873015873)" />
+        transform="translate(-10, 52.3015873015873)"
+      />
     </a>
   </Link>
 </Bubble>
 `;
 
-exports[`test should render bubble links 2`] = `
+exports[`should render bubble links 2`] = `
 <Bubble
   link="bar"
   r={33.57142857142857}
   x={-75}
-  y={33.57142857142857}>
+  y={33.57142857142857}
+>
   <Link
     onlyActiveOnIndex={false}
     style={Object {}}
-    to="bar">
+    to="bar"
+  >
     <a
       onClick={[Function]}
-      style={Object {}}>
+      style={Object {}}
+    >
       <circle
         className="bubble-chart-bubble"
         r={33.57142857142857}
@@ -84,19 +97,21 @@ exports[`test should render bubble links 2`] = `
             "stroke": undefined,
           }
         }
-        transform="translate(-75, 33.57142857142857)" />
+        transform="translate(-75, 33.57142857142857)"
+      />
     </a>
   </Link>
 </Bubble>
 `;
 
-exports[`test should render bubbles with click handlers 1`] = `
+exports[`should render bubbles with click handlers 1`] = `
 <Bubble
   link="foo"
   onClick={[Function]}
   r={45}
   x={-10}
-  y={52.3015873015873}>
+  y={52.3015873015873}
+>
   <circle
     className="bubble-chart-bubble"
     onClick={[Function]}
@@ -107,17 +122,19 @@ exports[`test should render bubbles with click handlers 1`] = `
         "stroke": undefined,
       }
     }
-    transform="translate(-10, 52.3015873015873)" />
+    transform="translate(-10, 52.3015873015873)"
+  />
 </Bubble>
 `;
 
-exports[`test should render bubbles with click handlers 2`] = `
+exports[`should render bubbles with click handlers 2`] = `
 <Bubble
   link="bar"
   onClick={[Function]}
   r={33.57142857142857}
   x={-75}
-  y={33.57142857142857}>
+  y={33.57142857142857}
+>
   <circle
     className="bubble-chart-bubble"
     onClick={[Function]}
@@ -128,6 +145,7 @@ exports[`test should render bubbles with click handlers 2`] = `
         "stroke": undefined,
       }
     }
-    transform="translate(-75, 33.57142857142857)" />
+    transform="translate(-75, 33.57142857142857)"
+  />
 </Bubble>
 `;

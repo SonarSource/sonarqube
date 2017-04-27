@@ -1,15 +1,19 @@
-exports[`test should not render deprecated parameters 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should not render deprecated parameters 1`] = `
 <div
-  className="web-api-params">
+  className="web-api-params"
+>
   <table>
     <tbody />
   </table>
 </div>
 `;
 
-exports[`test should render deprecated key 1`] = `
+exports[`should render deprecated key 1`] = `
 <div
-  className="web-api-params">
+  className="web-api-params"
+>
   <table>
     <tbody>
       <tr>
@@ -19,23 +23,28 @@ exports[`test should render deprecated key 1`] = `
             Object {
               "width": 180,
             }
-          }>
+          }
+        >
           <code>
             foo
           </code>
           <div
-            className="little-spacer-top">
+            className="little-spacer-top"
+          >
             <code>
               foo-deprecated
             </code>
           </div>
           <div
-            className="little-spacer-top">
+            className="little-spacer-top"
+          >
             <DeprecatedBadge
-              since="5.0" />
+              since="5.0"
+            />
           </div>
           <div
-            className="note little-spacer-top">
+            className="note little-spacer-top"
+          >
             optional
           </div>
         </td>
@@ -46,23 +55,26 @@ exports[`test should render deprecated key 1`] = `
               Object {
                 "__html": undefined,
               }
-            } />
+            }
+          />
         </td>
         <td
           style={
             Object {
               "width": 250,
             }
-          } />
+          }
+        />
       </tr>
     </tbody>
   </table>
 </div>
 `;
 
-exports[`test should render deprecated parameters 1`] = `
+exports[`should render deprecated parameters 1`] = `
 <div
-  className="web-api-params">
+  className="web-api-params"
+>
   <table>
     <tbody>
       <tr>
@@ -72,17 +84,21 @@ exports[`test should render deprecated parameters 1`] = `
             Object {
               "width": 180,
             }
-          }>
+          }
+        >
           <code>
             foo
           </code>
           <div
-            className="little-spacer-top">
+            className="little-spacer-top"
+          >
             <DeprecatedBadge
-              since="5.0" />
+              since="5.0"
+            />
           </div>
           <div
-            className="note little-spacer-top">
+            className="note little-spacer-top"
+          >
             optional
           </div>
         </td>
@@ -93,14 +109,16 @@ exports[`test should render deprecated parameters 1`] = `
               Object {
                 "__html": undefined,
               }
-            } />
+            }
+          />
         </td>
         <td
           style={
             Object {
               "width": 250,
             }
-          } />
+          }
+        />
       </tr>
     </tbody>
   </table>

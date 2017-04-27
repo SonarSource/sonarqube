@@ -1,8 +1,11 @@
-exports[`test should handle \`view\` and \`visualization\` 1`] = `undefined`;
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`test should handle \`view\` and \`visualization\` 2`] = `
+exports[`should handle \`view\` and \`visualization\` 1`] = `undefined`;
+
+exports[`should handle \`view\` and \`visualization\` 2`] = `
 <div
-  className="projects-facets-reset">
+  className="projects-facets-reset"
+>
   <Link
     className="button button-red"
     onlyActiveOnIndex={false}
@@ -15,7 +18,8 @@ exports[`test should handle \`view\` and \`visualization\` 2`] = `
           "visualization": "bugs",
         },
       }
-    }>
+    }
+  >
     clear_all_filters
   </Link>
 </div>

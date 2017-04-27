@@ -1,6 +1,9 @@
-exports[`test should render tags popup correctly 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render tags popup correctly 1`] = `
 <BubblePopup
-  customClass="bubble-popup-menu bubble-popup-bottom">
+  customClass="bubble-popup-menu bubble-popup-bottom"
+>
   <SelectList
     currentItem="MAJOR"
     items={
@@ -12,40 +15,51 @@ exports[`test should render tags popup correctly 1`] = `
         "INFO",
       ]
     }
-    onSelect={[Function]}>
+    onSelect={[Function]}
+  >
     <SelectListItem
-      item="BLOCKER">
+      item="BLOCKER"
+    >
       <SeverityIcon
         className="little-spacer-right"
-        severity="BLOCKER" />
+        severity="BLOCKER"
+      />
       severity.BLOCKER
     </SelectListItem>
     <SelectListItem
-      item="CRITICAL">
+      item="CRITICAL"
+    >
       <SeverityIcon
         className="little-spacer-right"
-        severity="CRITICAL" />
+        severity="CRITICAL"
+      />
       severity.CRITICAL
     </SelectListItem>
     <SelectListItem
-      item="MAJOR">
+      item="MAJOR"
+    >
       <SeverityIcon
         className="little-spacer-right"
-        severity="MAJOR" />
+        severity="MAJOR"
+      />
       severity.MAJOR
     </SelectListItem>
     <SelectListItem
-      item="MINOR">
+      item="MINOR"
+    >
       <SeverityIcon
         className="little-spacer-right"
-        severity="MINOR" />
+        severity="MINOR"
+      />
       severity.MINOR
     </SelectListItem>
     <SelectListItem
-      item="INFO">
+      item="INFO"
+    >
       <SeverityIcon
         className="little-spacer-right"
-        severity="INFO" />
+        severity="INFO"
+      />
       severity.INFO
     </SelectListItem>
   </SelectList>

@@ -1,22 +1,28 @@
-exports[`test should match snapshot 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should match snapshot 1`] = `
 <section>
   <h2
-    className="spacer-bottom">
+    className="spacer-bottom"
+  >
     my_profile.overall_notifications.title
   </h2>
   <table
-    className="form">
+    className="form"
+  >
     <thead>
       <tr>
         <th />
         <th
-          className="text-center">
+          className="text-center"
+        >
           <h4>
             notification.channel.channel1
           </h4>
         </th>
         <th
-          className="text-center">
+          className="text-center"
+        >
           <h4>
             notification.channel.channel2
           </h4>
@@ -54,7 +60,8 @@ exports[`test should match snapshot 1`] = `
           "type1",
           "type2",
         ]
-      } />
+      }
+    />
   </table>
 </section>
 `;

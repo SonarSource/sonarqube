@@ -1,4 +1,6 @@
-exports[`test should render 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render 1`] = `
 <div>
   <ConciseIssueComponent />
   <ConciseIssueBox
@@ -6,6 +8,7 @@ exports[`test should render 1`] = `
     onClick={[Function]}
     selected={false}
     selectedFlowIndex={null}
-    selectedLocationIndex={null} />
+    selectedLocationIndex={null}
+  />
 </div>
 `;

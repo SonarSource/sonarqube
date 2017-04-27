@@ -1,4 +1,6 @@
-exports[`test should render with selected tags 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with selected tags 1`] = `
 <BubblePopup
   customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
   position={
@@ -6,7 +8,8 @@ exports[`test should render with selected tags 1`] = `
       "left": 0,
       "top": 0,
     }
-  }>
+  }
+>
   <MultiSelect
     elements={
       Array [
@@ -24,11 +27,12 @@ exports[`test should render with selected tags 1`] = `
         "bar",
       ]
     }
-    validateSearchInput={[Function]} />
+    validateSearchInput={[Function]}
+  />
 </BubblePopup>
 `;
 
-exports[`test should render without tags at all 1`] = `
+exports[`should render without tags at all 1`] = `
 <BubblePopup
   customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300"
   position={
@@ -36,7 +40,8 @@ exports[`test should render without tags at all 1`] = `
       "left": 0,
       "top": 0,
     }
-  }>
+  }
+>
   <MultiSelect
     elements={Array []}
     listSize={10}
@@ -44,6 +49,7 @@ exports[`test should render without tags at all 1`] = `
     onSelect={[Function]}
     onUnselect={[Function]}
     selectedElements={Array []}
-    validateSearchInput={[Function]} />
+    validateSearchInput={[Function]}
+  />
 </BubblePopup>
 `;

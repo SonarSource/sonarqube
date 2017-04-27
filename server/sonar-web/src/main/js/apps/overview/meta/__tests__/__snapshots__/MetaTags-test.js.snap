@@ -1,9 +1,13 @@
-exports[`test should open the tag selector on click 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should open the tag selector on click 1`] = `
 <div
-  className="overview-meta-card overview-meta-tags">
+  className="overview-meta-card overview-meta-tags"
+>
   <button
     className="button-link"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <TagsList
       allowUpdate={true}
       tags={
@@ -11,17 +15,20 @@ exports[`test should open the tag selector on click 1`] = `
           "foo",
           "bar",
         ]
-      } />
+      }
+    />
   </button>
 </div>
 `;
 
-exports[`test should open the tag selector on click 2`] = `
+exports[`should open the tag selector on click 2`] = `
 <div
-  className="overview-meta-card overview-meta-tags">
+  className="overview-meta-card overview-meta-tags"
+>
   <button
     className="button-link"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <TagsList
       allowUpdate={true}
       tags={
@@ -29,7 +36,8 @@ exports[`test should open the tag selector on click 2`] = `
           "foo",
           "bar",
         ]
-      } />
+      }
+    />
   </button>
   <div>
     <Connect(ProjectTagsSelectorContainer)
@@ -45,17 +53,20 @@ exports[`test should open the tag selector on click 2`] = `
           "foo",
           "bar",
         ]
-      } />
+      }
+    />
   </div>
 </div>
 `;
 
-exports[`test should open the tag selector on click 3`] = `
+exports[`should open the tag selector on click 3`] = `
 <div
-  className="overview-meta-card overview-meta-tags">
+  className="overview-meta-card overview-meta-tags"
+>
   <button
     className="button-link"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <TagsList
       allowUpdate={true}
       tags={
@@ -63,17 +74,20 @@ exports[`test should open the tag selector on click 3`] = `
           "foo",
           "bar",
         ]
-      } />
+      }
+    />
   </button>
 </div>
 `;
 
-exports[`test should render with tags and admin rights 1`] = `
+exports[`should render with tags and admin rights 1`] = `
 <div
-  className="overview-meta-card overview-meta-tags">
+  className="overview-meta-card overview-meta-tags"
+>
   <button
     className="button-link"
-    onClick={[Function]}>
+    onClick={[Function]}
+  >
     <TagsList
       allowUpdate={true}
       tags={
@@ -81,20 +95,23 @@ exports[`test should render with tags and admin rights 1`] = `
           "foo",
           "bar",
         ]
-      } />
+      }
+    />
   </button>
 </div>
 `;
 
-exports[`test should render without tags and admin rights 1`] = `
+exports[`should render without tags and admin rights 1`] = `
 <div
-  className="overview-meta-card overview-meta-tags">
+  className="overview-meta-card overview-meta-tags"
+>
   <TagsList
     allowUpdate={false}
     tags={
       Array [
         "no_tags",
       ]
-    } />
+    }
+  />
 </div>
 `;

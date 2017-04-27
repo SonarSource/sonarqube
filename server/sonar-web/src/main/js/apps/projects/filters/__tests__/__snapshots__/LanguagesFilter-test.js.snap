@@ -1,4 +1,6 @@
-exports[`test should render maximum 10 languages in the searchbox results 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render maximum 10 languages in the searchbox results 1`] = `
 <Filter
   facet={
     Object {
@@ -68,13 +70,15 @@ exports[`test should render maximum 10 languages in the searchbox results 1`] = 
         Object {
           "push": [Function],
         }
-      } />
+      }
+    />
   }
   getFacetValueForOption={[Function]}
   halfWidth={false}
   header={
     <FilterHeader
-      name="Languages" />
+      name="Languages"
+    />
   }
   highlightUnder={1}
   isFavorite={true}
@@ -101,10 +105,11 @@ exports[`test should render maximum 10 languages in the searchbox results 1`] = 
       "java",
       "g",
     ]
-  } />
+  }
+/>
 `;
 
-exports[`test should render the languages facet with the selected languages 1`] = `
+exports[`should render the languages facet with the selected languages 1`] = `
 <Filter
   facet={
     Object {
@@ -145,13 +150,15 @@ exports[`test should render the languages facet with the selected languages 1`] 
         Object {
           "push": [Function],
         }
-      } />
+      }
+    />
   }
   getFacetValueForOption={[Function]}
   halfWidth={false}
   header={
     <FilterHeader
-      name="Languages" />
+      name="Languages"
+    />
   }
   highlightUnder={1}
   isFavorite={true}
@@ -177,17 +184,21 @@ exports[`test should render the languages facet with the selected languages 1`] 
       "java",
       "cs",
     ]
-  } />
+  }
+/>
 `;
 
-exports[`test should render the languages facet with the selected languages 2`] = `
+exports[`should render the languages facet with the selected languages 2`] = `
 <div
   className="search-navigator-facet-box"
-  data-key="languages">
+  data-key="languages"
+>
   <FilterHeader
-    name="Languages" />
+    name="Languages"
+  />
   <div
-    className="search-navigator-facet-list">
+    className="search-navigator-facet-list"
+  >
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="java"
@@ -200,9 +211,11 @@ exports[`test should render the languages facet with the selected languages 2`] 
             "languages": "cs",
           },
         }
-      }>
+      }
+    >
       <span
-        className="facet-name">
+        className="facet-name"
+      >
         <SearchableFilterOption
           option={
             Object {
@@ -210,10 +223,12 @@ exports[`test should render the languages facet with the selected languages 2`] 
               "name": "Java",
             }
           }
-          optionKey="java" />
+          optionKey="java"
+        />
       </span>
       <span
-        className="facet-stat">
+        className="facet-stat"
+      >
         39
       </span>
     </Link>
@@ -229,9 +244,11 @@ exports[`test should render the languages facet with the selected languages 2`] 
             "languages": "java",
           },
         }
-      }>
+      }
+    >
       <span
-        className="facet-name">
+        className="facet-name"
+      >
         <SearchableFilterOption
           option={
             Object {
@@ -239,10 +256,12 @@ exports[`test should render the languages facet with the selected languages 2`] 
               "name": "C#",
             }
           }
-          optionKey="cs" />
+          optionKey="cs"
+        />
       </span>
       <span
-        className="facet-stat">
+        className="facet-stat"
+      >
         4
       </span>
     </Link>
@@ -258,9 +277,11 @@ exports[`test should render the languages facet with the selected languages 2`] 
             "languages": "java,cs,js",
           },
         }
-      }>
+      }
+    >
       <span
-        className="facet-name">
+        className="facet-name"
+      >
         <SearchableFilterOption
           option={
             Object {
@@ -268,10 +289,12 @@ exports[`test should render the languages facet with the selected languages 2`] 
               "name": "JavaScript",
             }
           }
-          optionKey="js" />
+          optionKey="js"
+        />
       </span>
       <span
-        className="facet-stat">
+        className="facet-stat"
+      >
         1
       </span>
     </Link>
@@ -307,11 +330,12 @@ exports[`test should render the languages facet with the selected languages 2`] 
       Object {
         "push": [Function],
       }
-    } />
+    }
+  />
 </div>
 `;
 
-exports[`test should render the languages without the ones in the facet 1`] = `
+exports[`should render the languages without the ones in the facet 1`] = `
 <Filter
   facet={
     Object {
@@ -348,13 +372,15 @@ exports[`test should render the languages without the ones in the facet 1`] = `
         Object {
           "push": [Function],
         }
-      } />
+      }
+    />
   }
   getFacetValueForOption={[Function]}
   halfWidth={false}
   header={
     <FilterHeader
-      name="Languages" />
+      name="Languages"
+    />
   }
   highlightUnder={1}
   options={
@@ -370,5 +396,6 @@ exports[`test should render the languages without the ones in the facet 1`] = `
       "languages": null,
     }
   }
-  renderOption={[Function]} />
+  renderOption={[Function]}
+/>
 `;

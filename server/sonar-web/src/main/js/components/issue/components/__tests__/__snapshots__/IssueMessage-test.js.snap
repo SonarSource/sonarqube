@@ -1,10 +1,14 @@
-exports[`test should render with the message and a link to open the rule 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render with the message and a link to open the rule 1`] = `
 <div
-  className="issue-message">
+  className="issue-message"
+>
   Reduce the number of conditional operators (4) used in the expression
   <button
     aria-label="issue.rule_details"
     className="button-link issue-rule icon-ellipsis-h little-spacer-left"
-    onClick={[Function]} />
+    onClick={[Function]}
+  />
 </div>
 `;

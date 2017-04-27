@@ -1,12 +1,16 @@
-exports[`test should work with extensions 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should work with extensions 1`] = `
 <ul
-  className="nav navbar-nav">
+  className="nav navbar-nav"
+>
   <li>
     <Link
       activeClassName="active"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/projects">
+      to="/projects"
+    >
       projects.page
     </Link>
   </li>
@@ -21,7 +25,8 @@ exports[`test should work with extensions 1`] = `
             "resolved": "false",
           },
         }
-      }>
+      }
+    >
       issues.page
     </Link>
   </li>
@@ -30,7 +35,8 @@ exports[`test should work with extensions 1`] = `
       className={null}
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/coding_rules">
+      to="/coding_rules"
+    >
       coding_rules.page
     </Link>
   </li>
@@ -39,7 +45,8 @@ exports[`test should work with extensions 1`] = `
       activeClassName="active"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/profiles">
+      to="/profiles"
+    >
       quality_profiles.page
     </Link>
   </li>
@@ -48,29 +55,35 @@ exports[`test should work with extensions 1`] = `
       activeClassName="active"
       onlyActiveOnIndex={false}
       style={Object {}}
-      to="/quality_gates">
+      to="/quality_gates"
+    >
       quality_gates.page
     </Link>
   </li>
   <li
-    className="dropdown">
+    className="dropdown"
+  >
     <a
       className="dropdown-toggle"
       data-toggle="dropdown"
       href="#"
-      id="global-navigation-more">
+      id="global-navigation-more"
+    >
       more
        
       <span
-        className="icon-dropdown" />
+        className="icon-dropdown"
+      />
     </a>
     <ul
-      className="dropdown-menu">
+      className="dropdown-menu"
+    >
       <li>
         <Link
           onlyActiveOnIndex={false}
           style={Object {}}
-          to="/extension/foo">
+          to="/extension/foo"
+        >
           Foo
         </Link>
       </li>
