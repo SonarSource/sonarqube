@@ -83,8 +83,9 @@ public class NewIndex {
     if (shards == 0) {
       shards = defaultNbOfShards;
     }
-    int replicas = settings.getInt(format("sonar.search.%s.replicas", indexName));
-    if (replicas == 0) {
+
+    int replicas = settings.getInt(ProcessProperties.SEARCH_REPLICAS);
+    if (replicas == 0 && settings.getString(ProcessProperties.SEARCH_REPLICAS) == null) {
       replicas = clusterMode ? 1 : 0;
     }
     getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
