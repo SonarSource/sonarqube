@@ -24,8 +24,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
-import org.sonar.server.platform.db.migration.version.v63.TestDefaultOrganizationUuid;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
+import org.sonar.server.platform.db.migration.version.v63.TestDefaultOrganizationUuidProvider;
 
 public class SetQualityProfileOrganizationUuidToDefaultTest {
 
@@ -35,7 +35,7 @@ public class SetQualityProfileOrganizationUuidToDefaultTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(SetQualityProfileOrganizationUuidToDefaultTest.class, "initial.sql");
 
-  private DefaultOrganizationUuid defaultOrganization = new TestDefaultOrganizationUuid(DEFAULT_ORG);
+  private DefaultOrganizationUuidProvider defaultOrganization = new TestDefaultOrganizationUuidProvider(DEFAULT_ORG);
 
   public SetQualityProfileOrganizationUuidToDefault underTest = new SetQualityProfileOrganizationUuidToDefault(db.database(), defaultOrganization);
 

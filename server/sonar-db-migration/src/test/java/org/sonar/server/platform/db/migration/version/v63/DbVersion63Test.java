@@ -31,7 +31,7 @@ public class DbVersion63Test {
   @Test
   public void verify_support_components() {
     assertThat(underTest.getSupportComponents())
-      .containsOnly(DefaultOrganizationUuidImpl.class);
+      .containsOnly(DefaultOrganizationUuidProviderImpl.class);
   }
 
   @Test

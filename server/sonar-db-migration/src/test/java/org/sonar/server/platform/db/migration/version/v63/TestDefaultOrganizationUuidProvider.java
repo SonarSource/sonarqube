@@ -21,35 +21,26 @@ package org.sonar.server.platform.db.migration.version.v63;
 
 import java.sql.SQLException;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.step.Select;
 
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 /**
- * Component which can be injected in steps which provides access to the UUID of the default organization, it reads
- * directly from the BD.
+ * Implementation of {@link DefaultOrganizationUuidProvider} which never fails and returns the specified organization uuid.
  */
-public class DefaultOrganizationUuidImpl implements DefaultOrganizationUuid {
+public class TestDefaultOrganizationUuidProvider implements DefaultOrganizationUuidProvider {
+  private final String organizationUuid;
 
-  private static final String INTERNAL_PROPERTY_DEFAULT_ORGANIZATION = "organization.default";
+  public TestDefaultOrganizationUuidProvider(String organizationUuid) {
+    this.organizationUuid = requireNonNull(organizationUuid, "organizationUuid can't be null");
+  }
 
   @Override
   public String get(DataChange.Context context) throws SQLException {
-    Select select = context.prepareSelect("select text_value from internal_properties where kee=?");
-    select.setString(1, INTERNAL_PROPERTY_DEFAULT_ORGANIZATION);
-    String uuid = select.get(row -> row.getString(1));
-    checkState(uuid != null, "Default organization uuid is missing");
-    return uuid;
+    return organizationUuid;
   }
 
   @Override
   public String getAndCheck(DataChange.Context context) throws SQLException {
-    String organizationUuid = get(context);
-    Select select = context.prepareSelect("select uuid from organizations where uuid=?")
-      .setString(1, organizationUuid);
-    checkState(select.get(row -> row.getString(1)) != null,
-      "Default organization with uuid '%s' does not exist in table ORGANIZATIONS",
-      organizationUuid);
     return organizationUuid;
   }
 }

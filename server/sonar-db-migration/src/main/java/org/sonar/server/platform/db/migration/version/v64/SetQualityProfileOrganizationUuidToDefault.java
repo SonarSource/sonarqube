@@ -22,13 +22,13 @@ package org.sonar.server.platform.db.migration.version.v64;
 import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
 public class SetQualityProfileOrganizationUuidToDefault extends DataChange {
 
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
 
-  public SetQualityProfileOrganizationUuidToDefault(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public SetQualityProfileOrganizationUuidToDefault(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
   }

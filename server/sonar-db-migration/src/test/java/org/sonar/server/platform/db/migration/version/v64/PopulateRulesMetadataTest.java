@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidImpl;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProviderImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,7 +44,7 @@ public class PopulateRulesMetadataTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system2 = mock(System2.class);
-  private PopulateRulesMetadata underTest = new PopulateRulesMetadata(db.database(), new DefaultOrganizationUuidImpl(), system2);
+  private PopulateRulesMetadata underTest = new PopulateRulesMetadata(db.database(), new DefaultOrganizationUuidProviderImpl(), system2);
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {

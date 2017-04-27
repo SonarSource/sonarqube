@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidImpl;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProviderImpl;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
@@ -62,7 +62,7 @@ public class PopulateOrganizationMembersTableTest {
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(PopulateOrganizationMembersTableTest.class, "initial.sql");
 
-  private PopulateOrganizationMembersTable underTest = new PopulateOrganizationMembersTable(db.database(), new DefaultOrganizationUuidImpl());
+  private PopulateOrganizationMembersTable underTest = new PopulateOrganizationMembersTable(db.database(), new DefaultOrganizationUuidProviderImpl());
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {

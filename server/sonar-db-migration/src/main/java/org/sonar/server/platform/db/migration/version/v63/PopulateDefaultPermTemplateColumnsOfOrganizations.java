@@ -48,9 +48,9 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizations extends DataChang
   private static final String DEFAULT_VIEW_TEMPLATE_PROPERTY = "sonar.permission.template.VW.default";
   private static final String DEFAULT_DEV_TEMPLATE_PROPERTY = "sonar.permission.template.DEV.default";
 
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
 
-  public PopulateDefaultPermTemplateColumnsOfOrganizations(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public PopulateDefaultPermTemplateColumnsOfOrganizations(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
   }

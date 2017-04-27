@@ -22,7 +22,6 @@ package org.sonar.server.platform.db.migration.version.v63;
 import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.valueOf;
@@ -35,7 +34,7 @@ public class PopulateOrganizationUuidToProjectsTest {
   @Rule
   public CoreDbTester dbTester = CoreDbTester.createForSchema(PopulateOrganizationUuidToProjectsTest.class, "projects_with_nullable_organization.sql");
 
-  private PopulateOrganizationUuidToProjects underTest = new PopulateOrganizationUuidToProjects(dbTester.database(), new TestDefaultOrganizationUuid(ORGANIZATION_UUID));
+  private PopulateOrganizationUuidToProjects underTest = new PopulateOrganizationUuidToProjects(dbTester.database(), new TestDefaultOrganizationUuidProvider(ORGANIZATION_UUID));
 
   @Test
   public void execute_has_no_effect_when_table_is_empty() throws SQLException {

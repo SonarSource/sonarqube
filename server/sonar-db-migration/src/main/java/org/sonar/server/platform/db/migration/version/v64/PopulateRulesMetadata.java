@@ -27,15 +27,15 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 import org.sonar.server.platform.db.migration.step.Select;
 import org.sonar.server.platform.db.migration.step.SqlStatement;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
 import static java.util.Optional.ofNullable;
 
 public class PopulateRulesMetadata extends DataChange {
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
   private final System2 system2;
 
-  public PopulateRulesMetadata(Database db, DefaultOrganizationUuid defaultOrganizationUuid, System2 system2) {
+  public PopulateRulesMetadata(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid, System2 system2) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
     this.system2 = system2;

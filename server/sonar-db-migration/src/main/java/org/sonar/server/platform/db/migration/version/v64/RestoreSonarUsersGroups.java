@@ -29,7 +29,7 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 import org.sonar.server.platform.db.migration.step.Select;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -49,9 +49,9 @@ public class RestoreSonarUsersGroups extends DataChange {
   private static final String DEFAULT_GROUP_SETTING = "sonar.defaultGroup";
 
   private final System2 system2;
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
 
-  public RestoreSonarUsersGroups(Database db, System2 system2, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public RestoreSonarUsersGroups(Database db, System2 system2, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
     super(db);
     this.system2 = system2;
     this.defaultOrganizationUuid = defaultOrganizationUuid;
