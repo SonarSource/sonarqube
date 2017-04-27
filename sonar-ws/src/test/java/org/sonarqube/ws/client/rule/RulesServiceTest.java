@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -85,7 +86,7 @@ public class RulesServiceTest {
   private RulesService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
-  public void search() {
+  public void test_search() {
     underTest.search(new SearchWsRequest()
       .setActivation(ACTIVATION_VALUE)
       .setActiveSeverities(ACTIVE_SEVERITIES_VALUE)
@@ -134,6 +135,19 @@ public class RulesServiceTest {
       .hasParam(PARAM_TAGS, TAGS_VALUE_INLINED)
       .hasParam(PARAM_TEMPLATE_KEY, TEMPLATE_KEY_VALUE)
       .hasParam(PARAM_TYPES, TYPES_VALUE_INLINED)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void test_show() {
+    underTest.show("the-org", "the-rule/key");
+
+    assertThat(serviceTester.getGetParser()).isSameAs(Rules.ShowResponse.parser());
+    GetRequest getRequest = serviceTester.getGetRequest();
+    serviceTester.assertThat(getRequest)
+      .hasPath("show")
+      .hasParam("organization", "the-org")
+      .hasParam("key", "the-rule/key")
       .andNoOtherParam();
   }
 }

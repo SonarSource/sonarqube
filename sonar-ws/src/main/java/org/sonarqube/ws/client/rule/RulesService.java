@@ -19,6 +19,8 @@
  */
 package org.sonarqube.ws.client.rule;
 
+import javax.annotation.Nullable;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
@@ -70,5 +72,12 @@ public class RulesService extends BaseService {
         .setParam(PARAM_TEMPLATE_KEY, request.getTemplateKey())
         .setParam(PARAM_TYPES, inlineMultipleParamValue(request.getTypes())),
       SearchResponse.parser());
+  }
+
+  public Rules.ShowResponse show(@Nullable String organization, String key) {
+    GetRequest request = new GetRequest(path("show"))
+      .setParam("organization", organization)
+      .setParam("key", key);
+    return call(request, Rules.ShowResponse.parser());
   }
 }
