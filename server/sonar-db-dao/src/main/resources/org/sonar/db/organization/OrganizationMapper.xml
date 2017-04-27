@@ -181,14 +181,14 @@
   </sql>
 
   <select id="selectDefaultGroupIdByUuid" resultType="Integer">
-    select org.default_group_id as "defaultGroupId"
+    select org.default_group_id
     from organizations org
     where
     org.uuid = #{uuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectNewProjectPrivateByUuid" resultType="Boolean">
-    select org.new_project_private as "newProjectPrivate"
+    select org.new_project_private
     from organizations org
     where
     org.uuid = #{uuid, jdbcType=VARCHAR}
