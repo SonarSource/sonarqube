@@ -68,12 +68,12 @@ public class BillingTest {
   public static void prepare() throws Exception {
     adminClient = newAdminWsClient(orchestrator);
     enableOrganizationsSupport();
-    resetSettings(orchestrator, "sonar.billing.preventProjectAnalysis");
   }
 
   @Before
   public void setUp() throws Exception {
     userRule.deactivateUsers(USER_LOGIN);
+    resetSettings(orchestrator, "sonar.billing.preventProjectAnalysis");
   }
 
   @AfterClass
@@ -106,7 +106,7 @@ public class BillingTest {
   }
 
   @Test
-  public void api_navigation_organization_return_canUpdateProjectsVisibilityToPrivate() {
+  public void api_navigation_organization_returns_canUpdateProjectsVisibilityToPrivate() {
     String organizationKey = createOrganization();
     userRule.createUser(USER_LOGIN, USER_LOGIN);
     adminClient.organizations().addMember(organizationKey, USER_LOGIN);
@@ -121,6 +121,19 @@ public class BillingTest {
     assertWsResponseAsUser(new GetRequest("api/navigation/organization").setParam("organization", organizationKey), "\"canUpdateProjectsVisibilityToPrivate\":false");
   }
 
+  @Test
+  public void api_navigation_component_returns_canUpdateProjectVisibilityToPrivate() {
+    String organizationKey = createOrganization();
+    String projectKey = newProjectKey();
+    executeAnalysis(projectKey, organizationKey);
+
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"canUpdateProjectVisibilityToPrivate\":true");
+
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"canUpdateProjectVisibilityToPrivate\":false");
+  }
+
   private static String createOrganization() {
     String key = newOrganizationKey();
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(key).setName(key).build()).getOrganization();
@@ -128,9 +141,13 @@ public class BillingTest {
   }
 
   private static String executeAnalysis(String organizationKey) {
+    return executeAnalysis(newProjectKey(), organizationKey);
+  }
+
+  private static String executeAnalysis(String projectKey, String organizationKey) {
     BuildResult buildResult = orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"),
       "sonar.organization", organizationKey,
-      "sonar.projectKey", newProjectKey(),
+      "sonar.projectKey", projectKey,
       "sonar.login", "admin",
       "sonar.password", "admin"));
     return ItUtils.extractCeTaskId(buildResult);

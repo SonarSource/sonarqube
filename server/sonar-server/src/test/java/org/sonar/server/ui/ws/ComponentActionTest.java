@@ -54,6 +54,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -63,6 +65,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -93,6 +96,8 @@ public class ComponentActionTest {
   private ComponentDbTester componentDbTester = dbTester.components();
   private PropertyDbTester propertyDbTester = new PropertyDbTester(dbTester);
   private ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
+
   private ComponentDto project;
   private WsActionTester ws;
 
@@ -475,6 +480,21 @@ public class ComponentActionTest {
     assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canApplyPermissionTemplate\": false}}");
   }
 
+  @Test
+  public void canUpdateProjectVisibilityToPrivate_is_true_if_logged_in_as_project_administrator_and_extension_returns_false() {
+    init(createPages());
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(org);
+
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(false);
+    assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canUpdateProjectVisibilityToPrivate\": false}}");
+
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
+    assertJson(execute(project.key())).isSimilarTo("{\"configuration\": {\"canUpdateProjectVisibilityToPrivate\": true}}");
+  }
+
   private void init(Page... pages) {
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.hasPlugin(anyString())).thenReturn(true);
@@ -486,7 +506,7 @@ public class ComponentActionTest {
     pageRepository.start();
     ws = new WsActionTester(
       new ComponentAction(dbClient, pageRepository, resourceTypes, userSession, new ComponentFinder(dbClient),
-        new QualityGateFinder(dbClient)));
+        new QualityGateFinder(dbClient), billingValidations));
   }
 
   private String execute(String componentKey) {

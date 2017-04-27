@@ -52,6 +52,8 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
@@ -82,15 +84,17 @@ public class ComponentAction implements NavigationWsAction {
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
   private final QualityGateFinder qualityGateFinder;
+  private final BillingValidationsProxy billingValidations;
 
   public ComponentAction(DbClient dbClient, PageRepository pageRepository, ResourceTypes resourceTypes, UserSession userSession,
-    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder) {
+    ComponentFinder componentFinder, QualityGateFinder qualityGateFinder, BillingValidationsProxy billingValidations) {
     this.dbClient = dbClient;
     this.pageRepository = pageRepository;
     this.resourceTypes = resourceTypes;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
     this.qualityGateFinder = qualityGateFinder;
+    this.billingValidations = billingValidations;
   }
 
   private static Consumer<QualityProfile> writeToJson(JsonWriter json) {
@@ -151,7 +155,7 @@ public class ComponentAction implements NavigationWsAction {
       if (userSession.hasComponentPermission(ADMIN, component) ||
         userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
-        writeConfiguration(json, component);
+        writeConfiguration(json, component, org);
       }
       writeBreadCrumbs(json, session, component);
       json.endObject().close();
@@ -219,11 +223,11 @@ public class ComponentAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private void writeConfiguration(JsonWriter json, ComponentDto component) {
+  private void writeConfiguration(JsonWriter json, ComponentDto component, OrganizationDto organization) {
     boolean isProjectAdmin = userSession.hasComponentPermission(ADMIN, component);
 
     json.name("configuration").beginObject();
-    writeConfigPageAccess(json, isProjectAdmin, component);
+    writeConfigPageAccess(json, isProjectAdmin, component, organization);
 
     if (isProjectAdmin) {
       json.name("extensions").beginArray();
@@ -234,7 +238,7 @@ public class ComponentAction implements NavigationWsAction {
     json.endObject();
   }
 
-  private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component) {
+  private void writeConfigPageAccess(JsonWriter json, boolean isProjectAdmin, ComponentDto component, OrganizationDto organization) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
     boolean showManualMeasures = isProjectAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
     boolean isQualityProfileAdmin = userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, component.getOrganizationUuid());
@@ -251,6 +255,8 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showUpdateKey", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
     json.prop("showBackgroundTasks", isProjectAdmin);
     json.prop("canApplyPermissionTemplate", isOrganizationAdmin);
+    json.prop("canUpdateProjectVisibilityToPrivate", isProjectAdmin &&
+      billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid())));
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
