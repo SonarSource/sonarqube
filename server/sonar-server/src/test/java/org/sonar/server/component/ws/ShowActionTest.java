@@ -202,22 +202,42 @@ public class ShowActionTest {
   }
 
   @Test
-  public void return_visibility_field() throws Exception {
+  public void should_return_visibility_for_private_project() throws Exception {
     userSession.logIn().setRoot();
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(privateProject));
-    ComponentDto publicProject = db.components().insertPublicProject();
 
     ShowWsResponse result = newRequest(null, privateProject.key());
     assertThat(result.getComponent().hasVisibility()).isTrue();
-    assertThat(result.getComponent().getVisibility()).isEqualTo(privateProject.isPrivate() ? "private" : "public");
+    assertThat(result.getComponent().getVisibility()).isEqualTo("private");
+  }
 
-    ShowWsResponse result2 = newRequest(null, module.key());
-    assertThat(result2.getComponent().hasVisibility()).isFalse();
+  @Test
+  public void should_return_visibility_for_public_project() throws Exception {
+    userSession.logIn().setRoot();
+    ComponentDto publicProject = db.components().insertPublicProject();
 
-    ShowWsResponse result3 = newRequest(null, publicProject.key());
-    assertThat(result3.getComponent().hasVisibility()).isTrue();
-    assertThat(result3.getComponent().getVisibility()).isEqualTo(publicProject.isPrivate() ? "private" : "public");
+    ShowWsResponse result = newRequest(null, publicProject.key());
+    assertThat(result.getComponent().hasVisibility()).isTrue();
+    assertThat(result.getComponent().getVisibility()).isEqualTo("public");
+  }
+
+  @Test
+  public void should_return_visibility_for_view() throws Exception {
+    userSession.logIn().setRoot();
+    ComponentDto view = db.components().insertView();
+
+    ShowWsResponse result = newRequest(null, view.key());
+    assertThat(result.getComponent().hasVisibility()).isTrue();
+  }
+
+  @Test
+  public void should_not_return_visibility_for_module() throws Exception {
+    userSession.logIn().setRoot();
+    ComponentDto privateProject = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(privateProject));
+
+    ShowWsResponse result = newRequest(null, module.key());
+    assertThat(result.getComponent().hasVisibility()).isFalse();
   }
 
   @Test
