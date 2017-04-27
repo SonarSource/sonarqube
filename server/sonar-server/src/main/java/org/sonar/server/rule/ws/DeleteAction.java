@@ -20,20 +20,32 @@
 package org.sonar.server.rule.ws;
 
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.rule.RuleDeleter;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.rule.index.RuleIndexer;
 
 public class DeleteAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
 
-  private final RuleDeleter ruleDeleter;
+  private final System2 system2;
+  private final RuleIndexer ruleIndexer;
+  private final DbClient dbClient;
+  private final RuleActivator ruleActivator;
   private final RuleWsSupport ruleWsSupport;
 
-  public DeleteAction(RuleDeleter ruleDeleter, RuleWsSupport ruleWsSupport) {
-    this.ruleDeleter = ruleDeleter;
+  public DeleteAction(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, RuleActivator ruleActivator, RuleWsSupport ruleWsSupport) {
+    this.system2 = system2;
+    this.ruleIndexer = ruleIndexer;
+    this.dbClient = dbClient;
+    this.ruleActivator = ruleActivator;
     this.ruleWsSupport = ruleWsSupport;
   }
 
@@ -58,6 +70,27 @@ public class DeleteAction implements RulesWsAction {
   public void handle(Request request, Response response) {
     ruleWsSupport.checkQProfileAdminPermission();
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    ruleDeleter.delete(key);
+    delete(key);
+  }
+
+  public void delete(RuleKey ruleKey) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      RuleDefinitionDto rule = dbClient.ruleDao().selectOrFailDefinitionByKey(dbSession, ruleKey);
+      if (!rule.isCustomRule()) {
+        throw new IllegalStateException("Only custom rules can be deleted");
+      }
+
+      // For custom rule, first deactivate the rule on all profiles
+      if (rule.isCustomRule()) {
+        ruleActivator.deactivateOfAllOrganizations(dbSession, rule);
+      }
+
+      rule.setStatus(RuleStatus.REMOVED);
+      rule.setUpdatedAt(system2.now());
+      dbClient.ruleDao().update(dbSession, rule);
+
+      dbSession.commit();
+      ruleIndexer.indexRuleDefinition(ruleKey);
+    }
   }
 }
