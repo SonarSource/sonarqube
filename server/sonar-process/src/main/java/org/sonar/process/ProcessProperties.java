@@ -66,6 +66,7 @@ public class ProcessProperties {
   public static final String SEARCH_HTTP_PORT = "sonar.search.httpPort";
   public static final String SEARCH_JAVA_OPTS = "sonar.search.javaOpts";
   public static final String SEARCH_JAVA_ADDITIONAL_OPTS = "sonar.search.javaAdditionalOpts";
+  public static final String SEARCH_REPLICAS = "sonar.search.replicas";
 
   public static final String WEB_JAVA_OPTS = "sonar.web.javaOpts";
 

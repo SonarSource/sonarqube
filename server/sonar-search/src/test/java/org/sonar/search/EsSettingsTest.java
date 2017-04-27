@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -35,6 +36,9 @@ public class EsSettingsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_default_settings() throws Exception {
@@ -92,6 +96,35 @@ public class EsSettingsTest {
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
+  }
+
+  @Test
+  public void cluster_is_enabled_with_defined_replicas() throws Exception {
+    Props props = minProps();
+    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("index.number_of_replicas")).isEqualTo("5");
+  }
+
+  @Test
+  public void cluster_not_enabled_but_replicas_are_defined() throws Exception {
+    Props props = minProps();
+    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("index.number_of_replicas")).isEqualTo("5");
+  }
+
+  @Test
+  public void incorrect_values_of_replicas() throws Exception {
+    Props props = minProps();
+    props.set(ProcessProperties.SEARCH_REPLICAS, "ꝱꝲꝳପ");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Value of property sonar.search.replicas is not an integer:");
+    Settings settings = new EsSettings(props).build();
   }
 
   @Test

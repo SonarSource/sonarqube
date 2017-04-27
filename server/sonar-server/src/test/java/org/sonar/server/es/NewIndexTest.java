@@ -186,14 +186,48 @@ public class NewIndexTest {
   }
 
   @Test
-  public void customize_number_of_shards_and_replicas() {
+  public void default_number_of_replicas_on_standalone_instance_must_be_0() {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
-    settings.setProperty("sonar.search.issues.shards", "3");
-    settings.setProperty("sonar.search.issues.replicas", "1");
     index.configureShards(settings, 5);
-    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+  }
+
+  @Test
+  public void default_number_of_replicas_on_non_enabled_cluster_must_be_0() {
+    NewIndex index = new NewIndex("issues");
+    MapSettings settings = new MapSettings();
+    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "false");
+    index.configureShards(settings, 5);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+  }
+
+  @Test
+  public void default_number_of_replicas_on_cluster_instance_must_be_1() {
+    NewIndex index = new NewIndex("issues");
+    MapSettings settings = new MapSettings();
+    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
+    index.configureShards(settings, 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
+  }
+
+  @Test
+  public void when_number_of_replicas_on_cluster_is_specified_to_zero_default_value_must_not_be_used() {
+    NewIndex index = new NewIndex("issues");
+    MapSettings settings = new MapSettings();
+    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
+    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "0");
+    index.configureShards(settings, 5);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
+  }
+
+  @Test
+  public void customize_number_of_replicas() {
+    NewIndex index = new NewIndex("issues");
+    MapSettings settings = new MapSettings();
+    settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "3");
+    index.configureShards(settings, 5);
+    assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("3");
   }
 
   @Test

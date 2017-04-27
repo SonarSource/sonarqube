@@ -158,21 +158,27 @@ public class EsSettings implements EsSettingsMBean {
   }
 
   private void configureCluster(Settings.Builder builder) {
-    int replicationFactor = 0;
+    int replicationFactor = props.valueAsInt(ProcessProperties.SEARCH_REPLICAS, 0);
+
     if (clusterEnabled) {
-      replicationFactor = 1;
+      if (!props.contains(ProcessProperties.SEARCH_REPLICAS)) {
+        // In data center edition there is 3 nodes, so if not defined, replicationFactor default value is 1
+        replicationFactor = 1;
+      }
+
       String hosts = props.value(ProcessProperties.CLUSTER_SEARCH_HOSTS, "");
       LOGGER.info("Elasticsearch cluster enabled. Connect to hosts [{}]", hosts);
       builder.put("discovery.zen.ping.unicast.hosts", hosts);
     }
-    builder.put("discovery.zen.minimum_master_nodes", 1);
-    builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor);
-    builder.put("cluster.name", getClusterName());
-    builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    builder.put("node.rack_id", nodeName);
-    builder.put("node.name", nodeName);
-    builder.put("node.data", true);
-    builder.put("node.master", true);
+
+    builder.put("discovery.zen.minimum_master_nodes", 1)
+      .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor)
+      .put("cluster.name", getClusterName())
+      .put("cluster.routing.allocation.awareness.attributes", "rack_id")
+      .put("node.rack_id", nodeName)
+      .put("node.name", nodeName)
+      .put("node.data", true)
+      .put("node.master", true);
   }
 
   private void configureMarvel(Settings.Builder builder) {
