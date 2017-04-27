@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Marionette from 'backbone.marionette';
+import escapeHtml from 'escape-html';
 import Template from '../templates/quality-gate-detail-projects.hbs';
 import '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
@@ -33,8 +34,8 @@ export default Marionette.ItemView.extend({
       width: '100%',
       readOnly: !this.options.edit,
       focusSearch: false,
-      format(item) {
-        return item.name;
+      dangerouslyUnescapedHtmlFormat(item) {
+        return escapeHtml(item.name);
       },
       searchUrl: window.baseUrl + '/api/qualitygates/search?gateId=' + qualityGate.id,
       selectUrl: window.baseUrl + '/api/qualitygates/select',

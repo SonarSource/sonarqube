@@ -43,7 +43,7 @@ export default ModalFormView.extend({
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format(item) {
+      dangerouslyUnescapedHtmlFormat(item) {
         return escapeHtml(item.name);
       },
       selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
