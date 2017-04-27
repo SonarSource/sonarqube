@@ -27,6 +27,7 @@ import static java.lang.String.format;
 public class BillingValidations implements BillingValidationsExtension {
 
   private static final String PREVENT_PROJECT_ANALYSIS_SETTING = "sonar.billing.preventProjectAnalysis";
+  private static final String PREVENT_UPDATING_PROJECTS_VISIBILITY_TO_PRIVATE_SETTING = "sonar.billing.preventUpdatingProjectsVisibilityToPrivate";
 
   private final Settings settings;
 
@@ -40,5 +41,13 @@ public class BillingValidations implements BillingValidationsExtension {
     if (preventProjectAnalysis) {
       throw new BillingValidationsException(format("Organization %s cannot perform analysis", organization.getKey()));
     }
+  }
+
+  @Override
+  public boolean canUpdateProjectsVisibilityToPrivate(Organization organization) {
+    if (!settings.hasKey(PREVENT_UPDATING_PROJECTS_VISIBILITY_TO_PRIVATE_SETTING)) {
+      return true;
+    }
+    return !settings.getBoolean(PREVENT_UPDATING_PROJECTS_VISIBILITY_TO_PRIVATE_SETTING);
   }
 }

@@ -22,12 +22,14 @@ package org.sonar.server.organization;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.organization.BillingValidations.Organization;
 
-public class BillingValidationsProxyTest {
+public class BillingValidationsProxyImplTest {
 
   private static String ORGANIZATION_KEY = "ORGANIZATION_KEY";
   private static String ORGANIZATION_UUID = "ORGANIZATION_UUID";
@@ -39,8 +41,8 @@ public class BillingValidationsProxyTest {
   @Test
   public void checkOnProjectAnalysis_calls_extension_when_available() {
     underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
-
     Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
+
     underTest.checkOnProjectAnalysis(organization);
 
     verify(billingValidationsExtension).checkOnProjectAnalysis(organization);
@@ -49,10 +51,33 @@ public class BillingValidationsProxyTest {
   @Test
   public void checkOnProjectAnalysis_does_nothing_when_no_extension_available() {
     underTest = new BillingValidationsProxyImpl();
-
     Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
+
     underTest.checkOnProjectAnalysis(organization);
 
+    verifyZeroInteractions(billingValidationsExtension);
+  }
+
+  @Test
+  public void canUpdateProjectsVisibilityToPrivate_calls_extension_when_available() {
+    underTest = new BillingValidationsProxyImpl(billingValidationsExtension);
+    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
+    when(billingValidationsExtension.canUpdateProjectsVisibilityToPrivate(organization)).thenReturn(false);
+
+    boolean result = underTest.canUpdateProjectsVisibilityToPrivate(organization);
+
+    assertThat(result).isFalse();
+    verify(billingValidationsExtension).canUpdateProjectsVisibilityToPrivate(organization);
+  }
+
+  @Test
+  public void canUpdateProjectsVisibilityToPrivate_return_true_when_no_extension() {
+    underTest = new BillingValidationsProxyImpl();
+    Organization organization = new Organization(ORGANIZATION_KEY, ORGANIZATION_UUID);
+
+    boolean result = underTest.canUpdateProjectsVisibilityToPrivate(organization);
+
+    assertThat(result).isTrue();
     verifyZeroInteractions(billingValidationsExtension);
   }
 
