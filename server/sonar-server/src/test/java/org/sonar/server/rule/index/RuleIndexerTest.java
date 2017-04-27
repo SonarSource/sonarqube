@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -28,13 +29,15 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 public class RuleIndexerTest {
 
@@ -93,5 +96,26 @@ public class RuleIndexerTest {
     underTest.indexRuleDefinition(rule.getKey());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
+  }
+
+  @Test
+  public void index_rule_extension_with_long_id() {
+    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKeyOfMaximumLength()));
+    underTest.indexRuleDefinition(rule.getKey());
+    OrganizationDto organization = dbTester.organizations().insert();
+    dbTester.rules().insertOrUpdateMetadata(rule, organization, m -> m.setTags(ImmutableSet.of("bla")));
+    underTest.indexRuleExtension(organization, rule.getKey());
+
+    RuleExtensionDoc doc = new RuleExtensionDoc()
+      .setRuleKey(rule.getKey())
+      .setScope(RuleExtensionScope.organization(organization.getUuid()));
+    assertThat(
+      esTester.client()
+        .prepareSearch(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION)
+        .setQuery(termQuery("_id", doc.getId()))
+        .get()
+        .getHits()
+        .getHits()[0]
+          .getId()).isEqualTo(doc.getId());
   }
 }

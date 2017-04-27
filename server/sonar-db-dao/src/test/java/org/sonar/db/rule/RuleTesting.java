@@ -35,6 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -248,6 +249,10 @@ public class RuleTesting {
 
   public static RuleKey randomRuleKey() {
     return RuleKey.of("repo_" + randomAlphanumeric(3), "rule_" + randomAlphanumeric(3));
+  }
+
+  public static RuleKey randomRuleKeyOfMaximumLength() {
+    return RuleKey.of(random(255), random(200));
   }
 
   public static Consumer<RuleDefinitionDto> setRepositoryKey(String repositoryKey) {
