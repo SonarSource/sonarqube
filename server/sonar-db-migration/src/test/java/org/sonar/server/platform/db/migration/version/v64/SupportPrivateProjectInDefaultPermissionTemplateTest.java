@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidImpl;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProviderImpl;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
@@ -46,7 +46,7 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SupportPrivateProjectInDefaultPermissionTemplate underTest = new SupportPrivateProjectInDefaultPermissionTemplate(db.database(), new DefaultOrganizationUuidImpl());
+  private SupportPrivateProjectInDefaultPermissionTemplate underTest = new SupportPrivateProjectInDefaultPermissionTemplate(db.database(), new DefaultOrganizationUuidProviderImpl());
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {

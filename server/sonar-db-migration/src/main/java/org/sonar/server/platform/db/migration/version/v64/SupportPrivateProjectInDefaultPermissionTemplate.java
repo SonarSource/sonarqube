@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.Select;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -36,16 +36,16 @@ public class SupportPrivateProjectInDefaultPermissionTemplate extends DataChange
   private static final String PERMISSION_USER = "user";
   private static final String PERMISSION_CODEVIEWER = "codeviewer";
 
-  private DefaultOrganizationUuid defaultOrganizationUuid;
+  private DefaultOrganizationUuidProvider defaultOrganizationUuidProvider;
 
-  public SupportPrivateProjectInDefaultPermissionTemplate(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public SupportPrivateProjectInDefaultPermissionTemplate(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuidProvider) {
     super(db);
-    this.defaultOrganizationUuid = defaultOrganizationUuid;
+    this.defaultOrganizationUuidProvider = defaultOrganizationUuidProvider;
   }
 
   @Override
   protected void execute(Context context) throws SQLException {
-    String defaultOrganizationUuid = this.defaultOrganizationUuid.get(context);
+    String defaultOrganizationUuid = this.defaultOrganizationUuidProvider.get(context);
 
     ResolvedOrganizationProperties organizationProperties = readOrganizationProperties(context, defaultOrganizationUuid);
 

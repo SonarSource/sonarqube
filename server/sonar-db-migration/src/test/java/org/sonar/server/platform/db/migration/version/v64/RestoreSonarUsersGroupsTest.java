@@ -34,7 +34,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidImpl;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProviderImpl;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
@@ -64,7 +64,7 @@ public class RestoreSonarUsersGroupsTest {
 
   private System2 system2 = mock(System2.class);
 
-  private RestoreSonarUsersGroups underTest = new RestoreSonarUsersGroups(db.database(), system2, new DefaultOrganizationUuidImpl());
+  private RestoreSonarUsersGroups underTest = new RestoreSonarUsersGroups(db.database(), system2, new DefaultOrganizationUuidProviderImpl());
 
   @Before
   public void setUp() throws Exception {

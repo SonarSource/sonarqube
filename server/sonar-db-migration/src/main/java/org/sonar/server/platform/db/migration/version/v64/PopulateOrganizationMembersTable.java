@@ -24,15 +24,15 @@ import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
 public class PopulateOrganizationMembersTable extends DataChange {
 
   private static final String INSERT_ORGANIZATION_MEMBERS_SQL = "INSERT INTO organization_members (user_id, organization_uuid) VALUES (?, ?)";
 
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
 
-  public PopulateOrganizationMembersTable(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public PopulateOrganizationMembersTable(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
   }

@@ -25,7 +25,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuid;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProvider;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -34,9 +34,9 @@ import static org.apache.commons.codec.binary.Hex.encodeHexString;
 public class UpgradeQualityTemplateLoadedTemplates extends DataChange {
   private static final String QUALITY_PROFILE_TYPE = "QUALITY_PROFILE";
 
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
 
-  public UpgradeQualityTemplateLoadedTemplates(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public UpgradeQualityTemplateLoadedTemplates(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
   }

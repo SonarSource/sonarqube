@@ -24,9 +24,9 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 public class MakeDefaultOrganizationGuarded extends DataChange {
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
 
-  public MakeDefaultOrganizationGuarded(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public MakeDefaultOrganizationGuarded(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
   }

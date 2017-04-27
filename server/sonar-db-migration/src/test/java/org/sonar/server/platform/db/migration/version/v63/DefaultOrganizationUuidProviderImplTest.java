@@ -23,21 +23,20 @@ import java.sql.Connection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultOrganizationUuidImplTest {
+public class DefaultOrganizationUuidProviderImplTest {
   private static final String AN_ORG_UUID = "org1";
 
   @Rule
-  public CoreDbTester dbTester = CoreDbTester.createForSchema(DefaultOrganizationUuidImplTest.class, "internal_properties.sql");
+  public CoreDbTester dbTester = CoreDbTester.createForSchema(DefaultOrganizationUuidProviderImplTest.class, "internal_properties.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DefaultOrganizationUuid underTest = new DefaultOrganizationUuidImpl();
+  private DefaultOrganizationUuidProvider underTest = new DefaultOrganizationUuidProviderImpl();
 
   @Test
   public void get_fails_with_ISE_if_default_organization_internal_property_is_not_set() throws Exception {
@@ -54,7 +53,7 @@ public class DefaultOrganizationUuidImplTest {
     assertThat(callGet(underTest)).isEqualTo(AN_ORG_UUID);
   }
 
-  private String callGet(DefaultOrganizationUuid defaultOrganizationUuid) throws Exception {
+  private String callGet(DefaultOrganizationUuidProvider defaultOrganizationUuid) throws Exception {
     try (Connection connection = dbTester.openConnection()) {
       DataChange.Context context = new DataChange.Context(dbTester.database(), connection, connection);
       return defaultOrganizationUuid.get(context);

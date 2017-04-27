@@ -25,9 +25,9 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
 public class PopulateOrganizationUuidToProjects extends DataChange {
-  private final DefaultOrganizationUuid defaultOrganizationUuid;
+  private final DefaultOrganizationUuidProvider defaultOrganizationUuid;
 
-  public PopulateOrganizationUuidToProjects(Database db, DefaultOrganizationUuid defaultOrganizationUuid) {
+  public PopulateOrganizationUuidToProjects(Database db, DefaultOrganizationUuidProvider defaultOrganizationUuid) {
     super(db);
     this.defaultOrganizationUuid = defaultOrganizationUuid;
   }

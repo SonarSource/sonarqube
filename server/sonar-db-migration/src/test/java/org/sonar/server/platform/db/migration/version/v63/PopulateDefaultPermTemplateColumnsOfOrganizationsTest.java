@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ public class PopulateDefaultPermTemplateColumnsOfOrganizationsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private PopulateDefaultPermTemplateColumnsOfOrganizations underTest = new PopulateDefaultPermTemplateColumnsOfOrganizations(dbTester.database(),
-    new DefaultOrganizationUuidImpl());
+    new DefaultOrganizationUuidProviderImpl());
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {

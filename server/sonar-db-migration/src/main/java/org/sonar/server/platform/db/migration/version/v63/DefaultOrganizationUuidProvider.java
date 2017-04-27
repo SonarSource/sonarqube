@@ -22,7 +22,7 @@ package org.sonar.server.platform.db.migration.version.v63;
 import java.sql.SQLException;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
-public interface DefaultOrganizationUuid {
+public interface DefaultOrganizationUuidProvider {
   /**
    * Retrieves the uuid of the default organization from table INTERNAL_PROPERTIES.
    *

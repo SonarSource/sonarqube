@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidImpl;
+import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProviderImpl;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
@@ -42,7 +42,7 @@ public class UpgradeQualityTemplateLoadedTemplatesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UpgradeQualityTemplateLoadedTemplates underTest = new UpgradeQualityTemplateLoadedTemplates(db.database(), new DefaultOrganizationUuidImpl());
+  private UpgradeQualityTemplateLoadedTemplates underTest = new UpgradeQualityTemplateLoadedTemplates(db.database(), new DefaultOrganizationUuidProviderImpl());
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {

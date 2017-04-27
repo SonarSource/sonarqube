@@ -26,7 +26,7 @@ import org.sonar.server.platform.db.migration.version.DbVersion;
 public class DbVersion63 implements DbVersion {
   @Override
   public Stream<Object> getSupportComponents() {
-    return Stream.of(DefaultOrganizationUuidImpl.class);
+    return Stream.of(DefaultOrganizationUuidProviderImpl.class);
   }
 
   @Override

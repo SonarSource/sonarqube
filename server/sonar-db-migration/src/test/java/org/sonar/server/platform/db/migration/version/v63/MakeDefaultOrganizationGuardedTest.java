@@ -40,7 +40,7 @@ public class MakeDefaultOrganizationGuardedTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MakeDefaultOrganizationGuarded underTest = new MakeDefaultOrganizationGuarded(db.database(), new DefaultOrganizationUuidImpl());
+  private MakeDefaultOrganizationGuarded underTest = new MakeDefaultOrganizationGuarded(db.database(), new DefaultOrganizationUuidProviderImpl());
 
   @Test
   public void fails_with_ISE_when_no_default_organization_is_set() throws SQLException {
