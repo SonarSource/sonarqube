@@ -119,6 +119,7 @@ public class CreateAction implements ProjectsWsAction {
       userSession.checkPermission(PROVISION_PROJECTS, organization);
       String visibility = request.getVisibility();
       Boolean changeToPrivate = visibility == null ? dbClient.organizationDao().getNewProjectPrivate(dbSession, organization) : "private".equals(visibility);
+      support.checkCanUpdateProjectsVisibility(organization, changeToPrivate);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
         .setOrganizationUuid(organization.getUuid())

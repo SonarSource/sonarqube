@@ -188,6 +188,32 @@ public class BillingTest {
     }
   }
 
+  @Test
+  public void does_not_fail_to_create_private_project() {
+    String organizationKey = createOrganization();
+    String projectKey = newProjectKey();
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+
+    adminClient.projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organizationKey).setVisibility("public").build());
+
+    assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"visibility\":\"public\"");
+  }
+
+  @Test
+  public void fail_to_create_private_project() {
+    String organizationKey = createOrganization();
+    String projectKey = newProjectKey();
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+
+    try {
+      adminClient.projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organizationKey).setVisibility("private").build());
+      fail();
+    } catch (HttpException ex) {
+      assertThat(ex.code()).isEqualTo(400);
+      assertThat(ex.content()).contains(format("Organization %s cannot use private project", organizationKey));
+    }
+  }
+
   private static String createOrganization() {
     String key = newOrganizationKey();
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(key).setName(key).build()).getOrganization();
