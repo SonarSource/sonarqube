@@ -8,9 +8,9 @@
     <version>6.4-SNAPSHOT</version>
   </parent>
 
-  <artifactId>billing-plugin</artifactId>
+  <artifactId>fake-billing-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <description>Plugins :: Billing</description>
+  <description>Plugins :: Fake Billing Plugin</description>
 
   <dependencies>
     <dependency>
@@ -35,7 +35,7 @@
         <version>1.15</version>
         <extensions>true</extensions>
         <configuration>
-          <pluginClass>BillingPlugin</pluginClass>
+          <pluginClass>FakeBillingPlugin</pluginClass>
           <pluginKey>billing</pluginKey>
         </configuration>
       </plugin>

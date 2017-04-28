@@ -21,13 +21,13 @@
 
 import org.sonar.api.Plugin;
 
-public class BillingPlugin implements Plugin {
+public class FakeBillingPlugin implements Plugin {
 
   @Override
   public void define(Context context) {
     // Nothing should be loaded when the plugin is running within by the scanner
     if (isRunningInSQ()) {
-      context.addExtension(BillingValidations.class);
+      context.addExtension(FakeBillingValidations.class);
     }
   }
 

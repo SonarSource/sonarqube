@@ -24,14 +24,14 @@ import org.sonar.server.organization.BillingValidationsExtension;
 
 import static java.lang.String.format;
 
-public class BillingValidations implements BillingValidationsExtension {
+public class FakeBillingValidations implements BillingValidationsExtension {
 
   private static final String PREVENT_PROJECT_ANALYSIS_SETTING = "sonar.billing.preventProjectAnalysis";
   private static final String PREVENT_UPDATING_PROJECTS_VISIBILITY_TO_PRIVATE_SETTING = "sonar.billing.preventUpdatingProjectsVisibilityToPrivate";
 
   private final Settings settings;
 
-  public BillingValidations(Settings settings) {
+  public FakeBillingValidations(Settings settings) {
     this.settings = settings;
   }
 

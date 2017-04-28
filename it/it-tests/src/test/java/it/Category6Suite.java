@@ -55,8 +55,8 @@ public class Category6Suite {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("base-auth-plugin"))
+    .addPlugin(pluginArtifact("fake-billing-plugin"))
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
-    .addPlugin(pluginArtifact("billing-plugin"))
     .build();
 
   @BeforeClass
