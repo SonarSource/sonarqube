@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableList;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.profiles.ProfileDefinition;
 
@@ -41,12 +43,14 @@ public final class DefinedQProfile {
   private final boolean isDefault;
   private final String loadedTemplateType;
   private final List<org.sonar.api.rules.ActiveRule> activeRules;
+  private final QProfileName parentQProfileName;
 
   private DefinedQProfile(Builder builder, MessageDigest messageDigest) {
     this.qProfileName = new QProfileName(builder.language, builder.getName());
     this.isDefault = builder.declaredDefault || builder.computedDefault;
     this.loadedTemplateType = computeLoadedTemplateType(this.qProfileName, messageDigest);
     this.activeRules = ImmutableList.copyOf(builder.activeRules);
+    this.parentQProfileName = builder.parentName == null ? null : new QProfileName(builder.language, builder.parentName);
   }
 
   private static String computeLoadedTemplateType(QProfileName qProfileName, MessageDigest messageDigest) {
@@ -78,12 +82,18 @@ public final class DefinedQProfile {
     return activeRules;
   }
 
+  @CheckForNull
+  public QProfileName getParentQProfileName() {
+    return parentQProfileName;
+  }
+
   static final class Builder {
     private String language;
     private String name;
     private boolean declaredDefault;
     private boolean computedDefault;
     private final List<org.sonar.api.rules.ActiveRule> activeRules = new ArrayList<>();
+    private String parentName;
 
     public Builder setLanguage(String language) {
       this.language = language;
@@ -116,6 +126,16 @@ public final class DefinedQProfile {
     Builder addRules(List<org.sonar.api.rules.ActiveRule> rules) {
       this.activeRules.addAll(rules);
       return this;
+    }
+
+    public Builder setParentName(@Nullable String parentName) {
+      this.parentName = parentName;
+      return this;
+    }
+
+    @CheckForNull
+    public String getParentName() {
+      return parentName;
     }
 
     DefinedQProfile build(MessageDigest messageDigest) {
