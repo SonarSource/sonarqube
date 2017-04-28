@@ -24,12 +24,28 @@ import ComponentNavMenu from '../ComponentNavMenu';
 it('should work with extensions', () => {
   const component = {
     key: 'foo',
-    qualifier: 'TRK'
+    qualifier: 'TRK',
+    extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
   };
   const conf = {
     showSettings: true,
     extensions: [{ key: 'foo', name: 'Foo' }]
   };
-  const wrapper = shallow(<ComponentNavMenu component={component} conf={conf} />);
-  expect(wrapper).toMatchSnapshot();
+  expect(shallow(<ComponentNavMenu component={component} conf={conf} />)).toMatchSnapshot();
+});
+
+it('should work with multiple extensions', () => {
+  const component = {
+    key: 'foo',
+    qualifier: 'TRK',
+    extensions: [
+      { key: 'component-foo', name: 'ComponentFoo' },
+      { key: 'component-bar', name: 'ComponentBar' }
+    ]
+  };
+  const conf = {
+    showSettings: true,
+    extensions: [{ key: 'foo', name: 'Foo' }, { key: 'bar', name: 'Bar' }]
+  };
+  expect(shallow(<ComponentNavMenu component={component} conf={conf} />)).toMatchSnapshot();
 });
