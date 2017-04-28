@@ -79,7 +79,8 @@ class ProjectContainer extends React.PureComponent {
             conf={configuration}
             location={this.props.location}
           />}
-        {this.props.children}
+        {/* $FlowFixMe */}
+        {React.cloneElement(this.props.children, { component: this.props.project })}
       </div>
     );
   }

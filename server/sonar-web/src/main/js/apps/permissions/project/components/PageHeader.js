@@ -17,44 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import { connect } from 'react-redux';
 import { translate } from '../../../../helpers/l10n';
 import ApplyTemplateView from '../views/ApplyTemplateView';
-import { loadHolders } from '../store/actions';
-import { isPermissionsAppLoading } from '../../../../store/rootReducer';
 
-class PageHeader extends React.PureComponent {
-  static propTypes = {
-    project: React.PropTypes.object.isRequired,
-    loadHolders: React.PropTypes.func.isRequired,
-    loading: React.PropTypes.bool
-  };
+type Props = {|
+  component: {
+    configuration?: {
+      canApplyPermissionTemplate: boolean
+    },
+    key: string,
+    qualifier: string
+  },
+  loadHolders: () => void,
+  loading: boolean
+|};
 
-  static defaultProps = {
-    loading: false
-  };
+export default class PageHeader extends React.PureComponent {
+  props: Props;
 
-  componentWillMount() {
-    this.handleApplyTemplate = this.handleApplyTemplate.bind(this);
-  }
-
-  handleApplyTemplate(e) {
+  handleApplyTemplate = (e: Event & { target: HTMLButtonElement }) => {
     e.preventDefault();
     e.target.blur();
-    const { project, loadHolders } = this.props;
-    const organization = project.organization ? { key: project.organization } : null;
-    new ApplyTemplateView({ project, organization })
-      .on('done', () => loadHolders(project.key))
+    const { component, loadHolders } = this.props;
+    const organization = component.organization ? { key: component.organization } : null;
+    new ApplyTemplateView({ project: component, organization })
+      .on('done', () => loadHolders())
       .render();
-  }
+  };
 
   render() {
-    const configuration = this.props.project.configuration;
+    const configuration = this.props.component.configuration;
     const canApplyPermissionTemplate =
       configuration != null && configuration.canApplyPermissionTemplate;
 
-    const description = ['VW', 'SVW'].includes(this.props.project.qualifier)
+    const description = ['VW', 'SVW'].includes(this.props.component.qualifier)
       ? translate('roles.page.description_portfolio')
       : translate('roles.page.description2');
 
@@ -80,13 +78,3 @@ class PageHeader extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  loading: isPermissionsAppLoading(state)
-});
-
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(PageHeader);
