@@ -19,26 +19,48 @@
  */
 package org.sonarqube.ws.client.project;
 
-import java.util.Optional;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class UpdateVisibilityRequest {
   private final String project;
-  private final Visibility visibility;
+  private final String visibility;
 
-  public enum Visibility {
-    PUBLIC, PRIVATE
+  public UpdateVisibilityRequest(Builder builder) {
+    this.project = builder.project;
+    this.visibility = builder.visibility;
   }
 
-  public UpdateVisibilityRequest(String project, Visibility visibility) {
-    this.project = project;
-    this.visibility = visibility;
-  }
-
+  @CheckForNull
   public String getProject() {
     return project;
   }
 
-  public Optional<Visibility> getVisibility() {
-    return Optional.ofNullable(visibility);
+  @CheckForNull
+  public String getVisibility() {
+    return visibility;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private String project;
+    private String visibility;
+
+    public Builder setProject(@Nullable String project) {
+      this.project = project;
+      return this;
+    }
+
+    public Builder setVisibility(@Nullable String visibility) {
+      this.visibility = visibility;
+      return this;
+    }
+
+    public UpdateVisibilityRequest build() {
+      return new UpdateVisibilityRequest(this);
+    }
   }
 }

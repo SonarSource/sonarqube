@@ -45,11 +45,11 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class CreateAction implements ProjectsWsAction {
 
   private static final String DEPRECATED_PARAM_KEY = "key";
-  static final String PARAM_VISIBILITY = "visibility";
 
   private final ProjectsWsSupport support;
   private final DbClient dbClient;
@@ -117,13 +117,15 @@ public class CreateAction implements ProjectsWsAction {
       OrganizationDto organization = support.getOrganization(dbSession, ofNullable(request.getOrganization())
         .orElseGet(defaultOrganizationProvider.get()::getKey));
       userSession.checkPermission(PROVISION_PROJECTS, organization);
+      String visibility = request.getVisibility();
+      Boolean changeToPrivate = visibility == null ? dbClient.organizationDao().getNewProjectPrivate(dbSession, organization) : "private".equals(visibility);
 
       ComponentDto componentDto = componentUpdater.create(dbSession, newComponentBuilder()
         .setOrganizationUuid(organization.getUuid())
         .setKey(request.getKey())
         .setName(request.getName())
         .setBranch(request.getBranch())
-        .setPrivate(request.getVisibility().map(Visibility::isPrivate).orElseGet(() -> dbClient.organizationDao().getNewProjectPrivate(dbSession, organization)))
+        .setPrivate(changeToPrivate)
         .setQualifier(PROJECT)
         .build(),
         userSession.isLoggedIn() ? userSession.getUserId() : null);

@@ -36,16 +36,16 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.core.permission.ProjectPermissions.PUBLIC_PERMISSIONS;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class UpdateVisibilityAction implements ProjectsWsAction {
-  private static final String ACTION = "update_visibility";
-  private static final String PARAM_VISIBILITY = "visibility";
   private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW);
 
   private final DbClient dbClient;
@@ -62,7 +62,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   }
 
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION)
+    WebService.NewAction action = context.createAction(ProjectsWsParameters.ACTION_UPDATE_VISIBILITY)
       .setDescription("Updates visibility of a project or a view.<br/>" +
         "Requires 'Project administer' permission on the specified project or view")
       .setSince("6.4")
