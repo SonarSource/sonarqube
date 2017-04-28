@@ -43,6 +43,7 @@ export default class GlobalMessages extends React.PureComponent {
         {message.message}
         <button
           className="process-spinner-close"
+          type="button"
           onClick={() => this.props.closeGlobalMessage(message.id)}>
           <i className="icon-close" />
         </button>
