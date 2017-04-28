@@ -92,7 +92,6 @@ public class UpdateVisibilityActionTest {
   private final Random random = new Random();
   private final String randomVisibility = random.nextBoolean() ? PUBLIC : PRIVATE;
   private final TestRequest request = actionTester.newRequest();
-  private final OrganizationDto organization = dbTester.organizations().insert();
 
   @Test
   public void execute_fails_if_user_is_not_logged_in() {
@@ -169,6 +168,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_fails_with_BadRequestException_if_specified_component_is_neither_a_project_nor_a_view() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = randomPublicOrPrivateProject();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto dir = ComponentTesting.newDirectory(project, "path");
@@ -195,6 +195,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_throws_ForbiddenException_if_user_has_no_permission_on_specified_component() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     request.setParam(PARAM_PROJECT, project.key())
       .setParam(PARAM_VISIBILITY, randomVisibility);
@@ -206,6 +207,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_throws_ForbiddenException_if_user_has_all_permissions_but_ADMIN_on_specified_component() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     request.setParam(PARAM_PROJECT, project.key())
       .setParam(PARAM_VISIBILITY, randomVisibility);
@@ -272,6 +274,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_has_no_effect_when_changing_a_view_to_public() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = randomPublicOrPrivateProject();
     ComponentDto view = dbTester.components().insertView(organization);
     ComponentDto subView = ComponentTesting.newSubView(view);
@@ -290,6 +293,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_fails_with_BadRequestException_when_changing_a_view_to_private() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = randomPublicOrPrivateProject();
     ComponentDto view = dbTester.components().insertView(organization);
     ComponentDto subView = ComponentTesting.newSubView(view);
@@ -331,10 +335,11 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_deletes_all_permissions_to_Anyone_on_specified_project_when_new_visibility_is_private() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup(organization);
-    unsafeGiveAllPermissionsToRootComponent(project, user, group);
+    unsafeGiveAllPermissionsToRootComponent(project, user, group, organization);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     request.setParam(PARAM_PROJECT, project.key())
@@ -346,10 +351,11 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_does_not_delete_all_permissions_to_AnyOne_on_specified_project_if_already_private() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup(organization);
-    unsafeGiveAllPermissionsToRootComponent(project, user, group);
+    unsafeGiveAllPermissionsToRootComponent(project, user, group, organization);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     request.setParam(PARAM_PROJECT, project.key())
@@ -361,10 +367,11 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_deletes_all_permissions_USER_and_BROWSE_of_specified_project_when_new_visibility_is_public() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup(organization);
-    unsafeGiveAllPermissionsToRootComponent(project, user, group);
+    unsafeGiveAllPermissionsToRootComponent(project, user, group, organization);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     request.setParam(PARAM_PROJECT, project.key())
@@ -376,10 +383,11 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_does_not_delete_permissions_USER_and_BROWSE_of_specified_project_when_new_component_is_already_public() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup(organization);
-    unsafeGiveAllPermissionsToRootComponent(project, user, group);
+    unsafeGiveAllPermissionsToRootComponent(project, user, group, organization);
     userSessionRule.addProjectPermission(UserRole.ADMIN, project);
 
     request.setParam(PARAM_PROJECT, project.key())
@@ -391,10 +399,11 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_does_not_delete_permissions_USER_and_BROWSE_of_specified_view_when_making_it_public() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto view = dbTester.components().insertView(organization);
     UserDto user = dbTester.users().insertUser();
     GroupDto group = dbTester.users().insertGroup(organization);
-    unsafeGiveAllPermissionsToRootComponent(view, user, group);
+    unsafeGiveAllPermissionsToRootComponent(view, user, group, organization);
     userSessionRule.addProjectPermission(UserRole.ADMIN, view);
 
     request.setParam(PARAM_PROJECT, view.key())
@@ -432,6 +441,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_does_not_update_permission_of_specified_view_in_indexes_when_making_it_public() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto view = dbTester.components().insertView(organization);
     userSessionRule.addProjectPermission(UserRole.ADMIN, view);
 
@@ -444,6 +454,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_grants_USER_and_CODEVIEWER_permissions_to_any_user_with_at_least_one_permission_when_making_project_private() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     UserDto user1 = dbTester.users().insertUser();
     UserDto user2 = dbTester.users().insertUser();
@@ -467,6 +478,7 @@ public class UpdateVisibilityActionTest {
 
   @Test
   public void execute_grants_USER_and_CODEVIEWER_permissions_to_any_group_with_at_least_one_permission_when_making_project_private() {
+    OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     GroupDto group1 = dbTester.users().insertGroup(organization);
     GroupDto group2 = dbTester.users().insertGroup(organization);
@@ -488,7 +500,7 @@ public class UpdateVisibilityActionTest {
       .isEmpty();
   }
 
-  private void unsafeGiveAllPermissionsToRootComponent(ComponentDto component, UserDto user, GroupDto group) {
+  private void unsafeGiveAllPermissionsToRootComponent(ComponentDto component, UserDto user, GroupDto group, OrganizationDto organization) {
     Arrays.stream(OrganizationPermission.values())
       .forEach(organizationPermission -> {
         dbTester.users().insertPermissionOnAnyone(organization, organizationPermission);
@@ -530,32 +542,32 @@ public class UpdateVisibilityActionTest {
   }
 
   private void verifyHasAllPermissionsButProjectPermissionsToGroupAnyOne(ComponentDto component, UserDto user, GroupDto group) {
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()))
+    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), component.getOrganizationUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, component.getId()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null, component.getId()))
       .isEmpty();
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), component.getId()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.getId()))
       .containsAll(ProjectPermissions.ALL);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), component.getId()))
       .containsAll(ProjectPermissions.ALL);
   }
 
   private void verifyHasAllPermissionsButProjectPermissionsUserAndBrowse(ComponentDto component, UserDto user, GroupDto group) {
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()))
+    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), component.getOrganizationUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, component.getId()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null, component.getId()))
       .doesNotContain(UserRole.USER)
       .doesNotContain(UserRole.CODEVIEWER)
       .containsAll(PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER);
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), component.getId()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.getId()))
       .doesNotContain(UserRole.USER)
       .doesNotContain(UserRole.CODEVIEWER)
       .containsAll(PROJECT_PERMISSIONS_BUT_USER_AND_CODEVIEWER);
@@ -566,15 +578,15 @@ public class UpdateVisibilityActionTest {
   }
 
   private void verifyStillHasAllPermissions(ComponentDto component, UserDto user, GroupDto group) {
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), null))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, organization.getUuid(), group.getId()))
+    assertThat(dbClient.groupPermissionDao().selectGlobalPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), organization.getUuid()))
+    assertThat(dbClient.userPermissionDao().selectGlobalPermissionsOfUser(dbSession, user.getId(), component.getOrganizationUuid()))
       .containsAll(ORGANIZATION_PERMISSIONS_NAME_SET);
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), null, component.getId()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), null, component.getId()))
       .containsAll(ProjectPermissions.ALL);
-    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, organization.getUuid(), group.getId(), component.getId()))
+    assertThat(dbClient.groupPermissionDao().selectProjectPermissionsOfGroup(dbSession, component.getOrganizationUuid(), group.getId(), component.getId()))
       .containsAll(ProjectPermissions.ALL);
     assertThat(dbClient.userPermissionDao().selectProjectPermissionsOfUser(dbSession, user.getId(), component.getId()))
       .containsAll(ProjectPermissions.ALL);
@@ -609,6 +621,7 @@ public class UpdateVisibilityActionTest {
   }
 
   private ComponentDto randomPublicOrPrivateProject() {
+    OrganizationDto organization = dbTester.organizations().insert();
     return random.nextBoolean() ? dbTester.components().insertPublicProject(organization) : dbTester.components().insertPrivateProject(organization);
   }
 }
