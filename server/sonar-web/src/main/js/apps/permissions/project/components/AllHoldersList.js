@@ -19,72 +19,77 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
+import { without } from 'lodash';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
-import {
-  loadHolders,
-  grantToUser,
-  revokeFromUser,
-  grantToGroup,
-  revokeFromGroup,
-  updateQuery,
-  updateFilter,
-  selectPermission
-} from '../store/actions';
 import { translate } from '../../../../helpers/l10n';
 import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
-import {
-  getPermissionsAppUsers,
-  getPermissionsAppGroups,
-  getPermissionsAppQuery,
-  getPermissionsAppFilter,
-  getPermissionsAppSelectedPermission
-} from '../../../../store/rootReducer';
 
-class AllHoldersList extends React.PureComponent {
-  static propTypes = {
-    project: React.PropTypes.object.isRequired
-  };
+type Props = {|
+  component: {
+    configuration?: {
+      canApplyPermissionTemplate: boolean
+    },
+    key: string,
+    organization: string,
+    qualifier: string,
+    visibility: string
+  },
+  filter: string,
+  grantPermissionToGroup: (group: string, permission: string) => void,
+  grantPermissionToUser: (user: string, permission: string) => void,
+  groups: Array<{
+    name: string,
+    permissions: Array<string>
+  }>,
+  onFilterChange: string => void,
+  onPermissionSelect: (string | void) => void,
+  onQueryChange: string => void,
+  query: string,
+  revokePermissionFromGroup: (group: string, permission: string) => void,
+  revokePermissionFromUser: (user: string, permission: string) => void,
+  selectedPermission: ?string,
+  visibility: string,
+  users: Array<{
+    login: string,
+    name: string,
+    permissions: Array<string>
+  }>
+|};
 
-  componentDidMount() {
-    this.props.loadHolders(this.props.project.key);
-  }
+export default class AllHoldersList extends React.PureComponent {
+  props: Props;
 
-  handleSearch(query) {
-    this.props.onSearch(this.props.project.key, query);
-  }
-
-  handleFilter(filter) {
-    this.props.onFilter(this.props.project.key, filter);
-  }
-
-  handleToggleUser(user, permission) {
+  handleToggleUser = (user: Object, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromUser(this.props.project.key, user.login, permission);
+      this.props.revokePermissionFromUser(user.login, permission);
     } else {
-      this.props.grantPermissionToUser(this.props.project.key, user.login, permission);
+      this.props.grantPermissionToUser(user.login, permission);
     }
-  }
+  };
 
-  handleToggleGroup(group, permission) {
+  handleToggleGroup = (group: Object, permission: string) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
-      this.props.revokePermissionFromGroup(this.props.project.key, group.name, permission);
+      this.props.revokePermissionFromGroup(group.name, permission);
     } else {
-      this.props.grantPermissionToGroup(this.props.project.key, group.name, permission);
+      this.props.grantPermissionToGroup(group.name, permission);
     }
-  }
+  };
 
-  handleSelectPermission(permission) {
-    this.props.onSelectPermission(this.props.project.key, permission);
-  }
+  handleSelectPermission = (permission?: string) => {
+    this.props.onPermissionSelect(permission);
+  };
 
   render() {
-    const order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.project.qualifier];
+    let order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
+    if (this.props.visibility === 'public') {
+      order = without(order, 'user', 'codeviewer');
+    }
+
     const permissions = order.map(p => ({
       key: p,
       name: translate('projects_role', p),
@@ -97,52 +102,18 @@ class AllHoldersList extends React.PureComponent {
         selectedPermission={this.props.selectedPermission}
         users={this.props.users}
         groups={this.props.groups}
-        onSelectPermission={this.handleSelectPermission.bind(this)}
-        onToggleUser={this.handleToggleUser.bind(this)}
-        onToggleGroup={this.handleToggleGroup.bind(this)}>
+        onSelectPermission={this.handleSelectPermission}
+        onToggleUser={this.handleToggleUser}
+        onToggleGroup={this.handleToggleGroup}>
 
         <SearchForm
           query={this.props.query}
           filter={this.props.filter}
-          onSearch={this.handleSearch.bind(this)}
-          onFilter={this.handleFilter.bind(this)}
+          onSearch={this.props.onQueryChange}
+          onFilter={this.props.onFilterChange}
         />
 
       </HoldersList>
     );
   }
 }
-
-const mapStateToProps = state => ({
-  users: getPermissionsAppUsers(state),
-  groups: getPermissionsAppGroups(state),
-  query: getPermissionsAppQuery(state),
-  filter: getPermissionsAppFilter(state),
-  selectedPermission: getPermissionsAppSelectedPermission(state)
-});
-
-type OwnProps = {
-  project: {
-    organization?: string
-  }
-};
-
-const mapDispatchToProps = (dispatch: Function, ownProps: OwnProps) => ({
-  loadHolders: projectKey => dispatch(loadHolders(projectKey, ownProps.project.organization)),
-  onSearch: (projectKey, query) =>
-    dispatch(updateQuery(projectKey, query, ownProps.project.organization)),
-  onFilter: (projectKey, filter) =>
-    dispatch(updateFilter(projectKey, filter, ownProps.project.organization)),
-  onSelectPermission: (projectKey, permission) =>
-    dispatch(selectPermission(projectKey, permission, ownProps.project.organization)),
-  grantPermissionToUser: (projectKey, login, permission) =>
-    dispatch(grantToUser(projectKey, login, permission, ownProps.project.organization)),
-  revokePermissionFromUser: (projectKey, login, permission) =>
-    dispatch(revokeFromUser(projectKey, login, permission, ownProps.project.organization)),
-  grantPermissionToGroup: (projectKey, groupName, permission) =>
-    dispatch(grantToGroup(projectKey, groupName, permission, ownProps.project.organization)),
-  revokePermissionFromGroup: (projectKey, groupName, permission) =>
-    dispatch(revokeFromGroup(projectKey, groupName, permission, ownProps.project.organization))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(AllHoldersList);

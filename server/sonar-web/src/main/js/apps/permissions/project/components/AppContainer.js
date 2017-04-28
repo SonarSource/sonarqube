@@ -17,25 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const globalPermissionsRoutes = [
-  {
-    getIndexRoute(_, callback) {
-      require.ensure([], require => {
-        const GlobalPermissionsApp = require('./global/components/App').default;
-        const forSingleOrganization = require('../organizations/forSingleOrganization').default;
-        const component = forSingleOrganization(GlobalPermissionsApp);
-        callback(null, { component });
-      });
-    }
-  }
-];
+import { connect } from 'react-redux';
+import App from './App';
+import { onFail } from '../../../../store/rootActions';
+import { getCurrentUser } from '../../../../store/rootReducer';
 
-export const projectPermissionsRoutes = [
-  {
-    getIndexRoute(_, callback) {
-      require.ensure([], require =>
-        callback(null, { component: require('./project/components/AppContainer').default })
-      );
-    }
-  }
-];
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
+
+const mapDispatchToProps = dispatch => ({
+  onRequestFail: onFail(dispatch)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
