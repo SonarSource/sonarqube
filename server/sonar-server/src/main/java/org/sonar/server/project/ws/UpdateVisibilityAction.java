@@ -30,14 +30,18 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
 
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.permission.ProjectPermissions.PUBLIC_PERMISSIONS;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -52,13 +56,15 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
   private final PermissionIndexer permissionIndexer;
+  private final BillingValidationsProxy billingValidations;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    PermissionIndexer permissionIndexer) {
+    PermissionIndexer permissionIndexer, BillingValidationsProxy billingValidations) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.permissionIndexer = permissionIndexer;
+    this.billingValidations = billingValidations;
   }
 
   public void define(WebService.NewController context) {
@@ -95,6 +101,9 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
       checkRequest(noPendingTask(dbSession, component), "Component visibility can't be changed as long as it has background task(s) pending or in progress");
 
       if (changeToPrivate != component.isPrivate()) {
+        OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, component.getOrganizationUuid())
+          .orElseThrow(() -> new IllegalStateException(format("Could not find organization with uuid '%s' of project '%s'", component.getOrganizationUuid(), projectKey)));
+        checkCanUpdateProjectsVisibility(organization, changeToPrivate);
         dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, component.uuid(), changeToPrivate);
         if (changeToPrivate) {
           updatePermissionsToPrivate(dbSession, component);
@@ -146,6 +155,14 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
       // delete project user permission for UserRole.CODEVIEWER and UserRole.USER
       dbClient.userPermissionDao().deleteProjectPermissionOfAnyUser(dbSession, component.getId(), permission);
     });
+  }
+
+  private void checkCanUpdateProjectsVisibility(OrganizationDto organization, boolean newProjectsPrivate) {
+    try {
+      billingValidations.checkCanUpdateProjectsVisibility(new BillingValidations.Organization(organization.getKey(), organization.getUuid()), newProjectsPrivate);
+    } catch (BillingValidations.BillingValidationsException e) {
+      throw new IllegalArgumentException(e.getMessage());
+    }
   }
 
 }
