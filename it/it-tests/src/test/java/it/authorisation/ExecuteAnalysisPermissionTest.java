@@ -37,7 +37,6 @@ import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonarqube.ws.client.project.UpdateVisibilityRequest.Visibility.PRIVATE;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 
@@ -85,7 +84,7 @@ public class ExecuteAnalysisPermissionTest {
         "You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.");
     }
 
-    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(new UpdateVisibilityRequest(PROJECT_KEY, PRIVATE));
+    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(PROJECT_KEY).setVisibility("private").build());
     try {
       // Execute anonymous analysis
       executeAnonymousAnalysis();
@@ -102,7 +101,7 @@ public class ExecuteAnalysisPermissionTest {
     executeAnonymousAnalysis();
 
     // make project private
-    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(new UpdateVisibilityRequest("sample", PRIVATE));
+    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample").setVisibility("private").build());
 
     // still no error
     executeAnonymousAnalysis();

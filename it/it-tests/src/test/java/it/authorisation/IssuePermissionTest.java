@@ -40,7 +40,6 @@ import util.ItUtils;
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.project.UpdateVisibilityRequest.Visibility.PRIVATE;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
@@ -58,7 +57,7 @@ public class IssuePermissionTest {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/authorisation/one-issue-per-line-profile.xml"));
 
     orchestrator.getServer().provisionProject("privateProject", "PrivateProject");
-    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(new UpdateVisibilityRequest("privateProject", PRIVATE));
+    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("privateProject").setVisibility("private").build());
     orchestrator.getServer().associateProjectToQualityProfile("privateProject", "xoo", "one-issue-per-line");
     SonarScanner privateProject = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "privateProject")

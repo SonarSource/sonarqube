@@ -34,7 +34,6 @@ import util.ItUtils;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
-import static org.sonarqube.ws.client.project.UpdateVisibilityRequest.Visibility.PRIVATE;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -55,7 +54,7 @@ public class ProjectsAdministrationTest {
   public void return_all_projects_even_when_no_permission() throws Exception {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample1"));
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample2"));
-    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(new UpdateVisibilityRequest("sample2", PRIVATE));
+    ItUtils.newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample2").setVisibility("private").build());
     // Remove 'Admin' permission for admin group on project 2 -> No one can access or admin this project, expect System Admin
     newAdminWsClient(orchestrator).permissions().removeGroup(new RemoveGroupWsRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
 

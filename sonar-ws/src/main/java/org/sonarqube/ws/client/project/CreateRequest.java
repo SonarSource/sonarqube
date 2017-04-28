@@ -19,13 +19,9 @@
  */
 package org.sonarqube.ws.client.project;
 
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
 
 @Immutable
 public class CreateRequest {
@@ -50,10 +46,12 @@ public class CreateRequest {
     return organization;
   }
 
+  @CheckForNull
   public String getKey() {
     return key;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
@@ -63,8 +61,9 @@ public class CreateRequest {
     return branch;
   }
 
-  public Optional<String> getVisibility() {
-    return Optional.ofNullable(visibility);
+  @CheckForNull
+  public String getVisibility() {
+    return visibility;
   }
 
   public static Builder builder() {
@@ -82,17 +81,17 @@ public class CreateRequest {
     private Builder() {
     }
 
-    public Builder setOrganization(String organization) {
+    public Builder setOrganization(@Nullable String organization) {
       this.organization = organization;
       return this;
     }
 
-    public Builder setKey(String key) {
+    public Builder setKey(@Nullable String key) {
       this.key = key;
       return this;
     }
 
-    public Builder setName(String name) {
+    public Builder setName(@Nullable String name) {
       this.name = name;
       return this;
     }
@@ -103,7 +102,6 @@ public class CreateRequest {
     }
 
     public Builder setVisibility(@Nullable String visibility) {
-      checkArgument(visibility == null || asList("private", "public").contains(visibility), "Unexpected visibility '" + visibility + "'");
       this.visibility = visibility;
       return this;
     }

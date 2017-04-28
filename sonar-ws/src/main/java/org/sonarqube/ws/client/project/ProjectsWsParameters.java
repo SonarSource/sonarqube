@@ -30,6 +30,7 @@ public class ProjectsWsParameters {
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_UPDATE_KEY = "update_key";
   public static final String ACTION_BULK_UPDATE_KEY = "bulk_update_key";
+  public static final String ACTION_UPDATE_VISIBILITY = "update_visibility";
 
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_PROJECT_ID = "projectId";
@@ -41,6 +42,7 @@ public class ProjectsWsParameters {
   public static final String PARAM_TO = "to";
   public static final String PARAM_DRY_RUN = "dryRun";
 
+  public static final String PARAM_VISIBILITY = "visibility";
   public static final String FILTER_LANGUAGES = "languages";
   public static final String FILTER_TAGS = "tags";
 

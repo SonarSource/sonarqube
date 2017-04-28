@@ -35,6 +35,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_U
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_VISIBILITY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.CONTROLLER;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
@@ -44,7 +45,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
-import static org.sonarqube.ws.client.project.UpdateVisibilityRequest.Visibility.PUBLIC;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 /**
  * Maps web service {@code api/projects}.
@@ -66,7 +67,8 @@ public class ProjectsService extends BaseService {
       .setParam(PARAM_ORGANIZATION, project.getOrganization())
       .setParam(PARAM_PROJECT, project.getKey())
       .setParam(PARAM_NAME, project.getName())
-      .setParam(PARAM_BRANCH, project.getBranch());
+      .setParam(PARAM_BRANCH, project.getBranch())
+      .setParam(PARAM_VISIBILITY, project.getVisibility());
     return call(request, CreateWsResponse.parser());
   }
 
@@ -109,13 +111,9 @@ public class ProjectsService extends BaseService {
   }
 
   public void updateVisibility(UpdateVisibilityRequest request) {
-    PostRequest post = new PostRequest(path("update_visibility"))
+    PostRequest post = new PostRequest(path(ACTION_UPDATE_VISIBILITY))
       .setParam(PARAM_PROJECT, request.getProject())
-      .setParam("visibility",
-        request.getVisibility()
-          .map(visibility -> visibility == PUBLIC ? "public" : "private")
-          .orElse(null));
-
+      .setParam(PARAM_VISIBILITY, request.getVisibility());
     call(post);
   }
 }

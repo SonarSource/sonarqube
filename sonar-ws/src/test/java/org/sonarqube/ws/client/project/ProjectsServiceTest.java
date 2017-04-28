@@ -85,6 +85,36 @@ public class ProjectsServiceTest {
   }
 
   @Test
+  public void creates_public_project() {
+    underTest.create(CreateRequest.builder()
+      .setKey("project_key")
+      .setName("Project Name")
+      .setVisibility("public")
+      .build());
+
+    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/create");
+    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
+      entry("project", "project_key"),
+      entry("name", "Project Name"),
+      entry("visibility", "public"));
+  }
+
+  @Test
+  public void creates_private_project() {
+    underTest.create(CreateRequest.builder()
+      .setKey("project_key")
+      .setName("Project Name")
+      .setVisibility("private")
+      .build());
+
+    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/create");
+    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
+      entry("project", "project_key"),
+      entry("name", "Project Name"),
+      entry("visibility", "private"));
+  }
+
+  @Test
   public void deletes_project_by_id() {
     underTest.delete(DeleteRequest.builder().setId("abc").build());
 
@@ -118,5 +148,18 @@ public class ProjectsServiceTest {
       .hasParam(PAGE, 3)
       .hasParam(PAGE_SIZE, 10)
       .andNoOtherParam();
+  }
+
+  @Test
+  public void update_visibility() {
+    underTest.updateVisibility(UpdateVisibilityRequest.builder()
+      .setProject("project_key")
+      .setVisibility("public")
+      .build());
+
+    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/update_visibility");
+    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
+      entry("project", "project_key"),
+      entry("visibility", "public"));
   }
 }
