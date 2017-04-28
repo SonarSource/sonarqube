@@ -51,6 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
+import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.ws.CreateAction.PARAM_VISIBILITY;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -207,7 +208,7 @@ public class CreateActionTest {
       .setParam("key", DEFAULT_PROJECT_KEY)
       .setParam("name", DEFAULT_PROJECT_NAME)
       .setParam("organization", organization.getKey())
-      .setParam("visibility", "private")
+      .setParam("visibility", PRIVATE.getLabel())
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(result.getProject().getVisibility()).isEqualTo("private");

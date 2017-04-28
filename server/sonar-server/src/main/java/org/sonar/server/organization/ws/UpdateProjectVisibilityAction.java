@@ -28,6 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
@@ -62,13 +63,13 @@ public class UpdateProjectVisibilityAction implements OrganizationsWsAction {
     action.createParam(PARAM_PROJECT_VISIBILITY)
       .setRequired(true)
       .setDescription("Default visibility for projects")
-      .setPossibleValues("private", "public");
+      .setPossibleValues(Visibility.getLabels());
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String organizationKey = request.mandatoryParam(PARAM_ORGANIZATION);
-    boolean newProjectsPrivate = "private".equals(request.mandatoryParam(PARAM_PROJECT_VISIBILITY));
+    boolean newProjectsPrivate = Visibility.isPrivate(request.mandatoryParam(PARAM_PROJECT_VISIBILITY));
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<OrganizationDto> optionalOrganization = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
       OrganizationDto organization = checkFoundWithOptional(optionalOrganization, "No organization with key '" + organizationKey + "' can be found.");

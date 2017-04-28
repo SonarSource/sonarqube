@@ -54,6 +54,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsComponents.Component;
@@ -412,7 +413,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
         .setId(dbComponent.uuid())
         .setKey(dbComponent.key())
         .setName(dbComponent.name())
-        .setVisibility(dbComponent.isPrivate() ? "private" : "public");
+        .setVisibility(Visibility.getLabel(dbComponent.isPrivate()));
       wsComponent.getTagsBuilder().addAllTags(dbComponent.getTags());
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbComponent.uuid());

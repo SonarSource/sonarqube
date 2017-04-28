@@ -33,6 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
@@ -97,7 +98,7 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("canProvisionProjects", userSession.hasPermission(OrganizationPermission.PROVISION_PROJECTS, organization))
       .prop("canDelete", organization.isGuarded() ? userSession.isSystemAdministrator() : userSession.hasPermission(OrganizationPermission.ADMINISTER, organization))
       .prop("isDefault", organization.getKey().equals(defaultOrganizationProvider.get().getKey()))
-      .prop("projectVisibility", newProjectPrivate ? "private" : "public");
+      .prop("projectVisibility", Visibility.getLabel(newProjectPrivate));
     Predicate<Page> personalOrgForBilling = page -> organization.getUserId() == null || !page.getKey().startsWith("billing/");
     List<Page> pages = pageRepository.getOrganizationPages(false).stream().filter(personalOrgForBilling).collect(toList());
     json.name("pages");

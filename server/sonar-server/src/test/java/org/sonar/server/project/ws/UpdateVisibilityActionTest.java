@@ -136,7 +136,7 @@ public class UpdateVisibilityActionTest {
       .setParam(PARAM_VISIBILITY, "");
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Value of parameter '" + PARAM_VISIBILITY + "' () must be one of: [public, private]");
+    expectedException.expectMessage("Value of parameter '" + PARAM_VISIBILITY + "' () must be one of: [private, public]");
 
     request.execute();
   }
@@ -151,7 +151,7 @@ public class UpdateVisibilityActionTest {
           request.setParam(PARAM_VISIBILITY, visibility).execute();
           fail("An exception should have been raised");
         } catch (IllegalArgumentException e) {
-          assertThat(e.getMessage()).isEqualTo(format("Value of parameter '%s' (%s) must be one of: %s", PARAM_VISIBILITY, visibility, "[public, private]"));
+          assertThat(e.getMessage()).isEqualTo(format("Value of parameter '%s' (%s) must be one of: [private, public]", PARAM_VISIBILITY, visibility));
         }
       });
   }

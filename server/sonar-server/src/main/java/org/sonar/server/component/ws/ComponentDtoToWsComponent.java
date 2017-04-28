@@ -25,6 +25,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.project.Visibility;
 import org.sonarqube.ws.WsComponents;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -58,7 +59,7 @@ class ComponentDtoToWsComponent {
     setTags(dto, wsComponent);
     lastAnalysis.ifPresent(analysis -> wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt())));
     if (Qualifiers.PROJECT.equals(dto.qualifier())) {
-      wsComponent.setVisibility(dto.isPrivate() ? "private" : "public");
+      wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
     }
     return wsComponent;
   }

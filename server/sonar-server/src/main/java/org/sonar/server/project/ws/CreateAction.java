@@ -29,6 +29,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
@@ -100,7 +101,7 @@ public class CreateAction implements ProjectsWsAction {
       .setRequired(false)
       .setInternal(true)
       .setSince("6.4")
-      .setPossibleValues("private", "public");
+      .setPossibleValues(Visibility.getLabels());
 
     support.addOrganizationParam(action);
   }
@@ -122,7 +123,7 @@ public class CreateAction implements ProjectsWsAction {
         .setKey(request.getKey())
         .setName(request.getName())
         .setBranch(request.getBranch())
-        .setPrivate(request.getVisibility().map("private"::equals).orElseGet(() -> dbClient.organizationDao().getNewProjectPrivate(dbSession, organization)))
+        .setPrivate(request.getVisibility().map(Visibility::isPrivate).orElseGet(() -> dbClient.organizationDao().getNewProjectPrivate(dbSession, organization)))
         .setQualifier(PROJECT)
         .build(),
         userSession.isLoggedIn() ? userSession.getUserId() : null);
@@ -146,7 +147,7 @@ public class CreateAction implements ProjectsWsAction {
         .setKey(componentDto.key())
         .setName(componentDto.name())
         .setQualifier(componentDto.qualifier())
-        .setVisibility(componentDto.isPrivate() ? "private" : "public"))
+        .setVisibility(Visibility.getLabel(componentDto.isPrivate())))
       .build();
   }
 

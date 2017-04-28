@@ -52,6 +52,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QPMeasureData;
 import org.sonar.server.qualityprofile.QualityProfile;
@@ -121,8 +122,7 @@ public class ComponentAction implements NavigationWsAction {
       .setResponseExample(getClass().getResource("component-example.json"))
       .setSince("5.2")
       .setChangelog(
-        new Change("6.4" ,"The 'visibility' field is added")
-      );
+        new Change("6.4", "The 'visibility' field is added"));
 
     projectNavigation.createParam(PARAM_COMPONENT)
       .setDescription("A component key.")
@@ -166,7 +166,7 @@ public class ComponentAction implements NavigationWsAction {
       .prop("description", component.description())
       .prop("isFavorite", isFavourite(session, component));
     if (Qualifiers.PROJECT.equals(component.qualifier())) {
-      json.prop("visibility", component.isPrivate() ? "private" : "public");
+      json.prop("visibility", Visibility.getLabel(component.isPrivate()));
     }
     List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
     writeExtensions(json, component, pages);

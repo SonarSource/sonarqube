@@ -34,6 +34,7 @@ import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Collections.singletonList;
@@ -45,8 +46,6 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT
 public class UpdateVisibilityAction implements ProjectsWsAction {
   private static final String ACTION = "update_visibility";
   private static final String PARAM_VISIBILITY = "visibility";
-  private static final String PUBLIC_VISIBILITY = "public";
-  private static final String PRIVATE_VISIBILITY = "private";
   private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW);
 
   private final DbClient dbClient;
@@ -77,7 +76,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
 
     action.createParam(PARAM_VISIBILITY)
       .setDescription("new visibility of the project or view")
-      .setPossibleValues(PUBLIC_VISIBILITY, PRIVATE_VISIBILITY)
+      .setPossibleValues(Visibility.getLabels())
       .setRequired(true);
   }
 
@@ -86,7 +85,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
     userSession.checkLoggedIn();
 
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
-    boolean changeToPrivate = PRIVATE_VISIBILITY.equals(request.mandatoryParam(PARAM_VISIBILITY));
+    boolean changeToPrivate = Visibility.isPrivate(request.mandatoryParam(PARAM_VISIBILITY));
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByKey(dbSession, projectKey);
