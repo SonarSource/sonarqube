@@ -112,7 +112,7 @@ export default class MeasureHistory extends React.PureComponent {
     const data = snapshots.map(snapshot => {
       return {
         x: snapshot.date,
-        y: Number(snapshot.value)
+        y: metric.type === 'LEVEL' ? snapshot.value : Number(snapshot.value)
       };
     });
 
