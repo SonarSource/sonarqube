@@ -24,6 +24,7 @@ import ComponentNav from './nav/component/ComponentNav';
 import { fetchProject } from '../../store/rootActions';
 import { getComponent } from '../../store/rootReducer';
 import { addGlobalErrorMessage } from '../../store/globalMessages/duck';
+import { receiveComponents } from '../../store/components/actions';
 import { parseError } from '../../apps/code/utils';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
@@ -38,8 +39,10 @@ class ProjectContainer extends React.PureComponent {
       configuration: {},
       qualifier: string
     },
-    fetchProject: string => Promise<*>
+    fetchProject: string => Promise<*>,
+    receiveComponents: Array<*> => void
   };
+
   componentDidMount() {
     this.fetchProject();
   }
@@ -59,6 +62,10 @@ class ProjectContainer extends React.PureComponent {
       }
     });
   }
+
+  handleProjectChange = (changes: {}) => {
+    this.props.receiveComponents([{ ...this.props.project, ...changes }]);
+  };
 
   render() {
     // check `breadcrumbs` to be sure that /api/navigation/component has been already called
@@ -80,7 +87,10 @@ class ProjectContainer extends React.PureComponent {
             location={this.props.location}
           />}
         {/* $FlowFixMe */}
-        {React.cloneElement(this.props.children, { component: this.props.project })}
+        {React.cloneElement(this.props.children, {
+          component: this.props.project,
+          onComponentChange: this.handleProjectChange
+        })}
       </div>
     );
   }
@@ -90,6 +100,6 @@ const mapStateToProps = (state, ownProps) => ({
   project: getComponent(state, ownProps.location.query.id)
 });
 
-const mapDispatchToProps = { addGlobalErrorMessage, fetchProject };
+const mapDispatchToProps = { addGlobalErrorMessage, fetchProject, receiveComponents };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectContainer);

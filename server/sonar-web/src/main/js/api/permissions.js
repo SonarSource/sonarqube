@@ -289,3 +289,9 @@ export function getPermissionTemplateGroups(
   }
   return getJSON(url, data).then(r => r.groups);
 }
+
+export function changeProjectVisibility(project: string, visibility: string): Promise<void> {
+  const url = '/api/projects/update_visibility';
+  const data = { project, visibility };
+  return post(url, data);
+}

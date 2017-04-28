@@ -21,9 +21,11 @@
 import React from 'react';
 import { without } from 'lodash';
 import PageHeader from './PageHeader';
+import VisibilitySelector from './VisibilitySelector';
 import AllHoldersList from './AllHoldersList';
-import * as api from '../../../../api/permissions';
+import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 import PageError from '../../shared/components/PageError';
+import * as api from '../../../../api/permissions';
 import '../../styles.css';
 
 // TODO helmet
@@ -34,13 +36,17 @@ export type Props = {|
       canApplyPermissionTemplate: boolean
     },
     key: string,
+    name: string,
     organization: string,
-    qualifier: string
+    qualifier: string,
+    visibility: string
   },
+  onComponentChange: () => void,
   onRequestFail: Object => void
 |};
 
 export type State = {|
+  disclaimer: boolean,
   filter: string,
   groups: Array<{
     name: string,
@@ -64,6 +70,7 @@ export default class App extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     this.state = {
+      disclaimer: false,
       filter: 'all',
       groups: [],
       loading: true,
@@ -283,15 +290,67 @@ export default class App extends React.PureComponent {
     }
   };
 
+  handleVisibilityChange = (visibility: string) => {
+    if (visibility === 'public') {
+      this.openDisclaimer();
+    } else {
+      this.turnProjectToPrivate();
+    }
+  };
+
+  turnProjectToPublic = () => {
+    this.props.onComponentChange({ visibility: 'public' });
+    api.changeProjectVisibility(this.props.component.key, 'public').then(
+      () => {},
+      error => {
+        this.props.onComponentChange({ visibility: 'private' });
+        this.props.onRequestFail(error);
+      }
+    );
+  };
+
+  turnProjectToPrivate = () => {
+    this.props.onComponentChange({ visibility: 'private' });
+    api.changeProjectVisibility(this.props.component.key, 'private').then(
+      () => {},
+      error => {
+        this.props.onComponentChange({ visibility: 'public' });
+        this.props.onRequestFail(error);
+      }
+    );
+  };
+
+  openDisclaimer = () => {
+    if (this.mounted) {
+      this.setState({ disclaimer: true });
+    }
+  };
+
+  closeDisclaimer = () => {
+    if (this.mounted) {
+      this.setState({ disclaimer: false });
+    }
+  };
+
   render() {
     return (
-      <div className="page page-limited">
+      <div className="page page-limited" id="project-permissions-page">
         <PageHeader
           component={this.props.component}
           loading={this.state.loading}
           loadHolders={this.loadHolders}
         />
         <PageError />
+        <VisibilitySelector
+          onChange={this.handleVisibilityChange}
+          visibility={this.props.component.visibility}
+        />
+        {this.state.disclaimer &&
+          <PublicProjectDisclaimer
+            component={this.props.component}
+            onClose={this.closeDisclaimer}
+            onConfirm={this.turnProjectToPublic}
+          />}
         <AllHoldersList
           component={this.props.component}
           filter={this.state.filter}
@@ -305,6 +364,7 @@ export default class App extends React.PureComponent {
           revokePermissionFromGroup={this.revokePermissionFromGroup}
           revokePermissionFromUser={this.revokePermissionFromUser}
           selectedPermission={this.state.selectedPermission}
+          visibility={this.props.component.visibility}
           users={this.state.users}
         />
       </div>

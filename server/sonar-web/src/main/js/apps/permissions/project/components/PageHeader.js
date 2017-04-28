@@ -28,7 +28,8 @@ type Props = {|
       canApplyPermissionTemplate: boolean
     },
     key: string,
-    qualifier: string
+    qualifier: string,
+    visibility: string
   },
   loadHolders: () => void,
   loading: boolean
@@ -48,13 +49,18 @@ export default class PageHeader extends React.PureComponent {
   };
 
   render() {
-    const configuration = this.props.component.configuration;
+    const { component } = this.props;
+    const configuration = component.configuration;
     const canApplyPermissionTemplate =
       configuration != null && configuration.canApplyPermissionTemplate;
 
-    const description = ['VW', 'SVW'].includes(this.props.component.qualifier)
+    const description = ['VW', 'SVW'].includes(component.qualifier)
       ? translate('roles.page.description_portfolio')
       : translate('roles.page.description2');
+
+    const visibilityDescription = component.qualifier === 'TRK'
+      ? translate('visibility', component.visibility, 'description')
+      : null;
 
     return (
       <header className="page-header">
@@ -72,7 +78,8 @@ export default class PageHeader extends React.PureComponent {
           </div>}
 
         <div className="page-description">
-          {description}
+          <p>{description}</p>
+          <p>{visibilityDescription}</p>
         </div>
       </header>
     );

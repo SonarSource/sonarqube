@@ -22,8 +22,12 @@ package it.projectAdministration;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import pageobjects.Navigation;
+import pageobjects.ProjectPermissionsPage;
 
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
@@ -33,15 +37,30 @@ public class ProjectPermissionsTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  @Test
-  public void test_project_permissions_page_shows_only_single_project() throws Exception {
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
+
+  @BeforeClass
+  public static void beforeClass() {
     executeBuild("project-permissions-project", "Test Project");
     executeBuild("project-permissions-project-2", "Another Test Project");
+  }
 
+  @Test
+  public void test_project_permissions_page_shows_only_single_project() throws Exception {
     runSelenese(orchestrator, "/projectAdministration/ProjectPermissionsTest/test_project_permissions_page_shows_only_single_project.html");
   }
 
-  private void executeBuild(String projectKey, String projectName) {
+  @Test
+  public void change_project_visibility() {
+    ProjectPermissionsPage page = nav.logIn().asAdmin().openProjectPermissions("project-permissions-project");
+    page
+      .shouldBePublic()
+      .turnToPrivate()
+      .turnToPublic();
+  }
+
+  private static void executeBuild(String projectKey, String projectName) {
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProjectKey(projectKey)

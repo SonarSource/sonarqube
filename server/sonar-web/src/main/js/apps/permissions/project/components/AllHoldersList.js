@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { without } from 'lodash';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
 import { translate } from '../../../../helpers/l10n';
@@ -31,7 +32,8 @@ type Props = {|
     },
     key: string,
     organization: string,
-    qualifier: string
+    qualifier: string,
+    visibility: string
   },
   filter: string,
   grantPermissionToGroup: (group: string, permission: string) => void,
@@ -47,6 +49,7 @@ type Props = {|
   revokePermissionFromGroup: (group: string, permission: string) => void,
   revokePermissionFromUser: (user: string, permission: string) => void,
   selectedPermission: ?string,
+  visibility: string,
   users: Array<{
     login: string,
     name: string,
@@ -82,7 +85,11 @@ export default class AllHoldersList extends React.PureComponent {
   };
 
   render() {
-    const order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
+    let order = PERMISSIONS_ORDER_BY_QUALIFIER[this.props.component.qualifier];
+    if (this.props.visibility === 'public') {
+      order = without(order, 'user', 'codeviewer');
+    }
+
     const permissions = order.map(p => ({
       key: p,
       name: translate('projects_role', p),

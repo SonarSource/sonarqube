@@ -229,6 +229,46 @@ a[class^="icon-"], a[class*=" icon-"] {
 
 
 /*
+ * Radio
+ */
+
+.icon-radio {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 14px;
+  height: 14px;
+  margin: 1px;
+  border: 1px solid #cdcdcd;
+  border-radius: 12px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+
+  &:after {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 8px;
+    background-color: @darkBlue;
+    content: "";
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+}
+
+a:hover > .icon-radio {
+  border-color: @blue;
+}
+
+.icon-radio.is-checked:after {
+  opacity: 1;
+}
+
+
+/*
  * Common
  */
 

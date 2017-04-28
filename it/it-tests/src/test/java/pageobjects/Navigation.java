@@ -131,6 +131,11 @@ public class Navigation extends ExternalResource {
     return open("/account/notifications", NotificationsPage.class);
   }
 
+  public ProjectPermissionsPage openProjectPermissions(String projectKey) {
+    String url = "/project_roles?id=" + projectKey;
+    return open(url, ProjectPermissionsPage.class);
+  }
+
   public LoginPage openLogin() {
     return open("/sessions/login", LoginPage.class);
   }
