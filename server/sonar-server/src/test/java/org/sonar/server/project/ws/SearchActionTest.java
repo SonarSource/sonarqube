@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -49,6 +50,7 @@ import org.sonarqube.ws.client.project.SearchWsRequest;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -80,7 +82,8 @@ public class SearchActionTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new SearchAction(db.getDbClient(), userSession, defaultOrganizationProvider, new ProjectsWsSupport(db.getDbClient())));
+  private WsActionTester ws = new WsActionTester(
+    new SearchAction(db.getDbClient(), userSession, defaultOrganizationProvider, new ProjectsWsSupport(db.getDbClient(), mock(BillingValidationsProxy.class))));
 
   @Test
   public void search_by_key_query() throws IOException {

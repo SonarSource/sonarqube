@@ -91,7 +91,8 @@ public class UpdateVisibilityActionTest {
   private PermissionIndexer permissionIndexer = mock(PermissionIndexer.class);
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
-  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, new ComponentFinder(dbClient), userSessionRule, permissionIndexer, billingValidations);
+  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, new ComponentFinder(dbClient), userSessionRule, permissionIndexer,
+    new ProjectsWsSupport(dbClient, billingValidations));
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   private final Random random = new Random();
