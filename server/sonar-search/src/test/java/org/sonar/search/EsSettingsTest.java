@@ -68,6 +68,8 @@ public class EsSettingsTest {
 
     assertThat(generated.get("index.number_of_replicas")).isEqualTo("0");
     assertThat(generated.get("discovery.zen.ping.unicast.hosts")).isNull();
+    assertThat(generated.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
+    assertThat(generated.get("discovery.initial_state_timeout")).isEqualTo("30s");
   }
 
   @Test
@@ -75,7 +77,7 @@ public class EsSettingsTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     File tempDir = temp.newFolder();
-    Props props = minProps();
+    Props props = minProps(false);
     props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
@@ -89,28 +91,75 @@ public class EsSettingsTest {
 
   @Test
   public void cluster_is_enabled() throws Exception {
-    Props props = minProps();
-    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    Props props = minProps(true);
     props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
     Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
+    assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("2");
+    assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("120s");
+  }
+
+  @Test
+  public void incorrect_values_of_minimum_master_nodes() throws Exception {
+    Props props = minProps(true);
+    props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "ꝱꝲꝳପ");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Value of property sonar.search.minimumMasterNodes is not an integer:");
+    Settings settings = new EsSettings(props).build();
+  }
+
+  @Test
+  public void cluster_is_enabled_with_defined_minimum_master_nodes() throws Exception {
+    Props props = minProps(true);
+    props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("5");
+  }
+
+  @Test
+  public void cluster_is_enabled_with_defined_initialTimeout() throws Exception {
+    Props props = minProps(true);
+    props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("10s");
+  }
+
+  @Test
+  public void in_standalone_initialTimeout_is_not_overridable() throws Exception {
+    Props props = minProps(false);
+    props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("30s");
+  }
+
+  @Test
+  public void in_standalone_minimumMasterNodes_is_not_overridable() throws Exception {
+    Props props = minProps(false);
+    props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
+  }
+
+
+  @Test
+  public void in_standalone_searchReplicas_is_not_overridable() throws Exception {
+    Props props = minProps(false);
+    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("index.number_of_replicas")).isEqualTo("0");
   }
 
   @Test
   public void cluster_is_enabled_with_defined_replicas() throws Exception {
-    Props props = minProps();
-    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    props.set(ProcessProperties.SEARCH_REPLICAS, "5");
-    Settings settings = new EsSettings(props).build();
-
-    assertThat(settings.get("index.number_of_replicas")).isEqualTo("5");
-  }
-
-  @Test
-  public void cluster_not_enabled_but_replicas_are_defined() throws Exception {
-    Props props = minProps();
+    Props props = minProps(true);
     props.set(ProcessProperties.SEARCH_REPLICAS, "5");
     Settings settings = new EsSettings(props).build();
 
@@ -119,7 +168,8 @@ public class EsSettingsTest {
 
   @Test
   public void incorrect_values_of_replicas() throws Exception {
-    Props props = minProps();
+    Props props = minProps(true);
+
     props.set(ProcessProperties.SEARCH_REPLICAS, "ꝱꝲꝳପ");
 
     expectedException.expect(IllegalStateException.class);
@@ -129,7 +179,7 @@ public class EsSettingsTest {
 
   @Test
   public void enable_marvel() throws Exception {
-    Props props = minProps();
+    Props props = minProps(false);
     props.set(EsSettings.PROP_MARVEL_HOSTS, "127.0.0.2,127.0.0.3");
     Settings settings = new EsSettings(props).build();
 
@@ -138,7 +188,7 @@ public class EsSettingsTest {
 
   @Test
   public void enable_http_connector() throws Exception {
-    Props props = minProps();
+    Props props = minProps(false);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     Settings settings = new EsSettings(props).build();
 
@@ -149,7 +199,7 @@ public class EsSettingsTest {
   
   @Test
   public void enable_http_connector_different_host() throws Exception {
-    Props props = minProps();
+    Props props = minProps(false);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.2");
     Settings settings = new EsSettings(props).build();
@@ -159,11 +209,12 @@ public class EsSettingsTest {
     assertThat(settings.get("http.enabled")).isEqualTo("true");
   }
 
-  private Props minProps() throws IOException {
+  private Props minProps(boolean cluster) throws IOException {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
     ProcessProperties.completeDefaults(props);
     props.set(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessProperties.CLUSTER_ENABLED, Boolean.toString(cluster));
     return props;
   }
 }

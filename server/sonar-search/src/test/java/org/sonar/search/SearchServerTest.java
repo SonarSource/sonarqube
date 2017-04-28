@@ -19,6 +19,7 @@
  */
 package org.sonar.search;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Properties;
 import org.elasticsearch.client.Client;
@@ -34,6 +35,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.slf4j.Logger;
 import org.sonar.process.Monitored;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessEntryPoint;
@@ -42,6 +44,10 @@ import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class SearchServerTest {
 
@@ -70,24 +76,41 @@ public class SearchServerTest {
   }
 
   @Test
-  public void start_stop_server() throws Exception {
-    Props props = new Props(new Properties());
-    // the following properties have always default values (see ProcessProperties)
-    InetAddress host = InetAddress.getLoopbackAddress();
-    props.set(ProcessProperties.SEARCH_HOST, host.getHostAddress());
-    props.set(ProcessProperties.SEARCH_PORT, String.valueOf(port));
-    props.set(ProcessProperties.CLUSTER_NAME, A_CLUSTER_NAME);
-    props.set(EsSettings.CLUSTER_SEARCH_NODE_NAME, A_NODE_NAME);
-    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
-    props.set(ProcessEntryPoint.PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
-
+  public void log_information_on_startup() throws IOException {
+    Props props = getClusterProperties();
+    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
+    props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "2");
+    // Set the timeout to 1sec
+    props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "1s");
     underTest = new SearchServer(props);
+    Logger logger = mock(Logger.class);
+    underTest.LOGGER = logger;
+    underTest.start();
+    verify(logger).info(eq("Elasticsearch is waiting {} for {} node(s) to be up to start."), eq("1s"), eq("2"));
+  }
+
+  @Test
+  public void no_log_information_on_startup() throws IOException {
+    Props props = getClusterProperties();
+    props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "1");
+    // Set the timeout to 1sec
+    props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "1s");
+    underTest = new SearchServer(props);
+    Logger logger = mock(Logger.class);
+    underTest.LOGGER = logger;
+    underTest.start();
+    verify(logger, never()).info(eq("Elasticsearch is waiting {} for {} node(s) to be up to start."), eq("1s"), eq("2"));
+  }
+
+  @Test
+  public void start_stop_server() throws Exception {
+    underTest = new SearchServer(getClusterProperties());
     underTest.start();
     assertThat(underTest.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
 
     Settings settings = Settings.builder().put("cluster.name", A_CLUSTER_NAME).build();
     client = TransportClient.builder().settings(settings).build()
-      .addTransportAddress(new InetSocketTransportAddress(host, port));
+      .addTransportAddress(new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), port));
     assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 
     underTest.stop();
@@ -99,5 +122,18 @@ public class SearchServerTest {
     } catch (NoNodeAvailableException exception) {
       // ok
     }
+  }
+
+  private Props getClusterProperties() throws IOException {
+    Props props = new Props(new Properties());
+    // the following properties have always default values (see ProcessProperties)
+    InetAddress host = InetAddress.getLoopbackAddress();
+    props.set(ProcessProperties.SEARCH_HOST, host.getHostAddress());
+    props.set(ProcessProperties.SEARCH_PORT, String.valueOf(port));
+    props.set(ProcessProperties.CLUSTER_NAME, A_CLUSTER_NAME);
+    props.set(EsSettings.CLUSTER_SEARCH_NODE_NAME, A_NODE_NAME);
+    props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessEntryPoint.PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
+    return props;
   }
 }
