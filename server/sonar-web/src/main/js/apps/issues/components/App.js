@@ -346,12 +346,17 @@ export default class App extends React.PureComponent {
 
     const parameters = {
       componentKeys: component && component.key,
-      ...serializeQuery(query),
       s: 'FILE_LINE',
+      ...serializeQuery(query),
       ps: 100,
       facets,
       ...additional
     };
+
+    // only sorting by CREATION_DATE is allowed, so let's sort DESC
+    if (query.sort) {
+      Object.assign(parameters, { asc: 'false' });
+    }
 
     if (myIssues) {
       Object.assign(parameters, { assignees: '__me__' });
