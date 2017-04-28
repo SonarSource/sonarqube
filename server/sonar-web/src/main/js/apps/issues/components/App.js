@@ -433,9 +433,6 @@ export default class App extends React.PureComponent {
   ): Promise<Array<Issue>> => {
     const { issues, openIssue, paging } = this.state;
 
-    /* eslint-disable no-console */
-    console.log(`loadin issues from line ${from} to line ${to}`);
-
     if (!openIssue || !paging) {
       return Promise.reject();
     }

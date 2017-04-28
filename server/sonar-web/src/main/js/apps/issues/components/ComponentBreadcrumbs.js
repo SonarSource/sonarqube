@@ -47,7 +47,7 @@ export default class ComponentBreadcrumbs extends React.PureComponent {
           <Organization linkClassName="link-no-underline" organizationKey={issue.organization} />}
 
         {displayProject &&
-          <span>
+          <span title={issue.projectName}>
             <Link to={getProjectUrl(issue.project)} className="link-no-underline">
               {limitComponentName(issue.projectName)}
             </Link>
@@ -56,7 +56,7 @@ export default class ComponentBreadcrumbs extends React.PureComponent {
 
         {displaySubProject &&
           issue.subProject != null &&
-          <span>
+          <span title={issue.subProjectName}>
             <Link to={getProjectUrl(issue.subProject)} className="link-no-underline">
               {limitComponentName(issue.subProjectName)}
             </Link>
@@ -64,7 +64,9 @@ export default class ComponentBreadcrumbs extends React.PureComponent {
           </span>}
 
         <Link to={getProjectUrl(issue.component)} className="link-no-underline">
-          {collapsePath(issue.componentLongName)}
+          <span title={issue.componentLongName}>
+            {collapsePath(issue.componentLongName)}
+          </span>
         </Link>
       </div>
     );

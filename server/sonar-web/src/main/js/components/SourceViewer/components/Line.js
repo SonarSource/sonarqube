@@ -46,6 +46,7 @@ type Props = {|
   highlightedSymbols?: Array<string>,
   issueLocations: Array<LinearIssueLocation>,
   issues: Array<Issue>,
+  last: boolean,
   line: SourceLine,
   loadDuplications: (SourceLine, HTMLElement) => void,
   onClick: (SourceLine, HTMLElement) => void,
@@ -94,7 +95,8 @@ export default class Line extends React.PureComponent {
     const className = classNames('source-line', {
       'source-line-highlighted': this.props.highlighted,
       'source-line-shadowed': filtered === false,
-      'source-line-filtered': filtered === true
+      'source-line-filtered': filtered === true,
+      'source-line-last': this.props.last
     });
 
     return (

@@ -160,16 +160,20 @@ export default class BulkChangeModal extends React.PureComponent {
 
   handleSubmit = (e: Event) => {
     e.preventDefault();
-    const query = pickBy({
-      assign: this.state.assignee,
-      set_type: this.state.type,
-      set_severity: this.state.severity,
-      add_tags: this.state.addTags && this.state.addTags.join(),
-      remove_tags: this.state.removeTags && this.state.removeTags.join(),
-      do_transition: this.state.transition,
-      comment: this.state.comment,
-      sendNotifications: this.state.notifications
-    });
+    const query = pickBy(
+      {
+        assign: this.state.assignee,
+        set_type: this.state.type,
+        set_severity: this.state.severity,
+        add_tags: this.state.addTags && this.state.addTags.join(),
+        remove_tags: this.state.removeTags && this.state.removeTags.join(),
+        do_transition: this.state.transition,
+        comment: this.state.comment,
+        sendNotifications: this.state.notifications
+      },
+      // remove null, but keep empty string
+      x => x != null
+    );
     const issueKeys = this.state.issues.map(issue => issue.key);
 
     this.setState({ submitting: true });

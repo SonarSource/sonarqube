@@ -216,3 +216,12 @@
 .issues-workspace-list-component + .issues-workspace-list-item {
   margin-top: 0;
 }
+
+.issues-predefined-periods {
+  display: flex;
+}
+
+.issues-predefined-periods .search-navigator-facet {
+  width: auto;
+  margin-right: 4px;
+}

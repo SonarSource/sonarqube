@@ -19,23 +19,13 @@
  */
 // @flow
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
+import { shallow } from 'enzyme';
+import IssuesCounter from '../IssuesCounter';
 
-type Props = {
-  current: ?number,
-  total: number
-};
+it('formats numbers', () => {
+  expect(shallow(<IssuesCounter current={1234} total={987654321} />)).toMatchSnapshot();
+});
 
-const IssuesCounter = (props: Props) => (
-  <span>
-    <strong>
-      {props.current != null && <span>{formatMeasure(props.current + 1, 'INT')} / </span>}
-      {formatMeasure(props.total, 'INT')}
-    </strong>
-    {' '}
-    {translate('issues.issues')}
-  </span>
-);
-
-export default IssuesCounter;
+it('does not show current', () => {
+  expect(shallow(<IssuesCounter current={null} total={987654321} />)).toMatchSnapshot();
+});
