@@ -31,6 +31,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleParamDto;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -45,7 +46,7 @@ public class RuleActivatorContextFactory {
 
   RuleActivatorContext create(String profileKey, RuleKey ruleKey, DbSession session) {
     RuleActivatorContext context = new RuleActivatorContext();
-    QualityProfileDto profile = db.qualityProfileDao().selectByKey(session, profileKey);
+    QualityProfileDto profile = getQualityProfileDto(session, profileKey);
     checkRequest(profile != null, "Quality profile not found: %s", profileKey);
     context.setProfile(profile);
     return create(ruleKey, session, context);
@@ -68,9 +69,10 @@ public class RuleActivatorContextFactory {
   private RuleDefinitionDto initRule(RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession) {
     Optional<RuleDefinitionDto> rule = getRule(dbSession, ruleKey);
     checkRequest(rule.isPresent(), "Rule not found: %s", ruleKey);
-    context.setRule(rule.get());
-    context.setRuleParams(db.ruleDao().selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
-    return rule.get();
+    RuleDefinitionDto ruleDefinitionDto = rule.get();
+    context.setRule(ruleDefinitionDto);
+    context.setRuleParams(getRuleParams(dbSession, ruleDefinitionDto));
+    return ruleDefinitionDto;
   }
 
   private void initActiveRules(String profileKey, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
@@ -89,8 +91,16 @@ public class RuleActivatorContextFactory {
     }
   }
 
+  QualityProfileDto getQualityProfileDto(DbSession session, String profileKey) {
+    return db.qualityProfileDao().selectByKey(session, profileKey);
+  }
+
   Optional<RuleDefinitionDto> getRule(DbSession dbSession, RuleKey ruleKey) {
     return Optional.ofNullable(db.ruleDao().selectDefinitionByKey(dbSession, ruleKey).orElse(null));
+  }
+
+  Collection<RuleParamDto> getRuleParams(DbSession dbSession, RuleDefinitionDto ruleDefinitionDto) {
+    return db.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleDefinitionDto.getKey());
   }
 
   Optional<ActiveRuleDto> getActiveRule(DbSession session, ActiveRuleKey key) {

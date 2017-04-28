@@ -49,6 +49,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.lowerCase;
 
@@ -95,13 +96,20 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
    */
   private ListMultimap<String, RulesProfile> buildRulesProfilesByLanguage() {
     ListMultimap<String, RulesProfile> byLang = ArrayListMultimap.create();
+    Profiler profiler = Profiler.create(Loggers.get(getClass()));
     for (ProfileDefinition definition : definitions) {
+      profiler.start();
       ValidationMessages validation = ValidationMessages.create();
       RulesProfile profile = definition.createProfile(validation);
       validation.log(LOGGER);
-      if (profile != null && !validation.hasErrors()) {
-        checkArgument(isNotEmpty(profile.getName()), "Profile created by Definition %s can't have a blank name", definition);
-        byLang.put(lowerCase(profile.getLanguage(), Locale.ENGLISH), profile);
+      if (profile == null) {
+        profiler.stopDebug(format("Loaded definition %s that return no profile", definition));
+      } else {
+        if (!validation.hasErrors()) {
+          checkArgument(isNotEmpty(profile.getName()), "Profile created by Definition %s can't have a blank name", definition);
+          byLang.put(lowerCase(profile.getLanguage(), Locale.ENGLISH), profile);
+        }
+        profiler.stopDebug(format("Loaded definition %s for language %s", profile.getName(), profile.getLanguage()));
       }
     }
     return byLang;
@@ -137,7 +145,7 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
       .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, entry -> toQualityProfiles(entry.getValue()), buildersByLanguage.size()));
   }
 
-  private boolean ensureParentExists(String language, List<DefinedQProfile.Builder> builders) {
+  private static boolean ensureParentExists(String language, List<DefinedQProfile.Builder> builders) {
     Set<String> qProfileNames = builders.stream()
       .map(DefinedQProfile.Builder::getName)
       .collect(MoreCollectors.toSet(builders.size()));

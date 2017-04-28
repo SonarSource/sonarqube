@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
+import javax.annotation.Nullable;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,8 +46,11 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -64,11 +70,11 @@ public class RegisterQualityProfilesTest {
   private DbClient dbClient = dbTester.getDbClient();
   private DbClient mockedDbClient = mock(DbClient.class);
   private ActiveRuleIndexer mockedActiveRuleIndexer = mock(ActiveRuleIndexer.class);
-  private DummyDefinedQProfileCreation definedQProfileCreation = new DummyDefinedQProfileCreation();
+  private DummyDefinedQProfileInsert definedQProfileInsert = new DummyDefinedQProfileInsert();
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(
     definedQProfileRepositoryRule,
     dbClient,
-    definedQProfileCreation,
+    definedQProfileInsert,
     mockedActiveRuleIndexer);
 
   @Test
@@ -86,9 +92,9 @@ public class RegisterQualityProfilesTest {
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs()).isEmpty();
-    verify(mockedDbClient).openSession(false);
-    verify(mockedActiveRuleIndexer).index(Collections.emptyList());
+    assertThat(definedQProfileInsert.getCallLogs()).isEmpty();
+    verify(mockedDbClient, times(0)).openSession(anyBoolean());
+    verify(mockedActiveRuleIndexer, times(0)).index(anyList());
     verifyNoMoreInteractions(mockedDbClient, mockedActiveRuleIndexer);
   }
 
@@ -101,7 +107,7 @@ public class RegisterQualityProfilesTest {
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs())
+    assertThat(definedQProfileInsert.getCallLogs())
       .containsExactly(
         callLog(definedQProfile, dbTester.getDefaultOrganization()),
         callLog(definedQProfile, organization1),
@@ -120,7 +126,7 @@ public class RegisterQualityProfilesTest {
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs())
+    assertThat(definedQProfileInsert.getCallLogs())
       .containsExactly(callLog(definedQProfile, org2));
   }
 
@@ -134,7 +140,7 @@ public class RegisterQualityProfilesTest {
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs())
+    assertThat(definedQProfileInsert.getCallLogs())
       .containsExactly(callLog(definedQProfile2, dbTester.getDefaultOrganization()), callLog(definedQProfile1, dbTester.getDefaultOrganization()));
   }
 
@@ -149,11 +155,11 @@ public class RegisterQualityProfilesTest {
     ActiveRuleChange ruleChange2 = newActiveRuleChange("2");
     ActiveRuleChange ruleChange3 = newActiveRuleChange("3");
     ActiveRuleChange ruleChange4 = newActiveRuleChange("4");
-    definedQProfileCreation.addChangesPerCall(ruleChange1, ruleChange3);
+    definedQProfileInsert.addChangesPerCall(ruleChange1, ruleChange3);
     // no change for second org
-    definedQProfileCreation.addChangesPerCall();
-    definedQProfileCreation.addChangesPerCall(ruleChange2);
-    definedQProfileCreation.addChangesPerCall(ruleChange4);
+    definedQProfileInsert.addChangesPerCall();
+    definedQProfileInsert.addChangesPerCall(ruleChange2);
+    definedQProfileInsert.addChangesPerCall(ruleChange4);
     ArgumentCaptor<List<ActiveRuleChange>> indexedChangesCaptor = ArgumentCaptor.forClass((Class<List<ActiveRuleChange>>) (Object) List.class);
     doNothing().when(mockedActiveRuleIndexer).index(indexedChangesCaptor.capture());
 
@@ -163,11 +169,52 @@ public class RegisterQualityProfilesTest {
       .containsExactly(ruleChange1, ruleChange3, ruleChange2, ruleChange4);
   }
 
+  @Test
+  public void test_SortByParentName_comporator() {
+    DefinedQProfile[] builderArray = {newBuilder("A1", null), newBuilder("A2", "A1"), newBuilder("A3", null), newBuilder("A4", "A3"),
+      newBuilder("A5", "A4"), newBuilder("A6", null)};
+    List<DefinedQProfile> builders = new ArrayList<>(Arrays.asList(builderArray));
+
+    IntStream.range(0, 100)
+      .forEach(i -> {
+        Collections.shuffle(builders);
+        RegisterQualityProfiles.SortByParentName comparator = new RegisterQualityProfiles.SortByParentName(builders);
+
+        assertThat(comparator.depthByBuilder.get("A1")).isEqualTo(0);
+        assertThat(comparator.depthByBuilder.get("A2")).isEqualTo(1);
+        assertThat(comparator.depthByBuilder.get("A3")).isEqualTo(0);
+        assertThat(comparator.depthByBuilder.get("A4")).isEqualTo(1);
+        assertThat(comparator.depthByBuilder.get("A5")).isEqualTo(2);
+        assertThat(comparator.depthByBuilder.get("A6")).isEqualTo(0);
+
+        builders.sort(comparator);
+
+        verifyParentBeforeChild(builderArray, builders, 0, 1);
+        verifyParentBeforeChild(builderArray, builders, 2, 3);
+        verifyParentBeforeChild(builderArray, builders, 3, 4);
+        verifyParentBeforeChild(builderArray, builders, 2, 4);
+      });
+  }
+
+  private DefinedQProfile newBuilder(String name, @Nullable String parentName) {
+    return new DefinedQProfile.Builder()
+      .setName(name)
+      .setParentName(parentName)
+      .build(DigestUtils.getMd5Digest());
+  }
+
+  private static void verifyParentBeforeChild(DefinedQProfile[] builderArray, List<DefinedQProfile> builders,
+    int parent, int child) {
+    assertThat(builders.indexOf(builderArray[parent]))
+      .describedAs(builderArray[4].getName() + " before " + builderArray[child].getName())
+      .isLessThan(builders.indexOf(builderArray[child]));
+  }
+
   private static ActiveRuleChange newActiveRuleChange(String id) {
     return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")));
   }
 
-  private class DummyDefinedQProfileCreation implements DefinedQProfileCreation {
+  private class DummyDefinedQProfileInsert implements DefinedQProfileInsert {
     private List<List<ActiveRuleChange>> changesPerCall;
     private Iterator<List<ActiveRuleChange>> changesPerCallIterator;
     private final List<CallLog> callLogs = new ArrayList<>();

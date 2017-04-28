@@ -19,18 +19,37 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.db.Pagination.forPage;
 
 /**
@@ -44,40 +63,46 @@ public class RegisterQualityProfiles {
 
   private final DefinedQProfileRepository definedQProfileRepository;
   private final DbClient dbClient;
-  private final DefinedQProfileCreation definedQProfileCreation;
   private final ActiveRuleIndexer activeRuleIndexer;
+  private final DefinedQProfileInsert definedQProfileInsert;
 
   public RegisterQualityProfiles(DefinedQProfileRepository definedQProfileRepository,
-    DbClient dbClient, DefinedQProfileCreation definedQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
+    DbClient dbClient, DefinedQProfileInsert definedQProfileInsert, ActiveRuleIndexer activeRuleIndexer) {
     this.definedQProfileRepository = definedQProfileRepository;
     this.dbClient = dbClient;
-    this.definedQProfileCreation = definedQProfileCreation;
     this.activeRuleIndexer = activeRuleIndexer;
+    this.definedQProfileInsert = definedQProfileInsert;
   }
 
   public void start() {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
+    if (definedQProfileRepository.getQProfilesByLanguage().isEmpty()) {
+      return;
+    }
 
     try (DbSession session = dbClient.openSession(false)) {
       List<ActiveRuleChange> changes = new ArrayList<>();
-      definedQProfileRepository.getQProfilesByLanguage().entrySet()
-        .forEach(entry -> registerPerLanguage(session, entry.getValue(), changes));
+      definedQProfileRepository.getQProfilesByLanguage()
+        .forEach((key, value) -> registerPerLanguage(session, value, changes));
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
     }
   }
 
   private void registerPerLanguage(DbSession session, List<DefinedQProfile> qualityProfiles, List<ActiveRuleChange> changes) {
-    qualityProfiles.forEach(qp -> registerPerQualityProfile(session, qp, changes));
+    qualityProfiles.stream()
+      .sorted(new SortByParentName(qualityProfiles))
+      .forEach(qp -> registerPerQualityProfile(session, qp, changes));
     session.commit();
   }
 
   private void registerPerQualityProfile(DbSession session, DefinedQProfile qualityProfile, List<ActiveRuleChange> changes) {
     LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
 
+    Profiler profiler = Profiler.create(Loggers.get(getClass()));
     List<OrganizationDto> organizationDtos;
     while (!(organizationDtos = getOrganizationsWithoutQP(session, qualityProfile)).isEmpty()) {
-      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, qualityProfile, organization, changes));
+      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, qualityProfile, organization, changes, profiler));
     }
   }
 
@@ -86,11 +111,80 @@ public class RegisterQualityProfiles {
       qualityProfile.getLoadedTemplateType(), PROCESSED_ORGANIZATIONS_BATCH_SIZE);
   }
 
-  private void registerPerQualityProfileAndOrganization(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
-    LOGGER.debug("Register profile {} for organization {}", qualityProfile.getQProfileName(), organization.getKey());
+  private void registerPerQualityProfileAndOrganization(DbSession session,
+    DefinedQProfile definedQProfile, OrganizationDto organization, List<ActiveRuleChange> changes, Profiler profiler) {
+    profiler.start();
 
-    definedQProfileCreation.create(session, qualityProfile, organization, changes);
+    definedQProfileInsert.create(session, definedQProfile, organization, changes);
+
     session.commit();
+
+    profiler.stopDebug(format("Register profile %s for organization %s", definedQProfile.getQProfileName(), organization.getKey()));
   }
 
+  @VisibleForTesting
+  static class SortByParentName implements Comparator<DefinedQProfile> {
+    private final Map<String, DefinedQProfile> buildersByName;
+    @VisibleForTesting
+    final Map<String, Integer> depthByBuilder;
+
+    @VisibleForTesting
+    SortByParentName(Collection<DefinedQProfile> builders) {
+      buildersByName = builders.stream()
+        .collect(MoreCollectors.uniqueIndex(DefinedQProfile::getName, Function.identity(), builders.size()));
+      Map<String, Integer> depthByBuilder = new HashMap<>();
+      builders.forEach(builder -> depthByBuilder.put(builder.getName(), 0));
+      builders.forEach(builder -> increaseDepth(buildersByName, depthByBuilder, builder));
+      this.depthByBuilder = ImmutableMap.copyOf(depthByBuilder);
+    }
+
+    private void increaseDepth(Map<String, DefinedQProfile> buildersByName, Map<String, Integer> maps, DefinedQProfile builder) {
+      Optional.ofNullable(builder.getParentQProfileName())
+        .ifPresent(parentQProfileName -> {
+          DefinedQProfile parent = buildersByName.get(parentQProfileName.getName());
+          if (parent.getParentQProfileName() != null) {
+            increaseDepth(buildersByName, maps, parent);
+          }
+          maps.put(builder.getName(), maps.get(parent.getName()) + 1);
+        });
+    }
+
+    @Override
+    public int compare(DefinedQProfile o1, DefinedQProfile o2) {
+      return depthByBuilder.getOrDefault(o1.getName(), 0) - depthByBuilder.getOrDefault(o2.getName(), 0);
+    }
+  }
+
+  public static class RuleRepository {
+    private final Map<RuleKey, RuleDefinitionDto> ruleDefinitions;
+    private final Map<RuleKey, Set<RuleParamDto>> ruleParams;
+
+    public RuleRepository(DbClient dbClient, DbSession session) {
+      this.ruleDefinitions = dbClient.ruleDao().selectAllDefinitions(session)
+        .stream()
+        .collect(Collectors.toMap(RuleDefinitionDto::getKey, Function.identity()));
+      Map<Integer, RuleKey> ruleIdsByKey = ruleDefinitions.values()
+        .stream()
+        .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
+      this.ruleParams = new HashMap<>(ruleIdsByKey.size());
+      dbClient.ruleDao().selectRuleParamsByRuleKeys(session, ruleDefinitions.keySet())
+        .forEach(ruleParam -> ruleParams.compute(
+          ruleIdsByKey.get(ruleParam.getRuleId()),
+          (key, value) -> {
+            if (value == null) {
+              return ImmutableSet.of(ruleParam);
+            }
+            return ImmutableSet.copyOf(Sets.union(value, Collections.singleton(ruleParam)));
+          }));
+    }
+
+    public Optional<RuleDefinitionDto> getDefinition(RuleKey ruleKey) {
+      return Optional.ofNullable(ruleDefinitions.get(requireNonNull(ruleKey, "RuleKey can't be null")));
+    }
+
+    public Set<RuleParamDto> getRuleParams(RuleKey ruleKey) {
+      Set<RuleParamDto> res = ruleParams.get(requireNonNull(ruleKey, "RuleKey can't be null"));
+      return res == null ? Collections.emptySet() : res;
+    }
+  }
 }

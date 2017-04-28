@@ -156,7 +156,7 @@ public class RuleDao implements Dao {
     return mapper(session).selectParamsByRuleKey(key);
   }
 
-  public List<RuleParamDto> selectRuleParamsByRuleKeys(DbSession session, List<RuleKey> ruleKeys) {
+  public List<RuleParamDto> selectRuleParamsByRuleKeys(DbSession session, Collection<RuleKey> ruleKeys) {
     return executeLargeInputs(ruleKeys, mapper(session)::selectParamsByRuleKeys);
   }
 

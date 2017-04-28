@@ -75,12 +75,12 @@ public class DefinedQProfileCreationImplTest {
   private DbSession dbSession = dbClient.openSession(false);
   private UuidFactory mockedUuidFactory = mock(UuidFactory.class);
   private System2 mockedSystem2 = mock(System2.class);
-  private CachingRuleActivator mockedCachingRuleActivator = mock(CachingRuleActivator.class);
+  private RuleActivator mockedRuleActivator = mock(RuleActivator.class);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private DefinedQProfileCreationImpl underTest = new DefinedQProfileCreationImpl(
     dbClient,
     new QProfileFactory(dbClient, mockedUuidFactory, mockedSystem2, activeRuleIndexer),
-    mockedCachingRuleActivator);
+    mockedRuleActivator);
   private List<ActiveRuleChange> activeRuleChanges = new ArrayList<>();
 
   @After
@@ -140,10 +140,10 @@ public class DefinedQProfileCreationImplTest {
     String uuid = "uuid 1";
     mockForSingleQPInsert(uuid, date);
     QualityProfileDto existing = dbTester.qualityProfiles().insertQualityProfile(
-        QualityProfileDto.createFor("a key")
-            .setName(definedQProfile.getName())
-            .setLanguage(definedQProfile.getLanguage())
-            .setOrganizationUuid(organization.getUuid()));
+      QualityProfileDto.createFor("a key")
+        .setName(definedQProfile.getName())
+        .setLanguage(definedQProfile.getLanguage())
+        .setOrganizationUuid(organization.getUuid()));
 
     underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
     dbSession.commit();
@@ -264,7 +264,7 @@ public class DefinedQProfileCreationImplTest {
       QualityProfileDto qualityProfileDto = t.getArgumentAt(2, QualityProfileDto.class);
       callLogs.add(new CallLog(ruleActivation, qualityProfileDto));
       return changesPerCallIt.next();
-    }).when(mockedCachingRuleActivator)
+    }).when(mockedRuleActivator)
       .activate(any(DbSession.class), any(RuleActivation.class), any(QualityProfileDto.class));
   }
 
