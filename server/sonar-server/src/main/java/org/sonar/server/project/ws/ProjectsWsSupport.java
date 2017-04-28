@@ -24,6 +24,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidationsProxy;
 
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
@@ -33,8 +35,11 @@ public class ProjectsWsSupport {
 
   private final DbClient dbClient;
 
-  public ProjectsWsSupport(DbClient dbClient) {
+  private final BillingValidationsProxy billingValidations;
+
+  public ProjectsWsSupport(DbClient dbClient, BillingValidationsProxy billingValidations) {
     this.dbClient = dbClient;
+    this.billingValidations = billingValidations;
   }
 
   void addOrganizationParam(WebService.NewAction action) {
@@ -49,5 +54,13 @@ public class ProjectsWsSupport {
     return checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, organizationKey),
         "No organization for key '%s'", organizationKey);
+  }
+
+  void checkCanUpdateProjectsVisibility(OrganizationDto organization, boolean newProjectsPrivate) {
+    try {
+      billingValidations.checkCanUpdateProjectVisibility(new BillingValidations.Organization(organization.getKey(), organization.getUuid()), newProjectsPrivate);
+    } catch (BillingValidations.BillingValidationsException e) {
+      throw new IllegalArgumentException(e.getMessage());
+    }
   }
 }

@@ -37,6 +37,7 @@ import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -45,6 +46,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -62,7 +64,8 @@ public class ProvisionedActionTest {
 
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
-  private WsActionTester underTest = new WsActionTester(new ProvisionedAction(new ProjectsWsSupport(dbClient), dbClient, userSessionRule, defaultOrganizationProvider));
+  private WsActionTester underTest = new WsActionTester(new ProvisionedAction(new ProjectsWsSupport(dbClient, mock(BillingValidationsProxy.class)),
+    dbClient, userSessionRule, defaultOrganizationProvider));
 
   @Test
   public void verify_definition() {
@@ -73,8 +76,7 @@ public class ProvisionedActionTest {
     assertThat(action.since()).isEqualTo("5.2");
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "The 'uuid' field is deprecated in the response"),
-      tuple("6.4", "Paging response fields is now in a Paging object")
-    );
+      tuple("6.4", "Paging response fields is now in a Paging object"));
 
     assertThat(action.params()).hasSize(5);
 

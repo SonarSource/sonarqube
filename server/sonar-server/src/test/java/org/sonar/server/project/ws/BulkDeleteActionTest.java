@@ -33,6 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -60,7 +61,7 @@ public class BulkDeleteActionTest {
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private WsTester ws;
   private DbClient dbClient = db.getDbClient();
-  private BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, new ProjectsWsSupport(dbClient));
+  private BulkDeleteAction underTest = new BulkDeleteAction(componentCleanerService, dbClient, userSession, new ProjectsWsSupport(dbClient, mock(BillingValidationsProxy.class)));
   private OrganizationDto org1;
   private OrganizationDto org2;
 
