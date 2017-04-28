@@ -302,7 +302,7 @@ export default class ComponentNavMenu extends React.PureComponent {
     );
   }
 
-  renderExtension = ({ key, name }, isAdmin = false) => {
+  renderExtension = ({ key, name }, isAdmin) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
     return (
       <li key={key}>
@@ -336,7 +336,7 @@ export default class ComponentNavMenu extends React.PureComponent {
           <i className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
-          {withoutGovernance.map(this.renderExtension)}
+          {withoutGovernance.map(e => this.renderExtension(e, false))}
         </ul>
       </li>
     );
