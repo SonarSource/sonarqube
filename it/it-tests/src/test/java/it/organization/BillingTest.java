@@ -37,6 +37,7 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
+import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import util.ItUtils;
 import util.user.UserRule;
 
@@ -148,12 +149,38 @@ public class BillingTest {
   }
 
   @Test
-  public void fail_to_update_default_projects_visibility_to_private() {
+  public void fail_to_update_organization_default_visibility_to_private() {
     String organizationKey = createOrganization();
     setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
     try {
       adminClient.organizations().updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder().setOrganization(organizationKey).setProjectVisibility("private").build());
+      fail();
+    } catch (HttpException ex) {
+      assertThat(ex.code()).isEqualTo(400);
+      assertThat(ex.content()).contains(format("Organization %s cannot use private project", organizationKey));
+    }
+  }
+
+  @Test
+  public void does_not_fail_to_update_project_visibility_to_private() {
+    String organizationKey = createOrganization();
+    String projectKey = createPublicProject(organizationKey);
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+
+    adminClient.projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(projectKey).setVisibility("private").build());
+
+    assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"visibility\":\"private\"");
+  }
+
+  @Test
+  public void fail_to_update_project_visibility_to_private() {
+    String organizationKey = createOrganization();
+    String projectKey = createPublicProject(organizationKey);
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+
+    try {
+      adminClient.projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(projectKey).setVisibility("private").build());
       fail();
     } catch (HttpException ex) {
       assertThat(ex.code()).isEqualTo(400);
