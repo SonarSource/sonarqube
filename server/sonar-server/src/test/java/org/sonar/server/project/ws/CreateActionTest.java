@@ -20,6 +20,7 @@
 package org.sonar.server.project.ws;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,6 +36,9 @@ import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.BillingValidations;
+import org.sonar.server.organization.BillingValidations.BillingValidationsException;
+import org.sonar.server.organization.BillingValidationsProxy;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -46,19 +50,21 @@ import org.sonarqube.ws.client.project.CreateRequest;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.project.Visibility.PRIVATE;
-import static org.sonar.server.project.ws.CreateAction.PARAM_VISIBILITY;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_PROJECT;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class CreateActionTest {
 
@@ -76,10 +82,11 @@ public class CreateActionTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private ComponentUpdater componentUpdater = mock(ComponentUpdater.class, Mockito.RETURNS_MOCKS);
+  private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
   private WsActionTester ws = new WsActionTester(
     new CreateAction(
-      new ProjectsWsSupport(db.getDbClient()),
+      new ProjectsWsSupport(db.getDbClient(), billingValidations),
       db.getDbClient(), userSession,
       componentUpdater,
       defaultOrganizationProvider));
@@ -129,57 +136,6 @@ public class CreateActionTest {
     NewComponent called = verifyCallToComponentUpdater();
     assertThat(called.key()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(called.branch()).isNull();
-  }
-
-  @Test
-  public void fail_when_project_already_exists() throws Exception {
-    OrganizationDto organization = db.organizations().insert();
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyInt())).thenThrow(BadRequestException.create("already exists"));
-    userSession.addPermission(PROVISION_PROJECTS, organization);
-
-    expectedException.expect(BadRequestException.class);
-
-    call(CreateRequest.builder()
-      .setOrganization(organization.getKey())
-      .setKey(DEFAULT_PROJECT_KEY)
-      .setName(DEFAULT_PROJECT_NAME)
-      .build());
-  }
-
-  @Test
-  public void fail_when_missing_project_parameter() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'project' parameter is missing");
-
-    call(CreateRequest.builder().setName(DEFAULT_PROJECT_NAME).build());
-  }
-
-  @Test
-  public void fail_when_missing_name_parameter() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'name' parameter is missing");
-
-    call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).build());
-  }
-
-  @Test
-  public void fail_when_missing_create_project_permission() throws Exception {
-    expectedException.expect(ForbiddenException.class);
-
-    call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());
-  }
-
-  @Test
-  public void test_example() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-    expectSuccessfulCallToComponentUpdater();
-
-    String result = ws.newRequest()
-      .setParam("key", DEFAULT_PROJECT_KEY)
-      .setParam("name", DEFAULT_PROJECT_NAME)
-      .execute().getInput();
-
-    assertJson(result).isSimilarTo(getClass().getResource("create-example.json"));
   }
 
   @Test
@@ -244,6 +200,94 @@ public class CreateActionTest {
       .executeProtobuf(CreateWsResponse.class);
 
     assertThat(result.getProject().getVisibility()).isEqualTo("private");
+  }
+
+  @Test
+  public void does_not_fail_to_create_public_projects_when_organization_is_not_allowed_to_use_private_projects() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(PROVISION_PROJECTS, organization);
+    expectSuccessfulCallToComponentUpdater();
+    doThrow(new BillingValidationsException("This organization cannot use project private")).when(billingValidations)
+      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
+
+    CreateWsResponse result = ws.newRequest()
+      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("name", DEFAULT_PROJECT_NAME)
+      .setParam("organization", organization.getKey())
+      .setParam("visibility", "public")
+      .executeProtobuf(CreateWsResponse.class);
+
+    AssertionsForClassTypes.assertThat(result.getProject().getVisibility()).isEqualTo("public");
+  }
+
+  @Test
+  public void fail_to_create_private_projects_when_organization_is_not_allowed_to_use_private_projects() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(PROVISION_PROJECTS, organization);
+    expectSuccessfulCallToComponentUpdater();
+    doThrow(new BillingValidationsException("This organization cannot use project private")).when(billingValidations)
+      .checkCanUpdateProjectVisibility(any(BillingValidations.Organization.class), eq(true));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("This organization cannot use project private");
+
+    ws.newRequest()
+      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("name", DEFAULT_PROJECT_NAME)
+      .setParam("organization", organization.getKey())
+      .setParam("visibility", "private")
+      .executeProtobuf(CreateWsResponse.class);
+  }
+
+  @Test
+  public void fail_when_project_already_exists() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), anyInt())).thenThrow(BadRequestException.create("already exists"));
+    userSession.addPermission(PROVISION_PROJECTS, organization);
+
+    expectedException.expect(BadRequestException.class);
+
+    call(CreateRequest.builder()
+      .setOrganization(organization.getKey())
+      .setKey(DEFAULT_PROJECT_KEY)
+      .setName(DEFAULT_PROJECT_NAME)
+      .build());
+  }
+
+  @Test
+  public void fail_when_missing_project_parameter() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'project' parameter is missing");
+
+    call(CreateRequest.builder().setName(DEFAULT_PROJECT_NAME).build());
+  }
+
+  @Test
+  public void fail_when_missing_name_parameter() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is missing");
+
+    call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).build());
+  }
+
+  @Test
+  public void fail_when_missing_create_project_permission() throws Exception {
+    expectedException.expect(ForbiddenException.class);
+
+    call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());
+  }
+
+  @Test
+  public void test_example() {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+    expectSuccessfulCallToComponentUpdater();
+
+    String result = ws.newRequest()
+      .setParam("key", DEFAULT_PROJECT_KEY)
+      .setParam("name", DEFAULT_PROJECT_NAME)
+      .execute().getInput();
+
+    assertJson(result).isSimilarTo(getClass().getResource("create-example.json"));
   }
 
   @Test
