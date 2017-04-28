@@ -139,8 +139,8 @@ BUILD)
   export MAVEN_OPTS="-Xmx1G -Xms128m"
   MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
 
-  if [ "$TRAVIS_BRANCH" == "test/dr/travis-premium-vms" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    echo 'Build and analyze test/dr/travis-premium-vms'
+  if [ "$TRAVIS_BRANCH" == "test/dr/travis-premium-vms-mt" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    echo 'Build and analyze test/dr/travis-premium-vms-mt'
 
     # Fetch all commit history so that SonarQube has exact blame information
     # for issue auto-assignment
@@ -151,7 +151,8 @@ BUILD)
 
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
-          -Pdeploy-sonarsource,release
+          -Pdeploy-sonarsource,release \
+          -T0.5C -DforkCount=0.5C
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
