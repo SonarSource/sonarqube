@@ -36,7 +36,7 @@ import { getFacet } from '../../../api/issues';
 import { getAppState, getCurrentUser, getSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
-import AboutAppForSonarQubeDotCom from './AboutAppForSonarQubeDotCom';
+import AboutAppForSonarQubeDotComLazyLoader from './AboutAppForSonarQubeDotComLazyLoader';
 import '../styles.css';
 
 type State = {
@@ -119,7 +119,7 @@ class AboutApp extends React.PureComponent {
 
     if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
       return (
-        <AboutAppForSonarQubeDotCom
+        <AboutAppForSonarQubeDotComLazyLoader
           appState={this.props.appState}
           bugs={bugs}
           codeSmells={codeSmells}
