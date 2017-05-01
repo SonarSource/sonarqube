@@ -43,7 +43,7 @@ export default class EntryIssueTypes extends React.PureComponent {
             <tr>
               <td className="about-page-issue-type-number">
                 <Link
-                  to={getIssuesUrl({ resolved: 'false', types: 'BUG' })}
+                  to={getIssuesUrl({ resolved: 'false', types: 'BUG', s: 'CREATION_DATE' })}
                   className="about-page-issue-type-link">
                   {formatMeasure(bugs, 'SHORT_INT')}
                 </Link>
@@ -56,7 +56,11 @@ export default class EntryIssueTypes extends React.PureComponent {
             <tr>
               <td className="about-page-issue-type-number">
                 <Link
-                  to={getIssuesUrl({ resolved: 'false', types: 'VULNERABILITY' })}
+                  to={getIssuesUrl({
+                    resolved: 'false',
+                    types: 'VULNERABILITY',
+                    s: 'CREATION_DATE'
+                  })}
                   className="about-page-issue-type-link">
                   {formatMeasure(vulnerabilities, 'SHORT_INT')}
                 </Link>
@@ -69,7 +73,7 @@ export default class EntryIssueTypes extends React.PureComponent {
             <tr>
               <td className="about-page-issue-type-number">
                 <Link
-                  to={getIssuesUrl({ resolved: 'false', types: 'CODE_SMELL' })}
+                  to={getIssuesUrl({ resolved: 'false', types: 'CODE_SMELL', s: 'CREATION_DATE' })}
                   className="about-page-issue-type-link">
                   {formatMeasure(codeSmells, 'SHORT_INT')}
                 </Link>
