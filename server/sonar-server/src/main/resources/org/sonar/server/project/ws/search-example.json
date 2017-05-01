@@ -10,14 +10,16 @@
       "id": "project-uuid-1",
       "key": "project-key-1",
       "name": "Project Name 1",
-      "qualifier": "TRK"
+      "qualifier": "TRK",
+      "visibility": "public"
     },
     {
       "organization": "my-org-1",
       "id": "project-uuid-2",
       "key": "project-key-2",
       "name": "Project Name 1",
-      "qualifier": "TRK"
+      "qualifier": "TRK",
+      "visibility": "private"
     }
   ]
 }

@@ -40,7 +40,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -73,7 +72,7 @@ public class GhostsActionTest {
     assertThat(action.params()).hasSize(5);
 
     Param organization = action.param("organization");
-    assertThat(organization.description()).isEqualTo("the organization key");
+    assertThat(organization.description()).isEqualTo("Organization key");
     assertThat(organization.since()).isEqualTo("6.3");
     assertThat(organization.isRequired()).isFalse();
     assertThat(organization.isInternal()).isTrue();
@@ -97,12 +96,14 @@ public class GhostsActionTest {
       "    {" +
       "      \"uuid\": \"" + ghost1.uuid() + "\"," +
       "      \"key\": \"" + ghost1.key() + "\"," +
-      "      \"name\": \"" + ghost1.name() + "\"" +
+      "      \"name\": \"" + ghost1.name() + "\"," +
+      "      \"visibility\": \"private\"" +
       "    }," +
       "    {" +
       "      \"uuid\": \"" + ghost2.uuid() + "\"," +
       "      \"key\": \"" + ghost2.key() + "\"," +
-      "      \"name\": \"" + ghost2.name() + "\"" +
+      "      \"name\": \"" + ghost2.name() + "\"," +
+      "      \"visibility\": \"private\"" +
       "    }" +
       "  ]" +
       "}");
@@ -191,7 +192,8 @@ public class GhostsActionTest {
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
-      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
+      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"))
+      .setPrivate(false);
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
       .setStatus(STATUS_UNPROCESSED));
@@ -225,14 +227,12 @@ public class GhostsActionTest {
 
   @Test
   public void fail_with_NotFoundException_when_organization_with_specified_key_does_not_exist() {
-    TestRequest request = underTest.newRequest()
-        .setParam("organization", "foo");
     userSessionRule.logIn();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization for key 'foo'");
 
-    request.execute();
+    underTest.newRequest().setParam("organization", "foo").execute();
   }
 
   private ComponentDto insertGhostProject(OrganizationDto organization) {

@@ -27,6 +27,7 @@ import ProjectCardMeasures from './ProjectCardMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import Organization from '../../../components/shared/Organization';
 import TagsList from '../../../components/tags/TagsList';
+import PrivateBadge from '../../../components/common/PrivateBadge';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class ProjectCard extends React.PureComponent {
@@ -84,6 +85,7 @@ export default class ProjectCard extends React.PureComponent {
               {project.name}
             </Link>
           </h2>
+          {project.visibility === 'private' && <PrivateBadge className="spacer-left" />}
           {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
 

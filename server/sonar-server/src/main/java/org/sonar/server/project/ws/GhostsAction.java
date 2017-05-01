@@ -39,14 +39,16 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.project.Visibility.PRIVATE;
+import static org.sonar.server.project.Visibility.PUBLIC;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class GhostsAction implements ProjectsWsAction {
   private static final String PARAM_ORGANIZATION = "organization";
   private static final String ACTION = "ghosts";
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate", "visibility");
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -65,7 +67,8 @@ public class GhostsAction implements ProjectsWsAction {
     action.setChangelog(new Change("6.4", "The 'uuid' field is deprecated in the response"));
 
     action
-      .setDescription("List ghost projects.<br /> Requires 'Administer System' permission.")
+      .setDescription("List ghost projects.<br /> " +
+        "Requires 'Administer System' permission.")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-ghosts.json"))
       .setSince("5.2")
       .addPagingParams(100, MAX_LIMIT)
@@ -74,7 +77,7 @@ public class GhostsAction implements ProjectsWsAction {
       .setHandler(this);
 
     action.createParam(PARAM_ORGANIZATION)
-      .setDescription("the organization key")
+      .setDescription("Organization key")
       .setRequired(false)
       .setInternal(true)
       .setSince("6.3");
@@ -121,6 +124,7 @@ public class GhostsAction implements ProjectsWsAction {
       writeIfWished(json, "key", project.key(), fieldsToReturn);
       writeIfWished(json, "name", project.name(), fieldsToReturn);
       writeIfWished(json, "creationDate", project.getCreatedAt(), fieldsToReturn);
+      writeIfWished(json, "visibility", project.isPrivate() ? PRIVATE.getLabel() : PUBLIC.getLabel(), fieldsToReturn);
       json.endObject();
     }
     json.endArray();
