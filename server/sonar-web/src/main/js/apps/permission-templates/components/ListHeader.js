@@ -18,17 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 
 export default class ListHeader extends React.PureComponent {
   static propTypes = {
+    organization: React.PropTypes.object,
     permissions: React.PropTypes.array.isRequired
   };
 
+  renderTooltip = permission =>
+    (this.props.organization && (permission.key === 'user' || permission.key === 'codeviewer')
+      ? <div>
+          {permission.description}
+          <div className="alert alert-warning spacer-top">
+            {translate('projects_role', permission.key, 'public_projects_warning')}
+          </div>
+        </div>
+      : permission.description);
+
   render() {
-    const cells = this.props.permissions.map(p => (
-      <th key={p.key} className="permission-column">
-        {p.name}
-        <i className="icon-help little-spacer-left" title={p.description} data-toggle="tooltip" />
+    const cells = this.props.permissions.map(permission => (
+      <th key={permission.key} className="permission-column">
+        {permission.name}
+        <Tooltip overlay={this.renderTooltip(permission)}>
+          <i className="icon-help little-spacer-left" />
+        </Tooltip>
       </th>
     ));
 

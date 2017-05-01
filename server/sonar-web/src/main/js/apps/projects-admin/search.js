@@ -21,6 +21,7 @@ import React from 'react';
 import { sortBy } from 'lodash';
 import { TYPE, QUALIFIERS_ORDER } from './constants';
 import DeleteView from './delete-view';
+import BulkApplyTemplateView from './views/BulkApplyTemplateView';
 import RadioToggle from '../../components/controls/RadioToggle';
 import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
@@ -66,6 +67,16 @@ export default class Search extends React.PureComponent {
   deleteProjects = () => {
     new DeleteView({
       deleteProjects: this.props.deleteProjects
+    }).render();
+  };
+
+  bulkApplyTemplate = () => {
+    new BulkApplyTemplateView({
+      total: this.props.total,
+      selection: this.props.selection,
+      query: this.props.query,
+      qualifier: this.props.qualifier,
+      organization: this.props.organization
     }).render();
   };
 
@@ -144,12 +155,15 @@ export default class Search extends React.PureComponent {
                   />
                 </form>
               </td>
-              <td className="thin text-middle">
+              <td className="thin nowrap text-middle">
+                <button className="spacer-right" onClick={this.bulkApplyTemplate}>
+                  {translate('permission_templates.bulk_apply_permission_template')}
+                </button>
                 <button
                   onClick={this.deleteProjects}
                   className="button-red"
                   disabled={!isSomethingSelected}>
-                  Delete
+                  {translate('delete')}
                 </button>
               </td>
             </tr>

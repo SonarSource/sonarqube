@@ -44,7 +44,7 @@ export default class List extends React.PureComponent {
 
     return (
       <table id="permission-templates" className="data zebra permissions-table">
-        <ListHeader permissions={this.props.permissions} />
+        <ListHeader organization={this.props.organization} permissions={this.props.permissions} />
         <tbody>{permissionTemplates}</tbody>
       </table>
     );
