@@ -54,10 +54,6 @@ export default class ComponentNavMenu extends React.PureComponent {
     return qualifier === 'VW' || qualifier === 'SVW';
   }
 
-  shouldShowAdministration() {
-    return Object.keys(this.props.conf).some(key => this.props.conf[key]);
-  }
-
   renderDashboardLink() {
     const pathname = this.isView() ? '/view' : '/dashboard';
     return (
@@ -129,9 +125,11 @@ export default class ComponentNavMenu extends React.PureComponent {
   }
 
   renderAdministration() {
-    if (!this.shouldShowAdministration()) {
+    const adminLinks = this.renderAdministrationLinks();
+    if (!adminLinks.some(link => link != null)) {
       return null;
     }
+
     const isSettingsActive = SETTINGS_URLS.some(url => window.location.href.indexOf(url) !== -1);
     const className = 'dropdown' + (isSettingsActive ? ' active' : '');
     return (
@@ -145,19 +143,25 @@ export default class ComponentNavMenu extends React.PureComponent {
           <i className="icon-dropdown" />
         </a>
         <ul className="dropdown-menu">
-          {this.renderSettingsLink()}
-          {this.renderProfilesLink()}
-          {this.renderQualityGateLink()}
-          {this.renderCustomMeasuresLink()}
-          {this.renderLinksLink()}
-          {this.renderPermissionsLink()}
-          {this.renderBackgroundTasksLink()}
-          {this.renderUpdateKeyLink()}
-          {this.renderAdminExtensions()}
-          {this.renderDeletionLink()}
+          {adminLinks}
         </ul>
       </li>
     );
+  }
+
+  renderAdministrationLinks() {
+    return [
+      this.renderSettingsLink(),
+      this.renderProfilesLink(),
+      this.renderQualityGateLink(),
+      this.renderCustomMeasuresLink(),
+      this.renderLinksLink(),
+      this.renderPermissionsLink(),
+      this.renderBackgroundTasksLink(),
+      this.renderUpdateKeyLink(),
+      ...this.renderAdminExtensions(),
+      this.renderDeletionLink()
+    ];
   }
 
   renderSettingsLink() {
@@ -165,7 +169,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="settings">
         <Link
           to={{ pathname: '/project/settings', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -180,7 +184,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="profiles">
         <Link
           to={{ pathname: '/project/quality_profiles', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -195,7 +199,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="quality_gate">
         <Link
           to={{ pathname: '/project/quality_gate', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -210,7 +214,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="custom_measures">
         <Link
           to={{ pathname: '/custom_measures', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -225,7 +229,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="links">
         <Link
           to={{ pathname: '/project/links', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -240,7 +244,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="permissions">
         <Link
           to={{ pathname: '/project_roles', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -255,7 +259,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="background_tasks">
         <Link
           to={{ pathname: '/project/background_tasks', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -270,7 +274,7 @@ export default class ComponentNavMenu extends React.PureComponent {
       return null;
     }
     return (
-      <li>
+      <li key="update_key">
         <Link
           to={{ pathname: '/project/key', query: { id: this.props.component.key } }}
           activeClassName="active">
@@ -292,7 +296,7 @@ export default class ComponentNavMenu extends React.PureComponent {
     }
 
     return (
-      <li>
+      <li key="project_delete">
         <Link
           to={{ pathname: '/project/deletion', query: { id: this.props.component.key } }}
           activeClassName="active">
