@@ -24,6 +24,7 @@ import { getComponentPermissionsUrl } from '../../helpers/urls';
 import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/QualifierIcon';
+import PrivateBadge from '../../components/common/PrivateBadge';
 import { translate } from '../../helpers/l10n';
 
 export default class Projects extends React.PureComponent {
@@ -80,6 +81,9 @@ export default class Projects extends React.PureComponent {
         </td>
         <td className="nowrap">
           <span className="note">{project.key}</span>
+        </td>
+        <td className="width-20">
+          {project.visibility === 'private' && <PrivateBadge />}
         </td>
         <td className="thin nowrap">
           <div className="dropdown">
