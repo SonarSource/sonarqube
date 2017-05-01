@@ -48,6 +48,7 @@ export default class IssueTags extends React.PureComponent {
     const newIssue = { ...issue, tags };
     updateIssue(
       this.props.onChange,
+      this.props.onFail,
       setIssueTags({ issue: issue.key, tags: tags.join(',') }),
       issue,
       newIssue

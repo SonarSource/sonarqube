@@ -138,7 +138,11 @@ export default class BaseIssue extends React.PureComponent {
   handleAssignement = (login: string) => {
     const { issue } = this.props;
     if (issue.assignee !== login) {
-      updateIssue(this.props.onChange, setIssueAssignee({ issue: issue.key, assignee: login }));
+      updateIssue(
+        this.props.onChange,
+        this.handleFail,
+        setIssueAssignee({ issue: issue.key, assignee: login })
+      );
     }
     this.togglePopup('assign', false);
   };
