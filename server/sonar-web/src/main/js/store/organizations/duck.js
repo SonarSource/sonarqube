@@ -31,6 +31,7 @@ export type Organization = {
   key: string,
   name: string,
   pages?: Array<{ key: string, name: string }>,
+  projectVisibility: string,
   url?: string
 };
 

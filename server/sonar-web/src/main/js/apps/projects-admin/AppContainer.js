@@ -20,8 +20,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Main from './main';
+import { onFail } from '../../store/rootActions';
 import { getCurrentUser, getAppState } from '../../store/rootReducer';
 import { getRootQualifiers } from '../../store/appState/duck';
+import { receiveOrganizations } from '../../store/organizations/duck';
+import { changeProjectVisibility } from '../../api/organizations';
 
 function AppContainer(props) {
   const hasProvisionPermission = props.organization
@@ -36,6 +39,7 @@ function AppContainer(props) {
     <Main
       hasProvisionPermission={hasProvisionPermission}
       topLevelQualifiers={topLevelQualifiers}
+      onVisibilityChange={props.onVisibilityChange}
       organization={props.organization}
     />
   );
@@ -46,4 +50,17 @@ const mapStateToProps = state => ({
   user: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(AppContainer);
+const onVisibilityChange = (organization, visibility) => dispatch => {
+  const currentVisibility = organization.projectVisibility;
+  dispatch(receiveOrganizations([{ ...organization, projectVisibility: visibility }]));
+  changeProjectVisibility(organization.key, visibility).catch(error => {
+    onFail(dispatch)(error);
+    dispatch(receiveOrganizations([{ ...organization, projectVisibility: currentVisibility }]));
+  });
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  onVisibilityChange: visibility => dispatch(onVisibilityChange(ownProps.organization, visibility))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppContainer);

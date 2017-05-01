@@ -68,3 +68,6 @@ export const addMember = (data: { login: string, organization: string }) =>
 
 export const removeMember = (data: { login: string, organization: string }) =>
   post('/api/organizations/remove_member', data);
+
+export const changeProjectVisibility = (organization: string, projectVisibility: string) =>
+  post('/api/organizations/update_project_visibility', { organization, projectVisibility });

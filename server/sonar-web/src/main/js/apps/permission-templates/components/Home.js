@@ -21,7 +21,6 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import Header from './Header';
 import List from './List';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
 export default class Home extends React.PureComponent {
@@ -45,15 +44,13 @@ export default class Home extends React.PureComponent {
           refresh={this.props.refresh}
         />
 
-        <TooltipsContainer>
-          <List
-            organization={this.props.organization}
-            permissionTemplates={this.props.permissionTemplates}
-            permissions={this.props.permissions}
-            topQualifiers={this.props.topQualifiers}
-            refresh={this.props.refresh}
-          />
-        </TooltipsContainer>
+        <List
+          organization={this.props.organization}
+          permissionTemplates={this.props.permissionTemplates}
+          permissions={this.props.permissions}
+          topQualifiers={this.props.topQualifiers}
+          refresh={this.props.refresh}
+        />
       </div>
     );
   }
