@@ -366,6 +366,10 @@
   transform: translateY(-4px);
 }
 
+.overview-legend-spaced-line {
+  padding: 14px 0 10px;
+}
+
 .overview-key {
   width: 100%;
   background-color: transparent !important;

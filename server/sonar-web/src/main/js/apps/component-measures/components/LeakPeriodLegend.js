@@ -19,25 +19,23 @@
  */
 import React from 'react';
 import moment from 'moment';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import Tooltip from '../../../components/controls/Tooltip';
 import { getPeriodLabel, getPeriodDate } from '../../../helpers/periods';
 import { translateWithParameters } from '../../../helpers/l10n';
 
-const LeakPeriodLegend = ({ period }) => {
+export default function LeakPeriodLegend({ period }) {
+  const label = (
+    <div className="measures-domains-leak-header">
+      {translateWithParameters('overview.leak_period_x', getPeriodLabel(period))}
+    </div>
+  );
+
+  if (period.mode === 'days') {
+    return label;
+  }
+
   const date = getPeriodDate(period);
-  const label = getPeriodLabel(period);
   const fromNow = moment(date).fromNow();
   const tooltip = fromNow + ', ' + moment(date).format('LL');
-
-  return (
-    <TooltipsContainer>
-      <div className="measures-domains-leak-header">
-        <div title={tooltip} data-toggle="tooltip">
-          {translateWithParameters('overview.leak_period_x', label)}
-        </div>
-      </div>
-    </TooltipsContainer>
-  );
-};
-
-export default LeakPeriodLegend;
+  return <Tooltip placement="bottom" overlay={tooltip}>{label}</Tooltip>;
+}

@@ -28,7 +28,7 @@ describe('check note', () => {
       mode: 'days',
       parameter: '10'
     };
-    expect(shallow(<LeakPeriodLegend period={period} />).find('.note')).toMatchSnapshot();
+    expect(shallow(<LeakPeriodLegend period={period} />)).toMatchSnapshot();
   });
 
   it('date', () => {
