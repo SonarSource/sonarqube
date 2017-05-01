@@ -97,6 +97,7 @@ message ProvisionedWsResponse {
     optional string key = 2;
     optional string name = 3;
     optional string creationDate = 4;
+    optional string visibility = 5;
   }
 }
 

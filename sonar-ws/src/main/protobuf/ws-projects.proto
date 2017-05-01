@@ -69,6 +69,7 @@ message SearchWsResponse {
     optional string key = 3;
     optional string name = 4;
     optional string qualifier = 5;
+    optional string visibility = 6;
   }
 }
 

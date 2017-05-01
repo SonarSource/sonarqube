@@ -55,7 +55,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class ProvisionedAction implements ProjectsWsAction {
 
   private static final Set<String> QUALIFIERS_FILTER = newHashSet(Qualifiers.PROJECT);
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate", "visibility");
 
   private final ProjectsWsSupport support;
   private final DbClient dbClient;
@@ -125,6 +125,7 @@ public class ProvisionedAction implements ProjectsWsAction {
       writeIfNeeded("key", project.key(), compBuilder::setKey, desiredFields);
       writeIfNeeded("name", project.name(), compBuilder::setName, desiredFields);
       writeIfNeeded("creationDate", project.getCreatedAt(), compBuilder::setCreationDate, desiredFields);
+      writeIfNeeded("visibility", project.isPrivate() ? "private" : "public", compBuilder::setVisibility, desiredFields);
       return compBuilder.build();
     }).collect(toList());
   }

@@ -108,7 +108,7 @@ export default class Main extends React.PureComponent {
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
-      this.setState({ ready: true, projects, total: r.total });
+      this.setState({ ready: true, projects, total: r.paging.total });
     });
   };
 

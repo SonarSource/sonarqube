@@ -174,7 +174,8 @@ public class ProvisionedActionTest {
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(org, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
-      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
+      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"))
+      .setPrivate(false);
     ComponentDto roslynProject = ComponentTesting.newPrivateProjectDto(org, "c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")

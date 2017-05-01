@@ -23,10 +23,14 @@ import { Link } from 'react-router';
 import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
+import PrivateBadge from '../../../../components/common/PrivateBadge';
 
 class ComponentNavBreadcrumbs extends React.PureComponent {
   static propTypes = {
-    breadcrumbs: React.PropTypes.array
+    breadcrumbs: React.PropTypes.array,
+    component: React.PropTypes.shape({
+      visibility: React.PropTypes.string.isRequired
+    }).isRequired
   };
 
   render() {
@@ -73,6 +77,7 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
             <span className="slash-separator" />
           </span>}
         {items}
+        {this.props.component.visibility === 'private' && <PrivateBadge className="spacer-left" />}
       </h2>
     );
   }
