@@ -66,6 +66,7 @@ export default class IssueActionsBar extends React.PureComponent {
       const newIssue = { ...issue, [property]: value };
       updateIssue(
         this.props.onChange,
+        this.props.onFail,
         apiCall({ issue: issue.key, [property]: value }),
         issue,
         newIssue
@@ -117,6 +118,7 @@ export default class IssueActionsBar extends React.PureComponent {
                     issue={issue}
                     hasTransitions={hasTransitions}
                     onChange={this.props.onChange}
+                    onFail={this.props.onFail}
                     togglePopup={this.props.togglePopup}
                   />
                 </li>
@@ -142,6 +144,7 @@ export default class IssueActionsBar extends React.PureComponent {
                     currentPopup={this.props.currentPopup}
                     issueKey={issue.key}
                     onChange={this.props.onChange}
+                    onFail={this.props.onFail}
                     toggleComment={this.toggleComment}
                   />}
               </ul>

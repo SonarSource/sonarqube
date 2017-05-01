@@ -31,6 +31,7 @@ type Props = {|
   currentPopup: string,
   issueKey: string,
   onChange: Issue => void,
+  onFail: Error => void,
   toggleComment: (open?: boolean, placeholder?: string) => void
 |};
 
@@ -38,7 +39,11 @@ export default class IssueCommentAction extends React.PureComponent {
   props: Props;
 
   addComment = (text: string) => {
-    updateIssue(this.props.onChange, addIssueComment({ issue: this.props.issueKey, text }));
+    updateIssue(
+      this.props.onChange,
+      this.props.onFail,
+      addIssueComment({ issue: this.props.issueKey, text })
+    );
     this.props.toggleComment(false);
   };
 
