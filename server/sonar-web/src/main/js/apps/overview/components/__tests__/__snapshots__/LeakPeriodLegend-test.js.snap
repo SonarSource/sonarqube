@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`check note 10 days 1`] = `
-<span
-  className="note"
+<div
+  className="overview-legend overview-legend-spaced-line"
 >
-  overview.last_analysis_x.4 years ago
-</span>
+  overview.leak_period_x.overview.period.days.10
+</div>
 `;
 
 exports[`check note date 1`] = `
