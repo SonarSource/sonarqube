@@ -86,7 +86,7 @@ public class HighlightingTest extends PerfTestCase {
     }
 
     SonarScanner scanner = SonarScanner.create()
-      .setScannerVersion("2.4")
+      .setScannerVersion("2.6")
       .setProperties(
         "sonar.projectKey", "highlighting",
         "sonar.projectName", "highlighting",

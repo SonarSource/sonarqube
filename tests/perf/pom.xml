@@ -61,6 +61,13 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.scanner.cli</groupId>
+      <artifactId>sonar-scanner-cli</artifactId>
+      <version>2.6</version>
+      <type>zip</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-update-center-common</artifactId>
       <version>1.12.1</version>
