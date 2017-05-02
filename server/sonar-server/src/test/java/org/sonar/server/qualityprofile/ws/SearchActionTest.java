@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,13 +43,13 @@ import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
@@ -58,10 +57,7 @@ import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
@@ -77,7 +73,7 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-  private QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(db);
+  private QualityProfileDbTester qualityProfileDb = db.qualityProfiles();
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -101,8 +97,8 @@ public class SearchActionTest {
       new SearchDataLoader(
         languages,
         new QProfileLookup(dbClient),
-        dbClient,
-        new ComponentFinder(dbClient)),
+        dbClient
+      ),
       languages,
       dbClient,
       qProfileWsSupport);
@@ -240,41 +236,38 @@ public class SearchActionTest {
 
   @Test
   public void search_for_project_qp() {
-    long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
-    OrganizationDto org = db.getDefaultOrganization();
-    QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
-      .setOrganizationUuid(org.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
-      .setLastUsed(time)
-      .setName("Sonar way");
-    QualityProfileDto qualityProfileOnXoo2 = QualityProfileDto.createFor("sonar-way-xoo2-12345")
-      .setOrganizationUuid(org.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
-      .setLastUsed(time)
-      .setName("Sonar way");
-    QualityProfileDto anotherQualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-45678")
-      .setOrganizationUuid(org.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
-      .setLastUsed(time)
-      .setName("Another way");
-    ComponentDto project = newPrivateProjectDto(org, "project-uuid");
-    qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
-    qualityProfileDb.insertProjectWithQualityProfileAssociations(project, qualityProfileOnXoo1, qualityProfileOnXoo2);
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(org);
+    QualityProfileDto qualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()));
+    db.qualityProfiles().associateProjectWithQualityProfile(project, qualityProfileOnXoo1);
+    QualityProfileDto qualityProfileOnXoo2 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo2.getKey()).setDefault(true));
+    db.qualityProfiles().associateProjectWithQualityProfile(project, qualityProfileOnXoo2);
+    db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setDefault(true));
 
-    SearchWsResponse result = ws.newRequest().setParam(PARAM_PROJECT_KEY, project.key())
+    SearchWsResponse result = ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, project.key())
       .executeProtobuf(SearchWsResponse.class);
 
     assertThat(result.getProfilesList())
-      .hasSize(2)
       .extracting(QualityProfile::getKey)
-      .contains("sonar-way-xoo1-12345", "sonar-way-xoo2-12345")
-      .doesNotContain("sonar-way-xoo1-45678");
-    assertThat(result.getProfilesList())
-      .extracting(QualityProfile::getRulesUpdatedAt, QualityProfile::getLastUsed)
-      .contains(tuple("2016-12-21T19:10:03+0100", formatDateTime(time)));
+      .containsExactlyInAnyOrder(qualityProfileOnXoo1.getKey(), qualityProfileOnXoo2.getKey());
+  }
+
+  @Test
+  public void search_for_project_qp_with_wrong_organization() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(org1);
+
+    TestRequest request = ws.newRequest()
+      .setParam(PARAM_PROJECT_KEY, project.key())
+      .setParam(PARAM_ORGANIZATION, org2.getKey());
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(
+      "The provided organization key '" + org2.getKey() + "' does not match the organization key '" + org1.getKey() + "' of the component '" + project.getKey() + "'");
+
+    request.execute();
   }
 
   @Test
@@ -310,35 +303,21 @@ public class SearchActionTest {
   @Test
   public void search_by_profile_name() {
     OrganizationDto org = db.organizations().insert();
-    QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
-      .setOrganizationUuid(org.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar way");
-    QualityProfileDto qualityProfileOnXoo2 = QualityProfileDto.createFor("sonar-way-xoo2-12345")
-      .setOrganizationUuid(org.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("Sonar way")
-      .setDefault(true);
-    QualityProfileDto anotherQualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-45678")
-      .setOrganizationUuid(org.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setRulesUpdatedAtAsDate(new Date())
-      .setName("Another way")
-      .setDefault(true);
-    qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
-    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(org, "project-uuid"));
+    QualityProfileDto qualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setName("Sonar way"));
+    QualityProfileDto qualityProfileOnXoo2 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo2.getKey()).setName("Sonar way").setDefault(true));
+    QualityProfileDto anotherQualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setName("Another way").setDefault(true));
+    ComponentDto project = componentDb.insertPrivateProject(org);
 
-    String result = ws.newRequest()
+    SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_ORGANIZATION, org.getKey())
       .setParam(PARAM_PROJECT_KEY, project.key())
       .setParam(PARAM_PROFILE_NAME, "Sonar way")
-      .execute().getInput();
+      .executeProtobuf(SearchWsResponse.class);
 
-    assertThat(result)
-      .contains("sonar-way-xoo1-12345", "sonar-way-xoo2-12345")
-      .doesNotContain("sonar-way-xoo1-45678");
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey)
+      .contains(qualityProfileOnXoo1.getKey(), qualityProfileOnXoo2.getKey())
+      .doesNotContain(anotherQualityProfileOnXoo1.getKey());
   }
 
   @Test

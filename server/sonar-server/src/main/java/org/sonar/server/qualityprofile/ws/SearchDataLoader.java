@@ -37,7 +37,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
@@ -52,23 +51,20 @@ public class SearchDataLoader {
   private final Languages languages;
   private final QProfileLookup profileLookup;
   private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
 
-  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, DbClient dbClient,
-    ComponentFinder componentFinder) {
+  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, DbClient dbClient) {
     this.languages = languages;
     this.profileLookup = profileLookup;
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
   }
 
   @VisibleForTesting
-  List<QualityProfileDto> findProfiles(DbSession dbSession, SearchWsRequest request, OrganizationDto organization) {
+  List<QualityProfileDto> findProfiles(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, @Nullable ComponentDto project) {
     Collection<QualityProfileDto> profiles;
     if (askDefaultProfiles(request)) {
       profiles = findDefaultProfiles(dbSession, request, organization);
-    } else if (hasComponentKey(request)) {
-      profiles = findProjectProfiles(dbSession, request, organization);
+    } else if (project != null) {
+      profiles = findProjectProfiles(dbSession, request, organization, project);
     } else {
       profiles = findAllProfiles(dbSession, request, organization);
     }
@@ -92,8 +88,7 @@ public class SearchDataLoader {
     return qualityProfiles.values();
   }
 
-  private Collection<QualityProfileDto> findProjectProfiles(DbSession dbSession, SearchWsRequest request, OrganizationDto organization) {
-    String componentKey = request.getProjectKey();
+  private Collection<QualityProfileDto> findProjectProfiles(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, ComponentDto project) {
     String profileName = request.getProfileName();
 
     Set<String> languageKeys = getLanguageKeys();
@@ -102,12 +97,12 @@ public class SearchDataLoader {
     // look up profiles by profileName (if any) for each language
     Set<String> unresolvedLanguages = lookupByProfileName(dbSession, organization, qualityProfiles, languageKeys, profileName);
     // look up profile by componentKey for each language for which we don't have one yet
-    Set<String> stillUnresolvedLanguages = lookupByModuleKey(dbSession, organization, qualityProfiles, unresolvedLanguages, componentKey);
+    Set<String> stillUnresolvedLanguages = lookupByModule(dbSession, organization, qualityProfiles, unresolvedLanguages, project);
     // look up profile by default for each language for which we don't have one yet
     Set<String> noDefaultProfileLanguages = lookupDefaults(dbSession, organization, qualityProfiles, stillUnresolvedLanguages);
 
     if (!noDefaultProfileLanguages.isEmpty()) {
-      throw new IllegalStateException(format("No quality profile can been found on language(s) '%s' for project '%s'", noDefaultProfileLanguages, componentKey));
+      throw new IllegalStateException(format("No quality profile can been found on language(s) '%s' for project '%s'", noDefaultProfileLanguages, project.getKey()));
     }
 
     return qualityProfiles.values();
@@ -134,24 +129,15 @@ public class SearchDataLoader {
     return difference(languageKeys, qualityProfiles.keySet());
   }
 
-  private Set<String> lookupByModuleKey(DbSession dbSession, OrganizationDto organization, Map<String, QualityProfileDto> qualityProfiles, Set<String> languageKeys,
-    @Nullable String moduleKey) {
-    if (languageKeys.isEmpty() || moduleKey == null) {
+  private Set<String> lookupByModule(DbSession dbSession, OrganizationDto organization, Map<String, QualityProfileDto> qualityProfiles, Set<String> languageKeys,
+    ComponentDto project) {
+    if (languageKeys.isEmpty()) {
       return languageKeys;
     }
 
-    ComponentDto project = getProject(moduleKey, dbSession);
-    dbClient.qualityProfileDao().selectByProjectAndLanguages(dbSession, organization, project.getKey(), languageKeys)
+    dbClient.qualityProfileDao().selectByProjectAndLanguages(dbSession, organization, project, languageKeys)
       .forEach(qualityProfile -> qualityProfiles.put(qualityProfile.getLanguage(), qualityProfile));
     return difference(languageKeys, qualityProfiles.keySet());
-  }
-
-  private ComponentDto getProject(String moduleKey, DbSession session) {
-    ComponentDto module = componentFinder.getByKey(session, moduleKey);
-    if (module.isRootProject()) {
-      return module;
-    }
-    return dbClient.componentDao().selectOrFailByUuid(session, module.projectUuid());
   }
 
   private Set<String> lookupDefaults(DbSession dbSession, OrganizationDto organization, Map<String, QualityProfileDto> qualityProfiles, Set<String> languageKeys) {
@@ -181,9 +167,5 @@ public class SearchDataLoader {
 
   private static boolean askDefaultProfiles(SearchWsRequest request) {
     return request.getDefaults();
-  }
-
-  private static boolean hasComponentKey(SearchWsRequest request) {
-    return request.getProjectKey() != null;
   }
 }

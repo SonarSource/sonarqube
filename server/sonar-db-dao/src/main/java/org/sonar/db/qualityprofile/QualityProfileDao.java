@@ -34,6 +34,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.KeyLongValue;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -111,8 +112,8 @@ public class QualityProfileDao implements Dao {
     return mapper(session).selectByProjectAndLanguage(projectKey, language);
   }
 
-  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, String projectKey, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), projectKey, input));
+  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, ComponentDto project, Collection<String> languageKeys) {
+    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), project.getKey(), input));
   }
 
   public List<QualityProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
