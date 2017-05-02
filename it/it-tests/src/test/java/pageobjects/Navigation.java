@@ -136,6 +136,10 @@ public class Navigation extends ExternalResource {
     return open(url, ProjectPermissionsPage.class);
   }
 
+  public ProjectsManagementPage openProjectsManagement() {
+    return open("/projects_admin", ProjectsManagementPage.class);
+  }
+
   public LoginPage openLogin() {
     return open("/sessions/login", LoginPage.class);
   }

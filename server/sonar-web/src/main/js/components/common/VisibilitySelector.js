@@ -20,12 +20,13 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { translate } from '../../../../helpers/l10n';
+import { translate } from '../../helpers/l10n';
 
-type Props = {
+type Props = {|
+  className?: string,
   onChange: string => void,
   visibility: string
-};
+|};
 
 export default class VisibilitySelector extends React.PureComponent {
   props: Props;
@@ -44,7 +45,7 @@ export default class VisibilitySelector extends React.PureComponent {
 
   render() {
     return (
-      <div className="big-spacer-top big-spacer-bottom">
+      <div className={this.props.className}>
         <a
           className="link-base-color link-no-underline"
           id="visibility-public"

@@ -19,16 +19,15 @@
  */
 // @flow
 import React from 'react';
-import CreateView from './create-view';
 import ChangeVisibilityForm from './ChangeVisibilityForm';
 import { translate } from '../../helpers/l10n';
 import type { Organization } from '../../store/organizations/duck';
 
 type Props = {|
   hasProvisionPermission: boolean,
+  onProjectCreate: () => void,
   onVisibilityChange: string => void,
-  organization?: Organization,
-  refresh: () => void
+  organization?: Organization
 |};
 
 type State = {
@@ -39,12 +38,10 @@ export default class Header extends React.PureComponent {
   props: Props;
   state: State = { visibilityForm: false };
 
-  createProject() {
-    new CreateView({
-      refresh: this.props.refresh,
-      organization: this.props.organization
-    }).render();
-  }
+  handleCreateProjectClick = (event: Event) => {
+    event.preventDefault();
+    this.props.onProjectCreate();
+  };
 
   handleChangeVisibilityClick = (event: Event) => {
     event.preventDefault();
@@ -54,17 +51,6 @@ export default class Header extends React.PureComponent {
   closeVisiblityForm = () => {
     this.setState({ visibilityForm: false });
   };
-
-  renderCreateButton() {
-    if (!this.props.hasProvisionPermission) {
-      return null;
-    }
-    return (
-      <button onClick={this.createProject.bind(this)}>
-        Create Project
-      </button>
-    );
-  }
 
   render() {
     const { organization } = this.props;
@@ -86,7 +72,10 @@ export default class Header extends React.PureComponent {
                 onClick={this.handleChangeVisibilityClick}
               />
             </span>}
-          {this.renderCreateButton()}
+          {this.props.hasProvisionPermission &&
+            <button id="create-project" onClick={this.handleCreateProjectClick}>
+              {translate('qualifiers.create.TRK')}
+            </button>}
         </div>
         <p className="page-description">
           {translate('projects_management.page.description')}

@@ -21,7 +21,7 @@
 import React from 'react';
 import { without } from 'lodash';
 import PageHeader from './PageHeader';
-import VisibilitySelector from './VisibilitySelector';
+import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import AllHoldersList from './AllHoldersList';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 import PageError from '../../shared/components/PageError';
@@ -331,6 +331,7 @@ export default class App extends React.PureComponent {
         <PageError />
         {this.props.component.qualifier === 'TRK' &&
           <VisibilitySelector
+            className="big-spacer-top big-spacer-bottom"
             onChange={this.handleVisibilityChange}
             visibility={this.props.component.visibility}
           />}

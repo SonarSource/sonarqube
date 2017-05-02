@@ -40,6 +40,7 @@ function AppContainer(props) {
       hasProvisionPermission={hasProvisionPermission}
       topLevelQualifiers={topLevelQualifiers}
       onVisibilityChange={props.onVisibilityChange}
+      onRequestFail={props.onRequestFail}
       organization={props.organization}
     />
   );
@@ -60,7 +61,8 @@ const onVisibilityChange = (organization, visibility) => dispatch => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  onVisibilityChange: visibility => dispatch(onVisibilityChange(ownProps.organization, visibility))
+  onVisibilityChange: visibility => dispatch(onVisibilityChange(ownProps.organization, visibility)),
+  onRequestFail: error => onFail(dispatch)(error)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppContainer);
