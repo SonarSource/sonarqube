@@ -26,6 +26,7 @@ import MigrationContainer from '../components/MigrationContainer';
 import App from '../components/App';
 import GlobalContainer from '../components/GlobalContainer';
 import SimpleContainer from '../components/SimpleContainer';
+import SimpleSessionsContainer from '../../apps/sessions/components/SimpleSessionsContainer';
 import Landing from '../components/Landing';
 import ProjectContainer from '../components/ProjectContainer';
 import ProjectAdminContainer from '../components/ProjectAdminContainer';
@@ -133,7 +134,7 @@ const startReactApp = () => {
           </Route>
 
           <Route component={MigrationContainer}>
-            <Route component={SimpleContainer}>
+            <Route component={SimpleSessionsContainer}>
               <Route path="/sessions">{sessionsRoutes}</Route>
             </Route>
 
