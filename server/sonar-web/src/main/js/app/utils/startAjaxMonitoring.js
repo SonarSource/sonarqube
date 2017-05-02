@@ -194,7 +194,7 @@ $.ajaxSetup({
 });
 
 const startAjaxMonitoring = () => {
-  processesView.render().$el.insertBefore('#footer');
+  processesView.render().$el.appendTo('body');
 };
 
 export default startAjaxMonitoring;
