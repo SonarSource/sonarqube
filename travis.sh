@@ -152,7 +152,7 @@ BUILD)
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
           -Pdeploy-sonarsource,release \
-          -T0.5C -DforkCount=0.5C
+          -T0.8C -DforkCount=0.8C
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
