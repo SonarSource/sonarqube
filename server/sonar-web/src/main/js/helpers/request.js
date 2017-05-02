@@ -192,7 +192,7 @@ export function postJSON(url: string, data?: Object): Promise<Object> {
  * @param url
  * @param data
  */
-export function post(url: string, data?: Object): Promise<Object> {
+export function post(url: string, data?: Object): Promise<void> {
   return request(url).setMethod('POST').setData(data).submit().then(checkStatus);
 }
 
