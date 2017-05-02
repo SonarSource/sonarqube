@@ -33,7 +33,7 @@ type Props = {
     key: string,
     title: string
   },
-  location: {},
+  location: { hash: string },
   onFail: string => void,
   options?: {},
   router: Object
@@ -52,7 +52,11 @@ class Extension extends React.PureComponent {
     if (prevProps.extension !== this.props.extension) {
       this.stopExtension();
       this.startExtension();
-    } else if (prevProps.location !== this.props.location) {
+    } else if (
+      prevProps.location !== this.props.location &&
+      // old router from backbone app updates hash, don't react in this case
+      prevProps.location.hash === this.props.location.hash
+    ) {
       this.startExtension();
     }
   }
