@@ -46,7 +46,7 @@ import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 public class GhostsAction implements ProjectsWsAction {
   private static final String PARAM_ORGANIZATION = "organization";
   private static final String ACTION = "ghosts";
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate", "visibility");
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -121,6 +121,7 @@ public class GhostsAction implements ProjectsWsAction {
       writeIfWished(json, "key", project.key(), fieldsToReturn);
       writeIfWished(json, "name", project.name(), fieldsToReturn);
       writeIfWished(json, "creationDate", project.getCreatedAt(), fieldsToReturn);
+      writeIfWished(json, "visibility", project.isPrivate() ? "private" : "public", fieldsToReturn);
       json.endObject();
     }
     json.endArray();

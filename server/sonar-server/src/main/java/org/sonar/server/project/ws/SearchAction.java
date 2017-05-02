@@ -151,7 +151,8 @@ public class SearchAction implements ProjectsWsAction {
       .setId(dto.uuid())
       .setKey(dto.key())
       .setName(dto.name())
-      .setQualifier(dto.qualifier());
+      .setQualifier(dto.qualifier())
+      .setVisibility(dto.isPrivate() ? "private" : "public");
     return builder.build();
   }
 

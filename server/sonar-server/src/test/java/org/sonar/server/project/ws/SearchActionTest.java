@@ -261,7 +261,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insertForKey("my-org-1");
     userSession.addPermission(ADMINISTER, organization);
     db.components().insertComponents(
-      newPrivateProjectDto(organization, "project-uuid-1").setName("Project Name 1").setKey("project-key-1"),
+      newPrivateProjectDto(organization, "project-uuid-1").setName("Project Name 1").setKey("project-key-1").setPrivate(false),
       newPrivateProjectDto(organization, "project-uuid-2").setName("Project Name 1").setKey("project-key-2"));
 
     String response = ws.newRequest()

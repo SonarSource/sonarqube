@@ -191,7 +191,8 @@ public class GhostsActionTest {
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
-      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
+      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"))
+      .setPrivate(false);
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
       .setStatus(STATUS_UNPROCESSED));
@@ -225,8 +226,7 @@ public class GhostsActionTest {
 
   @Test
   public void fail_with_NotFoundException_when_organization_with_specified_key_does_not_exist() {
-    TestRequest request = underTest.newRequest()
-        .setParam("organization", "foo");
+    TestRequest request = underTest.newRequest();
     userSessionRule.logIn();
 
     expectedException.expect(NotFoundException.class);
