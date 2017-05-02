@@ -63,6 +63,15 @@ public class UiTest {
   }
 
   @Test
+  public void footer_doesnt_contains_version_on_login_page() {
+    WsResponse status = ItUtils.newAdminWsClient(ORCHESTRATOR).wsConnector().call(new GetRequest("api/navigation/global"));
+    Map<String, Object> statusMap = ItUtils.jsonToMap(status.content());
+
+    nav.openLogin();
+    nav.getFooter().shouldNot(hasText((String) statusMap.get("version")));
+  }
+
+  @Test
   public void many_page_transitions() {
     analyzeSampleProject();
 

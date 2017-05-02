@@ -21,13 +21,13 @@
 import React from 'react';
 import GlobalFooter from './GlobalFooter';
 
+type Props = {
+  children?: React.Element<*> | Array<React.Element<*>>,
+  hideLoggedInInfo?: boolean
+};
+
 export default class SimpleContainer extends React.PureComponent {
-  static propTypes = {
-    children: React.PropTypes.oneOfType([
-      React.PropTypes.element,
-      React.PropTypes.arrayOf(React.PropTypes.element)
-    ])
-  };
+  props: Props;
 
   componentDidMount() {
     const html = document.querySelector('html');
@@ -57,7 +57,7 @@ export default class SimpleContainer extends React.PureComponent {
             </div>
           </div>
         </div>
-        <GlobalFooter />
+        <GlobalFooter hideLoggedInInfo={this.props.hideLoggedInInfo} />
       </div>
     );
   }
