@@ -23,6 +23,7 @@ import { debounce, uniq, without } from 'lodash';
 import Header from './header';
 import Search from './search';
 import Projects from './projects';
+import CreateProjectForm from './CreateProjectForm';
 import { PAGE_SIZE, TYPE } from './constants';
 import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
 import ListFooter from '../../components/controls/ListFooter';
@@ -31,10 +32,12 @@ import type { Organization } from '../../store/organizations/duck';
 type Props = {|
   hasProvisionPermission: boolean,
   onVisibilityChange: string => void,
+  onRequestFail: Object => void,
   organization?: Organization
 |};
 
 type State = {
+  createProjectForm: boolean,
   ready: boolean,
   projects: Array<{ key: string }>,
   total: number,
@@ -52,6 +55,7 @@ export default class Main extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     this.state = {
+      createProjectForm: false,
       ready: false,
       projects: [],
       total: 0,
@@ -216,12 +220,20 @@ export default class Main extends React.PureComponent {
     });
   };
 
+  openCreateProjectForm = () => {
+    this.setState({ createProjectForm: true });
+  };
+
+  closeCreateProjectForm = () => {
+    this.setState({ createProjectForm: false });
+  };
+
   render() {
     return (
-      <div className="page page-limited">
+      <div className="page page-limited" id="projects-management-page">
         <Header
           hasProvisionPermission={this.props.hasProvisionPermission}
-          refresh={this.requestProjects}
+          onProjectCreate={this.openCreateProjectForm}
           onVisibilityChange={this.props.onVisibilityChange}
           organization={this.props.organization}
         />
@@ -253,6 +265,14 @@ export default class Main extends React.PureComponent {
           total={this.state.total}
           loadMore={this.loadMore}
         />
+
+        {this.state.createProjectForm &&
+          <CreateProjectForm
+            onClose={this.closeCreateProjectForm}
+            onProjectCreated={this.requestProjects}
+            onRequestFail={this.props.onRequestFail}
+            organization={this.props.organization}
+          />}
       </div>
     );
   }

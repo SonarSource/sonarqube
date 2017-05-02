@@ -27,13 +27,15 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import pageobjects.Navigation;
+import pageobjects.ProjectsManagementPage;
 import util.ItUtils;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -58,10 +60,34 @@ public class ProjectsAdministrationTest {
     // Remove 'Admin' permission for admin group on project 2 -> No one can access or admin this project, expect System Admin
     newAdminWsClient(orchestrator).permissions().removeGroup(new RemoveGroupWsRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
 
-    nav.logIn().asAdmin().open("/projects_admin");
-    $(".data.zebra")
-      .shouldHave(text("sample1"))
-      .shouldHave(text("sample2"));
+    nav.logIn().asAdmin().openProjectsManagement()
+      .shouldHaveProject("sample1")
+      .shouldHaveProject("sample2");
+  }
+
+  @Test
+  public void create_public_project() {
+    createProjectAndVerify("public");
+  }
+
+  @Test
+  public void create_private_project() {
+    createProjectAndVerify("private");
+  }
+
+  private void createProjectAndVerify(String visibility) {
+    ProjectsManagementPage page = nav.logIn().asAdmin().openProjectsManagement();
+    page
+      .shouldHaveProjectsCount(0)
+      .createProject("foo", "foo", visibility)
+      .shouldHaveProjectsCount(1);
+
+    WsComponents.SearchProjectsWsResponse response = newAdminWsClient(orchestrator).components().searchProjects(
+      SearchProjectsRequest.builder().build());
+    assertThat(response.getComponentsCount()).isEqualTo(1);
+    assertThat(response.getComponents(0).getKey()).isEqualTo("foo");
+    assertThat(response.getComponents(0).getName()).isEqualTo("foo");
+    assertThat(response.getComponents(0).getVisibility()).isEqualTo(visibility);
   }
 
 }
