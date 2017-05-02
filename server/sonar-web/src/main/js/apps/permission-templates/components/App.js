@@ -37,10 +37,6 @@ export default class App extends React.PureComponent {
     permissionTemplates: []
   };
 
-  componentWillMount() {
-    this.requestPermissions = this.requestPermissions.bind(this);
-  }
-
   componentDidMount() {
     this.mounted = true;
     this.requestPermissions();
@@ -50,7 +46,7 @@ export default class App extends React.PureComponent {
     this.mounted = false;
   }
 
-  requestPermissions() {
+  requestPermissions = () => {
     const { organization } = this.props;
     const request = organization
       ? getPermissionTemplates(organization.key)
@@ -69,7 +65,7 @@ export default class App extends React.PureComponent {
         });
       }
     });
-  }
+  };
 
   renderTemplate(id) {
     if (!this.state.ready) {
