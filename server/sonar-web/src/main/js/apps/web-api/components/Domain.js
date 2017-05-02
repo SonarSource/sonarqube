@@ -22,7 +22,7 @@ import React from 'react';
 import Action from './Action';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
-import { getActionKey } from '../utils';
+import { getActionKey, actionsFilter } from '../utils';
 import type { Domain as DomainType } from '../../../api/web-api';
 
 type Props = {
@@ -37,10 +37,9 @@ export default class Domain extends React.PureComponent {
 
   render() {
     const { domain, showInternal, showDeprecated, searchQuery } = this.props;
-    const filteredActions = domain.actions
-      .filter(action => showInternal || !action.internal)
-      .filter(action => showDeprecated || !action.deprecatedSince)
-      .filter(action => getActionKey(domain.path, action.key).indexOf(searchQuery) !== -1);
+    const filteredActions = domain.actions.filter(action =>
+      actionsFilter(showDeprecated, showInternal, searchQuery, domain, action)
+    );
 
     return (
       <div className="web-api-domain">

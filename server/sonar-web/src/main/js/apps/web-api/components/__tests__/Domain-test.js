@@ -22,12 +22,7 @@ import { shallow } from 'enzyme';
 import Domain from '../Domain';
 
 it('should render deprecated actions', () => {
-  const actions = [
-    {
-      key: 'foo',
-      deprecatedSince: '5.0'
-    }
-  ];
+  const actions = [{ key: 'foo', deprecatedSince: '5.0' }];
   const domain = { actions, path: 'api' };
   expect(
     shallow(<Domain domain={domain} searchQuery="" showDeprecated={true} />)
@@ -35,14 +30,35 @@ it('should render deprecated actions', () => {
 });
 
 it('should not render deprecated actions', () => {
-  const actions = [
-    {
-      key: 'foo',
-      deprecatedSince: '5.0'
-    }
-  ];
+  const actions = [{ key: 'foo', deprecatedSince: '5.0' }];
   const domain = { actions, path: 'api' };
   expect(
     shallow(<Domain domain={domain} searchQuery="" showDeprecated={false} />)
+  ).toMatchSnapshot();
+});
+
+it('should render internal actions', () => {
+  const actions = [{ key: 'foo', internal: true }];
+  const domain = { actions, path: 'api' };
+  expect(shallow(<Domain domain={domain} searchQuery="" showInternal={true} />)).toMatchSnapshot();
+});
+
+it('should not render internal actions', () => {
+  const actions = [{ key: 'foo', internal: true }];
+  const domain = { actions, path: 'api' };
+  expect(shallow(<Domain domain={domain} searchQuery="" showInternal={false} />)).toMatchSnapshot();
+});
+
+it('should render only actions matching the query', () => {
+  const actions = [{ key: 'foo' }, { key: 'bar' }];
+  const domain = { actions, path: 'api' };
+  expect(shallow(<Domain domain={domain} searchQuery="Foo" />)).toMatchSnapshot();
+});
+
+it('should also render actions with a description matching the query', () => {
+  const actions = [{ key: 'foo', description: 'foobar' }, { key: 'bar' }, { key: 'baz' }];
+  const domain = { actions, path: 'api' };
+  expect(
+    shallow(<Domain domain={domain} searchQuery="bar" showDeprecated={false} />)
   ).toMatchSnapshot();
 });

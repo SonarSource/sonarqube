@@ -24,7 +24,7 @@ import classNames from 'classnames';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-import { getActionKey, isDomainPathActive } from '../utils';
+import { isDomainPathActive, actionsFilter } from '../utils';
 import type { Domain as DomainType } from '../../../api/web-api';
 
 type Props = {
@@ -42,10 +42,9 @@ export default class Menu extends React.PureComponent {
     const { domains, showInternal, showDeprecated, searchQuery, splat } = this.props;
     const filteredDomains = (domains || [])
       .map(domain => {
-        const filteredActions = domain.actions
-          .filter(action => showInternal || !action.internal)
-          .filter(action => showDeprecated || !action.deprecatedSince)
-          .filter(action => getActionKey(domain.path, action.key).indexOf(searchQuery) !== -1);
+        const filteredActions = domain.actions.filter(action =>
+          actionsFilter(showDeprecated, showInternal, searchQuery, domain, action)
+        );
         return { ...domain, filteredActions };
       })
       .filter(domain => domain.filteredActions.length);
