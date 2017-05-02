@@ -44,7 +44,7 @@ public class RuleWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public void checkQProfileAdminPermission() {
+  public void checkQProfileAdminPermissionOnDefaultOrganization() {
     userSession
       .checkLoggedIn()
       .checkPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());

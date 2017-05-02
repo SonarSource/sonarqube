@@ -99,7 +99,7 @@ public class UpdateActionTest {
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
   private RuleUpdater ruleUpdater = new RuleUpdater(dbClient, ruleIndexer, System2.INSTANCE);
   private RuleWsSupport ruleWsSupport = new RuleWsSupport(dbClient, userSession, defaultOrganizationProvider);
-  private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, ruleWsSupport, defaultOrganizationProvider);
+  private WsAction underTest = new UpdateAction(dbClient, ruleUpdater, mapper, userSession, defaultOrganizationProvider);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -175,9 +175,8 @@ public class UpdateActionTest {
 
   @Test
   public void update_tags_for_specific_organization() throws IOException {
-    logInAsQProfileAdministrator();
-
     OrganizationDto organization = db.organizations().insert();
+    logInAsQProfileAdministrator(organization.getUuid());
 
     RuleDefinitionDto rule = db.rules().insert(setSystemTags("stag1", "stag2"));
     db.rules().insertOrUpdateMetadata(rule, organization, setTags("tagAlt1", "tagAlt2"));
@@ -204,9 +203,8 @@ public class UpdateActionTest {
 
   @Test
   public void update_rule_remediation_function() throws IOException {
-    logInAsQProfileAdministrator();
-
     OrganizationDto organization = db.organizations().insert();
+    logInAsQProfileAdministrator(organization.getUuid());
 
     RuleDefinitionDto rule = db.rules().insert(
       r -> r.setDefRemediationFunction(LINEAR.toString()),
@@ -342,9 +340,13 @@ public class UpdateActionTest {
   }
 
   private void logInAsQProfileAdministrator() {
+    logInAsQProfileAdministrator(db.getDefaultOrganization().getUuid());
+  }
+
+  private void logInAsQProfileAdministrator(String orgUuid) {
     userSession
       .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization().getUuid());
+      .addPermission(ADMINISTER_QUALITY_PROFILES, orgUuid);
   }
 
   private static MacroInterpreter createMacroInterpreter() {

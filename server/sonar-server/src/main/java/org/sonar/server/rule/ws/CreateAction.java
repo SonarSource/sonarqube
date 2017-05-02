@@ -136,7 +136,7 @@ public class CreateAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ruleWsSupport.checkQProfileAdminPermission();
+    ruleWsSupport.checkQProfileAdminPermissionOnDefaultOrganization();
     String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
     try (DbSession dbSession = dbClient.openSession(false)) {
       try {
