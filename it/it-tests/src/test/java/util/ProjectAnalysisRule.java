@@ -22,7 +22,7 @@ package util;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -199,15 +199,15 @@ public class ProjectAnalysisRule extends ExternalResource {
       }
     }
 
-    private SonarRunner runAnalysis() {
-      SonarRunner sonarRunner = SonarRunner.create(projectState.getProjectDir());
+    private SonarScanner runAnalysis() {
+      SonarScanner scanner = SonarScanner.create(projectState.getProjectDir());
       ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
       for (int i = 0; i < this.properties.length; i += 2) {
         builder.put(this.properties[i], this.properties[i + 1]);
       }
-      SonarRunner scan = sonarRunner.setDebugLogs(this.debugLogs).setProperties(builder.build());
-      orchestrator.executeBuild(scan);
-      return scan;
+      scanner.setDebugLogs(this.debugLogs).setProperties(builder.build());
+      orchestrator.executeBuild(scanner);
+      return scanner;
     }
   }
 

@@ -20,9 +20,7 @@
 package org.sonarsource.sonarqube.perf.scanner.suite;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
-import org.sonarsource.sonarqube.perf.PerfRule;
-import org.sonarsource.sonarqube.perf.PerfTestCase;
+import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -34,6 +32,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonarsource.sonarqube.perf.PerfRule;
+import org.sonarsource.sonarqube.perf.PerfTestCase;
 
 public class FileSystemTest extends PerfTestCase {
 
@@ -71,7 +71,7 @@ public class FileSystemTest extends PerfTestCase {
   }
 
   private void run(int xmx, long expectedDuration) throws IOException {
-    SonarRunner runner = SonarRunner.create()
+    SonarScanner scanner = SonarScanner.create()
       .setProperties(
         "sonar.projectKey", "filesystemXmx" + xmx,
         "sonar.projectName", "filesystem xmx" + xmx,
@@ -83,7 +83,7 @@ public class FileSystemTest extends PerfTestCase {
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx" + xmx + "m -server")
       .setProjectDir(baseDir);
 
-    orchestrator.executeBuild(runner);
+    orchestrator.executeBuild(scanner);
 
     Properties prof = readProfiling(baseDir, "filesystemXmx" + xmx);
     perfRule.assertDurationAround(Long.valueOf(prof.getProperty("Index filesystem")), expectedDuration);

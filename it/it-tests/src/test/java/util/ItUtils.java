@@ -26,7 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -211,23 +211,23 @@ public class ItUtils {
     assertThat(countExisting).isEqualTo(existingIssues);
   }
 
-  public static SonarRunner runVerboseProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
+  public static SonarScanner runVerboseProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
     return runProjectAnalysis(orchestrator, projectRelativePath, true, properties);
   }
 
-  public static SonarRunner runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
+  public static SonarScanner runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, String... properties) {
     return runProjectAnalysis(orchestrator, projectRelativePath, false, properties);
   }
 
-  private static SonarRunner runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, boolean enableDebugLogs, String... properties) {
-    SonarRunner sonarRunner = SonarRunner.create(projectDir(projectRelativePath));
+  private static SonarScanner runProjectAnalysis(Orchestrator orchestrator, String projectRelativePath, boolean enableDebugLogs, String... properties) {
+    SonarScanner scanner = SonarScanner.create(projectDir(projectRelativePath));
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
     for (int i = 0; i < properties.length; i += 2) {
       builder.put(properties[i], properties[i + 1]);
     }
-    SonarRunner scan = sonarRunner.setDebugLogs(enableDebugLogs).setProperties(builder.build());
-    orchestrator.executeBuild(scan);
-    return scan;
+    scanner.setDebugLogs(enableDebugLogs).setProperties(builder.build());
+    orchestrator.executeBuild(scanner);
+    return scanner;
   }
 
   public static void setServerProperty(Orchestrator orchestrator, String key, @Nullable String value) {
