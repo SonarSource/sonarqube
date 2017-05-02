@@ -44,19 +44,19 @@ export default class Search extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     this.state = { query: '' };
-    this.actuallySearch = debounce(this.actuallySearch.bind(this), 250);
+    this.actuallySearch = debounce(this.actuallySearch, 250);
   }
 
-  handleSearch(e: SyntheticInputEvent) {
+  handleSearch = (e: SyntheticInputEvent) => {
     const { value } = e.target;
     this.setState({ query: value });
     this.actuallySearch();
-  }
+  };
 
-  actuallySearch() {
+  actuallySearch = () => {
     const { onSearch } = this.props;
     onSearch(this.state.query);
-  }
+  };
 
   render() {
     const { showInternal, showDeprecated, onToggleInternal, onToggleDeprecated } = this.props;
@@ -70,14 +70,17 @@ export default class Search extends React.PureComponent {
             type="search"
             value={this.state.query}
             placeholder={translate('search_verb')}
-            onChange={this.handleSearch.bind(this)}
+            onChange={this.handleSearch}
           />
         </div>
 
         <TooltipsContainer>
           <div className="big-spacer-top">
-            <Checkbox checked={showInternal} onCheck={onToggleInternal} />
-            {' '}
+            <Checkbox
+              checked={showInternal}
+              className="little-spacer-right"
+              onCheck={onToggleInternal}
+            />
             <span
               style={{ cursor: 'pointer' }}
               title={translate('api_documentation.internal_tooltip')}
@@ -97,8 +100,11 @@ export default class Search extends React.PureComponent {
 
         <TooltipsContainer>
           <div className="spacer-top">
-            <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated} />
-            {' '}
+            <Checkbox
+              checked={showDeprecated}
+              className="little-spacer-right"
+              onCheck={onToggleDeprecated}
+            />
             <span
               style={{ cursor: 'pointer' }}
               title={translate('api_documentation.deprecation_tooltip')}

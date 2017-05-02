@@ -17,11 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getActionKey(domain, action) {
-  return domain + '/' + action;
+//@flow
+import type { Domain, Action } from '../../api/web-api';
+
+export function actionsFilter(
+  showDeprecated: boolean,
+  showInternal: boolean,
+  searchQuery: string,
+  domain: Domain,
+  action: Action
+) {
+  const lowSearchQuery = searchQuery.toLowerCase();
+  return (
+    (showInternal || !action.internal) &&
+    (showDeprecated || !action.deprecatedSince) &&
+    (getActionKey(domain.path, action.key).includes(lowSearchQuery) ||
+      (action.description || '').toLowerCase().includes(lowSearchQuery))
+  );
 }
 
-export const isDomainPathActive = (path, splat) => {
+export function getActionKey(domainPath: string, actionKey: string) {
+  return domainPath + '/' + actionKey;
+}
+
+export const isDomainPathActive = (path: string, splat: string) => {
   const pathTokens = path.split('/');
   const splatTokens = splat.split('/');
 

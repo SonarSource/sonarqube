@@ -47,7 +47,6 @@ export default class WebApiApp extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    this.scrollToAction = this.scrollToAction.bind(this);
     this.fetchList();
     const footer = document.getElementById('footer');
     if (footer) {
@@ -76,10 +75,10 @@ export default class WebApiApp extends React.PureComponent {
     });
   }
 
-  scrollToAction() {
+  scrollToAction = () => {
     const splat = this.props.params.splat || '';
     this.scrollToElement(splat);
-  }
+  };
 
   scrollToElement(id: string) {
     const element = document.getElementById(id);
@@ -113,11 +112,11 @@ export default class WebApiApp extends React.PureComponent {
     }
   }
 
-  handleSearch(searchQuery: string) {
+  handleSearch = (searchQuery: string) => {
     this.setState({ searchQuery });
-  }
+  };
 
-  handleToggleInternal() {
+  handleToggleInternal = () => {
     const splat = this.props.params.splat || '';
     const { router } = this.context;
     const { domains } = this.state;
@@ -129,11 +128,11 @@ export default class WebApiApp extends React.PureComponent {
     }
 
     this.setState({ showInternal });
-  }
+  };
 
-  handleToggleDeprecated() {
+  handleToggleDeprecated = () => {
     this.setState(state => ({ showDeprecated: !state.showDeprecated }));
-  }
+  };
 
   render() {
     const splat = this.props.params.splat || '';
@@ -153,9 +152,9 @@ export default class WebApiApp extends React.PureComponent {
           <Search
             showDeprecated={showDeprecated}
             showInternal={showInternal}
-            onSearch={this.handleSearch.bind(this)}
-            onToggleInternal={this.handleToggleInternal.bind(this)}
-            onToggleDeprecated={this.handleToggleDeprecated.bind(this)}
+            onSearch={this.handleSearch}
+            onToggleInternal={this.handleToggleInternal}
+            onToggleDeprecated={this.handleToggleDeprecated}
           />
 
           <Menu
