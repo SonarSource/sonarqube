@@ -204,7 +204,7 @@ public interface CoreProperties {
    */
   @Deprecated
   String CORE_DEFAULT_GROUP_DEFAULT_VALUE = "sonar-users";
-  
+
   boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
 
   /**
@@ -256,46 +256,15 @@ public interface CoreProperties {
   @Deprecated
   String SERVER_BASE_URL_DEFAULT_VALUE = "http://localhost:9000";
 
-  /* CPD */
-  String CPD_PLUGIN = "cpd";
-
   /**
    * @since 2.11
    */
   String CPD_CROSS_PROJECT = "sonar.cpd.cross_project";
 
   /**
-   * @see #CPD_CROSS_PROJECT
-   * @since 2.11
-   */
-  boolean CPD_CROSS_PROJECT_DEFAULT_VALUE = false;
-
-  /**
    * @since 3.5
    */
   String CPD_EXCLUSIONS = "sonar.cpd.exclusions";
-
-  /* Design */
-
-  /**
-   * Indicates whether Java bytecode analysis should be skipped.
-   *
-   * @since 2.0
-   */
-  String DESIGN_SKIP_DESIGN_PROPERTY = "sonar.skipDesign";
-  boolean DESIGN_SKIP_DESIGN_DEFAULT_VALUE = false;
-
-  /**
-   * Indicates whether Package Design Analysis should be skipped.
-   *
-   * @since 2.9
-   */
-  String DESIGN_SKIP_PACKAGE_DESIGN_PROPERTY = "sonar.skipPackageDesign";
-  boolean DESIGN_SKIP_PACKAGE_DESIGN_DEFAULT_VALUE = false;
-
-  /* Google Analytics */
-  String GOOGLE_ANALYTICS_PLUGIN = "google-analytics";
-  String GOOGLE_ANALYTICS_ACCOUNT_PROPERTY = "sonar.google-analytics.account";
 
   /**
    * @since 2.11
