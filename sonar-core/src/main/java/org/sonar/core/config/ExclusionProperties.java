@@ -45,17 +45,6 @@ public class ExclusionProperties {
         .build(),
 
       // FILES
-      PropertyDefinition.builder(CoreProperties.IMPORT_UNKNOWN_FILES_KEY)
-        .name("Import unknown files")
-        .description("If set to true, all files are imported - with respect to inclusions and exclusions, even if there is no matching language plugin installed.")
-        .type(PropertyType.BOOLEAN)
-        .defaultValue("false")
-        .category(CoreProperties.CATEGORY_EXCLUSIONS)
-        .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .onQualifiers(Qualifiers.PROJECT)
-        .index(-1)
-        .build(),
-
       PropertyDefinition.builder(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)
         .name("Global Source File Exclusions")
         .multiValues(true)

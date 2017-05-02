@@ -33,7 +33,7 @@ public class CorePropertyDefinitionsTest {
   @Test
   public void all() {
     List<PropertyDefinition> defs = CorePropertyDefinitions.all();
-    assertThat(defs).hasSize(57);
+    assertThat(defs).hasSize(56);
   }
 
   @Test
