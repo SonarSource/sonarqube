@@ -73,6 +73,5 @@ export function fetchWebApi(showInternal: boolean = true): Promise<Array<Domain>
 export function fetchResponseExample(domain: string, action: string): Promise<{ example: string }> {
   const url = '/api/webservices/response_example';
   const data = { controller: domain, action };
-
   return getJSON(url, data);
 }

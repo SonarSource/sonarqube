@@ -27,19 +27,17 @@ export function getCurrentUser() {
 
 export function changePassword(login: string, password: string, previousPassword?: string) {
   const url = '/api/users/change_password';
-  const data: { login: string, password: string, previousPassword?: string } = { login, password };
-  if (previousPassword != null) {
-    data.previousPassword = previousPassword;
-  }
+  const data: { login: string, password: string, previousPassword?: string } = {
+    login,
+    password,
+    previousPassword
+  };
   return post(url, data);
 }
 
 export function getUserGroups(login: string, organization?: string) {
   const url = '/api/users/groups';
-  const data: { login: string, organization?: string, q?: string } = { login };
-  if (organization) {
-    data.organization = organization;
-  }
+  const data: { login: string, organization?: string, q?: string } = { login, organization };
   return getJSON(url, data);
 }
 
@@ -50,9 +48,6 @@ export function getIdentityProviders() {
 
 export function searchUsers(query: string, pageSize?: number) {
   const url = '/api/users/search';
-  const data: { q: string, ps?: number } = { q: query };
-  if (pageSize != null) {
-    data.ps = pageSize;
-  }
+  const data: { q: string, ps?: number } = { q: query, ps: pageSize };
   return getJSON(url, data);
 }

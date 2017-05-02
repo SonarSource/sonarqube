@@ -46,13 +46,7 @@ export default class ProjectsContainer extends React.PureComponent {
 
   loadProjects(page = this.state.page, query = this.state.query) {
     this.setState({ loading: true });
-    const data = { ps: 100 };
-    if (page > 1) {
-      data.p = page;
-    }
-    if (query) {
-      data.q = query;
-    }
+    const data = { ps: 100, p: page, q: query };
     return getMyProjects(data).then(r => {
       const projects = page > 1 ? [...this.state.projects, ...r.projects] : r.projects;
       this.setState({

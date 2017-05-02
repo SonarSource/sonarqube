@@ -71,7 +71,7 @@ export default class ProjectFacet extends React.PureComponent {
     const { component } = this.props;
 
     return component != null && ['VW', 'SVW'].includes(component.qualifier)
-      ? getTree(component.key, { ps: 50, q: query, qualifiers: 'TRK' }).then(response =>
+      ? getTree(component.key, { ps: 50, q: query || null, qualifiers: 'TRK' }).then(response =>
           response.components.map(component => ({
             label: component.name,
             organization: component.organization,

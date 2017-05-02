@@ -19,6 +19,7 @@
  */
 // @flow
 import { stringify } from 'querystring';
+import { omitBy, isNil } from 'lodash';
 import { getCookie } from './cookies';
 
 type Response = {
@@ -96,12 +97,14 @@ class Request {
     if (this.data) {
       if (this.data instanceof FormData) {
         options.body = this.data;
-      } else if (options.method === 'GET') {
-        url += '?' + stringify(this.data);
       } else {
-        customHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
-        // $FlowFixMe complains that `data` is nullable
-        options.body = stringify(this.data);
+        const strData = stringify(omitBy(this.data, isNil));
+        if (options.method === 'GET') {
+          url += '?' + strData;
+        } else {
+          customHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
+          options.body = strData;
+        }
       }
     }
 

@@ -45,9 +45,9 @@ export const DEFAULT_FILTERS = {
   status: STATUSES.ALL_EXCEPT_PENDING,
   taskType: ALL_TYPES,
   currents: CURRENTS.ALL,
-  minSubmittedAt: '',
-  maxExecutedAt: '',
-  query: ''
+  minSubmittedAt: null,
+  maxExecutedAt: null,
+  query: null
 };
 
 export const DATE_FORMAT = 'YYYY-MM-DD';

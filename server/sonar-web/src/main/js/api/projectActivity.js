@@ -41,17 +41,10 @@ export const getProjectActivity = (
 ): Promise<GetProjectActivityResponse> => {
   const data: Object = { project };
   if (options) {
-    if (options.category) {
-      data.category = options.category;
-    }
-    if (options.pageIndex) {
-      data.p = options.pageIndex;
-    }
-    if (options.pageSize) {
-      data.ps = options.pageSize;
-    }
+    data.category = options.category;
+    data.p = options.pageIndex;
+    data.ps = options.pageSize;
   }
-
   return getJSON('/api/project_analyses/search', data);
 };
 
@@ -69,13 +62,7 @@ export const createEvent = (
   category?: string,
   description?: string
 ): Promise<CreateEventResponse> => {
-  const data: Object = { analysis, name };
-  if (category) {
-    data.category = category;
-  }
-  if (description) {
-    data.description = description;
-  }
+  const data: Object = { analysis, name, category, description };
   return postJSON('/api/project_analyses/create_event', data).then(r => r.event);
 };
 
@@ -87,13 +74,7 @@ export const changeEvent = (
   name: ?string,
   description: ?string
 ): Promise<CreateEventResponse> => {
-  const data: Object = { event };
-  if (name) {
-    data.name = name;
-  }
-  if (description) {
-    data.description = description;
-  }
+  const data: Object = { event, name, description };
   return postJSON('/api/project_analyses/update_event', data).then(r => r.event);
 };
 

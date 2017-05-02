@@ -75,13 +75,11 @@ export default class ChangelogContainer extends React.PureComponent {
   loadChangelog() {
     this.setState({ loading: true });
     const { query } = this.props.location;
-    const data: Object = { profileKey: this.props.profile.key };
-    if (query.since) {
-      data.since = query.since;
-    }
-    if (query.to) {
-      data.to = query.to;
-    }
+    const data: Object = {
+      profileKey: this.props.profile.key,
+      since: query.since,
+      to: query.to
+    };
 
     getProfileChangelog(data).then(r => {
       if (this.mounted) {
@@ -103,14 +101,10 @@ export default class ChangelogContainer extends React.PureComponent {
     const { query } = this.props.location;
     const data: Object = {
       profileKey: this.props.profile.key,
-      p: this.state.page + 1
+      p: this.state.page + 1,
+      since: query.since,
+      to: query.to
     };
-    if (query.since) {
-      data.since = query.since;
-    }
-    if (query.to) {
-      data.to = query.to;
-    }
 
     getProfileChangelog(data).then(r => {
       if (this.mounted && this.state.events) {

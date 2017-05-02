@@ -95,19 +95,13 @@ class CreateOrganizationForm extends React.PureComponent {
 
   handleSubmit = (e: Object) => {
     e.preventDefault();
-    const organization: Object = { name: this.state.name };
-    if (this.state.avatar) {
-      Object.assign(organization, { avatar: this.state.avatar });
-    }
-    if (this.state.description) {
-      Object.assign(organization, { description: this.state.description });
-    }
-    if (this.state.key) {
-      Object.assign(organization, { key: this.state.key });
-    }
-    if (this.state.url) {
-      Object.assign(organization, { url: this.state.url });
-    }
+    const organization: Object = {
+      name: this.state.name,
+      avatar: this.state.avatar,
+      description: this.state.description,
+      key: this.state.key,
+      url: this.state.url
+    };
     this.setState({ loading: true });
     this.props
       .createOrganization(organization)
