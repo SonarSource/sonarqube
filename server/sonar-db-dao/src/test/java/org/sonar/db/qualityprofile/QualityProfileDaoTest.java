@@ -330,16 +330,18 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void select_by_project_key_and_languages() {
+  public void select_by_project_and_languages() {
     dbTester.prepareDbUnit(getClass(), "projects.xml");
 
     OrganizationDto organization = dbTester.organizations().insert(OrganizationTesting.newOrganizationDto().setUuid("org1"));
-    List<QualityProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "org.codehaus.sonar:sonar", singletonList("java"));
+    ComponentDto project = dbTester.getDbClient().componentDao().selectOrFailByKey(dbTester.getSession(), "org.codehaus.sonar:sonar");
+    ComponentDto unknownProject = dbTester.components().insertPrivateProject(organization, p -> p.setKey("unknown"));
+    List<QualityProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("java"));
     assertThat(dto).extracting("id").containsOnly(1);
 
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "org.codehaus.sonar:sonar", singletonList("unkown"))).isEmpty();
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "org.codehaus.sonar:sonar", of("java", "unkown"))).extracting("id").containsOnly(1);
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, "unknown", singletonList("java"))).isEmpty();
+    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("unkown"))).isEmpty();
+    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, of("java", "unkown"))).extracting("id").containsOnly(1);
+    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, unknownProject, singletonList("java"))).isEmpty();
   }
 
   @Test

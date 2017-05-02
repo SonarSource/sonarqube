@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +39,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
@@ -60,7 +60,6 @@ public class SearchDataLoaderTest {
   private Languages languages;
   private QProfileLookup profileLookup;
   private ComponentFinder componentFinder;
-  private QProfileWsSupport qProfileWsSupport;
   private OrganizationDto organization;
 
   @Before
@@ -69,16 +68,14 @@ public class SearchDataLoaderTest {
     languages = new Languages();
     DbClient dbClient = dbTester.getDbClient();
     profileLookup = new QProfileLookup(dbClient);
-    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-    qProfileWsSupport = new QProfileWsSupport(dbClient, null, defaultOrganizationProvider);
     componentFinder = mock(ComponentFinder.class);
   }
 
   @Test
   public void find_no_profiles_if_database_is_empty() throws Exception {
     assertThat(findProfiles(
-      new SearchWsRequest()
-    )).isEmpty();
+      new SearchWsRequest(),
+      null)).isEmpty();
   }
 
   @Test
@@ -86,8 +83,8 @@ public class SearchDataLoaderTest {
     insertQualityProfile(organization);
     assertThat(findProfiles(
       new SearchWsRequest()
-        .setOrganizationKey(organization.getKey())
-    )).hasSize(1);
+        .setOrganizationKey(organization.getKey()),
+      null)).hasSize(1);
   }
 
   @Test
@@ -96,8 +93,8 @@ public class SearchDataLoaderTest {
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setDefaults(true)
-    )).hasSize(1);
+        .setDefaults(true),
+      null)).hasSize(1);
   }
 
   @Test
@@ -106,9 +103,8 @@ public class SearchDataLoaderTest {
     ComponentDto project1 = insertProject();
     assertThat(findProfiles(
       new SearchWsRequest()
-        .setOrganizationKey(organization.getKey())
-        .setProjectKey(project1.getKey())
-    )).hasSize(1);
+        .setOrganizationKey(organization.getKey()),
+      project1)).hasSize(1);
   }
 
   @Test
@@ -117,18 +113,18 @@ public class SearchDataLoaderTest {
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setLanguage(qualityProfile.getLanguage())
-    )).hasSize(1);
+        .setLanguage(qualityProfile.getLanguage()),
+      null)).hasSize(1);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setLanguage("other language")
-    )).hasSize(0);
+        .setLanguage("other language"),
+      null)).hasSize(0);
   }
 
-  private List<QualityProfileDto> findProfiles(SearchWsRequest request) {
-    return new SearchDataLoader(languages, profileLookup, dbTester.getDbClient(), componentFinder)
-      .findProfiles(dbTester.getSession(), request, organization);
+  private List<QualityProfileDto> findProfiles(SearchWsRequest request, @Nullable ComponentDto project) {
+    return new SearchDataLoader(languages, profileLookup, dbTester.getDbClient())
+      .findProfiles(dbTester.getSession(), request, organization, project);
   }
 
   private QualityProfileDto insertQualityProfile(OrganizationDto organization, Consumer<QualityProfileDto>... specials) {
