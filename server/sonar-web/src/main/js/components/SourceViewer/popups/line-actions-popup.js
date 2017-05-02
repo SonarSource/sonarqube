@@ -23,16 +23,10 @@ import Template from './templates/source-viewer-line-options-popup.hbs';
 export default Popup.extend({
   template: Template,
 
-  events: {
-    'click .js-get-permalink': 'getPermalink'
-  },
-
-  getPermalink(e) {
-    e.preventDefault();
+  serializeData() {
     const { component, line } = this.options;
-    const url =
-      window.baseUrl + `/component/index?id=${encodeURIComponent(component.key)}&line=${line}`;
-    const windowParams = 'resizable=1,scrollbars=1,status=1';
-    window.open(url, component.name, windowParams);
+    return {
+      permalink: window.baseUrl + `/component?id=${encodeURIComponent(component.key)}&line=${line}`
+    };
   }
 });

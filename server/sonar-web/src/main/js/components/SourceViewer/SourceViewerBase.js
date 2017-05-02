@@ -413,18 +413,6 @@ export default class SourceViewerBase extends React.PureComponent {
     });
   };
 
-  openNewWindow = () => {
-    const { component } = this.state;
-    if (component != null) {
-      let query = 'id=' + encodeURIComponent(component.key);
-      const windowParams = 'resizable=1,scrollbars=1,status=1';
-      if (this.state.highlightedLine) {
-        query = query + '&line=' + this.state.highlightedLine;
-      }
-      window.open(window.baseUrl + '/component/index?' + query, component.name, windowParams);
-    }
-  };
-
   showMeasures = () => {
     const measuresOverlay = new MeasuresOverlay({ component: this.state.component, large: true });
     measuresOverlay.render();
@@ -606,11 +594,7 @@ export default class SourceViewerBase extends React.PureComponent {
 
     return (
       <div className={className} ref={node => (this.node = node)}>
-        <SourceViewerHeader
-          component={this.state.component}
-          openNewWindow={this.openNewWindow}
-          showMeasures={this.showMeasures}
-        />
+        <SourceViewerHeader component={this.state.component} showMeasures={this.showMeasures} />
         {this.state.notAccessible &&
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_security')}

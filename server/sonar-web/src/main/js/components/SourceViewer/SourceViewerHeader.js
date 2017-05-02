@@ -47,18 +47,12 @@ export default class SourceViewerHeader extends React.PureComponent {
       subProjectName?: string,
       uuid: string
     },
-    openNewWindow: () => void,
     showMeasures: () => void
   };
 
   showMeasures = (e: SyntheticInputEvent) => {
     e.preventDefault();
     this.props.showMeasures();
-  };
-
-  openNewWindow = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    this.props.openNewWindow();
   };
 
   openInWorkspace = (e: SyntheticInputEvent) => {
@@ -129,9 +123,12 @@ export default class SourceViewerHeader extends React.PureComponent {
               </a>
             </li>
             <li>
-              <a className="js-new-window" href="#" onClick={this.openNewWindow}>
+              <Link
+                className="js-new-window"
+                target="_blank"
+                to={{ pathname: '/component', query: { id: this.props.component.key } }}>
                 {translate('component_viewer.new_window')}
-              </a>
+              </Link>
             </li>
             {!workspace &&
               <li>
