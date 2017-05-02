@@ -112,10 +112,8 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
 
   private static void updateTaskResult(CeActivityDto activityDto, @Nullable CeTaskResult taskResult) {
     if (taskResult != null) {
-      java.util.Optional<String> analysisUuid = taskResult.getAnalysisUuid();
-      if (analysisUuid.isPresent()) {
-        activityDto.setAnalysisUuid(analysisUuid.get());
-      }
+      Optional<String> analysisUuid = taskResult.getAnalysisUuid();
+      analysisUuid.ifPresent(activityDto::setAnalysisUuid);
     }
   }
 

@@ -37,8 +37,6 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
  */
 public class AuthorizationDao implements Dao {
 
-  private static final String USER_ID_PARAM = "userId";
-
   /**
   * Loads all the permissions granted to logged-in user for the specified organization
   */

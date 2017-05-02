@@ -119,7 +119,7 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
       });
   }
 
-  private Map<String, List<DefinedQProfile>> toQualityProfilesByLanguage(ListMultimap<String, RulesProfile> rulesProfilesByLanguage) {
+  private static Map<String, List<DefinedQProfile>> toQualityProfilesByLanguage(ListMultimap<String, RulesProfile> rulesProfilesByLanguage) {
     Map<String, List<DefinedQProfile.Builder>> buildersByLanguage = Multimaps.asMap(rulesProfilesByLanguage)
       .entrySet()
       .stream()
