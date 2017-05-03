@@ -21,7 +21,6 @@ package org.sonar.server.ui.ws;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,7 +37,6 @@ import org.sonar.server.project.Visibility;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.ws.KeyExamples.KEY_ORG_EXAMPLE_001;
@@ -108,14 +106,11 @@ public class OrganizationAction implements NavigationWsAction {
       .prop("canUpdateProjectsVisibilityToPrivate",
         userSession.hasPermission(ADMINISTER, organization) &&
           billingValidations.canUpdateProjectVisibilityToPrivate(new BillingValidations.Organization(organization.getKey(), organization.getUuid())));
-    Predicate<Page> personalOrgForBilling = page -> organization.getUserId() == null || !page.getKey().startsWith("billing/");
-    List<Page> pages = pageRepository.getOrganizationPages(false).stream().filter(personalOrgForBilling).collect(toList());
     json.name("pages");
-    writePages(json, pages);
+    writePages(json, pageRepository.getOrganizationPages(false));
     if (userSession.hasPermission(ADMINISTER, organization)) {
-      List<Page> adminPages = pageRepository.getOrganizationPages(true).stream().filter(personalOrgForBilling).collect(toList());
       json.name("adminPages");
-      writePages(json, adminPages);
+      writePages(json, pageRepository.getOrganizationPages(true));
     }
     json.endObject();
   }

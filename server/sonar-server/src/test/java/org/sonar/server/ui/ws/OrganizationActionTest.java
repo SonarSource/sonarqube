@@ -126,38 +126,6 @@ public class OrganizationActionTest {
   }
 
   @Test
-  public void filter_out_billing_pages_for_personal_organizations() {
-    initWithPages(
-      Page.builder("my-plugin/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
-      Page.builder("my-plugin/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build(),
-      Page.builder("billing/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
-      Page.builder("billing/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
-    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setUserId(101));
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    assertThat(response.getInput())
-      .contains("my-plugin/org-page", "my-plugin/org-admin-page")
-      .doesNotContain("billing/org-page")
-      .doesNotContain("billing/org-admin-page");
-  }
-
-  @Test
-  public void include_billing_pages_for_non_personal_organizations() {
-    initWithPages(
-      Page.builder("billing/org-page").setName("Organization page").setScope(ORGANIZATION).build(),
-      Page.builder("billing/org-admin-page").setName("Organization admin page").setScope(ORGANIZATION).setAdmin(true).build());
-    OrganizationDto organization = dbTester.organizations().insert(dto -> dto.setUserId(null));
-    userSession.logIn().addPermission(ADMINISTER, organization);
-
-    TestResponse response = executeRequest(organization);
-
-    assertThat(response.getInput())
-      .contains("billing/org-page", "billing/org-admin-page");
-  }
-
-  @Test
   public void returns_non_admin_and_canDelete_false_when_user_not_logged_in_and_key_is_the_default_organization() {
     TestResponse response = executeRequest(dbTester.getDefaultOrganization());
 
