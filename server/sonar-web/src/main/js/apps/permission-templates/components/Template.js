@@ -27,9 +27,8 @@ import SearchForm from '../../permissions/shared/components/SearchForm';
 import { PERMISSIONS_ORDER_FOR_PROJECT } from '../../permissions/project/constants';
 import * as api from '../../../api/permissions';
 import { translate } from '../../../helpers/l10n';
-import withStore from '../../../store/utils/withStore';
 
-class Template extends React.PureComponent {
+export default class Template extends React.PureComponent {
   static propTypes = {
     organization: React.PropTypes.object,
     template: React.PropTypes.object.isRequired,
@@ -37,14 +36,17 @@ class Template extends React.PureComponent {
     topQualifiers: React.PropTypes.array.isRequired
   };
 
-  componentWillMount() {
-    this.requestHolders = this.requestHolders.bind(this);
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: false,
+      users: [],
+      groups: [],
+      query: '',
+      filter: 'all',
+      selectedPermission: null
+    };
     this.requestHoldersDebounced = debounce(this.requestHolders, 250);
-    this.handleSelectPermission = this.handleSelectPermission.bind(this);
-    this.handleToggleUser = this.handleToggleUser.bind(this);
-    this.handleToggleGroup = this.handleToggleGroup.bind(this);
-    this.handleSearch = this.handleSearch.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
   }
 
   componentDidMount() {
@@ -56,11 +58,11 @@ class Template extends React.PureComponent {
     this.mounted = false;
   }
 
-  requestHolders(realQuery) {
-    this.props.updateStore({ loading: true });
+  requestHolders = realQuery => {
+    this.setState({ loading: true });
 
     const { template } = this.props;
-    const { query, filter, selectedPermission } = this.props.getStore();
+    const { query, filter, selectedPermission } = this.state;
     const requests = [];
 
     const finalQuery = realQuery != null ? realQuery : query;
@@ -78,15 +80,17 @@ class Template extends React.PureComponent {
     }
 
     return Promise.all(requests).then(responses => {
-      this.props.updateStore({
-        users: responses[0],
-        groups: responses[1],
-        loading: false
-      });
+      if (this.mounted) {
+        this.setState({
+          users: responses[0],
+          groups: responses[1],
+          loading: false
+        });
+      }
     });
-  }
+  };
 
-  handleToggleUser(user, permission) {
+  handleToggleUser = (user, permission) => {
     if (user.login === '<creator>') {
       this.handleToggleProjectCreator(user, permission);
       return;
@@ -97,18 +101,18 @@ class Template extends React.PureComponent {
       ? api.revokeTemplatePermissionFromUser(template.id, user.login, permission)
       : api.grantTemplatePermissionToUser(template.id, user.login, permission);
     request.then(() => this.requestHolders()).then(this.props.refresh);
-  }
+  };
 
-  handleToggleProjectCreator(user, permission) {
+  handleToggleProjectCreator = (user, permission) => {
     const { template } = this.props;
     const hasPermission = user.permissions.includes(permission);
     const request = hasPermission
       ? api.removeProjectCreatorFromTemplate(template.id, permission)
       : api.addProjectCreatorToTemplate(template.id, permission);
     request.then(() => this.requestHolders()).then(this.props.refresh);
-  }
+  };
 
-  handleToggleGroup(group, permission) {
+  handleToggleGroup = (group, permission) => {
     const { template, organization } = this.props;
     const hasPermission = group.permissions.includes(permission);
     const data = {
@@ -123,44 +127,40 @@ class Template extends React.PureComponent {
       ? api.revokeTemplatePermissionFromGroup(data)
       : api.grantTemplatePermissionToGroup(data);
     request.then(() => this.requestHolders()).then(this.props.refresh);
-  }
+  };
 
-  handleSearch(query) {
-    this.props.updateStore({ query });
+  handleSearch = query => {
+    this.setState({ query });
     if (query.length === 0 || query.length > 2) {
       this.requestHoldersDebounced(query);
     }
-  }
+  };
 
-  handleFilter(filter) {
-    this.props.updateStore({ filter });
-    this.requestHolders();
-  }
+  handleFilter = filter => {
+    this.setState({ filter }, this.requestHolders);
+  };
 
-  handleSelectPermission(selectedPermission) {
-    const store = this.props.getStore();
-    if (selectedPermission === store.selectedPermission) {
-      this.props.updateStore({ selectedPermission: null });
+  handleSelectPermission = selectedPermission => {
+    if (selectedPermission === this.state.selectedPermission) {
+      this.setState({ selectedPermission: null }, this.requestHolders);
     } else {
-      this.props.updateStore({ selectedPermission });
+      this.setState({ selectedPermission }, this.requestHolders);
     }
-    this.requestHolders();
-  }
+  };
 
-  shouldDisplayCreator(creatorPermissions) {
-    const store = this.props.getStore();
+  shouldDisplayCreator = creatorPermissions => {
+    const { filter, query, selectedPermission } = this.state;
     const CREATOR_NAME = translate('permission_templates.project_creators');
 
-    const isFiltered = store.filter !== 'all';
+    const isFiltered = filter !== 'all';
 
-    const matchQuery =
-      !store.query || CREATOR_NAME.toLocaleLowerCase().includes(store.query.toLowerCase());
+    const matchQuery = !query || CREATOR_NAME.toLocaleLowerCase().includes(query.toLowerCase());
 
     const matchPermission =
-      store.selectedPermission == null || creatorPermissions.includes(store.selectedPermission);
+      selectedPermission == null || creatorPermissions.includes(selectedPermission);
 
     return !isFiltered && matchQuery && matchPermission;
-  }
+  };
 
   render() {
     const title = translate('permission_templates.page') + ' - ' + this.props.template.name;
@@ -171,8 +171,7 @@ class Template extends React.PureComponent {
       description: translate('projects_role', p, 'desc')
     }));
 
-    const store = this.props.getStore();
-    const allUsers = [...store.users];
+    const allUsers = [...this.state.users];
 
     const creatorPermissions = this.props.template.permissions
       .filter(p => p.withProjectCreator)
@@ -195,7 +194,7 @@ class Template extends React.PureComponent {
         <TemplateHeader
           organization={this.props.organization}
           template={this.props.template}
-          loading={store.loading}
+          loading={this.state.loading}
           refresh={this.props.refresh}
           topQualifiers={this.props.topQualifiers}
         />
@@ -204,16 +203,16 @@ class Template extends React.PureComponent {
 
         <HoldersList
           permissions={permissions}
-          selectedPermission={store.selectedPermission}
+          selectedPermission={this.state.selectedPermission}
           users={allUsers}
-          groups={store.groups}
+          groups={this.state.groups}
           onSelectPermission={this.handleSelectPermission}
           onToggleUser={this.handleToggleUser}
           onToggleGroup={this.handleToggleGroup}>
 
           <SearchForm
-            query={store.query}
-            filter={store.filter}
+            query={this.state.query}
+            filter={this.state.filter}
             onSearch={this.handleSearch}
             onFilter={this.handleFilter}
           />
@@ -223,12 +222,3 @@ class Template extends React.PureComponent {
     );
   }
 }
-
-export default withStore(Template, {
-  loading: false,
-  users: [],
-  groups: [],
-  query: '',
-  filter: 'all',
-  selectedPermission: null
-});
