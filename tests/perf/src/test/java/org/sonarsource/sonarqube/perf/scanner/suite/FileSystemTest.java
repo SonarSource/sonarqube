@@ -80,7 +80,7 @@ public class FileSystemTest extends PerfTestCase {
         "sonar.analysis.mode", "issues",
         "sonar.preloadFileMetadata", "true",
         "sonar.showProfiling", "true")
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx" + xmx + "m -server")
+      .setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx" + xmx + "m -server")
       .setProjectDir(baseDir);
 
     orchestrator.executeBuild(scanner);

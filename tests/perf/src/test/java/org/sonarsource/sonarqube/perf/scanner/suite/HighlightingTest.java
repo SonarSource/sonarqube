@@ -86,14 +86,14 @@ public class HighlightingTest extends PerfTestCase {
     }
 
     SonarScanner scanner = SonarScanner.create()
-      .setScannerVersion("2.6")
+      .setScannerVersion("2.8")
       .setProperties(
         "sonar.projectKey", "highlighting",
         "sonar.projectName", "highlighting",
         "sonar.projectVersion", "1.0",
         "sonar.sources", "src",
         "sonar.showProfiling", "true");
-    scanner.setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx512m -server")
+    scanner.setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx512m -server")
       .setProjectDir(baseDir);
 
     BuildResult result = orchestrator.executeBuild(scanner);

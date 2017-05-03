@@ -63,7 +63,7 @@
     <dependency>
       <groupId>org.sonarsource.scanner.cli</groupId>
       <artifactId>sonar-scanner-cli</artifactId>
-      <version>2.6</version>
+      <version>2.8</version>
       <type>zip</type>
       <scope>provided</scope>
     </dependency>

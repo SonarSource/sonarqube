@@ -90,14 +90,13 @@ public abstract class PerfTestCase {
    * New batch analysis with most features disabled by default (empty QP, no CPD, no SCM, ...)
    */
   public static SonarScanner newScanner(String sonarRunnerOpts, String... props) {
-    SonarScanner scanner = SonarScanner.create()
+    return SonarScanner.create()
+      .setScannerVersion("2.8")
       .setProperties(
         "sonar.scm.disabled", "true",
         "sonar.cpd.exclusions", "**")
-      .setProperties(props);
-    scanner
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", sonarRunnerOpts)
+      .setProperties(props)
+      .setEnvironmentVariable("SONAR_SCANNER_OPTS", sonarRunnerOpts)
       .setProjectDir(FileLocation.of("projects/xoo-sample").getFile());
-    return scanner;
   }
 }
