@@ -294,18 +294,28 @@ export default class App extends React.PureComponent {
 
   turnProjectToPublic = () => {
     this.props.onComponentChange({ visibility: 'public' });
-    api.changeProjectVisibility(this.props.component.key, 'public').catch(error => {
-      this.props.onComponentChange({ visibility: 'private' });
-      this.props.onRequestFail(error);
-    });
+    api.changeProjectVisibility(this.props.component.key, 'public').then(
+      () => {
+        this.loadHolders();
+      },
+      error => {
+        this.props.onComponentChange({ visibility: 'private' });
+        this.props.onRequestFail(error);
+      }
+    );
   };
 
   turnProjectToPrivate = () => {
     this.props.onComponentChange({ visibility: 'private' });
-    api.changeProjectVisibility(this.props.component.key, 'private').catch(error => {
-      this.props.onComponentChange({ visibility: 'public' });
-      this.props.onRequestFail(error);
-    });
+    api.changeProjectVisibility(this.props.component.key, 'private').then(
+      () => {
+        this.loadHolders();
+      },
+      error => {
+        this.props.onComponentChange({ visibility: 'public' });
+        this.props.onRequestFail(error);
+      }
+    );
   };
 
   openDisclaimer = () => {
