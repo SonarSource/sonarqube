@@ -21,12 +21,14 @@
 import React from 'react';
 import Modal from 'react-modal';
 import classNames from 'classnames';
+import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import { translate } from '../../helpers/l10n';
+import type { Organization } from '../../store/organizations/duck';
 
 type Props = {
   onClose: () => void,
   onConfirm: string => void,
-  visibility: string
+  organization: Organization
 };
 
 type State = {
@@ -39,7 +41,7 @@ export default class ChangeVisibilityForm extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.state = { visibility: props.visibility };
+    this.state = { visibility: props.organization.projectVisibility };
   }
 
   handleCancelClick = (event: Event) => {
@@ -62,6 +64,8 @@ export default class ChangeVisibilityForm extends React.PureComponent {
   };
 
   render() {
+    const { canUpdateProjectsVisibilityToPrivate } = this.props.organization;
+
     return (
       <Modal
         isOpen={true}
@@ -78,17 +82,26 @@ export default class ChangeVisibilityForm extends React.PureComponent {
           {['public', 'private'].map(visibility => (
             <div className="big-spacer-bottom" key={visibility}>
               <p>
-                <a
-                  className="link-base-color link-no-underline"
-                  href="#"
-                  onClick={this.handleVisibilityClick(visibility)}>
-                  <i
-                    className={classNames('icon-radio', 'spacer-right', {
-                      'is-checked': this.state.visibility === visibility
-                    })}
-                  />
-                  {translate('visibility', visibility)}
-                </a>
+                {visibility === 'private' && !canUpdateProjectsVisibilityToPrivate
+                  ? <span className="text-muted cursor-not-allowed">
+                      <i
+                        className={classNames('icon-radio', 'spacer-right', {
+                          'is-checked': this.state.visibility === visibility
+                        })}
+                      />
+                      {translate('visibility', visibility)}
+                    </span>
+                  : <a
+                      className="link-base-color link-no-underline"
+                      href="#"
+                      onClick={this.handleVisibilityClick(visibility)}>
+                      <i
+                        className={classNames('icon-radio', 'spacer-right', {
+                          'is-checked': this.state.visibility === visibility
+                        })}
+                      />
+                      {translate('visibility', visibility)}
+                    </a>}
               </p>
               <p className="text-muted spacer-top" style={{ paddingLeft: 22 }}>
                 {translate('visibility', visibility, 'description.short')}
@@ -96,9 +109,11 @@ export default class ChangeVisibilityForm extends React.PureComponent {
             </div>
           ))}
 
-          <div className="alert alert-warning">
-            {translate('organization.change_visibility_form.warning')}
-          </div>
+          {canUpdateProjectsVisibilityToPrivate
+            ? <div className="alert alert-warning">
+                {translate('organization.change_visibility_form.warning')}
+              </div>
+            : <UpgradeOrganizationBox organization={this.props.organization.key} />}
         </div>
 
         <footer className="modal-foot">

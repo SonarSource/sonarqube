@@ -28,7 +28,8 @@ import { PERMISSIONS_ORDER_BY_QUALIFIER } from '../constants';
 type Props = {|
   component: {
     configuration?: {
-      canApplyPermissionTemplate: boolean
+      canApplyPermissionTemplate: boolean,
+      canUpdateProjectVisibilityToPrivate: boolean
     },
     key: string,
     organization: string,

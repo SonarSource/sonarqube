@@ -25,7 +25,8 @@ import ApplyTemplateView from '../views/ApplyTemplateView';
 type Props = {|
   component: {
     configuration?: {
-      canApplyPermissionTemplate: boolean
+      canApplyPermissionTemplate: boolean,
+      canUpdateProjectVisibilityToPrivate: boolean
     },
     key: string,
     qualifier: string,

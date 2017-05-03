@@ -19,6 +19,7 @@
  */
 package pageobjects;
 
+import static com.codeborne.selenide.Condition.cssClass;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -49,6 +50,12 @@ public class ProjectPermissionsPage {
   public ProjectPermissionsPage turnToPrivate() {
     $("#visibility-private").click();
     shouldBePrivate();
+    return this;
+  }
+
+  public ProjectPermissionsPage shouldNotAllowPrivate() {
+    $("#visibility-private").shouldHave(cssClass("text-muted"));
+    $(".upgrade-organization-box").shouldBe(visible);
     return this;
   }
 }

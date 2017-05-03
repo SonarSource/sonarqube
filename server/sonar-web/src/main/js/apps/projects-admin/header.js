@@ -86,7 +86,7 @@ export default class Header extends React.PureComponent {
           <ChangeVisibilityForm
             onClose={this.closeVisiblityForm}
             onConfirm={this.props.onVisibilityChange}
-            visibility={organization.projectVisibility}
+            organization={organization}
           />}
       </header>
     );

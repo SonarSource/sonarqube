@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { translate } from '../../helpers/l10n';
 
 type Props = {|
+  canTurnToPrivate: boolean,
   className?: string,
   onChange: string => void,
   visibility: string
@@ -59,18 +60,29 @@ export default class VisibilitySelector extends React.PureComponent {
           <span className="spacer-left">{translate('visibility.public')}</span>
         </a>
 
-        <a
-          className="link-base-color link-no-underline huge-spacer-left"
-          id="visibility-private"
-          href="#"
-          onClick={this.handlePrivateClick}>
-          <i
-            className={classNames('icon-radio', {
-              'is-checked': this.props.visibility === 'private'
-            })}
-          />
-          <span className="spacer-left">{translate('visibility.private')}</span>
-        </a>
+        {this.props.canTurnToPrivate
+          ? <a
+              className="link-base-color link-no-underline huge-spacer-left"
+              id="visibility-private"
+              href="#"
+              onClick={this.handlePrivateClick}>
+              <i
+                className={classNames('icon-radio', {
+                  'is-checked': this.props.visibility === 'private'
+                })}
+              />
+              <span className="spacer-left">{translate('visibility.private')}</span>
+            </a>
+          : <span
+              className="huge-spacer-left text-muted cursor-not-allowed"
+              id="visibility-private">
+              <i
+                className={classNames('icon-radio', {
+                  'is-checked': this.props.visibility === 'private'
+                })}
+              />
+              <span className="spacer-left">{translate('visibility.private')}</span>
+            </span>}
       </div>
     );
   }
