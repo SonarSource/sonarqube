@@ -61,14 +61,18 @@ export default Marionette.ItemView.extend({
   submitExtendDescription() {
     const that = this;
     this.ui.extendDescriptionForm.addClass('hidden');
+    const data = {
+      key: this.model.get('key'),
+      markdown_note: this.ui.extendDescriptionText.val()
+    };
+    if (this.options.app.organization) {
+      data.organization = this.options.app.organization;
+    }
     return $.ajax({
       type: 'POST',
       url: window.baseUrl + '/api/rules/update',
       dataType: 'json',
-      data: {
-        key: this.model.get('key'),
-        markdown_note: this.ui.extendDescriptionText.val()
-      }
+      data
     })
       .done(r => {
         that.model.set({
@@ -97,7 +101,7 @@ export default Marionette.ItemView.extend({
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       isCustom: this.model.get('isCustom'),
-      canCustomizeRule: this.options.app.canWrite && this.options.app.customRules
+      canCustomizeRule: this.options.app.canWrite
     };
   }
 });

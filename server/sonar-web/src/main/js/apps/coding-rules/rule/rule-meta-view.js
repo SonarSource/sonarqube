@@ -58,7 +58,10 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
 
   requestTags() {
     const url = window.baseUrl + '/api/rules/tags';
-    return $.get(url);
+    const data = this.options.app.organization
+      ? { organization: this.options.app.organization }
+      : undefined;
+    return $.get(url, data);
   },
 
   changeTags() {
@@ -88,13 +91,14 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
   editDone() {
     const that = this;
     const tags = this.ui.tagInput.val();
+    const data = { key: this.model.get('key'), tags };
+    if (this.options.app.organization) {
+      data.organization = this.options.app.organization;
+    }
     return $.ajax({
       type: 'POST',
       url: window.baseUrl + '/api/rules/update',
-      data: {
-        key: this.model.get('key'),
-        tags
-      }
+      data
     })
       .done(r => {
         that.model.set('tags', r.rule.tags);
@@ -112,7 +116,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
 
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
-      canCustomizeRule: this.options.app.canWrite && this.options.app.customRules,
+      canCustomizeRule: this.options.app.canWrite,
       allTags: union(this.model.get('sysTags'), this.model.get('tags')),
       permalink: window.baseUrl + permalinkPath + '#rule_key=' + encodeURIComponent(this.model.id)
     };

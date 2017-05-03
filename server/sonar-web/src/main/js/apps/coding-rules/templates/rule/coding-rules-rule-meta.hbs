@@ -38,7 +38,7 @@
       data-toggle="tooltip" data-placement="bottom" title="Rule tags">
     <i class="icon-tags"></i>
     <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
-    {{#if canWrite}}<i class="icon-dropdown"></i>{{/if}}
+    {{#if canCustomizeRule}}<i class="icon-dropdown"></i>{{/if}}
   </li>
 
   {{#if canCustomizeRule}}
