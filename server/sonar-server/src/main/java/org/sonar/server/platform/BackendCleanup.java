@@ -46,9 +46,11 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 public class BackendCleanup {
 
   private static final String[] ANALYSIS_TABLES = {
-    "authors", "duplications_index", "events", "issues", "issue_changes", "manual_measures",
+    "authors",
+    "ce_activity", "ce_queue", "ce_task_input", "ce_scanner_context",
+    "duplications_index", "events", "issues", "issue_changes", "manual_measures",
     "notifications", "project_links", "project_measures", "projects",
-    "snapshots", "file_sources"
+    "snapshots", "file_sources", "webhook_deliveries"
   };
   private static final String[] RESOURCE_RELATED_TABLES = {
     "group_roles", "user_roles", "properties"
