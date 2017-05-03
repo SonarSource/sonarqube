@@ -31,30 +31,34 @@ import org.sonar.process.Props;
  */
 public class TestAppSettings implements AppSettings {
 
-  private Props properties;
+  private Props props;
 
   public TestAppSettings() {
-    this.properties = new Props(new Properties());
-    ProcessProperties.completeDefaults(this.properties);
+    this.props = new Props(new Properties());
+    ProcessProperties.completeDefaults(this.props);
   }
 
   public TestAppSettings set(String key, String value) {
-    this.properties.set(key, value);
+    this.props.set(key, value);
     return this;
   }
 
   @Override
   public Props getProps() {
-    return properties;
+    return props;
   }
 
   @Override
   public Optional<String> getValue(String key) {
-    return Optional.ofNullable(properties.value(key));
+    return Optional.ofNullable(props.value(key));
   }
 
   @Override
   public void reload(Props copy) {
-    this.properties = copy;
+    this.props = copy;
+  }
+
+  public void clearProperty(String key) {
+    this.props.rawProperties().remove(key);
   }
 }

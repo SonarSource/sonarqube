@@ -19,19 +19,32 @@
  */
 package org.sonar.application.config;
 
+import com.google.common.net.InetAddresses;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
+import static com.google.common.net.InetAddresses.forString;
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
+import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
+import static org.sonar.process.ProcessProperties.CLUSTER_NETWORK_INTERFACES;
+import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.CLUSTER_WEB_LEADER;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
+import static org.sonar.process.ProcessProperties.SEARCH_HOST;
 
 public class ClusterSettings implements Consumer<Props> {
 
@@ -40,13 +53,96 @@ public class ClusterSettings implements Consumer<Props> {
     if (!isClusterEnabled(props)) {
       return;
     }
+
+    checkProperties(props);
+  }
+
+  private static void checkProperties(Props props) {
+    // Cluster web leader is not allowed
     if (props.value(CLUSTER_WEB_LEADER) != null) {
       throw new MessageException(format("Property [%s] is forbidden", CLUSTER_WEB_LEADER));
     }
+
+    // Mandatory properties
+    ensureMandatoryProperty(props, SEARCH_HOST);
+    ensureMandatoryProperty(props, CLUSTER_HOSTS);
+    ensureMandatoryProperty(props, CLUSTER_SEARCH_HOSTS);
+
+    // H2 Database is not allowed in cluster mode
     String jdbcUrl = props.value(JDBC_URL);
-    if (jdbcUrl == null || jdbcUrl.startsWith("jdbc:h2:")) {
+    if (isBlank(jdbcUrl) || jdbcUrl.startsWith("jdbc:h2:")) {
       throw new MessageException("Embedded database is not supported in cluster mode");
     }
+
+    // Loopback interfaces are forbidden for SEARCH_HOST and CLUSTER_NETWORK_INTERFACES
+    ensureNotLoopback(props, SEARCH_HOST);
+    ensureNotLoopback(props, CLUSTER_HOSTS);
+    ensureNotLoopback(props, CLUSTER_NETWORK_INTERFACES);
+    ensureNotLoopback(props, CLUSTER_SEARCH_HOSTS);
+
+    ensureLocalAddress(props, SEARCH_HOST);
+    ensureLocalAddress(props, CLUSTER_NETWORK_INTERFACES);
+  }
+
+  private static void ensureMandatoryProperty(Props props, String key) {
+    if (isBlank(props.value(key))) {
+      throw new MessageException(format("Property [%s] is mandatory", key));
+    }
+  }
+
+  private static void ensureNotLoopback(Props props, String key) {
+    String ipList = props.value(key);
+    if (ipList == null) {
+      return;
+    }
+
+    stream(ipList.split(","))
+      .filter(StringUtils::isNotBlank)
+      .map(StringUtils::trim)
+      .forEach(ip -> {
+        InetAddress inetAddress = convertToInetAddress(ip, key);
+        if (inetAddress.isLoopbackAddress()) {
+          throw new MessageException(format("The interface address [%s] of [%s] must not be a loopback address", ip, key));
+        }
+      });
+  }
+
+  private static void ensureLocalAddress(Props props, String key) {
+    String ipList = props.value(key);
+
+    if (ipList == null) {
+      return;
+    }
+
+    stream(ipList.split(","))
+      .filter(StringUtils::isNotBlank)
+      .map(StringUtils::trim)
+      .forEach(ip -> {
+        InetAddress inetAddress = convertToInetAddress(ip, key);
+        try {
+          if (NetworkInterface.getByInetAddress(inetAddress) == null) {
+            throw new MessageException(format("The interface address [%s] of [%s] is not a local address", ip, key));
+          }
+        } catch (SocketException e) {
+          throw new MessageException(format("The interface address [%s] of [%s] is not a local address", ip, key));
+        }
+      });
+  }
+
+  private static InetAddress convertToInetAddress(String text, String key) {
+    InetAddress inetAddress;
+
+    if (!InetAddresses.isInetAddress(text)) {
+      try {
+        inetAddress =InetAddress.getByName(text);
+      } catch (UnknownHostException e) {
+        throw new MessageException(format("The interface address [%s] of [%s] cannot be resolved : %s", text, key, e.getMessage()));
+      }
+    } else {
+      inetAddress = forString(text);
+    }
+
+    return inetAddress;
   }
 
   public static boolean isClusterEnabled(AppSettings settings) {
