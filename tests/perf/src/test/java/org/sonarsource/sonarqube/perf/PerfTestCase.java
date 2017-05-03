@@ -97,6 +97,7 @@ public abstract class PerfTestCase {
       .setProperties(props);
     scanner
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", sonarRunnerOpts)
+      .setEnvironmentVariable("SONAR_SCANNER_OPTS", sonarRunnerOpts)
       .setProjectDir(FileLocation.of("projects/xoo-sample").getFile());
     return scanner;
   }

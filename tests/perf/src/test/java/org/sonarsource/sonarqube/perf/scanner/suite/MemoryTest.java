@@ -79,18 +79,18 @@ public class MemoryTest extends PerfTestCase {
     FileUtils.write(new File(baseDir, "sonar-project.properties"), "sonar.myBigProp=" + Strings.repeat("A", 10000), true);
 
     SonarScanner scanner = SonarScanner.create()
-      .setScannerVersion("2.4")
+      .setScannerVersion("2.8")
       .setProperties(
         "sonar.projectKey", "big-module-tree",
         "sonar.projectName", "Big Module Tree",
         "sonar.projectVersion", "1.0",
         "sonar.sources", "",
         "sonar.showProfiling", "true");
-    scanner.setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx512m -server")
+    scanner.setEnvironmentVariable("SONAR_SCANNER_OPTS", "-Xmx512m -server")
       .setProjectDir(baseDir);
 
     BuildResult result = orchestrator.executeBuild(scanner);
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 4847L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 6190L);
 
     // Second execution with a property on server side
     orchestrator.getServer().newHttpCall("/api/settings/set")
@@ -101,7 +101,7 @@ public class MemoryTest extends PerfTestCase {
       .setParam("component", "big-module-tree")
       .execute();
     result = orchestrator.executeBuild(scanner);
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 4620L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 6120L);
   }
 
   private void prepareModule(File parentDir, String moduleName, int depth) throws IOException {
