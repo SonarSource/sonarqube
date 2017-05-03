@@ -22,51 +22,38 @@ package org.sonar.scanner.scan.filesystem;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.Arrays;
+
+import javax.annotation.CheckForNull;
 
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.BOMInputStream;
 
 public class CharsetDetector {
-  private static final int BYTES_TO_DECODE = 512;
+  private static final int BYTES_TO_DECODE = 4192;
   private Path filePath;
-  private BOMInputStream stream;
+  private BufferedInputStream stream;
   private Charset detectedCharset;
-  private Charset defaultEncoding;
+  private Charset userEncoding;
 
-  public CharsetDetector(Path filePath, Charset defaultEncoding) {
+  public CharsetDetector(Path filePath, Charset userEncoding) {
     this.filePath = filePath;
-    this.defaultEncoding = defaultEncoding;
+    this.userEncoding = userEncoding;
   }
 
   public boolean run() {
     try {
-      stream = createInputStream(filePath);
-      if (detectBOM()) {
-        return true;
-      }
-
-      if (detectCharset()) {
-        return true;
-      }
-
-      detectedCharset = defaultEncoding;
-      return false;
+      byte[] buf = readBuffer();
+      return detectCharset(buf);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to read file " + filePath.toAbsolutePath().toString(), e);
     }
   }
 
+  @CheckForNull
   public Charset charset() {
     assertRun();
     return detectedCharset;
@@ -77,52 +64,27 @@ public class CharsetDetector {
     return stream;
   }
 
-  private static BOMInputStream createInputStream(Path path) throws IOException {
-    BufferedInputStream bufferedStream = new BufferedInputStream(Files.newInputStream(path));
-    return new BOMInputStream(bufferedStream, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
-      ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
-  }
-
-  private boolean detectBOM() throws IOException {
-    String charsetName = stream.getBOMCharsetName();
-    if (charsetName != null) {
-      detectedCharset = Charset.forName(charsetName);
-      return true;
-    }
-    return false;
-  }
-
-  private boolean detectCharset() throws IOException {
+  private byte[] readBuffer() throws IOException {
+    stream = new BufferedInputStream(Files.newInputStream(filePath), BYTES_TO_DECODE * 2);
     stream.mark(BYTES_TO_DECODE);
     byte[] buf = new byte[BYTES_TO_DECODE];
-    int len = IOUtils.read(stream, buf, 0, BYTES_TO_DECODE);
+    int read = IOUtils.read(stream, buf, 0, BYTES_TO_DECODE);
     stream.reset();
-
-    Set<Charset> charsets = new LinkedHashSet<>();
-    charsets.add(defaultEncoding);
-    charsets.add(StandardCharsets.UTF_8);
-    charsets.add(Charset.defaultCharset());
-
-    for (Charset c : charsets) {
-      if (tryDecode(buf, len, c)) {
-        detectedCharset = c;
-        return true;
-      }
-    }
-    return false;
+    stream.mark(-1);
+    return Arrays.copyOf(buf, read);
   }
 
-  private static boolean tryDecode(byte[] bytes, int len, Charset charset) throws IOException {
-    CharsetDecoder decoder = charset.newDecoder()
-      .onMalformedInput(CodingErrorAction.REPORT)
-      .onUnmappableCharacter(CodingErrorAction.REPORT);
-
-    try {
-      decoder.decode(ByteBuffer.wrap(bytes, 0, len));
-    } catch (CharacterCodingException e) {
-      return false;
+  private boolean detectCharset(byte[] buf) throws IOException {
+    ByteCharsetDetector detector = new ByteCharsetDetector(new CharsetValidation(), userEncoding);
+    ByteOrderMark bom = detector.detectBOM(buf);
+    if (bom != null) {
+      detectedCharset = Charset.forName(bom.getCharsetName());
+      stream.skip(bom.length());
+      return true;
     }
-    return true;
+
+    detectedCharset = detector.detect(buf);
+    return detectedCharset != null;
   }
 
   private void assertRun() {

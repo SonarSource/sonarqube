@@ -58,11 +58,16 @@ class MetadataGenerator {
    * It is an expensive computation, reading the entire file.
    */
   public void setMetadata(final DefaultInputFile inputFile, Charset defaultEncoding) {
-    CharsetDetector detector = new CharsetDetector(inputFile.path(), defaultEncoding);
+    CharsetDetector charsetDetector = new CharsetDetector(inputFile.path(), defaultEncoding);
     try {
-      detector.run();
-      Charset charset = detector.charset();
-      InputStream is = detector.inputStream();
+      Charset charset;
+      if (charsetDetector.run()) {
+        charset = charsetDetector.charset();
+      } else {
+        LOG.debug("Failed to detect a valid charset for file '{}'. Using default charset.", inputFile.relativePath());
+        charset = defaultEncoding;
+      }
+      InputStream is = charsetDetector.inputStream();
       inputFile.setCharset(charset);
       Metadata metadata = fileMetadata.readMetadata(is, charset, inputFile.absolutePath(), exclusionsScanner.createCharHandlerFor(inputFile.key()));
       inputFile.setMetadata(metadata);
