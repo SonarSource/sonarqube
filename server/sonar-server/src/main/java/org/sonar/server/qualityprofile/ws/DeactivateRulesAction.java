@@ -65,7 +65,7 @@ public class DeactivateRulesAction implements QProfileWsAction {
     defineRuleSearchParameters(deactivate);
 
     deactivate.createParam(PROFILE_KEY)
-      .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see the api/qprofiles documentation")
+      .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see <code>api/qualityprofiles/search</code>")
       .setRequired(true)
       .setExampleValue("java:MyProfile");
   }

@@ -66,7 +66,7 @@ public class ActivateRulesAction implements QProfileWsAction {
     defineRuleSearchParameters(activate);
 
     activate.createParam(PROFILE_KEY)
-      .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see the api/qualityprofiles documentation")
+      .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see <code>api/qualityprofiles/search</code>")
       .setRequired(true)
       .setExampleValue("java:MyProfile");
 
