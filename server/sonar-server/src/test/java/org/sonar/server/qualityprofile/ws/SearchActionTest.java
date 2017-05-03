@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -103,6 +104,23 @@ public class SearchActionTest {
       dbClient,
       qProfileWsSupport);
     ws = new WsActionTester(underTest);
+  }
+
+  @Test
+  public void define_search() {
+    WebService.Action search = ws.getDef();
+    assertThat(search).isNotNull();
+    assertThat(search.isPost()).isFalse();
+    assertThat(search.param("language").possibleValues()).containsExactly("xoo1", "xoo2");
+    assertThat(search.param("language").deprecatedSince()).isEqualTo("6.4");
+    assertThat(search.param("profileName").deprecatedSince()).isEqualTo("6.4");
+    assertThat(search.param("projectKey")).isNotNull();
+    assertThat(search.param("defaults")).isNotNull();
+    assertThat(search.param("organization")).isNotNull();
+    assertThat(search.param("organization").isRequired()).isFalse();
+    assertThat(search.param("organization").isInternal()).isTrue();
+    assertThat(search.param("organization").description()).isNotEmpty();
+    assertThat(search.param("organization").since()).isEqualTo("6.4");
   }
 
   @Test

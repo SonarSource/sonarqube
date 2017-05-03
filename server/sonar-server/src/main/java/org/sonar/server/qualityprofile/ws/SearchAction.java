@@ -38,6 +38,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.client.component.ComponentsWsParameters;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static java.lang.String.format;
@@ -75,7 +76,13 @@ public class SearchAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
 
-    QProfileWsSupport.createOrganizationParam(action)
+    action
+      .createParam(ComponentsWsParameters.PARAM_ORGANIZATION)
+      .setDescription("Organization key. If no organization key is provided, this defaults to the organization of the specified project. If neither organization nor project are" +
+        "specified, the default organization will be used.")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org")
       .setSince("6.4");
 
     action
