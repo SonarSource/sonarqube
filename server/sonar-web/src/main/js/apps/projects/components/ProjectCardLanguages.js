@@ -39,11 +39,10 @@ class ProjectCardLanguages extends React.PureComponent {
     if (distribution == null) {
       return null;
     }
-
     const parsedLanguages = distribution.split(';').map(item => item.split('='));
-    const finalLanguages = sortBy(parsedLanguages, l => -1 * Number(l[1]))
-      .slice(0, 2)
-      .map(l => this.getLanguageName(l[0]));
+    const finalLanguages = sortBy(parsedLanguages, l => -1 * Number(l[1])).map(l =>
+      this.getLanguageName(l[0])
+    );
 
     const tooltip = (
       <span>
@@ -51,12 +50,13 @@ class ProjectCardLanguages extends React.PureComponent {
       </span>
     );
 
+    const languagesText =
+      finalLanguages.slice(0, 2).join(', ') + (finalLanguages.length > 2 ? ', ...' : '');
+
     return (
       <div className="project-card-languages">
         <Tooltip placement="bottom" overlay={tooltip}>
-          <span title={finalLanguages.join('<br/>')} data-toggle="tooltip">
-            {finalLanguages.join(', ')}
-          </span>
+          <span>{languagesText}</span>
         </Tooltip>
       </div>
     );
