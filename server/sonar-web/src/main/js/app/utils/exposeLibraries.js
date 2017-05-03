@@ -19,6 +19,7 @@
  */
 import moment from 'moment';
 import * as ReactRedux from 'react-redux';
+import * as ReactRouter from 'react-router';
 import Select from 'react-select';
 import Modal from 'react-modal';
 import * as measures from '../../helpers/measures';
@@ -30,6 +31,7 @@ import Tooltip from '../../components/controls/Tooltip';
 const exposeLibraries = () => {
   window.moment = moment;
   window.ReactRedux = ReactRedux;
+  window.ReactRouter = ReactRouter;
   window.SonarMeasures = measures;
   window.SonarRequest = request;
   window.SonarComponents = {
