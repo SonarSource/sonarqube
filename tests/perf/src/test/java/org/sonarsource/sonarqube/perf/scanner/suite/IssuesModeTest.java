@@ -62,7 +62,7 @@ public class IssuesModeTest extends PerfTestCase {
       "sonar.analysis.mode", "issues",
       "sonar.userHome", userHome.getAbsolutePath(),
       "sonar.showProfiling", "true")
-        .setScannerVersion("2.4");
+        .setScannerVersion("2.8");
     long start = System.currentTimeMillis();
     orchestrator.executeBuild(runner, false);
     long duration = System.currentTimeMillis() - start;
