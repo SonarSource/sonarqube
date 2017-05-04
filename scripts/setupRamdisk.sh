@@ -20,7 +20,6 @@ du -sh $HOME
 #ls -alh $HOME/otp/18.2.1
 #ls -alh $HOME/otp/R16B03
 du -cksh $HOME/* | sort -hr | head -n 15
-du -cksh $HOME/.* | sort -hr | head -n 15
 
 printf "${RED}move original home${NC}\n"
 sudo mv /home/travis /home/travis.ori
