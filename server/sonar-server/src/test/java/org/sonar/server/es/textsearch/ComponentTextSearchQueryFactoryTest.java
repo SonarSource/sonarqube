@@ -37,16 +37,20 @@ public class ComponentTextSearchQueryFactoryTest {
   public void create_query() throws Exception {
     QueryBuilder result = createQuery(ComponentTextSearchQuery.builder()
       .setQueryText("SonarQube").setFieldKey("key").setFieldName("name").build(),
-      ComponentTextSearchFeature.KEY);
+      ComponentTextSearchFeatureRepertoire.KEY);
 
     assertJson(result.toString()).isSimilarTo("{" +
       "  \"bool\" : {" +
-      "    \"should\" : {" +
-      "      \"match\" : {" +
-      "        \"key.sortable_analyzer\" : {" +
-      "          \"query\" : \"SonarQube\"," +
-      "          \"type\" : \"boolean\"," +
-      "          \"boost\" : 50.0\n" +
+      "    \"must\" : {" +
+      "      \"bool\" : {" +
+      "        \"should\" : {" +
+      "          \"match\" : {" +
+      "            \"key.sortable_analyzer\" : {" +
+      "              \"query\" : \"SonarQube\"," +
+      "              \"type\" : \"boolean\"," +
+      "              \"boost\" : 50.0\n" +
+      "            }" +
+      "          }" +
       "        }" +
       "      }" +
       "    }" +

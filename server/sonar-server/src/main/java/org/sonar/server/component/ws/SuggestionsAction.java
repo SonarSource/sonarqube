@@ -47,7 +47,7 @@ import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonar.server.component.index.ComponentIndexResults;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
@@ -226,7 +226,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private static Optional<String> getWarning(String query) {
-    List<String> tokens = ComponentTextSearchFeature.split(query).collect(Collectors.toList());
+    List<String> tokens = ComponentTextSearchFeatureRepertoire.split(query).collect(Collectors.toList());
     if (tokens.stream().anyMatch(token -> token.length() < MINIMUM_NGRAM_LENGTH)) {
       return Optional.of(SHORT_INPUT_WARNING);
     }
@@ -240,8 +240,8 @@ public class SuggestionsAction implements ComponentsWsAction {
     return singletonList(SuggestionCategory.getByName(more).getQualifier());
   }
 
-  private SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers, DbSession dbSession,
-    Stream<ComponentDto> stream) {
+  private SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers,
+    DbSession dbSession, Stream<ComponentDto> stream) {
     Map<String, ComponentDto> componentsByUuids = stream
       .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
     Map<String, OrganizationDto> organizationsByUuids = loadOrganizations(dbSession, componentsByUuids.values());

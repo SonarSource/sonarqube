@@ -24,20 +24,21 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static com.google.common.collect.ImmutableSet.of;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class ComponentIndexFeatureRecentlyBrowsedTest extends ComponentIndexTest {
 
   @Before
   public void before() {
-    features.set(ComponentTextSearchFeature.PREFIX, ComponentTextSearchFeature.RECENTLY_BROWSED);
+    features.set(query -> matchAllQuery(), ComponentTextSearchFeatureRepertoire.RECENTLY_BROWSED);
   }
 
   @Test
-  public void search_projects_by_exact_name() {
+  public void scoring_cares_about_recently_browsed() {
     ComponentDto project1 = indexProject("sonarqube", "SonarQube");
     ComponentDto project2 = indexProject("recent", "SonarQube Recently");
 

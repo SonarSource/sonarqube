@@ -39,6 +39,7 @@ import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
 import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory.ComponentTextSearchQuery;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
@@ -78,7 +79,7 @@ public class ComponentIndex {
   }
 
   public ComponentIndexResults search(ComponentIndexQuery query) {
-    return search(query, ComponentTextSearchFeature.values());
+    return search(query, ComponentTextSearchFeatureRepertoire.values());
   }
 
   @VisibleForTesting

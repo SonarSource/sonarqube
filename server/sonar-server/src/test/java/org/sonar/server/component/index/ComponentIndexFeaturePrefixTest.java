@@ -21,13 +21,13 @@ package org.sonar.server.component.index;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 public class ComponentIndexFeaturePrefixTest extends ComponentIndexTest {
 
   @Before
   public void before() {
-    features.set(ComponentTextSearchFeature.PREFIX, ComponentTextSearchFeature.PREFIX_IGNORE_CASE);
+    features.set(ComponentTextSearchFeatureRepertoire.PREFIX, ComponentTextSearchFeatureRepertoire.PREFIX_IGNORE_CASE);
   }
 
   @Test
@@ -47,14 +47,8 @@ public class ComponentIndexFeaturePrefixTest extends ComponentIndexTest {
 
   @Test
   public void should_be_able_to_ignore_case() {
-    features.set(ComponentTextSearchFeature.PREFIX_IGNORE_CASE);
+    features.set(ComponentTextSearchFeatureRepertoire.PREFIX_IGNORE_CASE);
     assertResultOrder("cOmPoNeNt.Js", "CoMpOnEnT.jS");
-  }
-
-  @Test
-  public void should_be_able_to_match_case() {
-    features.set(ComponentTextSearchFeature.PREFIX);
-    assertNoFileMatches("cOmPoNeNt.Js", "CoMpOnEnT.jS");
   }
 
   @Test
