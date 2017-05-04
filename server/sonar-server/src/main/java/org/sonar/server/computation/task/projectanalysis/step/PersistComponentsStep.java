@@ -92,7 +92,7 @@ public class PersistComponentsStep implements ComputationStep {
       dbClient.componentDao().resetBChangedForRootComponentUuid(dbSession, projectUuid);
 
       Map<String, ComponentDto> existingDtosByKeys = indexExistingDtosByKey(dbSession);
-      boolean isRootPrivate = isRootPrivate(treeRootHolder.getRoot().getKey(), existingDtosByKeys);
+      boolean isRootPrivate = isRootPrivate(treeRootHolder.getRoot(), existingDtosByKeys);
       // Insert or update the components in database. They are removed from existingDtosByKeys
       // at the same time.
       new PathAwareCrawler<>(new PersistComponentStepsVisitor(existingDtosByKeys, dbSession))
@@ -118,9 +118,16 @@ public class PersistComponentsStep implements ComputationStep {
     dbClient.componentDao().setPrivateForRootComponentUuid(dbSession, projectUuid, isRootPrivate);
   }
 
-  private static boolean isRootPrivate(String rootKey, Map<String, ComponentDto> existingDtosByKeys) {
-    ComponentDto projectDto = existingDtosByKeys.get(rootKey);
-    return projectDto == null ? false /*FIXME actually use default configured for current organization*/ : projectDto.isPrivate();
+  private static boolean isRootPrivate(Component root, Map<String, ComponentDto> existingDtosByKeys) {
+    String rootKey = root.getKey();
+    ComponentDto rootDto = existingDtosByKeys.get(rootKey);
+    if (rootDto == null) {
+      if (Component.Type.VIEW == root.getType()) {
+        return false;
+      }
+      throw new IllegalStateException(String.format("The project '%s' is not stored in the database, during a project analysis.", rootKey));
+    }
+    return rootDto.isPrivate();
   }
 
   /**
