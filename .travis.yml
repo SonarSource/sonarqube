@@ -1,4 +1,4 @@
-language: generic
+language: minimal
 sudo: required
 install: true
 jdk: oraclejdk8
