@@ -20,10 +20,18 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
@@ -47,13 +55,14 @@ import org.sonar.server.util.TypeValidations;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Objects.requireNonNull;
 
 public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
   private final DbClient dbClient;
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final TypeValidations typeValidations;
-  private RegisterQualityProfiles.RuleRepository ruleRepository;
+  private RuleRepository ruleRepository;
 
   public DefinedQProfileInsertImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory, TypeValidations typeValidations) {
     this.dbClient = dbClient;
@@ -68,10 +77,6 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
 
     checkArgument(definedQProfile.getParentQProfileName() == null,
       "Inheritance of Quality Profiles is not supported yet");
-    // Optional.ofNullable(definedQProfile.getParentQProfileName())
-    // .map(parentQProfileName -> dbClient.qualityProfileDao().selectByNameAndLanguage(organization, parentQProfileName.getName(),
-    // parentQProfileName.getLanguage(), session))
-    // .map(parentQualityProfileDto -> dbClient.activeRuleDao().selectByRuleIds());
 
     Date now = new Date(system2.now());
     QualityProfileDto profileDto = insertQualityProfile(session, definedQProfile, organization, now);
@@ -90,7 +95,7 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
 
   private void initRuleRepository(DbSession session) {
     if (ruleRepository == null) {
-      ruleRepository = new RegisterQualityProfiles.RuleRepository(dbClient, session);
+      ruleRepository = new RuleRepository(dbClient, session);
     }
   }
 
@@ -111,15 +116,7 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));
 
     ActiveRuleDto dto = ActiveRuleDto.createFor(profileDto, ruleDefinitionDto);
-    dto.setSeverity(
-      firstNonNull(
-        activeRule.getSeverity().name(),
-        // context.parentSeverity(),
-        ruleDefinitionDto.getSeverityString()));
-    // ActiveRule.Inheritance inheritance = activeRule.getInheritance();
-    // if (inheritance != null) {
-    // activeRule.setInheritance(inheritance.name());
-    // }
+    dto.setSeverity(firstNonNull(activeRule.getSeverity().name(), ruleDefinitionDto.getSeverityString()));
     dto.setUpdatedAt(now);
     dto.setCreatedAt(now);
     dbClient.activeRuleDao().insert(session, dto);
@@ -172,5 +169,38 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
   private void insertTemplate(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization) {
     LoadedTemplateDto template = new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType());
     dbClient.loadedTemplateDao().insert(template, session);
+  }
+
+  public static class RuleRepository {
+    private final Map<RuleKey, RuleDefinitionDto> ruleDefinitions;
+    private final Map<RuleKey, Set<RuleParamDto>> ruleParams;
+
+    private RuleRepository(DbClient dbClient, DbSession session) {
+      this.ruleDefinitions = dbClient.ruleDao().selectAllDefinitions(session)
+        .stream()
+        .collect(Collectors.toMap(RuleDefinitionDto::getKey, Function.identity()));
+      Map<Integer, RuleKey> ruleIdsByKey = ruleDefinitions.values()
+        .stream()
+        .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
+      this.ruleParams = new HashMap<>(ruleIdsByKey.size());
+      dbClient.ruleDao().selectRuleParamsByRuleKeys(session, ruleDefinitions.keySet())
+        .forEach(ruleParam -> ruleParams.compute(
+          ruleIdsByKey.get(ruleParam.getRuleId()),
+          (key, value) -> {
+            if (value == null) {
+              return ImmutableSet.of(ruleParam);
+            }
+            return ImmutableSet.copyOf(Sets.union(value, Collections.singleton(ruleParam)));
+          }));
+    }
+
+    Optional<RuleDefinitionDto> getDefinition(RuleKey ruleKey) {
+      return Optional.ofNullable(ruleDefinitions.get(requireNonNull(ruleKey, "RuleKey can't be null")));
+    }
+
+    Set<RuleParamDto> getRuleParams(RuleKey ruleKey) {
+      Set<RuleParamDto> res = ruleParams.get(requireNonNull(ruleKey, "RuleKey can't be null"));
+      return res == null ? Collections.emptySet() : res;
+    }
   }
 }
