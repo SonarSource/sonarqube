@@ -28,7 +28,7 @@ export default class ListHeader extends React.PureComponent {
   };
 
   renderTooltip = permission =>
-    (this.props.organization && (permission.key === 'user' || permission.key === 'codeviewer')
+    (permission.key === 'user' || permission.key === 'codeviewer'
       ? <div>
           {permission.description}
           <div className="alert alert-warning spacer-top">
