@@ -228,8 +228,8 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setOrganization(organizationKey)
       .setProject(projectKey)
       .setKey(result.getKey())
-      .setName(result.longName())
-      .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.longName())))
+      .setName(result.name())
+      .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.name())))
       .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
       .setIsFavorite(favoriteKeys.contains(result.getKey()))
       .build();
