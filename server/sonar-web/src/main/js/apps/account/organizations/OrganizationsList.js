@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { sortBy } from 'lodash';
 import OrganizationCard from './OrganizationCard';
 import type { Organization } from '../../../store/organizations/duck';
 
@@ -29,7 +30,9 @@ type Props = {
 export default function OrganizationsList(props: Props) {
   return (
     <ul className="account-projects-list">
-      {props.organizations.map(organization => (
+      {sortBy(props.organizations, organization =>
+        organization.name.toLocaleLowerCase()
+      ).map(organization => (
         <li key={organization.key}>
           <OrganizationCard organization={organization} />
         </li>
