@@ -21,8 +21,6 @@ import React from 'react';
 import NameCell from './NameCell';
 import PermissionCell from './PermissionCell';
 import ActionsCell from './ActionsCell';
-import UsersView from '../views/UsersView';
-import GroupsView from '../views/GroupsView';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
 
 export default class ListItem extends React.PureComponent {
@@ -32,27 +30,6 @@ export default class ListItem extends React.PureComponent {
     topQualifiers: React.PropTypes.array.isRequired,
     refresh: CallbackType
   };
-
-  componentWillMount() {
-    this.handleShowGroups = this.handleShowGroups.bind(this);
-    this.handleShowUsers = this.handleShowUsers.bind(this);
-  }
-
-  handleShowGroups(permission) {
-    new GroupsView({
-      permission,
-      permissionTemplate: this.props.permissionTemplate,
-      refresh: this.props.refresh
-    }).render();
-  }
-
-  handleShowUsers(permission) {
-    new UsersView({
-      permission,
-      permissionTemplate: this.props.permissionTemplate,
-      refresh: this.props.refresh
-    }).render();
-  }
 
   render() {
     const permissions = this.props.permissionTemplate.permissions.map(p => (
