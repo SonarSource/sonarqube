@@ -77,10 +77,10 @@ public class MassRegisterQualityProfiles {
 
     try (DbSession session = dbClient.openSession(false);
       DbSession batchSession = dbClient.openSession(true)) {
+      // memory optimization: use a single array list for everything to avoid reallocating and increasing new array for each quality profiles
       List<ActiveRuleChange> changes = new ArrayList<>();
       definedQProfileRepository.getQProfilesByLanguage()
         .forEach((key, value) -> registerPerLanguage(session, batchSession, value, changes));
-      activeRuleIndexer.index(changes);
       profiler.stopDebug();
     }
   }
@@ -97,6 +97,10 @@ public class MassRegisterQualityProfiles {
     while (!(organizationDtos = getOrganizationsWithoutQP(session, qualityProfile)).isEmpty()) {
       organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, batchSession, qualityProfile, organization, changes, profiler));
     }
+    profiler.startDebug("Indexing for profile " + qualityProfile.getQProfileName());
+    activeRuleIndexer.index(changes);
+    changes.clear();
+    profiler.stopDebug();
   }
 
   private List<OrganizationDto> getOrganizationsWithoutQP(DbSession session, DefinedQProfile qualityProfile) {
