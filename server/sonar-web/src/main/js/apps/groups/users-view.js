@@ -25,8 +25,20 @@ import Template from './templates/groups-users.hbs';
 export default Modal.extend({
   template: Template,
 
+  initialize(options) {
+    this.organization = options.organization;
+  },
+
   onRender() {
     Modal.prototype.onRender.apply(this, arguments);
+
+    const extra = {
+      name: this.model.get('name')
+    };
+    if (this.organization) {
+      extra.organization = this.organization.key;
+    }
+
     new window.SelectList({
       el: this.$('#groups-users'),
       width: '100%',
@@ -39,9 +51,7 @@ export default Modal.extend({
       searchUrl: window.baseUrl + '/api/user_groups/users?ps=100&id=' + this.model.id,
       selectUrl: window.baseUrl + '/api/user_groups/add_user',
       deselectUrl: window.baseUrl + '/api/user_groups/remove_user',
-      extra: {
-        id: this.model.id
-      },
+      extra,
       selectParameter: 'login',
       selectParameterValue: 'login',
       parse(r) {

@@ -78,6 +78,6 @@ export default Marionette.ItemView.extend({
   },
 
   showUsers() {
-    new UsersView({ model: this.model }).render();
+    new UsersView({ model: this.model, organization: this.model.collection.organization }).render();
   }
 });

@@ -131,22 +131,26 @@ export function bulkApplyTemplate(data: Object) {
 }
 
 export function grantTemplatePermissionToUser(
-  templateId: string,
-  login: string,
-  permission: string
+  data: {
+    templateId: string,
+    login: string,
+    permission: string,
+    organization?: string
+  }
 ) {
   const url = '/api/permissions/add_user_to_template';
-  const data = { templateId, login, permission };
   return post(url, data);
 }
 
 export function revokeTemplatePermissionFromUser(
-  templateId: string,
-  login: string,
-  permission: string
+  data: {
+    templateId: string,
+    login: string,
+    permission: string,
+    organization?: string
+  }
 ) {
   const url = '/api/permissions/remove_user_from_template';
-  const data = { templateId, login, permission };
   return post(url, data);
 }
 

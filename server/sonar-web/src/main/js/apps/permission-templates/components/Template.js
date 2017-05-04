@@ -95,11 +95,19 @@ export default class Template extends React.PureComponent {
       this.handleToggleProjectCreator(user, permission);
       return;
     }
-    const { template } = this.props;
+    const { template, organization } = this.props;
     const hasPermission = user.permissions.includes(permission);
+    const data = {
+      templateId: template.id,
+      login: user.login,
+      permission
+    };
+    if (organization) {
+      data.organization = organization.key;
+    }
     const request = hasPermission
-      ? api.revokeTemplatePermissionFromUser(template.id, user.login, permission)
-      : api.grantTemplatePermissionToUser(template.id, user.login, permission);
+      ? api.revokeTemplatePermissionFromUser(data)
+      : api.grantTemplatePermissionToUser(data);
     request.then(() => this.requestHolders()).then(this.props.refresh);
   };
 
