@@ -24,5 +24,5 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 
 public interface DefinedQProfileInsert {
-  void create(DbSession session, DefinedQProfile definedQProfile, OrganizationDto organization, List<ActiveRuleChange> changes);
+  void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization, List<ActiveRuleChange> changes);
 }

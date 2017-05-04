@@ -75,26 +75,27 @@ public class MassRegisterQualityProfiles {
       return;
     }
 
-    try (DbSession session = dbClient.openSession(false)) {
+    try (DbSession session = dbClient.openSession(false);
+      DbSession batchSession = dbClient.openSession(true)) {
       List<ActiveRuleChange> changes = new ArrayList<>();
       definedQProfileRepository.getQProfilesByLanguage()
-        .forEach((key, value) -> registerPerLanguage(session, value, changes));
+        .forEach((key, value) -> registerPerLanguage(session, batchSession, value, changes));
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
     }
   }
 
-  private void registerPerLanguage(DbSession session, List<DefinedQProfile> qualityProfiles, List<ActiveRuleChange> changes) {
-    qualityProfiles.forEach(qp -> registerPerQualityProfile(session, qp, changes));
+  private void registerPerLanguage(DbSession session, DbSession batchSession, List<DefinedQProfile> qualityProfiles, List<ActiveRuleChange> changes) {
+    qualityProfiles.forEach(qp -> registerPerQualityProfile(session, batchSession, qp, changes));
   }
 
-  private void registerPerQualityProfile(DbSession session, DefinedQProfile qualityProfile, List<ActiveRuleChange> changes) {
+  private void registerPerQualityProfile(DbSession session, DbSession batchSession, DefinedQProfile qualityProfile, List<ActiveRuleChange> changes) {
     LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
 
     Profiler profiler = Profiler.create(Loggers.get(getClass()));
     List<OrganizationDto> organizationDtos;
     while (!(organizationDtos = getOrganizationsWithoutQP(session, qualityProfile)).isEmpty()) {
-      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, qualityProfile, organization, changes, profiler));
+      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, batchSession, qualityProfile, organization, changes, profiler));
     }
   }
 
@@ -103,13 +104,14 @@ public class MassRegisterQualityProfiles {
       qualityProfile.getLoadedTemplateType(), PROCESSED_ORGANIZATIONS_BATCH_SIZE);
   }
 
-  private void registerPerQualityProfileAndOrganization(DbSession session,
+  private void registerPerQualityProfileAndOrganization(DbSession session, DbSession batchSession,
     DefinedQProfile definedQProfile, OrganizationDto organization, List<ActiveRuleChange> changes, Profiler profiler) {
     profiler.start();
 
-    definedQProfileInsert.create(session, definedQProfile, organization, changes);
+    definedQProfileInsert.create(session, batchSession, definedQProfile, organization, changes);
 
     session.commit();
+    batchSession.commit();
 
     profiler.stopDebug(format("Register profile %s for organization %s", definedQProfile.getQProfileName(), organization.getKey()));
   }
