@@ -22,7 +22,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import GlobalLoading from './GlobalLoading';
 import { fetchCurrentUser } from '../../store/users/actions';
-import { fetchLanguages, fetchAppState, fetchOrganizations } from '../../store/rootActions';
+import { fetchLanguages, fetchAppState } from '../../store/rootActions';
 
 class App extends React.PureComponent {
   mounted: boolean;
@@ -31,7 +31,6 @@ class App extends React.PureComponent {
     fetchAppState: React.PropTypes.func.isRequired,
     fetchCurrentUser: React.PropTypes.func.isRequired,
     fetchLanguages: React.PropTypes.func.isRequired,
-    fetchOrganizations: React.PropTypes.func.isRequired,
     children: React.PropTypes.element.isRequired
   };
 
@@ -44,13 +43,7 @@ class App extends React.PureComponent {
 
     this.props
       .fetchCurrentUser()
-      .then(() =>
-        Promise.all([
-          this.props.fetchAppState(),
-          this.props.fetchOrganizations(),
-          this.props.fetchLanguages()
-        ])
-      )
+      .then(() => Promise.all([this.props.fetchAppState(), this.props.fetchLanguages()]))
       .then(this.finishLoading, this.finishLoading);
   }
 
@@ -76,6 +69,5 @@ class App extends React.PureComponent {
 export default connect(null, {
   fetchAppState,
   fetchCurrentUser,
-  fetchLanguages,
-  fetchOrganizations
+  fetchLanguages
 })(App);
