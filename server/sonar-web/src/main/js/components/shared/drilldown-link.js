@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import moment from 'moment';
 import React from 'react';
 import { Link } from 'react-router';
 import { getComponentDrilldownUrl, getComponentIssuesUrl } from '../../helpers/urls';
@@ -48,6 +47,16 @@ const ISSUE_MEASURES = [
 ];
 
 export class DrilldownLink extends React.PureComponent {
+  static propTypes = {
+    children: React.PropTypes.oneOfType([
+      React.PropTypes.node,
+      React.PropTypes.arrayOf(React.PropTypes.node)
+    ]),
+    className: React.PropTypes.string,
+    component: React.PropTypes.string.isRequired,
+    metric: React.PropTypes.string.isRequired,
+    sinceLeakPeriod: React.PropTypes.bool
+  };
   isIssueMeasure = () => {
     return ISSUE_MEASURES.indexOf(this.props.metric) !== -1;
   };
@@ -55,8 +64,8 @@ export class DrilldownLink extends React.PureComponent {
   propsToIssueParams = () => {
     const params = {};
 
-    if (this.props.periodDate) {
-      params.createdAfter = moment(this.props.periodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+    if (this.props.sinceLeakPeriod) {
+      params.sinceLeakPeriod = true;
     }
 
     switch (this.props.metric) {

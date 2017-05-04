@@ -161,7 +161,7 @@ export default class OverviewApp extends React.PureComponent {
       <div className="page page-limited">
         <div className="overview page-with-sidebar">
           <div className="overview-main page-main">
-            <QualityGate component={component} measures={measures} periods={periods} />
+            <QualityGate component={component} measures={measures} />
 
             <TooltipsContainer>
               <div className="overview-domains-list">

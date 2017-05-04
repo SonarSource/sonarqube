@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import QualityGateConditions from './QualityGateConditions';
 import EmptyQualityGate from './EmptyQualityGate';
-import { ComponentType, MeasuresListType, PeriodsListType } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
+import type { Component, MeasuresList } from '../types';
 
-function parseQualityGateDetails(rawDetails) {
+function parseQualityGateDetails(rawDetails: string) {
   return JSON.parse(rawDetails);
 }
 
-function isProject(component) {
+function isProject(component: Component) {
   return component.qualifier === 'TRK';
 }
 
-const QualityGate = ({ component, measures, periods }) => {
+type Props = {
+  component: Component,
+  measures: MeasuresList
+};
+
+export default function QualityGate({ component, measures }: Props) {
   const statusMeasure = measures.find(measure => measure.metric.key === 'alert_status');
   const detailsMeasure = measures.find(measure => measure.metric.key === 'quality_gate_details');
 
@@ -43,7 +49,7 @@ const QualityGate = ({ component, measures, periods }) => {
   const level = statusMeasure.value;
 
   let conditions = [];
-  if (detailsMeasure) {
+  if (detailsMeasure && detailsMeasure.value) {
     conditions = parseQualityGateDetails(detailsMeasure.value).conditions;
   }
 
@@ -55,15 +61,7 @@ const QualityGate = ({ component, measures, periods }) => {
       </h2>
 
       {conditions.length > 0 &&
-        <QualityGateConditions component={component} periods={periods} conditions={conditions} />}
+        <QualityGateConditions component={component} conditions={conditions} />}
     </div>
   );
-};
-
-QualityGate.propTypes = {
-  component: ComponentType.isRequired,
-  measures: MeasuresListType.isRequired,
-  periods: PeriodsListType.isRequired
-};
-
-export default QualityGate;
+}

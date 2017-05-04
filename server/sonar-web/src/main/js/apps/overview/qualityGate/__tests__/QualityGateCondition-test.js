@@ -37,6 +37,8 @@ const mockRatingCondition = metric => ({
   metric
 });
 
+const periods = [{ value: '3', index: 1 }];
+
 it('open_issues', () => {
   const condition = {
     actual: '10',
@@ -54,9 +56,7 @@ it('open_issues', () => {
     op: 'GT'
   };
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
@@ -71,68 +71,62 @@ it('new_open_issues', () => {
         type: 'INT',
         name: 'new_open_issues'
       },
+      periods: [{ value: '10', index: 1 }],
       value: '10'
     },
     metric: 'new_open_issues',
-    op: 'GT'
+    op: 'GT',
+    period: 1
   };
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('reliability_rating', () => {
   const condition = mockRatingCondition('reliability_rating');
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('security_rating', () => {
   const condition = mockRatingCondition('security_rating');
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('sqale_rating', () => {
   const condition = mockRatingCondition('sqale_rating');
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('new_reliability_rating', () => {
   const condition = mockRatingCondition('new_reliability_rating');
+  condition.period = 1;
+  condition.measure.periods = periods;
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('new_security_rating', () => {
   const condition = mockRatingCondition('new_security_rating');
+  condition.period = 1;
+  condition.measure.periods = periods;
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });
 
 it('new_sqale_rating', () => {
   const condition = mockRatingCondition('new_sqale_rating');
+  condition.period = 1;
+  condition.measure.periods = periods;
   expect(
-    shallow(
-      <QualityGateCondition component={{ key: 'abcd-key' }} periods={[]} condition={condition} />
-    )
+    shallow(<QualityGateCondition component={{ key: 'abcd-key' }} condition={condition} />)
   ).toMatchSnapshot();
 });

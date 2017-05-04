@@ -80,10 +80,7 @@ class Duplications extends React.PureComponent {
 
     const formattedValue = newDuplicationsValue != null
       ? <div>
-          <DrilldownLink
-            component={component.key}
-            metric={newDuplicationsMeasure.metric.key}
-            period={leakPeriod.index}>
+          <DrilldownLink component={component.key} metric={newDuplicationsMeasure.metric.key}>
             <span className="js-overview-main-new-duplications">
               {formatMeasure(newDuplicationsValue, 'PERCENT')}
             </span>
@@ -97,8 +94,7 @@ class Duplications extends React.PureComponent {
           <DrilldownLink
             className="spacer-right overview-domain-secondary-measure-value"
             component={component.key}
-            metric={newLinesMeasure.metric.key}
-            period={leakPeriod.index}>
+            metric={newLinesMeasure.metric.key}>
             <span className="js-overview-main-new-lines">
               {formatMeasure(newLinesValue, 'SHORT_INT')}
             </span>
