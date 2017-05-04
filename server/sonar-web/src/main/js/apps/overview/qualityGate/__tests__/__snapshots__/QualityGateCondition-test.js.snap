@@ -2,10 +2,10 @@
 
 exports[`new_open_issues 1`] = `
 <DrilldownLink
-  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
   component="abcd-key"
   metric="new_open_issues"
-  periodDate={null}
+  sinceLeakPeriod={true}
 >
   <div
     className="overview-quality-gate-condition-container"
@@ -53,7 +53,7 @@ exports[`new_open_issues 1`] = `
 
 exports[`new_reliability_rating 1`] = `
 <Link
-  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
   onlyActiveOnIndex={false}
   style={Object {}}
   to={
@@ -115,7 +115,7 @@ exports[`new_reliability_rating 1`] = `
 
 exports[`new_security_rating 1`] = `
 <Link
-  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
   onlyActiveOnIndex={false}
   style={Object {}}
   to={
@@ -177,7 +177,7 @@ exports[`new_security_rating 1`] = `
 
 exports[`new_sqale_rating 1`] = `
 <Link
-  className="overview-quality-gate-condition overview-quality-gate-condition-error"
+  className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
   onlyActiveOnIndex={false}
   style={Object {}}
   to={
@@ -241,7 +241,7 @@ exports[`open_issues 1`] = `
   className="overview-quality-gate-condition overview-quality-gate-condition-error"
   component="abcd-key"
   metric="open_issues"
-  periodDate={null}
+  sinceLeakPeriod={false}
 >
   <div
     className="overview-quality-gate-condition-container"

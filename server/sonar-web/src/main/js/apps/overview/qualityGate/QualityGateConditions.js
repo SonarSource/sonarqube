@@ -81,7 +81,7 @@ export default class QualityGateConditions extends React.PureComponent {
   }
 
   render() {
-    const { component, periods } = this.props;
+    const { component } = this.props;
     const { loading, conditions } = this.state;
 
     if (loading) {
@@ -102,7 +102,6 @@ export default class QualityGateConditions extends React.PureComponent {
           <QualityGateCondition
             key={condition.measure.metric.key}
             component={component}
-            periods={periods}
             condition={condition}
           />
         ))}

@@ -96,10 +96,7 @@ class Coverage extends React.PureComponent {
 
     const formattedValue = newCoverageValue != null
       ? <div>
-          <DrilldownLink
-            component={component.key}
-            metric={newCoverageMeasure.metric.key}
-            period={leakPeriod.index}>
+          <DrilldownLink component={component.key} metric={newCoverageMeasure.metric.key}>
             <span className="js-overview-main-new-coverage">
               {formatMeasure(newCoverageValue, 'PERCENT')}
             </span>
@@ -113,8 +110,7 @@ class Coverage extends React.PureComponent {
           <DrilldownLink
             className="spacer-right overview-domain-secondary-measure-value"
             component={component.key}
-            metric={newLinesToCover.metric.key}
-            period={leakPeriod.index}>
+            metric={newLinesToCover.metric.key}>
             <span className="js-overview-main-new-coverage">
               {formatMeasure(newLinesToCoverValue, 'SHORT_INT')}
             </span>
