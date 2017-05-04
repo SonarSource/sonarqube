@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static java.util.Arrays.asList;
 import static org.sonar.api.resources.Qualifiers.FILE;
@@ -112,19 +112,25 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
   @Test
   public void should_prefer_favorite_over_recently_browsed() {
-    ComponentDto recentlyBrowsed = db.components().insertPrivateProject(c -> c.setName("File1"));
-    index(recentlyBrowsed);
+    ComponentDto file1 = db.components().insertPrivateProject(c -> c.setName("File1"));
+    index(file1);
 
-    ComponentDto favorite = db.components().insertPrivateProject(c -> c.setName("File2"));
-    index(favorite);
+    ComponentDto file2 = db.components().insertPrivateProject(c -> c.setName("File2"));
+    index(file2);
 
-    ComponentIndexQuery query = ComponentIndexQuery.builder()
-      .setQuery("sonarqube")
+    assertSearch(ComponentIndexQuery.builder()
+      .setQuery("File")
       .setQualifiers(asList(PROJECT, MODULE, FILE))
-      .setRecentlyBrowsedKeys(ImmutableSet.of(recentlyBrowsed.getKey()))
-      .setFavoriteKeys(ImmutableSet.of(favorite.getKey()))
-      .build();
-    assertSearch(query).containsExactly(uuids(favorite, recentlyBrowsed));
+      .setRecentlyBrowsedKeys(ImmutableSet.of(file1.getKey()))
+      .setFavoriteKeys(ImmutableSet.of(file2.getKey()))
+      .build()).containsExactly(uuids(file2, file1));
+
+    assertSearch(ComponentIndexQuery.builder()
+      .setQuery("File")
+      .setQualifiers(asList(PROJECT, MODULE, FILE))
+      .setRecentlyBrowsedKeys(ImmutableSet.of(file2.getKey()))
+      .setFavoriteKeys(ImmutableSet.of(file1.getKey()))
+      .build()).containsExactly(uuids(file1, file2));
   }
 
   @Test
@@ -141,7 +147,7 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
 
   @Test
   public void scoring_test_DbTester() {
-    features.set(ComponentTextSearchFeature.PARTIAL);
+    features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
 
     ComponentDto project = indexProject("key-1", "Quality Product");
 

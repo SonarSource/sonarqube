@@ -22,9 +22,12 @@ package org.sonar.server.es.textsearch;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeature.UseCase;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -43,11 +46,26 @@ public class ComponentTextSearchQueryFactory {
 
   public static QueryBuilder createQuery(ComponentTextSearchQuery query, ComponentTextSearchFeature... features) {
     checkArgument(features.length > 0, "features cannot be empty");
-    BoolQueryBuilder featureQuery = boolQuery();
+    BoolQueryBuilder esQuery = boolQuery().must(
+      createQuery(query, features, UseCase.GENERATE_RESULTS)
+        .orElseThrow(() -> new IllegalStateException("No text search features found to generate search results. Features: "+Arrays.toString(features))));
+    createQuery(query, features, UseCase.CHANGE_ORDER_OF_RESULTS)
+      .ifPresent(esQuery::should);
+    return esQuery;
+  }
+
+  public static Optional<QueryBuilder> createQuery(ComponentTextSearchQuery query, ComponentTextSearchFeature[] features, UseCase useCase) {
+    BoolQueryBuilder generateResults = boolQuery();
+    AtomicBoolean anyFeatures = new AtomicBoolean();
     Arrays.stream(features)
+      .filter(f -> f.getUseCase() == useCase)
+      .peek(f -> anyFeatures.set(true))
       .flatMap(f -> f.getQueries(query))
-      .forEach(featureQuery::should);
-    return featureQuery;
+      .forEach(generateResults::should);
+    if (anyFeatures.get()) {
+      return Optional.of(generateResults);
+    }
+    return Optional.empty();
   }
 
   public static class ComponentTextSearchQuery {

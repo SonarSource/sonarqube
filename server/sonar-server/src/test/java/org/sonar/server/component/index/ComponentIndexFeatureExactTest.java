@@ -20,29 +20,31 @@
 
 package org.sonar.server.component.index;
 
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
+
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class ComponentIndexFeatureExactTest extends ComponentIndexTest {
 
   @Before
   public void before() {
-    features.set(ComponentTextSearchFeature.EXACT_IGNORE_CASE);
+    features.set(query -> matchAllQuery(), ComponentTextSearchFeatureRepertoire.EXACT_IGNORE_CASE);
   }
 
   @Test
-  public void should_find_perfect_match() {
-    assertFileMatches("ComponentX", "ComponentX");
-  }
+  public void scoring_cares_about_exact_matches() {
+    ComponentDto project1 = indexProject("project1", "LongNameLongNameLongNameLongNameSonarQube");
+    ComponentDto project2 = indexProject("project2", "LongNameLongNameLongNameLongNameSonarQubeX");
 
-  @Test
-  public void should_not_find_partial_match() {
-    assertNoFileMatches("omp", "ComponentX");
-  }
-
-  @Test
-  public void should_not_find_prefix_match() {
-    assertNoFileMatches("omp", "ComponentX");
+    ComponentIndexQuery query1 = ComponentIndexQuery.builder()
+      .setQuery("LongNameLongNameLongNameLongNameSonarQube")
+      .setQualifiers(Collections.singletonList(PROJECT))
+      .build();
+    assertSearch(query1).containsExactly(uuids(project1, project2));
   }
 }
