@@ -27,7 +27,7 @@ type Props = {|
   hasProvisionPermission: boolean,
   onProjectCreate: () => void,
   onVisibilityChange: string => void,
-  organization?: Organization
+  organization: Organization
 |};
 
 type State = {
@@ -59,19 +59,18 @@ export default class Header extends React.PureComponent {
       <header className="page-header">
         <h1 className="page-title">{translate('projects_management')}</h1>
         <div className="page-actions">
-          {organization != null &&
-            <span className="big-spacer-right">
-              {translate('organization.default_visibility_of_new_projects')}
-              {' '}
-              <strong>
-                {translate('visibility', organization.projectVisibility)}
-              </strong>
-              <a
-                className="spacer-left icon-edit"
-                href="#"
-                onClick={this.handleChangeVisibilityClick}
-              />
-            </span>}
+          <span className="big-spacer-right">
+            {translate('organization.default_visibility_of_new_projects')}
+            {' '}
+            <strong>
+              {translate('visibility', organization.projectVisibility)}
+            </strong>
+            <a
+              className="spacer-left icon-edit"
+              href="#"
+              onClick={this.handleChangeVisibilityClick}
+            />
+          </span>
           {this.props.hasProvisionPermission &&
             <button id="create-project" onClick={this.handleCreateProjectClick}>
               {translate('qualifiers.create.TRK')}
@@ -82,7 +81,6 @@ export default class Header extends React.PureComponent {
         </p>
 
         {this.state.visibilityForm &&
-          organization != null &&
           <ChangeVisibilityForm
             onClose={this.closeVisiblityForm}
             onConfirm={this.props.onVisibilityChange}

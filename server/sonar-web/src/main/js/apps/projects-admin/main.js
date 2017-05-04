@@ -33,7 +33,7 @@ type Props = {|
   hasProvisionPermission: boolean,
   onVisibilityChange: string => void,
   onRequestFail: Object => void,
-  organization?: Organization
+  organization: Organization
 |};
 
 type State = {
@@ -73,15 +73,15 @@ export default class Main extends React.PureComponent {
   }
 
   getFilters = () => {
-    const filters: { [string]: string | number } = { ps: PAGE_SIZE };
+    const filters: { [string]: string | number } = {
+      organization: this.props.organization.key,
+      ps: PAGE_SIZE
+    };
     if (this.state.page !== 1) {
       filters.p = this.state.page;
     }
     if (this.state.query) {
       filters.q = this.state.query;
-    }
-    if (this.props.organization) {
-      filters.organization = this.props.organization.key;
     }
     return filters;
   };
@@ -211,10 +211,10 @@ export default class Main extends React.PureComponent {
   deleteProjects = () => {
     this.setState({ ready: false });
     const projects = this.state.selection.join(',');
-    const data = { projects };
-    if (this.props.organization) {
-      Object.assign(data, { organization: this.props.organization.key });
-    }
+    const data = {
+      organization: this.props.organization.key,
+      projects
+    };
     deleteComponents(data).then(() => {
       this.setState({ page: 1, selection: [] }, this.requestProjects);
     });

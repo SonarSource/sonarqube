@@ -31,7 +31,7 @@ export default class Projects extends React.PureComponent {
   static propTypes = {
     projects: React.PropTypes.array.isRequired,
     selection: React.PropTypes.array.isRequired,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object.isRequired
   };
 
   componentWillMount() {
