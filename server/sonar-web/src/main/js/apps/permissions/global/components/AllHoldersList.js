@@ -43,7 +43,7 @@ import {
 
 const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provisioning'];
 
-const PERMISSIONS_FOR_CUSTOM_ORG = ['admin', 'scan', 'provisioning'];
+const PERMISSIONS_FOR_CUSTOM_ORG = ['admin', 'profileadmin', 'scan', 'provisioning'];
 
 class AllHoldersList extends React.PureComponent {
   componentDidMount() {
