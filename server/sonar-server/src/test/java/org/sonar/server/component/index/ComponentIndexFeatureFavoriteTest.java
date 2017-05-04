@@ -23,17 +23,19 @@ package org.sonar.server.component.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Collections.singletonList;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 
 public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
 
   @Before
   public void before() {
-    features.set(ComponentTextSearchFeature.PREFIX, ComponentTextSearchFeature.FAVORITE);
+    features.set(q -> matchAllQuery(), ComponentTextSearchFeatureRepertoire.FAVORITE);
   }
 
   @Test
@@ -54,5 +56,18 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
       .setFavoriteKeys(of(project2.getKey()))
       .build();
     assertSearch(query2).containsExactly(uuids(project2, project1));
+  }
+
+  @Test
+  public void irrelevant_favorites_are_not_returned() {
+    features.set(q -> termQuery("non-existing-field", "non-existing-value"), ComponentTextSearchFeatureRepertoire.FAVORITE);
+    ComponentDto project1 = indexProject("foo", "foo");
+
+    ComponentIndexQuery query1 = ComponentIndexQuery.builder()
+      .setQuery("bar")
+      .setQualifiers(singletonList(PROJECT))
+      .setFavoriteKeys(of(project1.getKey()))
+      .build();
+    assertSearch(query1).isEmpty();
   }
 }

@@ -22,13 +22,13 @@ package org.sonar.server.component.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 public class ComponentIndexFeaturePartialTest extends ComponentIndexTest {
 
   @Before
   public void before() {
-    features.set(ComponentTextSearchFeature.PARTIAL);
+    features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
   }
 
   @Test

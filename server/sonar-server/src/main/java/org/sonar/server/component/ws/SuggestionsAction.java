@@ -41,7 +41,7 @@ import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonar.server.component.index.ComponentIndexResults;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
@@ -144,7 +144,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private static String getWarning(String query) {
-    List<String> tokens = ComponentTextSearchFeature.split(query).collect(Collectors.toList());
+    List<String> tokens = ComponentTextSearchFeatureRepertoire.split(query).collect(Collectors.toList());
     if (tokens.stream().anyMatch(token -> token.length() < MINIMUM_NGRAM_LENGTH)) {
       return SHORT_INPUT_WARNING;
     }
