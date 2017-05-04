@@ -31,8 +31,8 @@ import javax.annotation.Nullable;
 
 public class CharsetValidation {
 
-  private static final float UTF_16_NULL_PASS_THRESHOLD = 0.7f;
-  private static final float UTF_16_NULL_FAIL_THRESHOLD = 0.1f;
+  private static final double UTF_16_NULL_PASS_THRESHOLD = 0.7;
+  private static final double UTF_16_NULL_FAIL_THRESHOLD = 0.1;
 
   /**
    * Checks if an array of bytes looks UTF-16 encoded. 
@@ -81,8 +81,8 @@ public class CharsetValidation {
       }
     }
 
-    float beAsciiPerc = beAscii * 2.0f / (float) buffer.length;
-    float leAsciiPerc = leAscii * 2.0f / (float) buffer.length;
+    double beAsciiPerc = beAscii * 2.0 / (double) buffer.length;
+    double leAsciiPerc = leAscii * 2.0 / (double) buffer.length;
 
     if (leLines == 0) {
       // could be BE
