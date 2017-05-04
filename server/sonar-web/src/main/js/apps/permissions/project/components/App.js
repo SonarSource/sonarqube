@@ -21,6 +21,7 @@
 import React from 'react';
 import { without } from 'lodash';
 import PageHeader from './PageHeader';
+import UpgradeOrganizationBox from '../../../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../../../components/common/VisibilitySelector';
 import AllHoldersList from './AllHoldersList';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
@@ -33,7 +34,8 @@ import '../../styles.css';
 export type Props = {|
   component: {
     configuration?: {
-      canApplyPermissionTemplate: boolean
+      canApplyPermissionTemplate: boolean,
+      canUpdateProjectVisibilityToPrivate: boolean
     },
     key: string,
     name: string,
@@ -331,6 +333,10 @@ export default class App extends React.PureComponent {
   };
 
   render() {
+    const canTurnToPrivate =
+      this.props.component.configuration != null &&
+      this.props.component.configuration.canUpdateProjectVisibilityToPrivate;
+
     return (
       <div className="page page-limited" id="project-permissions-page">
         <PageHeader
@@ -341,10 +347,13 @@ export default class App extends React.PureComponent {
         <PageError />
         {this.props.component.qualifier === 'TRK' &&
           <VisibilitySelector
+            canTurnToPrivate={canTurnToPrivate}
             className="big-spacer-top big-spacer-bottom"
             onChange={this.handleVisibilityChange}
             visibility={this.props.component.visibility}
           />}
+        {!canTurnToPrivate &&
+          <UpgradeOrganizationBox organization={this.props.component.organization} />}
         {this.state.disclaimer &&
           <PublicProjectDisclaimer
             component={this.props.component}

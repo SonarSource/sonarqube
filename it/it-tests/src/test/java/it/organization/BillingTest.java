@@ -38,6 +38,7 @@ import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
+import pageobjects.Navigation;
 import util.ItUtils;
 import util.user.UserRule;
 
@@ -66,6 +67,9 @@ public class BillingTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient adminClient;
 
@@ -212,6 +216,26 @@ public class BillingTest {
       assertThat(ex.code()).isEqualTo(400);
       assertThat(ex.content()).contains(format("Organization %s cannot use private project", organizationKey));
     }
+  }
+
+  @Test
+  public void ui_does_not_allow_to_turn_project_to_private() {
+    String projectKey = createPublicProject(createOrganization());
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+
+    nav.logIn().asAdmin().openProjectPermissions(projectKey)
+      .shouldBePublic()
+      .shouldNotAllowPrivate();
+  }
+
+  @Test
+  public void ui_allows_to_turn_project_to_private() {
+    String projectKey = createPublicProject(createOrganization());
+    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+
+    nav.logIn().asAdmin().openProjectPermissions(projectKey)
+      .shouldBePublic()
+      .turnToPrivate();
   }
 
   private static String createOrganization() {

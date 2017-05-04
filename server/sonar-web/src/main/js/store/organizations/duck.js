@@ -27,6 +27,7 @@ export type Organization = {
   canAdmin?: boolean,
   canDelete?: boolean,
   canProvisionProjects?: boolean,
+  canUpdateProjectsVisibilityToPrivate?: boolean,
   description?: string,
   key: string,
   name: string,

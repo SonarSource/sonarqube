@@ -21,6 +21,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { Link } from 'react-router';
+import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { createProject } from '../../api/components';
 import { translate } from '../../helpers/l10n';
@@ -112,6 +113,7 @@ export default class CreateProjectForm extends React.PureComponent {
   };
 
   render() {
+    const { organization } = this.props;
     const { createdProject } = this.state;
 
     return (
@@ -197,10 +199,18 @@ export default class CreateProjectForm extends React.PureComponent {
                 <div className="modal-field">
                   <label> {translate('visibility')} </label>
                   <VisibilitySelector
+                    canTurnToPrivate={
+                      organization == null || organization.canUpdateProjectsVisibilityToPrivate
+                    }
                     className="little-spacer-top"
                     onChange={this.handleVisibilityChange}
                     visibility={this.state.visibility}
                   />
+                  {organization != null &&
+                    !organization.canUpdateProjectsVisibilityToPrivate &&
+                    <div className="spacer-top">
+                      <UpgradeOrganizationBox organization={organization.key} />
+                    </div>}
                 </div>
               </div>
 
