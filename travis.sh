@@ -117,6 +117,8 @@ function configureTravis {
   source ~/.local/bin/install
 }
 configureTravis
+cancel_branch_build_with_pr
+
 
 # When pull request exists on the branch, then the job related to the branch does not need
 # to be executed and should be canceled. It does not book slaves for nothing.
