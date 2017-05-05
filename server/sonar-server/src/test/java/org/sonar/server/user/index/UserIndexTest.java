@@ -55,10 +55,10 @@ public class UserIndexTest {
   }
 
   @Test
-  public void get_nullable_by_login() throws Exception {
+  public void get_nullable_by_login()  {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.<String>emptyList()));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.emptyList()));
 
     UserDoc userDoc = underTest.getNullableByLogin(USER1_LOGIN);
     assertThat(userDoc).isNotNull();
@@ -75,7 +75,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void get_nullable_by_login_should_be_case_sensitive() throws Exception {
+  public void getNullableByLogin_is_case_sensitive()  {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
 
@@ -84,7 +84,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount() throws Exception {
+  public void getAtMostThreeActiveUsersForScmAccount_returns_the_users_with_specified_scm_account()  {
     UserDoc user1 = newUser("user1", asList("user_1", "u1"));
     UserDoc user2 = newUser("user_with_same_email_as_user1", asList("user_2")).setEmail(user1.email());
     UserDoc user3 = newUser("inactive_user_with_same_scm_as_user1", user1.scmAccounts()).setActive(false);
@@ -96,14 +96,14 @@ public class UserIndexTest {
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.login())).extractingResultOf("login").containsOnly(user1.login());
 
     // both users share the same email
-    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.email())).extractingResultOf("login").containsOnly(user1.login(), user2.login());
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.email())).extracting(UserDoc::login).containsOnly(user1.login(), user2.login());
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("")).isEmpty();
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("unknown")).isEmpty();
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_ignore_inactive_user() throws Exception {
+  public void getAtMostThreeActiveUsersForScmAccount_ignores_inactive_user()  {
     String scmAccount = "scmA";
     UserDoc user = newUser(USER1_LOGIN, asList(scmAccount)).setActive(false);
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user);
@@ -113,12 +113,12 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_max_three() throws Exception {
+  public void getAtMostThreeActiveUsersForScmAccount_returns_maximum_three_users()  {
     String email = "user@mail.com";
-    UserDoc user1 = newUser("user1", Collections.<String>emptyList()).setEmail(email);
-    UserDoc user2 = newUser("user2", Collections.<String>emptyList()).setEmail(email);
-    UserDoc user3 = newUser("user3", Collections.<String>emptyList()).setEmail(email);
-    UserDoc user4 = newUser("user4", Collections.<String>emptyList()).setEmail(email);
+    UserDoc user1 = newUser("user1", Collections.emptyList()).setEmail(email);
+    UserDoc user2 = newUser("user2", Collections.emptyList()).setEmail(email);
+    UserDoc user3 = newUser("user3", Collections.emptyList()).setEmail(email);
+    UserDoc user4 = newUser("user4", Collections.emptyList()).setEmail(email);
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user2);
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user3);
@@ -129,9 +129,37 @@ public class UserIndexTest {
   }
 
   @Test
-  public void searchUsers() throws Exception {
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_login()  {
+    UserDoc user = newUser("the_login", asList("John.Smith"));
+    esTester.putDocuments(INDEX_TYPE_USER, user);
+
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_login")).hasSize(1);
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_Login")).isEmpty();
+  }
+
+  @Test
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_email()  {
+    UserDoc user = newUser("the_login", "the_EMAIL@corp.com", asList("John.Smith"));
+    esTester.putDocuments(INDEX_TYPE_USER, user);
+
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_EMAIL@corp.com")).hasSize(1);
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_email@corp.com")).isEmpty();
+  }
+
+  @Test
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_scm_account()  {
+    UserDoc user = newUser("the_login", asList("John.Smith"));
+    esTester.putDocuments(INDEX_TYPE_USER, user);
+
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("John.Smith")).hasSize(1);
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN.SMIth")).isEmpty();
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN.SMITH")).isEmpty();
+  }
+
+  @Test
+  public void searchUsers()  {
     esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.<String>emptyList()).setEmail("email2"));
+    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.emptyList()).setEmail("email2"));
 
     assertThat(underTest.search(userQuery.build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search(userQuery.setTextQuery("user").build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -171,6 +199,17 @@ public class UserIndexTest {
       .setLogin(login)
       .setName(login.toUpperCase(Locale.ENGLISH))
       .setEmail(login + "@mail.com")
+      .setActive(true)
+      .setScmAccounts(scmAccounts)
+      .setCreatedAt(DATE_1)
+      .setUpdatedAt(DATE_2);
+  }
+
+  private static UserDoc newUser(String login, String email, List<String> scmAccounts) {
+    return new UserDoc()
+      .setLogin(login)
+      .setName(login.toUpperCase(Locale.ENGLISH))
+      .setEmail(email)
       .setActive(true)
       .setScmAccounts(scmAccounts)
       .setCreatedAt(DATE_1)
