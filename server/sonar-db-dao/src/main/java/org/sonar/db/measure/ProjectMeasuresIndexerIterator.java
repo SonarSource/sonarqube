@@ -220,9 +220,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
     if (NCLOC_LANGUAGE_DISTRIBUTION_KEY.equals(metricKey)) {
       readTextValue(rs, measures::setLanguages);
-      return;
     }
-    throw new IllegalArgumentException("Measure has no value");
   }
 
   private static void readTextValue(ResultSet rs, Consumer<String> action) throws SQLException {

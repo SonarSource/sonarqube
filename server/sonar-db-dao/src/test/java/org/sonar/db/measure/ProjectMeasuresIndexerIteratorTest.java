@@ -161,14 +161,33 @@ public class ProjectMeasuresIndexerIteratorTest {
   }
 
   @Test
-  public void fail_when_measure_return_no_value() throws Exception {
-    MetricDto metric = insertIntMetric("new_lines");
+  public void ignore_measure_that_does_not_have_value() throws Exception {
+    MetricDto metric1 = insertIntMetric("lines");
+    MetricDto metric2 = insertIntMetric("ncloc");
+    MetricDto leakMetric = insertIntMetric("new_lines");
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, metric, 10d);
 
-    expectedException.expect(IllegalStateException.class);
-    createResultSetAndReturnDocsById();
+    MeasureDto withValue = insertMeasure(project, analysis, metric1, 10d);
+    MeasureDto withLeakValue = insertMeasure(project, analysis, leakMetric, null, 20d);
+    MeasureDto withoutValue = insertMeasure(project, analysis, metric2, null, null);
+
+    Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(project.uuid()).getMeasures().getNumericMeasures();
+    assertThat(numericMeasures).containsOnly(entry("lines", 10d), entry("new_lines", 20d));
+  }
+
+  @Test
+  public void ignore_numeric_measure_that_has_text_value_but_not_numeric_value() throws Exception {
+    MetricDto metric1 = insertIntMetric("lines");
+    MetricDto metric2 = insertIntMetric("ncloc");
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
+    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
+
+    MeasureDto withNumericValue = insertMeasure(project, analysis, metric1, 10d);
+    MeasureDto withTextValue = insertMeasure(project, analysis, metric2, "foo");
+
+    Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(project.uuid()).getMeasures().getNumericMeasures();
+    assertThat(numericMeasures).containsOnly(entry("lines", 10d));
   }
 
   @Test
