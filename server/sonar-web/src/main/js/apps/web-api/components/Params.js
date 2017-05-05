@@ -35,7 +35,6 @@ export default class Params extends React.PureComponent {
     const displayedParameters = params
       .filter(p => showDeprecated || !p.deprecatedSince)
       .filter(p => showInternal || !p.internal);
-
     return (
       <div className="web-api-params">
         <table>
@@ -108,6 +107,12 @@ export default class Params extends React.PureComponent {
                     <div className="little-spacer-top">
                       <h4>Example value</h4>
                       <code>{param.exampleValue}</code>
+                    </div>}
+
+                  {param.maxValuesAllowed != null &&
+                    <div className="little-spacer-top">
+                      <h4>Maximum allowed values</h4>
+                      <code>{param.maxValuesAllowed}</code>
                     </div>}
                 </td>
               </tr>
