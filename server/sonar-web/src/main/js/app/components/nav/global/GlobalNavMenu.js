@@ -62,7 +62,7 @@ export default class GlobalNavMenu extends React.PureComponent {
 
   renderIssuesLink() {
     const query = this.props.currentUser.isLoggedIn
-      ? { createdInLast: '1w', myIssues: 'true', resolved: 'false' }
+      ? { resolved: 'false', myIssues: 'true' }
       : { resolved: 'false' };
     const active = this.props.location.pathname === 'issues';
     return (
