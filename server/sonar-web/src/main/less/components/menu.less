@@ -76,14 +76,42 @@
       background-color: @barBackgroundColor;
     }
   }
+
+  .menu-footer {
+    display: block;
+    padding: 8px 16px 4px;
+    white-space: nowrap;
+
+    & > a {
+      display: inline;
+      padding: 0;
+      border-bottom: 1px solid @darkGrey;
+      color: @secondFontColor;
+
+      &:hover {
+        background: none;
+      }
+    }
+  }
 }
 
 .menu-search {
+  position: relative;
   padding: 4px 16px 0;
 
   .search-box-input { font-size: @smallFontSize; }
 
   .search-box-submit { vertical-align: baseline; }
+}
+
+.menu-search-full-width {
+  display: flex;
+  align-items: center;
+
+  .search-box-input {
+    flex-grow: 1;
+    width: auto;
+  }
 }
 
 .menu-search ~ .menu {

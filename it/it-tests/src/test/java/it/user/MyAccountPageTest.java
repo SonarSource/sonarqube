@@ -32,6 +32,8 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
@@ -67,7 +69,14 @@ public class MyAccountPageTest {
 
   @Test
   public void should_change_password() throws Exception {
-    runSelenese(orchestrator, "/user/MyAccountPageTest/should_change_password.html");
+    nav.openLogin().submitCredentials("account-user", "password").shouldBeLoggedIn();
+    nav.open("/account/security");
+    $("#old_password").val("password");
+    $("#password").val("new_password");
+    $("#password_confirmation").val("new_password");
+    $("#change-password").click();
+    $(".alert-success").shouldBe(visible);
+    nav.logOut().logIn().submitCredentials("account-user", "new_password").shouldBeLoggedIn();
   }
 
   @Test

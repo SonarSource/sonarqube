@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { doLogout } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
-import RecentHistory from '../../../app/components/nav/component/RecentHistory';
+import RecentHistory from '../../../app/components/RecentHistory';
 
 class Logout extends React.PureComponent {
   componentDidMount() {

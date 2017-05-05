@@ -166,8 +166,45 @@ export function bulkChangeKey(project: string, from: string, to: string, dryRun?
   return postJSON(url, data);
 }
 
-export const getSuggestions = (query: string): Promise<Object> =>
-  getJSON('/api/components/suggestions', { s: query });
+export type SuggestionsResponse = {
+  organizations: Array<{
+    key: string,
+    name: string
+  }>,
+  projects: Array<{
+    key: string,
+    name: string
+  }>,
+  results: Array<{
+    items: Array<{
+      isFavorite: boolean,
+      isRecentlyBrowsed: boolean,
+      key: string,
+      match: string,
+      name: string,
+      organization: string,
+      project: string
+    }>,
+    more: number,
+    q: string
+  }>,
+  warning?: string
+};
+
+export const getSuggestions = (
+  query: string,
+  recentlyBrowsed?: Array<string>,
+  more?: string
+): Promise<SuggestionsResponse> => {
+  const data: Object = { s: query };
+  if (recentlyBrowsed) {
+    data.recentlyBrowsed = recentlyBrowsed.join();
+  }
+  if (more) {
+    data.more = more;
+  }
+  return getJSON('/api/components/suggestions', data);
+};
 
 export const getComponentForSourceViewer = (component: string): Promise<*> =>
   getJSON('/api/components/app', { component });

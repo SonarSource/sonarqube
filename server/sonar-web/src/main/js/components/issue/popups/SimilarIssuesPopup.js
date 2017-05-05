@@ -96,6 +96,7 @@ export default class SimilarIssuesPopup extends React.PureComponent {
                   <Avatar
                     className="little-spacer-left little-spacer-right"
                     hash={issue.assigneeAvatar}
+                    name={issue.assigneeName}
                     size={16}
                   />
                   {issue.assigneeName}

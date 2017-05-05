@@ -29,26 +29,11 @@ it('should render', () => {
       enableGravatar={true}
       gravatarServerUrl={gravatarServerUrl}
       email="mail@example.com"
+      name="Foo"
       size={20}
     />
   );
-  expect(avatar.is('img')).toBe(true);
-  expect(avatar.prop('width')).toBe(20);
-  expect(avatar.prop('height')).toBe(20);
-  expect(avatar.prop('alt')).toBe('mail@example.com');
-  expect(avatar.prop('src')).toBe('http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=40');
-});
-
-it('should not render', () => {
-  const avatar = shallow(
-    <Avatar
-      enableGravatar={false}
-      gravatarServerUrl={gravatarServerUrl}
-      email="mail@example.com"
-      size={20}
-    />
-  );
-  expect(avatar.is('img')).toBe(false);
+  expect(avatar).toMatchSnapshot();
 });
 
 it('should be able to render with hash only', () => {
@@ -57,12 +42,16 @@ it('should be able to render with hash only', () => {
       enableGravatar={true}
       gravatarServerUrl={gravatarServerUrl}
       hash="7daf6c79d4802916d83f6266e24850af"
+      name="Foo"
       size={30}
     />
   );
-  expect(avatar.is('img')).toBe(true);
-  expect(avatar.prop('width')).toBe(30);
-  expect(avatar.prop('height')).toBe(30);
-  expect(avatar.prop('alt')).toBeUndefined();
-  expect(avatar.prop('src')).toBe('http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=60');
+  expect(avatar).toMatchSnapshot();
+});
+
+it('falls back to dummy avatar', () => {
+  const avatar = shallow(
+    <Avatar enableGravatar={false} gravatarServerUrl="" name="Foo Bar" size={30} />
+  );
+  expect(avatar).toMatchSnapshot();
 });

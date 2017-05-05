@@ -17,20 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Handlebars from 'handlebars/runtime';
+// @flow
+import React from 'react';
+import classNames from 'classnames';
 
-function gravatarServer() {
-  const getStore = require('../../app/utils/getStore').default;
-  const { getSettingValue } = require('../../store/rootReducer');
+type Props = {
+  className?: string,
+  size?: number
+};
 
-  const store = getStore();
-  return (getSettingValue(store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;
+export default function ClockIcon(props: Props) {
+  /* eslint max-len: 0 */
+  return (
+    <svg
+      className={classNames('icon-clock', props.className)}
+      viewBox="0 0 16 16"
+      width={props.size}
+      height={props.size}>
+      <g fill="#fff" stroke="#ADADAD" transform="matrix(1.4 0 0 1.4 .3 .7)">
+        <circle cx="5.5" cy="5.2" r="5" />
+        <path fillRule="nonzero" d="M5.6 2.9v2.7l2-.5" />
+      </g>
+    </svg>
+  );
 }
 
-module.exports = function(emailHash, size) {
-  // double the size for high pixel density screens
-  const url = gravatarServer().replace('{EMAIL_MD5}', emailHash).replace('{SIZE}', size * 2);
-  return new Handlebars.default.SafeString(
-    `<img class="rounded" src="${url}" width="${size}" height="${size}" alt="">`
-  );
+ClockIcon.defaultProps = {
+  size: 16
 };

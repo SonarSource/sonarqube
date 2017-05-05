@@ -1,0 +1,323 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders favorite 1`] = `
+<li>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="foo"
+    placement="left"
+  >
+    <Link
+      data-key="foo"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <FavoriteIcon
+          favorite={true}
+          size={12}
+        />
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+      </span>
+      foo
+    </Link>
+  </Tooltip>
+</li>
+`;
+
+exports[`renders match 1`] = `
+<li>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="foo"
+    placement="left"
+  >
+    <Link
+      data-key="foo"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+      </span>
+      <span
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "f<mark>o</mark>o",
+          }
+        }
+      />
+    </Link>
+  </Tooltip>
+</li>
+`;
+
+exports[`renders organizations 1`] = `
+<li>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="foo"
+    placement="left"
+  >
+    <Link
+      data-key="foo"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      <div
+        className="pull-right text-muted-2"
+      >
+        bar
+      </div>
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <ClockIcon
+          size={12}
+        />
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+      </span>
+      foo
+    </Link>
+  </Tooltip>
+</li>
+`;
+
+exports[`renders organizations 2`] = `
+<li>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="foo"
+    placement="left"
+  >
+    <Link
+      data-key="foo"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <ClockIcon
+          size={12}
+        />
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+      </span>
+      foo
+    </Link>
+  </Tooltip>
+</li>
+`;
+
+exports[`renders projects 1`] = `
+<li>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="qwe"
+    placement="left"
+  >
+    <Link
+      data-key="qwe"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "qwe",
+          },
+        }
+      }
+    >
+      <div
+        className="pull-right text-muted-2"
+      >
+        foo
+      </div>
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <ClockIcon
+          size={12}
+        />
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="BRC"
+        />
+      </span>
+      qwe
+    </Link>
+  </Tooltip>
+</li>
+`;
+
+exports[`renders recently browsed 1`] = `
+<li>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="foo"
+    placement="left"
+  >
+    <Link
+      data-key="foo"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <ClockIcon
+          size={12}
+        />
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+      </span>
+      foo
+    </Link>
+  </Tooltip>
+</li>
+`;
+
+exports[`renders selected 1`] = `
+<li>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="foo"
+    placement="left"
+  >
+    <Link
+      data-key="foo"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+      </span>
+      foo
+    </Link>
+  </Tooltip>
+</li>
+`;
+
+exports[`renders selected 2`] = `
+<li
+  className="active"
+>
+  <Tooltip
+    mouseEnterDelay={1}
+    overlay="foo"
+    placement="left"
+  >
+    <Link
+      data-key="foo"
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/dashboard",
+          "query": Object {
+            "id": "foo",
+          },
+        }
+      }
+    >
+      <span
+        className="navbar-search-item-icons little-spacer-right"
+      >
+        <QualifierIcon
+          className="little-spacer-right"
+          qualifier="TRK"
+        />
+      </span>
+      foo
+    </Link>
+  </Tooltip>
+</li>
+`;

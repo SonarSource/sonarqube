@@ -93,6 +93,16 @@
 .navbar-nav > li > a {
   padding: @navbarTopPadding 10px;
   line-height: @navbarLineHeight;
+
+  &.navbar-avatar {
+    margin-right: 7px;
+    padding: 3px;
+  }
+
+  &.navbar-help {
+    line-height: 16px;
+    padding: 7px;
+  }
 }
 
 .navbar-nav > li.navbar-more > a {
@@ -124,21 +134,34 @@
 
 .navbar-search {
   position: relative;
-  width: 480px;
-  box-sizing: border-box;
-  transition: width 0.2s ease;
+  padding-right: 3px;
 }
 
 .navbar-search-input {
-  width: 100%;
-  padding: 0 20px 0 40px !important;
-  border: none !important;
+  width: 280px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding-left: 26px !important;
+}
+
+.navbar-search-input-hint {
+  position: absolute;
+  top: 4px;
+  right: 30px;
+  line-height: @formControlHeight;
+  font-size: 12px;
+  color: @secondFontColor;
+
+  &.is-shifted {
+    z-index: @dropdown-menu-z-index + 1;
+    top: 32px;
+  }
 }
 
 .navbar-search-icon {
-  position: absolute;
-  top: 4px;
-  left: 20px;
+  position: relative;
+  width: 16px;
+  margin-right: -20px;
   color: @secondFontColor;
 
   &:before {
@@ -146,19 +169,44 @@
   }
 }
 
-.navbar-search-extra {
+.navbar-search-item-icons {
+  position: relative;
   display: inline-block;
-  width: 90px;
-  margin-right: 10px;
-  text-align: right;
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+
+  > * {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+  }
+
+  > .icon-star,
+  > .icon-clock {
+    z-index: 6;
+    top: -5px;
+    left: -5px;
+  }
 }
 
-.navbar-search-subtitle {
-  position: absolute;
-  top: 5px;
-  right: 40px;
-}
+.navbar-search-shortcut-hint {
+  margin-top: 5px;
+  padding: 5px 10px;
+  border-top: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
+  color: #777;
+  font-size: 11px;
 
+  .shortcut-button {
+    min-width: 16px;
+    height: 16px;
+    line-height: 12px;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+}
 
 .navbar-global {
   top: 0;
@@ -293,6 +341,9 @@
 
 .global-navbar-search-dropdown {
   max-height: 80vh;
+  width: 440px;
+  padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  box-shadow: @defaultShadow;
 }

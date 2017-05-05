@@ -31,7 +31,7 @@ export default class UserCard extends React.PureComponent {
     return (
       <div className="account-user">
         <div id="avatar" className="pull-left account-user-avatar">
-          <Avatar email={user.email} size={60} />
+          <Avatar email={user.email} name={user.name} size={60} />
         </div>
         <h1 id="name" className="pull-left">{user.name}</h1>
       </div>

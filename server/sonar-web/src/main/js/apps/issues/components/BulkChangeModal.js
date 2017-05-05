@@ -256,6 +256,7 @@ export default class BulkChangeModal extends React.PureComponent {
           className="little-spacer-right"
           email={option.email}
           hash={option.avatar}
+          name={option.label}
           size={16}
         />}
       {option.label}

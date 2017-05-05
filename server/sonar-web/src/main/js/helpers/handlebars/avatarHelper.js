@@ -17,22 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import md5 from 'blueimp-md5';
+import React from 'react';
+import { renderToString } from 'react-dom/server';
 import Handlebars from 'handlebars/runtime';
+import WithStore from '../../components/shared/WithStore';
+import Avatar from '../../components/ui/Avatar';
 
-function gravatarServer() {
-  const getStore = require('../../app/utils/getStore').default;
-  const { getSettingValue } = require('../../store/rootReducer');
-
-  const store = getStore();
-  return (getSettingValue(store.getState(), 'sonar.lf.gravatarServerUrl') || {}).value;
-}
-
-module.exports = function(email, size) {
-  // double the size for high pixel density screens
-  const emailHash = md5.md5((email || '').trim());
-  const url = gravatarServer().replace('{EMAIL_MD5}', emailHash).replace('{SIZE}', size * 2);
+module.exports = function(email, name, size) {
   return new Handlebars.default.SafeString(
-    `<img class="rounded" src="${url}" width="${size}" height="${size}" alt="${email}">`
+    renderToString(
+      <WithStore>
+        <Avatar email={email} name={name} size={size} />
+      </WithStore>
+    )
   );
 };

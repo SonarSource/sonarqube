@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.user.CreateRequest;
+import pageobjects.Navigation;
 import util.user.UserRule;
 import util.user.Users;
 
@@ -103,7 +104,7 @@ public class BaseIdentityProviderTest {
     enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
-    runSelenese(ORCHESTRATOR, "/user/BaseIdentityProviderTest/authenticate_user.html");
+    Navigation.get(ORCHESTRATOR).openLogin().useOAuth2().shouldBeLoggedIn();
 
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }

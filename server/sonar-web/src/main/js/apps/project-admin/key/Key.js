@@ -32,7 +32,7 @@ import {
 } from '../../../store/globalMessages/duck';
 import { parseError } from '../../code/utils';
 import { reloadUpdateKeyPage } from './utils';
-import RecentHistory from '../../../app/components/nav/component/RecentHistory';
+import RecentHistory from '../../../app/components/RecentHistory';
 import { getProjectAdminProjectModules, getComponent } from '../../../store/rootReducer';
 
 class Key extends React.PureComponent {

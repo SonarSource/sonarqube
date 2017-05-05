@@ -68,6 +68,11 @@ sub { vertical-align: text-bottom; }
 em     { font-style: italic; }
 strong { font-weight: 600; }
 
+mark {
+  background: none;
+  font-weight: bold;
+}
+
 .emphasised-measure {
   font-size: 24px;
   font-weight: 300;
@@ -139,6 +144,7 @@ small,
 
 .text-emphasis-variant(@color) { color: @color; }
 .text-muted   { .text-emphasis-variant(@secondFontColor); }
+.text-muted-2 { .text-emphasis-variant(@middleGrey); }
 .text-danger  { .text-emphasis-variant(@red); }
 .text-warning { .text-emphasis-variant(@orange); }
 .text-info    { .text-emphasis-variant(@blue); }

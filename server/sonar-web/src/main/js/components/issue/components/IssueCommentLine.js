@@ -72,7 +72,12 @@ export default class IssueCommentLine extends React.PureComponent {
     return (
       <div className="issue-comment">
         <div className="issue-comment-author" title={comment.authorName}>
-          <Avatar className="little-spacer-right" hash={comment.authorAvatar} size={16} />
+          <Avatar
+            className="little-spacer-right"
+            hash={comment.authorAvatar}
+            name={comment.authorName}
+            size={16}
+          />
           {comment.authorName}
         </div>
         <div
