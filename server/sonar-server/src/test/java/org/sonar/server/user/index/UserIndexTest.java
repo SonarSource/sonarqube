@@ -57,8 +57,8 @@ public class UserIndexTest {
   @Test
   public void get_nullable_by_login()  {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.emptyList()));
+    esTester.putDocuments(INDEX_TYPE_USER, user1);
+    esTester.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()));
 
     UserDoc userDoc = underTest.getNullableByLogin(USER1_LOGIN);
     assertThat(userDoc).isNotNull();
@@ -77,7 +77,7 @@ public class UserIndexTest {
   @Test
   public void getNullableByLogin_is_case_sensitive()  {
     UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
+    esTester.putDocuments(INDEX_TYPE_USER, user1);
 
     assertThat(underTest.getNullableByLogin(USER1_LOGIN)).isNotNull();
     assertThat(underTest.getNullableByLogin("UsEr1")).isNull();
@@ -88,9 +88,9 @@ public class UserIndexTest {
     UserDoc user1 = newUser("user1", asList("user_1", "u1"));
     UserDoc user2 = newUser("user_with_same_email_as_user1", asList("user_2")).setEmail(user1.email());
     UserDoc user3 = newUser("inactive_user_with_same_scm_as_user1", user1.scmAccounts()).setActive(false);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user2);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user3);
+    esTester.putDocuments(INDEX_TYPE_USER, user1);
+    esTester.putDocuments(INDEX_TYPE_USER, user2);
+    esTester.putDocuments(INDEX_TYPE_USER, user3);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.scmAccounts().get(0))).extractingResultOf("login").containsOnly(user1.login());
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user1.login())).extractingResultOf("login").containsOnly(user1.login());
@@ -106,7 +106,7 @@ public class UserIndexTest {
   public void getAtMostThreeActiveUsersForScmAccount_ignores_inactive_user()  {
     String scmAccount = "scmA";
     UserDoc user = newUser(USER1_LOGIN, asList(scmAccount)).setActive(false);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user);
+    esTester.putDocuments(INDEX_TYPE_USER, user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(user.login())).isEmpty();
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(scmAccount)).isEmpty();
@@ -119,10 +119,10 @@ public class UserIndexTest {
     UserDoc user2 = newUser("user2", Collections.emptyList()).setEmail(email);
     UserDoc user3 = newUser("user3", Collections.emptyList()).setEmail(email);
     UserDoc user4 = newUser("user4", Collections.emptyList()).setEmail(email);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user1);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user2);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user3);
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), user4);
+    esTester.putDocuments(INDEX_TYPE_USER, user1);
+    esTester.putDocuments(INDEX_TYPE_USER, user2);
+    esTester.putDocuments(INDEX_TYPE_USER, user3);
+    esTester.putDocuments(INDEX_TYPE_USER, user4);
 
     // restrict results to 3 users
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount(email)).hasSize(3);
@@ -158,8 +158,8 @@ public class UserIndexTest {
 
   @Test
   public void searchUsers()  {
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, Collections.emptyList()).setEmail("email2"));
+    esTester.putDocuments(INDEX_TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1"));
+    esTester.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, Collections.emptyList()).setEmail("email2"));
 
     assertThat(underTest.search(userQuery.build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(underTest.search(userQuery.setTextQuery("user").build(), new SearchOptions()).getDocs()).hasSize(2);
@@ -172,9 +172,9 @@ public class UserIndexTest {
 
   @Test
   public void search_users_filter_by_organization_uuid() {
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
+    esTester.putDocuments(INDEX_TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
       .setOrganizationUuids(newArrayList("O1", "O2")));
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, emptyList()).setEmail("email2")
+    esTester.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, emptyList()).setEmail("email2")
       .setOrganizationUuids(newArrayList("O2")));
 
     assertThat(underTest.search(userQuery.setOrganizationUuid("O42").build(), new SearchOptions()).getDocs()).isEmpty();
@@ -184,9 +184,9 @@ public class UserIndexTest {
 
   @Test
   public void search_users_filter_by_excluded_organization_uuid() {
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
+    esTester.putDocuments(INDEX_TYPE_USER, newUser(USER1_LOGIN, asList("user_1", "u1")).setEmail("email1")
       .setOrganizationUuids(newArrayList("O1", "O2")));
-    esTester.putDocuments(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType(), newUser(USER2_LOGIN, emptyList()).setEmail("email2")
+    esTester.putDocuments(INDEX_TYPE_USER, newUser(USER2_LOGIN, emptyList()).setEmail("email2")
       .setOrganizationUuids(newArrayList("O2")));
 
     assertThat(underTest.search(userQuery.setExcludedOrganizationUuid("O42").build(), new SearchOptions()).getDocs()).hasSize(2);
