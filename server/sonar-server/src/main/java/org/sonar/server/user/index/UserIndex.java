@@ -47,8 +47,10 @@ import org.sonar.server.es.SearchResult;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_EMAIL;
@@ -91,8 +93,8 @@ public class UserIndex {
           boolQuery()
             .must(termQuery(FIELD_ACTIVE, true))
             .should(termQuery(FIELD_LOGIN, scmAccount))
-            .should(termQuery(FIELD_EMAIL, scmAccount))
-            .should(termQuery(FIELD_SCM_ACCOUNTS, scmAccount))))
+            .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_EMAIL), scmAccount))
+            .should(matchQuery(SORTABLE_ANALYZER.subField(FIELD_SCM_ACCOUNTS), scmAccount))))
         .setSize(3);
       for (SearchHit hit : request.get().getHits().getHits()) {
         result.add(new UserDoc(hit.sourceAsMap()));
