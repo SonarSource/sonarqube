@@ -98,6 +98,7 @@ type State = {
   openIssuesByLine: { [number]: boolean },
   selectedIssue?: string,
   sources?: Array<SourceLine>,
+  sourceRemoved: boolean,
   symbolsByLine: { [number]: Array<string> }
 };
 
@@ -144,6 +145,7 @@ export default class SourceViewerBase extends React.PureComponent {
       openIssuesByLine: {},
       selectedIssue: props.selectedIssue,
       selectedIssueLocation: null,
+      sourceRemoved: false,
       symbolsByLine: {}
     };
   }
@@ -224,6 +226,7 @@ export default class SourceViewerBase extends React.PureComponent {
               loading: false,
               hasSourcesAfter: sources.length > LINES,
               sources: this.computeCoverageStatus(finalSources),
+              sourceRemoved: false,
               symbolsByLine: symbolsByLine(sources.slice(0, LINES))
             },
             () => {
@@ -248,6 +251,8 @@ export default class SourceViewerBase extends React.PureComponent {
       if (this.mounted) {
         if (response.status === 403) {
           this.setState({ component, loading: false, notAccessible: true });
+        } else if (response.status === 404) {
+          this.setState({ component, loading: false, sourceRemoved: true });
         }
       }
     };
@@ -307,9 +312,9 @@ export default class SourceViewerBase extends React.PureComponent {
       const onFailLoadSources = ({ response }) => {
         // TODO handle other statuses
         if (this.mounted) {
-          if (response.status === 403) {
+          if ([403, 404].includes(response.status)) {
             reject(response);
-          } else if (response.status === 404) {
+          } else {
             resolve([]);
           }
         }
@@ -570,7 +575,7 @@ export default class SourceViewerBase extends React.PureComponent {
   }
 
   render() {
-    const { component, loading } = this.state;
+    const { component, loading, sources, notAccessible, sourceRemoved } = this.state;
 
     if (loading) {
       return null;
@@ -592,14 +597,20 @@ export default class SourceViewerBase extends React.PureComponent {
       'source-duplications-expanded': this.state.displayDuplications
     });
 
+    const displaySources = !notAccessible && !sourceRemoved;
+
     return (
       <div className={className} ref={node => (this.node = node)}>
         <SourceViewerHeader component={this.state.component} showMeasures={this.showMeasures} />
-        {this.state.notAccessible &&
+        {notAccessible &&
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_security')}
           </div>}
-        {this.state.sources != null && this.renderCode(this.state.sources)}
+        {sourceRemoved &&
+          <div className="alert alert-warning spacer-top">
+            {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
+          </div>}
+        {displaySources && sources != null && this.renderCode(sources)}
       </div>
     );
   }
