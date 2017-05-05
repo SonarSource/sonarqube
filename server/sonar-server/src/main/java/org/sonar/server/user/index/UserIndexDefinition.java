@@ -62,7 +62,7 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.createDateTimeField(FIELD_CREATED_AT);
     mapping.createDateTimeField(FIELD_UPDATED_AT);
     mapping.createBooleanField(FIELD_ACTIVE);
-    mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUIDS).disableNorms().build();
   }
 }

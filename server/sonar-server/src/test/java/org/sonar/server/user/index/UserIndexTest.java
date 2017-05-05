@@ -138,22 +138,24 @@ public class UserIndexTest {
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_email()  {
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_email()  {
     UserDoc user = newUser("the_login", "the_EMAIL@corp.com", asList("John.Smith"));
     esTester.putDocuments(INDEX_TYPE_USER, user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_EMAIL@corp.com")).hasSize(1);
-    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_email@corp.com")).isEmpty();
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("the_email@corp.com")).hasSize(1);
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("email")).isEmpty();
   }
 
   @Test
-  public void getAtMostThreeActiveUsersForScmAccount_is_case_sensitive_for_scm_account()  {
+  public void getAtMostThreeActiveUsersForScmAccount_is_case_insensitive_for_scm_account()  {
     UserDoc user = newUser("the_login", asList("John.Smith"));
     esTester.putDocuments(INDEX_TYPE_USER, user);
 
     assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("John.Smith")).hasSize(1);
-    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN.SMIth")).isEmpty();
-    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN.SMITH")).isEmpty();
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN.SMIth")).hasSize(1);
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN.SMITH")).hasSize(1);
+    assertThat(underTest.getAtMostThreeActiveUsersForScmAccount("JOHN")).isEmpty();
   }
 
   @Test
