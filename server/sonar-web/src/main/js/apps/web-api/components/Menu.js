@@ -66,9 +66,11 @@ export default class Menu extends React.PureComponent {
                   {domain.deprecated && <DeprecatedBadge />}
                   {domain.internal && <InternalBadge />}
                 </h3>
-                <p className="list-group-item-text">
-                  {domain.description}
-                </p>
+                {domain.description &&
+                  <div
+                    className="list-group-item-text markdown"
+                    dangerouslySetInnerHTML={{ __html: domain.description }}
+                  />}
               </Link>
             ))}
           </div>

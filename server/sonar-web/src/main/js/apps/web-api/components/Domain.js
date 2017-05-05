@@ -58,7 +58,11 @@ export default class Domain extends React.PureComponent {
             </span>}
         </header>
 
-        {domain.description && <p className="web-api-domain-description">{domain.description}</p>}
+        {domain.description &&
+          <div
+            className="web-api-domain-description markdown"
+            dangerouslySetInnerHTML={{ __html: domain.description }}
+          />}
 
         <div className="web-api-domain-actions">
           {filteredActions.map(action => (
