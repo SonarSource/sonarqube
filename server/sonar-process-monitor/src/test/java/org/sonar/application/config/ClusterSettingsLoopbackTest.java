@@ -50,7 +50,6 @@ public class ClusterSettingsLoopbackTest {
   @DataPoints("loopback_with_single_ip")
   public static final String[] LOOPBACK_SINGLE_IP = {
     "localhost",
-    "ip6-localhost",
     "127.0.0.1",
     "127.1.1.1",
     "127.243.136.241",
@@ -61,7 +60,6 @@ public class ClusterSettingsLoopbackTest {
   @DataPoints("loopback_with_multiple_ips")
   public static final String[] LOOPBACK_IPS = {
     "localhost",
-    "ip6-localhost",
     "127.0.0.1",
     "127.1.1.1",
     "127.243.136.241",
