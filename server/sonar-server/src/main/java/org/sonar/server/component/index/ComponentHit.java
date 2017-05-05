@@ -34,7 +34,12 @@ public class ComponentHit {
   private final String uuid;
   private final Optional<String> highlightedText;
 
-  private ComponentHit(SearchHit hit) {
+  public ComponentHit(String uuid) {
+    this.uuid = uuid;
+    highlightedText = Optional.empty();
+  }
+
+  public ComponentHit(SearchHit hit) {
     this.uuid = hit.getId();
     this.highlightedText = getHighlightedText(hit);
   }
