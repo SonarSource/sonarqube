@@ -29,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -49,6 +50,7 @@ import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
@@ -58,6 +60,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.index.ComponentIndexQuery.DEFAULT_LIMIT;
@@ -81,10 +84,10 @@ public class SuggestionsActionTest {
   private ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
   private FavoriteFinder favoriteFinder = mock(FavoriteFinder.class);
   private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
-  private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index, favoriteFinder);
+  private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index, favoriteFinder, userSessionRule);
   private OrganizationDto organization;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);
-  private WsActionTester actionTester = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
@@ -93,7 +96,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void define_suggestions_action() {
-    WebService.Action action = actionTester.getDef();
+    WebService.Action action = ws.getDef();
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.isPost()).isFalse();
@@ -103,12 +106,192 @@ public class SuggestionsActionTest {
       PARAM_MORE,
       PARAM_QUERY,
       PARAM_RECENTLY_BROWSED);
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.4", "Parameter 's' is optional"));
 
     WebService.Param recentlyBrowsed = action.param(PARAM_RECENTLY_BROWSED);
     assertThat(recentlyBrowsed.since()).isEqualTo("6.4");
     assertThat(recentlyBrowsed.exampleValue()).isNotEmpty();
     assertThat(recentlyBrowsed.description()).isNotEmpty();
     assertThat(recentlyBrowsed.isRequired()).isFalse();
+
+    WebService.Param query = action.param(PARAM_QUERY);
+    assertThat(query.exampleValue()).isNotEmpty();
+    assertThat(query.description()).isNotEmpty();
+    assertThat(query.isRequired()).isFalse();
+  }
+
+  @Test
+  public void suggestions_without_query_should_contain_recently_browsed() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+
+    componentIndexer.indexOnStartup(null);
+    userSessionRule.addProjectPermission(USER, project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert match in qualifier "TRK"
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(Category::getQ)
+      .containsExactly(Qualifiers.PROJECT);
+
+    // assert correct id to be found
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .extracting(Suggestion::getKey, Suggestion::getIsRecentlyBrowsed)
+      .containsExactly(tuple(project.getKey(), true));
+  }
+
+  @Test
+  public void suggestions_without_query_should_not_contain_recently_browsed_without_permission() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+
+    componentIndexer.indexOnStartup(null);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .isEmpty();
+  }
+
+  @Test
+  public void suggestions_without_query_should_contain_favorites() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+    doReturn(singletonList(project)).when(favoriteFinder).list();
+
+    componentIndexer.indexOnStartup(null);
+    userSessionRule.addProjectPermission(USER, project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert match in qualifier "TRK"
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(Category::getQ)
+      .containsExactly(Qualifiers.PROJECT);
+
+    // assert correct id to be found
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
+      .containsExactly(tuple(project.getKey(), true));
+  }
+
+  @Test
+  public void suggestions_without_query_should_not_contain_favorites_without_permission() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+    doReturn(singletonList(project)).when(favoriteFinder).list();
+
+    componentIndexer.indexOnStartup(null);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .isEmpty();
+  }
+
+  @Test
+  public void suggestions_without_query_should_contain_recently_browsed_favorites() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+    doReturn(singletonList(project)).when(favoriteFinder).list();
+
+    componentIndexer.indexOnStartup(null);
+    userSessionRule.addProjectPermission(USER, project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RECENTLY_BROWSED, project.key())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert match in qualifier "TRK"
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(Category::getQ)
+      .containsExactly(Qualifiers.PROJECT);
+
+    // assert correct id to be found
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .extracting(Suggestion::getKey, Suggestion::getIsFavorite, Suggestion::getIsRecentlyBrowsed)
+      .containsExactly(tuple(project.getKey(), true, true));
+  }
+
+  @Test
+  public void suggestions_without_query_should_not_contain_matches_that_are_neither_favorites_nor_recently_browsed() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+
+    componentIndexer.indexOnStartup(null);
+    userSessionRule.addProjectPermission(USER, project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert match in qualifier "TRK"
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(Category::getQ)
+      .isEmpty();
+  }
+
+  @Test
+  public void suggestions_without_query_should_order_results() throws Exception {
+    ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Alpha").setLongName("Alpha"));
+    ComponentDto project2 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Bravo").setLongName("Bravo"));
+    ComponentDto project3 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Charlie").setLongName("Charlie"));
+    ComponentDto project4 = db.components().insertComponent(newPrivateProjectDto(organization).setName("Delta").setLongName("Delta"));
+    doReturn(asList(project4, project2)).when(favoriteFinder).list();
+
+    componentIndexer.indexOnStartup(null);
+    userSessionRule.addProjectPermission(USER, project1);
+    userSessionRule.addProjectPermission(USER, project2);
+    userSessionRule.addProjectPermission(USER, project3);
+    userSessionRule.addProjectPermission(USER, project4);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RECENTLY_BROWSED, Stream.of(project3, project1).map(ComponentDto::getKey).collect(joining(",")))
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert order of keys
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .extracting(Suggestion::getName, Suggestion::getIsFavorite, Suggestion::getIsRecentlyBrowsed)
+      .containsExactly(
+        tuple("Bravo", true, false),
+        tuple("Delta", true, false),
+        tuple("Alpha", false, true),
+        tuple("Charlie", false, true)
+    );
+  }
+
+  @Test
+  public void suggestions_without_query_should_return_empty_qualifiers() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    userSessionRule.addProjectPermission(USER, project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RECENTLY_BROWSED, project.key())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .extracting(Category::getQ, Category::getItemsCount)
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
   }
 
   @Test
@@ -118,7 +301,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    SuggestionsWsResponse response = actionTester.newRequest()
+    SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, project.getKey())
       .executeProtobuf(SuggestionsWsResponse.class);
@@ -143,7 +326,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexOnStartup(null);
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    SuggestionsWsResponse response = actionTester.newRequest()
+    SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "S o")
       .executeProtobuf(SuggestionsWsResponse.class);
@@ -154,7 +337,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void should_warn_about_short_inputs() throws Exception {
-    SuggestionsWsResponse response = actionTester.newRequest()
+    SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "validLongToken x")
       .executeProtobuf(SuggestionsWsResponse.class);
@@ -175,7 +358,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexProject(project2.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
-    SuggestionsWsResponse response = actionTester.newRequest()
+    SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "Project")
       .executeProtobuf(SuggestionsWsResponse.class);
@@ -195,7 +378,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    SuggestionsWsResponse response = actionTester.newRequest()
+    SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "Module")
       .executeProtobuf(SuggestionsWsResponse.class);
@@ -221,7 +404,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    SuggestionsWsResponse response = actionTester.newRequest()
+    SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "Module")
       .setParam(PARAM_RECENTLY_BROWSED, Stream.of(module1.getKey()).collect(joining(",")))
@@ -245,7 +428,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
     authorizationIndexerTester.allowOnlyAnyone(project);
 
-    SuggestionsWsResponse response = actionTester.newRequest()
+    SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, "Module")
       .executeProtobuf(SuggestionsWsResponse.class);
@@ -254,6 +437,22 @@ public class SuggestionsActionTest {
       .flatExtracting(Category::getItemsList)
       .extracting(Suggestion::getKey, Suggestion::getIsFavorite)
       .containsExactly(tuple(favorite.getKey(), true), tuple(nonFavorite.getKey(), false));
+  }
+
+  @Test
+  public void should_return_empty_qualifiers() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, project.name())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .extracting(Category::getQ, Category::getItemsCount)
+      .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
   }
 
   @Test
@@ -286,7 +485,7 @@ public class SuggestionsActionTest {
     componentIndexer.indexOnStartup(null);
     projects.forEach(authorizationIndexerTester::allowOnlyAnyone);
 
-    TestRequest request = actionTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_QUERY, namePrefix);
     ofNullable(more).ifPresent(c -> request.setParam(PARAM_MORE, c.getName()));
