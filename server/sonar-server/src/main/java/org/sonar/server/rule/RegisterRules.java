@@ -60,6 +60,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 
 /**
  * Register rules at server startup
@@ -190,7 +191,7 @@ public class RegisterRules implements Startable {
     }
     for (RulesDefinition.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
       if (context.repository(extendedRepoDef.key()) == null) {
-        LOG.warn(String.format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
+        LOG.warn(format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
       } else {
         repositories.add(extendedRepoDef);
       }
@@ -318,10 +319,13 @@ public class RegisterRules implements Startable {
     List<RuleParamDto> paramDtos = dbClient.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey());
     Map<String, RuleParamDto> existingParamsByName = Maps.newHashMap();
 
+    Profiler profiler = Profiler.create(Loggers.get(getClass()));
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
+        profiler.start();
         dbClient.activeRuleDao().deleteParamsByRuleParamOfAllOrganizations(session, rule.getId(), paramDto.getName());
+        profiler.stopDebug(format("Propagate deleted param with name %s to active rules of rule %s", paramDto.getName(), rule.getKey()));
         dbClient.ruleDao().deleteRuleParam(session, paramDto.getId());
       } else {
         if (mergeParam(paramDto, paramDef)) {
@@ -347,10 +351,12 @@ public class RegisterRules implements Startable {
         continue;
       }
       // Propagate the default value to existing active rule parameters
+      profiler.start();
       for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRuleIdOfAllOrganizations(session, rule.getId())) {
         ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
         dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
       }
+      profiler.stopDebug(format("Propagate new param with name %s to active rules of rule %s", paramDto.getName(), rule.getKey()));
     }
   }
 
@@ -418,7 +424,7 @@ public class RegisterRules implements Startable {
   }
 
   private void removeRule(DbSession session, List<RuleDefinitionDto> removedRules, RuleDefinitionDto rule) {
-    LOG.info(String.format("Disable rule %s", rule.getKey()));
+    LOG.info(format("Disable rule %s", rule.getKey()));
     rule.setStatus(RuleStatus.REMOVED);
     rule.setSystemTags(Collections.emptySet());
     update(session, rule);
@@ -483,10 +489,13 @@ public class RegisterRules implements Startable {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), RulesDefinition.Repository::key));
 
     List<ActiveRuleChange> changes = new ArrayList<>();
+    Profiler profiler = Profiler.create(Loggers.get(getClass()));
     for (RuleDefinitionDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
+        profiler.start();
         changes.addAll(ruleActivator.deactivateOfAllOrganizations(session, rule));
+        profiler.stopDebug(format("Remove active rule for rule %s", rule.getKey()));
       }
     }
     return changes;
