@@ -24,6 +24,7 @@ import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import PrivateBadge from '../../../../components/common/PrivateBadge';
+import { collapsePath, limitComponentName } from '../../../../helpers/path';
 
 class ComponentNavBreadcrumbs extends React.PureComponent {
   static propTypes = {
@@ -53,11 +54,12 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
               <QualifierIcon qualifier={lastItem.qualifier} />
             </span>}
           <Link
+            title={item.name}
             to={{ pathname: '/dashboard', query: { id: item.key } }}
             className="link-base-color">
             {index === breadcrumbs.length - 1
-              ? <strong>{item.name}</strong>
-              : <span>{item.name}</span>}
+              ? <strong>{collapsePath(item.name, 15)}</strong>
+              : <span>{limitComponentName(item.name)}</span>}
           </Link>
           {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
         </span>

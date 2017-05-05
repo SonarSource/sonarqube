@@ -16,6 +16,7 @@ exports[`should not render breadcrumbs with one element 1`] = `
       className="link-base-color"
       onlyActiveOnIndex={false}
       style={Object {}}
+      title="My Project"
       to={
         Object {
           "pathname": "/dashboard",
@@ -65,6 +66,7 @@ exports[`should render organization 1`] = `
       className="link-base-color"
       onlyActiveOnIndex={false}
       style={Object {}}
+      title="My Project"
       to={
         Object {
           "pathname": "/dashboard",
