@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+./scripts/setupRamdisk.sh
+
 function installPhantomJs {
   echo "Setup PhantomJS 2.1"
   mkdir -p ~/phantomjs
@@ -111,7 +113,7 @@ function fixBuildVersion {
 # Configure Maven settings and install some script utilities
 #
 function configureTravis {
-  mkdir ~/.local
+  mkdir -p ~/.local
   curl -sSL https://github.com/SonarSource/travis-utils/tarball/v36 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
@@ -136,7 +138,7 @@ BUILD)
 
   # Minimal Maven settings
   export MAVEN_OPTS="-Xmx1G -Xms128m"
-  MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
+  MAVEN_ARGS="-T 1C -Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
@@ -148,12 +150,14 @@ BUILD)
     # For this reason errors are ignored with "|| true"
     git fetch --unshallow || true
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
-          -Pdeploy-sonarsource,release \
+          -Pdeploy-sonarsource,release
+    mvn sonar:sonar \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.projectVersion=$INITIAL_VERSION
+
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
@@ -163,10 +167,11 @@ BUILD)
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
         $MAVEN_ARGS \
         -Dsource.skip=true \
-        -Pdeploy-sonarsource \
+        -Pdeploy-sonarsource
+    mvn sonar:sonar \
         -Dsonar.analysis.mode=preview \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
