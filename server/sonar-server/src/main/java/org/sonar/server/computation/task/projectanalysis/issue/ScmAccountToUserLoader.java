@@ -19,17 +19,14 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.cache.CacheLoader;
@@ -55,7 +52,10 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
     if (!users.isEmpty()) {
       // multiple users are associated to the same SCM account, for example
       // the same email
-      Collection<String> logins = FluentIterable.from(users).transform(UserDocToLogin.INSTANCE).toSortedList(Ordering.natural());
+      Collection<String> logins = users.stream()
+        .map(UserDoc::login)
+        .sorted(Ordering.natural())
+        .collect(MoreCollectors.toList(users.size()));
       LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
     }
     return null;
@@ -64,14 +64,5 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
   @Override
   public Map<String, String> loadAll(Collection<? extends String> scmAccounts) {
     throw new UnsupportedOperationException("Loading by multiple scm accounts is not supported yet");
-  }
-
-  private enum UserDocToLogin implements Function<UserDoc, String> {
-    INSTANCE;
-    @Nullable
-    @Override
-    public String apply(@Nonnull UserDoc user) {
-      return user.login();
-    }
   }
 }

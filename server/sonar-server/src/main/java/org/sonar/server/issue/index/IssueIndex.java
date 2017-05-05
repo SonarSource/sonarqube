@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -59,7 +58,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -144,16 +142,6 @@ public class IssueIndex {
   private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
   private static final Duration TWENTY_MONTHS = Duration.standardDays(20L * 30L);
 
-  /**
-   * Convert an Elasticsearch result (a map) to an {@link org.sonar.server.issue.index.IssueDoc}. It's
-   * used for {@link org.sonar.server.es.SearchResult}.
-   */
-  private static final Function<Map<String, Object>, IssueDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, IssueDoc>() {
-    @Override
-    protected IssueDoc doApply(Map<String, Object> input) {
-      return new IssueDoc(input);
-    }
-  };
   public static final String AGGREGATION_NAME_FOR_TAGS = "tags__issues";
 
   private final Sorting sorting;
@@ -213,7 +201,7 @@ public class IssueIndex {
 
     configureStickyFacets(query, options, filters, esQuery, requestBuilder);
     SearchResponse response = requestBuilder.get();
-    return new SearchResult<>(response, DOC_CONVERTER);
+    return new SearchResult<>(response, IssueDoc::new);
   }
 
   /**
@@ -691,6 +679,6 @@ public class IssueIndex {
       .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
     SearchResponse response = requestBuilder.get();
 
-    return EsUtils.scroll(client, response.getScrollId(), DOC_CONVERTER);
+    return EsUtils.scroll(client, response.getScrollId(), IssueDoc::new);
   }
 }

@@ -19,14 +19,11 @@
  */
 package org.sonar.server.test.index;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -42,12 +39,6 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 
 public class TestIndex {
-  private static final Function<Map<String, Object>, TestDoc> CONVERTER = new NonNullInputFunction<Map<String, Object>, TestDoc>() {
-    @Override
-    protected TestDoc doApply(Map<String, Object> fields) {
-      return new TestDoc(fields);
-    }
-  };
   private final EsClient client;
 
   public TestIndex(EsClient client) {
@@ -73,7 +64,7 @@ public class TestIndex {
       .setFrom(searchOptions.getOffset())
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_FILE_UUID, testFileUuid)));
 
-    return new SearchResult<>(searchRequest.get(), CONVERTER);
+    return new SearchResult<>(searchRequest.get(), TestDoc::new);
   }
 
   public SearchResult<TestDoc> searchBySourceFileUuidAndLineNumber(String sourceFileUuid, int lineNumber, SearchOptions searchOptions) {
@@ -84,7 +75,7 @@ public class TestIndex {
         .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_UUID, sourceFileUuid))
         .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber))));
 
-    return new SearchResult<>(searchRequest.get(), CONVERTER);
+    return new SearchResult<>(searchRequest.get(), TestDoc::new);
   }
 
   public TestDoc getByTestUuid(String testUuid) {
@@ -97,13 +88,13 @@ public class TestIndex {
   }
 
   public Optional<TestDoc> getNullableByTestUuid(String testUuid) {
-    for (SearchHit hit : client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
+    SearchHit[] hits = client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
       .setSize(1)
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)))
-      .get().getHits().getHits()) {
-      return Optional.of(new TestDoc(hit.sourceAsMap()));
+      .get().getHits().getHits();
+    if (hits.length > 0) {
+      return Optional.of(new TestDoc(hits[0].sourceAsMap()));
     }
-
     return Optional.absent();
   }
 
@@ -113,6 +104,6 @@ public class TestIndex {
       .setFrom(searchOptions.getOffset())
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)));
 
-    return new SearchResult<>(searchRequest.get(), CONVERTER);
+    return new SearchResult<>(searchRequest.get(), TestDoc::new);
   }
 }
