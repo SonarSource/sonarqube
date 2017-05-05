@@ -222,7 +222,6 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       readTextValue(rs, measures::setLanguages);
       return;
     }
-    throw new IllegalArgumentException("Measure has no value");
   }
 
   private static void readTextValue(ResultSet rs, Consumer<String> action) throws SQLException {
