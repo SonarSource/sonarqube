@@ -19,11 +19,9 @@
  */
 package org.sonar.server.user.index;
 
-import com.google.common.base.Function;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +40,6 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
@@ -64,17 +61,6 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS
 @ComputeEngineSide
 public class UserIndex {
 
-  /**
-   * Convert an Elasticsearch result (a map) to an {@link UserDoc}. It's
-   * used for {@link org.sonar.server.es.SearchResult}.
-   */
-  private static final Function<Map<String, Object>, UserDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, UserDoc>() {
-    @Override
-    protected UserDoc doApply(Map<String, Object> input) {
-      return new UserDoc(input);
-    }
-  };
-
   private final EsClient esClient;
 
   public UserIndex(EsClient esClient) {
@@ -88,7 +74,7 @@ public class UserIndex {
       .setRouting(login);
     GetResponse response = request.get();
     if (response.isExists()) {
-      return DOC_CONVERTER.apply(response.getSource());
+      return new UserDoc(response.getSource());
     }
     return null;
   }
@@ -109,7 +95,7 @@ public class UserIndex {
             .should(termQuery(FIELD_SCM_ACCOUNTS, scmAccount))))
         .setSize(3);
       for (SearchHit hit : request.get().getHits().getHits()) {
-        result.add(DOC_CONVERTER.apply(hit.sourceAsMap()));
+        result.add(new UserDoc(hit.sourceAsMap()));
       }
     }
     return result;
@@ -131,7 +117,7 @@ public class UserIndex {
       .setQuery(filter);
     SearchResponse response = requestBuilder.get();
 
-    return EsUtils.scroll(esClient, response.getScrollId(), DOC_CONVERTER);
+    return EsUtils.scroll(esClient, response.getScrollId(), UserDoc::new);
   }
 
   public SearchResult<UserDoc> search(UserQuery userQuery, SearchOptions options) {
@@ -161,7 +147,7 @@ public class UserIndex {
 
     request.setQuery(boolQuery().must(esQuery).filter(filter));
 
-    return new SearchResult<>(request.get(), DOC_CONVERTER);
+    return new SearchResult<>(request.get(), UserDoc::new);
   }
 
 }

@@ -19,10 +19,8 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.base.Function;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
@@ -40,25 +38,15 @@ public class EsUtilsTest {
   @Test
   public void convertToDocs_empty() {
     SearchHits hits = mock(SearchHits.class, Mockito.RETURNS_MOCKS);
-    List<BaseDoc> docs = EsUtils.convertToDocs(hits, new Function<Map<String, Object>, BaseDoc>() {
-      @Override
-      public BaseDoc apply(Map<String, Object> input) {
-        return new IssueDoc(input);
-      }
-    });
+    List<BaseDoc> docs = EsUtils.convertToDocs(hits, IssueDoc::new);
     assertThat(docs).isEmpty();
   }
 
   @Test
   public void convertToDocs() {
     SearchHits hits = mock(SearchHits.class, Mockito.RETURNS_MOCKS);
-    when(hits.getHits()).thenReturn(new SearchHit[]{mock(SearchHit.class)});
-    List<BaseDoc> docs = EsUtils.convertToDocs(hits, new Function<Map<String, Object>, BaseDoc>() {
-      @Override
-      public BaseDoc apply(Map<String, Object> input) {
-        return new IssueDoc(input);
-      }
-    });
+    when(hits.getHits()).thenReturn(new SearchHit[] {mock(SearchHit.class)});
+    List<BaseDoc> docs = EsUtils.convertToDocs(hits, IssueDoc::new);
     assertThat(docs).hasSize(1);
   }
 
