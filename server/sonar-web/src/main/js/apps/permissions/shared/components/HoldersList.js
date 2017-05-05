@@ -20,7 +20,7 @@
 import React from 'react';
 import UserHolder from './UserHolder';
 import GroupHolder from './GroupHolder';
-import { TooltipsContainer } from '../../../../components/mixins/tooltips-mixin';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
 
 export default class HoldersList extends React.PureComponent {
@@ -34,11 +34,21 @@ export default class HoldersList extends React.PureComponent {
     onToggleGroup: React.PropTypes.func.isRequired
   };
 
-  handlePermissionClick(permission, e) {
-    e.preventDefault();
-    e.target.blur();
-    this.props.onSelectPermission(permission);
-  }
+  handlePermissionClick = event => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.props.onSelectPermission(event.currentTarget.dataset.key);
+  };
+
+  renderTooltip = permission =>
+    (permission.key === 'user' || permission.key === 'codeviewer'
+      ? <div>
+          {permission.description}
+          <div className="alert alert-warning spacer-top">
+            {translate('projects_role', permission.key, 'public_projects_warning')}
+          </div>
+        </div>
+      : permission.description);
 
   renderTableHeader() {
     const { selectedPermission } = this.props;
@@ -50,14 +60,12 @@ export default class HoldersList extends React.PureComponent {
           backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent'
         }}>
         <div className="permission-column-inner">
-          <a
-            href="#"
-            title={`Filter by "${p.name}" permission`}
-            data-toggle="tooltip"
-            onClick={this.handlePermissionClick.bind(this, p.key)}>
-            {p.name}
-          </a>
-          <i className="icon-help little-spacer-left" title={p.description} data-toggle="tooltip" />
+          <Tooltip overlay={`Filter by "${p.name}" permission`}>
+            <a data-key={p.key} href="#" onClick={this.handlePermissionClick}>{p.name}</a>
+          </Tooltip>
+          <Tooltip overlay={this.renderTooltip(p)}>
+            <i className="icon-help little-spacer-left" />
+          </Tooltip>
         </div>
       </th>
     ));
@@ -108,16 +116,14 @@ export default class HoldersList extends React.PureComponent {
     ));
 
     return (
-      <TooltipsContainer>
-        <table className="data zebra permissions-table">
-          {this.renderTableHeader()}
-          <tbody>
-            {users.length === 0 && groups.length === 0 && this.renderEmpty()}
-            {users}
-            {groups}
-          </tbody>
-        </table>
-      </TooltipsContainer>
+      <table className="data zebra permissions-table">
+        {this.renderTableHeader()}
+        <tbody>
+          {users.length === 0 && groups.length === 0 && this.renderEmpty()}
+          {users}
+          {groups}
+        </tbody>
+      </table>
     );
   }
 }
