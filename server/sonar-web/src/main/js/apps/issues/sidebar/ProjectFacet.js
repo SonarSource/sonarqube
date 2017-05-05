@@ -28,7 +28,7 @@ import FacetFooter from './components/FacetFooter';
 import type { ReferencedComponent, Component } from '../utils';
 import Organization from '../../../components/shared/Organization';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
-import { searchComponents, getTree } from '../../../api/components';
+import { searchProjects, getTree } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {|
@@ -78,7 +78,10 @@ export default class ProjectFacet extends React.PureComponent {
             value: component.refId
           }))
         )
-      : searchComponents({ ps: 50, q: query, qualifiers: 'TRK' }).then(response =>
+      : searchProjects({
+          ps: 50,
+          filter: query ? `query = "${query}"` : ''
+        }).then(response =>
           response.components.map(component => ({
             label: component.name,
             organization: component.organization,
