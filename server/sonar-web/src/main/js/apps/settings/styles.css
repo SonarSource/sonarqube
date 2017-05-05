@@ -101,36 +101,6 @@
   overflow: visible;
 }
 
-.settings-definition-description {
-  position: relative;
-  max-height: 140px;
-  overflow: hidden;
-}
-
-.settings-definition-description:after {
-  position: absolute;
-  z-index: 3;
-  top: 110px;
-  left: 0;
-  right: 0;
-  height: 30px;
-  display: block;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgb(255, 255, 255));
-  content: "";
-}
-
-.settings-definition-description:hover {
-  max-height: 100%;
-}
-
-.settings-definition-description:hover:after {
-  display: none;
-}
-
-.settings-definition-changed .settings-definition-description:after {
-  background-image: linear-gradient(-45deg, #fcf8e3 7px, transparent 0), linear-gradient(45deg, #fcf8e3 7px, transparent 0);
-}
-
 .settings-definition-state {
   position: absolute;
   top: 0;
