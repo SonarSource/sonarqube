@@ -161,7 +161,7 @@ const convertSize = size => {
   }
 };
 
-const convertToFilter = (query, isFavorite) => {
+export const convertToFilter = (query, isFavorite) => {
   const conditions = [];
 
   if (isFavorite) {
