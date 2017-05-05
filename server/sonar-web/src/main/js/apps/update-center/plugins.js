@@ -67,7 +67,7 @@ const Plugins = Backbone.Collection.extend({
     const that = this;
     const opts = {
       type: 'GET',
-      url: window.baseUrl + '/api/plugins/installed',
+      url: window.baseUrl + '/api/plugins/installed?f=category',
       success(r) {
         that._installed = that.parse(r);
       }
