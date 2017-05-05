@@ -20,9 +20,9 @@
 package org.sonar.server.platform.db.migration.version.v64;
 
 import java.sql.SQLException;
-import java.util.Random;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -241,7 +241,7 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   }
 
   private int insertGroup(String organizationUuid) {
-    String name = "name" + new Random().nextInt(122);
+    String name = "name" + RandomStringUtils.random(20);
     db.executeInsert(
       "GROUPS",
       "ORGANIZATION_UUID", organizationUuid,
@@ -251,12 +251,12 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   }
 
   private IdAndUuid insertPermissionTemplate(String organizationUuid) {
-    int i = new Random().nextInt(1222);
-    String uuid = "ptUuid" + i;
+    String random = RandomStringUtils.random(20);
+    String uuid = "ptUuid" + random;
     db.executeInsert(
       "PERMISSION_TEMPLATES",
       "ORGANIZATION_UUID", organizationUuid,
-      "NAME", "name" + i,
+      "NAME", "name" + random,
       "KEE", uuid);
     return new IdAndUuid(
       ((Long) db.selectFirst("select id as \"ID\" from permission_templates where kee='" + uuid + "'").get("ID")).intValue(),
