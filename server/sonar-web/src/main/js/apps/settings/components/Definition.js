@@ -141,7 +141,7 @@ class Definition extends React.PureComponent {
           </h3>
 
           <div
-            className="settings-definition-description markdown small spacer-top"
+            className="markdown small spacer-top"
             dangerouslySetInnerHTML={{ __html: getPropertyDescription(definition) }}
           />
 
