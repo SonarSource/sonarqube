@@ -152,9 +152,7 @@
   float: right;
 }
 
-.projects-facets-reset .button {
-
-}
+.projects-facets-reset .button {}
 
 .projects-facet-bar {
   display: inline-block;

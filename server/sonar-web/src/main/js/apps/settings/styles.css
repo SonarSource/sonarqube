@@ -25,8 +25,7 @@
   transform: translateX(1px);
 }
 
-.settings-menu {
-}
+.settings-menu {}
 
 .settings-menu > li {
   margin-bottom: 4px;
@@ -163,11 +162,9 @@
   border-top: 1px dotted #e6e6e6;
 }
 
-.settings-sub-categories-list {
-}
+.settings-sub-categories-list {}
 
-.settings-sub-categories-list > li {
-}
+.settings-sub-categories-list > li {}
 
 .settings-sub-categories-list > li + li {
   margin: 30px -20px 0;

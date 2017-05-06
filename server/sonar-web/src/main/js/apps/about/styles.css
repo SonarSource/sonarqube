@@ -131,7 +131,7 @@
   line-height: 2;
 }
 
-.about-quality-model .flex-column + .flex-column{
+.about-quality-model .flex-column + .flex-column {
   margin-left: 30px;
   padding-left: 30px;
   border-left: 1px solid #e6e6e6;

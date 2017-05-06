@@ -1,6 +1,4 @@
-.project-activity-event {
-
-}
+.project-activity-event {}
 
 .project-activity-event + .project-activity-event {
   margin-top: 4px;

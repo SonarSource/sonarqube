@@ -42,9 +42,7 @@
   background-color: #f3f3f3;
 }
 
-.overview-quality-gate-conditions-list {
-
-}
+.overview-quality-gate-conditions-list {}
 
 .overview-quality-gate-condition {
   float: left;
@@ -339,9 +337,7 @@
   box-sizing: border-box;
 }
 
-.overview-analysis {
-
-}
+.overview-analysis {}
 
 .overview-analysis + .overview-analysis {
   margin-top: 8px;
@@ -391,6 +387,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

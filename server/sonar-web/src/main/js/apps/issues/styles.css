@@ -46,11 +46,9 @@
 }
 
 .concise-issues-list-header,
-.concise-issues-list-header-inner {
-}
+.concise-issues-list-header-inner {}
 
-.concise-issues-list-header {
-}
+.concise-issues-list-header {}
 
 .concise-issues-list-header-inner {
   width: 260px;
@@ -99,14 +97,14 @@
 }
 
 .concise-issue-box:focus {
-  outline: none
+  outline: none;
 }
 
 .concise-issue-box.selected {
   z-index: 2;
   border-color: #dd4040;
   background-color: #ffeaea;
-  cursor: default
+  cursor: default;
 }
 
 .concise-issue-box-message {
@@ -189,7 +187,7 @@
 
 .issues .issue:hover {
   border-color: #dd4040;
-} 
+}
 
 @media (max-width: 1320px) {
   .issues .issue-list {

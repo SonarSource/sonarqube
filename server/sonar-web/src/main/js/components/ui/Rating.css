@@ -41,25 +41,33 @@ a > .rating-A {
   background-color: #b0d513;
 }
 
-a .rating-B { border-bottom-color: #b0d513; }
+a .rating-B {
+  border-bottom-color: #b0d513;
+}
 
 .rating-C {
   background-color: #eabe06;
 }
 
-a .rating-C { border-bottom-color: #eabe06; }
+a .rating-C {
+  border-bottom-color: #eabe06;
+}
 
 .rating-D {
   background-color: #ed7d20;
 }
 
-a .rating-D { border-bottom-color: #ed7d20; }
+a .rating-D {
+  border-bottom-color: #ed7d20;
+}
 
 .rating-E {
   background-color: #e00;
 }
 
-a .rating-E { border-bottom-color: #e00; }
+a .rating-E {
+  border-bottom-color: #e00;
+}
 
 .rating-small {
   width: 18px;
