@@ -20,6 +20,8 @@
 
 package org.sonar.db.organization;
 
+import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.Multiset;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -64,6 +66,16 @@ public class OrganizationMemberDao implements Dao {
 
   public Set<String> selectOrganizationUuidsByUser(DbSession dbSession, int userId) {
     return mapper(dbSession).selectOrganizationUuidsByUser(userId);
+  }
+
+  public Multiset<String> countByOrganizationUuids(DbSession dbSession, List<String> organizationUuids) {
+    ImmutableMultiset.Builder<String> counts = ImmutableMultiset.builder();
+    executeLargeInputsWithoutOutput(organizationUuids, list -> mapper(dbSession).countByOrganizationUuids(list, result -> {
+      OrganizationCount organizationUuidCount = (OrganizationCount) result.getResultObject();
+      counts.setCount(organizationUuidCount.getOrganizationUuid(), organizationUuidCount.getMemberCount());
+    }));
+
+    return counts.build();
   }
 
   /**

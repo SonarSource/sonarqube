@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface OrganizationMemberMapper {
   OrganizationMemberDto select(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
@@ -45,4 +46,6 @@ public interface OrganizationMemberMapper {
   void deleteByOrganization(@Param("organizationUuid") String organizationUuid);
 
   void deleteByUserId(@Param("userId") int userId);
+
+  void countByOrganizationUuids(@Param("organizationUuids") List<String> organizationUuids, ResultHandler resultHandler);
 }

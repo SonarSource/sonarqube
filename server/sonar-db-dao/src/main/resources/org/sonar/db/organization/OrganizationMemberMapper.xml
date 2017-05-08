@@ -52,6 +52,17 @@
     inner join users u on om.user_id=u.id
   </select>
 
+  <select id="countByOrganizationUuids" resultType="org.sonar.db.organization.OrganizationCount">
+    select om.organization_uuid as "organizationUuid", count(om.user_id) as "memberCount"
+    from organization_members om
+    where
+      om.organization_uuid in
+      <foreach collection="organizationUuids" open="(" close=")" item="organizationUuid" separator=",">
+        #{organizationUuid, jdbcType=VARCHAR}
+      </foreach>
+    group by om.organization_uuid
+  </select>
+
   <insert id="insert" parameterType="OrganizationMember" useGeneratedKeys="false">
     insert into organization_members
     (
