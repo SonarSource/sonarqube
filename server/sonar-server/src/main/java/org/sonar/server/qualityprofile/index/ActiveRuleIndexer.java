@@ -53,11 +53,11 @@ public class ActiveRuleIndexer extends BaseIndexer {
 
   @Override
   protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(Size.REGULAR), lastUpdatedAt);
+    return doIndex(createBulkIndexer(), lastUpdatedAt);
   }
 
   public void index(Iterator<ActiveRuleDoc> rules) {
-    doIndex(createBulkIndexer(Size.REGULAR), rules);
+    doIndex(createBulkIndexer(), rules);
   }
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
@@ -94,7 +94,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
   }
 
   public void deleteByProfileKeys(Collection<String> profileKeys) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
+    BulkIndexer bulk = createBulkIndexer();
     bulk.start();
     profileKeys.forEach(profileKey -> {
       SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
@@ -105,7 +105,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
   }
 
   private void deleteKeys(List<ActiveRuleKey> keys) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
+    BulkIndexer bulk = createBulkIndexer();
     bulk.start();
     SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
       .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_KEY, keys)));
@@ -113,10 +113,8 @@ public class ActiveRuleIndexer extends BaseIndexer {
     bulk.stop();
   }
 
-  private BulkIndexer createBulkIndexer(Size size) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex());
-    bulk.setSize(size);
-    return bulk;
+  private BulkIndexer createBulkIndexer() {
+    return new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex(), Size.REGULAR);
   }
 
   private static IndexRequest newIndexRequest(ActiveRuleDoc doc) {

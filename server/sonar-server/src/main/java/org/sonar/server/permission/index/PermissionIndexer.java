@@ -148,8 +148,7 @@ public class PermissionIndexer implements ProjectIndexer, StartupIndexer {
   private void index(Collection<PermissionIndexerDao.Dto> authorizations, AuthorizationScope scope, Size bulkSize) {
     IndexType indexType = scope.getIndexType();
 
-    BulkIndexer bulkIndexer = new BulkIndexer(esClient, indexType.getIndex());
-    bulkIndexer.setSize(bulkSize);
+    BulkIndexer bulkIndexer = new BulkIndexer(esClient, indexType.getIndex(), bulkSize);
     bulkIndexer.start();
 
     authorizations.stream()

@@ -82,23 +82,18 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex());
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex(), Size.REGULAR);
     return doIndex(bulk, dbRows);
   }
 
   private long doIndex(@Nullable String projectUuid, Size bulkSize) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex());
-    bulk.setSize(bulkSize);
+    final BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex(), bulkSize);
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid);
       long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
       return maxUpdatedAt;
-
-    } finally {
-      dbSession.close();
     }
   }
 

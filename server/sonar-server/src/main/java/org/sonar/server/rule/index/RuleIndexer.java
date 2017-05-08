@@ -56,7 +56,7 @@ public class RuleIndexer implements StartupIndexer {
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX).setSize(Size.LARGE);
+    BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX, Size.LARGE);
     bulk.start();
 
     // index all definitions and system extensions
@@ -81,7 +81,7 @@ public class RuleIndexer implements StartupIndexer {
   }
 
   public void indexRuleDefinitions(List<RuleKey> ruleKeys) {
-    BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX).setSize(Size.REGULAR);
+    BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX, Size.REGULAR);
     bulk.start();
 
     try (RuleIterator rules = new RuleIteratorForMultipleChunks(dbClient, ruleKeys)) {
@@ -98,12 +98,10 @@ public class RuleIndexer implements StartupIndexer {
         .map(ruleExtension -> RuleExtensionDoc.of(ruleKey, RuleExtensionScope.organization(organization), ruleExtension))
         .map(Arrays::asList)
         .map(List::iterator)
-        .ifPresent(metadatas -> {
-          BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX).setSize(Size.REGULAR);
+        .ifPresent(metadata -> {
+          BulkIndexer bulk = new BulkIndexer(esClient, RuleIndexDefinition.INDEX, Size.REGULAR);
           bulk.start();
-
-          doIndexRuleExtensions(metadatas, bulk);
-
+          doIndexRuleExtensions(metadata, bulk);
           bulk.stop();
         });
     }

@@ -88,15 +88,14 @@ public class ViewIndexer implements StartupIndexer {
    * The views lookup cache will be cleared
    */
   public void index(ViewDoc viewDoc) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex());
+    BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(), Size.REGULAR);
     bulk.start();
     doIndex(bulk, viewDoc, true);
     bulk.stop();
   }
 
   private void index(DbSession dbSession, Map<String, String> viewAndProjectViewUuidMap, boolean needClearCache, Size bulkSize) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex());
-    bulk.setSize(bulkSize);
+    BulkIndexer bulk = new BulkIndexer(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(), bulkSize);
     bulk.start();
     for (Map.Entry<String, String> entry : viewAndProjectViewUuidMap.entrySet()) {
       String viewUuid = entry.getKey();

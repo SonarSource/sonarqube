@@ -98,9 +98,7 @@ public class UserIndexer implements StartupIndexer {
   }
 
   private BulkIndexer newBulkIndexer(Size bulkSize) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex());
-    bulk.setSize(bulkSize);
-    return bulk;
+    return new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex(), bulkSize);
   }
 
   private static IndexRequest newIndexRequest(UserDoc user) {

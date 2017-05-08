@@ -19,79 +19,43 @@
  */
 package org.sonar.server.es;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.assertj.core.api.AbstractIntegerAssert;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BulkIndexerConcurrentRequestCalculationTest {
 
-  private BulkIndexer indexer = mock(BulkIndexer.class);
-
   @Test
-  public void should_parallelize() {
-    setNumberOfProcesses(12);
-    setNumberOfShards(2);
-
-    assertConcurrentRequests()
-      .isGreaterThan(0);
+  public void should_not_parallelize_if_regular_size() {
+    assertConcurrentRequests(BulkIndexer.Size.REGULAR, cores(4))
+      .isEqualTo(0);
   }
 
   @Test
-  public void should_parallelize_and_setting_about_shards_is_zero() {
-    setNumberOfProcesses(12);
-    setNumberOfShards(0);
-
-    assertConcurrentRequests()
-      .isGreaterThan(0);
-  }
-
-  @Test
-  public void should_parallelize_and_setting_about_shards_is_not_available() {
-    setNumberOfProcesses(12);
-    setNumberOfShards(null);
-
-    assertConcurrentRequests()
-      .isGreaterThan(0);
-  }
-
-  @Test
-  public void should_parallelize_and_setting_about_shards_is_unreadable() {
-    setNumberOfProcesses(12);
-    setNumberOfShards("not a number");
-
-    assertConcurrentRequests()
-      .isGreaterThan(0);
+  public void should_not_parallelize_if_large_indexing_but_few_cores() {
+    assertConcurrentRequests(BulkIndexer.Size.LARGE, cores(4))
+      .isEqualTo(0);
   }
 
   /**
-   * @see https://jira.sonarsource.com/browse/SONAR-8075
+   * see https://jira.sonarsource.com/browse/SONAR-8075
    */
   @Test
-  public void should_heavily_parallelize_on_96_cores() {
-    setNumberOfProcesses(96);
-    setNumberOfShards(5);
-
-    assertConcurrentRequests()
+  public void should_heavily_parallelize_on_96_cores_if_large_indexing() {
+    assertConcurrentRequests(BulkIndexer.Size.LARGE, cores(96))
       .isEqualTo(18);
   }
 
-  private AbstractIntegerAssert<?> assertConcurrentRequests() {
-    return assertThat(BulkIndexer.getConcurrentRequests(indexer));
+  private AbstractIntegerAssert<?> assertConcurrentRequests(BulkIndexer.Size size, BulkIndexer.Runtime2 runtime2) {
+    return assertThat(size.createHandler(runtime2).getConcurrentRequests());
   }
 
-  private void setNumberOfShards(Object numberOfShards) {
-    Map<String, Object> settings = new HashMap<>();
-    settings.put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, numberOfShards);
-    doReturn(settings).when(indexer).getLargeInitialSettings();
-  }
-
-  private void setNumberOfProcesses(int numberOfProcesses) {
-    doReturn(numberOfProcesses).when(indexer).getProcesses();
+  private static BulkIndexer.Runtime2 cores(int cores) {
+    BulkIndexer.Runtime2 runtime = mock(BulkIndexer.Runtime2.class);
+    when(runtime.getCores()).thenReturn(cores);
+    return runtime;
   }
 }
