@@ -50,9 +50,7 @@ export default class Timeline extends React.PureComponent {
     const data = snapshots.map((snapshot, index) => {
       return { x: index, y: snapshot.value };
     });
-
-    const domain = [0, max(this.props.history, d => d.value)];
-
+    const domain = [0, max(this.props.history, d => parseFloat(d.value))];
     return (
       <LineChart
         data={data}

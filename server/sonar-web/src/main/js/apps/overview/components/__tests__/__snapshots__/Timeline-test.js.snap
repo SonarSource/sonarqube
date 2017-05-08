@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly with a "before" range 1`] = `
+<LineChart
+  data={
+    Array [
+      Object {
+        "x": 0,
+        "y": "29.6",
+      },
+      Object {
+        "x": 1,
+        "y": "170.8",
+      },
+    ]
+  }
+  displayBackdrop={true}
+  displayPoints={false}
+  displayVerticalGrid={false}
+  domain={
+    Array [
+      0,
+      360,
+    ]
+  }
+  height={80}
+  interpolate="basis"
+  padding={
+    Array [
+      0,
+      0,
+      0,
+      0,
+    ]
+  }
+  xTicks={Array []}
+  xValues={Array []}
+/>
+`;
+
+exports[`should render correctly with an "after" range 1`] = `
+<LineChart
+  data={
+    Array [
+      Object {
+        "x": 0,
+        "y": "360",
+      },
+      Object {
+        "x": 1,
+        "y": "39",
+      },
+    ]
+  }
+  displayBackdrop={true}
+  displayPoints={false}
+  displayVerticalGrid={false}
+  domain={
+    Array [
+      0,
+      360,
+    ]
+  }
+  height={80}
+  interpolate="basis"
+  padding={
+    Array [
+      0,
+      0,
+      0,
+      0,
+    ]
+  }
+  xTicks={Array []}
+  xValues={Array []}
+/>
+`;
