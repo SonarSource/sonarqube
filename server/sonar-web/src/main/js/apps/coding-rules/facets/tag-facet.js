@@ -28,9 +28,11 @@ export default CustomValuesFacet.extend({
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data(term) {
-        return { q: term, ps: 10000 };
-      },
+      data: term => ({
+        organization: this.options.app.organization,
+        q: term,
+        ps: 10000
+      }),
       results(data) {
         return {
           more: false,
