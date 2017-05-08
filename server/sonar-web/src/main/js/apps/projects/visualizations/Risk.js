@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import RatingsLegend from './RatingsLegend';
 import BubbleChart from '../../../components/charts/BubbleChart';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -110,7 +111,7 @@ export default class Risk extends React.PureComponent {
           formatYTick={formatYTick}
           height={600}
           items={items}
-          padding={[40, 20, 60, 100]}
+          padding={[80, 20, 60, 100]}
           yDomain={[100, 0]}
         />
         <div className="measure-details-bubble-chart-axis x">
@@ -130,6 +131,7 @@ export default class Risk extends React.PureComponent {
             'component_measures.legend.size_x',
             translate('metric', SIZE_METRIC, 'name')
           )}
+          <RatingsLegend />
         </div>
       </div>
     );
