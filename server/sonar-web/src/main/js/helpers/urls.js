@@ -56,13 +56,6 @@ export function getComponentIssuesUrlAsString(componentKey, query) {
 }
 
 /**
- * Generate URL for a single issue
- */
-export function getSingleIssueUrl(issues) {
-  return { pathname: '/issues', query: { issues, open: issues } };
-}
-
-/**
  * Generate URL for a component's drilldown page
  * @param {string} componentKey
  * @param {string} metric

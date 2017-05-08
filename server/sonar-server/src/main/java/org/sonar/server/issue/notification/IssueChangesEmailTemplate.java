@@ -20,6 +20,7 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.base.Strings;
+import java.io.UnsupportedEncodingException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +31,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+
+import static java.net.URLEncoder.encode;
 
 /**
  * Creates email message for notification "issue-changes".
@@ -100,9 +103,17 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
     appendField(sb, "Message", null, notif.getFieldValue("message"));
   }
 
-  private void appendFooter(StringBuilder sb, Notification notification) {
+  private void appendFooter(StringBuilder sb, Notification notification){
     String issueKey = notification.getFieldValue("key");
-    sb.append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/issues?issues=").append(issueKey).append(NEW_LINE);
+    try {
+      sb.append("See it in SonarQube: ").append(settings.getServerBaseURL())
+        .append("/project/issues?id=").append(encode(notification.getFieldValue("projectKey"), "UTF-8"))
+        .append("&issues=").append(issueKey)
+        .append("&open=").append(issueKey)
+        .append(NEW_LINE);
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException("Encoding not supported", e);
+    }
   }
 
   private static void appendLine(StringBuilder sb, @Nullable String line) {

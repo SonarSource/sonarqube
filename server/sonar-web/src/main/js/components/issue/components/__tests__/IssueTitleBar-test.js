@@ -25,6 +25,7 @@ const issue = {
   line: 26,
   creationDate: '2017-03-01T09:36:01+0100',
   organization: 'myorg',
+  project: 'myproject',
   key: 'AVsae-CQS-9G3txfbFN2',
   rule: 'javascript:S1067',
   message: 'Reduce the number of conditional operators (4) used in the expression',
