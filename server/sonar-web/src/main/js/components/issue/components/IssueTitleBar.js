@@ -25,7 +25,7 @@ import IssueMessage from './IssueMessage';
 import SimilarIssuesFilter from './SimilarIssuesFilter';
 import LocationIndex from '../../common/LocationIndex';
 import Tooltip from '../../controls/Tooltip';
-import { getSingleIssueUrl } from '../../../helpers/urls';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import type { Issue } from '../types';
@@ -62,6 +62,8 @@ export default function IssueTitleBar(props: Props) {
   // dirty trick :(
   const onIssuesPage = document.getElementById('issues-page') != null;
 
+  const issueUrl = getComponentIssuesUrl(issue.project, { issues: issue.key, open: issue.key });
+
   return (
     <table className="issue-table">
       <tbody>
@@ -94,10 +96,7 @@ export default function IssueTitleBar(props: Props) {
                 <li className="issue-meta">
                   {onIssuesPage
                     ? locationsBadge
-                    : <Link
-                        onClick={stopPropagation}
-                        target="_blank"
-                        to={getSingleIssueUrl(issue.key)}>
+                    : <Link onClick={stopPropagation} target="_blank" to={issueUrl}>
                         {locationsBadge}
                       </Link>}
                 </li>}
@@ -106,7 +105,7 @@ export default function IssueTitleBar(props: Props) {
                   className="js-issue-permalink icon-link"
                   onClick={stopPropagation}
                   target="_blank"
-                  to={getSingleIssueUrl(issue.key)}
+                  to={issueUrl}
                 />
               </li>
               {hasSimilarIssuesFilter &&
