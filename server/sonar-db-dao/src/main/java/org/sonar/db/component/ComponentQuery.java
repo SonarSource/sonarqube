@@ -32,6 +32,7 @@ public class ComponentQuery {
   private final String nameOrKeyQuery;
   private final String[] qualifiers;
   private final String language;
+  private final Boolean isPrivate;
   private final Set<Long> componentIds;
 
   /**
@@ -46,6 +47,7 @@ public class ComponentQuery {
     this.qualifiers = Builder.validateQualifiers(qualifiers);
     this.language = null;
     this.componentIds = null;
+    this.isPrivate = null;
   }
 
   private ComponentQuery(Builder builder) {
@@ -53,6 +55,7 @@ public class ComponentQuery {
     this.qualifiers = builder.qualifiers;
     this.language = builder.language;
     this.componentIds = builder.componentIds;
+    this.isPrivate = builder.isPrivate;
   }
 
   public String[] getQualifiers() {
@@ -82,6 +85,11 @@ public class ComponentQuery {
     return componentIds;
   }
 
+  @CheckForNull
+  public Boolean getPrivate() {
+    return isPrivate;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -90,6 +98,7 @@ public class ComponentQuery {
     private String nameOrKeyQuery;
     private String[] qualifiers;
     private String language;
+    private Boolean isPrivate;
     private Set<Long> componentIds;
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
@@ -109,6 +118,11 @@ public class ComponentQuery {
 
     public Builder setComponentIds(@Nullable Set<Long> componentIds) {
       this.componentIds = componentIds;
+      return this;
+    }
+
+    public Builder setPrivate(@Nullable Boolean isPrivate) {
+      this.isPrivate = isPrivate;
       return this;
     }
 

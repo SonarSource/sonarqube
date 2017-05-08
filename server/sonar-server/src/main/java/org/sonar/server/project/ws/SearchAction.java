@@ -31,8 +31,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsProjects.SearchWsResponse;
 import org.sonarqube.ws.client.project.SearchWsRequest;
@@ -41,6 +42,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Optional.ofNullable;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.project.Visibility.PRIVATE;
 import static org.sonar.server.project.Visibility.PUBLIC;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -50,6 +52,7 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_SEARCH
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class SearchAction implements ProjectsWsAction {
 
@@ -84,6 +87,15 @@ public class SearchAction implements ProjectsWsAction {
       .setPossibleValues(PROJECT, VIEW)
       .setDefaultValue(PROJECT);
     support.addOrganizationParam(action);
+
+    action.createParam(PARAM_VISIBILITY)
+      .setDescription("Filter the projects that should be visible to everyone (%s), or only specific user/groups (%s).<br/>" +
+        "If no visibility is specified, the default project visibility of the organization will be used.",
+        Visibility.PUBLIC.getLabel(), Visibility.PRIVATE.getLabel())
+      .setRequired(false)
+      .setInternal(true)
+      .setSince("6.4")
+      .setPossibleValues(Visibility.getLabels());
   }
 
   @Override
@@ -98,7 +110,9 @@ public class SearchAction implements ProjectsWsAction {
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE)).build();
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .setVisibility(request.param(PARAM_VISIBILITY))
+      .build();
   }
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
@@ -115,10 +129,13 @@ public class SearchAction implements ProjectsWsAction {
 
   private static ComponentQuery buildQuery(SearchWsRequest request) {
     List<String> qualifiers = request.getQualifiers();
-    return ComponentQuery.builder()
+    ComponentQuery.Builder query = ComponentQuery.builder()
       .setNameOrKeyQuery(request.getQuery())
-      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]))
-      .build();
+      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
+
+    setNullable(request.getVisibility(), v -> query.setPrivate(Visibility.isPrivate(v)));
+
+    return query.build();
   }
 
   private Paging buildPaging(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, ComponentQuery query) {

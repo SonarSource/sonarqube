@@ -298,6 +298,14 @@
           upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
         )
       </if>
+      <if test="query.private!=null">
+        <if test="query.private.equals(true)">
+          and p.private=${_true}
+        </if>
+        <if test="query.private.equals(false)">
+          and p.private=${_false}
+        </if>
+      </if>
   </sql>
 
   <select id="selectDescendants" resultType="Component">

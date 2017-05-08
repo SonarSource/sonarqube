@@ -961,6 +961,20 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void selectByQuery_filter_on_visibility() {
+    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("private-key"));
+    db.components().insertComponent(ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setKey("public-key"));
+
+    ComponentQuery privateProjectsQuery = ComponentQuery.builder().setPrivate(true).setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery publicProjectsQuery = ComponentQuery.builder().setPrivate(false).setQualifiers(Qualifiers.PROJECT).build();
+    ComponentQuery allProjectsQuery = ComponentQuery.builder().setPrivate(null).setQualifiers(Qualifiers.PROJECT).build();
+
+    assertThat(underTest.selectByQuery(dbSession, privateProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsExactly("private-key");
+    assertThat(underTest.selectByQuery(dbSession, publicProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsExactly("public-key");
+    assertThat(underTest.selectByQuery(dbSession, allProjectsQuery, 0, 10)).extracting(ComponentDto::getKey).containsOnly("public-key", "private-key");
+  }
+
+  @Test
   public void selectByQuery_on_empty_list_of_component_id() {
     ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentIds(emptySet()).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);

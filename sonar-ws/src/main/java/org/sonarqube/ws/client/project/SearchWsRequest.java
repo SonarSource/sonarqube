@@ -33,6 +33,7 @@ public class SearchWsRequest {
   private final String organization;
   private final String query;
   private final List<String> qualifiers;
+  private final String visibility;
   private final Integer page;
   private final Integer pageSize;
 
@@ -40,6 +41,7 @@ public class SearchWsRequest {
     this.organization = builder.organization;
     this.query = builder.query;
     this.qualifiers = builder.qualifiers;
+    this.visibility = builder.visibility;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
   }
@@ -68,6 +70,11 @@ public class SearchWsRequest {
     return query;
   }
 
+  @CheckForNull
+  public String getVisibility() {
+    return visibility;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -78,6 +85,7 @@ public class SearchWsRequest {
     private Integer page;
     private Integer pageSize;
     private String query;
+    private String visibility;
 
     public Builder setOrganization(@Nullable String organization) {
       this.organization = organization;
@@ -101,6 +109,11 @@ public class SearchWsRequest {
 
     public Builder setQuery(@Nullable String query) {
       this.query = query;
+      return this;
+    }
+
+    public Builder setVisibility(@Nullable String visibility) {
+      this.visibility = visibility;
       return this;
     }
 

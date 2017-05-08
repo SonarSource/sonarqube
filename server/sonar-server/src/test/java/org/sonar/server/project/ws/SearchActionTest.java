@@ -64,6 +64,7 @@ import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_VISIBILITY;
 
 public class SearchActionTest {
 
@@ -95,6 +96,30 @@ public class SearchActionTest {
     SearchWsResponse response = call(SearchWsRequest.builder().setQuery("project-_%-key").build());
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("project-_%-key");
+  }
+
+  @Test
+  public void search_private_projects() {
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    db.components().insertComponents(
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("private-key"),
+      ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setKey("public-key"));
+
+    SearchWsResponse response = call(SearchWsRequest.builder().setVisibility("private").build());
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("private-key");
+  }
+
+  @Test
+  public void search_public_projects() {
+    userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
+    db.components().insertComponents(
+      ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("private-key"),
+      ComponentTesting.newPublicProjectDto(db.getDefaultOrganization()).setKey("public-key"));
+
+    SearchWsResponse response = call(SearchWsRequest.builder().setVisibility("public").build());
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("public-key");
   }
 
   @Test
@@ -226,7 +251,7 @@ public class SearchActionTest {
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.3");
     assertThat(action.handler()).isEqualTo(ws.getDef().handler());
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(6);
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
     WebService.Param organization = action.param("organization");
@@ -254,6 +279,11 @@ public class SearchActionTest {
     assertThat(psParam.isRequired()).isFalse();
     assertThat(psParam.defaultValue()).isEqualTo("100");
     assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
+
+    WebService.Param visibilityParam = action.param("visibility");
+    assertThat(visibilityParam.isRequired()).isFalse();
+    assertThat(visibilityParam.description()).isEqualTo("Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>" +
+      "If no visibility is specified, the default project visibility of the organization will be used.");
   }
 
   @Test
@@ -281,6 +311,7 @@ public class SearchActionTest {
     setNullable(wsRequest.getQuery(), query -> request.setParam(TEXT_QUERY, query));
     setNullable(wsRequest.getPage(), page -> request.setParam(PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
+    setNullable(wsRequest.getVisibility(), v -> request.setParam(PARAM_VISIBILITY, v));
     return request.executeProtobuf(SearchWsResponse.class);
   }
 
