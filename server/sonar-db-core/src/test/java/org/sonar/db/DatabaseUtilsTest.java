@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -278,6 +279,21 @@ public class DatabaseUtilsTest {
     });
 
     assertThat(outputs).isEmpty();
+  }
+
+  @Test
+  public void executeLargeInputs_uses_specified_partition_size_manipulations() {
+    List<List<Integer>> partitions = new ArrayList<>();
+    List<Integer> outputs = DatabaseUtils.executeLargeInputs(
+      asList(1, 2, 3),
+      partition -> {
+        partitions.add(partition);
+        return partition;
+      },
+      i -> i / 500);
+
+    assertThat(outputs).containsExactly(1,2,3);
+    assertThat(partitions).containsExactly(asList(1,2), asList(3));
   }
 
   @Test

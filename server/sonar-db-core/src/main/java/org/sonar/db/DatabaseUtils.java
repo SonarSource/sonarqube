@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
@@ -54,6 +55,10 @@ public class DatabaseUtils {
    * @see DatabaseMetaData#getTableTypes()
    */
   private static final String[] TABLE_TYPE = {"TABLE"};
+
+  protected DatabaseUtils() {
+    throw new IllegalStateException("Utility class");
+  }
 
   public static void closeQuietly(@Nullable Connection connection) {
     if (connection != null) {
@@ -95,20 +100,32 @@ public class DatabaseUtils {
    * and with MsSQL when there's more than 2000 parameters in a query
    */
   public static <OUTPUT, INPUT extends Comparable<INPUT>> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function) {
-    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptyList() : new ArrayList<>(size));
+    return executeLargeInputs(input, function, i -> i);
   }
 
-  public static <OUTPUT, INPUT extends Comparable<INPUT>> Set<OUTPUT> executeLargeInputsIntoSet(Collection<INPUT> input, Function<List<INPUT>, Set<OUTPUT>> function) {
-    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptySet() : new HashSet<>(size));
+  /**
+   * Partition by 1000 elements a list of input and execute a function on each part.
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   */
+  public static <OUTPUT, INPUT extends Comparable<INPUT>> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function,
+    IntFunction<Integer> partitionSizeManipulations) {
+    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptyList() : new ArrayList<>(size), partitionSizeManipulations);
+  }
+
+  public static <OUTPUT, INPUT extends Comparable<INPUT>> Set<OUTPUT> executeLargeInputsIntoSet(Collection<INPUT> input, Function<List<INPUT>, Set<OUTPUT>> function,
+    IntFunction<Integer> partitionSizeManipulations) {
+    return executeLargeInputs(input, function, size -> size == 0 ? Collections.emptySet() : new HashSet<>(size), partitionSizeManipulations);
   }
 
   private static <OUTPUT, INPUT extends Comparable<INPUT>, RESULT extends Collection<OUTPUT>> RESULT executeLargeInputs(Collection<INPUT> input,
-    Function<List<INPUT>, RESULT> function, java.util.function.Function<Integer, RESULT> outputInitializer) {
+    Function<List<INPUT>, RESULT> function, java.util.function.Function<Integer, RESULT> outputInitializer, IntFunction<Integer> partitionSizeManipulations) {
     if (input.isEmpty()) {
       return outputInitializer.apply(0);
     }
     RESULT results = outputInitializer.apply(input.size());
-    for (List<INPUT> partition : toUniqueAndSortedPartitions(input)) {
+    for (List<INPUT> partition : toUniqueAndSortedPartitions(input, partitionSizeManipulations)) {
       RESULT subResults = function.apply(partition);
       if (subResults != null) {
         results.addAll(subResults);
@@ -124,7 +141,24 @@ public class DatabaseUtils {
    * and with MsSQL when there's more than 2000 parameters in a query
    */
   public static <INPUT extends Comparable<INPUT>> void executeLargeUpdates(Collection<INPUT> inputs, Consumer<List<INPUT>> consumer) {
-    Iterable<List<INPUT>> partitions = toUniqueAndSortedPartitions(inputs);
+    executeLargeUpdates(inputs, consumer, i -> i);
+  }
+
+  /**
+   * Partition by 1000 elements a list of input and execute a consumer on each part.
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   *
+   * @param inputs the whole list of elements to be partitioned
+   * @param consumer the mapper method to be executed, for example {@code mapper(dbSession)::selectByUuids}
+   * @param partitionSizeManipulations the function that computes the number of usages of a partition, for example
+   *                                   {@code partitionSize -> partitionSize / 2} when the partition of elements
+   *                                   in used twice in the SQL request.
+   */
+  public static <INPUT extends Comparable<INPUT>> void executeLargeUpdates(Collection<INPUT> inputs, Consumer<List<INPUT>> consumer,
+    IntFunction<Integer> partitionSizeManipulations) {
+    Iterable<List<INPUT>> partitions = toUniqueAndSortedPartitions(inputs, partitionSizeManipulations);
     for (List<INPUT> partition : partitions) {
       consumer.accept(partition);
     }
@@ -136,12 +170,16 @@ public class DatabaseUtils {
    * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
    * and with MsSQL when there's more than 2000 parameters in a query
    *
+   * @param inputs the whole list of elements to be partitioned
    * @param sqlCaller a {@link Function} which calls the SQL update/delete and returns the number of updated/deleted rows.
-   *
+   * @param partitionSizeManipulations the function that computes the number of usages of a partition, for example
+   *                                   {@code partitionSize -> partitionSize / 2} when the partition of elements
+   *                                   in used twice in the SQL request.
    * @return the total number of updated/deleted rows (computed as the sum of the values returned by {@code sqlCaller}).
    */
-  public static <INPUT extends Comparable<INPUT>> int executeLargeUpdates(Collection<INPUT> inputs, Function<List<INPUT>, Integer> sqlCaller) {
-    Iterable<List<INPUT>> partitions = toUniqueAndSortedPartitions(inputs);
+  public static <INPUT extends Comparable<INPUT>> int executeLargeUpdates(Collection<INPUT> inputs, Function<List<INPUT>, Integer> sqlCaller,
+    IntFunction<Integer> partitionSizeManipulations) {
+    Iterable<List<INPUT>> partitions = toUniqueAndSortedPartitions(inputs, partitionSizeManipulations);
     Integer res = 0;
     for (List<INPUT> partition : partitions) {
       res += sqlCaller.apply(partition);
@@ -153,7 +191,15 @@ public class DatabaseUtils {
    * Ensure values {@code inputs} are unique (which avoids useless arguments) and sorted before creating the partition.
    */
   public static <INPUT extends Comparable<INPUT>> Iterable<List<INPUT>> toUniqueAndSortedPartitions(Collection<INPUT> inputs) {
-    return Iterables.partition(toUniqueAndSortedList(inputs), PARTITION_SIZE_FOR_ORACLE);
+    return toUniqueAndSortedPartitions(inputs, i -> i);
+  }
+
+  /**
+   * Ensure values {@code inputs} are unique (which avoids useless arguments) and sorted before creating the partition.
+   */
+  public static <INPUT extends Comparable<INPUT>> Iterable<List<INPUT>> toUniqueAndSortedPartitions(Collection<INPUT> inputs, IntFunction<Integer> partitionSizeManipulations) {
+    int partitionSize = partitionSizeManipulations.apply(PARTITION_SIZE_FOR_ORACLE);
+    return Iterables.partition(toUniqueAndSortedList(inputs), partitionSize);
   }
 
   /**
