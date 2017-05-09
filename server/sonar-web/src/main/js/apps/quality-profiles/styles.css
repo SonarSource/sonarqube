@@ -11,7 +11,7 @@
   padding-bottom: 10px;
 }
 
-.quality-profiles-table-name { }
+.quality-profiles-table-name {}
 
 .quality-profiles-table-inheritance {
   width: 280px;
@@ -63,8 +63,7 @@
   padding: 15px 20px 20px;
 }
 
-.quality-profile-rules {
-}
+.quality-profile-rules {}
 
 .quality-profile-rules > header {
   padding: 15px 20px;
@@ -98,8 +97,7 @@
   margin-top: 20px;
 }
 
-.quality-profile-inheritance {
-}
+.quality-profile-inheritance {}
 
 .quality-profile-not-found {
   padding-top: 100px;
