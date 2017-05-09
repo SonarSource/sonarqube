@@ -20,7 +20,9 @@
 package org.sonar.api.batch.fs.internal;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,8 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.stream.Collectors;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -72,7 +74,11 @@ public class DefaultInputFileTest {
     Path baseDir = temp.newFolder().toPath();
     Path testFile = baseDir.resolve("src").resolve("Foo.php");
     Files.createDirectories(testFile.getParent());
-    Files.write(testFile, "test string".getBytes(StandardCharsets.UTF_8));
+    String content = "test é string";
+    Files.write(testFile, content.getBytes(StandardCharsets.ISO_8859_1));
+
+    assertThat(Files.readAllLines(testFile, StandardCharsets.ISO_8859_1).get(0)).hasSize(content.length());
+
     Metadata metadata = new Metadata(42, 30, "", new int[0], 0);
 
     DefaultInputFile inputFile = new DefaultInputFile(new DefaultIndexedFile("ABCDE", baseDir, "src/Foo.php", InputFile.Type.TEST, 0)
@@ -80,10 +86,38 @@ public class DefaultInputFileTest {
         .setStatus(InputFile.Status.ADDED)
         .setCharset(StandardCharsets.ISO_8859_1);
 
-    assertThat(inputFile.contents()).isEqualTo("test string");
+    assertThat(inputFile.contents()).isEqualTo(content);
     try (InputStream inputStream = inputFile.inputStream()) {
-      String result = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining());
-      assertThat(result).isEqualTo("test string");
+      String result = new BufferedReader(new InputStreamReader(inputStream, inputFile.charset())).lines().collect(Collectors.joining());
+      assertThat(result).isEqualTo(content);
+    }
+
+  }
+
+  @Test
+  public void test_content_exclude_bom() throws IOException {
+    Path baseDir = temp.newFolder().toPath();
+    Path testFile = baseDir.resolve("src").resolve("Foo.php");
+    Files.createDirectories(testFile.getParent());
+    try (BufferedWriter out = new BufferedWriter(new FileWriter(testFile.toFile()))) {
+      out.write('\ufeff');
+    }
+    String content = "test é string €";
+    Files.write(testFile, content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+
+    assertThat(Files.readAllLines(testFile, StandardCharsets.UTF_8).get(0)).hasSize(content.length() + 1);
+
+    Metadata metadata = new Metadata(42, 30, "", new int[0], 0);
+
+    DefaultInputFile inputFile = new DefaultInputFile(new DefaultIndexedFile("ABCDE", baseDir, "src/Foo.php", InputFile.Type.TEST, 0)
+      .setLanguage("php"), f -> f.setMetadata(metadata))
+        .setStatus(InputFile.Status.ADDED)
+        .setCharset(StandardCharsets.UTF_8);
+
+    assertThat(inputFile.contents()).isEqualTo(content);
+    try (InputStream inputStream = inputFile.inputStream()) {
+      String result = new BufferedReader(new InputStreamReader(inputStream, inputFile.charset())).lines().collect(Collectors.joining());
+      assertThat(result).isEqualTo(content);
     }
 
   }

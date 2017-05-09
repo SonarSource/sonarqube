@@ -20,8 +20,8 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Preconditions;
-
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,10 +30,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.function.Consumer;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
@@ -43,6 +43,9 @@ import org.sonar.api.batch.fs.TextRange;
  * To create {@link InputFile} in tests, use {@link TestInputFileBuilder}.
  */
 public class DefaultInputFile extends DefaultInputComponent implements InputFile {
+
+  private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+
   private final DefaultIndexedFile indexedFile;
   private final Consumer<DefaultInputFile> metadataGenerator;
   private Status status;
@@ -55,6 +58,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     this(indexedFile, metadataGenerator, null);
   }
 
+  // For testing
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator, @Nullable String contents) {
     super(indexedFile.batchId());
     this.indexedFile = indexedFile;
@@ -72,12 +76,24 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   @Override
   public InputStream inputStream() throws IOException {
-    return contents != null ? new ByteArrayInputStream(contents.getBytes(charset())) : Files.newInputStream(path());
+    return contents != null ? new ByteArrayInputStream(contents.getBytes(charset())) : new BOMInputStream(Files.newInputStream(path()),
+      ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
   }
 
   @Override
   public String contents() throws IOException {
-    return contents != null ? contents : new String(Files.readAllBytes(path()), charset());
+    if (contents != null) {
+      return contents;
+    } else {
+      ByteArrayOutputStream result = new ByteArrayOutputStream();
+      byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+      int length;
+      InputStream inputStream = inputStream();
+      while ((length = inputStream.read(buffer)) != -1) {
+        result.write(buffer, 0, length);
+      }
+      return result.toString(charset().name());
+    }
   }
 
   /**

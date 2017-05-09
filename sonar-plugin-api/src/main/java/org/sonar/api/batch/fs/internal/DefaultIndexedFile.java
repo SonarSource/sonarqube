@@ -20,11 +20,12 @@
 package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.utils.PathUtils;
@@ -81,6 +82,11 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   @Override
   public Path path() {
     return moduleBaseDir.resolve(relativePath);
+  }
+
+  @Override
+  public InputStream inputStream() throws IOException {
+    return Files.newInputStream(path());
   }
 
   @CheckForNull

@@ -22,14 +22,8 @@ package org.sonar.api.batch.fs;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-
 import javax.annotation.CheckForNull;
-
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 
 /**
  * Represents the indexed view of an {@link InputFile}. Accessing any of data exposed here won't trigger the expensive generation of 
@@ -94,10 +88,7 @@ public interface IndexedFile extends InputPath {
   /**
    * Creates a stream of the file's contents. Depending on the runtime context, the source might be a file in a physical or virtual filesystem.
    * Typically, it won't be buffered. <b>The stream must be closed by the caller</b>.
-   * Note that there is a default implementation.
    * @since 6.2
    */
-  default InputStream inputStream() throws IOException {
-    return Files.newInputStream(path());
-  }
+  InputStream inputStream() throws IOException;
 }
