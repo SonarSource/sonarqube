@@ -47,7 +47,12 @@ export default class IssueAssign extends React.PureComponent {
       <span>
         {issue.assignee &&
           <span className="text-top">
-            <Avatar className="little-spacer-right" hash={issue.assigneeAvatar} size={16} />
+            <Avatar
+              className="little-spacer-right"
+              hash={issue.assigneeAvatar}
+              name={issue.assigneeName}
+              size={16}
+            />
           </span>}
         <span className="issue-meta-label">
           {issue.assignee ? issue.assigneeName : translate('unassigned')}

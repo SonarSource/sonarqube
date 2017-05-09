@@ -59,7 +59,12 @@ export default class UserHolder extends React.PureComponent {
       <tr>
         <td className="nowrap">
           {!isCreator &&
-            <Avatar email={user.email} size={36} className="text-middle big-spacer-right" />}
+            <Avatar
+              email={user.email}
+              name={user.name}
+              size={36}
+              className="text-middle big-spacer-right"
+            />}
           <div className="display-inline-block text-middle">
             <div>
               <strong>{user.name}</strong>

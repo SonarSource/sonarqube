@@ -30,7 +30,10 @@ type History = Array<{
 
 export default class RecentHistory {
   static get(): History {
-    let history = localStorage.getItem(STORAGE_KEY);
+    if (!window.localStorage) {
+      return [];
+    }
+    let history = window.localStorage.getItem(STORAGE_KEY);
     if (history == null) {
       history = [];
     } else {
@@ -45,11 +48,15 @@ export default class RecentHistory {
   }
 
   static set(newHistory: History): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+    if (window.localStorage) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+    }
   }
 
   static clear(): void {
-    localStorage.removeItem(STORAGE_KEY);
+    if (window.localStorage) {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
   }
 
   static add(

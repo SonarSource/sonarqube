@@ -48,6 +48,7 @@ exports[`should open the popup when the button is clicked 2`] = `
         <Connect(Avatar)
           className="little-spacer-right"
           hash="gravatarhash"
+          name="John Doe"
           size={16}
         />
       </span>
@@ -94,6 +95,7 @@ exports[`should render with the action 1`] = `
         <Connect(Avatar)
           className="little-spacer-right"
           hash="gravatarhash"
+          name="John Doe"
           size={16}
         />
       </span>
@@ -118,6 +120,7 @@ exports[`should render without the action when the correct rights are missing 1`
     <Connect(Avatar)
       className="little-spacer-right"
       hash="gravatarhash"
+      name="John Doe"
       size={16}
     />
   </span>

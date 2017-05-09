@@ -193,7 +193,7 @@ declare module 'lodash' {
     forEach<T: Object>(object: T, iteratee?: OIteratee<T>): T;
     forEachRight<T>(array: ?Array<T>, iteratee?: Iteratee<T>): Array<T>;
     forEachRight<T: Object>(object: T, iteratee?: OIteratee<T>): T;
-    groupBy<V, T>(array: ?Array<T>, iteratee?: ValueOnlyIteratee<T>): {[key: V]: ?Array<T>};
+    groupBy<V, T>(array: ?Array<T>, iteratee?: ValueOnlyIteratee<T>): {[key: V]: Array<T>};
     groupBy<V, A, T: {[id: string]: A}>(object: T, iteratee?: ValueOnlyIteratee<A>): {[key: V]: ?Array<A>};
     includes<T>(array: ?Array<T>, value: T, fromIndex?: number): bool;
     includes<T: Object>(object: T, value: any, fromIndex?: number): bool;

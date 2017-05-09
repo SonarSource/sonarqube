@@ -7,6 +7,7 @@ exports[`should groups at 0 if the groupCount field is not defined (just added u
   >
     <Connect(Avatar)
       hash="7daf6c79d4802916d83f6266e24850af"
+      name="John Doe"
       size={36}
     />
   </td>
@@ -101,6 +102,7 @@ exports[`should not render actions and groups for non admin 1`] = `
   >
     <Connect(Avatar)
       hash=""
+      name="Admin Istrator"
       size={36}
     />
   </td>
@@ -126,6 +128,7 @@ exports[`should render actions and groups for admin 1`] = `
   >
     <Connect(Avatar)
       hash=""
+      name="Admin Istrator"
       size={36}
     />
   </td>

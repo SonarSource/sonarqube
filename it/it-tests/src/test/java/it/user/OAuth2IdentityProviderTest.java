@@ -36,6 +36,7 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.user.CreateRequest;
+import pageobjects.Navigation;
 import util.user.UserRule;
 import util.user.Users;
 
@@ -112,7 +113,7 @@ public class OAuth2IdentityProviderTest {
     simulateRedirectionToCallback();
     enablePlugin();
 
-    runSelenese(ORCHESTRATOR,"/user/OAuth2IdentityProviderTest/authenticate_user.html");
+    Navigation.get(ORCHESTRATOR).openLogin().useOAuth2().shouldBeLoggedIn();
 
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }

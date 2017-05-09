@@ -26,14 +26,9 @@
   line-height: 24px;
 }
 
-.boxed-group-header > [class^="icon-"] {
+.boxed-group-header [class^="icon-"] {
   display: inline-block;
   vertical-align: middle;
-}
-
-.boxed-group-header > .icon-star {
-  position: relative;
-  top: 1px;
 }
 
 .boxed-group-actions {

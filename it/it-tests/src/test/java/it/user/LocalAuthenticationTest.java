@@ -98,13 +98,8 @@ public class LocalAuthenticationTest {
   @Test
   public void log_in_with_correct_credentials_then_log_out() {
     nav.shouldNotBeLoggedIn();
-
-    Navigation page = nav.logIn().submitCredentials(LOGIN, "123456");
-    page.getRightBar().shouldHave(Condition.text(LOGIN));
-    nav.shouldBeLoggedIn();
-
-    nav.logOut();
-    nav.shouldNotBeLoggedIn();
+    nav.logIn().submitCredentials(LOGIN, "123456").shouldBeLoggedIn();
+    nav.logOut().shouldNotBeLoggedIn();
   }
 
   @Test

@@ -26,6 +26,11 @@ export const mockEvent = {
 
 export const click = (element, event = {}) => element.simulate('click', { ...mockEvent, ...event });
 
+export const clickOutside = (event = {}) => {
+  const dispatchedEvent = new MouseEvent('click', event);
+  window.dispatchEvent(dispatchedEvent);
+};
+
 export const submit = element =>
   element.simulate('submit', {
     preventDefault() {}
@@ -40,4 +45,12 @@ export const change = (element, value) =>
 export const keydown = keyCode => {
   const event = new KeyboardEvent('keydown', { keyCode });
   document.dispatchEvent(event);
+};
+
+export const elementKeydown = (element, keyCode) => {
+  element.simulate('keydown', {
+    currentTarget: { element },
+    keyCode,
+    preventDefault() {}
+  });
 };

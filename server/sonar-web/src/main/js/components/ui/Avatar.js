@@ -23,19 +23,74 @@ import md5 from 'blueimp-md5';
 import classNames from 'classnames';
 import { getSettingValue } from '../../store/rootReducer';
 
+function stringToColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = '#';
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += ('00' + value.toString(16)).substr(-2);
+  }
+  return color;
+}
+
+function getTextColor(background) {
+  const rgb = parseInt(background.substr(1), 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = (rgb >> 0) & 0xff;
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luma > 140 ? '#222' : '#fff';
+}
+
 class Avatar extends React.PureComponent {
   static propTypes = {
     enableGravatar: React.PropTypes.bool.isRequired,
     gravatarServerUrl: React.PropTypes.string.isRequired,
     email: React.PropTypes.string,
     hash: React.PropTypes.string,
+    name: React.PropTypes.string.isRequired,
     size: React.PropTypes.number.isRequired,
     className: React.PropTypes.string
   };
 
+  renderFallback() {
+    const className = classNames(this.props.className, 'rounded');
+    const color = stringToColor(this.props.name);
+
+    let text = '';
+    const words = this.props.name.split(/\s+/).filter(word => word.length > 0);
+    if (words.length >= 2) {
+      text = words[0][0] + words[1][0];
+    } else if (this.props.name.length > 0) {
+      text = this.props.name[0];
+    }
+
+    return (
+      <div
+        className={className}
+        style={{
+          backgroundColor: color,
+          color: getTextColor(color),
+          display: 'inline-block',
+          fontSize: Math.min(this.props.size / 2, 14),
+          fontWeight: 'normal',
+          height: this.props.size,
+          lineHeight: `${this.props.size}px`,
+          textAlign: 'center',
+          verticalAlign: 'top',
+          width: this.props.size
+        }}>
+        {text.toUpperCase()}
+      </div>
+    );
+  }
+
   render() {
     if (!this.props.enableGravatar) {
-      return null;
+      return this.renderFallback();
     }
 
     const emailHash = this.props.hash || md5.md5((this.props.email || '').toLowerCase()).trim();

@@ -40,6 +40,11 @@ public class LoginPage {
     return submitCredentials("admin", "admin");
   }
 
+  public Navigation useOAuth2() {
+    $(".oauth-providers a").click();
+    return page(Navigation.class);
+  }
+
   public LoginPage submitWrongCredentials(String login, String password) {
     $("#login").val(login);
     $("#password").val(password);

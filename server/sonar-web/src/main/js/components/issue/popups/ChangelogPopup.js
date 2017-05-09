@@ -94,9 +94,12 @@ export default class ChangelogPopup extends React.PureComponent {
                     {moment(item.creationDate).format('LLL')}
                   </td>
                   <td className="thin text-left text-top nowrap">
-                    {item.userName &&
-                      item.avatar &&
-                      <Avatar className="little-spacer-right" hash={item.avatar} size={16} />}
+                    <Avatar
+                      className="little-spacer-right"
+                      hash={item.avatar}
+                      name={item.userName}
+                      size={16}
+                    />
                     {item.userName}
                   </td>
                   <td className="text-left text-top">

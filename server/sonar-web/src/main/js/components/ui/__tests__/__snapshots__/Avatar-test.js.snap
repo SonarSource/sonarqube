@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`falls back to dummy avatar 1`] = `
+<div
+  className="rounded"
+  style={
+    Object {
+      "backgroundColor": "#79e189",
+      "color": "#222",
+      "display": "inline-block",
+      "fontSize": 14,
+      "fontWeight": "normal",
+      "height": 30,
+      "lineHeight": "30px",
+      "textAlign": "center",
+      "verticalAlign": "top",
+      "width": 30,
+    }
+  }
+>
+  FB
+</div>
+`;
+
+exports[`should be able to render with hash only 1`] = `
+<img
+  className="rounded"
+  height={30}
+  src="http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=60"
+  width={30}
+/>
+`;
+
+exports[`should render 1`] = `
+<img
+  alt="mail@example.com"
+  className="rounded"
+  height={20}
+  src="http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=40"
+  width={20}
+/>
+`;

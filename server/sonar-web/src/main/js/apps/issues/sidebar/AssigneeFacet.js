@@ -95,6 +95,7 @@ export default class AssigneeFacet extends React.PureComponent {
             <Avatar
               className="little-spacer-right"
               hash={referencedUsers[assignee].avatar}
+              name={referencedUsers[assignee].name}
               size={16}
             />
             {referencedUsers[assignee].name}
@@ -115,7 +116,12 @@ export default class AssigneeFacet extends React.PureComponent {
     return (
       <span>
         {option.avatar != null &&
-          <Avatar className="little-spacer-right" hash={option.avatar} size={16} />}
+          <Avatar
+            className="little-spacer-right"
+            hash={option.avatar}
+            name={option.label}
+            size={16}
+          />}
         {option.label}
       </span>
     );

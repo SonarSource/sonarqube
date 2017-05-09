@@ -10,6 +10,7 @@ exports[`should render correctly with a user 1`] = `
   >
     <Connect(Avatar)
       hash="7daf6c79d4802916d83f6266e24850af"
+      name="Administrator"
       size={20}
     />
     <strong
@@ -36,6 +37,7 @@ exports[`should render correctly with email instead of hash 1`] = `
   >
     <Connect(Avatar)
       email="admin@admin.ch"
+      name="Administrator"
       size={20}
     />
     <strong

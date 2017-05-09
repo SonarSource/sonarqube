@@ -32,6 +32,7 @@ exports[`should render 1`] = `
           <Connect(Avatar)
             className="little-spacer-right"
             hash="avatart-foo"
+            name="name-foo"
             size={16}
           />
           name-foo
@@ -65,6 +66,7 @@ exports[`should render footer select option 1`] = `
   <Connect(Avatar)
     className="little-spacer-right"
     hash="avatar-foo"
+    name="name-foo"
     size={16}
   />
   name-foo
@@ -117,6 +119,7 @@ exports[`should select unassigned 1`] = `
           <Connect(Avatar)
             className="little-spacer-right"
             hash="avatart-foo"
+            name="name-foo"
             size={16}
           />
           name-foo
@@ -177,6 +180,7 @@ exports[`should select user 1`] = `
           <Connect(Avatar)
             className="little-spacer-right"
             hash="avatart-foo"
+            name="name-foo"
             size={16}
           />
           name-foo

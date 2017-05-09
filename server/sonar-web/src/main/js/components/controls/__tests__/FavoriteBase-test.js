@@ -30,12 +30,12 @@ function renderFavoriteBase(props) {
 
 it('should render favorite', () => {
   const favorite = renderFavoriteBase({ favorite: true });
-  expect(favorite.is('.icon-star-favorite')).toBe(true);
+  expect(favorite).toMatchSnapshot();
 });
 
 it('should render not favorite', () => {
   const favorite = renderFavoriteBase({ favorite: false });
-  expect(favorite.is('.icon-star-favorite')).toBe(false);
+  expect(favorite).toMatchSnapshot();
 });
 
 it('should add favorite', () => {
