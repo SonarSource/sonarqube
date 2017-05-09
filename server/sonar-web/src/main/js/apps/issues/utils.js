@@ -244,3 +244,24 @@ export const searchAssignees = (query: string, component?: Component) => {
         }))
       );
 };
+
+const LOCALSTORAGE_KEY = 'sonarqube.issues.default';
+const LOCALSTORAGE_MY = 'my';
+const LOCALSTORAGE_ALL = 'all';
+
+export const isMySet = (): boolean => {
+  const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
+  return setting === LOCALSTORAGE_MY;
+};
+
+const save = (value: string) => {
+  try {
+    window.localStorage.setItem(LOCALSTORAGE_KEY, value);
+  } catch (e) {
+    // usually that means the storage is full
+    // just do nothing in this case
+  }
+};
+
+export const saveMyIssues = (myIssues: boolean) =>
+  save(myIssues ? LOCALSTORAGE_MY : LOCALSTORAGE_ALL);

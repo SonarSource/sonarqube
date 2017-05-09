@@ -40,7 +40,8 @@ import {
   getOpen,
   serializeQuery,
   parseFacets,
-  mapFacet
+  mapFacet,
+  saveMyIssues
 } from '../utils';
 import type {
   Query,
@@ -524,6 +525,9 @@ export default class App extends React.PureComponent {
 
   handleMyIssuesChange = (myIssues: boolean) => {
     this.closeFacet('assignees');
+    if (!this.props.component) {
+      saveMyIssues(myIssues);
+    }
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
