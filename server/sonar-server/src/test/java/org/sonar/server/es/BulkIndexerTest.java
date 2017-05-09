@@ -40,7 +40,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_nothing() {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX);
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX, Size.REGULAR);
     indexer.start();
     indexer.stop();
 
@@ -49,7 +49,7 @@ public class BulkIndexerTest {
 
   @Test
   public void index_documents() {
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX);
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX, Size.REGULAR);
     indexer.start();
     indexer.add(newIndexRequest(42));
     indexer.add(newIndexRequest(78));
@@ -67,9 +67,7 @@ public class BulkIndexerTest {
     // index has one replica
     assertThat(replicas()).isEqualTo(1);
 
-    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX)
-      .setFlushByteSize(500)
-      .setSize(Size.LARGE);
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX, Size.LARGE);
     indexer.start();
 
     // replicas are temporarily disabled

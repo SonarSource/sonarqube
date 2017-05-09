@@ -19,7 +19,10 @@
  */
 package org.sonar.server.es;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.Closeable;
+
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
@@ -67,8 +70,6 @@ import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
 import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
 import org.sonar.server.es.request.ProxySearchRequestBuilder;
 import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Facade to connect to Elasticsearch node. Handles correctly errors (logging + exceptions

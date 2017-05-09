@@ -111,8 +111,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
   }
 
   private BulkIndexer createBulkIndexer(Size bulkSize) {
-    return new BulkIndexer(esClient, INDEX_TYPE_PROJECT_MEASURES.getIndex())
-      .setSize(bulkSize);
+    return new BulkIndexer(esClient, INDEX_TYPE_PROJECT_MEASURES.getIndex(), bulkSize);
   }
 
   private static IndexRequest newIndexRequest(ProjectMeasuresDoc doc) {

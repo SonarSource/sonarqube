@@ -85,12 +85,11 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   /**
-   * @param projectUuid the uuid of the project to analyze, or <code>null</code> if all content should be indexed.<br/>
-   * <b>Warning:</b> only use <code>null</code> during startup.
+   * @param projectUuid the uuid of the project to analyze, or {@code null} if all content should be indexed.<br/>
+   * <b>Warning:</b> only use {@code null} during startup.
    */
   private void doIndexByProjectUuid(@Nullable String projectUuid, Size bulkSize) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
-    bulk.setSize(bulkSize);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex(), bulkSize);
 
     bulk.start();
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -112,15 +111,14 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   }
 
   public void delete(String projectUuid, Collection<String> disabledComponentUuids) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex(), Size.REGULAR);
     bulk.start();
-    disabledComponentUuids.stream().forEach(uuid -> bulk.addDeletion(INDEX_TYPE_COMPONENT, uuid, projectUuid));
+    disabledComponentUuids.forEach(uuid -> bulk.addDeletion(INDEX_TYPE_COMPONENT, uuid, projectUuid));
     bulk.stop();
   }
 
   void index(ComponentDto... docs) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex());
-    bulk.setSize(Size.REGULAR);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_COMPONENT.getIndex(), Size.REGULAR);
     bulk.start();
     Arrays.stream(docs)
       .map(ComponentIndexer::toDocument)
