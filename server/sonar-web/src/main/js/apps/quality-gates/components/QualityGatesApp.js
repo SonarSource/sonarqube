@@ -24,6 +24,7 @@ import {
   fetchQualityGatesAppDetails,
   fetchQualityGates as fetchQualityGatesAPI
 } from '../../../api/quality-gates';
+import '../styles.css';
 
 export default class QualityGatesApp extends Component {
   state = {};

@@ -1,0 +1,8 @@
+.quality-gate-section {
+  max-width: 1440px;
+}
+
+.quality-gate-section + .quality-gate-section {
+  margin-top: 10px;
+  padding-top: 20px;
+}

@@ -19,12 +19,11 @@
  */
 import Marionette from 'backbone.marionette';
 import escapeHtml from 'escape-html';
-import Template from '../templates/quality-gate-detail-projects.hbs';
 import '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
-  template: Template,
+  template: () => {},
 
   onRender() {
     const { qualityGate } = this.options;
