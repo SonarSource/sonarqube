@@ -227,9 +227,11 @@ public class BulkIndexer implements Startable {
     }
 
     void beforeStart(BulkIndexer bulkIndexer) {
+      // nothing to do, to be overridden if needed
     }
 
     void afterStop(BulkIndexer bulkIndexer) {
+      // nothing to do, to be overridden if needed
     }
   }
 

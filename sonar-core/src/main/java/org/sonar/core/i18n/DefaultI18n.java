@@ -210,8 +210,8 @@ public class DefaultI18n implements I18n, Startable {
     return result;
   }
 
-  String readInputStream(String filePath, InputStream input) {
-    String result = null;
+  private String readInputStream(String filePath, InputStream input) {
+    String result;
     try {
       result = IOUtils.toString(input, "UTF-8");
     } catch (IOException e) {
