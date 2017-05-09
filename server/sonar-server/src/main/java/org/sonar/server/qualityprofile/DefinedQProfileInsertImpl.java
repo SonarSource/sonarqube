@@ -72,7 +72,7 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
   }
 
   @Override
-  public void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+  public void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization) {
     initRuleRepository(batchSession);
 
     checkArgument(definedQProfile.getParentQProfileName() == null, "Inheritance of Quality Profiles is not supported yet");
@@ -88,8 +88,6 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
     localChanges.forEach(change -> dbClient.qProfileChangeDao().insert(batchSession, change.toDto(null)));
 
     insertTemplate(session, definedQProfile, organization);
-
-    changes.addAll(localChanges);
   }
 
   private void initRuleRepository(DbSession session) {

@@ -19,10 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.List;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 
 public interface DefinedQProfileInsert {
-  void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization, List<ActiveRuleChange> changes);
+  void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization);
 }

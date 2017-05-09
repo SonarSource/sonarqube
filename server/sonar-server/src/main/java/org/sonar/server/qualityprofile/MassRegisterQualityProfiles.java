@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
@@ -30,7 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.lang.String.format;
 import static org.sonar.db.Pagination.forPage;
@@ -53,15 +51,13 @@ public class MassRegisterQualityProfiles {
   private final Settings settings;
   private final DefinedQProfileRepository definedQProfileRepository;
   private final DbClient dbClient;
-  private final ActiveRuleIndexer activeRuleIndexer;
   private final DefinedQProfileInsert definedQProfileInsert;
 
   public MassRegisterQualityProfiles(Settings settings, DefinedQProfileRepository definedQProfileRepository,
-    DbClient dbClient, DefinedQProfileInsert definedQProfileInsert, ActiveRuleIndexer activeRuleIndexer) {
+    DbClient dbClient, DefinedQProfileInsert definedQProfileInsert) {
     this.settings = settings;
     this.definedQProfileRepository = definedQProfileRepository;
     this.dbClient = dbClient;
-    this.activeRuleIndexer = activeRuleIndexer;
     this.definedQProfileInsert = definedQProfileInsert;
   }
 
@@ -77,30 +73,24 @@ public class MassRegisterQualityProfiles {
 
     try (DbSession session = dbClient.openSession(false);
       DbSession batchSession = dbClient.openSession(true)) {
-      // memory optimization: use a single array list for everything to avoid reallocating and increasing new array for each quality profiles
-      List<ActiveRuleChange> changes = new ArrayList<>();
       definedQProfileRepository.getQProfilesByLanguage()
-        .forEach((key, value) -> registerPerLanguage(session, batchSession, value, changes));
+        .forEach((key, value) -> registerPerLanguage(session, batchSession, value));
       profiler.stopDebug();
     }
   }
 
-  private void registerPerLanguage(DbSession session, DbSession batchSession, List<DefinedQProfile> qualityProfiles, List<ActiveRuleChange> changes) {
-    qualityProfiles.forEach(qp -> registerPerQualityProfile(session, batchSession, qp, changes));
+  private void registerPerLanguage(DbSession session, DbSession batchSession, List<DefinedQProfile> qualityProfiles) {
+    qualityProfiles.forEach(qp -> registerPerQualityProfile(session, batchSession, qp));
   }
 
-  private void registerPerQualityProfile(DbSession session, DbSession batchSession, DefinedQProfile qualityProfile, List<ActiveRuleChange> changes) {
+  private void registerPerQualityProfile(DbSession session, DbSession batchSession, DefinedQProfile qualityProfile) {
     LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
 
     Profiler profiler = Profiler.create(Loggers.get(getClass()));
     List<OrganizationDto> organizationDtos;
     while (!(organizationDtos = getOrganizationsWithoutQP(session, qualityProfile)).isEmpty()) {
-      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, batchSession, qualityProfile, organization, changes, profiler));
+      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, batchSession, qualityProfile, organization, profiler));
     }
-    profiler.startDebug("Indexing for profile " + qualityProfile.getQProfileName());
-    activeRuleIndexer.index(changes);
-    changes.clear();
-    profiler.stopDebug();
   }
 
   private List<OrganizationDto> getOrganizationsWithoutQP(DbSession session, DefinedQProfile qualityProfile) {
@@ -109,10 +99,10 @@ public class MassRegisterQualityProfiles {
   }
 
   private void registerPerQualityProfileAndOrganization(DbSession session, DbSession batchSession,
-    DefinedQProfile definedQProfile, OrganizationDto organization, List<ActiveRuleChange> changes, Profiler profiler) {
+                                                        DefinedQProfile definedQProfile, OrganizationDto organization, Profiler profiler) {
     profiler.start();
 
-    definedQProfileInsert.create(session, batchSession, definedQProfile, organization, changes);
+    definedQProfileInsert.create(session, batchSession, definedQProfile, organization);
 
     session.commit();
     batchSession.commit();
