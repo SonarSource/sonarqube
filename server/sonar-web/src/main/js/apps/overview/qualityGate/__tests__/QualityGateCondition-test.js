@@ -122,8 +122,8 @@ it('new_security_rating', () => {
   ).toMatchSnapshot();
 });
 
-it('new_sqale_rating', () => {
-  const condition = mockRatingCondition('new_sqale_rating');
+it('new_maintainability_rating', () => {
+  const condition = mockRatingCondition('new_maintainability_rating');
   condition.period = 1;
   condition.measure.periods = periods;
   expect(
