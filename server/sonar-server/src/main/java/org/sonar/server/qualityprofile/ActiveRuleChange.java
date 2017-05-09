@@ -37,13 +37,15 @@ public class ActiveRuleChange {
 
   private final Type type;
   private final ActiveRuleKey key;
+  private final String organizationUuid;
   private String severity = null;
   private ActiveRule.Inheritance inheritance = null;
   private Map<String, String> parameters = Maps.newHashMap();
 
-  private ActiveRuleChange(Type type, ActiveRuleKey key) {
+  private ActiveRuleChange(Type type, ActiveRuleKey key, String organizationUuid) {
     this.type = type;
     this.key = key;
+    this.organizationUuid = organizationUuid;
   }
 
   public ActiveRuleKey getKey() {
@@ -52,6 +54,10 @@ public class ActiveRuleChange {
 
   public Type getType() {
     return type;
+  }
+
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
   @CheckForNull
@@ -112,8 +118,8 @@ public class ActiveRuleChange {
     return dto;
   }
 
-  public static ActiveRuleChange createFor(Type type, ActiveRuleKey key) {
-    return new ActiveRuleChange(type, key);
+  public static ActiveRuleChange createFor(Type type, ActiveRuleKey key, String organizationUuid) {
+    return new ActiveRuleChange(type, key, organizationUuid);
   }
 
   @Override

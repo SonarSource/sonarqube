@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -113,7 +114,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // target does not exist
     copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P2_NAME.getName());
@@ -130,7 +131,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // create target with both x1 and x2 activated
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2(organization));
@@ -143,7 +144,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P2_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // copy -> reset x1 and deactivate x2
     copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P2_NAME.getName());
@@ -163,7 +164,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // copy child -> profile2 is created with parent P1
     copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P2_NAME.getName());
@@ -181,7 +182,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     try {
       copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P1_NAME.getName());

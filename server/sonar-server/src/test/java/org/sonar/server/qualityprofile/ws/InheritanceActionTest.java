@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
@@ -87,7 +88,7 @@ public class InheritanceActionTest {
     dbSession = dbTester.getSession();
     esClient = esTester.client();
     ruleIndexer = new RuleIndexer(esClient, dbClient);
-    activeRuleIndexer = new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient);
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     underTest = new InheritanceAction(
       dbClient,
@@ -120,7 +121,7 @@ public class InheritanceActionTest {
     createActiveRule(rule2, groupWide);
 
     dbSession.commit();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     QualityProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
     setParent(groupWide, companyWide);
@@ -133,7 +134,7 @@ public class InheritanceActionTest {
     setParent(buWide, forProject1);
     createActiveRule(rule3, forProject1);
     dbSession.commit();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     QualityProfileDto forProject2 = createProfile("xoo", "For Project Two", "xoo-for-project-two-45678");
     setParent(buWide, forProject2);
@@ -168,7 +169,7 @@ public class InheritanceActionTest {
     dbTester.qualityProfiles().activateRule(child, rule3);
     long childRules = 1;
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     InputStream response = wsActionTester.newRequest()
       .setMethod("GET")
@@ -195,7 +196,7 @@ public class InheritanceActionTest {
     dbTester.qualityProfiles().activateRule(profile, rule);
     long activeRules = 0;
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     InputStream response = wsActionTester.newRequest()
       .setMethod("GET")
@@ -267,6 +268,6 @@ public class InheritanceActionTest {
   private void overrideActiveRuleSeverity(RuleDefinitionDto rule, QualityProfileDto profile, String severity) {
     ruleActivator.activate(dbSession, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKey());
     dbSession.commit();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
   }
 }

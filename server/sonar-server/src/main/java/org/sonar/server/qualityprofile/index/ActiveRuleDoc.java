@@ -27,22 +27,20 @@ import org.sonar.server.qualityprofile.ActiveRule;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ORGANIZATION_UUID;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ORGANIZATION_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT;
 
 public class ActiveRuleDoc extends BaseDoc {
 
   private final ActiveRuleKey key;
 
   public ActiveRuleDoc(ActiveRuleKey key) {
-    super(Maps.newHashMapWithExpectedSize(9));
+    super(Maps.newHashMapWithExpectedSize(7));
     checkNotNull(key, "ActiveRuleKey cannot be null");
     this.key = key;
     setField(FIELD_ACTIVE_RULE_KEY, key.toString());
@@ -104,24 +102,6 @@ public class ActiveRuleDoc extends BaseDoc {
 
   public ActiveRuleDoc setInheritance(@Nullable String s) {
     setField(FIELD_ACTIVE_RULE_INHERITANCE, s);
-    return this;
-  }
-
-  long createdAt() {
-    return (Long) getField(FIELD_ACTIVE_RULE_CREATED_AT);
-  }
-
-  public ActiveRuleDoc setCreatedAt(@Nullable Long l) {
-    setField(FIELD_ACTIVE_RULE_CREATED_AT, l);
-    return this;
-  }
-
-  long updatedAt() {
-    return (Long) getField(FIELD_ACTIVE_RULE_UPDATED_AT);
-  }
-
-  public ActiveRuleDoc setUpdatedAt(@Nullable Long l) {
-    setField(FIELD_ACTIVE_RULE_UPDATED_AT, l);
     return this;
   }
 }

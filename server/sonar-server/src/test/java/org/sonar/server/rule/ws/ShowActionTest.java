@@ -21,6 +21,7 @@
 package org.sonar.server.rule.ws;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Before;
@@ -30,7 +31,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -150,7 +150,7 @@ public class ShowActionTest {
       .build();
     Mockito.doReturn(singletonList(active)).when(activeRuleCompleter).completeShow(any(DbSession.class), orgCaptor.capture(), ruleCaptor.capture());
 
-    new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient).index();
+    new ActiveRuleIndexer(dbClient, esClient).indexOnStartup(Collections.emptySet());
 
     TestResponse response = actionTester.newRequest().setMethod("GET")
       .setMediaType(PROTOBUF)
@@ -184,7 +184,7 @@ public class ShowActionTest {
     RuleMetadataDto ruleMetadata = dbTester.rules().insertOrUpdateMetadata(rule, organization);
 
     dbTester.qualityProfiles().activateRule(profile, rule, a -> a.setSeverity("BLOCKER"));
-    new ActiveRuleIndexer(System2.INSTANCE, dbClient, esClient).index();
+    new ActiveRuleIndexer(dbClient, esClient).indexOnStartup(Collections.emptySet());
 
     TestResponse response = actionTester.newRequest().setMethod("GET")
       .setParam(ShowAction.PARAM_KEY, rule.getKey().toString())

@@ -20,6 +20,7 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
@@ -322,7 +323,7 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.TEXT_QUERY, "x1");
@@ -388,7 +389,7 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.TEXT_QUERY, "x1");
@@ -429,7 +430,7 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.TEXT_QUERY, "x1");
@@ -475,7 +476,7 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.TEXT_QUERY, "x1");
@@ -496,7 +497,7 @@ public class SearchActionMediumTest {
 
     dbSession.commit();
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.FIELDS, "htmlNote, mdNote");
@@ -512,7 +513,7 @@ public class SearchActionMediumTest {
     insertRule(RuleTesting.newRule()
       .setSystemTags(ImmutableSet.of("tag2")));
 
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(PARAM_TAGS, "tag1");

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.util.Collections;
 import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
@@ -293,7 +294,7 @@ public class ShowActionMediumTest {
       .setValue(".*?"));
     session.commit();
 
-    tester.get(ActiveRuleIndexer.class).index();
+    tester.get(ActiveRuleIndexer.class).indexOnStartup(Collections.emptySet());
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString())

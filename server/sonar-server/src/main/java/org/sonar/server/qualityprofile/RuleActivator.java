@@ -100,7 +100,7 @@ public class RuleActivator {
         return changes;
       }
       // new activation
-      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, context.activeRuleKey());
+      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, context.activeRuleKey(), context.profile().getOrganizationUuid());
       applySeverityAndParamToChange(activation, context, change);
       if (activation.isCascade() || context.isSameAsParent(change)) {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
@@ -111,7 +111,7 @@ public class RuleActivator {
         // propagating to descendants, but child profile already overrides rule -> stop propagation
         return changes;
       }
-      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, context.activeRuleKey());
+      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, context.activeRuleKey(), context.profile().getOrganizationUuid());
       if (activation.isCascade() && activeRule.getInheritance() == null) {
         // activate on child, then on parent -> mark child as overriding parent
         change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
@@ -258,9 +258,8 @@ public class RuleActivator {
   }
 
   private ActiveRuleDto doInsert(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
-    ActiveRuleDto activeRule;
     ActiveRuleDao dao = db.activeRuleDao();
-    activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
     String severity = change.getSeverity();
     if (severity != null) {
       activeRule.setSeverity(severity);
@@ -365,7 +364,7 @@ public class RuleActivator {
       return changes;
     }
     checkRequest(force || isCascade || activeRuleDto.getInheritance() == null, "Cannot deactivate inherited rule '%s'", key.ruleKey());
-    change = ActiveRuleChange.createFor(ActiveRuleChange.Type.DEACTIVATED, key);
+    change = ActiveRuleChange.createFor(ActiveRuleChange.Type.DEACTIVATED, key, context.profile().getOrganizationUuid());
     changes.add(change);
     persist(change, context, dbSession);
 
@@ -501,7 +500,7 @@ public class RuleActivator {
           activeRule.setInheritance(null);
           activeRule.setUpdatedAt(system2.now());
           db.activeRuleDao().update(dbSession, activeRule);
-          changes.add(ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, activeRule.getKey()).setInheritance(null));
+          changes.add(ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, activeRule.getKey(), profileDto.getOrganizationUuid()).setInheritance(null));
         }
       }
       return changes;

@@ -102,7 +102,7 @@ public class RuleIndexTest {
   @Before
   public void setUp() {
     ruleIndexer = new RuleIndexer(tester.client(), dbTester.getDbClient());
-    activeRuleIndexer = new ActiveRuleIndexer(system2, dbTester.getDbClient(), tester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(dbTester.getDbClient(), tester.client());
     index = new RuleIndex(tester.client());
   }
 

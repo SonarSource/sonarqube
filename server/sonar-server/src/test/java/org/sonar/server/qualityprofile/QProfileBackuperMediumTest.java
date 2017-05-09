@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import org.junit.After;
@@ -139,7 +140,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation3, profileDto);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     StringWriter output = new StringWriter();
     tester.get(QProfileBackuper.class).backup(dbSession, profile, output);
@@ -190,7 +191,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, profileDto);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // restore backup, which activates only x1
     // -> update x1 and deactivate x2
@@ -229,7 +230,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // restore backup of child profile -> overrides x1
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
@@ -277,7 +278,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // restore backup of parent profile -> update x1 and propagates to child
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
@@ -326,7 +327,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // backup of child profile contains x2 but not x1
     tester.get(QProfileBackuper.class).restore(dbSession, new StringReader(
