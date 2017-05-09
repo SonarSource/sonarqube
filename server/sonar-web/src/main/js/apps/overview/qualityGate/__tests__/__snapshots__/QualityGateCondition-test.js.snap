@@ -1,5 +1,66 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`new_maintainability_rating 1`] = `
+<Link
+  className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to={
+    Object {
+      "pathname": "/project/issues",
+      "query": Object {
+        "id": "abcd-key",
+        "resolved": "false",
+        "sinceLeakPeriod": "true",
+        "types": "CODE_SMELL",
+      },
+    }
+  }
+>
+  <div
+    className="overview-quality-gate-condition-container"
+  >
+    <div
+      className="overview-quality-gate-condition-value"
+    >
+      <Measure
+        measure={
+          Object {
+            "leak": "3",
+            "value": "3",
+          }
+        }
+        metric={
+          Object {
+            "key": "new_maintainability_rating",
+            "name": "new_maintainability_rating",
+            "type": "RATING",
+          }
+        }
+      />
+    </div>
+    <div>
+      <div
+        className="overview-quality-gate-condition-metric"
+      >
+        <IssueTypeIcon
+          className="little-spacer-right"
+          query="new_maintainability_rating"
+        />
+        new_maintainability_rating
+      </div>
+      <div
+        className="overview-quality-gate-threshold"
+      >
+        quality_gates.operator.GT.rating
+         
+        A
+      </div>
+    </div>
+  </div>
+</Link>
+`;
+
 exports[`new_open_issues 1`] = `
 <DrilldownLink
   className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
@@ -162,67 +223,6 @@ exports[`new_security_rating 1`] = `
           query="new_security_rating"
         />
         new_security_rating
-      </div>
-      <div
-        className="overview-quality-gate-threshold"
-      >
-        quality_gates.operator.GT.rating
-         
-        A
-      </div>
-    </div>
-  </div>
-</Link>
-`;
-
-exports[`new_sqale_rating 1`] = `
-<Link
-  className="overview-quality-gate-condition overview-quality-gate-condition-error overview-quality-gate-condition-leak"
-  onlyActiveOnIndex={false}
-  style={Object {}}
-  to={
-    Object {
-      "pathname": "/project/issues",
-      "query": Object {
-        "id": "abcd-key",
-        "resolved": "false",
-        "sinceLeakPeriod": "true",
-        "types": "CODE_SMELL",
-      },
-    }
-  }
->
-  <div
-    className="overview-quality-gate-condition-container"
-  >
-    <div
-      className="overview-quality-gate-condition-value"
-    >
-      <Measure
-        measure={
-          Object {
-            "leak": "3",
-            "value": "3",
-          }
-        }
-        metric={
-          Object {
-            "key": "new_sqale_rating",
-            "name": "new_sqale_rating",
-            "type": "RATING",
-          }
-        }
-      />
-    </div>
-    <div>
-      <div
-        className="overview-quality-gate-condition-metric"
-      >
-        <IssueTypeIcon
-          className="little-spacer-right"
-          query="new_sqale_rating"
-        />
-        new_sqale_rating
       </div>
       <div
         className="overview-quality-gate-threshold"

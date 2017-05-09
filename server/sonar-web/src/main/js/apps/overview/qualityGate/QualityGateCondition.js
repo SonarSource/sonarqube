@@ -104,7 +104,7 @@ export default class QualityGateCondition extends React.PureComponent {
       security_rating: ['VULNERABILITY', false],
       new_security_rating: ['VULNERABILITY', true],
       sqale_rating: ['CODE_SMELL', false],
-      new_sqale_rating: ['CODE_SMELL', true]
+      new_maintainability_rating: ['CODE_SMELL', true]
     };
 
     return RATING_METRICS_MAPPING[metricKey]
