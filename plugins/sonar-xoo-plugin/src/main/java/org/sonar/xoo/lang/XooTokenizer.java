@@ -48,16 +48,12 @@ public class XooTokenizer implements Tokenizer {
     String fileName = source.getFileName();
     LOG.info("Using deprecated tokenizer extension point to tokenize {}", fileName);
     int lineIdx = 1;
-    try {
-      for (String line : FileUtils.readLines(new File(fileName), fs.encoding())) {
-        for (String token : Splitter.on(" ").split(line)) {
-          TokenEntry cpdToken = new TokenEntry(token, fileName, lineIdx);
-          cpdTokens.add(cpdToken);
-        }
-        lineIdx++;
+    for (String line : source.getCode()) {
+      for (String token : Splitter.on(" ").split(line)) {
+        TokenEntry cpdToken = new TokenEntry(token, fileName, lineIdx);
+        cpdTokens.add(cpdToken);
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to tokenize", e);
+      lineIdx++;
     }
     cpdTokens.add(TokenEntry.getEOF());
   }

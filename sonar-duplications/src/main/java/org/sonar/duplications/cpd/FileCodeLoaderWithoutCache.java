@@ -19,28 +19,25 @@
  */
 package org.sonar.duplications.cpd;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 
 public class FileCodeLoaderWithoutCache extends CodeLoaderWithoutCache {
 
-  private File file;
-  private String encoding;
+  private final String fileName;
+  private final Reader fileReader;
 
-  public FileCodeLoaderWithoutCache(File file, String encoding) {
-    this.file = file;
-    this.encoding = encoding;
+  public FileCodeLoaderWithoutCache(String fileName, Reader fileReader) {
+    this.fileName = fileName;
+    this.fileReader = fileReader;
   }
 
   @Override
   public Reader getReader() throws Exception {
-    return new InputStreamReader(new FileInputStream(file), encoding);
+    return fileReader;
   }
 
   @Override
   public String getFileName() {
-    return this.file.getAbsolutePath();
+    return fileName;
   }
 }

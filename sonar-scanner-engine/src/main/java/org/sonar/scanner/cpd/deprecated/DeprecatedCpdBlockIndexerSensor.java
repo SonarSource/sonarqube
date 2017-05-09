@@ -72,7 +72,7 @@ public class DeprecatedCpdBlockIndexerSensor implements Sensor {
         LOG.debug("Detection of duplicated code is not supported for {}", language);
         continue;
       }
-      LOG.info("{} is used for {}", blockIndexer, language);
+      LOG.debug("{} is used for {}", blockIndexer.getClass().getName(), language);
       blockIndexer.index(language);
     }
   }

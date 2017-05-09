@@ -21,6 +21,8 @@ package org.sonar.scanner.cpd.deprecated;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
@@ -80,12 +82,17 @@ public class DefaultCpdBlockIndexer extends CpdBlockIndexer {
   }
 
   private void populateIndex(String languageKey, List<InputFile> sourceFiles, CpdMapping mapping) {
-    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
+    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), getBlockSize(languageKey));
     for (InputFile inputFile : sourceFiles) {
       if (!index.isIndexed(inputFile)) {
         LOG.debug("Populating index from {}", inputFile.absolutePath());
         String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
-        List<Block> blocks = bridge.chunk(resourceEffectiveKey, inputFile.file());
+        List<Block> blocks;
+        try (InputStreamReader isr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
+          blocks = bridge.chunk(resourceEffectiveKey, inputFile.absolutePath(), isr);
+        } catch (IOException e) {
+          throw new IllegalStateException("Unable to read content of file " + inputFile.absolutePath(), e);
+        }
         index.insert(inputFile, blocks);
       }
     }

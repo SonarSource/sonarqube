@@ -20,7 +20,6 @@
 package org.sonar.scanner.cpd.deprecated;
 
 import com.google.common.collect.Lists;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,8 +90,8 @@ public class JavaCpdBlockIndexer extends CpdBlockIndexer {
 
       List<Statement> statements;
 
-      try (InputStream is = new FileInputStream(inputFile.file());
-        Reader reader = new InputStreamReader(is, fs.encoding())) {
+      try (InputStream is = inputFile.inputStream();
+        Reader reader = new InputStreamReader(is, inputFile.charset())) {
         statements = statementChunker.chunk(tokenChunker.chunk(reader));
       } catch (FileNotFoundException e) {
         throw new IllegalStateException("Cannot find file " + inputFile.file(), e);
@@ -100,7 +99,12 @@ public class JavaCpdBlockIndexer extends CpdBlockIndexer {
         throw new IllegalStateException("Exception handling file: " + inputFile.file(), e);
       }
 
-      List<Block> blocks = blockChunker.chunk(resourceEffectiveKey, statements);
+      List<Block> blocks;
+      try {
+        blocks = blockChunker.chunk(resourceEffectiveKey, statements);
+      } catch (Exception e) {
+        throw new IllegalStateException("Cannot process file " + inputFile.file(), e);
+      }
       index.insert(inputFile, blocks);
     }
   }

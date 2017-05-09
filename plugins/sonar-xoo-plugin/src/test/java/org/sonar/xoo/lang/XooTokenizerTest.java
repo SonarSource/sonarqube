@@ -19,6 +19,10 @@
  */
 package org.sonar.xoo.lang;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokens;
@@ -31,11 +35,9 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.config.Settings;
-
-import java.io.File;
-import java.io.IOException;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
+import org.sonar.duplications.cpd.FileCodeLoaderWithoutCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,18 +65,20 @@ public class XooTokenizerTest {
   @Test
   public void testExecution() throws IOException {
     File source = new File(baseDir, "src/foo.xoo");
-    FileUtils.write(source, "token1 token2 token3\ntoken4");
+    FileUtils.write(source, "token1 token2 token3\ntoken4", StandardCharsets.UTF_8);
     DefaultInputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
       .setLanguage("xoo")
       .setModuleBaseDir(baseDir.toPath())
+      .setCharset(StandardCharsets.UTF_8)
       .build();
     fileSystem.add(inputFile);
 
     XooTokenizer tokenizer = new XooTokenizer(fileSystem);
-    SourceCode sourceCode = mock(SourceCode.class);
-    when(sourceCode.getFileName()).thenReturn(inputFile.absolutePath());
     Tokens cpdTokens = new Tokens();
-    tokenizer.tokenize(sourceCode, cpdTokens);
+    try (InputStreamReader reader = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
+      SourceCode sourceCode = new SourceCode(new FileCodeLoaderWithoutCache(inputFile.absolutePath(), reader));
+      tokenizer.tokenize(sourceCode, cpdTokens);
+    }
 
     // 4 tokens + EOF
     assertThat(cpdTokens.getTokens()).hasSize(5);
