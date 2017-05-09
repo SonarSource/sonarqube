@@ -19,14 +19,16 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { debounce, uniq, without } from 'lodash';
 import Header from './header';
 import Search from './search';
 import Projects from './projects';
 import CreateProjectForm from './CreateProjectForm';
+import ListFooter from '../../components/controls/ListFooter';
 import { PAGE_SIZE, TYPE } from './constants';
 import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
-import ListFooter from '../../components/controls/ListFooter';
+import { translate } from '../../helpers/l10n';
 import type { Organization } from '../../store/organizations/duck';
 
 type Props = {|
@@ -231,6 +233,8 @@ export default class Main extends React.PureComponent {
   render() {
     return (
       <div className="page page-limited" id="projects-management-page">
+        <Helmet title={translate('projects_management')} />
+
         <Header
           hasProvisionPermission={this.props.hasProvisionPermission}
           onProjectCreate={this.openCreateProjectForm}

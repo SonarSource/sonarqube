@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { translate } from '../../../helpers/l10n';
@@ -96,6 +97,8 @@ class OrganizationEdit extends React.PureComponent {
   render() {
     return (
       <div className="page page-limited">
+        <Helmet title={translate('edit')} />
+
         <header className="page-header">
           <h1 className="page-title">{translate('organization.edit')}</h1>
         </header>

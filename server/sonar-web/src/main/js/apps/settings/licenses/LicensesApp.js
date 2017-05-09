@@ -18,12 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import LicensesAppHeader from './LicensesAppHeader';
 import LicensesListContainer from './LicensesListContainer';
+import { translate } from '../../../helpers/l10n';
 
 export default function LicensesApp() {
   return (
     <div id="licenses-page" className="page page-limited">
+      <Helmet title={translate('property.category.licenses')} />
       <LicensesAppHeader />
       <LicensesListContainer />
     </div>

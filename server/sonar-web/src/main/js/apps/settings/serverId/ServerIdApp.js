@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import { translate } from '../../../helpers/l10n';
 import { getServerId, generateServerId } from '../../../api/settings';
 import { parseError } from '../../code/utils';
@@ -76,6 +77,7 @@ export default class ServerIdApp extends React.PureComponent {
   render() {
     return (
       <div id="server-id-page" className="page page-limited">
+        <Helmet title={translate('property.category.server_id')} />
         <header className="page-header">
           <h1 className="page-title">{translate('property.category.server_id')}</h1>
           {this.state.loading && <i className="spinner" />}

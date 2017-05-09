@@ -61,7 +61,6 @@ class App extends React.PureComponent {
     if (this.state.loading) {
       return <GlobalLoading />;
     }
-
     return this.props.children;
   }
 }

@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
 import Helmet from 'react-helmet';
+import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { translate } from '../../../helpers/l10n';
@@ -97,10 +97,7 @@ class OrganizationDelete extends React.PureComponent {
   render() {
     return (
       <div className="page page-limited">
-        <Helmet
-          title={`${translate('organization.delete')} - ${this.props.organization.name}`}
-          titleTemplate="%s - SonarQube"
-        />
+        <Helmet title={translate('delete')} />
 
         <header className="page-header">
           <h1 className="page-title">{translate('organization.delete')}</h1>

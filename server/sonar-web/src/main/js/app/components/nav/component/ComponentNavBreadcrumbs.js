@@ -22,6 +22,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
+import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import PrivateBadge from '../../../../components/common/PrivateBadge';
 import { collapsePath, limitComponentName } from '../../../../helpers/path';
@@ -35,7 +36,7 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
   };
 
   render() {
-    const { breadcrumbs, organization, shouldOrganizationBeDisplayed } = this.props;
+    const { breadcrumbs, component, organization, shouldOrganizationBeDisplayed } = this.props;
 
     if (!breadcrumbs) {
       return null;
@@ -70,6 +71,10 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
 
     return (
       <h2 className="navbar-context-title">
+        <OrganizationHelmet
+          title={component.name}
+          organization={displayOrganization ? organization : null}
+        />
         {displayOrganization &&
           <span>
             <span className="navbar-context-title-qualifier little-spacer-right">
@@ -81,7 +86,7 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
             <span className="slash-separator" />
           </span>}
         {items}
-        {this.props.component.visibility === 'private' && <PrivateBadge className="spacer-left" />}
+        {component.visibility === 'private' && <PrivateBadge className="spacer-left" />}
       </h2>
     );
   }

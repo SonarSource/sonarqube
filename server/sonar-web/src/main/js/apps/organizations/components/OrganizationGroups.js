@@ -19,9 +19,11 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import init from '../../groups/init';
 import { getOrganizationByKey } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 import type { Organization } from '../../../store/organizations/duck';
 
 class OrganizationGroups extends React.PureComponent {
@@ -34,7 +36,12 @@ class OrganizationGroups extends React.PureComponent {
   }
 
   render() {
-    return <div ref="container" />;
+    return (
+      <div>
+        <Helmet title={translate('global_permissions.groups')} />
+        <div ref="container" />
+      </div>
+    );
   }
 }
 

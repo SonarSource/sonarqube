@@ -19,11 +19,9 @@
  */
 // @flow
 import React from 'react';
-import Helmet from 'react-helmet';
 import PageHeader from './PageHeader';
 import Evolution from './Evolution';
 import ProfilesList from './ProfilesList';
-import { translate } from '../../../helpers/l10n';
 import type { Profile } from '../propTypes';
 
 type Props = {
@@ -41,8 +39,6 @@ export default class HomeContainer extends React.PureComponent {
   render() {
     return (
       <div>
-        <Helmet title={translate('quality_profiles.page')} titleTemplate="SonarQube - %s" />
-
         <PageHeader {...this.props} />
 
         <div className="page-with-sidebar">

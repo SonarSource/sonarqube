@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import { sortBy } from 'lodash';
 import { getSystemInfo } from '../../api/system';
 import Section from './section';
@@ -75,6 +76,7 @@ export default class Main extends React.PureComponent {
 
     return (
       <div className="page">
+        <Helmet title={translate('system_info.page')} />
         <header className="page-header">
           <h1 className="page-title">{translate('system_info.page')}</h1>
           <div className="page-actions">

@@ -19,12 +19,14 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { Link } from 'react-router';
 import { fetchWebApi } from '../../../api/web-api';
 import Menu from './Menu';
 import Search from './Search';
 import Domain from './Domain';
 import { getActionKey, isDomainPathActive } from '../utils';
+import { translate } from '../../../helpers/l10n';
 import type { Domain as DomainType } from '../../../api/web-api';
 import '../styles/web-api.css';
 
@@ -142,10 +144,11 @@ export default class WebApiApp extends React.PureComponent {
 
     return (
       <div className="search-navigator sticky">
+        <Helmet title={translate('api_documentation.page')} />
         <div className="search-navigator-side search-navigator-side-light" style={{ top: 30 }}>
           <div className="web-api-page-header">
             <Link to="/web_api/">
-              <h1>Web API</h1>
+              <h1>{translate('api_documentation.page')}</h1>
             </Link>
           </div>
 

@@ -19,9 +19,11 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { getAppState } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 import init from '../init';
 
 class CodingRulesAppContainer extends React.PureComponent {
@@ -70,6 +72,7 @@ class CodingRulesAppContainer extends React.PureComponent {
     // but react wants it to be there to unmount it
     return (
       <div>
+        <Helmet title={translate('rules')} />
         <div ref="container" />
       </div>
     );

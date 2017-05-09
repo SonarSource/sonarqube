@@ -4,6 +4,9 @@ exports[`smoke test 1`] = `
 <div
   className="page page-limited"
 >
+  <HelmetWrapper
+    title="edit"
+  />
   <header
     className="page-header"
   >
@@ -132,6 +135,9 @@ exports[`smoke test 2`] = `
 <div
   className="page page-limited"
 >
+  <HelmetWrapper
+    title="edit"
+  />
   <header
     className="page-header"
   >
@@ -275,6 +281,9 @@ exports[`smoke test 3`] = `
 <div
   className="page page-limited"
 >
+  <HelmetWrapper
+    title="edit"
+  />
   <header
     className="page-header"
   >

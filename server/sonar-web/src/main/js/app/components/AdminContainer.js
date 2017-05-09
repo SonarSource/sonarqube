@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
 import { getCurrentUser, getAppState } from '../../store/rootReducer';
@@ -25,6 +26,7 @@ import { isUserAdmin } from '../../helpers/users';
 import { onFail } from '../../store/rootActions';
 import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState/duck';
+import { translate } from '../../helpers/l10n';
 
 class AdminContainer extends React.PureComponent {
   componentDidMount() {
@@ -50,6 +52,7 @@ class AdminContainer extends React.PureComponent {
 
     return (
       <div>
+        <Helmet title={translate('layout.settings')} />
         <SettingsNav location={this.props.location} extensions={this.props.adminPages} />
         {this.props.children}
       </div>

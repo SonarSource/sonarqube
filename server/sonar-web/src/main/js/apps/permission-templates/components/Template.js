@@ -171,8 +171,6 @@ export default class Template extends React.PureComponent {
   };
 
   render() {
-    const title = translate('permission_templates.page') + ' - ' + this.props.template.name;
-
     const permissions = PERMISSIONS_ORDER_FOR_PROJECT.map(p => ({
       key: p,
       name: translate('projects_role', p),
@@ -197,7 +195,7 @@ export default class Template extends React.PureComponent {
 
     return (
       <div className="page page-limited">
-        <Helmet title={title} titleTemplate="SonarQube - %s" />
+        <Helmet title={this.props.template.name} />
 
         <TemplateHeader
           organization={this.props.organization}

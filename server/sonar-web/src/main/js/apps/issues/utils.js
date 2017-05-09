@@ -217,6 +217,7 @@ export type ReferencedLanguage = {
 
 export type Component = {
   key: string,
+  name: string,
   organization: string,
   qualifier: string
 };

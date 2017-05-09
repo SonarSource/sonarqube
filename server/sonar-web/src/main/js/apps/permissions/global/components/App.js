@@ -19,16 +19,17 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import PageHeader from './PageHeader';
 import AllHoldersList from './AllHoldersList';
 import PageError from '../../shared/components/PageError';
+import { translate } from '../../../../helpers/l10n';
 import '../../styles.css';
-
-// TODO helmet
 
 export default function App(props: { organization?: {} }) {
   return (
     <div className="page page-limited">
+      <Helmet title={translate('global_permissions.permission')} />
       <PageHeader organization={props.organization} />
       <PageError />
       <AllHoldersList organization={props.organization} />

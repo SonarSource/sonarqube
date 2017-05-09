@@ -6,6 +6,10 @@ exports[`smoke test 1`] = `null`;
 
 exports[`smoke test 2`] = `
 <div>
+  <HelmetWrapper
+    defaultTitle="Foo"
+    titleTemplate="%s - Foo"
+  />
   <OrganizationNavigation
     organization={
       Object {

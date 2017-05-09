@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Form from './Form';
@@ -27,6 +28,7 @@ import {
   getProjectAdminProjectGate,
   getComponent
 } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 
 class QualityGate extends React.PureComponent {
   static propTypes = {
@@ -46,6 +48,7 @@ class QualityGate extends React.PureComponent {
   render() {
     return (
       <div id="project-quality-gate" className="page page-limited">
+        <Helmet title={translate('project_quality_gate.page')} />
         <Header />
         <Form
           allGates={this.props.allGates}

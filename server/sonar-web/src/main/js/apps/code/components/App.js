@@ -19,6 +19,7 @@
  */
 import classNames from 'classnames';
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
@@ -33,6 +34,7 @@ import {
 } from '../utils';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { getComponent } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 import '../code.css';
 
 class App extends React.PureComponent {
@@ -179,6 +181,8 @@ class App extends React.PureComponent {
 
     return (
       <div className="page page-limited">
+        <Helmet title={translate('code')} />
+
         {error &&
           <div className="alert alert-danger">
             {error}

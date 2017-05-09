@@ -36,7 +36,7 @@ export default class Home extends React.PureComponent {
   render() {
     return (
       <div className="page page-limited">
-        <Helmet title={translate('permission_templates.page')} titleTemplate="SonarQube - %s" />
+        <Helmet title={translate('permission_templates.page')} />
 
         <Header
           organization={this.props.organization}

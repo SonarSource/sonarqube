@@ -19,12 +19,14 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityPageFooter from './ProjectActivityPageFooter';
 import { fetchProjectActivity } from '../actions';
 import { getComponent } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 import './projectActivity.css';
 
 type Props = {
@@ -71,6 +73,8 @@ class ProjectActivityApp extends React.PureComponent {
 
     return (
       <div id="project-activity" className="page page-limited">
+        <Helmet title={translate('project_activity.page')} />
+
         <ProjectActivityPageHeader
           project={project}
           filter={this.state.filter}

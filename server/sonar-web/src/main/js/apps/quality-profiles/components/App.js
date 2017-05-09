@@ -21,6 +21,8 @@
 import React from 'react';
 import { getQualityProfiles, getExporters } from '../../../api/quality-profiles';
 import { sortProfiles } from '../utils';
+import { translate } from '../../../helpers/l10n';
+import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import type { Exporter } from '../propTypes';
 import '../styles.css';
 
@@ -28,7 +30,7 @@ type Props = {
   children: React.Element<*>,
   currentUser: { permissions: { global: Array<string> } },
   languages: Array<*>,
-  organization: { canAdmin?: boolean, key: string } | null
+  organization: { name: string, canAdmin?: boolean, key: string } | null
 };
 
 type State = {
@@ -94,11 +96,11 @@ export default class App extends React.PureComponent {
     if (this.state.loading) {
       return <i className="spinner" />;
     }
-
+    const { organization } = this.props;
     const finalLanguages = Object.values(this.props.languages);
 
-    const canAdmin = this.props.organization
-      ? this.props.organization.canAdmin
+    const canAdmin = organization
+      ? organization.canAdmin
       : this.props.currentUser.permissions.global.includes('profileadmin');
 
     return React.cloneElement(this.props.children, {
@@ -106,7 +108,7 @@ export default class App extends React.PureComponent {
       languages: finalLanguages,
       exporters: this.state.exporters,
       updateProfiles: this.updateProfiles,
-      organization: this.props.organization ? this.props.organization.key : null,
+      organization: organization ? organization.key : null,
       canAdmin
     });
   }
@@ -114,6 +116,11 @@ export default class App extends React.PureComponent {
   render() {
     return (
       <div className="page page-limited">
+        <OrganizationHelmet
+          title={translate('quality_profiles.page')}
+          organization={this.props.organization}
+        />
+
         {this.renderChild()}
       </div>
     );

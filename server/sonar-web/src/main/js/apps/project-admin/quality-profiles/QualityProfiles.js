@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Table from './Table';
@@ -29,6 +30,7 @@ import {
   getProjectAdminProjectProfiles,
   getComponent
 } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 
 type Props = {
   allProfiles: Array<{}>,
@@ -59,6 +61,8 @@ class QualityProfiles extends React.PureComponent {
 
     return (
       <div className="page page-limited">
+        <Helmet title={translate('project_quality_profiles.page')} />
+
         <Header />
 
         {profiles.length > 0

@@ -19,20 +19,12 @@
  */
 import React from 'react';
 import Helmet from 'react-helmet';
-import init from '../init';
-import { translate } from '../../../helpers/l10n';
 
-export default class GroupsAppContainer extends React.PureComponent {
-  componentDidMount() {
-    init(this.refs.container);
-  }
-
-  render() {
-    return (
-      <div>
-        <Helmet title={translate('user_groups.page')} />
-        <div ref="container" />
-      </div>
-    );
-  }
+export default function DefaultHelmetContainer({ children }) {
+  return (
+    <div>
+      <Helmet defaultTitle="SonarQube" />
+      {children}
+    </div>
+  );
 }

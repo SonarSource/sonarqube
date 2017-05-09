@@ -19,11 +19,13 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import MembersPageHeader from './MembersPageHeader';
 import MembersListHeader from './MembersListHeader';
 import MembersList from './MembersList';
 import AddMemberForm from './forms/AddMemberForm';
 import ListFooter from '../../../components/controls/ListFooter';
+import { translate } from '../../../helpers/l10n';
 import type { Organization, OrgGroup } from '../../../store/organizations/duck';
 import type { Member } from '../../../store/organizationsMembers/actions';
 
@@ -80,6 +82,7 @@ export default class OrganizationMembers extends React.PureComponent {
     const { organization, status, members } = this.props;
     return (
       <div className="page page-limited">
+        <Helmet title={translate('organization.members.page')} />
         <MembersPageHeader loading={status.loading} total={status.total}>
           {organization.canAdmin &&
             <div className="page-actions">

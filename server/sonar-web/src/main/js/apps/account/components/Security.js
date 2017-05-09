@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { connect } from 'react-redux';
 import Password from './Password';
 import Tokens from './Tokens';
 import { translate } from '../../../helpers/l10n';
@@ -28,11 +28,9 @@ import { getCurrentUser } from '../../../store/rootReducer';
 function Security(props) {
   const { user } = props;
 
-  const title = translate('my_account.page') + ' - ' + translate('my_account.security');
-
   return (
     <div className="account-body account-container">
-      <Helmet title={title} titleTemplate="SonarQube - %s" />
+      <Helmet title={translate('my_account.security')} />
 
       <Tokens user={user} />
 

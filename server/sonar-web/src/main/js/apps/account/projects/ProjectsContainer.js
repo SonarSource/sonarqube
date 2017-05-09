@@ -74,20 +74,20 @@ export default class ProjectsContainer extends React.PureComponent {
   }
 
   render() {
+    const helmet = <Helmet title={translate('my_account.projects')} />;
+
     if (this.state.projects == null) {
       return (
         <div className="text-center">
+          {helmet}
           <i className="spinner spinner-margin" />
         </div>
       );
     }
 
-    const title = translate('my_account.page') + ' - ' + translate('my_account.projects');
-
     return (
       <div className="account-body account-container">
-        <Helmet title={title} titleTemplate="SonarQube - %s" />
-
+        {helmet}
         <Projects
           projects={this.state.projects}
           total={this.state.total}

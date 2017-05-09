@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Helmet from 'react-helmet';
-import { translate } from '../../../helpers/l10n';
 
 export default class App extends React.PureComponent {
   componentDidMount() {
@@ -33,7 +31,6 @@ export default class App extends React.PureComponent {
   render() {
     return (
       <div id="projects-page">
-        <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube" />
         {this.props.children}
       </div>
     );
