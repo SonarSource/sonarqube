@@ -19,8 +19,11 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
@@ -30,10 +33,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.component.OrganizationScope;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
@@ -43,11 +48,12 @@ import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toSet;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
@@ -55,6 +61,9 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchAction implements ComponentsWsAction {
+
+  static final String PARAM_ALL_ORGANIZATIONS = "allOrganizations";
+
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
   private final I18n i18n;
@@ -90,6 +99,13 @@ public class SearchAction implements ComponentsWsAction {
       .setExampleValue("my-org")
       .setSince("6.3");
     action
+      .createParam(PARAM_ALL_ORGANIZATIONS)
+      .setDescription("Whether to return components of all organizations. Must not be set, if '" + PARAM_ORGANIZATION + "' is set.")
+      .setRequired(false)
+      .setInternal(true)
+      .setBooleanPossibleValues()
+      .setSince("6.4");
+    action
       .createParam(PARAM_LANGUAGE)
       .setDescription("Language key. If provided, only components for the given language are returned.")
       .setExampleValue(getExampleValue(languages))
@@ -107,21 +123,26 @@ public class SearchAction implements ComponentsWsAction {
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return new SearchWsRequest()
       .setOrganization(request.param(PARAM_ORGANIZATION))
+      .setAllOrganizations(request.paramAsBoolean(PARAM_ALL_ORGANIZATIONS))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
       .setLanguage(request.param(PARAM_LANGUAGE))
       .setQuery(request.param(Param.TEXT_QUERY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .validate();
   }
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentQuery query = buildQuery(request);
-      OrganizationDto organization = getOrganization(dbSession, request);
+      OrganizationScope organization = getOrganization(dbSession, request);
       Paging paging = buildPaging(dbSession, request, organization, query);
       List<ComponentDto> components = searchComponents(dbSession, organization, query, paging);
-
-      return buildResponse(components, organization, paging);
+      Set<String> organizationUuids = organization.map(OrganizationDto::getUuid).map(Collections::singleton)
+        .orElseGet(() -> components.stream().map(ComponentDto::getOrganizationUuid).collect(toSet()));
+      Map<String, OrganizationDto> organizationDtos = dbClient.organizationDao().selectByUuids(dbSession, organizationUuids)
+        .stream().collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
+      return buildResponse(components, organizationDtos, paging);
     }
   }
 
@@ -134,27 +155,31 @@ public class SearchAction implements ComponentsWsAction {
       .build();
   }
 
-  private OrganizationDto getOrganization(DbSession dbSession, SearchWsRequest request) {
+  private OrganizationScope getOrganization(DbSession dbSession, SearchWsRequest request) {
+    if (Boolean.TRUE.equals(request.getAllOrganizations())) {
+      return OrganizationScope.allOrganizations();
+    }
     String organizationKey = Optional.ofNullable(request.getOrganization())
       .orElseGet(defaultOrganizationProvider.get()::getKey);
-    return WsUtils.checkFoundWithOptional(
-      dbClient.organizationDao().selectByKey(dbSession, organizationKey),
-      "No organizationDto with key '%s'", organizationKey);
+    return OrganizationScope.ofOrganization(
+      WsUtils.checkFoundWithOptional(
+        dbClient.organizationDao().selectByKey(dbSession, organizationKey),
+        "No organizationDto with key '%s'", organizationKey));
   }
 
-  private Paging buildPaging(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, ComponentQuery query) {
-    int total = dbClient.componentDao().countByQuery(dbSession, organization.getUuid(), query);
+  private Paging buildPaging(DbSession dbSession, SearchWsRequest request, OrganizationScope organization, ComponentQuery query) {
+    int total = dbClient.componentDao().countByQuery(dbSession, organization, query);
     return Paging.forPageIndex(request.getPage())
       .withPageSize(request.getPageSize())
       .andTotal(total);
   }
 
-  private List<ComponentDto> searchComponents(DbSession dbSession, OrganizationDto organization, ComponentQuery query, Paging paging) {
-    List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, paging.offset(), paging.pageSize());
+  private List<ComponentDto> searchComponents(DbSession dbSession, OrganizationScope organization, ComponentQuery query, Paging paging) {
+    List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, organization, query, paging.offset(), paging.pageSize());
     return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
   }
 
-  private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Paging paging) {
+  private static SearchWsResponse buildResponse(List<ComponentDto> components, Map<String, OrganizationDto> organizations, Paging paging) {
     SearchWsResponse.Builder responseBuilder = SearchWsResponse.newBuilder();
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -163,20 +188,20 @@ public class SearchAction implements ComponentsWsAction {
       .build();
 
     components.stream()
-      .map(dto -> dtoToComponent(organization, dto))
+      .map(dto -> dtoToComponent(organizations, dto))
       .forEach(responseBuilder::addComponents);
 
     return responseBuilder.build();
   }
 
-  private static WsComponents.Component dtoToComponent(OrganizationDto organization, ComponentDto dto) {
+  private static WsComponents.Component dtoToComponent(Map<String, OrganizationDto> organizations, ComponentDto dto) {
     checkArgument(
-      organization.getUuid().equals(dto.getOrganizationUuid()),
-      "No Organization found for uuid '%s'",
-      dto.getOrganizationUuid());
+      organizations.containsKey(dto.getOrganizationUuid()),
+      "No Organization found for uuid '%s' of component '%s'",
+      dto.getOrganizationUuid(), dto.getKey());
 
     WsComponents.Component.Builder builder = WsComponents.Component.newBuilder()
-      .setOrganization(organization.getKey())
+      .setOrganization(organizations.get(dto.getOrganizationUuid()).getKey())
       .setId(dto.uuid())
       .setKey(dto.key())
       .setName(dto.name())
@@ -184,5 +209,4 @@ public class SearchAction implements ComponentsWsAction {
     setNullable(dto.language(), builder::setLanguage);
     return builder.build();
   }
-
 }

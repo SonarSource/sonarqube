@@ -27,6 +27,7 @@ import static java.util.Objects.requireNonNull;
 
 public class SearchWsRequest {
   private String organization;
+  private Boolean allOrganizations;
   private List<String> qualifiers;
   private Integer page;
   private Integer pageSize;
@@ -40,6 +41,16 @@ public class SearchWsRequest {
 
   public SearchWsRequest setOrganization(@Nullable String organization) {
     this.organization = organization;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean getAllOrganizations() {
+    return allOrganizations;
+  }
+
+  public SearchWsRequest setAllOrganizations(@Nullable Boolean allOrganizations) {
+    this.allOrganizations = allOrganizations;
     return this;
   }
 
@@ -89,6 +100,13 @@ public class SearchWsRequest {
 
   public SearchWsRequest setLanguage(@Nullable String language) {
     this.language = language;
+    return this;
+  }
+
+  public SearchWsRequest validate() {
+    if (Boolean.TRUE.equals(allOrganizations) && organization != null) {
+      throw new IllegalArgumentException("Parameter organization must not be set, if allOrganizations is set to true.");
+    }
     return this;
   }
 }

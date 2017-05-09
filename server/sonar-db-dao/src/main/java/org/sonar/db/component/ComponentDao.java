@@ -38,6 +38,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.emptyList;
@@ -111,6 +112,10 @@ public class ComponentDao implements Dao {
     return selectByQueryImpl(dbSession, organizationUuid, query, offset, limit);
   }
 
+  public List<ComponentDto> selectByQuery(DbSession dbSession, OrganizationScope organizationScope, ComponentQuery query, int offset, int limit) {
+    return selectByQueryImpl(dbSession, organizationScope.map(OrganizationDto::getUuid).orElse(null), query, offset, limit);
+  }
+
   public int countByQuery(DbSession session, ComponentQuery query) {
     return countByQueryImpl(session, null, query);
   }
@@ -118,6 +123,10 @@ public class ComponentDao implements Dao {
   public int countByQuery(DbSession session, String organizationUuid, ComponentQuery query) {
     requireNonNull(organizationUuid, "organizationUuid can't be null");
     return countByQueryImpl(session, organizationUuid, query);
+  }
+
+  public int countByQuery(DbSession session, OrganizationScope organizationScope, ComponentQuery query) {
+    return countByQueryImpl(session, organizationScope.map(OrganizationDto::getUuid).orElse(null), query);
   }
 
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
