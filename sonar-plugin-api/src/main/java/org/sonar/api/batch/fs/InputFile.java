@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -112,22 +111,18 @@ public interface InputFile extends IndexedFile {
   /**
    * Creates a stream of the file's contents. Depending on the runtime context, the source might be a file in a physical or virtual filesystem.
    * Typically, it won't be buffered. <b>The stream must be closed by the caller</b>.
-   * Note that there is a default implementation.
+   * Since 6.4 BOM is automatically filtered out.
    * @since 6.2
    */
   @Override
-  default InputStream inputStream() throws IOException {
-    return Files.newInputStream(path());
-  }
+  InputStream inputStream() throws IOException;
 
   /**
    * Fetches the entire contents of the file, decoding with the {@link #charset}.
-   * Note that there is a default implementation.
+   * Since 6.4 BOM is automatically filtered out.
    * @since 6.2
    */
-  default String contents() throws IOException {
-    return new String(Files.readAllBytes(path()), charset());
-  }
+  String contents() throws IOException;
 
   /**
    * Status regarding previous analysis

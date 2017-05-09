@@ -19,8 +19,9 @@
  */
 package org.sonar.xoo.rule;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStreamReader;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -58,20 +59,23 @@ public class HasTagSensor extends AbstractXooRuleSensor {
     }
     try {
       int[] lineCounter = {1};
-      Files.lines(inputFile.path(), inputFile.charset()).forEachOrdered(lineStr -> {
-        int startIndex = -1;
-        while ((startIndex = lineStr.indexOf(tag, startIndex + 1)) != -1) {
-          NewIssue newIssue = context.newIssue();
-          newIssue
-            .forRule(ruleKey)
-            .gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
-            .at(newIssue.newLocation()
-              .on(inputFile)
-              .at(inputFile.newRange(lineCounter[0], startIndex, lineCounter[0], startIndex + tag.length())))
-            .save();
-        }
-        lineCounter[0]++;
-      });
+      try (InputStreamReader isr = new InputStreamReader(inputFile.inputStream(), inputFile.charset());
+        BufferedReader reader = new BufferedReader(isr)) {
+        reader.lines().forEachOrdered(lineStr -> {
+          int startIndex = -1;
+          while ((startIndex = lineStr.indexOf(tag, startIndex + 1)) != -1) {
+            NewIssue newIssue = context.newIssue();
+            newIssue
+              .forRule(ruleKey)
+              .gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
+              .at(newIssue.newLocation()
+                .on(inputFile)
+                .at(inputFile.newRange(lineCounter[0], startIndex, lineCounter[0], startIndex + tag.length())))
+              .save();
+          }
+          lineCounter[0]++;
+        });
+      }
     } catch (IOException e) {
       throw new IllegalStateException("Fail to process " + inputFile, e);
     }
