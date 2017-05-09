@@ -206,6 +206,7 @@ export default class Template extends React.PureComponent {
           selectedPermission={this.state.selectedPermission}
           users={allUsers}
           groups={this.state.groups}
+          showPublicProjectsWarning={true}
           onSelectPermission={this.handleSelectPermission}
           onToggleUser={this.handleToggleUser}
           onToggleGroup={this.handleToggleGroup}>

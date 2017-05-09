@@ -32,7 +32,7 @@ export default class ListHeader extends React.PureComponent {
       ? <div>
           {permission.description}
           <div className="alert alert-warning spacer-top">
-            {translate('projects_role', permission.key, 'public_projects_warning')}
+            {translate('projects_role.public_projects_warning')}
           </div>
         </div>
       : permission.description);

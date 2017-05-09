@@ -29,9 +29,14 @@ export default class HoldersList extends React.PureComponent {
     users: React.PropTypes.array.isRequired,
     groups: React.PropTypes.array.isRequired,
     selectedPermission: React.PropTypes.string,
+    showPublicProjectsWarning: React.PropTypes.bool,
     onSelectPermission: React.PropTypes.func.isRequired,
     onToggleUser: React.PropTypes.func.isRequired,
     onToggleGroup: React.PropTypes.func.isRequired
+  };
+
+  static defaultProps = {
+    showPublicProjectsWarning: false
   };
 
   handlePermissionClick = event => {
@@ -41,11 +46,12 @@ export default class HoldersList extends React.PureComponent {
   };
 
   renderTooltip = permission =>
-    (permission.key === 'user' || permission.key === 'codeviewer'
+    (this.props.showPublicProjectsWarning &&
+      (permission.key === 'user' || permission.key === 'codeviewer')
       ? <div>
           {permission.description}
           <div className="alert alert-warning spacer-top">
-            {translate('projects_role', permission.key, 'public_projects_warning')}
+            {translate('projects_role.public_projects_warning')}
           </div>
         </div>
       : permission.description);
