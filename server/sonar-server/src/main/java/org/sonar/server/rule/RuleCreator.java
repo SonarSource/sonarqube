@@ -77,6 +77,7 @@ public class RuleCreator {
     RuleDto templateRule = dbClient.ruleDao().selectByKey(dbSession, defaultOrganization, templateKey)
       .orElseThrow(() -> new IllegalArgumentException(format("The template key doesn't exist: %s", templateKey)));
     checkArgument(templateRule.isTemplate(), "This rule is not a template rule: %s", templateKey.toString());
+    checkArgument(templateRule.getStatus() != RuleStatus.REMOVED, "The template key doesn't exist: %s", templateKey.toString());
     validateCustomRule(newRule, dbSession, templateKey);
 
     RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());

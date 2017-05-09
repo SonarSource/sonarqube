@@ -41,6 +41,7 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -159,6 +160,44 @@ public class CreateActionTest {
       "    \"isTemplate\": false\n" +
       "  }\n" +
       "}\n");
+  }
+
+  @Test
+  public void create_custom_rule_of_non_existing_template_should_fail() {
+    logInAsQProfileAdministrator();
+
+    TestRequest request = ws.newRequest()
+      .setParam("custom_key", "MY_CUSTOM")
+      .setParam("template_key", "non:existing")
+      .setParam("name", "My custom rule")
+      .setParam("markdown_description", "Description")
+      .setParam("severity", "MAJOR")
+      .setParam("prevent_reactivation", "true");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The template key doesn't exist: non:existing");
+
+    request.execute();
+  }
+
+  @Test
+  public void create_custom_rule_of_removed_template_should_fail() {
+    logInAsQProfileAdministrator();
+
+    RuleDefinitionDto templateRule = db.rules().insert(r -> r.setIsTemplate(true).setStatus(RuleStatus.REMOVED));
+
+    TestRequest request = ws.newRequest()
+      .setParam("custom_key", "MY_CUSTOM")
+      .setParam("template_key", templateRule.getKey().toString())
+      .setParam("name", "My custom rule")
+      .setParam("markdown_description", "Description")
+      .setParam("severity", "MAJOR")
+      .setParam("prevent_reactivation", "true");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The template key doesn't exist: " + templateRule.getKey());
+
+    request.execute();
   }
 
   @Test
