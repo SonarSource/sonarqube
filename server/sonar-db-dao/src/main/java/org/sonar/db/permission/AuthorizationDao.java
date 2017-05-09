@@ -136,7 +136,8 @@ public class AuthorizationDao implements Dao {
           return mapper(dbSession).keepAuthorizedProjectIdsForAnonymous(permission, partition);
         }
         return mapper(dbSession).keepAuthorizedProjectIdsForUser(userId, permission, partition);
-      });
+      },
+      partitionSize -> partitionSize / 2);
   }
 
   public Set<String> keepAuthorizedProjectUuids(DbSession dbSession, Collection<String> projectUuids, @Nullable Integer userId, String permission) {
@@ -147,7 +148,8 @@ public class AuthorizationDao implements Dao {
           return mapper(dbSession).keepAuthorizedProjectUuidsForAnonymous(permission, partition);
         }
         return mapper(dbSession).keepAuthorizedProjectUuidsForUser(userId, permission, partition);
-      });
+      },
+      partitionSize -> partitionSize / 2);
   }
 
   /**
@@ -157,7 +159,8 @@ public class AuthorizationDao implements Dao {
   public Collection<Integer> keepAuthorizedUsersForRoleAndProject(DbSession dbSession, Collection<Integer> userIds, String role, long projectId) {
     return executeLargeInputs(
       userIds,
-      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds));
+      partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds),
+      partitionSize -> partitionSize / 3);
   }
 
   private static AuthorizationMapper mapper(DbSession dbSession) {
