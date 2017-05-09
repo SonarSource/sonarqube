@@ -19,6 +19,12 @@
  */
 package org.sonar.duplications.internal.pmd;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Collection;
+import java.util.List;
 import net.sourceforge.pmd.cpd.JavaTokenizer;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,10 +34,6 @@ import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,11 +45,11 @@ public class PmdBridgeTest {
   @Before
   public void setUp() {
     index = new PackedMemoryCloneIndex();
-    bridge = new TokenizerBridge(new JavaTokenizer(), "UTF-8", 10);
+    bridge = new TokenizerBridge(new JavaTokenizer(), 10);
   }
 
   @Test
-  public void testDuplicationInSingleFile() {
+  public void testDuplicationInSingleFile() throws IOException {
     File file = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile3.java");
     addToIndex(file);
 
@@ -66,7 +68,7 @@ public class PmdBridgeTest {
   }
 
   @Test
-  public void testDuplicationBetweenTwoFiles() {
+  public void testDuplicationBetweenTwoFiles() throws IOException {
     File file1 = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile1.java");
     File file2 = new File("test-resources/org/sonar/duplications/cpd/CPDTest/CPDFile2.java");
     addToIndex(file1);
@@ -88,8 +90,8 @@ public class PmdBridgeTest {
     return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
   }
 
-  private void addToIndex(File file) {
-    List<Block> blocks = bridge.chunk(file.getAbsolutePath(), file);
+  private void addToIndex(File file) throws IOException {
+    List<Block> blocks = bridge.chunk(file.getAbsolutePath(), file.getAbsolutePath(), Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8));
     for (Block block : blocks) {
       index.insert(block);
     }

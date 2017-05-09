@@ -21,6 +21,7 @@ package org.sonar.scanner.cpd.deprecated;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -36,8 +37,8 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.duplications.block.Block;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 
@@ -71,6 +72,7 @@ public class JavaCpdBlockIndexerTest {
     DefaultFileSystem fs = new DefaultFileSystem(baseDir);
     file = new TestInputFileBuilder("foo", "src/ManyStatements.java")
       .setModuleBaseDir(baseDir.toPath())
+      .setCharset(StandardCharsets.UTF_8)
       .setLanguage(JAVA).build();
     fs.add(file);
     File ioFile = file.file();

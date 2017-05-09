@@ -19,15 +19,17 @@
  */
 package org.sonar.duplications.internal.pmd;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -49,12 +51,12 @@ public class TokenizerBridgeTest {
         tokenEntries.add(TokenEntry.getEOF());
       }
     };
-    bridge = new TokenizerBridge(tokenizer, "UTF-8", 10);
+    bridge = new TokenizerBridge(tokenizer, 10);
   }
 
   @Test
   public void shouldClearCacheInTokenEntry() {
-    bridge.chunk(null);
+    bridge.chunk("file.txt", new InputStreamReader(new ByteArrayInputStream(new byte[0]), StandardCharsets.UTF_8));
     TokenEntry token = new TokenEntry("image", "srcId", 0);
     assertThat(token.getIndex(), is(0));
     assertThat(token.getIdentifier(), is(1));
@@ -63,8 +65,8 @@ public class TokenizerBridgeTest {
   @Test
   public void test() {
     // To be sure that token index will be relative to file - run twice:
-    bridge.chunk(null);
-    List<TokensLine> lines = bridge.chunk(null);
+    bridge.chunk("file.txt", new InputStreamReader(new ByteArrayInputStream(new byte[0]), StandardCharsets.UTF_8));
+    List<TokensLine> lines = bridge.chunk("file.txt", new InputStreamReader(new ByteArrayInputStream(new byte[0]), StandardCharsets.UTF_8));
 
     assertThat(lines.size(), is(3));
 

@@ -21,6 +21,9 @@ package org.sonar.duplications.internal.pmd;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.List;
 import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
@@ -28,32 +31,25 @@ import net.sourceforge.pmd.cpd.Tokens;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.cpd.FileCodeLoaderWithoutCache;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 /**
  * Bridge, which allows to convert list of {@link TokenEntry} produced by {@link Tokenizer} into list of {@link TokensLine}s.
  */
 public class TokenizerBridge {
 
   private final Tokenizer tokenizer;
-  private final String encoding;
   private final PmdBlockChunker blockBuilder;
 
-  public TokenizerBridge(Tokenizer tokenizer, String encoding, int blockSize) {
+  public TokenizerBridge(Tokenizer tokenizer, int blockSize) {
     this.tokenizer = tokenizer;
-    this.encoding = encoding;
     this.blockBuilder = new PmdBlockChunker(blockSize);
   }
 
-  // TODO remove from here
-  public List<Block> chunk(String resourceId, File file) {
-    return blockBuilder.chunk(resourceId, chunk(file));
+  public List<Block> chunk(String resourceId, String fileName, Reader fileReader) {
+    return blockBuilder.chunk(resourceId, chunk(fileName, fileReader));
   }
 
-  public List<TokensLine> chunk(File file) {
-    SourceCode sourceCode = new SourceCode(new FileCodeLoaderWithoutCache(file, encoding));
+  public List<TokensLine> chunk(String fileName, Reader fileReader) {
+    SourceCode sourceCode = new SourceCode(new FileCodeLoaderWithoutCache(fileName, fileReader));
     Tokens tokens = new Tokens();
     TokenEntry.clearImages();
     try {
