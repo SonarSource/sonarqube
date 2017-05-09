@@ -52,14 +52,6 @@ public abstract class NotificationDispatcher {
    */
   public interface Context {
     /**
-     * This method is not used any longer. Calling it will result in an {@link UnsupportedOperationException}.
-     * 
-     * @deprecated Use {@link #addUser(String, NotificationChannel)} instead.
-     */
-    @Deprecated
-    void addUser(String userLogin);
-
-    /**
      * Adds a user that will be notified through the given notification channel.
      * 
      * @param userLogin the user login

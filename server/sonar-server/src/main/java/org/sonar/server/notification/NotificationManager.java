@@ -20,7 +20,6 @@
 package org.sonar.server.notification;
 
 import com.google.common.collect.Multimap;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
@@ -40,14 +39,6 @@ public interface NotificationManager {
    * @param notification the notification.
    */
   void scheduleForSending(Notification notification);
-
-  /**
-   * Receives notifications and stores them so that they are processed by the notification service.
-   *
-   * @param notifications the notifications.
-   * @since 3.7.1
-   */
-  void scheduleForSending(List<Notification> notifications);
 
   /**
    * <p>

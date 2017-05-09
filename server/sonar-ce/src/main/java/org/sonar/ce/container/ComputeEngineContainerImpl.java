@@ -40,9 +40,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.Version;
 import org.sonar.ce.CeConfigurationModule;
+import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
+import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.cluster.HazelcastClientWrapperImpl;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
@@ -53,8 +55,6 @@ import org.sonar.ce.queue.PurgeCeActivities;
 import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.ce.taskprocessor.CeTaskProcessorModule;
 import org.sonar.ce.user.CeUserSession;
-import org.sonar.ce.CeDistributedInformationImpl;
-import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
@@ -97,7 +97,6 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.notification.DefaultNotificationManager;
-import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
@@ -385,7 +384,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       AlertsEmailTemplate.class,
       EmailSettings.class,
       NotificationService.class,
-      NotificationCenter.class,
       DefaultNotificationManager.class,
       EmailNotificationChannel.class,
 

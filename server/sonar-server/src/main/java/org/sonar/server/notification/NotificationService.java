@@ -59,13 +59,8 @@ public class NotificationService {
     this(dbClient, new NotificationDispatcher[0]);
   }
 
-  @VisibleForTesting
-  long now() {
-    return System.currentTimeMillis();
-  }
-
   public void deliver(Notification notification) {
-    final SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
+    SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
     for (NotificationDispatcher dispatcher : dispatchers) {
       NotificationDispatcher.Context context = new ContextImpl(recipients);
       try {
@@ -78,7 +73,7 @@ public class NotificationService {
     dispatch(notification, recipients);
   }
 
-  private void dispatch(Notification notification, SetMultimap<String, NotificationChannel> recipients) {
+  private static void dispatch(Notification notification, SetMultimap<String, NotificationChannel> recipients) {
     for (Map.Entry<String, Collection<NotificationChannel>> entry : recipients.asMap().entrySet()) {
       String username = entry.getKey();
       Collection<NotificationChannel> userChannels = entry.getValue();
@@ -95,7 +90,7 @@ public class NotificationService {
   }
 
   @VisibleForTesting
-  protected List<NotificationDispatcher> getDispatchers() {
+  List<NotificationDispatcher> getDispatchers() {
     return dispatchers;
   }
 
@@ -117,13 +112,8 @@ public class NotificationService {
   private static class ContextImpl implements NotificationDispatcher.Context {
     private final Multimap<String, NotificationChannel> recipients;
 
-    public ContextImpl(Multimap<String, NotificationChannel> recipients) {
+    ContextImpl(Multimap<String, NotificationChannel> recipients) {
       this.recipients = recipients;
-    }
-
-    @Override
-    public void addUser(String username) {
-      // This method is not used anymore
     }
 
     @Override

@@ -38,6 +38,8 @@ import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.property.PropertiesDao;
 
+import static java.util.Collections.singletonList;
+
 public class DefaultNotificationManager implements NotificationManager {
 
   private static final Logger LOG = Loggers.get(DefaultNotificationManager.class);
@@ -72,14 +74,8 @@ public class DefaultNotificationManager implements NotificationManager {
   @Override
   public void scheduleForSending(Notification notification) {
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
-    notificationQueueDao.insert(Arrays.asList(dto));
+    notificationQueueDao.insert(singletonList(dto));
   }
-
-  @Override
-  public void scheduleForSending(List<Notification> notification) {
-    notificationQueueDao.insert(Lists.transform(notification, NotificationQueueDto::toNotificationQueueDto));
-  }
-
   /**
    * Give the notification queue so that it can be processed
    */

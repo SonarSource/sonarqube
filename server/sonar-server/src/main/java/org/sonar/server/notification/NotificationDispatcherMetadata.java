@@ -25,11 +25,11 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
- * <p>
  * Notification dispatchers (see {@link NotificationDispatcher}) can define their own metadata class in order
  * to tell more about them.
- * <p/>
+ * <p>
  * Instances of these classes must be declared by {@link org.sonar.api.Plugin}.
+ * </p>
  */
 @ServerSide
 @ComputeEngineSide

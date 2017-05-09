@@ -99,8 +99,7 @@ public class NotificationDaemon implements Startable {
     LOG.info("Notification service stopped");
   }
 
-  @VisibleForTesting
-  synchronized void processQueue() {
+  private synchronized void processQueue() {
     long start = now();
     long lastLog = start;
     long notifSentCount = 0;
