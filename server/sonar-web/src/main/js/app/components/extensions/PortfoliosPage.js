@@ -19,13 +19,18 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import GlobalPageExtension from './GlobalPageExtension';
+import { translate } from '../../../helpers/l10n';
 
 export default function PortfoliosPage(props: Object) {
   return (
-    <GlobalPageExtension
-      location={props.location}
-      params={{ pluginKey: 'governance', extensionKey: 'portfolios' }}
-    />
+    <div>
+      <Helmet title={translate('portfolios.page')} />
+      <GlobalPageExtension
+        location={props.location}
+        params={{ pluginKey: 'governance', extensionKey: 'portfolios' }}
+      />
+    </div>
   );
 }

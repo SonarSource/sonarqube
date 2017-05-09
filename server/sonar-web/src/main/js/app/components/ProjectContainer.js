@@ -37,6 +37,7 @@ class ProjectContainer extends React.PureComponent {
     },
     project?: {
       configuration: {},
+      name: string,
       qualifier: string
     },
     fetchProject: string => Promise<*>,
@@ -68,27 +69,23 @@ class ProjectContainer extends React.PureComponent {
   };
 
   render() {
+    const { project } = this.props;
+
     // check `breadcrumbs` to be sure that /api/navigation/component has been already called
-    if (!this.props.project || this.props.project.breadcrumbs == null) {
+    if (!project || project.breadcrumbs == null) {
       return null;
     }
 
-    const isFile = ['FIL', 'UTS'].includes(this.props.project.qualifier);
-
-    // $FlowFixMe `this.props.project` is always defined at this point
-    const configuration = this.props.project.configuration || {};
+    const isFile = ['FIL', 'UTS'].includes(project.qualifier);
+    const configuration = project.configuration || {};
 
     return (
       <div>
         {!isFile &&
-          <ComponentNav
-            component={this.props.project}
-            conf={configuration}
-            location={this.props.location}
-          />}
+          <ComponentNav component={project} conf={configuration} location={this.props.location} />}
         {/* $FlowFixMe */}
         {React.cloneElement(this.props.children, {
-          component: this.props.project,
+          component: project,
           onComponentChange: this.handleProjectChange
         })}
       </div>

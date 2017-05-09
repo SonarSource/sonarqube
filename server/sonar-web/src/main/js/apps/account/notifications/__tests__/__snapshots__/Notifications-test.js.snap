@@ -5,8 +5,7 @@ exports[`should match snapshot 1`] = `
   className="account-body account-container"
 >
   <HelmetWrapper
-    title="my_account.page - my_account.notifications"
-    titleTemplate="SonarQube - %s"
+    title="my_account.notifications"
   />
   <p
     className="big-spacer-bottom"

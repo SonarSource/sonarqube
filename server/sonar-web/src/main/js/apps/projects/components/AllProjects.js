@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
 import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
+import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 export default class AllProjects extends React.PureComponent {
@@ -96,6 +98,7 @@ export default class AllProjects extends React.PureComponent {
 
     return (
       <div className="layout-page projects-page">
+        <Helmet title={translate('projects.page')} />
         <div className="layout-page-side-outer">
           <div className="layout-page-side" style={{ top }}>
             <div className="layout-page-side-inner">

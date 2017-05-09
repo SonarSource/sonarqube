@@ -17,22 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import Helmet from 'react-helmet';
-import init from '../init';
-import { translate } from '../../../helpers/l10n';
 
-export default class GroupsAppContainer extends React.PureComponent {
-  componentDidMount() {
-    init(this.refs.container);
-  }
+type Props = {
+  title: string,
+  organization?: ?{ name: string }
+};
 
-  render() {
-    return (
-      <div>
-        <Helmet title={translate('user_groups.page')} />
-        <div ref="container" />
-      </div>
-    );
-  }
+export default function OrganizationHelmet({ title, organization }: Props) {
+  const defaultTitle = title + (organization ? ' - ' + organization.name : '');
+  return <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />;
 }

@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { debounce, uniq } from 'lodash';
 import { connect } from 'react-redux';
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
@@ -39,6 +40,7 @@ import { Task } from '../types';
 import { getComponent } from '../../../store/rootReducer';
 import '../background-tasks.css';
 import { fetchOrganizations } from '../../../store/rootActions';
+import { translate } from '../../../helpers/l10n';
 
 type Props = {
   component: Object,
@@ -211,6 +213,7 @@ class BackgroundTasksApp extends React.PureComponent {
 
     return (
       <div className="page page-limited">
+        <Helmet title={translate('background_tasks.page')} />
         <Header />
 
         <Stats

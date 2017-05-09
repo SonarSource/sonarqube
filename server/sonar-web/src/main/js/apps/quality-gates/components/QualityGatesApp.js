@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
+import Helmet from 'react-helmet';
 import ListHeader from './ListHeader';
 import List from './List';
 import {
   fetchQualityGatesAppDetails,
   fetchQualityGates as fetchQualityGatesAPI
 } from '../../../api/quality-gates';
+import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 export default class QualityGatesApp extends Component {
@@ -52,9 +54,11 @@ export default class QualityGatesApp extends Component {
 
   render() {
     const { children, qualityGates, edit } = this.props;
-
+    const defaultTitle = translate('quality_gates.page');
     return (
       <div className="search-navigator sticky search-navigator-extended-view">
+        <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
+
         <div className="search-navigator-side search-navigator-side-light" style={{ top: 30 }}>
           <div className="search-navigator-filters">
             <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />

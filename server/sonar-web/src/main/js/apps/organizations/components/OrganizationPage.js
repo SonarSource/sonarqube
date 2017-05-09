@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import OrganizationNavigation from '../navigation/OrganizationNavigation';
 import { fetchOrganization } from '../actions';
@@ -71,6 +72,7 @@ class OrganizationPage extends React.PureComponent {
 
     return (
       <div>
+        <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name} />
         <OrganizationNavigation organization={organization} location={this.props.location} />
         {this.props.children}
       </div>

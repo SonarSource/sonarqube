@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import Spinner from './../components/Spinner';
+import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 export default class App extends React.PureComponent {
@@ -37,6 +39,7 @@ export default class App extends React.PureComponent {
 
     return (
       <main id="component-measures">
+        <Helmet title={translate('layout.measures')} />
         {this.props.children}
       </main>
     );

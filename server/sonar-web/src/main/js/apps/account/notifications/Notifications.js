@@ -36,11 +36,9 @@ class Notifications extends React.PureComponent {
   }
 
   render() {
-    const title = translate('my_account.page') + ' - ' + translate('my_account.notifications');
-
     return (
       <div className="account-body account-container">
-        <Helmet title={title} titleTemplate="SonarQube - %s" />
+        <Helmet title={translate('my_account.notifications')} />
 
         <p className="big-spacer-bottom">
           {translate('notification.dispatcher.information')}

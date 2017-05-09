@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import PageHeader from './PageHeader';
 import CategoryDefinitionsList from './CategoryDefinitionsList';
@@ -26,6 +27,7 @@ import AllCategoriesList from './AllCategoriesList';
 import WildcardsHelp from './WildcardsHelp';
 import { fetchSettings } from '../store/actions';
 import { getSettingsAppDefaultCategory } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
 type Props = {
@@ -78,6 +80,8 @@ class App extends React.PureComponent {
 
     return (
       <div id="settings-page" className="page page-limited">
+        <Helmet title={translate('settings.page')} />
+
         <PageHeader component={this.props.component} />
         <div className="settings-layout">
           <div className="settings-side">

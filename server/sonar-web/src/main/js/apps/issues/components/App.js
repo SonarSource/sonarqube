@@ -793,16 +793,13 @@ export default class App extends React.PureComponent {
       </div>
     );
   }
-
   render() {
     const { component } = this.props;
     const { openIssue, paging } = this.state;
-
     const selectedIndex = this.getSelectedIndex();
-
     return (
       <div className="layout-page issues" id="issues-page">
-        <Helmet title={translate('issues.page')} titleTemplate="%s - SonarQube" />
+        <Helmet title={translate('issues.page')} />
 
         {this.renderSide(openIssue)}
 

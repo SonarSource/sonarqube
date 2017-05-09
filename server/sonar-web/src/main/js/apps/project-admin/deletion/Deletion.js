@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Form from './Form';
 import { getComponent } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 
 class Deletion extends React.PureComponent {
   static propTypes = {
@@ -35,6 +37,7 @@ class Deletion extends React.PureComponent {
 
     return (
       <div className="page page-limited">
+        <Helmet title={translate('deletion.page')} />
         <Header component={this.props.component} />
         <Form component={this.props.component} />
       </div>

@@ -62,8 +62,6 @@ class UserOrganizations extends React.PureComponent {
   }
 
   render() {
-    const title = translate('my_account.organizations') + ' - ' + translate('my_account.page');
-
     const anyoneCanCreate =
       this.props.anyoneCanCreate != null && this.props.anyoneCanCreate.value === 'true';
 
@@ -72,7 +70,7 @@ class UserOrganizations extends React.PureComponent {
 
     return (
       <div className="account-body account-container">
-        <Helmet title={title} titleTemplate="%s - SonarQube" />
+        <Helmet title={translate('my_account.organizations')} />
 
         <header className="page-header">
           <h2 className="page-title">{translate('my_account.organizations')}</h2>

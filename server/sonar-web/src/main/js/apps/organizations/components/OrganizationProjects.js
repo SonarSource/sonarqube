@@ -20,11 +20,9 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import Helmet from 'react-helmet';
 import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
-import { translate } from '../../../helpers/l10n';
 
 class OrganizationProjects extends React.PureComponent {
   props: {
@@ -52,7 +50,6 @@ class OrganizationProjects extends React.PureComponent {
   render() {
     return (
       <div id="projects-page">
-        <Helmet title={translate('projects.page')} titleTemplate="%s - SonarQube" />
         <AllProjectsContainer
           isFavorite={false}
           location={this.props.location}

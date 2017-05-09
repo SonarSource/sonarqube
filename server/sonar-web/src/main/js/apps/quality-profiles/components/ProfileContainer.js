@@ -22,7 +22,6 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import ProfileNotFound from './ProfileNotFound';
 import ProfileHeader from '../details/ProfileHeader';
-import { translate } from '../../../helpers/l10n';
 import type { Profile } from '../propTypes';
 
 type Props = {
@@ -85,12 +84,9 @@ export default class ProfileContainer extends React.PureComponent {
       ...other
     });
 
-    const title = translate('quality_profiles.page') + ' - ' + profile.name;
-
     return (
       <div>
-        <Helmet title={title} titleTemplate="SonarQube - %s" />
-
+        <Helmet title={profile.name} />
         <ProfileHeader
           canAdmin={this.props.canAdmin}
           organization={organization}

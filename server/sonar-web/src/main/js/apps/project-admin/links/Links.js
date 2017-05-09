@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Table from './Table';
 import DeletionModal from './views/DeletionModal';
 import { fetchProjectLinks, deleteProjectLink, createProjectLink } from '../store/actions';
 import { getProjectAdminProjectLinks, getComponent } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 
 class Links extends React.PureComponent {
   static propTypes = {
@@ -55,6 +57,7 @@ class Links extends React.PureComponent {
   render() {
     return (
       <div className="page page-limited">
+        <Helmet title={translate('project_links.page')} />
         <Header onCreate={this.handleCreateLink} />
         <Table links={this.props.links} onDelete={this.handleDeleteLink} />
       </div>

@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { without } from 'lodash';
 import PageHeader from './PageHeader';
 import UpgradeOrganizationBox from '../../../../components/common/UpgradeOrganizationBox';
@@ -27,9 +28,8 @@ import AllHoldersList from './AllHoldersList';
 import PublicProjectDisclaimer from './PublicProjectDisclaimer';
 import PageError from '../../shared/components/PageError';
 import * as api from '../../../../api/permissions';
+import { translate } from '../../../../helpers/l10n';
 import '../../styles.css';
-
-// TODO helmet
 
 export type Props = {|
   component: {
@@ -339,6 +339,8 @@ export default class App extends React.PureComponent {
 
     return (
       <div className="page page-limited" id="project-permissions-page">
+        <Helmet title={translate('permissions.page')} />
+
         <PageHeader
           component={this.props.component}
           loading={this.state.loading}

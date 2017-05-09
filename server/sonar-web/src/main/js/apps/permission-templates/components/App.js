@@ -20,8 +20,10 @@
 import React from 'react';
 import Home from './Home';
 import Template from './Template';
+import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
 import { getPermissionTemplates } from '../../../api/permissions';
 import { sortPermissions, mergePermissionsToTemplates, mergeDefaultsToTemplates } from '../utils';
+import { translate } from '../../../helpers/l10n';
 import '../../permissions/styles.css';
 
 export default class App extends React.PureComponent {
@@ -83,13 +85,7 @@ export default class App extends React.PureComponent {
     );
   }
 
-  render() {
-    const { id } = this.props.location.query;
-
-    if (id) {
-      return this.renderTemplate(id);
-    }
-
+  renderHome() {
     return (
       <Home
         organization={this.props.organization}
@@ -99,6 +95,21 @@ export default class App extends React.PureComponent {
         ready={this.state.ready}
         refresh={this.requestPermissions}
       />
+    );
+  }
+
+  render() {
+    const { id } = this.props.location.query;
+    return (
+      <div>
+        <OrganizationHelmet
+          title={translate('permission_templates.page')}
+          organization={this.props.organization}
+        />
+
+        {id && this.renderTemplate(id)}
+        {!id && this.renderHome()}
+      </div>
     );
   }
 }
