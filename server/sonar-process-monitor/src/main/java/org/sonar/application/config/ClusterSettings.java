@@ -19,6 +19,8 @@
  */
 package org.sonar.application.config;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.HostAndPort;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -90,7 +92,8 @@ public class ClusterSettings implements Consumer<Props> {
     }
   }
 
-  private static void ensureNotLoopback(Props props, String key) {
+  @VisibleForTesting
+  protected static void ensureNotLoopback(Props props, String key) {
     String ipList = props.value(key);
     if (ipList == null) {
       return;
@@ -131,15 +134,15 @@ public class ClusterSettings implements Consumer<Props> {
 
   private static InetAddress convertToInetAddress(String text, String key) {
     InetAddress inetAddress;
-
-    if (!InetAddresses.isInetAddress(text)) {
+    HostAndPort hostAndPort = HostAndPort.fromString(text);
+    if (!InetAddresses.isInetAddress(hostAndPort.getHostText())) {
       try {
-        inetAddress =InetAddress.getByName(text);
+        inetAddress =InetAddress.getByName(hostAndPort.getHostText());
       } catch (UnknownHostException e) {
         throw new MessageException(format("The interface address [%s] of [%s] cannot be resolved : %s", text, key, e.getMessage()));
       }
     } else {
-      inetAddress = forString(text);
+      inetAddress = forString(hostAndPort.getHostText());
     }
 
     return inetAddress;

@@ -34,7 +34,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.process.MessageException;
 
-import static java.lang.String.format;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
 import static org.sonar.process.ProcessProperties.CLUSTER_NETWORK_INTERFACES;
@@ -46,63 +45,80 @@ import static org.sonar.process.ProcessProperties.SEARCH_HOST;
 public class ClusterSettingsLoopbackTest {
 
   private TestAppSettings settings;
+  private static final String LOOPBACK_FORBIDDEN = " must not be a loopback address";
+  private static final String NOT_LOCAL_ADDRESS = " is not a local address";
+  private static final String NOT_RESOLVABLE = " cannot be resolved";
 
-  @DataPoints("loopback_with_single_ip")
-  public static final String[] LOOPBACK_SINGLE_IP = {
-    "localhost",
-    "127.0.0.1",
-    "127.1.1.1",
-    "127.243.136.241",
-    "::1",
-    "0:0:0:0:0:0:0:1"
+  @DataPoints("parameter")
+  public static final ValueAndResult[] VALID_SINGLE_IP = {
+      // Valid IPs
+      new ValueAndResult("1.2.3.4", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("1.2.3.4:9001", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", NOT_LOCAL_ADDRESS),
+
+      // Valid Name
+      new ValueAndResult("www.sonarqube.org", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("www.google.fr", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("www.google.com, www.sonarsource.com, wwww.sonarqube.org", NOT_LOCAL_ADDRESS),
+
+      new ValueAndResult("...", NOT_RESOLVABLE),
+      new ValueAndResult("භඦආ\uD801\uDC8C\uD801\uDC8B", NOT_RESOLVABLE),
+
+      // Valide IPs List
+      new ValueAndResult("1.2.3.4,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("1.2.3.4:9001,[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,1.2.3.4:9001", NOT_LOCAL_ADDRESS),
+      new ValueAndResult("[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccc", NOT_LOCAL_ADDRESS),
+
+      // Loopback IPs
+      new ValueAndResult("localhost", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.0.0.1", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.1.1.1", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.243.136.241", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("::1", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("0:0:0:0:0:0:0:1", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("localhost:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.0.0.1:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.1.1.1:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.243.136.241:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[::1]:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
+
+      // Loopback IPs list
+      new ValueAndResult("127.0.0.1,192.168.11.25", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("192.168.11.25,127.1.1.1", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,0:0:0:0:0:0:0:1", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("0:0:0:0:0:0:0:1,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,::1", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,2a01:e34:ef1f:dbb0:b3f6:a978:c5c0:9ccb", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("localhost:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.0.0.1:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.1.1.1:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.243.136.241:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[::1]:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("127.0.0.1,192.168.11.25:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("192.168.11.25:9001,127.1.1.1:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,[0:0:0:0:0:0:0:1]:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[0:0:0:0:0:0:0:1]:9001,[2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001,[::1]:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[::1]:9001,[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN),
+      new ValueAndResult("[::1]:9001,[2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb]:9001,[2a01:e34:ef1f:dbb0:b3f6:a978:c5c0:9ccb]:9001", LOOPBACK_FORBIDDEN)
   };
 
-  @DataPoints("loopback_with_multiple_ips")
-  public static final String[] LOOPBACK_IPS = {
-    "localhost",
-    "127.0.0.1",
-    "127.1.1.1",
-    "127.243.136.241",
-    "::1",
-    "0:0:0:0:0:0:0:1",
-    "127.0.0.1,192.168.11.25",
-    "192.168.11.25,127.1.1.1",
-    "2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb,0:0:0:0:0:0:0:1",
-    "0:0:0:0:0:0:0:1,2a01:e34:ef1f:dbb0:c2f6:a978:c5c0:9ccb",
-    "2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,::1",
-    "::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb",
-    "::1,2a01:e34:ef1f:dbb0:c3f6:a978:c5c0:9ccb,2a01:e34:ef1f:dbb0:b3f6:a978:c5c0:9ccb"
+  @DataPoints("key")
+  public static final Key[] KEYS = {
+    new Key(SEARCH_HOST, false, false),
+    new Key(CLUSTER_NETWORK_INTERFACES, true, false),
+    new Key(CLUSTER_SEARCH_HOSTS, true, true),
+    new Key(CLUSTER_HOSTS, true, true)
   };
 
-  @DataPoints("key_for_single_ip")
-  public static final String[] PROPERTY_KEYS_WITH_SINGLE_IP = {
-    SEARCH_HOST
-  };
-
-  @DataPoints("key_for_multiple_ips")
-  public static final String[] PROPERTY_KEYS_WITH_MULTIPLE_IPS = {
-    CLUSTER_NETWORK_INTERFACES,
-    CLUSTER_SEARCH_HOSTS,
-    CLUSTER_HOSTS
-  };
-
-  @DataPoints("key_with_local_ip")
-  public static final String[] PROPERTY_KEYS_ALL = {
-    CLUSTER_NETWORK_INTERFACES,
-    SEARCH_HOST
-  };
-
-  @DataPoints("not_local_address")
-  public static final String[] NOT_LOCAL_ADDRESS = {
-    "www.sonarqube.org",
-    "www.google.fr",
-    "www.google.com, www.sonarsource.com, wwww.sonarqube.org"
-  };
 
   @DataPoints("unresolvable_hosts")
   public static final String[] UNRESOLVABLE_HOSTS = {
-    "...",
-    "භඦආ\uD801\uDC8C\uD801\uDC8B"
   };
 
   @Rule
@@ -114,50 +130,21 @@ public class ClusterSettingsLoopbackTest {
   }
 
   @Theory
-  public void accept_throws_MessageException_if_not_local_address(
-    @FromDataPoints("key_with_local_ip") String propertyKey,
-    @FromDataPoints("not_local_address") String inet) {
-    settings.set(propertyKey, inet);
+  public void accept_throws_MessageException(
+    @FromDataPoints("key") Key propertyKey,
+    @FromDataPoints("parameter") ValueAndResult valueAndResult) {
+    // Skip the test if the value is a list and if the key is not accepting a list
+    if ((valueAndResult.isList() && propertyKey.acceptList) || !valueAndResult.isList()) {
+      settings.set(propertyKey.getKey(), valueAndResult.getValue());
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage(" is not a local address");
+      // If the key accept non local IPs there won't be any exception
+      if (!propertyKey.acceptNonLocal || valueAndResult.getMessage() != NOT_LOCAL_ADDRESS) {
+        expectedException.expect(MessageException.class);
+        expectedException.expectMessage(valueAndResult.getMessage());
+      }
 
-    new ClusterSettings().accept(settings.getProps());
-  }
-
-  @Theory
-  public void accept_throws_MessageException_if_unresolvable_host(
-    @FromDataPoints("key_with_local_ip") String propertyKey,
-    @FromDataPoints("unresolvable_hosts") String inet) {
-    settings.set(propertyKey, inet);
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage(" cannot be resolved");
-
-    new ClusterSettings().accept(settings.getProps());
-  }
-
-  @Theory
-  public void accept_throws_MessageException_if_loopback(
-    @FromDataPoints("key_for_single_ip") String propertyKey,
-    @FromDataPoints("loopback_with_single_ip") String inet) {
-    settings.set(propertyKey, inet);
-    checkLoopback(propertyKey);
-  }
-
-  @Theory
-  public void accept_throws_MessageException_if_loopback_for_multiple_ips(
-    @FromDataPoints("key_for_multiple_ips") String propertyKey,
-    @FromDataPoints("loopback_with_multiple_ips") String inet) {
-    settings.set(propertyKey, inet);
-    checkLoopback(propertyKey);
-  }
-
-  private void checkLoopback(String key) {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage(format(" of [%s] must not be a loopback address",  key));
-
-    new ClusterSettings().accept(settings.getProps());
+      new ClusterSettings().accept(settings.getProps());
+    }
   }
 
   private static TestAppSettings getClusterSettings()  {
@@ -184,5 +171,51 @@ public class ClusterSettingsLoopbackTest {
       .set(SEARCH_HOST, localAddress)
       .set(JDBC_URL, "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance");
     return testAppSettings;
+  }
+
+  private static class Key {
+    private final String key;
+    private final boolean acceptList;
+    private final boolean acceptNonLocal;
+
+    private Key(String key, boolean acceptList, boolean acceptNonLocal) {
+      this.key = key;
+      this.acceptList = acceptList;
+      this.acceptNonLocal = acceptNonLocal;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public boolean acceptList() {
+      return acceptList;
+    }
+
+    public boolean acceptNonLocal() {
+      return acceptNonLocal;
+    }
+  }
+
+  private static class ValueAndResult {
+    private final String value;
+    private final String message;
+
+    private ValueAndResult(String value, String message) {
+      this.value = value;
+      this.message = message;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    public boolean isList() {
+      return value != null && value.contains(",");
+    }
   }
 }
