@@ -46,6 +46,8 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
     const lastItem = breadcrumbs[breadcrumbs.length - 1];
 
     const items = breadcrumbs.map((item, index) => {
+      const isPath = item.qualifier === 'DIR';
+      const itemName = isPath ? collapsePath(item.name, 15) : limitComponentName(item.name);
       return (
         <span key={item.key}>
           {!displayOrganization &&
@@ -58,8 +60,8 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
             to={{ pathname: '/dashboard', query: { id: item.key } }}
             className="link-base-color">
             {index === breadcrumbs.length - 1
-              ? <strong>{collapsePath(item.name, 15)}</strong>
-              : <span>{limitComponentName(item.name)}</span>}
+              ? <strong>{itemName}</strong>
+              : <span>{itemName}</span>}
           </Link>
           {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
         </span>
