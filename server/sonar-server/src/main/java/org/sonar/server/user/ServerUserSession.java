@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -178,6 +179,20 @@ public class ServerUserSession extends AbstractUserSession {
       return dbClient.authorizationDao().selectProjectPermissions(dbSession, projectUuid, userDto.getId());
     }
     return dbClient.authorizationDao().selectProjectPermissionsOfAnonymous(dbSession, projectUuid);
+  }
+
+  @Override
+  protected List<ComponentDto> doKeepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Set<String> projectUuids = components.stream()
+        .map(ComponentDto::projectUuid)
+        .collect(MoreCollectors.toSet(components.size()));
+      Set<String> authorizedProjectUuids = dbClient.authorizationDao().keepAuthorizedProjectUuids(dbSession, projectUuids, getUserId(), permission);
+
+      return components.stream()
+        .filter(c -> authorizedProjectUuids.contains(c.projectUuid()))
+        .collect(MoreCollectors.toList(components.size()));
+    }
   }
 
   @Override

@@ -22,8 +22,8 @@ package org.sonar.server.user;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.user.GroupDto;
 
 /**
  * Allow code to be executed with the highest privileges possible, as if executed by a {@link OrganizationPermission#ADMINISTER} account.
@@ -111,7 +111,7 @@ public final class DoPrivileged {
       protected boolean hasProjectUuidPermission(String permission, String projectUuid) {
         return true;
       }
-
+      
       @Override
       public boolean isSystemAdministrator() {
         return true;

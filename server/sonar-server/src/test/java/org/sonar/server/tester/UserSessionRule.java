@@ -21,6 +21,7 @@ package org.sonar.server.tester;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
@@ -251,6 +252,11 @@ public class UserSessionRule implements TestRule, UserSession {
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     return currentUserSession.hasComponentUuidPermission(permission, componentUuid);
+  }
+
+  @Override
+  public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    return currentUserSession.keepAuthorizedComponents(permission, components);
   }
 
   @Override
