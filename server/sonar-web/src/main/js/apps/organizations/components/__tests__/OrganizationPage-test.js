@@ -23,7 +23,7 @@ import { UnconnectedOrganizationPage } from '../OrganizationPage';
 
 it('smoke test', () => {
   const wrapper = shallow(
-    <UnconnectedOrganizationPage>
+    <UnconnectedOrganizationPage params={{ organizationKey: 'foo' }}>
       <div>hello</div>
     </UnconnectedOrganizationPage>
   );
@@ -36,10 +36,23 @@ it('smoke test', () => {
 
 it('not found', () => {
   const wrapper = shallow(
-    <UnconnectedOrganizationPage>
+    <UnconnectedOrganizationPage params={{ organizationKey: 'foo' }}>
       <div>hello</div>
     </UnconnectedOrganizationPage>
   );
   wrapper.setState({ loading: false });
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should correctly update when the organization changes', () => {
+  const fetchOrganization = jest.fn(() => Promise.resolve());
+  const wrapper = shallow(
+    <UnconnectedOrganizationPage
+      params={{ organizationKey: 'foo' }}
+      fetchOrganization={fetchOrganization}>
+      <div>hello</div>
+    </UnconnectedOrganizationPage>
+  );
+  wrapper.setProps({ params: { organizationKey: 'bar' } });
+  expect(fetchOrganization.mock.calls).toMatchSnapshot();
 });

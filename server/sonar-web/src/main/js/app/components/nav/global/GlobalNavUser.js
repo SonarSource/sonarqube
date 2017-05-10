@@ -19,21 +19,47 @@
  */
 // @flow
 import React from 'react';
-import { Link, withRouter } from 'react-router';
+import classNames from 'classnames';
+import { sortBy } from 'lodash';
+import { Link } from 'react-router';
 import Avatar from '../../../../components/ui/Avatar';
+import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { translate } from '../../../../helpers/l10n';
 
-class GlobalNavUser extends React.PureComponent {
-  props: {
-    currentUser: {
-      email?: string,
-      name: string
-    },
-    location: Object,
-    router: { push: string => void }
+type CurrentUser = {
+  email?: string,
+  isLoggedIn: boolean,
+  name: string
+};
+
+type Props = {
+  currentUser: CurrentUser,
+  fetchMyOrganizations: () => Promise<*>,
+  location: Object,
+  organizations: Array<{ key: string, name: string }>,
+  router: { push: string => void }
+};
+
+type State = {
+  open: boolean
+};
+
+export default class GlobalNavUser extends React.PureComponent {
+  node: HTMLElement;
+  props: Props;
+  state: State = { open: false };
+
+  componentWillUnmount() {
+    window.removeEventListener('click', this.handleClickOutside);
+  }
+
+  handleClickOutside = (event: { target: HTMLElement }) => {
+    if (!this.node || !this.node.contains(event.target)) {
+      this.closeDropdown();
+    }
   };
 
-  handleLogin = e => {
+  handleLogin = (e: Event) => {
     e.preventDefault();
     const shouldReturnToCurrentPage = window.location.pathname !== `${window.baseUrl}/about`;
     if (shouldReturnToCurrentPage) {
@@ -45,36 +71,76 @@ class GlobalNavUser extends React.PureComponent {
     }
   };
 
-  handleLogout = e => {
+  handleLogout = (e: Event) => {
     e.preventDefault();
+    this.closeDropdown();
     this.props.router.push('/sessions/logout');
   };
 
+  toggleDropdown = (evt: Event) => {
+    evt.preventDefault();
+    if (this.state.open) {
+      this.closeDropdown();
+    } else {
+      this.openDropdown();
+    }
+  };
+
+  openDropdown = () => {
+    this.props.fetchMyOrganizations().then(() => {
+      window.addEventListener('click', this.handleClickOutside, true);
+      this.setState({ open: true });
+    });
+  };
+
+  closeDropdown = () => {
+    window.removeEventListener('click', this.handleClickOutside);
+    this.setState({ open: false });
+  };
+
   renderAuthenticated() {
-    const { currentUser } = this.props;
+    const { currentUser, organizations } = this.props;
+    const hasOrganizations = organizations.length > 0;
     return (
-      <li className="dropdown js-user-authenticated">
-        <a className="dropdown-toggle navbar-avatar" data-toggle="dropdown" href="#">
+      <li
+        className={classNames('dropdown js-user-authenticated', { open: this.state.open })}
+        ref={node => (this.node = node)}>
+        <a className="dropdown-toggle navbar-avatar" href="#" onClick={this.toggleDropdown}>
           <Avatar email={currentUser.email} name={currentUser.name} size={24} />
         </a>
-        <ul className="dropdown-menu dropdown-menu-right">
-          <li className="dropdown-item">
-            <div className="text-ellipsis text-muted" title={currentUser.name}>
-              <strong>{currentUser.name}</strong>
-            </div>
-            {currentUser.email != null &&
-              <div className="little-spacer-top text-ellipsis text-muted" title={currentUser.email}>
-                {currentUser.email}
-              </div>}
-          </li>
-          <li className="divider" />
-          <li>
-            <Link to="/account">{translate('my_account.page')}</Link>
-          </li>
-          <li>
-            <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>
-          </li>
-        </ul>
+        {this.state.open &&
+          <ul className="dropdown-menu dropdown-menu-right">
+            <li className="dropdown-item">
+              <div className="text-ellipsis text-muted" title={currentUser.name}>
+                <strong>{currentUser.name}</strong>
+              </div>
+              {currentUser.email != null &&
+                <div
+                  className="little-spacer-top text-ellipsis text-muted"
+                  title={currentUser.email}>
+                  {currentUser.email}
+                </div>}
+            </li>
+            <li className="divider" />
+            <li>
+              <Link to="/account" onClick={this.closeDropdown}>{translate('my_account.page')}</Link>
+            </li>
+            {hasOrganizations && <li role="separator" className="divider" />}
+            {hasOrganizations &&
+              <li className="dropdown-header spacer-left">{translate('my_organizations')}</li>}
+            {hasOrganizations &&
+              sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
+                <li key={organization.key}>
+                  <OrganizationLink organization={organization} onClick={this.closeDropdown}>
+                    <span className="spacer-left">{organization.name}</span>
+                  </OrganizationLink>
+                </li>
+              ))}
+            {hasOrganizations && <li role="separator" className="divider" />}
+            <li>
+              <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>
+            </li>
+          </ul>}
       </li>
     );
   }
@@ -91,5 +157,3 @@ class GlobalNavUser extends React.PureComponent {
     return this.props.currentUser.isLoggedIn ? this.renderAuthenticated() : this.renderAnonymous();
   }
 }
-
-export default withRouter(GlobalNavUser);
