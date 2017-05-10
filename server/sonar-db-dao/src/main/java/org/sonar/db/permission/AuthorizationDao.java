@@ -124,6 +124,10 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectOrganizationUuidsOfUserWithGlobalPermission(userId, permission);
   }
 
+  /**
+   * @deprecated replaced by {@link #keepAuthorizedProjectUuids(DbSession, Collection, Integer, String)}
+   */
+  @Deprecated
   public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String permission) {
     return executeLargeInputsIntoSet(
       componentIds,

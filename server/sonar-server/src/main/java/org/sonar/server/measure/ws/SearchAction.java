@@ -49,7 +49,6 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.SUBVIEW;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.measure.ws.MeasureDtoToWsMeasure.updateMeasureBuilder;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -141,21 +140,7 @@ public class SearchAction implements MeasuresWsAction {
     }
 
     private List<ComponentDto> getAuthorizedProjects(List<ComponentDto> componentDtos) {
-      if (userSession.isRoot()) {
-        // the method AuthorizationDao#keepAuthorizedProjectIds() should be replaced by
-        // a call to UserSession, which would transparently support roots.
-        // Meanwhile root is explicitly handled.
-        return componentDtos;
-      }
-      Set<String> projectUuids = componentDtos.stream().map(ComponentDto::projectUuid).collect(MoreCollectors.toSet());
-      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
-      Map<String, Long> projectIdsByUuids = projectDtos.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
-      Set<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
-        projectDtos.stream().map(ComponentDto::getId).collect(toList()),
-        userSession.getUserId(), UserRole.USER);
-      return componentDtos.stream()
-        .filter(component -> authorizedProjectIds.contains(projectIdsByUuids.get(component.projectUuid())))
-        .collect(MoreCollectors.toList());
+      return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
     }
 
     private List<MetricDto> searchMetrics() {

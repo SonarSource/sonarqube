@@ -28,12 +28,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.tester.UserSessionRule;
@@ -62,7 +60,6 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
 
   private FavoriteFinder favoriteFinder = new FavoriteFinder(dbClient, userSession);
 
@@ -132,7 +129,6 @@ public class SearchActionTest {
     ComponentDto otherUserFavorite = ComponentTesting.newPrivateProjectDto(organizationDto).setKey("K42");
     db.components().insertComponent(otherUserFavorite);
     db.favorites().add(otherUserFavorite, 42);
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(organizationDto.getUuid(), UserRole.USER, 42, otherUserFavorite.getId()));
     db.commit();
 
     SearchResponse result = call();
@@ -186,8 +182,8 @@ public class SearchActionTest {
   private void addComponent(ComponentDto component) {
     db.components().insertComponent(component);
     db.favorites().add(component, USER_ID);
-    dbClient.userPermissionDao().insert(dbSession, new UserPermissionDto(component.getOrganizationUuid(), UserRole.USER, USER_ID, component.getId()));
     db.commit();
+    userSession.addProjectPermission(UserRole.USER, component);
   }
 
   private SearchResponse call(@Nullable Integer page, @Nullable Integer pageSize) {

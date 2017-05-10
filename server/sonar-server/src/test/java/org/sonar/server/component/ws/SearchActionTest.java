@@ -228,7 +228,7 @@ public class SearchActionTest {
     ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setKey("directory-key").setName("Directory Name");
     db.components().insertComponents(project, module, directory,
       newFileDto(module, directory, "file-uuid").setKey("file-key").setLanguage("java").setName("File Name"));
-    setBrowsePermissionOnUser(project);
+    userSession.addProjectPermission(UserRole.USER, project);
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
@@ -245,8 +245,7 @@ public class SearchActionTest {
   }
 
   private void setBrowsePermissionOnUser(ComponentDto... projects) {
-    Arrays.stream(projects).forEach(project -> db.users().insertProjectPermissionOnUser(user, UserRole.USER, project));
-    db.getSession().commit();
+    Arrays.stream(projects).forEach(project -> userSession.addProjectPermission(UserRole.USER, project));
   }
 
   private SearchWsResponse call(SearchWsRequest wsRequest) {

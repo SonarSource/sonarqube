@@ -70,7 +70,6 @@ import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.issue.AbstractChangeTagsAction.TAGS_PARAMETER;
@@ -302,7 +301,7 @@ public class BulkChangeAction implements IssuesWsAction {
       List<IssueDto> allIssues = dbClient.issueDao().selectByKeys(dbSession, issueKeys);
 
       List<ComponentDto> allProjects = getComponents(dbSession, allIssues.stream().map(IssueDto::getProjectUuid).collect(MoreCollectors.toSet()));
-      this.projectsByUuid = getAuthorizedProjects(dbSession, allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
+      this.projectsByUuid = getAuthorizedProjects(allProjects).stream().collect(uniqueIndex(ComponentDto::uuid, identity()));
       this.issues = getAuthorizedIssues(allIssues);
       this.componentsByUuid = getComponents(dbSession,
         issues.stream().map(DefaultIssue::componentUuid).collect(MoreCollectors.toSet())).stream()
@@ -321,14 +320,8 @@ public class BulkChangeAction implements IssuesWsAction {
       return dbClient.componentDao().selectByUuids(dbSession, componentUuids);
     }
 
-    private List<ComponentDto> getAuthorizedProjects(DbSession dbSession, List<ComponentDto> projectDtos) {
-      Map<String, Long> projectIdsByUuids = projectDtos.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
-      Set<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession,
-        projectDtos.stream().map(ComponentDto::getId).collect(toList()),
-        userSession.getUserId(), UserRole.USER);
-      return projectDtos.stream()
-        .filter(project -> authorizedProjectIds.contains(projectIdsByUuids.get(project.projectUuid())))
-        .collect(MoreCollectors.toList());
+    private List<ComponentDto> getAuthorizedProjects(List<ComponentDto> projectDtos) {
+      return userSession.keepAuthorizedComponents(UserRole.USER, projectDtos);
     }
 
     private List<DefaultIssue> getAuthorizedIssues(List<IssueDto> allIssues) {

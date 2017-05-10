@@ -86,7 +86,7 @@ public class SearchAction implements FavoritesWsAction {
   private SearchResults toSearchResults(SearchRequest request) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<ComponentDto> authorizedFavorites = getAuthorizedFavorites(dbSession);
+      List<ComponentDto> authorizedFavorites = getAuthorizedFavorites();
       Paging paging = Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(authorizedFavorites.size());
       List<ComponentDto> displayedFavorites = authorizedFavorites.stream()
         .skip(paging.offset())
@@ -97,15 +97,9 @@ public class SearchAction implements FavoritesWsAction {
     }
   }
 
-  private List<ComponentDto> getAuthorizedFavorites(DbSession dbSession) {
+  private List<ComponentDto> getAuthorizedFavorites() {
     List<ComponentDto> componentDtos = favoriteFinder.list();
-    Set<Long> favoriteComponentIds = componentDtos.stream()
-      .map(ComponentDto::getId)
-      .collect(MoreCollectors.toSet(componentDtos.size()));
-    Set<Long> authorizedFavoriteComponentIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, favoriteComponentIds, userSession.getUserId(), UserRole.USER);
-    return componentDtos.stream()
-      .filter(dto -> authorizedFavoriteComponentIds.contains(dto.getId()))
-      .collect(MoreCollectors.toList());
+    return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
   }
 
   private Map<String, OrganizationDto> getOrganizationsOfComponents(DbSession dbSession, List<ComponentDto> displayedFavorites) {
