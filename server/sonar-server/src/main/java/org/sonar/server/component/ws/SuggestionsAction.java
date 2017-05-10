@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -171,8 +170,8 @@ public class SuggestionsAction implements ComponentsWsAction {
       if (!recentlyBrowsedKeys.isEmpty()) {
         componentDtos.addAll(dbClient.componentDao().selectByKeys(dbSession, recentlyBrowsedKeys));
       }
-      ListMultimap<String, ComponentDto> componentsPerQualifier = componentDtos.stream()
-        .filter(c -> userSession.hasComponentPermission(USER, c))
+      List<ComponentDto> authorizedComponents = userSession.keepAuthorizedComponents(USER, componentDtos);
+      ListMultimap<String, ComponentDto> componentsPerQualifier = authorizedComponents.stream()
         .collect(MoreCollectors.index(ComponentDto::qualifier));
       if (componentsPerQualifier.isEmpty()) {
         return newBuilder().build();
@@ -195,7 +194,7 @@ public class SuggestionsAction implements ComponentsWsAction {
           int totalHits = componentsPerQualifier.size();
           return new ComponentHitsPerQualifier(q, hits, totalHits);
         })).build();
-      return buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtos.stream(), skip + limit).build();
+      return buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, authorizedComponents, skip + limit).build();
     }
   }
 
@@ -219,9 +218,9 @@ public class SuggestionsAction implements ComponentsWsAction {
         .flatMap(Collection::stream)
         .map(ComponentHit::getUuid)
         .collect(toSet());
-      Stream<ComponentDto> componentDtoStream = dbClient.componentDao().selectByUuids(dbSession, componentUuids).stream();
+      List<ComponentDto> componentDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
       Set<String> favoriteUuids = favorites.stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet(favorites.size()));
-      SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtoStream, skip + limit);
+      SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtos, skip + limit);
       getWarning(query).ifPresent(searchWsResponse::setWarning);
       return searchWsResponse.build();
     }
@@ -243,8 +242,9 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers,
-    DbSession dbSession, Stream<ComponentDto> stream, int coveredItems) {
-    Map<String, ComponentDto> componentsByUuids = stream
+    DbSession dbSession, List<ComponentDto> componentDtos, int coveredItems) {
+
+    Map<String, ComponentDto> componentsByUuids = componentDtos.stream()
       .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
     Map<String, OrganizationDto> organizationsByUuids = loadOrganizations(dbSession, componentsByUuids.values());
     Map<String, ComponentDto> projectsByUuids = loadProjects(dbSession, componentsByUuids.values());
