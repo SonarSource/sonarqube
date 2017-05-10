@@ -189,7 +189,7 @@ export default class SourceViewerCode extends React.PureComponent {
     const displayFiltered = this.props.filterLine != null;
     const hasIssues = this.props.issues.length > 0;
 
-    const hasFileIssues = hasIssues && this.props.issues.some(issue => !issue.line);
+    const hasFileIssues = hasIssues && this.props.issues.some(issue => !issue.textRange);
 
     return (
       <div>

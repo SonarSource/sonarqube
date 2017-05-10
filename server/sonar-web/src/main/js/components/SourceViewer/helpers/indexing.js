@@ -46,7 +46,7 @@ export type IndexedIssueLocationMessage = {
 export const issuesByLine = (issues: Array<Issue>) => {
   const index = {};
   issues.forEach(issue => {
-    const line = issue.line || 0;
+    const line = issue.textRange ? issue.textRange.endLine : 0;
     if (!(line in index)) {
       index[line] = [];
     }

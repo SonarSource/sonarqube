@@ -78,7 +78,7 @@ export default class IssuesSourceViewer extends React.PureComponent {
     return (
       <div ref={node => (this.node = node)}>
         <SourceViewer
-          aroundLine={openIssue.line}
+          aroundLine={openIssue.textRange ? openIssue.textRange.endLine : undefined}
           component={openIssue.component}
           displayAllIssues={true}
           highlightedLocations={locations}

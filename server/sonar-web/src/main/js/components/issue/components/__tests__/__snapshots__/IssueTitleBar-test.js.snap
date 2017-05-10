@@ -30,12 +30,18 @@ exports[`should render the titlebar correctly 1`] = `
                   "creationDate": "2017-03-01T09:36:01+0100",
                   "flows": Array [],
                   "key": "AVsae-CQS-9G3txfbFN2",
-                  "line": 26,
+                  "line": 25,
                   "message": "Reduce the number of conditional operators (4) used in the expression",
                   "organization": "myorg",
                   "project": "myproject",
                   "rule": "javascript:S1067",
                   "secondaryLocations": Array [],
+                  "textRange": Object {
+                    "endLine": 26,
+                    "endOffset": 15,
+                    "startLine": 25,
+                    "startOffset": 0,
+                  },
                 }
               }
               onFail={[Function]}
@@ -111,12 +117,18 @@ exports[`should render the titlebar with the filter 1`] = `
                   "creationDate": "2017-03-01T09:36:01+0100",
                   "flows": Array [],
                   "key": "AVsae-CQS-9G3txfbFN2",
-                  "line": 26,
+                  "line": 25,
                   "message": "Reduce the number of conditional operators (4) used in the expression",
                   "organization": "myorg",
                   "project": "myproject",
                   "rule": "javascript:S1067",
                   "secondaryLocations": Array [],
+                  "textRange": Object {
+                    "endLine": 26,
+                    "endOffset": 15,
+                    "startLine": 25,
+                    "startOffset": 0,
+                  },
                 }
               }
               onFail={[Function]}
@@ -165,12 +177,18 @@ exports[`should render the titlebar with the filter 1`] = `
                   "creationDate": "2017-03-01T09:36:01+0100",
                   "flows": Array [],
                   "key": "AVsae-CQS-9G3txfbFN2",
-                  "line": 26,
+                  "line": 25,
                   "message": "Reduce the number of conditional operators (4) used in the expression",
                   "organization": "myorg",
                   "project": "myproject",
                   "rule": "javascript:S1067",
                   "secondaryLocations": Array [],
+                  "textRange": Object {
+                    "endLine": 26,
+                    "endOffset": 15,
+                    "startLine": 25,
+                    "startOffset": 0,
+                  },
                 }
               }
               onFail={[Function]}

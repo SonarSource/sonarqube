@@ -453,7 +453,7 @@ export default class App extends React.PureComponent {
       if (lastIssue.component !== openIssue.component) {
         return true;
       }
-      return lastIssue.line != null && lastIssue.line > to;
+      return lastIssue.textRange != null && lastIssue.textRange.endLine > to;
     };
 
     if (done(issues, paging)) {
