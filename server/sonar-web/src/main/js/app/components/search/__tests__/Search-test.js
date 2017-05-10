@@ -20,12 +20,12 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 import type { ShallowWrapper } from 'enzyme';
-import GlobalNavSearchForm from '../GlobalNavSearchForm';
-import { elementKeydown, clickOutside } from '../../../../../helpers/testUtils';
+import Search from '../Search';
+import { elementKeydown, clickOutside } from '../../../../helpers/testUtils';
 
 function render(props?: Object) {
   return shallow(
-    <GlobalNavSearchForm
+    <Search
       appState={{ organizationsEnabled: false }}
       currentUser={{ isLoggedIn: false }}
       {...props}
@@ -52,35 +52,10 @@ function select(form: ShallowWrapper, expected: string) {
   expect(form.state().selected).toBe(expected);
 }
 
-it('renders different components and dividers between them', () => {
-  const form = render();
-  form.setState({
-    open: true,
-    results: {
-      TRK: [component('foo'), component('bar')],
-      BRC: [component('qwe', 'BRC'), component('qux', 'BRC')],
-      FIL: [component('zux', 'FIL')]
-    }
-  });
-  expect(form.find('.menu')).toMatchSnapshot();
-});
-
-it('renders "Show More" link', () => {
-  const form = render();
-  form.setState({
-    more: { TRK: 175, BRC: 0 },
-    open: true,
-    results: {
-      TRK: [component('foo'), component('bar')],
-      BRC: [component('qwe', 'BRC'), component('qux', 'BRC')]
-    }
-  });
-  expect(form.find('.menu')).toMatchSnapshot();
-});
-
 it('selects results', () => {
   const form = render();
   form.setState({
+    more: { TRK: 15, BRC: 0 },
     open: true,
     results: {
       TRK: [component('foo'), component('bar')],
@@ -90,8 +65,10 @@ it('selects results', () => {
   });
   expect(form.state().selected).toBe('foo');
   next(form, 'bar');
+  next(form, 'qualifier###TRK');
   next(form, 'qwe');
   next(form, 'qwe');
+  prev(form, 'qualifier###TRK');
   prev(form, 'bar');
   select(form, 'foo');
   prev(form, 'foo');
@@ -128,10 +105,7 @@ it('closes on escape', () => {
 
 it('closes on click outside', () => {
   const form = mount(
-    <GlobalNavSearchForm
-      appState={{ organizationsEnabled: false }}
-      currentUser={{ isLoggedIn: false }}
-    />
+    <Search appState={{ organizationsEnabled: false }} currentUser={{ isLoggedIn: false }} />
   );
   form.instance().openSearch();
   expect(form.state().open).toBe(true);

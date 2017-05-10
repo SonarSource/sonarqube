@@ -39,6 +39,12 @@ export default class FavoriteBase extends React.PureComponent {
     this.toggleFavorite = this.toggleFavorite.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.favorite !== this.props.favorite && nextProps.favorite !== this.state.favorite) {
+      this.setState({ favorite: nextProps.favorite });
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }

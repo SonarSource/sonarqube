@@ -21,16 +21,17 @@
 import React from 'react';
 import classNames from 'classnames';
 import key from 'keymaster';
-import { debounce, groupBy, keyBy, sortBy, uniqBy } from 'lodash';
-import GlobalNavSearchFormComponent from './GlobalNavSearchFormComponent';
-import type { Component } from './GlobalNavSearchFormComponent';
-import RecentHistory from '../../RecentHistory';
-import DeferredSpinner from '../../../../components/common/DeferredSpinner';
-import { getSuggestions } from '../../../../api/components';
-import { getFavorites } from '../../../../api/favorites';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
-import { scrollToElement } from '../../../../helpers/scrolling';
-import { getProjectUrl } from '../../../../helpers/urls';
+import { debounce, keyBy, uniqBy } from 'lodash';
+import SearchResults from './SearchResults';
+import SearchResult from './SearchResult';
+import { sortQualifiers } from './utils';
+import type { Component, More, Results } from './utils';
+import RecentHistory from '../../components/RecentHistory';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import { getSuggestions } from '../../../api/components';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { scrollToElement } from '../../../helpers/scrolling';
+import { getProjectUrl } from '../../../helpers/urls';
 
 type Props = {|
   appState: { organizationsEnabled: boolean },
@@ -40,19 +41,17 @@ type Props = {|
 type State = {
   loading: boolean,
   loadingMore: ?string,
-  more: { [string]: number },
+  more: More,
   open: boolean,
   organizations: { [string]: { name: string } },
   projects: { [string]: { name: string } },
   query: string,
-  results: { [qualifier: string]: Array<Component> },
+  results: Results,
   selected: ?string,
   shortQuery: boolean
 };
 
-const ORDER = ['DEV', 'VW', 'SVW', 'TRK', 'BRC', 'FIL', 'UTS'];
-
-export default class GlobalNavSearchForm extends React.PureComponent {
+export default class Search extends React.PureComponent {
   input: HTMLElement;
   mounted: boolean;
   node: HTMLElement;
@@ -68,9 +67,6 @@ export default class GlobalNavSearchForm extends React.PureComponent {
     super(props);
     this.nodes = {};
     this.search = debounce(this.search, 250);
-    this.fetchFavoritesAndRecentlyBrowsed = debounce(this.fetchFavoritesAndRecentlyBrowsed, 250, {
-      leading: true
-    });
     this.state = {
       loading: false,
       loadingMore: null,
@@ -92,7 +88,6 @@ export default class GlobalNavSearchForm extends React.PureComponent {
       this.openSearch();
       return false;
     });
-    this.fetchFavoritesAndRecentlyBrowsed();
   }
 
   componentWillUpdate() {
@@ -113,40 +108,49 @@ export default class GlobalNavSearchForm extends React.PureComponent {
 
   handleClickOutside = (event: { target: HTMLElement }) => {
     if (!this.node || !this.node.contains(event.target)) {
-      this.closeSearch();
+      this.closeSearch(false);
     }
   };
 
   openSearch = () => {
     window.addEventListener('click', this.handleClickOutside);
-    if (!this.state.open) {
-      this.fetchFavoritesAndRecentlyBrowsed();
+    if (!this.state.open && !this.state.query) {
+      this.search('');
     }
     this.setState({ open: true });
   };
 
-  closeSearch = () => {
+  closeSearch = (clear: boolean = true) => {
     if (this.input) {
       this.input.blur();
     }
     window.removeEventListener('click', this.handleClickOutside);
-    this.setState({
-      more: {},
-      open: false,
-      organizations: {},
-      projects: {},
-      query: '',
-      results: {},
-      selected: null,
-      shortQuery: false
-    });
+    this.setState(
+      clear
+        ? {
+            more: {},
+            open: false,
+            organizations: {},
+            projects: {},
+            query: '',
+            results: {},
+            selected: null,
+            shortQuery: false
+          }
+        : {
+            open: false
+          }
+    );
   };
 
-  getPlainComponentsList = (results: { [qualifier: string]: Array<Component> }): Array<Component> =>
-    this.sortQualifiers(Object.keys(results)).reduce(
-      (components, qualifier) => [...components, ...results[qualifier]],
-      []
-    );
+  getPlainComponentsList = (results: Results, more: More): Array<string> =>
+    sortQualifiers(Object.keys(results)).reduce((components, qualifier) => {
+      const next = [...components, ...results[qualifier].map(component => component.key)];
+      if (more[qualifier]) {
+        next.push('qualifier###' + qualifier);
+      }
+      return next;
+    }, []);
 
   mergeWithRecentlyBrowsed = (components: Array<Component>) => {
     const recentlyBrowsed = RecentHistory.get().map(component => ({
@@ -157,49 +161,27 @@ export default class GlobalNavSearchForm extends React.PureComponent {
     return uniqBy([...components, ...recentlyBrowsed], 'key');
   };
 
-  fetchFavoritesAndRecentlyBrowsed = () => {
-    const done = (components: Array<Component>) => {
-      const results = groupBy(this.mergeWithRecentlyBrowsed(components), 'qualifier');
-      const list = this.getPlainComponentsList(results);
-      this.setState({
-        loading: false,
-        more: {},
-        results,
-        selected: list.length > 0 ? list[0].key : null
-      });
-    };
-
-    if (this.props.currentUser.isLoggedIn) {
-      this.setState({ loading: true });
-      getFavorites().then(response => {
-        if (this.mounted) {
-          done(response.favorites.map(component => ({ ...component, isFavorite: true })));
-        }
-      });
-    } else {
-      done([]);
-    }
-  };
-
   search = (query: string) => {
     this.setState({ loading: true });
     const recentlyBrowsed = RecentHistory.get().map(component => component.key);
     getSuggestions(query, recentlyBrowsed).then(response => {
-      if (this.mounted) {
+      // compare `this.state.query` and `query` to handle two request done almost at the same time
+      // in this case only the request that matches the current query should be taken
+      if (this.mounted && this.state.query === query) {
         const results = {};
         const more = {};
         response.results.forEach(group => {
           results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
           more[group.q] = group.more;
         });
-        const list = this.getPlainComponentsList(results);
+        const list = this.getPlainComponentsList(results, more);
         this.setState(state => ({
           loading: false,
           more,
           organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
           projects: { ...state.projects, ...keyBy(response.projects, 'key') },
           results,
-          selected: list.length > 0 ? list[0].key : null,
+          selected: list.length > 0 ? list[0] : null,
           shortQuery: response.warning === 'short_input'
         }));
       }
@@ -207,57 +189,67 @@ export default class GlobalNavSearchForm extends React.PureComponent {
   };
 
   searchMore = (qualifier: string) => {
-    this.setState({ loading: true, loadingMore: qualifier });
-    const recentlyBrowsed = RecentHistory.get().map(component => component.key);
-    getSuggestions(this.state.query, recentlyBrowsed, qualifier).then(response => {
-      if (this.mounted) {
-        const group = response.results.find(group => group.q === qualifier);
-        const moreResults = (group ? group.items : []).map(item => ({ ...item, qualifier }));
-        this.setState(state => ({
-          loading: false,
-          loadingMore: null,
-          more: { ...state.more, [qualifier]: 0 },
-          organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
-          projects: { ...state.projects, ...keyBy(response.projects, 'key') },
-          results: {
-            ...state.results,
-            [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
-          }
-        }));
-      }
-    });
+    if (this.state.query.length !== 1) {
+      this.setState({ loading: true, loadingMore: qualifier });
+      const recentlyBrowsed = RecentHistory.get().map(component => component.key);
+      getSuggestions(this.state.query, recentlyBrowsed, qualifier).then(response => {
+        if (this.mounted) {
+          const group = response.results.find(group => group.q === qualifier);
+          const moreResults = (group ? group.items : []).map(item => ({ ...item, qualifier }));
+          this.setState(state => ({
+            loading: false,
+            loadingMore: null,
+            more: { ...state.more, [qualifier]: 0 },
+            organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
+            projects: { ...state.projects, ...keyBy(response.projects, 'key') },
+            results: {
+              ...state.results,
+              [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
+            },
+            selected: moreResults.length > 0 ? moreResults[0].key : state.selected
+          }));
+        }
+      });
+    }
   };
 
   handleQueryChange = (event: { currentTarget: HTMLInputElement }) => {
     const query = event.currentTarget.value;
     this.setState({ query, shortQuery: query.length === 1 });
-    if (query.length === 0) {
-      this.fetchFavoritesAndRecentlyBrowsed();
-    } else if (query.length >= 2) {
+    if (query.length === 0 || query.length >= 2) {
       this.search(query);
     }
   };
 
   selectPrevious = () => {
-    this.setState((state: State) => {
-      const list = this.getPlainComponentsList(state.results);
-      const index = list.findIndex(component => component.key === state.selected);
-      return index > 0 ? { selected: list[index - 1].key } : undefined;
+    this.setState(({ more, results, selected }: State) => {
+      if (selected) {
+        const list = this.getPlainComponentsList(results, more);
+        const index = list.indexOf(selected);
+        return index > 0 ? { selected: list[index - 1] } : undefined;
+      }
     });
   };
 
   selectNext = () => {
-    this.setState((state: State) => {
-      const list = this.getPlainComponentsList(state.results);
-      const index = list.findIndex(component => component.key === state.selected);
-      return index >= 0 && index < list.length - 1 ? { selected: list[index + 1].key } : undefined;
+    this.setState(({ more, results, selected }: State) => {
+      if (selected) {
+        const list = this.getPlainComponentsList(results, more);
+        const index = list.indexOf(selected);
+        return index >= 0 && index < list.length - 1 ? { selected: list[index + 1] } : undefined;
+      }
     });
   };
 
   openSelected = () => {
-    if (this.state.selected) {
-      this.context.router.push(getProjectUrl(this.state.selected));
-      this.closeSearch();
+    const { selected } = this.state;
+    if (selected) {
+      if (selected.startsWith('qualifier###')) {
+        this.searchMore(selected.substr(12));
+      } else {
+        this.context.router.push(getProjectUrl(selected));
+        this.closeSearch();
+      }
     }
   };
 
@@ -295,23 +287,12 @@ export default class GlobalNavSearchForm extends React.PureComponent {
     this.setState({ selected });
   };
 
-  handleMoreClick = (event: MouseEvent & { currentTarget: HTMLElement }) => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.blur();
-    const { qualifier } = event.currentTarget.dataset;
-    this.searchMore(qualifier);
-  };
-
-  sortQualifiers = (qualifiers: Array<string>) =>
-    sortBy(qualifiers, qualifier => ORDER.indexOf(qualifier));
-
   innerRef = (component: string, node: HTMLElement) => {
     this.nodes[component] = node;
   };
 
-  renderComponent = (component: Component) => (
-    <GlobalNavSearchFormComponent
+  renderResult = (component: Component) => (
+    <SearchResult
       appState={this.props.appState}
       component={component}
       innerRef={this.innerRef}
@@ -324,47 +305,11 @@ export default class GlobalNavSearchForm extends React.PureComponent {
     />
   );
 
-  renderComponents = () => {
-    const qualifiers = Object.keys(this.state.results);
-    const renderedComponents = [];
-
-    this.sortQualifiers(qualifiers).forEach(qualifier => {
-      const components = this.state.results[qualifier];
-
-      if (components.length > 0 && renderedComponents.length > 0) {
-        renderedComponents.push(<li key={`divider-${qualifier}`} className="divider" />);
-      }
-
-      if (components.length > 0) {
-        renderedComponents.push(
-          <li key={`header-${qualifier}`} className="dropdown-header">
-            {translate('qualifiers', qualifier)}
-          </li>
-        );
-      }
-
-      components.forEach(component => {
-        renderedComponents.push(this.renderComponent(component));
-      });
-
-      const more = this.state.more[qualifier];
-      if (more != null && more > 0) {
-        renderedComponents.push(
-          <li key={`more-${qualifier}`} className="menu-footer">
-            <DeferredSpinner
-              className="navbar-search-icon"
-              loading={this.state.loadingMore === qualifier}>
-              <a data-qualifier={qualifier} href="#" onClick={this.handleMoreClick}>
-                {translate('show_more')}
-              </a>
-            </DeferredSpinner>
-          </li>
-        );
-      }
-    });
-
-    return renderedComponents;
-  };
+  renderNoResults = () => (
+    <div className="navbar-search-no-results">
+      {translateWithParameters('no_results_for_x', this.state.query)}
+    </div>
+  );
 
   render() {
     const dropdownClassName = classNames('dropdown', 'navbar-search', { open: this.state.open });
@@ -403,13 +348,24 @@ export default class GlobalNavSearchForm extends React.PureComponent {
           <div
             className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"
             ref={node => (this.node = node)}>
-            <ul className="menu">
-              {this.renderComponents()}
-            </ul>
+            <SearchResults
+              allowMore={this.state.query.length !== 1}
+              loadingMore={this.state.loadingMore}
+              more={this.state.more}
+              onMoreClick={this.searchMore}
+              onSelect={this.handleSelect}
+              renderNoResults={this.renderNoResults}
+              renderResult={this.renderResult}
+              results={this.state.results}
+              selected={this.state.selected}
+            />
             <div
               className="navbar-search-shortcut-hint"
               dangerouslySetInnerHTML={{
-                __html: translateWithParameters('search.shortcut_hint', 's')
+                __html: translateWithParameters(
+                  'search.shortcut_hint',
+                  '<span class="shortcut-button shortcut-button-small">s</span>'
+                )
               }}
             />
           </div>}

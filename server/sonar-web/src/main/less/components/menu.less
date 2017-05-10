@@ -77,21 +77,18 @@
     }
   }
 
-  .menu-footer {
-    display: block;
-    padding: 8px 16px 4px;
-    white-space: nowrap;
+  .menu-footer > a > span {
+    border-bottom: 1px solid @darkGrey;
+    color: @secondFontColor;
+  }
 
-    & > a {
-      display: inline;
-      padding: 0;
-      border-bottom: 1px solid @darkGrey;
-      color: @secondFontColor;
+  .menu-footer-note {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
-      &:hover {
-        background: none;
-      }
-    }
+  .menu-footer.active .menu-footer-note {
+    opacity: 1;
   }
 }
 

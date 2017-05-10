@@ -20,12 +20,12 @@
 // @flow
 import React from 'react';
 import { shallow } from 'enzyme';
-import GlobalNavSearchFormComponent from '../GlobalNavSearchFormComponent';
+import SearchResult from '../SearchResult';
 
 function render(props?: Object) {
   return shallow(
     // $FlowFixMe
-    <GlobalNavSearchFormComponent
+    <SearchResult
       appState={{ organizationsEnabled: false }}
       component={{ key: 'foo', name: 'foo', qualifier: 'TRK', organization: 'bar' }}
       innerRef={jest.fn()}
