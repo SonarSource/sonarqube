@@ -21,7 +21,6 @@ package org.sonar.server.component.index;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -35,6 +34,7 @@ public class ComponentIndexQuery {
   private final Collection<String> qualifiers;
   private final Set<String> recentlyBrowsedKeys;
   private final Set<String> favoriteKeys;
+  private final int skip;
   private final int limit;
 
   private ComponentIndexQuery(Builder builder) {
@@ -42,6 +42,7 @@ public class ComponentIndexQuery {
     this.qualifiers = requireNonNull(builder.qualifiers);
     this.recentlyBrowsedKeys = requireNonNull(builder.recentlyBrowsedKeys);
     this.favoriteKeys = requireNonNull(builder.favoriteKeys);
+    this.skip = builder.skip;
     this.limit = builder.limit;
   }
 
@@ -57,8 +58,12 @@ public class ComponentIndexQuery {
     return recentlyBrowsedKeys;
   }
 
-  public Optional<Integer> getLimit() {
-    return Optional.ofNullable(limit);
+  public int getSkip() {
+    return skip;
+  }
+
+  public int getLimit() {
+    return limit;
   }
 
   public static Builder builder() {
@@ -74,6 +79,7 @@ public class ComponentIndexQuery {
     private Collection<String> qualifiers = Collections.emptyList();
     private Set<String> recentlyBrowsedKeys = Collections.emptySet();
     private Set<String> favoriteKeys = Collections.emptySet();
+    private int skip = 0;
     private int limit = DEFAULT_LIMIT;
 
     private Builder() {
@@ -97,6 +103,12 @@ public class ComponentIndexQuery {
 
     public Builder setFavoriteKeys(Set<String> favoriteKeys) {
       this.favoriteKeys = Collections.unmodifiableSet(favoriteKeys);
+      return this;
+    }
+
+    public Builder setSkip(int skip) {
+      checkArgument(limit > 0, "Skip has to be strictly positive: %s", limit);
+      this.skip = skip;
       return this;
     }
 

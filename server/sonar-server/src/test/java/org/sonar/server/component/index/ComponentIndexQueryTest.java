@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.index;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -79,6 +78,6 @@ public class ComponentIndexQueryTest {
     ComponentIndexQuery query = ComponentIndexQuery.builder().setQuery("ab")
       .setLimit(1).build();
 
-    assertThat(query.getLimit()).isEqualTo(Optional.of(1));
+    assertThat(query.getLimit()).isEqualTo(1);
   }
 }

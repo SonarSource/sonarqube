@@ -114,8 +114,9 @@ public class ComponentIndex {
       .setHighlighterEncoder("html")
       .setHighlighterPreTags("<mark>")
       .setHighlighterPostTags("</mark>")
-      .addHighlightedField(createHighlighter());
-    query.getLimit().ifPresent(sub::setSize);
+      .addHighlightedField(createHighlighter())
+      .setFrom(query.getSkip())
+      .setSize(query.getLimit());
     return sub.setFetchSource(false);
   }
 
