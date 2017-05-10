@@ -31,33 +31,44 @@ type OwnProps = {
   params: { organizationKey: string }
 };
 
+type Props = {
+  children?: React.Element<*>,
+  location: Object,
+  organization: null | Organization,
+  params: { organizationKey: string },
+  fetchOrganization: string => Promise<*>
+};
+
 class OrganizationPage extends React.PureComponent {
   mounted: boolean;
-
-  props: {
-    children?: React.Element<*>,
-    location: Object,
-    organization: null | Organization,
-    params: { organizationKey: string },
-    fetchOrganization: string => Promise<*>
-  };
-
-  state = {
-    loading: true
-  };
+  props: Props;
+  state = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.fetchOrganization(this.props.params.organizationKey).then(() => {
-      if (this.mounted) {
-        this.setState({ loading: false });
-      }
-    });
+    this.updateOrganization(this.props.params.organizationKey);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.params.organizationKey !== this.props.params.organizationKey) {
+      this.updateOrganization(nextProps.params.organizationKey);
+    }
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  updateOrganization = (organizationKey: string) => {
+    if (this.mounted) {
+      this.setState({ loading: true });
+    }
+    this.props.fetchOrganization(organizationKey).then(() => {
+      if (this.mounted) {
+        this.setState({ loading: false });
+      }
+    });
+  };
 
   render() {
     const { organization } = this.props;

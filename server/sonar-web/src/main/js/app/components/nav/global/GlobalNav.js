@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
-import GlobalNavUser from './GlobalNavUser';
+import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import ShortcutsHelpView from './ShortcutsHelpView';
 import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
@@ -76,7 +76,7 @@ class GlobalNav extends React.PureComponent {
                 </svg>
               </a>
             </li>
-            <GlobalNavUser {...this.props} />
+            <GlobalNavUserContainer {...this.props} />
           </ul>
         </div>
       </nav>
