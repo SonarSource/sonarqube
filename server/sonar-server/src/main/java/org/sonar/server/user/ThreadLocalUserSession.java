@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -146,5 +147,10 @@ public class ThreadLocalUserSession implements UserSession {
   @Override
   public boolean hasPermission(OrganizationPermission permission, OrganizationDto organization) {
     return get().hasPermission(permission, organization);
+  }
+
+  @Override
+  public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    return get().keepAuthorizedComponents(permission, components);
   }
 }

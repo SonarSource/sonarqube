@@ -219,16 +219,71 @@
 
   <sql id="sqlSelectPublicProjectsIfRole">
     select
-      p.id
+    p.id
     from
-      projects p
+    projects p
     where
-      <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
-        p.id=#{element,jdbcType=BIGINT}
-      </foreach>
-      and p.private = ${_false}
-      and #{role,jdbcType=VARCHAR} in ('user','codeviewer')
+    <foreach collection="componentIds" open="(" close=")" item="element" index="index" separator=" or ">
+      p.id=#{element,jdbcType=BIGINT}
+    </foreach>
+    and p.private = ${_false}
+    and #{role,jdbcType=VARCHAR} in ('user','codeviewer')
   </sql>
+
+  <select id="keepAuthorizedProjectUuidsForUser" parameterType="map" resultType="String">
+    select p.uuid
+    from projects p
+    inner join group_roles gr on p.id = gr.resource_id
+    where
+      gr.role = #{permission,jdbcType=VARCHAR}
+      and (gr.group_id is null or exists (
+        select 1 from groups_users gu
+        where
+          gu.user_id = #{userId, jdbcType=INTEGER}
+          and gr.group_id = gu.group_id)
+      )
+      and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid,jdbcType=VARCHAR}</foreach>
+
+    union
+
+    select p.uuid
+    from projects p
+    inner join user_roles ur on p.id = ur.resource_id
+    where
+      ur.role=#{permission,jdbcType=VARCHAR}
+      and ur.user_id=#{userId,jdbcType=INTEGER}
+      and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid,jdbcType=VARCHAR}</foreach>
+
+    <if test="permission == 'user' or permission == 'codeviewer'">
+      union
+
+      select p.uuid
+      from projects p
+      where
+        p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid,jdbcType=VARCHAR}</foreach>
+        and p.private = ${_false}
+    </if>
+  </select>
+
+  <select id="keepAuthorizedProjectUuidsForAnonymous" parameterType="map" resultType="String">
+    select p.uuid
+    from projects p
+    inner join group_roles gr on p.id = gr.resource_id
+    where
+      gr.role=#{permission,jdbcType=VARCHAR}
+      and gr.group_id is null
+      and p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid,jdbcType=VARCHAR}</foreach>
+
+    <if test="permission == 'user' or permission == 'codeviewer'">
+      union
+
+      select p.uuid
+      from projects p
+      where
+      p.uuid in <foreach collection="projectUuids" open="(" close=")" item="projectUuid" index="index" separator=",">#{projectUuid,jdbcType=VARCHAR}</foreach>
+      and p.private = ${_false}
+    </if>
+  </select>
 
   <select id="keepAuthorizedUsersForRoleAndProject" parameterType="map" resultType="int">
     select

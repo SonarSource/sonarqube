@@ -20,6 +20,7 @@
 package org.sonar.ce.user;
 
 import java.util.Collection;
+import java.util.List;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -118,6 +119,11 @@ public class CeUserSession implements UserSession {
 
   @Override
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    throw notImplemented();
+  }
+
+  @Override
+  public List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
     throw notImplemented();
   }
 

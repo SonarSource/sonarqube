@@ -130,7 +130,7 @@ public class ComponentTesting {
       .setPath(null)
       .setLanguage(null)
       .setEnabled(true)
-        .setPrivate(isPrivate);
+      .setPrivate(isPrivate);
   }
 
   public static ComponentDto newView(OrganizationDto organizationDto) {

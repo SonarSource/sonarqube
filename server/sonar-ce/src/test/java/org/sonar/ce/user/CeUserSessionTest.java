@@ -19,21 +19,20 @@
  */
 package org.sonar.ce.user;
 
-import com.google.common.base.Predicate;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Arrays.asList;
 import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 @RunWith(DataProviderRunner.class)
@@ -45,8 +44,9 @@ public class CeUserSessionTest {
 
   @DataProvider
   public static Object[][] ceUserSessionPublicMethods() {
-    List<Method> declaredMethods = from(asList(CeUserSession.class.getDeclaredMethods()))
-      .filter(PublicMethodPredicate.INSTANCE).toList();
+    List<Method> declaredMethods = Arrays.stream(CeUserSession.class.getDeclaredMethods())
+      .filter(m -> Modifier.isPublic(m.getModifiers()))
+      .collect(Collectors.toList());
     Object[][] res = new Object[declaredMethods.size()][1];
     int i = 0;
     for (Method declaredMethod : declaredMethods) {
@@ -82,16 +82,6 @@ public class CeUserSessionTest {
     expectedException.expect(InvocationTargetException.class);
     expectedException.expectCause(
       hasType(UnsupportedOperationException.class)
-        .andMessage("UserSession must not be used from within the Compute Engine")
-      );
-  }
-
-  private enum PublicMethodPredicate implements Predicate<Method> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(Method input) {
-      return Modifier.isPublic(input.getModifiers());
-    }
+        .andMessage("UserSession must not be used from within the Compute Engine"));
   }
 }
