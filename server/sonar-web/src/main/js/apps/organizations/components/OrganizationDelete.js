@@ -95,12 +95,13 @@ class OrganizationDelete extends React.PureComponent {
   }
 
   render() {
+    const title = translate('organization.delete');
     return (
       <div className="page page-limited">
-        <Helmet title={translate('delete')} />
+        <Helmet title={title} />
 
         <header className="page-header">
-          <h1 className="page-title">{translate('organization.delete')}</h1>
+          <h1 className="page-title">{title}</h1>
           <div className="page-description">{translate('organization.delete.description')}</div>
         </header>
 

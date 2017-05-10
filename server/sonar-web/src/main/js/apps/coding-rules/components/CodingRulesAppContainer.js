@@ -72,7 +72,7 @@ class CodingRulesAppContainer extends React.PureComponent {
     // but react wants it to be there to unmount it
     return (
       <div>
-        <Helmet title={translate('rules')} />
+        <Helmet title={translate('coding_rules.page')} />
         <div ref="container" />
       </div>
     );

@@ -5,7 +5,7 @@ exports[`smoke test 1`] = `
   className="page page-limited"
 >
   <HelmetWrapper
-    title="delete"
+    title="organization.delete"
   />
   <header
     className="page-header"
@@ -38,7 +38,7 @@ exports[`smoke test 2`] = `
   className="page page-limited"
 >
   <HelmetWrapper
-    title="delete"
+    title="organization.delete"
   />
   <header
     className="page-header"
@@ -119,7 +119,7 @@ exports[`smoke test 3`] = `
   className="page page-limited"
 >
   <HelmetWrapper
-    title="delete"
+    title="organization.delete"
   />
   <header
     className="page-header"
