@@ -22,7 +22,6 @@
 process.env.NODE_ENV = 'production';
 
 const chalk = require('chalk');
-const fs = require('fs-extra');
 const rimrafSync = require('rimraf').sync;
 const webpack = require('webpack');
 const paths = require('../config/paths');
@@ -93,13 +92,5 @@ function build() {
   });
 }
 
-function copyPublicFolder() {
-  fs.copySync(paths.appPublic, paths.appBuild, {
-    dereference: true,
-    filter: file => file !== paths.appHtml
-  });
-}
-
 clean();
 build();
-copyPublicFolder();

@@ -20,7 +20,6 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const paths = require('../paths');
 const config = require('./webpack.config.base');
 
@@ -46,8 +45,7 @@ config.module.rules.unshift({
 config.plugins = [
   new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' }),
   new ExtractTextPlugin({ filename: 'css/sonar.css', allChunks: true }),
-  new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
-  new HtmlWebpackPlugin({ inject: false, template: paths.appHtml }),
+  new HtmlWebpackPlugin({ inject: false, template: paths.appHtml, WEB_CONTEXT: '' }),
   new webpack.DefinePlugin({ 'process.env.NODE_ENV': '"development"' }),
   new webpack.HotModuleReplacementPlugin()
 ];

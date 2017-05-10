@@ -35,6 +35,7 @@ config.plugins = [
   }),
 
   new HtmlWebpackPlugin({
+    filename: paths.htmlBuild,
     inject: false,
     template: paths.appHtml
   })

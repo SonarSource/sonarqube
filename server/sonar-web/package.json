@@ -92,7 +92,6 @@
     "prettier-eslint": "5.1.0",
     "prettier-eslint-cli": "3.4.1",
     "react-addons-test-utils": "15.4.2",
-    "react-dev-utils": "0.5.2",
     "react-transform-hmr": "1.0.4",
     "recursive-readdir": "2.1.0",
     "rimraf": "2.5.4",
