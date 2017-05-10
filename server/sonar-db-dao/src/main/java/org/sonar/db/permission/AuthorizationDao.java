@@ -124,14 +124,14 @@ public class AuthorizationDao implements Dao {
     return mapper(dbSession).selectOrganizationUuidsOfUserWithGlobalPermission(userId, permission);
   }
 
-  public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String role) {
+  public Set<Long> keepAuthorizedProjectIds(DbSession dbSession, Collection<Long> componentIds, @Nullable Integer userId, String permission) {
     return executeLargeInputsIntoSet(
       componentIds,
       partition -> {
         if (userId == null) {
-          return mapper(dbSession).keepAuthorizedProjectIdsForAnonymous(role, componentIds);
+          return mapper(dbSession).keepAuthorizedProjectIdsForAnonymous(permission, partition);
         }
-        return mapper(dbSession).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
+        return mapper(dbSession).keepAuthorizedProjectIdsForUser(userId, permission, partition);
       });
   }
 
