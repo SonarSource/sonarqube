@@ -95,12 +95,13 @@ class OrganizationEdit extends React.PureComponent {
   };
 
   render() {
+    const title = translate('organization.edit');
     return (
       <div className="page page-limited">
-        <Helmet title={translate('edit')} />
+        <Helmet title={title} />
 
         <header className="page-header">
-          <h1 className="page-title">{translate('organization.edit')}</h1>
+          <h1 className="page-title">{title}</h1>
         </header>
 
         <form onSubmit={this.handleSubmit}>

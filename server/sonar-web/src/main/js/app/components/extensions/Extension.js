@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
@@ -31,7 +32,7 @@ type Props = {
   currentUser: Object,
   extension: {
     key: string,
-    title: string
+    name: string
   },
   location: { hash: string },
   onFail: string => void,
@@ -94,6 +95,7 @@ class Extension extends React.PureComponent {
   render() {
     return (
       <div>
+        <Helmet title={this.props.extension.name} />
         <div ref={container => (this.container = container)} />
       </div>
     );

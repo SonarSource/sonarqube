@@ -181,7 +181,7 @@ class App extends React.PureComponent {
 
     return (
       <div className="page page-limited">
-        <Helmet title={translate('code')} />
+        <Helmet title={translate('code.page')} />
 
         {error &&
           <div className="alert alert-danger">
