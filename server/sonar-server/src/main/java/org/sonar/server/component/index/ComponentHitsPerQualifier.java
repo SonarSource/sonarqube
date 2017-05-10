@@ -44,8 +44,4 @@ public class ComponentHitsPerQualifier {
   public long getTotalHits() {
     return totalHits;
   }
-
-  public long getNumberOfFurtherResults() {
-    return Math.max(totalHits - hits.size(), 0L);
-  }
 }

@@ -63,6 +63,7 @@ import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.server.component.index.ComponentIndexQuery.DEFAULT_LIMIT;
 import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
@@ -77,7 +78,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   static final String SHORT_INPUT_WARNING = "short_input";
   private static final int MAXIMUM_RECENTLY_BROWSED = 50;
 
-  static final int EXTENDED_LIMIT = 20;
+  private static final int EXTENDED_LIMIT = 20;
 
   private final ComponentIndex index;
   private final FavoriteFinder favoriteFinder;
@@ -117,7 +118,7 @@ public class SuggestionsAction implements ComponentsWsAction {
       .setExampleValue("sonar");
 
     action.createParam(PARAM_MORE)
-      .setDescription("Category, for which to display " + EXTENDED_LIMIT + " instead of " + ComponentIndexQuery.DEFAULT_LIMIT + " results")
+      .setDescription("Category, for which to display the next " + EXTENDED_LIMIT + " results (skipping the first " + DEFAULT_LIMIT + " results)")
       .setPossibleValues(stream(SuggestionCategory.values()).map(SuggestionCategory::getName).toArray(String[]::new))
       .setSince("6.4");
 
@@ -136,7 +137,9 @@ public class SuggestionsAction implements ComponentsWsAction {
     String more = wsRequest.param(PARAM_MORE);
     Set<String> recentlyBrowsedKeys = getRecentlyBrowsedKeys(wsRequest);
     List<String> qualifiers = getQualifiers(more);
-    SuggestionsWsResponse searchWsResponse = loadSuggestions(query, more, recentlyBrowsedKeys, qualifiers);
+    int skip = more == null ? 0 : DEFAULT_LIMIT;
+    int limit = more == null ? DEFAULT_LIMIT : EXTENDED_LIMIT;
+    SuggestionsWsResponse searchWsResponse = loadSuggestions(query, skip, limit, recentlyBrowsedKeys, qualifiers);
     writeProtobuf(searchWsResponse, wsRequest, wsResponse);
   }
 
@@ -148,17 +151,17 @@ public class SuggestionsAction implements ComponentsWsAction {
     return new HashSet<>(recentlyBrowsedParam);
   }
 
-  private SuggestionsWsResponse loadSuggestions(@Nullable String query, String more, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
+  private SuggestionsWsResponse loadSuggestions(@Nullable String query, int skip, int limit, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
     if (query == null) {
-      return loadSuggestionsWithoutSearch(more, recentlyBrowsedKeys, qualifiers);
+      return loadSuggestionsWithoutSearch(skip, limit, recentlyBrowsedKeys, qualifiers);
     }
-    return loadSuggestionsWithSearch(query, more, recentlyBrowsedKeys, qualifiers);
+    return loadSuggestionsWithSearch(query, skip, limit, recentlyBrowsedKeys, qualifiers);
   }
 
   /**
    * we are generating suggestions, by using (1) favorites and (2) recently browsed components (without searchin in Elasticsearch)
    */
-  private SuggestionsWsResponse loadSuggestionsWithoutSearch(@Nullable String more, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
+  private SuggestionsWsResponse loadSuggestionsWithoutSearch(int skip, int limit, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
     List<ComponentDto> favoriteDtos = favoriteFinder.list();
     if (favoriteDtos.isEmpty() && recentlyBrowsedKeys.isEmpty()) {
       return newBuilder().build();
@@ -179,12 +182,12 @@ public class SuggestionsAction implements ComponentsWsAction {
       Comparator<ComponentDto> favoriteComparator = Comparator.comparing(c -> favoriteUuids.contains(c.uuid()) ? -1 : +1);
       Comparator<ComponentDto> comparator = favoriteComparator.thenComparing(ComponentDto::name);
 
-      int limit = more == null ? ComponentIndexQuery.DEFAULT_LIMIT : EXTENDED_LIMIT;
       ComponentIndexResults componentsPerQualifiers = ComponentIndexResults.newBuilder().setQualifiers(
         qualifiers.stream().map(q -> {
           List<ComponentHit> hits = componentsPerQualifier.get(q)
             .stream()
             .sorted(comparator)
+            .skip(skip)
             .limit(limit)
             .map(ComponentDto::uuid)
             .map(ComponentHit::new)
@@ -192,21 +195,20 @@ public class SuggestionsAction implements ComponentsWsAction {
           int totalHits = componentsPerQualifier.size();
           return new ComponentHitsPerQualifier(q, hits, totalHits);
         })).build();
-      return buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtos.stream()).build();
+      return buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtos.stream(), skip + limit).build();
     }
   }
 
-  private SuggestionsWsResponse loadSuggestionsWithSearch(String query, @Nullable String more, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
+  private SuggestionsWsResponse loadSuggestionsWithSearch(String query, int skip, int limit, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
     List<ComponentDto> favorites = favoriteFinder.list();
     Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getKey).collect(MoreCollectors.toSet(favorites.size()));
     ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder()
       .setQuery(query)
       .setRecentlyBrowsedKeys(recentlyBrowsedKeys)
       .setFavoriteKeys(favoriteKeys)
-      .setQualifiers(qualifiers);
-    if (more != null) {
-      queryBuilder.setLimit(EXTENDED_LIMIT);
-    }
+      .setQualifiers(qualifiers)
+      .setSkip(skip)
+      .setLimit(limit);
     ComponentIndexResults componentsPerQualifiers = searchInIndex(queryBuilder.build());
     if (componentsPerQualifiers.isEmpty()) {
       return newBuilder().build();
@@ -219,7 +221,7 @@ public class SuggestionsAction implements ComponentsWsAction {
         .collect(toSet());
       Stream<ComponentDto> componentDtoStream = dbClient.componentDao().selectByUuids(dbSession, componentUuids).stream();
       Set<String> favoriteUuids = favorites.stream().map(ComponentDto::uuid).collect(MoreCollectors.toSet(favorites.size()));
-      SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtoStream);
+      SuggestionsWsResponse.Builder searchWsResponse = buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, componentDtoStream, skip + limit);
       getWarning(query).ifPresent(searchWsResponse::setWarning);
       return searchWsResponse.build();
     }
@@ -241,12 +243,12 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private SuggestionsWsResponse.Builder buildResponse(Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids, ComponentIndexResults componentsPerQualifiers,
-    DbSession dbSession, Stream<ComponentDto> stream) {
+    DbSession dbSession, Stream<ComponentDto> stream, int coveredItems) {
     Map<String, ComponentDto> componentsByUuids = stream
       .collect(MoreCollectors.uniqueIndex(ComponentDto::uuid));
     Map<String, OrganizationDto> organizationsByUuids = loadOrganizations(dbSession, componentsByUuids.values());
     Map<String, ComponentDto> projectsByUuids = loadProjects(dbSession, componentsByUuids.values());
-    return toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, organizationsByUuids, componentsByUuids, projectsByUuids);
+    return toResponse(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, organizationsByUuids, componentsByUuids, projectsByUuids, coveredItems);
   }
 
   private Map<String, ComponentDto> loadProjects(DbSession dbSession, Collection<ComponentDto> components) {
@@ -271,18 +273,18 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private static SuggestionsWsResponse.Builder toResponse(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,
-    Map<String, OrganizationDto> organizationsByUuids, Map<String, ComponentDto> componentsByUuids, Map<String, ComponentDto> projectsByUuids) {
+    Map<String, OrganizationDto> organizationsByUuids, Map<String, ComponentDto> componentsByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
     if (componentsPerQualifiers.isEmpty()) {
       return newBuilder();
     }
     return newBuilder()
-      .addAllResults(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, organizationsByUuids, projectsByUuids))
+      .addAllResults(toCategories(componentsPerQualifiers, recentlyBrowsedKeys, favoriteUuids, componentsByUuids, organizationsByUuids, projectsByUuids, coveredItems))
       .addAllOrganizations(toOrganizations(organizationsByUuids))
       .addAllProjects(toProjects(projectsByUuids));
   }
 
   private static List<Category> toCategories(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,
-    Map<String, ComponentDto> componentsByUuids, Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids) {
+    Map<String, ComponentDto> componentsByUuids, Map<String, OrganizationDto> organizationByUuids, Map<String, ComponentDto> projectsByUuids, int coveredItems) {
     return componentsPerQualifiers.getQualifiers().map(qualifier -> {
 
       List<Suggestion> suggestions = qualifier.getHits().stream()
@@ -291,7 +293,7 @@ public class SuggestionsAction implements ComponentsWsAction {
 
       return Category.newBuilder()
         .setQ(qualifier.getQualifier())
-        .setMore(qualifier.getNumberOfFurtherResults())
+        .setMore(Math.max(0, qualifier.getTotalHits() - coveredItems))
         .addAllItems(suggestions)
         .build();
     }).collect(toList());

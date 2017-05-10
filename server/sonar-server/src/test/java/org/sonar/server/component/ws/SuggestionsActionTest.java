@@ -63,8 +63,6 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.server.component.index.ComponentIndexQuery.DEFAULT_LIMIT;
-import static org.sonar.server.component.ws.SuggestionsAction.EXTENDED_LIMIT;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
@@ -274,8 +272,7 @@ public class SuggestionsActionTest {
         tuple("Bravo", true, false),
         tuple("Delta", true, false),
         tuple("Alpha", false, true),
-        tuple("Charlie", false, true)
-    );
+        tuple("Charlie", false, true));
   }
 
   @Test
@@ -475,26 +472,52 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_propose_to_show_more_results_if_7_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(7, DEFAULT_LIMIT, 1L, null);
-  }
-
-  @Test
-  public void should_not_propose_to_show_more_results_if_6_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(6, DEFAULT_LIMIT, 0L, null);
+  public void should_not_propose_to_show_more_results_if_0_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(0, 0, 0L, null);
   }
 
   @Test
   public void should_not_propose_to_show_more_results_if_5_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(5, DEFAULT_LIMIT, 0L, null);
+    check_proposal_to_show_more_results(5, 5, 0L, null);
   }
 
   @Test
-  public void show_show_more_results_if_requested() throws Exception {
-    check_proposal_to_show_more_results(21, EXTENDED_LIMIT, 1L, SuggestionCategory.PROJECT);
+  public void should_not_propose_to_show_more_results_if_6_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(6, 6, 0L, null);
   }
 
-  private void check_proposal_to_show_more_results(int numberOfProjects, int results, long numberOfMoreResults, @Nullable SuggestionCategory more) throws Exception {
+  @Test
+  public void should_propose_to_show_more_results_if_7_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(7, 6, 1L, null);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_5_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(5, 0, 0L, SuggestionCategory.PROJECT);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_6_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(6, 0, 0L, SuggestionCategory.PROJECT);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_7_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(7, 1, 0L, SuggestionCategory.PROJECT);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_26_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(26, 20, 0L, SuggestionCategory.PROJECT);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_27_projects_are_found() throws Exception {
+    check_proposal_to_show_more_results(27, 20, 1L, SuggestionCategory.PROJECT);
+  }
+
+  private void check_proposal_to_show_more_results(int numberOfProjects, int expectedNumberOfResults, long expectedNumberOfMoreResults, @Nullable SuggestionCategory more)
+    throws Exception {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)
@@ -511,21 +534,21 @@ public class SuggestionsActionTest {
     SuggestionsWsResponse response = request
       .executeProtobuf(SuggestionsWsResponse.class);
 
-    // assert match in qualifier "TRK"
-    assertThat(response.getResultsList())
-      .filteredOn(q -> q.getItemsCount() > 0)
-      .extracting(Category::getQ)
-      .containsExactly(Qualifiers.PROJECT);
-
     // include limited number of results in the response
     assertThat(response.getResultsList())
       .flatExtracting(Category::getItemsList)
-      .hasSize(Math.min(results, numberOfProjects));
+      .hasSize(expectedNumberOfResults);
 
     // indicate, that there are more results
-    assertThat(response.getResultsList())
-      .filteredOn(q -> q.getItemsCount() > 0)
-      .extracting(Category::getMore)
-      .containsExactly(numberOfMoreResults);
+    if (expectedNumberOfResults == 0 && expectedNumberOfMoreResults == 0) {
+      assertThat(response.getResultsList())
+        .filteredOn(q -> q.getItemsCount() > 0)
+        .isEmpty();
+    } else {
+      assertThat(response.getResultsList())
+        .filteredOn(q -> q.getItemsCount() > 0)
+        .extracting(Category::getMore)
+        .containsExactly(expectedNumberOfMoreResults);
+    }
   }
 }
