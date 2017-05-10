@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import java.util.Arrays;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -390,6 +391,40 @@ public class ServerUserSessionTest {
 
   private boolean hasComponentPermissionByDtoOrUuid(UserSession underTest, String permission, ComponentDto component) {
     return new Random().nextBoolean() ? underTest.hasComponentPermission(permission, component) : underTest.hasComponentUuidPermission(permission, component.uuid());
+  }
+
+  @Test
+  public void keepAuthorizedComponents_returns_empty_list_if_no_permissions_are_granted() {
+    UserSession underTest = newAnonymousSession();
+
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(privateProject, publicProject))).isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_logged_in_user() {
+    UserSession underTest = newUserSession(user);
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, privateProject);
+
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ISSUE_ADMIN, Arrays.asList(privateProject, publicProject))).isEmpty();
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(privateProject, publicProject))).containsExactly(privateProject);
+  }
+
+  @Test
+  public void keepAuthorizedComponents_filters_components_with_granted_permissions_for_anonymous() {
+    UserSession underTest = newAnonymousSession();
+    db.users().insertProjectPermissionOnAnyone(UserRole.ISSUE_ADMIN, publicProject);
+
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(privateProject, publicProject))).isEmpty();
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ISSUE_ADMIN, Arrays.asList(privateProject, publicProject))).containsExactly(publicProject);
+  }
+
+  @Test
+  public void keepAuthorizedComponents_returns_all_specified_components_if_root() {
+    user = db.users().makeRoot(user);
+    UserSession underTest = newUserSession(user);
+
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(privateProject, publicProject)))
+      .containsExactly(privateProject, publicProject);
   }
 
   @Test

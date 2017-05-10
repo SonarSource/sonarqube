@@ -19,7 +19,11 @@
  */
 package org.sonar.server.user;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -102,6 +106,23 @@ public abstract class AbstractUserSession implements UserSession {
 
   public static ForbiddenException insufficientPrivilegesException() {
     return INSUFFICIENT_PRIVILEGES_EXCEPTION;
+  }
+
+  @Override
+  public final List<ComponentDto> keepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    if (isRoot()) {
+      return new ArrayList<>(components);
+    }
+    return doKeepAuthorizedComponents(permission, components);
+  }
+
+  /**
+   * Naive implementation, to be overridden if needed
+   */
+  protected List<ComponentDto> doKeepAuthorizedComponents(String permission, Collection<ComponentDto> components) {
+    return components.stream()
+      .filter(c -> hasProjectUuidPermission(permission, c.projectUuid()))
+      .collect(MoreCollectors.toList());
   }
 
   @Override

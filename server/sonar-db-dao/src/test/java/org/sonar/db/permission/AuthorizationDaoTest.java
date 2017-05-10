@@ -855,4 +855,79 @@ public class AuthorizationDaoTest {
 
     assertThat(underTest.selectProjectPermissions(dbSession, project.uuid(), user.getId())).containsOnly("p1", "p2", "p3");
   }
+
+  @Test
+  public void keepAuthorizedProjectUuids_filters_projects_authorized_to_logged_in_user_by_direct_permission() {
+    ComponentDto privateProject = db.components().insertPrivateProject(organization);
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
+    UserDto user = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, privateProject);
+
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(privateProject.uuid(), publicProject.uuid()), user.getId(), UserRole.ADMIN))
+      .containsOnly(privateProject.uuid());
+    // user does not have the permission "issueadmin"
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(privateProject.uuid(), publicProject.uuid()), user.getId(), UserRole.ISSUE_ADMIN))
+      .isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedProjectUuids_filters_projects_authorized_to_logged_in_user_by_group_permission() {
+    ComponentDto privateProject = db.components().insertPrivateProject(organization);
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup(organization);
+    db.users().insertMember(group, user);
+    db.users().insertProjectPermissionOnGroup(group, UserRole.ADMIN, privateProject);
+
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(privateProject.uuid(), publicProject.uuid()), user.getId(), UserRole.ADMIN))
+      .containsOnly(privateProject.uuid());
+    // user does not have the permission "issueadmin"
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(privateProject.uuid(), publicProject.uuid()), user.getId(), UserRole.ISSUE_ADMIN))
+      .isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedProjectUuids_returns_empty_list_if_input_is_empty() {
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
+    UserDto user = db.users().insertUser();
+
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, Collections.emptySet(), user.getId(), UserRole.USER))
+      .isEmpty();
+
+    // projects do not exist
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet("does_not_exist"), user.getId(), UserRole.USER))
+      .isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedProjectUuids_returns_empty_list_if_input_does_not_reference_existing_projects() {
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
+    UserDto user = db.users().insertUser();
+
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet("does_not_exist"), user.getId(), UserRole.USER))
+      .isEmpty();
+  }
+
+  @Test
+  public void keepAuthorizedProjectUuids_returns_public_projects_if_permission_USER_or_CODEVIEWER() {
+    ComponentDto publicProject = db.components().insertPublicProject(organization);
+    UserDto user = db.users().insertUser();
+
+    // logged-in user
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(publicProject.uuid()), user.getId(), UserRole.CODEVIEWER))
+      .containsOnly(publicProject.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(publicProject.uuid()), user.getId(), UserRole.USER))
+      .containsOnly(publicProject.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(publicProject.uuid()), user.getId(), UserRole.ADMIN))
+      .isEmpty();
+
+    // anonymous
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(publicProject.uuid()), null, UserRole.CODEVIEWER))
+      .containsOnly(publicProject.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(publicProject.uuid()), null, UserRole.USER))
+      .containsOnly(publicProject.uuid());
+    assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(publicProject.uuid()), null, UserRole.ADMIN))
+      .isEmpty();
+
+  }
 }

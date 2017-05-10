@@ -135,6 +135,17 @@ public class AuthorizationDao implements Dao {
       });
   }
 
+  public Set<String> keepAuthorizedProjectUuids(DbSession dbSession, Collection<String> projectUuids, @Nullable Integer userId, String permission) {
+    return executeLargeInputsIntoSet(
+      projectUuids,
+      partition -> {
+        if (userId == null) {
+          return mapper(dbSession).keepAuthorizedProjectUuidsForAnonymous(permission, projectUuids);
+        }
+        return mapper(dbSession).keepAuthorizedProjectUuidsForUser(userId, permission, projectUuids);
+      });
+  }
+
   /**
    * Keep only authorized user that have the given permission on a given project.
    * Please Note that if the permission is 'Anyone' is NOT taking into account by this method.
