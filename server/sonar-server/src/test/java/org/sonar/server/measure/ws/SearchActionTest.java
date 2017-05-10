@@ -21,6 +21,7 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -510,9 +511,6 @@ public class SearchActionTest {
   }
 
   private void setBrowsePermissionOnUser(ComponentDto... projects) {
-    for (ComponentDto project : projects) {
-      db.users().insertProjectPermissionOnUser(user, UserRole.USER, project);
-    }
-    dbSession.commit();
+    Arrays.stream(projects).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
   }
 }

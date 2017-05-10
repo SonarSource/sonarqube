@@ -21,25 +21,20 @@ package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
 import static java.util.Optional.ofNullable;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_INDEX;
 
@@ -99,7 +94,7 @@ public class IndexAction implements ProjectsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<ComponentDto> projects = getAuthorizedComponents(dbSession, searchComponents(dbSession, request));
+      List<ComponentDto> projects = getAuthorizedComponents(searchComponents(dbSession, request));
       JsonWriter json = response.newJsonWriter();
       json.beginArray();
       for (ComponentDto project : projects) {
@@ -132,20 +127,8 @@ public class IndexAction implements ProjectsWsAction {
     return projects;
   }
 
-  private List<ComponentDto> getAuthorizedComponents(DbSession dbSession, List<ComponentDto> components) {
-    if (userSession.isRoot() || components.isEmpty()) {
-      // the method AuthorizationDao#keepAuthorizedProjectIds() should be replaced by
-      // a call to UserSession, which would transparently support roots.
-      // Meanwhile root is explicitly handled.
-      return components;
-    }
-    Set<String> projectUuids = components.stream().map(ComponentDto::projectUuid).collect(MoreCollectors.toSet());
-    List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
-    Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
-    Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIdsByUuids.values(), userSession.getUserId(), USER);
-    return components.stream()
-      .filter(component -> authorizedProjectIds.contains(projectIdsByUuids.get(component.projectUuid())))
-      .collect(MoreCollectors.toList());
+  private List<ComponentDto> getAuthorizedComponents(List<ComponentDto> components) {
+    return userSession.keepAuthorizedComponents(UserRole.USER, components);
   }
 
   private static void addProject(JsonWriter json, ComponentDto project) {

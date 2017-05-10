@@ -19,11 +19,8 @@
  */
 package org.sonar.server.component.ws;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
@@ -32,7 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -46,13 +43,11 @@ import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
@@ -156,23 +151,7 @@ public class SearchAction implements ComponentsWsAction {
 
   private List<ComponentDto> searchComponents(DbSession dbSession, OrganizationDto organization, ComponentQuery query, Paging paging) {
     List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, paging.offset(), paging.pageSize());
-    return filterAuthorizedComponents(dbSession, componentDtos);
-  }
-
-  private List<ComponentDto> filterAuthorizedComponents(DbSession dbSession, List<ComponentDto> componentDtos) {
-    if (userSession.isRoot()) {
-      // the method AuthorizationDao#keepAuthorizedProjectIds() should be replaced by
-      // a call to UserSession, which would transparently support roots.
-      // Meanwhile root is explicitly handled.
-      return componentDtos;
-    }
-    Set<String> projectUuids = componentDtos.stream().map(ComponentDto::projectUuid).collect(MoreCollectors.toSet());
-    List<ComponentDto> projects = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
-    Map<String, Long> projectIdsByUuids = projects.stream().collect(uniqueIndex(ComponentDto::uuid, ComponentDto::getId));
-    Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIdsByUuids.values(), userSession.getUserId(), USER);
-    return componentDtos.stream()
-      .filter(component -> authorizedProjectIds.contains(projectIdsByUuids.get(component.projectUuid())))
-      .collect(MoreCollectors.toList());
+    return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
   }
 
   private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Paging paging) {

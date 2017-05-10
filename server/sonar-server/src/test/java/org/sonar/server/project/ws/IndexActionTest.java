@@ -224,8 +224,7 @@ public class IndexActionTest {
   }
 
   private void setBrowsePermissionOnUser(ComponentDto... projects) {
-    Arrays.stream(projects).forEach(project -> db.users().insertProjectPermissionOnUser(user, UserRole.USER, project));
-    db.getSession().commit();
+    Arrays.stream(projects).forEach(project -> userSession.addProjectPermission(UserRole.USER, project));
   }
 
   private void verifyResult(String json, String expectedJsonFile) {
