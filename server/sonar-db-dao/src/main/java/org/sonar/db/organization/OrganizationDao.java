@@ -19,7 +19,6 @@
  */
 package org.sonar.db.organization;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,9 +68,6 @@ public class OrganizationDao implements Dao {
   }
 
   public List<OrganizationDto> selectByUuids(DbSession dbSession, Set<String> organizationUuids) {
-    if (organizationUuids.size() == 1) {
-      return Collections.singletonList(getMapper(dbSession).selectByUuid(organizationUuids.iterator().next()));
-    }
     return executeLargeInputs(organizationUuids, getMapper(dbSession)::selectByUuids);
   }
 

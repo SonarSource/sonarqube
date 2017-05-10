@@ -284,6 +284,15 @@ public class OrganizationDaoTest {
   }
 
   @Test
+  public void selectByUuids_returns_empty_when_no_single_uuid_exist() {
+    insertOrganization(ORGANIZATION_DTO_1);
+    insertOrganization(ORGANIZATION_DTO_2);
+
+    assertThat(underTest.selectByUuids(dbSession, of("foo uuid")))
+      .isEmpty();
+  }
+
+  @Test
   public void selectByUuids_ignores_non_existing_uuids() {
     insertOrganization(ORGANIZATION_DTO_1);
     insertOrganization(ORGANIZATION_DTO_2);
