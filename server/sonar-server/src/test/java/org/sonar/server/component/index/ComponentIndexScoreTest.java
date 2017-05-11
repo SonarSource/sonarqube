@@ -146,7 +146,7 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
-  public void rank_a_higher_then_b() {
+  public void if_relevancy_is_equal_fall_back_to_alphabetical_ordering() {
     assertResultOrder("sonarqube",
       "sonarqubeA",
       "sonarqubeB");
