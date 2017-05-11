@@ -26,5 +26,6 @@
   "version": "6.2",
   "productionDatabase": true,
   "organizationsEnabled": false,
-  "defaultOrganization": "key_foo"
+  "defaultOrganization": "key_foo",
+  "canAdmin": false
 }

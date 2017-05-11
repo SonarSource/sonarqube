@@ -36,6 +36,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.VersionFormatter;
+import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.core.config.WebConstants.SONARQUBE_DOT_COM_ENABLED;
@@ -63,9 +64,10 @@ public class GlobalAction implements NavigationWsAction {
   private final DbClient dbClient;
   private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final UserSession userSession;
 
   public GlobalAction(PageRepository pageRepository, Settings settings, ResourceTypes resourceTypes, Server server,
-    DbClient dbClient, OrganizationFlags organizationFlags, DefaultOrganizationProvider defaultOrganizationProvider) {
+                      DbClient dbClient, OrganizationFlags organizationFlags, DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
     this.pageRepository = pageRepository;
     this.settings = settings;
     this.resourceTypes = resourceTypes;
@@ -73,6 +75,7 @@ public class GlobalAction implements NavigationWsAction {
     this.dbClient = dbClient;
     this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.userSession = userSession;
   }
 
   @Override
@@ -88,6 +91,7 @@ public class GlobalAction implements NavigationWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     JsonWriter json = response.newJsonWriter().beginObject();
+    writeActions(json);
     writePages(json);
     writeSettings(json);
     writeDeprecatedLogoProperties(json);
@@ -96,6 +100,10 @@ public class GlobalAction implements NavigationWsAction {
     writeDatabaseProduction(json);
     writeOrganizationSupport(json);
     json.endObject().close();
+  }
+
+  private void writeActions(JsonWriter json) {
+    json.prop("canAdmin", userSession.isSystemAdministrator());
   }
 
   private void writePages(JsonWriter json) {

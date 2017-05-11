@@ -50,7 +50,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class GlobalActionTest {
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private Settings settings = new MapSettings();
 
@@ -163,6 +163,14 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void can_admin_on_global_level() {
+    init();
+    userSession.logIn().setRoot();
+
+    assertJson(call()).isSimilarTo("{\"canAdmin\":true}");
+  }
+
+  @Test
   public void test_example_response() throws Exception {
     init(createPages(), new ResourceTypeTree[] {
       ResourceTypeTree.builder()
@@ -205,7 +213,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     ws = new WsActionTester(new GlobalAction(pageRepository, settings, new ResourceTypes(resourceTypeTrees), server,
-      dbClient, organizationFlags, defaultOrganizationProvider));
+      dbClient, organizationFlags, defaultOrganizationProvider, userSession));
   }
 
   private void executeAndVerify(String json) {
