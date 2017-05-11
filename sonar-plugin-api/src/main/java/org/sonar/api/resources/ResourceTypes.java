@@ -47,12 +47,7 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 public class ResourceTypes {
 
-  public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
-    @Override
-    public boolean apply(@Nullable ResourceType input) {
-      return input != null && input.getBooleanProperty("supportsMeasureFilters");
-    }
-  };
+  public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = input -> input != null && input.getBooleanProperty("supportsMeasureFilters");
 
   private final Map<String, ResourceTypeTree> treeByQualifier;
   private final Map<String, ResourceType> typeByQualifier;

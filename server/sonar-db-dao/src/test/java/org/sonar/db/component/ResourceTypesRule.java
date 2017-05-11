@@ -86,7 +86,9 @@ public class ResourceTypesRule extends ResourceTypes {
 
   @Override
   public ResourceType get(String qualifier) {
-    throw new UnsupportedOperationException();
+    return allResourceTypes.stream()
+      .filter(resourceType -> qualifier.equals(resourceType.getQualifier()))
+      .findAny().orElse(null);
   }
 
   @Override

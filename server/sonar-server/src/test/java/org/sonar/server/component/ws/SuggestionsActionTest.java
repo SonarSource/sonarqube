@@ -32,9 +32,11 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
@@ -65,6 +67,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.resources.Qualifiers.FILE;
+import static org.sonar.api.resources.Qualifiers.MODULE;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.SUBVIEW;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -77,6 +84,9 @@ import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
 
 public class SuggestionsActionTest {
+  private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
+    .map(SuggestionCategory::getQualifier)
+    .collect(MoreCollectors.toList()).toArray(new String[0]);
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -84,11 +94,12 @@ public class SuggestionsActionTest {
   public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public ResourceTypesRule resourceTypes = new ResourceTypesRule();
 
   private ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
   private FavoriteFinder favoriteFinder = mock(FavoriteFinder.class);
   private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
-  private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index, favoriteFinder, userSessionRule);
+  private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index, favoriteFinder, userSessionRule, resourceTypes);
   private OrganizationDto organization;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);
   private WsActionTester ws = new WsActionTester(underTest);
@@ -96,6 +107,7 @@ public class SuggestionsActionTest {
   @Before
   public void setUp() {
     organization = db.organizations().insert();
+    resourceTypes.setAllQualifiers(SUGGESTION_QUALIFIERS);
   }
 
   @Test
@@ -160,7 +172,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .filteredOn(q -> q.getItemsCount() > 0)
       .extracting(Category::getQ)
-      .containsExactly(Qualifiers.PROJECT);
+      .containsExactly(PROJECT);
 
     // assert correct id to be found
     assertThat(response.getResultsList())
@@ -184,7 +196,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .filteredOn(q -> q.getItemsCount() > 0)
       .extracting(Category::getQ)
-      .containsExactly(Qualifiers.PROJECT);
+      .containsExactly(PROJECT);
 
     // assert correct id to be found
     assertThat(response.getResultsList())
@@ -225,7 +237,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .filteredOn(q -> q.getItemsCount() > 0)
       .extracting(Category::getQ)
-      .containsExactly(Qualifiers.PROJECT);
+      .containsExactly(PROJECT);
 
     // assert correct id to be found
     assertThat(response.getResultsList())
@@ -341,6 +353,23 @@ public class SuggestionsActionTest {
   }
 
   @Test
+  public void suggestions_should_filter_allowed_qualifiers() {
+    resourceTypes.setAllQualifiers(PROJECT, MODULE, FILE);
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
+    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    userSessionRule.addProjectPermission(USER, project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RECENTLY_BROWSED, project.key())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .extracting(Category::getQ)
+      .containsExactlyInAnyOrder(PROJECT, MODULE, FILE);
+  }
+
+  @Test
   public void exact_match_in_one_qualifier() throws Exception {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
@@ -356,7 +385,7 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .filteredOn(q -> q.getItemsCount() > 0)
       .extracting(Category::getQ)
-      .containsExactly(Qualifiers.PROJECT);
+      .containsExactly(PROJECT);
 
     // assert correct id to be found
     assertThat(response.getResultsList())
@@ -657,6 +686,13 @@ public class SuggestionsActionTest {
   @Test
   public void show_more_results_if_requested_and_27_projects_are_found_and_no_search_query_is_provided() {
     check_proposal_to_show_more_results(27, 20, 1L, SuggestionCategory.PROJECT, false);
+  }
+
+  @Test
+  public void show_more_results_filter_out_if_non_allowed_qualifiers() {
+    resourceTypes.setAllQualifiers(VIEW, SUBVIEW);
+
+    check_proposal_to_show_more_results(10, 0, 0L, SuggestionCategory.PROJECT, true);
   }
 
   private void check_proposal_to_show_more_results(int numberOfProjects, int expectedNumberOfResults, long expectedNumberOfMoreResults, @Nullable SuggestionCategory more,
