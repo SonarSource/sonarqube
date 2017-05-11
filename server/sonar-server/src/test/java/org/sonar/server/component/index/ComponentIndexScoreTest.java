@@ -146,6 +146,13 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
+  public void rank_a_higher_then_b() {
+    assertResultOrder("sonarqube",
+      "sonarqubeA",
+      "sonarqubeB");
+  }
+
+  @Test
   public void scoring_test_DbTester() {
     features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
 
