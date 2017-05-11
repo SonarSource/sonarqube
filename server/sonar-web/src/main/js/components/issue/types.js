@@ -77,7 +77,7 @@ export type Issue = {
   subProjectName?: string,
   subProjectUuid?: string,
   tags?: Array<string>,
-  textRange: TextRange,
+  textRange?: TextRange,
   transitions?: Array<string>,
   type: string
 };

@@ -86,10 +86,10 @@ export default function IssueTitleBar(props: Props) {
                   onFail={props.onFail}
                 />
               </li>
-              {issue.line != null &&
+              {issue.textRange != null &&
                 <li className="issue-meta">
                   <span className="issue-meta-label" title={translate('line_number')}>
-                    L{issue.line}
+                    L{issue.textRange.endLine}
                   </span>
                 </li>}
               {locationsCount > 0 &&

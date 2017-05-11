@@ -62,7 +62,10 @@ export const loadPageAndNext = (
 
     const lastIssue = issues[issues.length - 1];
 
-    if ((lastIssue.line != null && lastIssue.line > toLine) || issues.length < pageSize) {
+    if (
+      (lastIssue.textRange != null && lastIssue.textRange.endLine > toLine) ||
+      issues.length < pageSize
+    ) {
       return issues;
     }
 

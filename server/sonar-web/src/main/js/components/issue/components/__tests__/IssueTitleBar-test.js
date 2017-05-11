@@ -22,7 +22,13 @@ import React from 'react';
 import IssueTitleBar from '../IssueTitleBar';
 
 const issue = {
-  line: 26,
+  line: 25,
+  textRange: {
+    startLine: 25,
+    endLine: 26,
+    startOffset: 0,
+    endOffset: 15
+  },
   creationDate: '2017-03-01T09:36:01+0100',
   organization: 'myorg',
   project: 'myproject',
