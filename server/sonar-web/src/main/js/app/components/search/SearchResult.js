@@ -20,22 +20,12 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import FavoriteIcon from '../../../../components/common/FavoriteIcon';
-import QualifierIcon from '../../../../components/shared/QualifierIcon';
-import ClockIcon from '../../../../components/common/ClockIcon';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { getProjectUrl } from '../../../../helpers/urls';
-
-export type Component = {
-  isFavorite?: boolean,
-  isRecentlyBrowsed?: boolean,
-  key: string,
-  match?: string,
-  name: string,
-  organization?: string,
-  project?: string,
-  qualifier: string
-};
+import type { Component } from './utils';
+import FavoriteIcon from '../../../components/common/FavoriteIcon';
+import QualifierIcon from '../../../components/shared/QualifierIcon';
+import ClockIcon from '../../../components/common/ClockIcon';
+import Tooltip from '../../../components/controls/Tooltip';
+import { getProjectUrl } from '../../../helpers/urls';
 
 type Props = {|
   appState: { organizationsEnabled: boolean },
@@ -48,7 +38,7 @@ type Props = {|
   selected: boolean
 |};
 
-export default class GlobalNavSearchFormComponent extends React.PureComponent {
+export default class SearchResult extends React.PureComponent {
   props: Props;
 
   handleMouseEnter = () => {
@@ -65,7 +55,9 @@ export default class GlobalNavSearchFormComponent extends React.PureComponent {
     }
 
     const organization = this.props.organizations[component.organization];
-    return organization ? <div className="pull-right text-muted-2">{organization.name}</div> : null;
+    return organization
+      ? <div className="navbar-search-item-right text-muted-2">{organization.name}</div>
+      : null;
   };
 
   renderProject = (component: Component) => {
@@ -74,7 +66,9 @@ export default class GlobalNavSearchFormComponent extends React.PureComponent {
     }
 
     const project = this.props.projects[component.project];
-    return project ? <div className="pull-right text-muted-2">{project.name}</div> : null;
+    return project
+      ? <div className="navbar-search-item-right text-muted-2">{project.name}</div>
+      : null;
   };
 
   render() {
@@ -87,13 +81,11 @@ export default class GlobalNavSearchFormComponent extends React.PureComponent {
         ref={node => this.props.innerRef(component.key, node)}>
         <Tooltip mouseEnterDelay={1.0} overlay={component.key} placement="left">
           <Link
+            className="navbar-search-item-link"
             data-key={component.key}
             onClick={this.props.onClose}
             onMouseEnter={this.handleMouseEnter}
             to={getProjectUrl(component.key)}>
-
-            {this.renderOrganization(component)}
-            {this.renderProject(component)}
 
             <span className="navbar-search-item-icons little-spacer-right">
               {component.isFavorite && <FavoriteIcon favorite={true} size={12} />}
@@ -102,8 +94,14 @@ export default class GlobalNavSearchFormComponent extends React.PureComponent {
             </span>
 
             {component.match
-              ? <span dangerouslySetInnerHTML={{ __html: component.match }} />
-              : component.name}
+              ? <span
+                  className="navbar-search-item-match"
+                  dangerouslySetInnerHTML={{ __html: component.match }}
+                />
+              : <span className="navbar-search-item-match">{component.name}</span>}
+
+            {this.renderOrganization(component)}
+            {this.renderProject(component)}
 
           </Link>
         </Tooltip>

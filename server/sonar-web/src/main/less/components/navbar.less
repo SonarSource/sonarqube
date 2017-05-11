@@ -138,7 +138,8 @@
 }
 
 .navbar-search-input {
-  width: 280px;
+  vertical-align: middle;
+  width: 310px;
   margin-top: 3px;
   margin-bottom: 3px;
   padding-left: 26px !important;
@@ -160,6 +161,7 @@
 
 .navbar-search-icon {
   position: relative;
+  vertical-align: middle;
   width: 16px;
   margin-right: -20px;
   color: @secondFontColor;
@@ -169,10 +171,25 @@
   }
 }
 
+.navbar-search-item-link {
+  display: flex !important;
+}
+
+.navbar-search-item-match {
+  flex-grow: 5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-search-item-right {
+  flex-grow: 1;
+  padding-left: 10px;
+  text-align: right;
+}
+
 .navbar-search-item-icons {
   position: relative;
-  display: inline-block;
-  vertical-align: middle;
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
 
@@ -186,7 +203,7 @@
   > .icon-star,
   > .icon-clock {
     z-index: 6;
-    top: -5px;
+    top: -4px;
     left: -5px;
   }
 }
@@ -198,14 +215,11 @@
   background-color: #f3f3f3;
   color: #777;
   font-size: 11px;
+}
 
-  .shortcut-button {
-    min-width: 16px;
-    height: 16px;
-    line-height: 12px;
-    margin-left: 4px;
-    margin-right: 4px;
-  }
+.navbar-search-no-results {
+  margin-top: 4px;
+  padding: 5px 10px;
 }
 
 .navbar-global {

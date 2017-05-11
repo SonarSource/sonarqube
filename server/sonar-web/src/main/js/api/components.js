@@ -192,11 +192,14 @@ export type SuggestionsResponse = {
 };
 
 export const getSuggestions = (
-  query: string,
+  query?: string,
   recentlyBrowsed?: Array<string>,
   more?: string
 ): Promise<SuggestionsResponse> => {
-  const data: Object = { s: query };
+  const data: Object = {};
+  if (query) {
+    data.s = query;
+  }
   if (recentlyBrowsed) {
     data.recentlyBrowsed = recentlyBrowsed.join();
   }

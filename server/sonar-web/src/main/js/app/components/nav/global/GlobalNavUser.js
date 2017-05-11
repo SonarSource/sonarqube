@@ -58,6 +58,16 @@ class GlobalNavUser extends React.PureComponent {
           <Avatar email={currentUser.email} name={currentUser.name} size={24} />
         </a>
         <ul className="dropdown-menu dropdown-menu-right">
+          <li className="dropdown-item">
+            <div className="text-ellipsis text-muted" title={currentUser.name}>
+              <strong>{currentUser.name}</strong>
+            </div>
+            {currentUser.email != null &&
+              <div className="little-spacer-top text-ellipsis text-muted" title={currentUser.email}>
+                {currentUser.email}
+              </div>}
+          </li>
+          <li className="divider" />
           <li>
             <Link to="/account">{translate('my_account.page')}</Link>
           </li>

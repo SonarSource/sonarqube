@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders "Show More" link 1`] = `
+<ul
+  className="menu"
+>
+  <li
+    className="dropdown-header"
+  >
+    qualifiers.TRK
+  </li>
+  <span>
+    foo
+  </span>
+  <span>
+    bar
+  </span>
+  <SearchShowMore
+    allowMore={true}
+    loadingMore={null}
+    onMoreClick={[Function]}
+    onSelect={[Function]}
+    qualifier="TRK"
+    selected={false}
+  />
+  <li
+    className="divider"
+  />
+  <li
+    className="dropdown-header"
+  >
+    qualifiers.BRC
+  </li>
+  <span>
+    qwe
+  </span>
+  <span>
+    qux
+  </span>
+</ul>
+`;
+
+exports[`renders different components and dividers between them 1`] = `
+<ul
+  className="menu"
+>
+  <li
+    className="dropdown-header"
+  >
+    qualifiers.TRK
+  </li>
+  <span>
+    foo
+  </span>
+  <span>
+    bar
+  </span>
+  <li
+    className="divider"
+  />
+  <li
+    className="dropdown-header"
+  >
+    qualifiers.BRC
+  </li>
+  <span>
+    qwe
+  </span>
+  <span>
+    qux
+  </span>
+  <li
+    className="divider"
+  />
+  <li
+    className="dropdown-header"
+  >
+    qualifiers.FIL
+  </li>
+  <span>
+    zux
+  </span>
+</ul>
+`;

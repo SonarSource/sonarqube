@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`shows warning about short input 1`] = `
+<span
+  className="navbar-search-input-hint"
+>
+  select2.tooShort.2
+</span>
+`;
+
+exports[`shows warning about short input 2`] = `
+<span
+  className="navbar-search-input-hint is-shifted"
+>
+  select2.tooShort.2
+</span>
+`;
