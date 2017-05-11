@@ -163,6 +163,25 @@ public class SuggestionsActionTest {
   }
 
   @Test
+  public void should_contain_component_names() throws Exception {
+    OrganizationDto organization1 = db.organizations().insert(o -> o.setKey("org-1").setName("Organization One"));
+
+    ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organization1).setName("Project1"));
+    componentIndexer.indexProject(project1.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    authorizationIndexerTester.allowOnlyAnyone(project1);
+
+    SuggestionsWsResponse response = actionTester.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, "Project")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .extracting(Suggestion::getKey, Suggestion::getName)
+      .containsExactlyInAnyOrder(tuple(project1.getKey(), project1.name()));
+  }
+
+  @Test
   public void should_contain_organization_names() throws Exception {
     OrganizationDto organization1 = db.organizations().insert(o -> o.setKey("org-1").setName("Organization One"));
     OrganizationDto organization2 = db.organizations().insert(o -> o.setKey("org-2").setName("Organization Two"));
