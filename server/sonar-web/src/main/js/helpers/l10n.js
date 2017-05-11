@@ -44,7 +44,11 @@ export function hasMessage(...keys: string[]) {
   return messages[messageKey] != null;
 }
 
-function getCurrentLocale() {
+export function configureMoment(language?: string) {
+  moment.locale(language || getPreferredLanguage());
+}
+
+function getPreferredLanguage() {
   return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 }
 
@@ -89,33 +93,32 @@ function checkCachedBundle() {
 }
 
 export function requestMessages() {
-  const currentLocale = getCurrentLocale();
+  const currentLocale = getPreferredLanguage();
   const cachedLocale = localStorage.getItem('l10n.locale');
-
-  if (cachedLocale !== currentLocale) {
-    localStorage.removeItem('l10n.timestamp');
-  }
-
-  const bundleTimestamp = localStorage.getItem('l10n.timestamp');
   const params = {};
+
   if (currentLocale) {
     params.locale = currentLocale;
   }
-  if (bundleTimestamp !== null && checkCachedBundle()) {
-    params.ts = bundleTimestamp;
+
+  if (cachedLocale === currentLocale) {
+    const bundleTimestamp = localStorage.getItem('l10n.timestamp');
+    if (bundleTimestamp !== null && checkCachedBundle()) {
+      params.ts = bundleTimestamp;
+    }
   }
 
-  return makeRequest(params).then(bundle => {
+  return makeRequest(params).then(response => {
     try {
       const currentTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZZ');
       localStorage.setItem('l10n.timestamp', currentTimestamp);
-      localStorage.setItem('l10n.locale', currentLocale);
-      localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
+      localStorage.setItem('l10n.locale', response.effectiveLocale);
+      localStorage.setItem('l10n.bundle', JSON.stringify(response.messages));
     } catch (e) {
       // do nothing
     }
-
-    messages = bundle;
+    configureMoment(response.effectiveLocale);
+    resetBundle(response.messages);
   });
 }
 

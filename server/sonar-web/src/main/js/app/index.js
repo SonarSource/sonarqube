@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import configureLocale from './utils/configureLocale';
 import exposeLibraries from './utils/exposeLibraries';
 import startAjaxMonitoring from './utils/startAjaxMonitoring';
 import startReactApp from './utils/startReactApp';
@@ -30,7 +29,6 @@ require('script!../libs/inputs.js');
 require('script!../libs/jquery-isolated-scroll.js');
 require('script!../libs/application.js');
 
-configureLocale();
 startAjaxMonitoring();
 installGlobal();
 startReactApp();
