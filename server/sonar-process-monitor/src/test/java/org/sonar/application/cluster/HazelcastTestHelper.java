@@ -24,10 +24,15 @@ import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.process.ProcessProperties;
 
 public class HazelcastTestHelper {
+
+  // Be careful this test won't work if parallel tests is used
+  private static final List<HazelcastInstance> HAZELCAST_INSTANCES = new ArrayList<>();
 
   static HazelcastInstance createHazelcastClient(HazelcastCluster hzCluster) {
     ClientConfig clientConfig = new ClientConfig();
@@ -39,7 +44,21 @@ public class HazelcastTestHelper {
         socketAddress.getPort()
       ));
     clientConfig.getGroupConfig().setName(hzCluster.getName());
-    return HazelcastClient.newHazelcastClient(clientConfig);
+    HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
+    HAZELCAST_INSTANCES.add(hazelcastInstance);
+    return hazelcastInstance;
+  }
+
+  static void closeAllHazelcastClients() {
+    HAZELCAST_INSTANCES.stream().forEach(
+        hz -> {
+          try {
+            hz.shutdown();
+          } catch (Exception ex) {
+            // Ignore it
+          }
+        }
+    );
   }
 
   static HazelcastInstance createHazelcastClient(AppStateClusterImpl appStateCluster) {

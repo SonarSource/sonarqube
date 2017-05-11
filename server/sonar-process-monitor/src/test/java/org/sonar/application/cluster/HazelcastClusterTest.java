@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -52,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.application.cluster.HazelcastTestHelper.closeAllHazelcastClients;
 import static org.sonar.application.cluster.HazelcastTestHelper.createHazelcastClient;
 import static org.sonar.application.cluster.HazelcastTestHelper.newClusterSettings;
 import static org.sonar.process.ProcessProperties.CLUSTER_NAME;
@@ -65,6 +67,11 @@ public class HazelcastClusterTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
+  @AfterClass
+  public static void closeHazelcastClients() {
+    closeAllHazelcastClients();
+  }
 
   @Test
   public void test_two_tryToLockWebLeader_must_return_true() {
