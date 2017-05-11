@@ -20,7 +20,7 @@
 package org.sonar.server.component.index;
 
 import org.junit.Test;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
+import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
 
 public class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
 
@@ -32,7 +32,7 @@ public class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
 
   @Test
   public void should_find_partial_match() {
-    features.set(ComponentTextSearchFeature.PARTIAL);
+    features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
     assertResultOrder("struts java",
       "Xstrutsx.Xjavax");
   }
@@ -87,7 +87,7 @@ public class ComponentIndexMultipleWordsTest extends ComponentIndexTest {
 
   @Test
   public void should_require_all_words_to_match_for_partial() {
-    features.set(ComponentTextSearchFeature.PARTIAL);
+    features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
     assertNoFileMatches("struts java",
       "Struts");
   }
