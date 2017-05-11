@@ -145,6 +145,7 @@ public class DefaultI18nTest {
     assertThat(underTest.message(Locale.CHINA, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
     assertThat(underTest.message(Locale.CHINA, "any", null)).isEqualTo("Any");
     assertThat(underTest.message(Locale.CHINA, "sqale.page", null)).isEqualTo("Sqale page title");
+    assertThat(underTest.getEffectiveLocale(Locale.CHINA)).isEqualTo(Locale.ENGLISH);
   }
 
   @Test

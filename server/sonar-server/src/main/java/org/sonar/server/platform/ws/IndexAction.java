@@ -73,9 +73,11 @@ public class IndexAction implements WsAction {
     Locale locale = Locale.forLanguageTag(localeParam);
     checkArgument(!locale.getISO3Language().isEmpty(), "'%s' cannot be parsed as a BCP47 language tag", localeParam);
     JsonWriter json = response.newJsonWriter().beginObject();
-    for (String messageKey : i18n.getPropertyKeys()) {
-      json.prop(messageKey, i18n.message(locale, messageKey, messageKey));
-    }
+    json.prop("effectiveLocale", i18n.getEffectiveLocale(locale).toLanguageTag());
+    json.name("messages");
+    json.beginObject();
+    i18n.getPropertyKeys().forEach(messageKey -> json.prop(messageKey, i18n.message(locale, messageKey, messageKey)));
+    json.endObject();
     json.endObject().close();
   }
 }

@@ -81,6 +81,7 @@ public class IndexActionTest {
     when(i18n.message(PRC, KEY_1, KEY_1)).thenReturn(KEY_1);
     when(i18n.message(PRC, KEY_2, KEY_2)).thenReturn(KEY_2);
     when(i18n.message(PRC, KEY_3, KEY_3)).thenReturn(KEY_3);
+    when(i18n.getEffectiveLocale(PRC)).thenReturn(PRC);
 
     TestResponse result = call(PRC.toLanguageTag(), DateUtils.formatDateTime(aBitEarlier));
 
@@ -88,7 +89,7 @@ public class IndexActionTest {
     verify(i18n).message(PRC, KEY_1, KEY_1);
     verify(i18n).message(PRC, KEY_2, KEY_2);
     verify(i18n).message(PRC, KEY_3, KEY_3);
-    assertJson(result.getInput()).isSimilarTo("{\"key1\":\"key1\",\"key2\":\"key2\",\"key3\":\"key3\"}");
+    assertJson(result.getInput()).isSimilarTo("{\"effectiveLocale\":\"zh-CN\", \"messages\": {\"key1\":\"key1\",\"key2\":\"key2\",\"key3\":\"key3\"}}");
   }
 
   @Test
@@ -100,6 +101,7 @@ public class IndexActionTest {
     when(i18n.message(ENGLISH, key1, key1)).thenReturn(key1);
     when(i18n.message(ENGLISH, key2, key2)).thenReturn(key2);
     when(i18n.message(ENGLISH, key3, key3)).thenReturn(key3);
+    when(i18n.getEffectiveLocale(ENGLISH)).thenReturn(ENGLISH);
 
     TestResponse result = call(null, null);
 
@@ -107,7 +109,7 @@ public class IndexActionTest {
     verify(i18n).message(ENGLISH, key1, key1);
     verify(i18n).message(ENGLISH, key2, key2);
     verify(i18n).message(ENGLISH, key3, key3);
-    assertJson(result.getInput()).isSimilarTo("{\"key1\":\"key1\",\"key2\":\"key2\",\"key3\":\"key3\"}");
+    assertJson(result.getInput()).isSimilarTo("{\"messages\": {\"key1\":\"key1\",\"key2\":\"key2\",\"key3\":\"key3\"}}");
   }
 
   @Test
@@ -115,12 +117,13 @@ public class IndexActionTest {
     String key1 = "key1";
     when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
     when(i18n.message(UK, key1, key1)).thenReturn(key1);
+    when(i18n.getEffectiveLocale(UK)).thenReturn(UK);
 
     TestResponse result = call("en-GB", null);
 
     verify(i18n).getPropertyKeys();
     verify(i18n).message(UK, key1, key1);
-    assertJson(result.getInput()).isSimilarTo("{\"key1\":\"key1\"}");
+    assertJson(result.getInput()).isSimilarTo("{\"messages\": {\"key1\":\"key1\"}}");
   }
 
   @Test
@@ -128,6 +131,7 @@ public class IndexActionTest {
     String key1 = "key1";
     when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
     when(i18n.message(UK, key1, key1)).thenReturn(key1);
+    when(i18n.getEffectiveLocale(UK)).thenReturn(UK);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("'en_GB' cannot be parsed as a BCP47 language tag");
