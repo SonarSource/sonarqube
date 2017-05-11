@@ -86,11 +86,12 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
       return contents;
     } else {
       ByteArrayOutputStream result = new ByteArrayOutputStream();
-      byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-      int length;
-      InputStream inputStream = inputStream();
-      while ((length = inputStream.read(buffer)) != -1) {
-        result.write(buffer, 0, length);
+      try (InputStream inputStream = inputStream()) {
+        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+          result.write(buffer, 0, length);
+        }
       }
       return result.toString(charset().name());
     }
