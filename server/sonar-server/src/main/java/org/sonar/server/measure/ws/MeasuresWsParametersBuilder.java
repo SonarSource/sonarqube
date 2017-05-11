@@ -21,8 +21,6 @@ package org.sonar.server.measure.ws;
 
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewParam;
-import org.sonar.core.util.Uuids;
-import org.sonar.server.ws.KeyExamples;
 
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -51,12 +49,13 @@ class MeasuresWsParametersBuilder {
   }
 
   static void createDeveloperParameters(NewAction action) {
-    action.createParam(PARAM_DEVELOPER_ID)
-      .setDescription("Developer id. If set, developer's measures are returned. Only with Developer Cockpit plugin.")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
-    action.createParam(PARAM_DEVELOPER_KEY)
-      .setDescription("Developer key. If set, developer's measures are returned. Only with Developer Cockpit plugin.")
-      .setExampleValue(KeyExamples.KEY_DEVELOPER_EXAMPLE_001);
+    deprecateDeveloperParameter(action, PARAM_DEVELOPER_ID);
+    deprecateDeveloperParameter(action, PARAM_DEVELOPER_KEY);
   }
 
+  private static void deprecateDeveloperParameter(NewAction action, String key) {
+    action.createParam(key)
+      .setDeprecatedSince("6.4")
+      .setDescription("Deprecated parameter, used previously with the Developer Cockpit plugin. No measures are returned if parameter is set.");
+  }
 }
