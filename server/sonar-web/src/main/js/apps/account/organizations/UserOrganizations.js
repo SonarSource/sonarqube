@@ -25,16 +25,15 @@ import { Link } from 'react-router';
 import OrganizationsList from './OrganizationsList';
 import { translate } from '../../../helpers/l10n';
 import { fetchIfAnyoneCanCreateOrganizations, fetchMyOrganizations } from './actions';
-import { getMyOrganizations, getSettingValue, getCurrentUser } from '../../../store/rootReducer';
+import { getAppState, getMyOrganizations, getSettingValue } from '../../../store/rootReducer';
 import type { Organization } from '../../../store/organizations/duck';
-import { isUserAdmin } from '../../../helpers/users';
 
 class UserOrganizations extends React.PureComponent {
   mounted: boolean;
 
   props: {
     anyoneCanCreate?: { value: string },
-    currentUser: Object,
+    canAdmin: boolean,
     children?: React.Element<*>,
     organizations: Array<Organization>,
     fetchIfAnyoneCanCreateOrganizations: () => Promise<*>,
@@ -65,8 +64,7 @@ class UserOrganizations extends React.PureComponent {
     const anyoneCanCreate =
       this.props.anyoneCanCreate != null && this.props.anyoneCanCreate.value === 'true';
 
-    const canCreateOrganizations =
-      !this.state.loading && (anyoneCanCreate || isUserAdmin(this.props.currentUser));
+    const canCreateOrganizations = !this.state.loading && (anyoneCanCreate || this.props.canAdmin);
 
     return (
       <div className="account-body account-container">
@@ -101,7 +99,7 @@ class UserOrganizations extends React.PureComponent {
 
 const mapStateToProps = state => ({
   anyoneCanCreate: getSettingValue(state, 'sonar.organizations.anyoneCanCreate'),
-  currentUser: getCurrentUser(state),
+  canAdmin: getAppState(state).canAdmin,
   organizations: getMyOrganizations(state)
 });
 

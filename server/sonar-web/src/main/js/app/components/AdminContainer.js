@@ -21,8 +21,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
-import { getCurrentUser, getAppState } from '../../store/rootReducer';
-import { isUserAdmin } from '../../helpers/users';
+import { getAppState } from '../../store/rootReducer';
 import { onFail } from '../../store/rootActions';
 import { getSettingsNavigation } from '../../api/nav';
 import { setAdminPages } from '../../store/appState/duck';
@@ -30,7 +29,7 @@ import { translate } from '../../helpers/l10n';
 
 class AdminContainer extends React.PureComponent {
   componentDidMount() {
-    if (!isUserAdmin(this.props.currentUser)) {
+    if (!this.props.appState.canAdmin) {
       // workaround cyclic dependencies
       const handleRequiredAuthorization = require('../utils/handleRequiredAuthorization').default;
       handleRequiredAuthorization();
@@ -46,14 +45,17 @@ class AdminContainer extends React.PureComponent {
   }
 
   render() {
-    if (!isUserAdmin(this.props.currentUser) || !this.props.adminPages) {
+    const { adminPages } = this.props.appState;
+
+    // Check that the adminPages are loaded
+    if (!adminPages) {
       return null;
     }
 
     return (
       <div>
         <Helmet title={translate('layout.settings')} />
-        <SettingsNav location={this.props.location} extensions={this.props.adminPages} />
+        <SettingsNav location={this.props.location} extensions={adminPages} />
         {this.props.children}
       </div>
     );
@@ -61,8 +63,7 @@ class AdminContainer extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
-  adminPages: getAppState(state).adminPages,
-  currentUser: getCurrentUser(state)
+  appState: getAppState(state)
 });
 
 const mapDispatchToProps = { setAdminPages };

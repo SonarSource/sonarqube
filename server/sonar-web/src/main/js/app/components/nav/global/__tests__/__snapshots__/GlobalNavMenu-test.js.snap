@@ -1,5 +1,79 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should show administration menu if the user has the rights 1`] = `
+<ul
+  className="nav navbar-nav"
+>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/projects"
+    >
+      projects.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/issues",
+          "query": Object {
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      className={null}
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/coding_rules"
+    >
+      coding_rules.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/profiles"
+    >
+      quality_profiles.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/quality_gates"
+    >
+      quality_gates.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      className="navbar-admin-link"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/settings"
+    >
+      layout.settings
+    </Link>
+  </li>
+</ul>
+`;
+
 exports[`should work with extensions 1`] = `
 <ul
   className="nav navbar-nav"

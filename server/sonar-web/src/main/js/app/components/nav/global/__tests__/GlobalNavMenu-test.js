@@ -27,8 +27,22 @@ it('should work with extensions', () => {
     qualifiers: ['TRK']
   };
   const currentUser = {
-    isLoggedIn: false,
-    permissions: { global: [] }
+    isLoggedIn: false
+  };
+  const wrapper = shallow(
+    <GlobalNavMenu appState={appState} currentUser={currentUser} location={{ pathname: '' }} />
+  );
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should show administration menu if the user has the rights', () => {
+  const appState = {
+    canAdmin: true,
+    globalPages: [],
+    qualifiers: ['TRK']
+  };
+  const currentUser = {
+    isLoggedIn: false
   };
   const wrapper = shallow(
     <GlobalNavMenu appState={appState} currentUser={currentUser} location={{ pathname: '' }} />
