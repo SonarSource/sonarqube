@@ -220,7 +220,6 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
     if (NCLOC_LANGUAGE_DISTRIBUTION_KEY.equals(metricKey)) {
       readTextValue(rs, measures::setLanguages);
-      return;
     }
   }
 
