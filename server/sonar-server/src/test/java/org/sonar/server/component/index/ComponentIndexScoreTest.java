@@ -146,6 +146,13 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
   }
 
   @Test
+  public void if_relevancy_is_equal_fall_back_to_alphabetical_ordering() {
+    assertResultOrder("sonarqube",
+      "sonarqubeA",
+      "sonarqubeB");
+  }
+
+  @Test
   public void scoring_test_DbTester() {
     features.set(ComponentTextSearchFeatureRepertoire.PARTIAL);
 

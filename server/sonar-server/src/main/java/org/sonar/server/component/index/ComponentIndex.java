@@ -37,6 +37,8 @@ import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Buck
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
 import org.elasticsearch.search.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
@@ -116,7 +118,9 @@ public class ComponentIndex {
       .setHighlighterPostTags("</mark>")
       .addHighlightedField(createHighlighter())
       .setFrom(query.getSkip())
-      .setSize(query.getLimit());
+      .setSize(query.getLimit())
+      .addSort(new ScoreSortBuilder())
+      .addSort(new FieldSortBuilder(ComponentIndexDefinition.FIELD_NAME));
     return sub.setFetchSource(false);
   }
 
