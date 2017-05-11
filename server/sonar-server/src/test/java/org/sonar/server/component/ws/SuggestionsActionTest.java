@@ -63,6 +63,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
@@ -472,64 +473,113 @@ public class SuggestionsActionTest {
   }
 
   @Test
-  public void should_not_propose_to_show_more_results_if_0_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(0, 0, 0L, null);
+  public void should_not_propose_to_show_more_results_if_0_projects_are_found() {
+    check_proposal_to_show_more_results(0, 0, 0L, null, true);
   }
 
   @Test
-  public void should_not_propose_to_show_more_results_if_5_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(5, 5, 0L, null);
+  public void should_not_propose_to_show_more_results_if_0_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(0, 0, 0L, null, false);
   }
 
   @Test
-  public void should_not_propose_to_show_more_results_if_6_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(6, 6, 0L, null);
+  public void should_not_propose_to_show_more_results_if_5_projects_are_found() {
+    check_proposal_to_show_more_results(5, 5, 0L, null, true);
   }
 
   @Test
-  public void should_propose_to_show_more_results_if_7_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(7, 6, 1L, null);
+  public void should_not_propose_to_show_more_results_if_5_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(5, 5, 0L, null, false);
   }
 
   @Test
-  public void show_more_results_if_requested_and_5_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(5, 0, 0L, SuggestionCategory.PROJECT);
+  public void should_not_propose_to_show_more_results_if_6_projects_are_found() {
+    check_proposal_to_show_more_results(6, 6, 0L, null, true);
   }
 
   @Test
-  public void show_more_results_if_requested_and_6_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(6, 0, 0L, SuggestionCategory.PROJECT);
+  public void should_not_propose_to_show_more_results_if_6_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(6, 6, 0L, null, false);
   }
 
   @Test
-  public void show_more_results_if_requested_and_7_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(7, 1, 0L, SuggestionCategory.PROJECT);
+  public void should_propose_to_show_more_results_if_7_projects_are_found() {
+    check_proposal_to_show_more_results(7, 6, 1L, null, true);
   }
 
   @Test
-  public void show_more_results_if_requested_and_26_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(26, 20, 0L, SuggestionCategory.PROJECT);
+  public void should_propose_to_show_more_results_if_7_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(7, 6, 1L, null, false);
   }
 
   @Test
-  public void show_more_results_if_requested_and_27_projects_are_found() throws Exception {
-    check_proposal_to_show_more_results(27, 20, 1L, SuggestionCategory.PROJECT);
+  public void show_more_results_if_requested_and_5_projects_are_found() {
+    check_proposal_to_show_more_results(5, 0, 0L, SuggestionCategory.PROJECT, true);
   }
 
-  private void check_proposal_to_show_more_results(int numberOfProjects, int expectedNumberOfResults, long expectedNumberOfMoreResults, @Nullable SuggestionCategory more)
-    throws Exception {
+  @Test
+  public void show_more_results_if_requested_and_5_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(5, 0, 0L, SuggestionCategory.PROJECT, false);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_6_projects_are_found() {
+    check_proposal_to_show_more_results(6, 0, 0L, SuggestionCategory.PROJECT, true);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_6_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(6, 0, 0L, SuggestionCategory.PROJECT, false);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_7_projects_are_found() {
+    check_proposal_to_show_more_results(7, 1, 0L, SuggestionCategory.PROJECT, true);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_7_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(7, 1, 0L, SuggestionCategory.PROJECT, false);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_26_projects_are_found() {
+    check_proposal_to_show_more_results(26, 20, 0L, SuggestionCategory.PROJECT, true);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_26_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(26, 20, 0L, SuggestionCategory.PROJECT, false);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_27_projects_are_found() {
+    check_proposal_to_show_more_results(27, 20, 1L, SuggestionCategory.PROJECT, true);
+  }
+
+  @Test
+  public void show_more_results_if_requested_and_27_projects_are_found_and_no_search_query_is_provided() {
+    check_proposal_to_show_more_results(27, 20, 1L, SuggestionCategory.PROJECT, false);
+  }
+
+  private void check_proposal_to_show_more_results(int numberOfProjects, int expectedNumberOfResults, long expectedNumberOfMoreResults, @Nullable SuggestionCategory more,
+    boolean useQuery) {
     String namePrefix = "MyProject";
 
     List<ComponentDto> projects = range(0, numberOfProjects)
-      .mapToObj(i -> db.components().insertComponent(newPrivateProjectDto(organization).setName(namePrefix + i)))
+      .mapToObj(i -> db.components().insertComponent(newPublicProjectDto(organization).setName(namePrefix + i)))
       .collect(Collectors.toList());
 
     componentIndexer.indexOnStartup(null);
     projects.forEach(authorizationIndexerTester::allowOnlyAnyone);
 
     TestRequest request = ws.newRequest()
-      .setMethod("POST")
-      .setParam(PARAM_QUERY, namePrefix);
+      .setMethod("POST");
+    if (useQuery) {
+      request.setParam(PARAM_QUERY, namePrefix);
+    } else {
+      doReturn(projects).when(favoriteFinder).list();
+    }
     ofNullable(more).ifPresent(c -> request.setParam(PARAM_MORE, c.getName()));
     SuggestionsWsResponse response = request
       .executeProtobuf(SuggestionsWsResponse.class);
@@ -546,9 +596,13 @@ public class SuggestionsActionTest {
         .isEmpty();
     } else {
       assertThat(response.getResultsList())
-        .filteredOn(q -> q.getItemsCount() > 0)
+        .filteredOn(c -> "TRK".equals(c.getQ()))
         .extracting(Category::getMore)
         .containsExactly(expectedNumberOfMoreResults);
+      response.getResultsList().stream()
+        .filter(c -> !"TRK".equals(c.getQ()))
+        .map(Category::getMore)
+        .forEach(m -> assertThat(m).isEqualTo(0L));
     }
   }
 }
