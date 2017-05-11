@@ -30,7 +30,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -58,7 +60,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
-import static java.util.Optional.ofNullable;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -78,6 +79,7 @@ public class SuggestionsAction implements ComponentsWsAction {
   private static final int MAXIMUM_RECENTLY_BROWSED = 50;
 
   private static final int EXTENDED_LIMIT = 20;
+  private static final Set<String> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT = Stream.of(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE).collect(Collectors.toSet());
 
   private final ComponentIndex index;
   private final FavoriteFinder favoriteFinder;
@@ -254,7 +256,7 @@ public class SuggestionsAction implements ComponentsWsAction {
 
   private Map<String, ComponentDto> loadProjects(DbSession dbSession, Collection<ComponentDto> components) {
     Set<String> projectUuids = components.stream()
-      .filter(c -> !c.projectUuid().equals(c.uuid()))
+      .filter(c -> QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(c.qualifier()))
       .map(ComponentDto::projectUuid)
       .collect(MoreCollectors.toSet());
     return dbClient.componentDao().selectByUuids(dbSession, projectUuids).stream()
@@ -305,15 +307,17 @@ public class SuggestionsAction implements ComponentsWsAction {
     ComponentDto result = componentsByUuids.get(hit.getUuid());
     String organizationKey = organizationByUuids.get(result.getOrganizationUuid()).getKey();
     checkState(organizationKey != null, "Organization with uuid '%s' not found", result.getOrganizationUuid());
-    String projectKey = ofNullable(result.projectUuid()).map(projectsByUuids::get).map(ComponentDto::getKey).orElse("");
-    return Suggestion.newBuilder()
+    Suggestion.Builder builder = Suggestion.newBuilder()
       .setOrganization(organizationKey)
-      .setProject(projectKey)
       .setKey(result.getKey())
       .setName(result.name())
       .setMatch(hit.getHighlightedText().orElse(HtmlEscapers.htmlEscaper().escape(result.name())))
       .setIsRecentlyBrowsed(recentlyBrowsedKeys.contains(result.getKey()))
-      .setIsFavorite(favoriteUuids.contains(result.uuid()))
+      .setIsFavorite(favoriteUuids.contains(result.uuid()));
+    if (QUALIFIERS_FOR_WHICH_TO_RETURN_PROJECT.contains(result.qualifier())) {
+      builder.setProject(projectsByUuids.get(result.projectUuid()).getKey());
+    }
+    return builder
       .build();
   }
 

@@ -34,6 +34,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
@@ -59,6 +60,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 import static java.util.stream.Stream.of;
+import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
@@ -516,6 +518,36 @@ public class SuggestionsActionTest {
     assertThat(response.getResultsList())
       .extracting(Category::getQ, Category::getItemsCount)
       .containsExactlyInAnyOrder(tuple("VW", 0), tuple("SVW", 0), tuple("TRK", 1), tuple("BRC", 0), tuple("FIL", 0), tuple("UTS", 0));
+  }
+
+  @Test
+  public void should_only_provide_project_for_certain_qualifiers() throws Exception {
+    String query = random(10);
+
+    ComponentDto view = db.components().insertView(organization, v -> v.setName(query));
+    ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubView(view).setName(query));
+    ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setName(query));
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project).setName(query));
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query));
+    ComponentDto test = db.components().insertComponent(ComponentTesting.newFileDto(module).setName(query).setQualifier(Qualifiers.UNIT_TEST_FILE));
+    componentIndexer.indexOnStartup(null);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+    authorizationIndexerTester.allowOnlyAnyone(view);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, project.name())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .extracting(Category::getQ, c -> c.getItemsList().stream().map(Suggestion::hasProject).findFirst().orElse(null))
+      .containsExactlyInAnyOrder(
+        tuple(SuggestionCategory.VIEW.getName(), false),
+        tuple(SuggestionCategory.SUBVIEW.getName(), false),
+        tuple(SuggestionCategory.PROJECT.getName(), false),
+        tuple(SuggestionCategory.MODULE.getName(), true),
+        tuple(SuggestionCategory.FILE.getName(), true),
+        tuple(SuggestionCategory.UNIT_TEST_FILE.getName(), true));
   }
 
   @Test
