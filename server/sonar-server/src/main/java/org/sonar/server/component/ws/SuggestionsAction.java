@@ -183,7 +183,8 @@ public class SuggestionsAction implements ComponentsWsAction {
 
       ComponentIndexResults componentsPerQualifiers = ComponentIndexResults.newBuilder().setQualifiers(
         qualifiers.stream().map(q -> {
-          List<ComponentHit> hits = componentsPerQualifier.get(q)
+          List<ComponentDto> componentsOfThisQualifier = componentsPerQualifier.get(q);
+          List<ComponentHit> hits = componentsOfThisQualifier
             .stream()
             .sorted(comparator)
             .skip(skip)
@@ -191,7 +192,7 @@ public class SuggestionsAction implements ComponentsWsAction {
             .map(ComponentDto::uuid)
             .map(ComponentHit::new)
             .collect(MoreCollectors.toList(limit));
-          int totalHits = componentsPerQualifier.size();
+          int totalHits = componentsOfThisQualifier.size();
           return new ComponentHitsPerQualifier(q, hits, totalHits);
         })).build();
       return buildResponse(recentlyBrowsedKeys, favoriteUuids, componentsPerQualifiers, dbSession, authorizedComponents, skip + limit).build();
