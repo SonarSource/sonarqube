@@ -56,8 +56,10 @@
     <sonarPhp.version>2.9.2.1744</sonarPhp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/python/sonar-python-plugin/ -->
     <sonarPython.version>1.7.0.1195</sonarPython.version>
-    <!-- http://repo1.maven.org/maven2/org/sonarsource/flex/sonar-flex-plugin/ -->
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/flex/sonar-flex-plugin/ -->
     <sonarFlex.version>2.3</sonarFlex.version>
+    <!-- see http://http://repo1.maven.org/maven2/org/sonarsource/xml/sonar-xml-plugin/ -->
+    <sonarXml.version>1.4.2.885</sonarXml.version>
     <sonarGit.version>1.2</sonarGit.version>
     <sonarSvn.version>1.4.0.522</sonarSvn.version>
     <sonarUpdateCenter.version>1.18.0.487</sonarUpdateCenter.version>
@@ -661,6 +663,22 @@
           <exclusion>
             <groupId>org.sonarsource.flex</groupId>
             <artifactId>flex-checks</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.xml</groupId>
+        <artifactId>sonar-xml-plugin</artifactId>
+        <version>${sonarXml.version}</version>
+        <type>sonar-plugin</type>
+        <exclusions>
+          <!--
+          no need for transitive dependencies as only the JAR file
+          is needed for the zip bundle
+          -->
+          <exclusion>
+            <groupId>org.sonarsource.xml</groupId>
+            <artifactId>xml-squid</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
