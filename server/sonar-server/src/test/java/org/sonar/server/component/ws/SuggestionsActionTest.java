@@ -45,7 +45,10 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
@@ -121,11 +124,54 @@ public class SuggestionsActionTest {
   }
 
   @Test
+  public void test_example_json_response() {
+    OrganizationDto organization = db.organizations().insert(o -> o.setKey("default-organization").setName("Default Organization"));
+    ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setKey("org.sonarsource:sonarqube").setName("SonarSource :: SonarQube"));
+    ComponentDto project2 = db.components().insertPublicProject(organization, p -> p.setKey("org.sonarsource:sonarlint").setName("SonarSource :: SonarLint"));
+    componentIndexer.indexOnStartup(null);
+    authorizationIndexerTester.allowOnlyAnyone(project1);
+    authorizationIndexerTester.allowOnlyAnyone(project2);
+
+    TestResponse wsResponse = ws.newRequest()
+      .setParam(PARAM_QUERY, "Sonar")
+      .setParam(PARAM_RECENTLY_BROWSED, project1.key())
+      .setMethod("POST")
+      .setMediaType(MediaTypes.JSON)
+      .execute();
+
+    JsonAssert.assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(wsResponse.getInput());
+  }
+
+  @Test
   public void suggestions_without_query_should_contain_recently_browsed() throws Exception {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
 
     componentIndexer.indexOnStartup(null);
     userSessionRule.addProjectPermission(USER, project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RECENTLY_BROWSED, project.getKey())
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    // assert match in qualifier "TRK"
+    assertThat(response.getResultsList())
+      .filteredOn(q -> q.getItemsCount() > 0)
+      .extracting(Category::getQ)
+      .containsExactly(Qualifiers.PROJECT);
+
+    // assert correct id to be found
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .extracting(Suggestion::getKey, Suggestion::getIsRecentlyBrowsed)
+      .containsExactly(tuple(project.getKey(), true));
+  }
+
+  @Test
+  public void suggestions_without_query_should_contain_recently_browsed_public_project() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPublicProjectDto(organization));
+
+    componentIndexer.indexOnStartup(null);
 
     SuggestionsWsResponse response = ws.newRequest()
       .setMethod("POST")

@@ -1,28 +1,53 @@
 {
-  "suggestions": [
+  "results": [
     {
-      "category": "projects",
-      "items": [
-        {
-          "organization": "default-organization",
-          "key": "org.sonarsource:sonarqube",
-          "name": "SonarSource :: SonarQube",
-          "match": "<mark>Sonar</mark>Source :: SonarQube",
-          "recentlyBrowsed": true
-        },
-        {
-          "organization": "default-organization",
-          "key": "org.sonarsource:sonarlint",
-          "name": "SonarSource :: SonarLint",
-          "match": "<mark>Sonar</mark>Source :: SonarLint"
-        }
-      ],
-      "more": 74
+      "q": "VW",
+      "items": [],
+      "more": 0
     },
     {
-      "category": "files",
+      "q": "SVW",
+      "items": [],
+      "more": 0
+    },
+    {
+      "q": "TRK",
       "items": [
-      ]
+        {
+          "key": "org.sonarsource:sonarqube",
+          "name": "SonarSource :: SonarQube",
+          "match": "<mark>Sonar</mark>Source :: <mark>Sonar</mark>Qube",
+          "organization": "default-organization",
+          "project": "",
+          "isRecentlyBrowsed": true,
+          "isFavorite": false
+        },
+        {
+          "key": "org.sonarsource:sonarlint",
+          "name": "SonarSource :: SonarLint",
+          "match": "<mark>Sonar</mark>Source :: <mark>Sonar</mark>Lint",
+          "organization": "default-organization",
+          "project": "",
+          "isRecentlyBrowsed": false,
+          "isFavorite": false
+        }
+      ],
+      "more": 0
+    },
+    {
+      "q": "BRC",
+      "items": [],
+      "more": 0
+    },
+    {
+      "q": "FIL",
+      "items": [],
+      "more": 0
+    },
+    {
+      "q": "UTS",
+      "items": [],
+      "more": 0
     }
   ],
   "organizations": [
@@ -31,5 +56,6 @@
       "name": "Default Organization"
     }
   ],
-  "warning": "short_input"
+  "projects": [
+  ]
 }
