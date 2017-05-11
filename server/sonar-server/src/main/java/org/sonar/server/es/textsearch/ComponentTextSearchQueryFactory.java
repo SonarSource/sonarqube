@@ -22,16 +22,21 @@ package org.sonar.server.es.textsearch;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.textsearch.ComponentTextSearchFeature.UseCase;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 
 /**
  * This class is used in order to do some advanced full text search in an index on component key and component name
@@ -48,13 +53,13 @@ public class ComponentTextSearchQueryFactory {
     checkArgument(features.length > 0, "features cannot be empty");
     BoolQueryBuilder esQuery = boolQuery().must(
       createQuery(query, features, UseCase.GENERATE_RESULTS)
-        .orElseThrow(() -> new IllegalStateException("No text search features found to generate search results. Features: "+Arrays.toString(features))));
+        .orElseThrow(() -> new IllegalStateException("No text search features found to generate search results. Features: " + Arrays.toString(features))));
     createQuery(query, features, UseCase.CHANGE_ORDER_OF_RESULTS)
       .ifPresent(esQuery::should);
     return esQuery;
   }
 
-  public static Optional<QueryBuilder> createQuery(ComponentTextSearchQuery query, ComponentTextSearchFeature[] features, UseCase useCase) {
+  private static Optional<QueryBuilder> createQuery(ComponentTextSearchQuery query, ComponentTextSearchFeature[] features, UseCase useCase) {
     BoolQueryBuilder generateResults = boolQuery();
     AtomicBoolean anyFeatures = new AtomicBoolean();
     Arrays.stream(features)
@@ -70,6 +75,7 @@ public class ComponentTextSearchQueryFactory {
 
   public static class ComponentTextSearchQuery {
     private final String queryText;
+    private final List<String> queryTextTokens;
     private final String fieldKey;
     private final String fieldName;
     private final Set<String> recentlyBrowsedKeys;
@@ -77,14 +83,27 @@ public class ComponentTextSearchQueryFactory {
 
     private ComponentTextSearchQuery(Builder builder) {
       this.queryText = builder.queryText;
+      this.queryTextTokens = split(builder.queryText);
       this.fieldKey = builder.fieldKey;
       this.fieldName = builder.fieldName;
       this.recentlyBrowsedKeys = builder.recentlyBrowsedKeys;
       this.favoriteKeys = builder.favoriteKeys;
     }
 
+    private static List<String> split(String queryText) {
+      return Arrays.stream(
+        queryText.split(DefaultIndexSettings.SEARCH_TERM_TOKENIZER_PATTERN))
+        .filter(StringUtils::isNotEmpty)
+        .filter(s -> s.length() >= MINIMUM_NGRAM_LENGTH)
+        .collect(MoreCollectors.toList());
+    }
+
     public String getQueryText() {
       return queryText;
+    }
+
+    public List<String> getQueryTextTokens() {
+      return queryTextTokens;
     }
 
     public String getFieldKey() {

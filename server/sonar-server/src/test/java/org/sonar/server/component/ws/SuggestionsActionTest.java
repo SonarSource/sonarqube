@@ -390,6 +390,25 @@ public class SuggestionsActionTest {
   }
 
   @Test
+  public void should_warn_about_short_inputs_but_return_results_based_on_other_terms() throws Exception {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization).setName("SonarQube"));
+
+    componentIndexer.indexOnStartup(null);
+    authorizationIndexerTester.allowOnlyAnyone(project);
+
+    SuggestionsWsResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_QUERY, "Sonar Q")
+      .executeProtobuf(SuggestionsWsResponse.class);
+
+    assertThat(response.getResultsList())
+      .flatExtracting(Category::getItemsList)
+      .extracting(Suggestion::getKey)
+      .contains(project.getKey());
+    assertThat(response.getWarning()).contains(SHORT_INPUT_WARNING);
+  }
+
+  @Test
   public void should_contain_component_names() throws Exception {
     OrganizationDto organization1 = db.organizations().insert(o -> o.setKey("org-1").setName("Organization One"));
 

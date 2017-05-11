@@ -22,6 +22,7 @@ package org.sonar.server.component.ws;
 import com.google.common.collect.ListMultimap;
 import com.google.common.html.HtmlEscapers;
 import com.google.common.io.Resources;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -46,7 +48,7 @@ import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexQuery;
 import org.sonar.server.component.index.ComponentIndexResults;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
+import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
@@ -200,6 +202,12 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private SuggestionsWsResponse loadSuggestionsWithSearch(String query, int skip, int limit, Set<String> recentlyBrowsedKeys, List<String> qualifiers) {
+    if (split(query).noneMatch(token -> token.length() >= MINIMUM_NGRAM_LENGTH)) {
+      SuggestionsWsResponse.Builder queryBuilder = newBuilder();
+      getWarning(query).ifPresent(queryBuilder::setWarning);
+      return queryBuilder.build();
+    }
+
     List<ComponentDto> favorites = favoriteFinder.list();
     Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getKey).collect(MoreCollectors.toSet(favorites.size()));
     ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder()
@@ -228,11 +236,14 @@ public class SuggestionsAction implements ComponentsWsAction {
   }
 
   private static Optional<String> getWarning(String query) {
-    List<String> tokens = ComponentTextSearchFeatureRepertoire.split(query).collect(Collectors.toList());
-    if (tokens.stream().anyMatch(token -> token.length() < MINIMUM_NGRAM_LENGTH)) {
-      return Optional.of(SHORT_INPUT_WARNING);
-    }
-    return Optional.empty();
+    return split(query)
+      .filter(token -> token.length() < MINIMUM_NGRAM_LENGTH)
+      .findAny()
+      .map(x -> SHORT_INPUT_WARNING);
+  }
+
+  private static Stream<String> split(String query) {
+    return Arrays.stream(query.split(DefaultIndexSettings.SEARCH_TERM_TOKENIZER_PATTERN));
   }
 
   private static List<String> getQualifiers(@Nullable String more) {
