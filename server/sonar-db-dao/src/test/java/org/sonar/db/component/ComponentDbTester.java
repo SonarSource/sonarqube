@@ -90,7 +90,7 @@ public class ComponentDbTester {
 
   @SafeVarargs
   public final ComponentDto insertPublicProject(OrganizationDto organizationDto, Consumer<ComponentDto>... dtoPopulators) {
-    return insertComponentImpl(newPublicProjectDto(organizationDto), true, dtoPopulators);
+    return insertComponentImpl(newPublicProjectDto(organizationDto), false, dtoPopulators);
   }
 
   public ComponentDto insertPrivateProject(OrganizationDto organizationDto) {
