@@ -71,6 +71,7 @@ public class DbVersion64 implements DbVersion {
       .add(1640, "Make column ORGANIZATIONS.NEW_PROJECT_PRIVATE not nullable", MakeColumnNewProjectPrivateNotNullable.class)
       .add(1641, "Make components private based on permissions", MakeComponentsPrivateBasedOnPermissions.class)
       .add(1642, "Support private project in default permission template", SupportPrivateProjectInDefaultPermissionTemplate.class)
-      .add(1643, "Drop user and codeviewer perms to AnyOne in permission templates", SupportProjectVisibilityInTemplates.class);
+      .add(1643, "Drop user and codeviewer perms to AnyOne in permission templates", SupportProjectVisibilityInTemplates.class)
+      .add(1644, "Add index on active_rule_parameters.active_rule_id", AddIndexOnActiveRuleParameters.class);
   }
 }
