@@ -33,6 +33,9 @@ type CurrentUser = {
 };
 
 type Props = {
+  appState: {
+    organizationsEnabled: boolean
+  },
   currentUser: CurrentUser,
   fetchMyOrganizations: () => Promise<*>,
   location: Object,
@@ -87,7 +90,7 @@ export default class GlobalNavUser extends React.PureComponent {
   };
 
   openDropdown = () => {
-    this.props.fetchMyOrganizations().then(() => {
+    this.fetchMyOrganizations().then(() => {
       window.addEventListener('click', this.handleClickOutside, true);
       this.setState({ open: true });
     });
@@ -98,9 +101,16 @@ export default class GlobalNavUser extends React.PureComponent {
     this.setState({ open: false });
   };
 
+  fetchMyOrganizations = () => {
+    if (this.props.appState.organizationsEnabled) {
+      return this.props.fetchMyOrganizations();
+    }
+    return Promise.resolve();
+  };
+
   renderAuthenticated() {
     const { currentUser, organizations } = this.props;
-    const hasOrganizations = organizations.length > 0;
+    const hasOrganizations = this.props.appState.organizationsEnabled && organizations.length > 0;
     return (
       <li
         className={classNames('dropdown js-user-authenticated', { open: this.state.open })}

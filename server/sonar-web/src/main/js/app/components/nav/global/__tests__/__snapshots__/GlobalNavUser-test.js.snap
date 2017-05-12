@@ -1,5 +1,66 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should not render the users organizations when they are not activated 1`] = `
+<li
+  className="dropdown js-user-authenticated open"
+>
+  <a
+    className="dropdown-toggle navbar-avatar"
+    href="#"
+    onClick={[Function]}
+  >
+    <Connect(Avatar)
+      email="foo@bar.baz"
+      name="foo"
+      size={24}
+    />
+  </a>
+  <ul
+    className="dropdown-menu dropdown-menu-right"
+  >
+    <li
+      className="dropdown-item"
+    >
+      <div
+        className="text-ellipsis text-muted"
+        title="foo"
+      >
+        <strong>
+          foo
+        </strong>
+      </div>
+      <div
+        className="little-spacer-top text-ellipsis text-muted"
+        title="foo@bar.baz"
+      >
+        foo@bar.baz
+      </div>
+    </li>
+    <li
+      className="divider"
+    />
+    <li>
+      <Link
+        onClick={[Function]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/account"
+      >
+        my_account.page
+      </Link>
+    </li>
+    <li>
+      <a
+        href="#"
+        onClick={[Function]}
+      >
+        layout.logout
+      </a>
+    </li>
+  </ul>
+</li>
+`;
+
 exports[`should render the right interface for anonymous user 1`] = `
 <li>
   <a
