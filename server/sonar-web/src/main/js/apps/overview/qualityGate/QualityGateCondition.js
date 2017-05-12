@@ -49,6 +49,14 @@ export default class QualityGateCondition extends React.PureComponent {
     }
   };
 
+  getDecimalsNumber(threshold: number, value: number) {
+    const delta = Math.abs(threshold - value);
+    if (delta < 0.1 && delta > 0) {
+      //$FlowFixMe The matching result can't null because of the previous check
+      return delta.toFixed(20).match('[^0\.]').index - 1;
+    }
+  }
+
   getIssuesUrl(sinceLeakPeriod: boolean, customQuery: {}) {
     const query: Object = {
       resolved: 'false',
@@ -126,21 +134,24 @@ export default class QualityGateCondition extends React.PureComponent {
     const { measure } = condition;
     const { metric } = measure;
 
-    const isRating = metric.type === 'RATING';
     const isDiff = isDiffMetric(metric.key);
 
     const threshold = condition.level === 'ERROR' ? condition.error : condition.warning;
-
     const actual = condition.period ? getPeriodValue(measure, condition.period) : measure.value;
 
-    const operator = isRating
-      ? translate('quality_gates.operator', condition.op, 'rating')
-      : translate('quality_gates.operator', condition.op);
+    let operator = translate('quality_gates.operator', condition.op);
+    let decimals = null;
+
+    if (metric.type === 'RATING') {
+      operator = translate('quality_gates.operator', condition.op, 'rating');
+    } else if (metric.type === 'PERCENT') {
+      decimals = this.getDecimalsNumber(parseFloat(condition.error), parseFloat(actual));
+    }
 
     return this.wrapWithLink(
       <div className="overview-quality-gate-condition-container">
         <div className="overview-quality-gate-condition-value">
-          <Measure measure={{ value: actual, leak: actual }} metric={metric} />
+          <Measure measure={{ value: actual, leak: actual }} metric={metric} decimals={decimals} />
         </div>
 
         <div>

@@ -62,11 +62,11 @@ export function getSingleLeakValue(measures, periodIndex = 1) {
   return period ? period.value : null;
 }
 
-export function formatLeak(value, metric) {
+export function formatLeak(value, metric, options) {
   if (isDiffMetric(metric)) {
-    return formatMeasure(value, metric.type);
+    return formatMeasure(value, metric.type, options);
   } else {
-    return formatMeasureVariation(value, metric.type);
+    return formatMeasureVariation(value, metric.type, options);
   }
 }
 
