@@ -76,7 +76,7 @@ public class DefaultHttpDownloaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   private static SocketConnection socketConnection;
   private static String baseUrl;

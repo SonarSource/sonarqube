@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class StopWatcherTest {
 
   @Rule
-  public TestRule safeguard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Test
   public void stop_if_receive_command() throws Exception {

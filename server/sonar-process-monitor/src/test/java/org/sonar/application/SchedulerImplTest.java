@@ -58,7 +58,7 @@ public class SchedulerImplTest {
   private static final JavaCommand CE_COMMAND = new JavaCommand(COMPUTE_ENGINE);
 
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(30));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -187,7 +187,7 @@ public class SchedulerImplTest {
     }
 
     // restarting
-    verify(appReloader, timeout(10_000)).reload(settings);
+    verify(appReloader, timeout(60_000)).reload(settings);
     processLauncher.waitForProcessAlive(ELASTICSEARCH);
     processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
     processLauncher.waitForProcessAlive(WEB_SERVER);

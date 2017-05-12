@@ -49,7 +49,7 @@ public class AppStateClusterImplTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Test
   public void instantiation_throws_ISE_if_cluster_mode_is_disabled() throws Exception {

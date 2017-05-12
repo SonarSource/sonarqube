@@ -43,13 +43,10 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT;
 
 public class ProcessEntryPointTest {
 
-  SystemExit exit = mock(SystemExit.class);
+  private SystemExit exit = mock(SystemExit.class);
 
-  /**
-   * Safeguard
-   */
   @Rule
-  public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

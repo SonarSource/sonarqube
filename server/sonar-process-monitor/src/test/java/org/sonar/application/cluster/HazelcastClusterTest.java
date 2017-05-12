@@ -63,7 +63,7 @@ import static org.sonar.process.cluster.ClusterObjectKeys.SONARQUBE_VERSION;
 
 public class HazelcastClusterTest {
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

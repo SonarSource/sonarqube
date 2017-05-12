@@ -21,6 +21,8 @@ package org.sonar.process;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.test.TestUtils;
 
@@ -30,7 +32,7 @@ import static org.sonar.process.ProcessUtils.awaitTermination;
 public class ProcessUtilsTest {
 
   @Rule
-  public Timeout timeout = Timeout.seconds(5);
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Test
   public void private_constructor() {

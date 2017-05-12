@@ -33,7 +33,7 @@ public class ProgressReportTest {
   private static final String THREAD_NAME = "progress";
 
   @Rule
-  public TestRule timeoutSafeguard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public LogTester logTester = new LogTester();
 

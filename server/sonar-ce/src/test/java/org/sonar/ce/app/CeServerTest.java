@@ -27,7 +27,9 @@ import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.sonar.ce.ComputeEngine;
@@ -41,7 +43,7 @@ import static org.mockito.Mockito.mock;
 
 public class CeServerTest {
   @Rule
-  public Timeout timeout = Timeout.seconds(50);
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

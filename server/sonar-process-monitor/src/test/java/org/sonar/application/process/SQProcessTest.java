@@ -44,7 +44,7 @@ public class SQProcessTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Test
   public void initial_state_is_INIT() {

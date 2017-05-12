@@ -51,7 +51,7 @@ public class WebhookCallerImplTest {
   public MockWebServer server = new MockWebServer();
 
   @Rule
-  public TestRule timeoutSafeguard = new DisableOnDebug(Timeout.seconds(60));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   private System2 system = new TestSystem2().setNow(NOW);
 

@@ -60,7 +60,7 @@ public class HazelcastClientWrapperImplTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(20));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   private static HazelcastInstance hzCluster;
   private static HazelcastClientWrapperImpl hzClient;

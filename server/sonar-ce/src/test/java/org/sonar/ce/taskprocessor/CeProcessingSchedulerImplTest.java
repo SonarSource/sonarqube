@@ -44,6 +44,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.ce.configuration.CeConfigurationRule;
 
@@ -64,7 +66,7 @@ public class CeProcessingSchedulerImplTest {
 
   @Rule
   // due to risks of infinite chaining of tasks/futures, a timeout is required for safety
-  public Timeout timeout = Timeout.seconds(60);
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
   @Rule
   public CeConfigurationRule ceConfiguration = new CeConfigurationRule();
   // Required to prevent an infinite loop

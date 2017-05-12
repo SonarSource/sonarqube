@@ -58,7 +58,7 @@ public class EmbeddedDatabaseTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
   @Rule
-  public TestRule safeguard = new DisableOnDebug(Timeout.seconds(30));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   private MapSettings settings = new MapSettings();
   private System2 system2 = mock(System2.class);

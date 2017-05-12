@@ -55,7 +55,7 @@ public class SearchServerTest {
   private static final String A_NODE_NAME = "a_node";
 
   @Rule
-  public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

@@ -46,7 +46,7 @@ public class StopRequestWatcherImplTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public TestRule safeGuard = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   private AppSettings settings = mock(AppSettings.class, RETURNS_DEEP_STUBS);
   private ProcessCommands commands = mock(ProcessCommands.class);
