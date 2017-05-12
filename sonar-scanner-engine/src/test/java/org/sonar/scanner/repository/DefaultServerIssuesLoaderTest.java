@@ -19,19 +19,18 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.scanner.WsTestUtil;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.scanner.repository.DefaultServerIssuesLoader;
-import org.junit.Before;
-import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Consumer;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.scanner.WsTestUtil;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -62,7 +61,6 @@ public class DefaultServerIssuesLoaderTest {
     final List<ServerIssue> result = new ArrayList<>();
     loader.load("foo", issue -> {
       result.add(issue);
-      return null;
     });
 
     assertThat(result).extracting("key").containsExactly("ab1", "ab2");
@@ -73,6 +71,6 @@ public class DefaultServerIssuesLoaderTest {
     InputStream is = mock(InputStream.class);
     when(is.read()).thenThrow(IOException.class);
     WsTestUtil.mockStream(wsClient, "/batch/issues.protobuf?key=foo", is);
-    loader.load("foo", mock(Function.class));
+    loader.load("foo", mock(Consumer.class));
   }
 }

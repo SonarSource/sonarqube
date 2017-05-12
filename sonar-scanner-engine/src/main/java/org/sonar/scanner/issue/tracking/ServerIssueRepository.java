@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import java.util.function.Function;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -61,7 +59,7 @@ public class ServerIssueRepository {
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     this.issuesCache = caches.createCache("previousIssues");
     caches.registerValueCoder(ServerIssue.class, new ServerIssueValueCoder());
-    previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new SaveIssueConsumer());
+    previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), this::store);
     profiler.stopInfo();
   }
 
@@ -69,27 +67,19 @@ public class ServerIssueRepository {
     return issuesCache.values(((DefaultInputComponent) component).batchId());
   }
 
-  private class SaveIssueConsumer implements Function<ServerIssue, Void> {
-
-    @Override
-    public Void apply(@Nullable ServerIssue issue) {
-      if (issue == null) {
-        return null;
+  private void store(ServerIssue issue) {
+    String moduleKeyWithBranch = issue.getModuleKey();
+    ProjectDefinition projectDefinition = reactor.getProjectDefinition(moduleKeyWithBranch);
+    if (projectDefinition != null) {
+      String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(projectDefinition.getKey(), issue.hasPath() ? issue.getPath() : null);
+      DefaultInputComponent r = (DefaultInputComponent) resourceCache.getByKey(componentKeyWithoutBranch);
+      if (r != null) {
+        issuesCache.put(r.batchId(), issue.getKey(), issue);
+        return;
       }
-      String moduleKeyWithBranch = issue.getModuleKey();
-      ProjectDefinition projectDefinition = reactor.getProjectDefinition(moduleKeyWithBranch);
-      if (projectDefinition != null) {
-        String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(projectDefinition.getKey(), issue.hasPath() ? issue.getPath() : null);
-        DefaultInputComponent r = (DefaultInputComponent) resourceCache.getByKey(componentKeyWithoutBranch);
-        if (r != null) {
-          issuesCache.put(r.batchId(), issue.getKey(), issue);
-          return null;
-        }
-      }
-      // Deleted resource
-      issuesCache.put(0, issue.getKey(), issue);
-      return null;
     }
+    // Deleted resource
+    issuesCache.put(0, issue.getKey(), issue);
   }
 
   public Iterable<ServerIssue> issuesOnMissingComponents() {

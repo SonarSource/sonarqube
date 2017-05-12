@@ -36,8 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.Function;
-
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
@@ -456,9 +455,9 @@ public class ScannerMediumTester {
     }
 
     @Override
-    public void load(String componentKey, Function<ServerIssue, Void> consumer) {
+    public void load(String componentKey, Consumer<ServerIssue> consumer) {
       for (ServerIssue serverIssue : serverIssues) {
-        consumer.apply(serverIssue);
+        consumer.accept(serverIssue);
       }
     }
   }

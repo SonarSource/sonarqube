@@ -19,12 +19,11 @@
  */
 package org.sonar.scanner.repository;
 
-import java.util.function.Function;
-
+import java.util.function.Consumer;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 
 public interface ServerIssuesLoader {
 
-  void load(String componentKey, Function<ServerIssue, Void> consumer);
+  void load(String componentKey, Consumer<ServerIssue> consumer);
 
 }

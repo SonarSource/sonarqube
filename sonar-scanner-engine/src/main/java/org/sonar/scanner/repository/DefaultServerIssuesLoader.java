@@ -21,8 +21,7 @@ package org.sonar.scanner.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Function;
-
+import java.util.function.Consumer;
 import org.apache.commons.io.IOUtils;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
@@ -38,17 +37,17 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
   }
 
   @Override
-  public void load(String componentKey, Function<ServerIssue, Void> consumer) {
+  public void load(String componentKey, Consumer<ServerIssue> consumer) {
     GetRequest getRequest = new GetRequest("/batch/issues.protobuf?key=" + ScannerUtils.encodeForUrl(componentKey));
     InputStream is = wsClient.call(getRequest).contentStream();
     parseIssues(is, consumer);
   }
 
-  private static void parseIssues(InputStream is, Function<ServerIssue, Void> consumer) {
+  private static void parseIssues(InputStream is, Consumer<ServerIssue> consumer) {
     try {
       ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(is);
       while (previousIssue != null) {
-        consumer.apply(previousIssue);
+        consumer.accept(previousIssue);
         previousIssue = ServerIssue.parseDelimitedFrom(is);
       }
     } catch (IOException e) {
