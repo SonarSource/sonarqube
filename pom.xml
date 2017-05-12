@@ -47,13 +47,13 @@
 
   <properties>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/dotnet/sonar-csharp-plugin/ -->
-    <sonarCSharp.version>5.7.0.612</sonarCSharp.version>
+    <sonarCSharp.version>5.10.1.1411</sonarCSharp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/java/sonar-java-plugin/ -->
-    <sonarJava.version>4.5.0.8398</sonarJava.version>
+    <sonarJava.version>4.9.0.9858</sonarJava.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/javascript/sonar-javascript-plugin/ -->
-    <sonarJavaScript.version>2.20.0.4207</sonarJavaScript.version>
+    <sonarJavaScript.version>3.0.0.4962</sonarJavaScript.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/php/sonar-php-plugin/ -->
-    <sonarPhp.version>2.9.2.1744</sonarPhp.version>
+    <sonarPhp.version>2.10.0.2087</sonarPhp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/python/sonar-python-plugin/ -->
     <sonarPython.version>1.7.0.1195</sonarPython.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/flex/sonar-flex-plugin/ -->
