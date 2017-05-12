@@ -64,9 +64,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <!-- required for selenide -->
+      <version>21.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.codeborne</groupId>
       <artifactId>selenide</artifactId>
-      <version>3.7</version>
+      <version>4.4.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

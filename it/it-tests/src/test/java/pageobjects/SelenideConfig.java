@@ -34,6 +34,8 @@ enum SelenideConfig {
   SelenideConfig() {
     Configuration.timeout = 8000;
     Configuration.reportsFolder = "target/screenshots";
+    Configuration.screenshots = true;
+    Configuration.captureJavascriptErrors = true;
   }
 
   public SelenideConfig setBrowser(String browser) {
