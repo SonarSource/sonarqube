@@ -39,7 +39,6 @@ import org.sonar.server.util.OkHttpClientProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class WebhookCallerImplTest {
 
   private static final long NOW = 1_500_000_000_000L;
@@ -88,8 +87,8 @@ public class WebhookCallerImplTest {
 
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs()).isEmpty();
-    // message can be "Failed to connect" or "connect timed out"
-    assertThat(delivery.getErrorMessage().get()).contains("connect");
+    // message can be "Connection refused" or "connect timed out"
+    assertThat(delivery.getErrorMessage().get()).matches("(.*Connection refused.*)|(.*connect timed out.*)");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
