@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * Parses and formats <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> dates.
+ * Parses and formats <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#rfc822timezone">RFC 822</a> dates.
  * This class is thread-safe.
  *
  * @since 2.7
@@ -220,7 +220,7 @@ public final class DateUtils {
         if (softRef == null || softRef.get() == null) {
           SimpleDateFormat sdf = new SimpleDateFormat(format);
           sdf.setLenient(false);
-          softRef = new SoftReference<DateFormat>(sdf);
+          softRef = new SoftReference<>(sdf);
           super.set(softRef);
         }
         return softRef;
