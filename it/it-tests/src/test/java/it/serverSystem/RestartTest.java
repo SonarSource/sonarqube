@@ -51,7 +51,7 @@ public class RestartTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
-  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(60));
+  public TestRule safeguardTimeout = new DisableOnDebug(Timeout.seconds(900));
 
   @After
   public void stop() {
