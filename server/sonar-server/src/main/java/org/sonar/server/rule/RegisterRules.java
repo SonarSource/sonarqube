@@ -102,13 +102,20 @@ public class RegisterRules implements Startable {
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
+            RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
             if (ruleDef.template() && orgsEnabled) {
-              LOG.info("Template rule {} will not be imported, because organizations are enabled.", RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
+              RuleDefinitionDto ruleDefinition = allRules.get(ruleKey);
+              if (ruleDefinition != null && ruleDefinition.getStatus() == RuleStatus.REMOVED)  {
+                LOG.debug("Template rule {} kept removed, because organizations are enabled.", ruleKey);
+                allRules.remove(ruleKey);
+              } else {
+                LOG.info("Template rule {} will not be imported, because organizations are enabled.", ruleKey);
+              }
               continue;
             }
             boolean relevantForIndex = registerRule(ruleDef, allRules, session);
             if (relevantForIndex) {
-              keysToIndex.add(RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
+              keysToIndex.add(ruleKey);
             }
           }
           session.commit();
