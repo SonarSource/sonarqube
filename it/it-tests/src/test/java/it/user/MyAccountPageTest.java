@@ -32,6 +32,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.newAdminWsClient;
@@ -64,7 +65,14 @@ public class MyAccountPageTest {
 
   @Test
   public void should_display_user_details() throws Exception {
-    runSelenese(orchestrator, "/user/MyAccountPageTest/should_display_user_details.html");
+    nav.openLogin().submitCredentials("account-user", "password").shouldBeLoggedIn();
+    nav.open("/account");
+    $("#name").shouldHave(text("User With Account"));
+    $("#login").shouldHave(text("account-user"));
+    $("#email").shouldHave(text("user@example.com"));
+    $("#groups").shouldHave(text("sonar-users"));
+    $("#scm-accounts").shouldHave(text("user@example.com"));
+    $("#avatar").shouldBe(visible);
   }
 
   @Test
