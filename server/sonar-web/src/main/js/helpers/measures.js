@@ -140,10 +140,7 @@ function getVariationFormatter(type) {
  * Formatters
  */
 
-function genericFormatter(value, formatValue, options = {}) {
-  if (options.round) {
-    return numeral(value).format(formatValue, options.round);
-  }
+function genericFormatter(value, formatValue) {
   return numeral(value).format(formatValue);
 }
 
@@ -155,15 +152,15 @@ function emptyFormatter() {
   return null;
 }
 
-function intFormatter(value, options) {
-  return genericFormatter(value, '0,0', options);
+function intFormatter(value) {
+  return genericFormatter(value, '0,0');
 }
 
-function intVariationFormatter(value, options) {
-  return genericFormatter(value, '+0,0', options);
+function intVariationFormatter(value) {
+  return genericFormatter(value, '+0,0');
 }
 
-function shortIntFormatter(value, options) {
+function shortIntFormatter(value) {
   let format = '0,0';
   if (value >= 1000) {
     format = '0.[0]a';
@@ -171,42 +168,36 @@ function shortIntFormatter(value, options) {
   if (value >= 10000) {
     format = '0a';
   }
-  return genericFormatter(value, format, options);
+  return genericFormatter(value, format);
 }
 
-function shortIntVariationFormatter(value, options) {
-  const formatted = shortIntFormatter(Math.abs(value), options);
+function shortIntVariationFormatter(value) {
+  const formatted = shortIntFormatter(Math.abs(value));
   return value < 0 ? `-${formatted}` : `+${formatted}`;
 }
 
-function floatFormatter(value, options = {}) {
-  if (options.decimals) {
-    return genericFormatter(value, `0,0.${'0'.repeat(options.decimals)}`, options);
-  }
-  return genericFormatter(value, '0,0.0[0000]', options);
+function floatFormatter(value) {
+  return genericFormatter(value, '0,0.0[0000]');
 }
 
-function floatVariationFormatter(value, options = {}) {
-  if (options.decimals) {
-    return genericFormatter(value, `+0,0.${'0'.repeat(options.decimals)}`, options);
-  }
-  return value === 0 ? '+0.0' : genericFormatter(value, '+0,0.0[0000]', options);
+function floatVariationFormatter(value) {
+  return value === 0 ? '+0.0' : genericFormatter(value, '+0,0.0[0000]');
 }
 
 function percentFormatter(value, options = {}) {
   value = parseFloat(value);
   if (options.decimals) {
-    return genericFormatter(value / 100, `0,0.${'0'.repeat(options.decimals)}%`, options);
+    return genericFormatter(value / 100, `0,0.${'0'.repeat(options.decimals)}%`);
   }
-  return value === 100 ? '100%' : genericFormatter(value / 100, '0,0.0%', options);
+  return value === 100 ? '100%' : genericFormatter(value / 100, '0,0.0%');
 }
 
 function percentVariationFormatter(value, options = {}) {
   value = parseFloat(value);
   if (options.decimals) {
-    return genericFormatter(value / 100, `+0,0.${'0'.repeat(options.decimals)}%`, options);
+    return genericFormatter(value / 100, `+0,0.${'0'.repeat(options.decimals)}%`);
   }
-  return value === 0 ? '+0.0%' : genericFormatter(value / 100, '+0,0.0%', options);
+  return value === 0 ? '+0.0%' : genericFormatter(value / 100, '+0,0.0%');
 }
 
 function ratingFormatter(value) {
