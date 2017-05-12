@@ -112,7 +112,7 @@ public class TestInputFileBuilder {
 
   public TestInputFileBuilder setModuleBaseDir(Path moduleBaseDir) {
     try {
-      this.moduleBaseDir = moduleBaseDir.normalize().toRealPath(new LinkOption[] {LinkOption.NOFOLLOW_LINKS});
+      this.moduleBaseDir = moduleBaseDir.normalize().toRealPath(LinkOption.NOFOLLOW_LINKS);
     } catch (IOException e) {
       this.moduleBaseDir = moduleBaseDir.normalize();
     }
