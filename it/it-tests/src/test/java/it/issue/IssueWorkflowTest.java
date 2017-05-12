@@ -161,8 +161,6 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(resolvedIssue.getStatus()).isEqualTo("RESOLVED");
     assertThat(resolvedIssue.getResolution()).isEqualTo("FIXED");
     assertThat(resolvedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
-    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfter(toDatetime(resolvedIssue.getCreationDate()));
-    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfter(toDatetime(issue.getUpdateDate()));
 
     // re-execute scan, with the same Q profile -> the issue has not been fixed
     analysisWithIssues.run();
@@ -223,7 +221,6 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(reopened.getStatus()).isEqualTo("REOPENED");
     assertThat(reopened.hasResolution()).isFalse();
     assertThat(reopened.getCreationDate()).isEqualTo(resolved.getCreationDate());
-    assertThat(toDatetime(reopened.getUpdateDate())).isAfterOrEqualsTo(toDatetime(resolved.getUpdateDate()));
   }
 
   /**
@@ -247,7 +244,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(reloaded.getStatus()).isEqualTo("RESOLVED");
     assertThat(reloaded.getResolution()).isEqualTo("FALSE-POSITIVE");
     assertThat(reloaded.getCreationDate()).isEqualTo(issue.getCreationDate());
-    // TODO check that update date has not been changed
+    assertThat(toDatetime(reloaded.getUpdateDate())).isEqualTo(toDatetime(falsePositive.getUpdateDate()));
   }
 
   /**
