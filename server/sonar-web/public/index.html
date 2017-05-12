@@ -1,37 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
+<% let webContext = htmlWebpackPlugin.options.WEB_CONTEXT != null ? htmlWebpackPlugin.options.WEB_CONTEXT : '%WEB_CONTEXT%' %>
+  <!DOCTYPE html>
+  <html lang="en">
+
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="apple-touch-icon" href="<%= webContext %>/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="<%= webContext %>/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="<%= webContext %>/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="<%= webContext %>/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="<%= webContext %>/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="<%= webContext %>/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="<%= webContext %>/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="<%= webContext %>/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="<%= webContext %>/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= webContext %>/apple-touch-icon-180x180.png">
 
-    <link rel="apple-touch-icon" href="%WEB_CONTEXT%/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="%WEB_CONTEXT%/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="%WEB_CONTEXT%/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="%WEB_CONTEXT%/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="%WEB_CONTEXT%/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="%WEB_CONTEXT%/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="%WEB_CONTEXT%/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="%WEB_CONTEXT%/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="%WEB_CONTEXT%/apple-touch-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="%WEB_CONTEXT%/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/x-icon" href="<%= webContext %>/favicon.ico">
 
-    <link rel="icon" type="image/x-icon" href="%WEB_CONTEXT%/favicon.ico">
-
-    <meta name="application-name" content="SonarQube"/>
+    <meta name="application-name" content="SonarQube" />
 
     <meta name="msapplication-TileColor" content="#FFFFFF" />
-    <meta name="msapplication-TileImage" content="%WEB_CONTEXT%/mstile-512x512.png" />
+    <meta name="msapplication-TileImage" content="<%= webContext %>/mstile-512x512.png" />
 
     <% for (var css in htmlWebpackPlugin.files.css) { %>
-    <link href="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.css[css] %>" rel="stylesheet">
-    <% } %>
-    <title>SonarQube</title>
+      <link href="<%= webContext %>/<%= htmlWebpackPlugin.files.css[css] %>" rel="stylesheet">
+      <% } %>
+        <title>SonarQube</title>
   </head>
+
   <body>
     <div id="content"></div>
-    <script>window.baseUrl = '%WEB_CONTEXT%';</script>
+    <script>window.baseUrl = '<%= webContext %>';</script>
     <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
-    <script src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
-    <% } %>
+      <script src="<%= webContext %>/<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+      <% } %>
   </body>
-</html>
+
+  </html>
