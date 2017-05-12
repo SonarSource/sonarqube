@@ -20,31 +20,45 @@
 package pageobjects;
 
 import com.codeborne.selenide.Configuration;
-import com.google.common.collect.ImmutableSet;
-import java.util.Set;
+import com.sonar.orchestrator.Orchestrator;
+import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
+import static java.util.Arrays.stream;
 
-enum SelenideConfig {
-  INSTANCE;
+class SelenideConfig {
 
-  private static final Set<String> SUPPORTED_BROWSERS = ImmutableSet.of("firefox", "phantomjs");
+  private enum Browser {
+    firefox("(v46 and lower)"),
+    marionette("(recent Firefox)"),
+    chrome("(require Chromedriver)"),
+    phantomjs("(headless)");
 
-  SelenideConfig() {
-    Configuration.timeout = 8000;
+    private final String label;
+
+    Browser(String label) {
+      this.label = label;
+    }
+
+    static Browser of(String s) {
+      try {
+        return Browser.valueOf(s);
+      } catch (Exception e) {
+        throw new IllegalArgumentException("Invalid browser: " + s + ". Supported values are " +
+          stream(values()).map(b -> b.name() + " " + b.label).collect(Collectors.joining(", ")));
+      }
+    }
+  }
+
+  public static void configure(Orchestrator orchestrator) {
+    String browserKey = orchestrator.getConfiguration().getString("orchestrator.browser", Browser.firefox.name());
+    Browser browser = Browser.of(browserKey);
+    Configuration.browser = browser.name();
+    Configuration.baseUrl = orchestrator.getServer().getUrl();
+    Configuration.timeout = 8_000;
     Configuration.reportsFolder = "target/screenshots";
-  }
-
-  public SelenideConfig setBrowser(String browser) {
-    checkArgument(SUPPORTED_BROWSERS.contains(requireNonNull(browser)), "Browser is not supported: %s", browser);
-    Configuration.browser = browser;
-    return this;
-  }
-
-  public SelenideConfig setBaseUrl(String s) {
-    Configuration.baseUrl = requireNonNull(s);
-    return this;
+    Configuration.screenshots = true;
+    Configuration.captureJavascriptErrors = true;
+    Configuration.savePageSource = true;
   }
 
 }

@@ -42,10 +42,7 @@ import static com.codeborne.selenide.Selenide.page;
 public class Navigation extends ExternalResource {
 
   public static Navigation get(Orchestrator orchestrator) {
-    String browser = orchestrator.getConfiguration().getString("orchestrator.browser", "firefox");
-    SelenideConfig.INSTANCE
-      .setBrowser(browser)
-      .setBaseUrl(orchestrator.getServer().getUrl());
+    SelenideConfig.configure(orchestrator);
     return new Navigation();
   }
 
