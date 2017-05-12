@@ -27,18 +27,29 @@ const organizations = [
   { key: 'foo', name: 'Foo' },
   { key: 'bar', name: 'bar' }
 ];
+const appState = { organizationsEnabled: true };
 
 it('should render the right interface for anonymous user', () => {
   const currentUser = { isLoggedIn: false };
   const wrapper = shallow(
-    <GlobalNavUser currentUser={currentUser} fetchMyOrganizations={() => {}} organizations={[]} />
+    <GlobalNavUser
+      appState={appState}
+      currentUser={currentUser}
+      fetchMyOrganizations={() => {}}
+      organizations={[]}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render the right interface for logged in user', () => {
   const wrapper = shallow(
-    <GlobalNavUser currentUser={currentUser} fetchMyOrganizations={() => {}} organizations={[]} />
+    <GlobalNavUser
+      appState={appState}
+      currentUser={currentUser}
+      fetchMyOrganizations={() => {}}
+      organizations={[]}
+    />
   );
   wrapper.setState({ open: true });
   expect(wrapper).toMatchSnapshot();
@@ -47,6 +58,20 @@ it('should render the right interface for logged in user', () => {
 it('should render the users organizations', () => {
   const wrapper = shallow(
     <GlobalNavUser
+      appState={appState}
+      currentUser={currentUser}
+      fetchMyOrganizations={() => {}}
+      organizations={organizations}
+    />
+  );
+  wrapper.setState({ open: true });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should not render the users organizations when they are not activated', () => {
+  const wrapper = shallow(
+    <GlobalNavUser
+      appState={{ organizationsEnabled: false }}
       currentUser={currentUser}
       fetchMyOrganizations={() => {}}
       organizations={organizations}
@@ -60,6 +85,7 @@ it('should update the component correctly when the user changes to anonymous', (
   const fetchMyOrganizations = jest.fn();
   const wrapper = shallow(
     <GlobalNavUser
+      appState={appState}
       currentUser={currentUser}
       fetchMyOrganizations={fetchMyOrganizations}
       organizations={[]}
@@ -76,6 +102,7 @@ it('should lazyload the organizations when opening the dropdown', () => {
   const fetchMyOrganizations = jest.fn(() => Promise.resolve());
   const wrapper = shallow(
     <GlobalNavUser
+      appState={appState}
       currentUser={currentUser}
       fetchMyOrganizations={fetchMyOrganizations}
       organizations={organizations}
@@ -92,6 +119,7 @@ it('should update the organizations when the user changes', () => {
   const fetchMyOrganizations = jest.fn(() => Promise.resolve());
   const wrapper = shallow(
     <GlobalNavUser
+      appState={appState}
       currentUser={currentUser}
       fetchMyOrganizations={fetchMyOrganizations}
       organizations={organizations}
