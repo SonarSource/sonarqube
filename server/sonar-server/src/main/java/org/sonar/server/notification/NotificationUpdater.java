@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.server.user.UserSession;
+import org.sonar.db.user.UserDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -36,23 +36,16 @@ public class NotificationUpdater {
   private static final String PROP_NOTIFICATION_PREFIX = "notification";
   private static final String PROP_NOTIFICATION_VALUE = "true";
 
-  private final UserSession userSession;
   private final DbClient dbClient;
 
-  public NotificationUpdater(UserSession userSession, DbClient dbClient) {
-    this.userSession = userSession;
+  public NotificationUpdater(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
   /**
-   * Add a notification to the current authenticated user.
-   * Does nothing if the user is not authenticated.
+   * Add a notification to a user.
    */
-  public void add(DbSession dbSession, String channel, String dispatcher, @Nullable ComponentDto project) {
-    if (!userSession.isLoggedIn()) {
-      return;
-    }
-
+  public void add(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
     Long projectId = project == null ? null : project.getId();
 
@@ -60,7 +53,7 @@ public class NotificationUpdater {
       PropertyQuery.builder()
         .setKey(key)
         .setComponentId(projectId)
-        .setUserId(userSession.getUserId())
+        .setUserId(user.getId())
         .build(),
       dbSession).stream()
       .filter(notificationScope(project))
@@ -70,20 +63,15 @@ public class NotificationUpdater {
 
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
       .setKey(key)
-      .setUserId(userSession.getUserId())
+      .setUserId(user.getId())
       .setValue(PROP_NOTIFICATION_VALUE)
       .setResourceId(projectId));
   }
 
   /**
-   * Remove a notification to the current authenticated user.
-   * Does nothing if the user is not authenticated.
+   * Remove a notification from a user.
    */
-  public void remove(DbSession dbSession, String channel, String dispatcher, @Nullable ComponentDto project) {
-    if (!userSession.isLoggedIn()) {
-      return;
-    }
-
+  public void remove(DbSession dbSession, String channel, String dispatcher, UserDto user, @Nullable ComponentDto project) {
     String key = String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel);
     Long projectId = project == null ? null : project.getId();
 
@@ -91,7 +79,7 @@ public class NotificationUpdater {
       PropertyQuery.builder()
         .setKey(key)
         .setComponentId(projectId)
-        .setUserId(userSession.getUserId())
+        .setUserId(user.getId())
         .build(),
       dbSession).stream()
       .filter(notificationScope(project))
@@ -100,7 +88,7 @@ public class NotificationUpdater {
 
     dbClient.propertiesDao().delete(dbSession, new PropertyDto()
       .setKey(key)
-      .setUserId(userSession.getUserId())
+      .setUserId(user.getId())
       .setValue(PROP_NOTIFICATION_VALUE)
       .setResourceId(projectId));
   }

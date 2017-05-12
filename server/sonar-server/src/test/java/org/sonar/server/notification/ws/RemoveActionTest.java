@@ -29,8 +29,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.notification.NotificationCenter;
@@ -40,7 +42,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.client.notification.AddRequest;
+import org.sonarqube.ws.client.notification.RemoveRequest;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +51,7 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
 
@@ -59,7 +62,7 @@ public class RemoveActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setUserId(123);
+  public UserSessionRule userSession;
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
@@ -75,11 +78,15 @@ public class RemoveActionTest {
   private RemoveAction underTest;
 
   private WsActionTester ws;
-  private AddRequest.Builder request = AddRequest.builder()
-    .setType(NOTIF_MY_NEW_ISSUES);
+  private RemoveRequest.Builder request = RemoveRequest.builder().setType(NOTIF_MY_NEW_ISSUES);
+
+  private UserDto user;
 
   @Before
   public void setUp() {
+    user = db.users().insertUser();
+    userSession = UserSessionRule.standalone().logIn(user);
+
     NotificationDispatcherMetadata metadata1 = NotificationDispatcherMetadata.create(NOTIF_MY_NEW_ISSUES)
       .setProperty(GLOBAL_NOTIFICATION, "true")
       .setProperty(PER_PROJECT_NOTIFICATION, "true");
@@ -92,46 +99,46 @@ public class RemoveActionTest {
     notificationCenter = new NotificationCenter(
       new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
       new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel});
-    notificationUpdater = new NotificationUpdater(userSession, dbClient);
+    notificationUpdater = new NotificationUpdater(dbClient);
     underTest = new RemoveAction(notificationCenter, notificationUpdater, dbClient, new ComponentFinder(dbClient), userSession);
     ws = new WsActionTester(underTest);
   }
 
   @Test
   public void remove_to_email_channel_by_default() {
-    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
     call(request);
 
-    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), null);
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
   }
 
   @Test
   public void remove_from_a_specific_channel() {
-    notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, null);
+    notificationUpdater.add(dbSession, twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, user, null);
     dbSession.commit();
 
     call(request.setType(NOTIF_NEW_QUALITY_GATE_STATUS).setChannel(twitterChannel.getKey()));
 
-    db.notifications().assertDoesNotExist(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, userSession.getUserId(), null);
+    db.notifications().assertDoesNotExist(twitterChannel.getKey(), NOTIF_NEW_QUALITY_GATE_STATUS, user.getId(), null);
   }
 
   @Test
   public void remove_a_project_notification() {
     ComponentDto project = db.components().insertPrivateProject();
-    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, project);
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
     call(request.setProject(project.getKey()));
 
-    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, userSession.getUserId(), project);
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), project);
   }
 
   @Test
   public void fail_when_remove_a_global_notification_when_a_project_one_exists() {
     ComponentDto project = db.components().insertPrivateProject();
-    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, project);
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, project);
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -143,7 +150,7 @@ public class RemoveActionTest {
   @Test
   public void fail_when_remove_a_project_notification_when_a_global_one_exists() {
     ComponentDto project = db.components().insertPrivateProject();
-    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -154,12 +161,45 @@ public class RemoveActionTest {
 
   @Test
   public void http_no_content() {
-    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, null);
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
     dbSession.commit();
 
     TestResponse result = call(request);
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
+  }
+
+  @Test
+  public void remove_a_notification_from_a_user_as_system_administrator() {
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
+    userSession.logIn().setSystemAdministrator();
+    dbSession.commit();
+
+    call(request.setLogin(user.getLogin()));
+
+    db.notifications().assertDoesNotExist(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
+  }
+
+  @Test
+  public void fail_if_login_is_provided_and_unknown() {
+    userSession.logIn().setSystemAdministrator();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("User 'LOGIN 404' not found");
+
+    call(request.setLogin("LOGIN 404"));
+  }
+
+  @Test
+  public void fail_if_login_provided_and_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
+    notificationUpdater.add(dbSession, defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user, null);
+    dbSession.commit();
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(request.setLogin(user.getLogin()));
   }
 
   @Test
@@ -228,12 +268,14 @@ public class RemoveActionTest {
     call(request);
   }
 
-  private TestResponse call(AddRequest.Builder wsRequestBuilder) {
-    AddRequest wsRequest = wsRequestBuilder.build();
+  private TestResponse call(RemoveRequest.Builder wsRequestBuilder) {
+    RemoveRequest wsRequest = wsRequestBuilder.build();
+
     TestRequest request = ws.newRequest();
     request.setParam(PARAM_TYPE, wsRequest.getType());
     setNullable(wsRequest.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
     setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
+    setNullable(wsRequest.getLogin(), login -> request.setParam(PARAM_LOGIN, login));
     return request.execute();
   }
 

@@ -28,6 +28,7 @@ public class NotificationsWsParameters {
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_CHANNEL = "channel";
   public static final String PARAM_TYPE = "type";
+  public static final String PARAM_LOGIN = "login";
 
   private NotificationsWsParameters() {
     // prevent instantiation

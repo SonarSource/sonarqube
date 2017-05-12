@@ -28,11 +28,13 @@ public class AddRequest {
   private final String type;
   private final String channel;
   private final String project;
+  private final String login;
 
   private AddRequest(Builder builder) {
     this.channel = builder.channel;
     this.type = builder.type;
     this.project = builder.project;
+    this.login = builder.login;
   }
 
   public String getType() {
@@ -49,6 +51,11 @@ public class AddRequest {
     return project;
   }
 
+  @CheckForNull
+  public String getLogin() {
+    return login;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -57,6 +64,7 @@ public class AddRequest {
     private String type;
     private String channel;
     private String project;
+    private String login;
 
     private Builder() {
       // enforce factory method
@@ -74,6 +82,11 @@ public class AddRequest {
 
     public Builder setProject(@Nullable String project) {
       this.project = project;
+      return this;
+    }
+
+    public Builder setLogin(@Nullable String login) {
+      this.login = login;
       return this;
     }
 

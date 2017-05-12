@@ -48,7 +48,7 @@ public class NotificationDbTester {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
       .setComponentId(component == null ? null : component.getId())
-      .setUserId((int) userId)
+      .setUserId(userId)
       .build(), dbSession).stream()
       .filter(prop -> component == null ? prop.getResourceId() == null : prop.getResourceId() != null)
       .collect(MoreCollectors.toList());
@@ -60,7 +60,7 @@ public class NotificationDbTester {
     List<PropertyDto> result = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey(String.join(".", PROP_NOTIFICATION_PREFIX, dispatcher, channel))
       .setComponentId(component == null ? null : component.getId())
-      .setUserId((int) userId)
+      .setUserId(userId)
       .build(), dbSession);
     assertThat(result).isEmpty();
   }

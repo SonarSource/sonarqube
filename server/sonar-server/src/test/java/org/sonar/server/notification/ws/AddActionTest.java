@@ -28,8 +28,10 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.notification.NotificationCenter;
@@ -48,6 +50,7 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
 
@@ -55,10 +58,11 @@ public class AddActionTest {
   private static final String NOTIF_MY_NEW_ISSUES = "Dispatcher1";
   private static final String NOTIF_NEW_ISSUES = "Dispatcher2";
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "Dispatcher3";
+  private static final String USER_LOGIN = "george.orwell";
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setUserId(123);
+  public UserSessionRule userSession;
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();
@@ -67,6 +71,8 @@ public class AddActionTest {
   private NotificationChannel twitterChannel = new FakeNotificationChannel("TwitterChannel");
   // default channel, based on class simple name
   private NotificationChannel defaultChannel = new FakeNotificationChannel("EmailNotificationChannel");
+
+  private UserDto user;
 
   private NotificationCenter notificationCenter;
   private AddAction underTest;
@@ -86,10 +92,13 @@ public class AddActionTest {
       .setProperty(GLOBAL_NOTIFICATION, "true")
       .setProperty(PER_PROJECT_NOTIFICATION, "true");
 
+    user = db.users().insertUser(USER_LOGIN);
+    userSession = UserSessionRule.standalone().logIn(user);
+
     notificationCenter = new NotificationCenter(
       new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
       new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel});
-    underTest = new AddAction(notificationCenter, new NotificationUpdater(userSession, dbClient), dbClient, new ComponentFinder(dbClient), userSession);
+    underTest = new AddAction(notificationCenter, new NotificationUpdater(dbClient), dbClient, new ComponentFinder(dbClient), userSession);
     ws = new WsActionTester(underTest);
   }
 
@@ -143,6 +152,34 @@ public class AddActionTest {
     TestResponse result = call(request);
 
     assertThat(result.getStatus()).isEqualTo(HTTP_NO_CONTENT);
+  }
+
+  @Test
+  public void add_a_notification_to_a_user_as_system_administrator() {
+    userSession.logIn().setSystemAdministrator();
+
+    call(request.setLogin(user.getLogin()));
+
+    db.notifications().assertExists(defaultChannel.getKey(), NOTIF_MY_NEW_ISSUES, user.getId(), null);
+  }
+
+  @Test
+  public void fail_if_login_is_provided_and_unknown() {
+    userSession.logIn().setSystemAdministrator();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("User 'LOGIN 404' not found");
+
+    call(request.setLogin("LOGIN 404"));
+  }
+
+  @Test
+  public void fail_if_login_provided_and_not_system_administrator() {
+    userSession.logIn().setNonSystemAdministrator();
+
+    expectedException.expect(ForbiddenException.class);
+
+    call(request.setLogin(user.getLogin()));
   }
 
   @Test
@@ -219,6 +256,7 @@ public class AddActionTest {
     request.setParam(PARAM_TYPE, wsRequest.getType());
     setNullable(wsRequest.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
     setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
+    setNullable(wsRequest.getLogin(), login -> request.setParam(PARAM_LOGIN, login));
     return request.execute();
   }
 

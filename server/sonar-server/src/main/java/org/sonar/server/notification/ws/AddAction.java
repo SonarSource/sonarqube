@@ -21,9 +21,7 @@ package org.sonar.server.notification.ws;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -33,6 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.notification.MyNewIssuesNotificationDispatcher;
 import org.sonar.server.notification.NotificationCenter;
@@ -47,9 +46,11 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.ACTION_ADD;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
+import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
 
@@ -76,7 +77,11 @@ public class AddAction implements NotificationsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_ADD)
       .setDescription("Add a notification for the authenticated user.<br>" +
-        "Requires authentication. If a project is provided, requires the 'Browse' permission on the specified project.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        " <li>Authentication if no login is provided. If a project is provided, requires the 'Browse' permission on the specified project.</li>" +
+        " <li>System administration if a login is provided. If a project is provided, requires the 'Browse' permission on the specified project.</li>" +
+        "</ul>")
       .setSince("6.3")
       .setPost(true)
       .setHandler(this);
@@ -101,61 +106,71 @@ public class AddAction implements NotificationsWsAction {
         String.join(", ", projectDispatchers))
       .setRequired(true)
       .setExampleValue(MyNewIssuesNotificationDispatcher.KEY);
+
+    action.createParam(PARAM_LOGIN)
+      .setDescription("User login")
+      .setSince("6.4");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Stream.of(request)
-      .map(toWsRequest())
-      .peek(checkPermissions())
-      .forEach(add());
+    AddRequest addRequest = toWsRequest(request);
+    add(addRequest);
 
     response.noContent();
   }
 
-  private Consumer<AddRequest> add() {
-    return request -> {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        Optional<ComponentDto> project = searchProject(dbSession, request);
-        notificationUpdater.add(dbSession, request.getChannel(), request.getType(), project.orElse(null));
-        dbSession.commit();
-      }
-    };
+  private void add(AddRequest request) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      checkPermissions(request);
+      UserDto user = getUser(dbSession, request);
+      ComponentDto project = searchProject(dbSession, request);
+      notificationUpdater.add(dbSession, request.getChannel(), request.getType(), user, project);
+      dbSession.commit();
+    }
   }
 
-  private Optional<ComponentDto> searchProject(DbSession dbSession, AddRequest request) {
+  private UserDto getUser(DbSession dbSession, AddRequest request) {
+    String login = request.getLogin() == null ? userSession.getLogin() : request.getLogin();
+    return checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' not found", login);
+  }
+
+  @CheckForNull
+  private ComponentDto searchProject(DbSession dbSession, AddRequest request) {
     Optional<ComponentDto> project = request.getProject() == null ? empty() : Optional.of(componentFinder.getByKey(dbSession, request.getProject()));
     project.ifPresent(p -> checkRequest(Qualifiers.PROJECT.equals(p.qualifier()) && Scopes.PROJECT.equals(p.scope()),
       "Component '%s' must be a project", request.getProject()));
-    return project;
+    return project.orElse(null);
   }
 
-  private Consumer<AddRequest> checkPermissions() {
-    return request -> userSession.checkLoggedIn();
+  private void checkPermissions(AddRequest request) {
+    if (request.getLogin() == null) {
+      userSession.checkLoggedIn();
+    } else {
+      userSession.checkIsSystemAdministrator();
+    }
   }
 
-  private Function<Request, AddRequest> toWsRequest() {
-    return request -> {
-      AddRequest.Builder requestBuilder = AddRequest.builder()
-        .setType(request.mandatoryParam(PARAM_TYPE))
-        .setChannel(request.mandatoryParam(PARAM_CHANNEL));
-      String project = request.param(PARAM_PROJECT);
-      setNullable(project, requestBuilder::setProject);
-      AddRequest wsRequest = requestBuilder.build();
+  private AddRequest toWsRequest(Request request) {
+    AddRequest.Builder requestBuilder = AddRequest.builder()
+      .setType(request.mandatoryParam(PARAM_TYPE))
+      .setChannel(request.mandatoryParam(PARAM_CHANNEL));
+    setNullable(request.param(PARAM_PROJECT), requestBuilder::setProject);
+    setNullable(request.param(PARAM_LOGIN), requestBuilder::setLogin);
+    AddRequest wsRequest = requestBuilder.build();
 
-      if (wsRequest.getProject() == null) {
-        checkRequest(globalDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
-          PARAM_TYPE,
-          wsRequest.getType(),
-          globalDispatchers);
-      } else {
-        checkRequest(projectDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
-          PARAM_TYPE,
-          wsRequest.getType(),
-          projectDispatchers);
-      }
+    if (wsRequest.getProject() == null) {
+      checkRequest(globalDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+        PARAM_TYPE,
+        wsRequest.getType(),
+        globalDispatchers);
+    } else {
+      checkRequest(projectDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+        PARAM_TYPE,
+        wsRequest.getType(),
+        projectDispatchers);
+    }
 
-      return wsRequest;
-    };
+    return wsRequest;
   }
 }
