@@ -25,11 +25,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
-
 import okhttp3.Call;
 import okhttp3.Credentials;
 import okhttp3.FormBody;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -134,8 +132,9 @@ public class HttpConnector implements WsConnector {
       MultipartBody.Builder bodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
       parts.entrySet().forEach(param -> {
         PostRequest.Part part = param.getValue();
-        bodyBuilder.addPart(
-          Headers.of("Content-Disposition", format("form-data; name=\"%s\"", param.getKey())),
+        bodyBuilder.addFormDataPart(
+          param.getKey(),
+          part.getFile().getName(),
           RequestBody.create(MediaType.parse(part.getMediaType()), part.getFile()));
       });
       body = bodyBuilder.build();
@@ -247,7 +246,7 @@ public class HttpConnector implements WsConnector {
       this.connectTimeoutMs = i;
       return this;
     }
-    
+
     /**
      * Optional SSL socket factory with which SSL sockets will be created to establish SSL connections.
      * If not set, a default SSL socket factory will be used, base d on the JVM's default key store.
