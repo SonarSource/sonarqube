@@ -161,8 +161,8 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(resolvedIssue.getStatus()).isEqualTo("RESOLVED");
     assertThat(resolvedIssue.getResolution()).isEqualTo("FIXED");
     assertThat(resolvedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
-    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfter(toDatetime(resolvedIssue.getCreationDate()));
-    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfter(toDatetime(issue.getUpdateDate()));
+    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfterOrEqualsTo(toDatetime(resolvedIssue.getCreationDate()));
+    assertThat(toDatetime(resolvedIssue.getUpdateDate())).isAfterOrEqualsTo(toDatetime(issue.getUpdateDate()));
 
     // re-execute scan, with the same Q profile -> the issue has not been fixed
     analysisWithIssues.run();
@@ -174,7 +174,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(reopenedIssue.getStatus()).isEqualTo("REOPENED");
     assertThat(reopenedIssue.hasResolution()).isFalse();
     assertThat(reopenedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
-    assertThat(toDatetime(reopenedIssue.getUpdateDate())).isAfter(toDatetime(issue.getUpdateDate()));
+    assertThat(toDatetime(reopenedIssue.getUpdateDate())).isAfterOrEqualsTo(toDatetime(issue.getUpdateDate()));
   }
 
   /**
@@ -198,9 +198,9 @@ public class IssueWorkflowTest extends AbstractIssueTest {
     assertThat(closedIssue.getStatus()).isEqualTo("CLOSED");
     assertThat(closedIssue.getResolution()).isEqualTo("REMOVED");
     assertThat(closedIssue.getCreationDate()).isEqualTo(issue.getCreationDate());
-    assertThat(toDatetime(closedIssue.getUpdateDate())).isAfter(toDatetime(resolvedIssue.getUpdateDate()));
+    assertThat(toDatetime(closedIssue.getUpdateDate())).isAfterOrEqualsTo(toDatetime(resolvedIssue.getUpdateDate()));
     assertThat(closedIssue.hasCloseDate()).isTrue();
-    assertThat(toDatetime(closedIssue.getCloseDate())).isAfter(toDatetime(closedIssue.getCreationDate()));
+    assertThat(toDatetime(closedIssue.getCloseDate())).isAfterOrEqualsTo(toDatetime(closedIssue.getCreationDate()));
   }
 
   /**
