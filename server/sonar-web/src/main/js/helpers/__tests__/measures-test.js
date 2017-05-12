@@ -47,8 +47,6 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(1529, 'INT')).toBe('1,529');
     expect(formatMeasure(10000, 'INT')).toBe('10,000');
     expect(formatMeasure(1234567890, 'INT')).toBe('1,234,567,890');
-    expect(formatMeasure(1028.5, 'INT', { round: Math.floor })).toBe('1,028');
-    expect(formatMeasure(1028.5, 'INT', { round: Math.ceil })).toBe('1,029');
   });
 
   it('should format SHORT_INT', () => {
@@ -60,8 +58,6 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(10000, 'SHORT_INT')).toBe('10k');
     expect(formatMeasure(10678, 'SHORT_INT')).toBe('11k');
     expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1b');
-    expect(formatMeasure(1529, 'SHORT_INT', { round: Math.ceil })).toBe('1.6k');
-    expect(formatMeasure(1589, 'SHORT_INT', { round: Math.floor })).toBe('1.5k');
   });
 
   it('should format FLOAT', () => {
@@ -81,14 +77,6 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(0.12, 'FLOAT')).toBe('0.12');
     expect(formatMeasure(0.12345, 'FLOAT')).toBe('0.12345');
     expect(formatMeasure(0.123456, 'FLOAT')).toBe('0.12346');
-    expect(formatMeasure(0.123451, 'FLOAT', { round: Math.ceil })).toBe('0.12346');
-    expect(formatMeasure(0.123458, 'FLOAT', { round: Math.floor })).toBe('0.12345');
-    expect(formatMeasure(0.12345, 'FLOAT', { decimals: 1 })).toBe('0.1');
-    expect(formatMeasure(0.16789, 'FLOAT', { decimals: 1 })).toBe('0.2');
-    expect(formatMeasure(0.123456, 'FLOAT', { decimals: 5 })).toBe('0.12346');
-    expect(formatMeasure(0.1234567, 'FLOAT', { decimals: 6 })).toBe('0.123457');
-    expect(formatMeasure(0.12345, 'FLOAT', { decimals: 0 })).toBe('0.12345');
-    expect(formatMeasure(0.16789, 'FLOAT', { decimals: 1, round: Math.floor })).toBe('0.1');
   });
 
   it('should format PERCENT', () => {
@@ -98,10 +86,8 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(1.34, 'PERCENT')).toBe('1.3%');
     expect(formatMeasure(50.89, 'PERCENT')).toBe('50.9%');
     expect(formatMeasure(100.0, 'PERCENT')).toBe('100%');
-    expect(formatMeasure(50.89, 'PERCENT', { round: Math.floor })).toBe('50.8%');
-    expect(formatMeasure(50.83, 'PERCENT', { round: Math.ceil })).toBe('50.9%');
+    expect(formatMeasure(50.89, 'PERCENT', { decimals: 0 })).toBe('50.9%');
     expect(formatMeasure(50.89, 'PERCENT', { decimals: 1 })).toBe('50.9%');
-    expect(formatMeasure(50.89, 'PERCENT', { decimals: 1, round: Math.floor })).toBe('50.8%');
     expect(formatMeasure(50.89, 'PERCENT', { decimals: 2 })).toBe('50.89%');
     expect(formatMeasure(50.89, 'PERCENT', { decimals: 3 })).toBe('50.890%');
   });
