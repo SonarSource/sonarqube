@@ -292,21 +292,25 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_creates_QualityProfile_for_each_DefinedQProfile_in_repository_and_index_ActiveRule_changes_in_order() throws OrganizationCreation.KeyConflictException {
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     DefinedQProfile definedQProfile1 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp1");
     DefinedQProfile definedQProfile2 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp2");
     DefinedQProfile definedQProfile3 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp3");
     DefinedQProfile definedQProfile4 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp4");
     definedQProfileRepositoryRule.initialize();
-    ActiveRuleChange[] changes = {newActiveRuleChange("0"), newActiveRuleChange("1"), newActiveRuleChange("2"), newActiveRuleChange("3"), newActiveRuleChange("4")};
+    ActiveRuleChange change0 = newActiveRuleChange("0", organization);
+    ActiveRuleChange change1 = newActiveRuleChange("1", organization);
+    ActiveRuleChange change2 = newActiveRuleChange("2", organization);
+    ActiveRuleChange change3 = newActiveRuleChange("3", organization);
+    ActiveRuleChange change4 = newActiveRuleChange("4", organization);
     definedQProfileCreationRule.addChanges();
-    definedQProfileCreationRule.addChanges(changes[2], changes[1], changes[4]);
-    definedQProfileCreationRule.addChanges(changes[3]);
-    definedQProfileCreationRule.addChanges(changes[0]);
+    definedQProfileCreationRule.addChanges(change2, change1, change4);
+    definedQProfileCreationRule.addChanges(change3);
+    definedQProfileCreationRule.addChanges(change0);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
 
     underTest.create(dbSession, someUser, FULL_POPULATED_NEW_ORGANIZATION);
 
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     assertThat(definedQProfileCreationRule.getCallLogs())
       .hasSize(4)
       .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
@@ -316,7 +320,7 @@ public class OrganizationCreationImplTest {
       .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
       .extracting(DefinedQProfile::getName)
       .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
-    verify(activeRuleIndexer).index(Arrays.asList(changes[2], changes[1], changes[4], changes[3], changes[0]));
+    verify(activeRuleIndexer).index(Arrays.asList(change2, change1, change4, change3, change0));
     verifyNoMoreInteractions(activeRuleIndexer);
   }
 
@@ -507,6 +511,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_creates_QualityProfile_for_each_DefinedQProfile_in_repository_and_index_ActiveRule_changes_in_order() throws OrganizationCreation.KeyConflictException {
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     UserDto user = dbTester.users().insertUser(A_LOGIN);
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     DefinedQProfile definedQProfile1 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp1");
@@ -514,17 +519,20 @@ public class OrganizationCreationImplTest {
     DefinedQProfile definedQProfile3 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp3");
     DefinedQProfile definedQProfile4 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp4");
     definedQProfileRepositoryRule.initialize();
-    ActiveRuleChange[] changes = {newActiveRuleChange("0"), newActiveRuleChange("1"), newActiveRuleChange("2"), newActiveRuleChange("3"), newActiveRuleChange("4")};
+    ActiveRuleChange change0 = newActiveRuleChange("0", organization);
+    ActiveRuleChange change1 = newActiveRuleChange("1", organization);
+    ActiveRuleChange change2 = newActiveRuleChange("2", organization);
+    ActiveRuleChange change3 = newActiveRuleChange("3", organization);
+    ActiveRuleChange change4 = newActiveRuleChange("4", organization);
     definedQProfileCreationRule.addChanges();
-    definedQProfileCreationRule.addChanges(changes[2], changes[1], changes[4]);
-    definedQProfileCreationRule.addChanges(changes[3]);
-    definedQProfileCreationRule.addChanges(changes[0]);
+    definedQProfileCreationRule.addChanges(change2, change1, change4);
+    definedQProfileCreationRule.addChanges(change3);
+    definedQProfileCreationRule.addChanges(change0);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
 
     underTest.createForUser(dbSession, user);
 
-    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(definedQProfileCreationRule.getCallLogs())
       .hasSize(4)
       .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
@@ -534,12 +542,12 @@ public class OrganizationCreationImplTest {
       .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
       .extracting(DefinedQProfile::getName)
       .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
-    verify(activeRuleIndexer).index(Arrays.asList(changes[2], changes[1], changes[4], changes[3], changes[0]));
+    verify(activeRuleIndexer).index(Arrays.asList(change2, change1, change4, change3, change0));
     verifyNoMoreInteractions(activeRuleIndexer);
   }
 
-  private static ActiveRuleChange newActiveRuleChange(String id) {
-    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")));
+  private static ActiveRuleChange newActiveRuleChange(String id, OrganizationDto organization) {
+    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")), organization.getUuid());
   }
 
   private void enableCreatePersonalOrg(boolean flag) {

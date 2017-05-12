@@ -155,17 +155,20 @@ public class DefinedQProfileCreationImplTest {
 
   @Test
   public void create_persists_relies_on_ruleActivator_to_persist_activerules_and_return_all_changes_in_order() {
-    List<CallLog> callLogs = new ArrayList<>();
-    ActiveRuleChange[] changes = {newActiveRuleChange("0"), newActiveRuleChange("1"), newActiveRuleChange("2"),
-      newActiveRuleChange("3"), newActiveRuleChange("4")};
-    mockRuleActivatorActivate(callLogs,
-      asList(changes[4], changes[1]),
-      Collections.emptyList(),
-      Collections.singletonList(changes[0]),
-      Collections.emptyList(),
-      asList(changes[2], changes[3]));
-
     OrganizationDto organization = dbTester.organizations().insert();
+    List<CallLog> callLogs = new ArrayList<>();
+    ActiveRuleChange change0 = newActiveRuleChange("0", organization);
+    ActiveRuleChange change1 = newActiveRuleChange("1", organization);
+    ActiveRuleChange change2 = newActiveRuleChange("2", organization);
+    ActiveRuleChange change3 = newActiveRuleChange("3", organization);
+    ActiveRuleChange change4 = newActiveRuleChange("4", organization);
+    mockRuleActivatorActivate(callLogs,
+      asList(change4, change1),
+      Collections.emptyList(),
+      Collections.singletonList(change0),
+      Collections.emptyList(),
+      asList(change2, change3));
+
     DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true,
       activeRule("A", RulePriority.INFO), activeRule("B", RulePriority.MINOR), activeRule("C", RulePriority.MAJOR),
       activeRule("D", RulePriority.CRITICAL), activeRule("E", RulePriority.BLOCKER));
@@ -177,7 +180,7 @@ public class DefinedQProfileCreationImplTest {
     assertThat(callLogs)
       .hasSize(5);
     assertThat(activeRuleChanges)
-      .containsExactly(changes[4], changes[1], changes[0], changes[2], changes[3]);
+      .containsExactly(change4, change1, change0, change2, change3);
   }
 
   @Test
@@ -316,8 +319,8 @@ public class DefinedQProfileCreationImplTest {
     return dbClient.qualityProfileDao().selectByNameAndLanguage(organization, name, language.getKey(), dbTester.getSession());
   }
 
-  private static ActiveRuleChange newActiveRuleChange(String id) {
-    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")));
+  private static ActiveRuleChange newActiveRuleChange(String id, OrganizationDto organization) {
+    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")), organization.getUuid());
   }
 
   private static class EvenElementPredicate implements Predicate<String> {

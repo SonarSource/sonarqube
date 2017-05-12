@@ -103,7 +103,7 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule, profile);
     session.commit();
     ruleIndexer.indexRuleDefinition(rule.getKey());
-    activeRuIndexer.index();
+    activeRuIndexer.indexOnStartup(Collections.emptySet());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
@@ -131,7 +131,7 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule3, profile);
     createActiveRule(rule1, profile);
     session.commit();
-    activeRuIndexer.index();
+    activeRuIndexer.indexOnStartup(Collections.emptySet());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
@@ -157,7 +157,7 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule0, php);
     createActiveRule(rule1, php);
     session.commit();
-    activeRuIndexer.index();
+    activeRuIndexer.indexOnStartup(Collections.emptySet());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
@@ -181,7 +181,7 @@ public class QProfilesWsMediumTest {
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
     session.commit();
-    activeRuIndexer.index();
+    activeRuIndexer.indexOnStartup(Collections.emptySet());
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
@@ -414,7 +414,7 @@ public class QProfilesWsMediumTest {
     db.activeRuleDao().insert(session, active2);
 
     session.commit();
-    activeRuIndexer.index();
+    activeRuIndexer.indexOnStartup(Collections.emptySet());
 
     // 0. assert rule child rule is minor
     assertThat(db.activeRuleDao().selectOrFailByKey(session, active2.getKey()).getSeverityString()).isEqualTo("MINOR");

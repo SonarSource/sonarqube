@@ -106,7 +106,6 @@ public class ChangeParentActionTest {
       esClient,
       dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(
-      System2.INSTANCE,
       dbClient,
       esClient);
     RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
@@ -159,7 +158,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent1);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
 
@@ -189,7 +188,7 @@ public class ChangeParentActionTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.indexRuleDefinitions(Stream.of(rule1, rule2).map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList()));
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // Set parent 1
     ruleActivator.setParent(dbSession, child.getKey(), parent1.getKey());
@@ -217,7 +216,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     // Set parent
     ruleActivator.setParent(dbSession, child.getKey(), parent.getKey());
@@ -246,7 +245,7 @@ public class ChangeParentActionTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
 
@@ -305,7 +304,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(Collections.emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKey())).isEmpty();
 

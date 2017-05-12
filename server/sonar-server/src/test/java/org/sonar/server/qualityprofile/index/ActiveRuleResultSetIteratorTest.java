@@ -43,7 +43,7 @@ public class ActiveRuleResultSetIteratorTest {
   @Test
   public void iterator_over_one_active_rule() {
     dbTester.prepareDbUnit(getClass(), "one_active_rule.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession());
     Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
     it.close();
 
@@ -55,14 +55,12 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(1_500_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1_600_000_000_000L);
   }
 
   @Test
   public void iterator_over_active_rules() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession());
     Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
     it.close();
 
@@ -74,8 +72,6 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(2_000_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(2_100_000_000_000L);
 
     key = ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001"));
     activeRule = activeRulesByKey.get(key);
@@ -83,8 +79,6 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(INFO);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(1_700_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1_800_000_000_000L);
 
     key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
     activeRule = activeRulesByKey.get(key);
@@ -92,14 +86,12 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(BLOCKER);
     assertThat(activeRule.inheritance()).isEqualTo(INHERITED);
-    assertThat(activeRule.createdAt()).isEqualTo(1_500_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1_600_000_000_000L);
   }
 
   @Test
   public void active_rule_with_inherited_inheritance() {
     dbTester.prepareDbUnit(getClass(), "active_rule_with_inherited_inheritance.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession());
     Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
     it.close();
 
@@ -113,7 +105,7 @@ public class ActiveRuleResultSetIteratorTest {
   @Test
   public void active_rule_with_overrides_inheritance() {
     dbTester.prepareDbUnit(getClass(), "active_rule_with_overrides_inheritance.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession());
     Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
     it.close();
 
@@ -122,19 +114,6 @@ public class ActiveRuleResultSetIteratorTest {
     ActiveRuleKey key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
     ActiveRuleDoc activeRule = activeRulesByKey.get(key);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.OVERRIDES);
-  }
-
-  @Test
-  public void select_after_date() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_900_000_000_000L);
-
-    assertThat(it.hasNext()).isTrue();
-    ActiveRuleDoc doc = it.next();
-    assertThat(doc.key()).isEqualTo(ActiveRuleKey.of("sonar-way", RuleKey.of("xoo", "S002")));
-
-    assertThat(it.hasNext()).isFalse();
-    it.close();
   }
 
   private static Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey(ActiveRuleResultSetIterator it) {

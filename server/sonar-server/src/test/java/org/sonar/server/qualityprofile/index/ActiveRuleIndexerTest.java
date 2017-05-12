@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Iterators;
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
@@ -54,15 +55,13 @@ public class ActiveRuleIndexerTest {
   private static final String QUALITY_PROFILE_KEY1 = "qp1";
   private static final String QUALITY_PROFILE_KEY2 = "qp2";
 
-  private System2 system2 = System2.INSTANCE;
-
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ActiveRuleIndexer indexer = new ActiveRuleIndexer(system2, dbTester.getDbClient(), esTester.client());
+  private ActiveRuleIndexer indexer = new ActiveRuleIndexer(dbTester.getDbClient(), esTester.client());
 
   private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
 
@@ -76,7 +75,7 @@ public class ActiveRuleIndexerTest {
   public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    indexer.index();
+    indexer.indexOnStartup(Collections.emptySet());
 
     assertThat(esTester.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(1);
   }
@@ -127,9 +126,9 @@ public class ActiveRuleIndexerTest {
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
 
     indexer.index(asList(
-      ActiveRuleChange.createFor(ACTIVATED, activeRuleKey1),
-      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey2),
-      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey3)));
+      ActiveRuleChange.createFor(ACTIVATED, activeRuleKey1, organization.getUuid()),
+      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey2, organization.getUuid()),
+      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey3, organization.getUuid())));
 
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(
       activeRuleKey1.toString(),
@@ -154,7 +153,7 @@ public class ActiveRuleIndexerTest {
     dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule);
     dbTester.getSession().commit();
 
-    indexer.index();
+    indexer.indexOnStartup(Collections.emptySet());
 
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(activeRule.getKey().toString());
 
@@ -166,7 +165,7 @@ public class ActiveRuleIndexerTest {
     dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule2);
     dbTester.getSession().commit();
 
-    indexer.index(singletonList(ActiveRuleChange.createFor(ACTIVATED, activeRule2.getKey())));
+    indexer.index(singletonList(ActiveRuleChange.createFor(ACTIVATED, activeRule2.getKey(), organization.getUuid())));
 
     assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(
       activeRule.getKey().toString(),

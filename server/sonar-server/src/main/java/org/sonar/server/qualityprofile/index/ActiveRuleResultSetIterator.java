@@ -42,28 +42,20 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
     "r.plugin_name",
     "r.plugin_rule_key",
     "qp.organization_uuid",
-    "qp.kee",
-    "a.created_at",
-    "a.updated_at"
+    "qp.kee"
   };
 
   private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM active_rules a " +
     "INNER JOIN rules_profiles qp ON qp.id=a.profile_id " +
     "INNER JOIN rules r ON r.id = a.rule_id";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE a.updated_at>?";
-
   private ActiveRuleResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
   }
 
-  static ActiveRuleResultSetIterator create(DbClient dbClient, DbSession session, long afterDate) {
+  static ActiveRuleResultSetIterator create(DbClient dbClient, DbSession session) {
     try {
-      String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
-      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
-      if (afterDate > 0L) {
-        stmt.setLong(1, afterDate);
-      }
+      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, SQL_ALL);
       return new ActiveRuleResultSetIterator(stmt);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all active rules", e);
@@ -85,10 +77,6 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
     doc.setSeverity(SeverityUtil.getSeverityFromOrdinal(severity));
 
     doc.setInheritance(inheritance == null ? ActiveRule.Inheritance.NONE.name() : inheritance);
-
-    doc.setCreatedAt(rs.getLong(7));
-    doc.setUpdatedAt(rs.getLong(8));
     return doc;
   }
-
 }

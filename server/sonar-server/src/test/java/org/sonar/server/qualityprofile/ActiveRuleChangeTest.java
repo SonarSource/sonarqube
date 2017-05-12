@@ -24,6 +24,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 
+import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
@@ -31,7 +32,8 @@ public class ActiveRuleChangeTest {
 
   private static final String MY_LOGIN = "MY_LOGIN";
 
-  private ActiveRuleChange underTest = ActiveRuleChange.createFor(ACTIVATED, ActiveRuleKey.of("QP1", RuleKey.of("P1", "R1")));
+  private String organizationUuid = random(20);
+  private ActiveRuleChange underTest = ActiveRuleChange.createFor(ACTIVATED, ActiveRuleKey.of("QP1", RuleKey.of("P1", "R1")), organizationUuid);
 
   @Test
   public void to_dto() {

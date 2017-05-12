@@ -140,15 +140,15 @@ public class RegisterQualityProfilesTest {
 
   @Test
   public void start_indexes_ActiveRuleChanges_in_order() {
-    dbTester.organizations().insert();
-    dbTester.organizations().insert();
-    dbTester.organizations().insert();
+    OrganizationDto org1 = dbTester.organizations().insert();
+    OrganizationDto org2 = dbTester.organizations().insert();
+    OrganizationDto org3 = dbTester.organizations().insert();
     definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1", false);
     definedQProfileRepositoryRule.initialize();
-    ActiveRuleChange ruleChange1 = newActiveRuleChange("1");
-    ActiveRuleChange ruleChange2 = newActiveRuleChange("2");
-    ActiveRuleChange ruleChange3 = newActiveRuleChange("3");
-    ActiveRuleChange ruleChange4 = newActiveRuleChange("4");
+    ActiveRuleChange ruleChange1 = newActiveRuleChange("1", org1);
+    ActiveRuleChange ruleChange2 = newActiveRuleChange("2", org2);
+    ActiveRuleChange ruleChange3 = newActiveRuleChange("3", org1);
+    ActiveRuleChange ruleChange4 = newActiveRuleChange("4", org3);
     definedQProfileCreation.addChangesPerCall(ruleChange1, ruleChange3);
     // no change for second org
     definedQProfileCreation.addChangesPerCall();
@@ -163,8 +163,8 @@ public class RegisterQualityProfilesTest {
       .containsExactly(ruleChange1, ruleChange3, ruleChange2, ruleChange4);
   }
 
-  private static ActiveRuleChange newActiveRuleChange(String id) {
-    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")));
+  private static ActiveRuleChange newActiveRuleChange(String id, OrganizationDto organization) {
+    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")), organization.getUuid());
   }
 
   private class DummyDefinedQProfileCreation implements DefinedQProfileCreation {

@@ -95,7 +95,7 @@ public class RegisterRulesTest {
     when(system.now()).thenReturn(DATE1.getTime());
     ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
     ruleIndex = new RuleIndex(esTester.client());
-    activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
     defaultOrganization = dbTester.getDefaultOrganization();
   }
 

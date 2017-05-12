@@ -34,7 +34,6 @@ public class ActiveRuleDocTesting {
     return new ActiveRuleDoc(key)
       .setOrganizationUuid(RandomStringUtils.random(40))
       .setSeverity(Severity.CRITICAL)
-      .setInheritance(null).setCreatedAt(150000000L)
-      .setUpdatedAt(160000000L);
+      .setInheritance(null);
   }
 }
