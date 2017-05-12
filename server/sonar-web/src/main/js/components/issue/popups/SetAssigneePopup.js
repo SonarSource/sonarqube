@@ -141,16 +141,17 @@ export default class SetAssigneePopup extends React.PureComponent {
             onSelect={this.props.onSelect}>
             {this.state.users.map(user => (
               <SelectListItem key={user.login} item={user.login}>
-                <Avatar
-                  className="spacer-right"
-                  email={user.email}
-                  hash={user.avatar}
-                  name={user.name}
-                  size={16}
-                />
+                {!!user.login &&
+                  <Avatar
+                    className="spacer-right"
+                    email={user.email}
+                    hash={user.avatar}
+                    name={user.name}
+                    size={16}
+                  />}
                 <span
                   className="vertical-middle"
-                  style={{ marginLeft: !user.avatar && !user.email ? 24 : undefined }}>
+                  style={{ marginLeft: !user.login ? 24 : undefined }}>
                   {user.name}
                 </span>
               </SelectListItem>
