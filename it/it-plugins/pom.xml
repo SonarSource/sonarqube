@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube</groupId>
     <artifactId>it</artifactId>
-    <version>6.4-SNAPSHOT</version>
+    <version>6.5-SNAPSHOT</version>
   </parent>
   <artifactId>it-plugins</artifactId>
   <name>SonarQube Integration Tests :: Plugins</name>
