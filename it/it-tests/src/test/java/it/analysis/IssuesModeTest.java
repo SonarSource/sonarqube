@@ -61,7 +61,6 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.getComponent;
-import static util.ItUtils.getMeasureAsDouble;
 
 public class IssuesModeTest {
 
@@ -255,13 +254,13 @@ public class IssuesModeTest {
     // Second scan should remove ClassAdded.xoo
     runner = configureRunner("shared/xoo-history-v1");
     orchestrator.executeBuild(runner);
-    assertThat(getMeasureAsDouble(orchestrator, "sample:src/main/xoo/sample/ClassAdded.xoo", "ncloc")).isNull();
+    assertThat(getComponent(orchestrator, "sample:src/main/xoo/sample/ClassAdded.xoo")).isNull();
 
     // Re-add ClassAdded.xoo in local workspace
     runner = configureRunnerIssues("shared/xoo-history-v2", null);
     BuildResult result = orchestrator.executeBuild(runner);
 
-    assertThat(getMeasureAsDouble(orchestrator, "sample:src/main/xoo/sample/ClassAdded.xoo", "ncloc")).isNull();
+    assertThat(getComponent(orchestrator, "sample:src/main/xoo/sample/ClassAdded.xoo")).isNull();
     assertThat(result.getLogs()).contains("Issues");
     assertThat(result.getLogs()).contains("ANALYSIS SUCCESSFUL");
   }

@@ -33,7 +33,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -79,8 +78,7 @@ public class ShowActionTest {
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "Analysis date has been added to the response"),
       tuple("6.4", "The field 'id' is deprecated in the response"),
-      tuple("6.4", "The 'visibility' field is added")
-    );
+      tuple("6.4", "The 'visibility' field is added"));
 
     WebService.Param componentId = action.param(PARAM_COMPONENT_ID);
     assertThat(componentId.isRequired()).isFalse();
@@ -138,7 +136,7 @@ public class ShowActionTest {
   @Test
   public void show_provided_project() {
     userSession.logIn().setRoot();
-    componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid").setEnabled(false));
+    componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
 
     ShowWsResponse response = newRequest("project-uuid", null);
 
@@ -234,7 +232,7 @@ public class ShowActionTest {
   public void should_not_return_visibility_for_module() throws Exception {
     userSession.logIn().setRoot();
     ComponentDto privateProject = db.components().insertPrivateProject();
-    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(privateProject));
+    ComponentDto module = db.components().insertComponent(newModuleDto(privateProject));
 
     ShowWsResponse result = newRequest(null, module.key());
     assertThat(result.getComponent().hasVisibility()).isFalse();
@@ -256,6 +254,18 @@ public class ShowActionTest {
     expectedException.expectMessage("Component id 'unknown-uuid' not found");
 
     newRequest("unknown-uuid", null);
+  }
+
+  @Test
+  public void fail_if_component_is_removed() {
+    userSession.logIn().setRoot();
+    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    componentDb.insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'file-key' not found");
+
+    newRequest(null, "file-key");
   }
 
   private ShowWsResponse newRequest(@Nullable String uuid, @Nullable String key) {

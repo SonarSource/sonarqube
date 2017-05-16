@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -86,7 +87,7 @@ public class ComponentFinder {
   }
 
   private ComponentDto getByKey(DbSession dbSession, String key, String label) {
-    return checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
+    return checkComponent(dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
   }
 
   public ComponentDto getByUuid(DbSession dbSession, String uuid) {
@@ -94,7 +95,14 @@ public class ComponentFinder {
   }
 
   private ComponentDto getByUuid(DbSession dbSession, String uuid, String label) {
-    return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
+    return checkComponent(dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
+  }
+
+  private static ComponentDto checkComponent(Optional<ComponentDto> componentDto, String message, Object... messageArguments) {
+    if (componentDto.isPresent() && componentDto.get().isEnabled()) {
+      return componentDto.get();
+    }
+    throw new NotFoundException(format(message, messageArguments));
   }
 
   public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
@@ -131,8 +139,8 @@ public class ComponentFinder {
 
   public OrganizationDto getOrganization(DbSession dbSession, ComponentDto component) {
     String organizationUuid = component.getOrganizationUuid();
-    return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-      .orElseThrow(() -> new NotFoundException(String.format("Organization with uuid '%s' not found", organizationUuid)));
+    java.util.Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
+    return checkFoundWithOptional(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
   }
 
   public enum ParamNames {
