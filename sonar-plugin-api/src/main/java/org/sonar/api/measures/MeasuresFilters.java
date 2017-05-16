@@ -22,6 +22,7 @@ package org.sonar.api.measures;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 
@@ -57,7 +58,7 @@ public final class MeasuresFilters {
   public static MeasuresFilter<Measure> metric(final String metricKey) {
     return new MetricFilter<Measure>(metricKey) {
       @Override
-      public Measure filter(Collection<Measure> measures) {
+      public Measure filter(@Nullable Collection<Measure> measures) {
         if (measures == null) {
           return null;
         }
@@ -79,7 +80,7 @@ public final class MeasuresFilters {
   public static MeasuresFilter<Measure> measure(final Measure measure) {
     return new MeasuresFilter<Measure>() {
       @Override
-      public Measure filter(Collection<Measure> measures) {
+      public Measure filter(@Nullable Collection<Measure> measures) {
         if (measures == null) {
           return null;
         }
@@ -110,7 +111,7 @@ public final class MeasuresFilters {
       }
 
       @Override
-      public Collection<RuleMeasure> filter(Collection<Measure> measures) {
+      public Collection<RuleMeasure> filter(@Nullable Collection<Measure> measures) {
         if (measures == null) {
           return null;
         }
@@ -163,7 +164,7 @@ public final class MeasuresFilters {
     abstract boolean doApply(RuleMeasure ruleMeasure);
 
     @Override
-    public M filter(Collection<Measure> measures) {
+    public M filter(@Nullable Collection<Measure> measures) {
       if (measures == null) {
         return null;
       }
