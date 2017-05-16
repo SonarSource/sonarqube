@@ -48,6 +48,7 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.cluster.ClusterObjectKeys;
 
+import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -169,9 +170,11 @@ public class HazelcastClusterTest {
       }, false);
 
       hzClient.shutdown();
-      latch.await(1, TimeUnit.SECONDS);
-
-      assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS)).isEmpty();
+      if (latch.await(5, TimeUnit.SECONDS)) {
+        assertThat(hzCluster.hzInstance.getSet(ClusterObjectKeys.CLIENT_UUIDS).size()).isEqualTo(0);
+      } else {
+        fail("The client UUID have not been removed from the Set within 5 seconds' time lapse");
+      }
     }
   }
 
