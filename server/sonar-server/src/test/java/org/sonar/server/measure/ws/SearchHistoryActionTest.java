@@ -36,7 +36,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -59,6 +58,7 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -93,7 +93,7 @@ public class SearchHistoryActionTest {
 
   @Before
   public void setUp() {
-    project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
+    project = newPrivateProjectDto(db.getDefaultOrganization());
     analysis = db.components().insertProjectAndSnapshot(project);
     userSession.addProjectPermission(UserRole.USER, project);
     nclocMetric = insertNclocMetric();
@@ -278,6 +278,21 @@ public class SearchHistoryActionTest {
     expectedException.expect(NotFoundException.class);
 
     call();
+  }
+
+  @Test
+  public void fail_when_component_is_removed() {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'file-key' not found");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT, "file-key")
+      .setParam(PARAM_METRICS, "ncloc")
+      .execute();
   }
 
   @Test

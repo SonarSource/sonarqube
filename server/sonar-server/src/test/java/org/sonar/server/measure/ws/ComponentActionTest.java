@@ -26,7 +26,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -45,6 +44,7 @@ import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -54,6 +54,7 @@ import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
@@ -106,7 +107,7 @@ public class ComponentActionTest {
   @Test
   public void provided_project() {
     ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
-    userSession.addProjectPermission(UserRole.USER, project);
+    userSession.addProjectPermission(USER, project);
     insertNclocMetric();
 
     ComponentWsResponse response = newRequest(PROJECT_UUID, "ncloc");
@@ -192,6 +193,35 @@ public class ComponentActionTest {
     expectedException.expect(ForbiddenException.class);
 
     newRequest(PROJECT_UUID, "ncloc");
+  }
+
+  @Test
+  public void fail_when_component_does_not_exist() {
+    insertNclocMetric();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'project-key' not found");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEY, "project-key")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_component_is_removed() {
+    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    componentDb.insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+    userSession.addProjectPermission(USER, project);
+    insertNclocMetric();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'file-key' not found");
+
+    ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEY, "file-key")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
   }
 
   private ComponentWsResponse newRequest(String componentUuid, String metricKeys) {

@@ -26,10 +26,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.ComponentFinder.ParamNames.ID_AND_KEY;
 
@@ -92,6 +92,28 @@ public class ComponentFinderTest {
     underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
   }
 
+  @Test
+  public void fail_when_component_uuid_is_removed() {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    db.components().insertComponent(newFileDto(project, null, "file-uuid").setEnabled(false));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component id 'file-uuid' not found");
+
+    underTest.getByUuid(dbSession, "file-uuid");
+  }
+
+  @Test
+  public void fail_when_component_key_is_removed() {
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'file-key' not found");
+
+    underTest.getByKey(dbSession, "file-key");
+  }
 
   @Test
   public void get_component_by_uuid() {
@@ -104,7 +126,7 @@ public class ComponentFinderTest {
 
   @Test
   public void get_component_by_key() {
-    db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-key"));
+    db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()).setKey("project-key"));
 
     ComponentDto component = underTest.getByUuidOrKey(dbSession, null, "project-key", ID_AND_KEY);
 
