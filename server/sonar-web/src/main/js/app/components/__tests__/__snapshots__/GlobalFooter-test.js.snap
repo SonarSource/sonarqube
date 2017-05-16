@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the sq version 1`] = `
+<div
+  className="page-footer page-container"
+  id="footer"
+>
+  <GlobalFooterBranding />
+  <div>
+    footer.version_x.6.4-SNAPSHOT
+     - 
+    <a
+      href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+    >
+      footer.licence
+    </a>
+     - 
+    <a
+      href="http://www.sonarqube.org"
+    >
+      footer.community
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/home.html"
+    >
+      footer.documentation
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/community.html"
+    >
+      footer.support
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/plugin-library.html"
+    >
+      footer.plugins
+    </a>
+     - 
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api"
+    >
+      footer.web_api
+    </Link>
+     - 
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/about"
+    >
+      footer.about
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should not render the only logged in information 1`] = `
+<div
+  className="page-footer page-container"
+  id="footer"
+>
+  <GlobalFooterBranding />
+  <div>
+    <a
+      href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+    >
+      footer.licence
+    </a>
+     - 
+    <a
+      href="http://www.sonarqube.org"
+    >
+      footer.community
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/home.html"
+    >
+      footer.documentation
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/community.html"
+    >
+      footer.support
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/plugin-library.html"
+    >
+      footer.plugins
+    </a>
+  </div>
+</div>
+`;
+
+exports[`should render SonarqubeDotCom footer 1`] = `<GlobalFooterForSonarQubeDotCom />`;
+
+exports[`should render the only logged in information 1`] = `
+<div
+  className="page-footer page-container"
+  id="footer"
+>
+  <GlobalFooterBranding />
+  <div>
+    <a
+      href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+    >
+      footer.licence
+    </a>
+     - 
+    <a
+      href="http://www.sonarqube.org"
+    >
+      footer.community
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/home.html"
+    >
+      footer.documentation
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/community.html"
+    >
+      footer.support
+    </a>
+     - 
+    <a
+      href="https://redirect.sonarsource.com/doc/plugin-library.html"
+    >
+      footer.plugins
+    </a>
+     - 
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/web_api"
+    >
+      footer.web_api
+    </Link>
+     - 
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/about"
+    >
+      footer.about
+    </Link>
+  </div>
+</div>
+`;
+
+exports[`should show the db warning message 1`] = `
+<div
+  className="alert alert-danger"
+>
+  <p
+    className="big"
+    id="evaluation_warning"
+  >
+    footer.production_database_warning
+  </p>
+  <p>
+    footer.production_database_explanation
+  </p>
+</div>
+`;
