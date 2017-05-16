@@ -21,17 +21,28 @@
 import React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import { getAppState } from '../../store/rootReducer';
+import { getAppState, getSettingValue } from '../../store/rootReducer';
+import GlobalFooterForSonarQubeDotCom from './GlobalFooterForSonarQubeDotCom';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 type Props = {
   hideLoggedInInfo?: boolean,
   productionDatabase: boolean,
+  sonarqubeDotCom: boolean,
   sonarqubeVersion?: string
 };
 
-function GlobalFooter({ hideLoggedInInfo, sonarqubeVersion, productionDatabase }: Props) {
+function GlobalFooter({
+  hideLoggedInInfo,
+  productionDatabase,
+  sonarqubeDotCom,
+  sonarqubeVersion
+}: Props) {
+  if (sonarqubeDotCom) {
+    return <GlobalFooterForSonarQubeDotCom hideLoggedInInfo={hideLoggedInInfo} />;
+  }
+
   return (
     <div id="footer" className="page-footer page-container">
       {productionDatabase === false &&
@@ -77,7 +88,8 @@ function GlobalFooter({ hideLoggedInInfo, sonarqubeVersion, productionDatabase }
 
 const mapStateToProps = state => ({
   sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase
+  productionDatabase: getAppState(state).productionDatabase,
+  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
 });
 
 export default connect(mapStateToProps)(GlobalFooter);
