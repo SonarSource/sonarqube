@@ -71,8 +71,9 @@ public class ProcessProperties {
   public static final String SEARCH_INITIAL_STATE_TIMEOUT = "sonar.search.initialStateTimeout";
 
   public static final String WEB_JAVA_OPTS = "sonar.web.javaOpts";
-
   public static final String WEB_JAVA_ADDITIONAL_OPTS = "sonar.web.javaAdditionalOpts";
+  public static final String WEB_PORT = "sonar.web.port";
+
   public static final String CE_JAVA_OPTS = "sonar.ce.javaOpts";
   public static final String CE_JAVA_ADDITIONAL_OPTS = "sonar.ce.javaAdditionalOpts";
 
