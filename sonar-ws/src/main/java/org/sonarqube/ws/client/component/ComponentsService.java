@@ -80,10 +80,11 @@ public class ComponentsService extends BaseService {
 
   public SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) {
     List<String> additionalFields = request.getAdditionalFields();
+    List<String> facets = request.getFacets();
     GetRequest get = new GetRequest(path(ACTION_SEARCH_PROJECTS))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_FILTER, request.getFilter())
-      .setParam(Param.FACETS, request.getFacets())
+      .setParam(Param.FACETS, !facets.isEmpty() ? inlineMultipleParamValue(facets) : null)
       .setParam(Param.SORT, request.getSort())
       .setParam(Param.ASCENDING, request.getAsc())
       .setParam(Param.PAGE, request.getPage())
