@@ -25,6 +25,7 @@ import it.issue.OrganizationIssueAssignTest;
 import it.organization.BillingTest;
 import it.organization.OrganizationMembershipTest;
 import it.organization.OrganizationTest;
+import it.projectSearch.SearchProjectsTest;
 import it.qualityProfile.OrganizationQualityProfilesPageTest;
 import it.uiExtension.OrganizationUiExtensionsTest;
 import it.user.OrganizationIdentityProviderTest;
@@ -49,7 +50,8 @@ import static util.ItUtils.xooPlugin;
   OrganizationTest.class,
   OrganizationUiExtensionsTest.class,
   BillingTest.class,
-  IssueTagsTest.class
+  IssueTagsTest.class,
+  SearchProjectsTest.class
 })
 public class Category6Suite {
 
