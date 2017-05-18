@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import GlobalFooter from './GlobalFooter';
+import GlobalFooterContainer from './GlobalFooterContainer';
 
 type Props = {
   children?: React.Element<*> | Array<React.Element<*>>,
@@ -57,7 +57,7 @@ export default class SimpleContainer extends React.PureComponent {
             </div>
           </div>
         </div>
-        <GlobalFooter hideLoggedInInfo={this.props.hideLoggedInInfo} />
+        <GlobalFooterContainer hideLoggedInInfo={this.props.hideLoggedInInfo} />
       </div>
     );
   }

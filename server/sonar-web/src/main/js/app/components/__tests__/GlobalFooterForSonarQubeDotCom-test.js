@@ -17,25 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
+import { shallow } from 'enzyme';
 import React from 'react';
-import GlobalNav from './nav/global/GlobalNav';
-import GlobalFooterContainer from './GlobalFooterContainer';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
+import GlobalFooterForSonarQubeDotCom from '../GlobalFooterForSonarQubeDotCom';
 
-export default function GlobalContainer(props: Object) {
-  // it is important to pass `location` down to `GlobalNav` to trigger render on url change
-
-  return (
-    <div className="global-container">
-      <div className="page-wrapper page-wrapper-global" id="container">
-        <div className="page-container">
-          <GlobalNav location={props.location} />
-          <GlobalMessagesContainer />
-          {props.children}
-        </div>
-      </div>
-      <GlobalFooterContainer />
-    </div>
-  );
-}
+it('should render correctly', () => {
+  expect(shallow(<GlobalFooterForSonarQubeDotCom />)).toMatchSnapshot();
+});
