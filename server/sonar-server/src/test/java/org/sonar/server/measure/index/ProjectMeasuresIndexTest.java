@@ -69,6 +69,7 @@ public class ProjectMeasuresIndexTest {
 
   private static final String MAINTAINABILITY_RATING = "sqale_rating";
   private static final String RELIABILITY_RATING = "reliability_rating";
+  private static final String NEW_RELIABILITY_RATING = "new_reliability_rating";
   private static final String SECURITY_RATING = "security_rating";
   private static final String COVERAGE = "coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
@@ -871,6 +872,41 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
+  public void facet_new_reliability_rating() {
+    index(
+      // 3 docs with rating A
+      newDoc(NEW_RELIABILITY_RATING, 1d),
+      newDoc(NEW_RELIABILITY_RATING, 1d),
+      newDoc(NEW_RELIABILITY_RATING, 1d),
+      // 2 docs with rating B
+      newDoc(NEW_RELIABILITY_RATING, 2d),
+      newDoc(NEW_RELIABILITY_RATING, 2d),
+      // 4 docs with rating C
+      newDoc(NEW_RELIABILITY_RATING, 3d),
+      newDoc(NEW_RELIABILITY_RATING, 3d),
+      newDoc(NEW_RELIABILITY_RATING, 3d),
+      newDoc(NEW_RELIABILITY_RATING, 3d),
+      // 2 docs with rating D
+      newDoc(NEW_RELIABILITY_RATING, 4d),
+      newDoc(NEW_RELIABILITY_RATING, 4d),
+      // 5 docs with rating E
+      newDoc(NEW_RELIABILITY_RATING, 5d),
+      newDoc(NEW_RELIABILITY_RATING, 5d),
+      newDoc(NEW_RELIABILITY_RATING, 5d),
+      newDoc(NEW_RELIABILITY_RATING, 5d),
+      newDoc(NEW_RELIABILITY_RATING, 5d));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_RELIABILITY_RATING)).getFacets();
+
+    assertThat(facets.get(NEW_RELIABILITY_RATING)).containsExactly(
+      entry("1", 3L),
+      entry("2", 2L),
+      entry("3", 4L),
+      entry("4", 2L),
+      entry("5", 5L));
+  }
+
+  @Test
   public void facet_security_rating() {
     index(
       // 3 docs with rating A
@@ -1074,8 +1110,7 @@ public class ProjectMeasuresIndexTest {
       entry("ruby", 1L),
       entry("scala", 1L),
       entry("xoo", 1L),
-      entry("xml", 1L)
-    );
+      entry("xml", 1L));
   }
 
   @Test
@@ -1158,9 +1193,11 @@ public class ProjectMeasuresIndexTest {
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
       newDoc().setTags(newArrayList("solo", "solo2")));
 
-    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(ImmutableSet.of("solo", "solo2")), new SearchOptions().addFacets(FIELD_TAGS)).getFacets().get(FIELD_TAGS);
+    Map<String, Long> result = underTest.search(new ProjectMeasuresQuery().setTags(ImmutableSet.of("solo", "solo2")), new SearchOptions().addFacets(FIELD_TAGS)).getFacets()
+      .get(FIELD_TAGS);
 
-    assertThat(result).hasSize(12).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10", "solo", "solo2");
+    assertThat(result).hasSize(12).containsOnlyKeys("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10", "solo",
+      "solo2");
   }
 
   @Test
