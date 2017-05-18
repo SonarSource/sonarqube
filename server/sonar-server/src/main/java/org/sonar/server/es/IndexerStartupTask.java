@@ -88,6 +88,7 @@ public class IndexerStartupTask {
 
   private void setInitialized(IndexType indexType) {
     String index = indexType.getIndex();
+    waitForIndexGreen(index);
     closeIndex(index);
     setIndexSetting(index, getInitializedSettingName(indexType), true);
     openIndex(index);
@@ -113,6 +114,11 @@ public class IndexerStartupTask {
   private void waitForIndexYellow(String index) {
     Client nativeClient = esClient.nativeClient();
     ClusterHealthAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).setWaitForYellowStatus().get(TimeValue.timeValueMinutes(10));
+  }
+
+  private void waitForIndexGreen(String index) {
+    Client nativeClient = esClient.nativeClient();
+    ClusterHealthAction.INSTANCE.newRequestBuilder(nativeClient).setIndices(index).setWaitForGreenStatus().get(TimeValue.timeValueMinutes(10));
   }
 
   private static String getInitializedSettingName(IndexType indexType) {
