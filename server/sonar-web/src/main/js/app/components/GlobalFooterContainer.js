@@ -18,24 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
-import GlobalNav from './nav/global/GlobalNav';
-import GlobalFooterContainer from './GlobalFooterContainer';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
+import { connect } from 'react-redux';
+import { getAppState, getSettingValue } from '../../store/rootReducer';
+import GlobalFooter from './GlobalFooter';
 
-export default function GlobalContainer(props: Object) {
-  // it is important to pass `location` down to `GlobalNav` to trigger render on url change
+const mapStateToProps = state => ({
+  sonarqubeVersion: getAppState(state).version,
+  productionDatabase: getAppState(state).productionDatabase,
+  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+});
 
-  return (
-    <div className="global-container">
-      <div className="page-wrapper page-wrapper-global" id="container">
-        <div className="page-container">
-          <GlobalNav location={props.location} />
-          <GlobalMessagesContainer />
-          {props.children}
-        </div>
-      </div>
-      <GlobalFooterContainer />
-    </div>
-  );
-}
+export default connect(mapStateToProps)(GlobalFooter);

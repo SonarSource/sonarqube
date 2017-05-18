@@ -20,8 +20,6 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import { connect } from 'react-redux';
-import { getAppState, getSettingValue } from '../../store/rootReducer';
 import GlobalFooterForSonarQubeDotCom from './GlobalFooterForSonarQubeDotCom';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import { translate, translateWithParameters } from '../../helpers/l10n';
@@ -33,7 +31,7 @@ type Props = {
   sonarqubeVersion?: string
 };
 
-function GlobalFooter({
+export default function GlobalFooter({
   hideLoggedInInfo,
   productionDatabase,
   sonarqubeDotCom,
@@ -85,11 +83,3 @@ function GlobalFooter({
     </div>
   );
 }
-
-const mapStateToProps = state => ({
-  sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase,
-  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
-});
-
-export default connect(mapStateToProps)(GlobalFooter);
