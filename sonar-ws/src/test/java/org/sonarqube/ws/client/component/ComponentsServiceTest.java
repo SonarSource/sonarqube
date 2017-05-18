@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
@@ -45,7 +46,7 @@ public class ComponentsServiceTest {
   public void search_projects() {
     underTest.searchProjects(SearchProjectsRequest.builder()
       .setFilter("ncloc > 10")
-      .setFacets(singletonList("ncloc"))
+      .setFacets(asList("ncloc", "duplicated_lines_density"))
       .setSort("coverage")
       .setAsc(true)
       .setPage(3)
@@ -56,7 +57,7 @@ public class ComponentsServiceTest {
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("search_projects")
       .hasParam(PARAM_FILTER, "ncloc > 10")
-      .hasParam(FACETS, singletonList("ncloc"))
+      .hasParam(FACETS, "ncloc,duplicated_lines_density")
       .hasParam(SORT, "coverage")
       .hasParam(ASCENDING, true)
       .hasParam(PAGE, 3)

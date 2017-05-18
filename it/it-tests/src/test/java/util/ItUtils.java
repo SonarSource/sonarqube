@@ -369,7 +369,7 @@ public class ItUtils {
   }
 
   public static String newProjectKey() {
-    return "key-" + randomAlphabetic(200);
+    return "key-" + randomAlphabetic(100);
   }
 
   public static void deleteOrganizationsIfExists(Orchestrator orchestrator, String... organizationKeys) {
