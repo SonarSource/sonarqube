@@ -31,7 +31,6 @@ import it.duplication.DuplicationsTest;
 import it.duplication.NewDuplicationsTest;
 import it.projectEvent.EventTest;
 import it.projectEvent.ProjectActivityPageTest;
-import it.projectSearch.SearchProjectsTest;
 import it.qualityProfile.QualityProfilesPageTest;
 import it.qualityProfile.QualityProfilesRestoreAndSearchTest;
 import it.serverSystem.HttpHeadersTest;
@@ -85,8 +84,6 @@ import static util.ItUtils.xooPlugin;
   // project event
   EventTest.class,
   ProjectActivityPageTest.class,
-  // project search
-  SearchProjectsTest.class,
   // http
   HttpHeadersTest.class,
   // ui
