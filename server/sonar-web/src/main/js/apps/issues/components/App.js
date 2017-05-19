@@ -367,7 +367,7 @@ export default class App extends React.PureComponent {
   };
 
   fetchFirstIssues() {
-    this.setState({ loading: true });
+    this.setState({ checked: [], loading: true });
     return this.fetchIssues({}, true).then(({ facets, issues, paging, ...other }) => {
       if (this.mounted) {
         const openIssue = this.getOpenIssue(this.props, issues);
