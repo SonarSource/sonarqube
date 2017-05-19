@@ -32,6 +32,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
 import org.sonar.db.issue.IssueDbTester;
+import org.sonar.db.measure.MeasureDbTester;
 import org.sonar.db.notification.NotificationDbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -74,6 +75,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private final NotificationDbTester notificationDbTester;
   private final RootFlagAssertions rootFlagAssertions;
   private final QualityProfileDbTester qualityProfileDbTester;
+  private final MeasureDbTester measureDbTester;
 
   public DbTester(System2 system2, @Nullable String schemaPath) {
     super(TestDb.create(schemaPath));
@@ -93,6 +95,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     this.notificationDbTester = new NotificationDbTester(this);
     this.rootFlagAssertions = new RootFlagAssertions(this);
     this.qualityProfileDbTester = new QualityProfileDbTester(this);
+    this.measureDbTester = new MeasureDbTester(this);
   }
 
   public static DbTester create() {
@@ -217,6 +220,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
 
   public QualityProfileDbTester qualityProfiles() {
     return qualityProfileDbTester;
+  }
+
+  public MeasureDbTester measureDbTester() {
+    return measureDbTester;
   }
 
   @Override
