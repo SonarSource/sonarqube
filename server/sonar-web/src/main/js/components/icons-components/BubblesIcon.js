@@ -19,37 +19,29 @@
  */
 // @flow
 import React from 'react';
-import Select from 'react-select';
-import { translate } from '../../../helpers/l10n';
-import { VISUALIZATIONS } from '../utils';
 
-export default class VisualizationsHeader extends React.PureComponent {
-  props: {
-    onVisualizationChange: string => void,
-    visualization: string
-  };
+type Props = { className?: string, size?: number };
 
-  handleChange = (option: { value: string }) => {
-    this.props.onVisualizationChange(option.value);
-  };
-
-  render() {
-    const options = VISUALIZATIONS.map(option => ({
-      value: option,
-      label: translate('projects.visualization', option)
-    }));
-
-    return (
-      <header className="boxed-group-header">
-        <Select
-          className="input-medium"
-          clearable={false}
-          onChange={this.handleChange}
-          options={options}
-          searchable={false}
-          value={this.props.visualization}
-        />
-      </header>
-    );
-  }
+export default function BubblesIcon({ className, size = 16 }: Props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      height={size}
+      width={size}
+      viewBox="0 0 16 16">
+      <circle
+        cx="4"
+        cy="12"
+        r="3.5"
+        style={{ fill: 'none', stroke: 'currentColor', strokeMiterlimit: 10 }}
+      />
+      <circle
+        cx="10.4"
+        cy="5.6"
+        r="5.1"
+        style={{ fill: 'none', stroke: 'currentColor', strokeMiterlimit: 10 }}
+      />
+    </svg>
+  );
 }
