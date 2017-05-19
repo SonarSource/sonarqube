@@ -28,7 +28,6 @@ import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.CachingDefinedQProfileCreationImpl;
 import org.sonar.server.qualityprofile.CachingRuleActivator;
 import org.sonar.server.qualityprofile.CachingRuleActivatorContextFactory;
-import org.sonar.server.qualityprofile.DefinedQProfileInsertImpl;
 import org.sonar.server.qualityprofile.DefinedQProfileLoader;
 import org.sonar.server.qualityprofile.MassRegisterQualityProfiles;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
@@ -60,7 +59,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterRules.class);
     add(DefinedQProfileLoader.class);
     addIfStartupLeader(
-      DefinedQProfileInsertImpl.class,
       MassRegisterQualityProfiles.class,
       CachingRuleActivatorContextFactory.class,
       CachingRuleActivator.class,

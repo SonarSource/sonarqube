@@ -19,9 +19,7 @@
  */
 package org.sonar.server.organization;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -44,11 +42,9 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.DefinedQProfile;
-import org.sonar.server.qualityprofile.DefinedQProfileCreation;
+import org.sonar.server.qualityprofile.DefinedQProfileInsert;
 import org.sonar.server.qualityprofile.DefinedQProfileRepository;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreator;
 
@@ -71,15 +67,14 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   private final OrganizationValidation organizationValidation;
   private final Settings settings;
   private final DefinedQProfileRepository definedQProfileRepository;
-  private final DefinedQProfileCreation definedQProfileCreation;
+  private final DefinedQProfileInsert definedQProfileInsert;
   private final DefaultGroupCreator defaultGroupCreator;
-  private final ActiveRuleIndexer activeRuleIndexer;
   private final UserIndexer userIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Settings settings, UserIndexer userIndexer,
-    DefinedQProfileRepository definedQProfileRepository, DefinedQProfileCreation definedQProfileCreation, DefaultGroupCreator defaultGroupCreator,
-    ActiveRuleIndexer activeRuleIndexer) {
+    DefinedQProfileRepository definedQProfileRepository, DefinedQProfileInsert definedQProfileInsert,
+    DefaultGroupCreator defaultGroupCreator) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
@@ -87,9 +82,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     this.settings = settings;
     this.userIndexer = userIndexer;
     this.definedQProfileRepository = definedQProfileRepository;
-    this.definedQProfileCreation = definedQProfileCreation;
+    this.definedQProfileInsert = definedQProfileInsert;
     this.defaultGroupCreator = defaultGroupCreator;
-    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   @Override
@@ -106,17 +100,19 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
     insertDefaultTemplateOnGroups(dbSession, organization, ownerGroup, defaultGroup);
-    List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
-    addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getId());
-    addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getId());
+    try (DbSession batchDbSession = dbClient.openSession(true)) {
+      insertQualityProfiles(dbSession, batchDbSession, organization);
+      addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getId());
+      addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getId());
 
-    dbSession.commit();
+      dbSession.commit();
+      batchDbSession.commit();
 
-    // Elasticsearch is updated when DB session is committed
-    userIndexer.index(userCreator.getLogin());
-    activeRuleIndexer.index(activeRuleChanges);
+      // Elasticsearch is updated when DB session is committed
+      userIndexer.index(userCreator.getLogin());
 
-    return organization;
+      return organization;
+    }
   }
 
   @Override
@@ -143,16 +139,18 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     OrganizationPermission.all()
       .forEach(p -> insertUserPermissions(dbSession, newUser, organization, p));
     insertPersonalOrgDefaultTemplate(dbSession, organization, defaultGroup);
-    List<ActiveRuleChange> activeRuleChanges = insertQualityProfiles(dbSession, organization);
-    addCurrentUserToGroup(dbSession, defaultGroup, newUser.getId());
+    try (DbSession batchDbSession = dbClient.openSession(true)) {
+      insertQualityProfiles(dbSession, batchDbSession, organization);
+      addCurrentUserToGroup(dbSession, defaultGroup, newUser.getId());
 
-    dbSession.commit();
+      dbSession.commit();
+      batchDbSession.commit();
 
-    // Elasticsearch is updated when DB session is committed
-    activeRuleIndexer.index(activeRuleChanges);
-    userIndexer.index(newUser.getLogin());
+      // Elasticsearch is updated when DB session is committed
+      userIndexer.index(newUser.getLogin());
 
-    return Optional.of(organization);
+      return Optional.of(organization);
+    }
   }
 
   private static String nameOrLogin(UserDto newUser) {
@@ -264,19 +262,17 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), group == null ? null : group.getId(), permission);
   }
 
-  private List<ActiveRuleChange> insertQualityProfiles(DbSession dbSession, OrganizationDto organization) {
-    List<ActiveRuleChange> changes = new ArrayList<>();
+  private void insertQualityProfiles(DbSession dbSession, DbSession batchDbSession, OrganizationDto organization) {
     definedQProfileRepository.getQProfilesByLanguage().entrySet()
       .stream()
       .flatMap(entry -> entry.getValue().stream())
-      .forEach(profile -> insertQualityProfile(dbSession, profile, organization, changes));
-    return changes;
+      .forEach(profile -> insertQualityProfile(dbSession, batchDbSession, profile, organization));
   }
 
-  private void insertQualityProfile(DbSession dbSession, DefinedQProfile profile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+  private void insertQualityProfile(DbSession regularSession, DbSession batchDbSession, DefinedQProfile profile, OrganizationDto organization) {
     LOGGER.debug("Creating quality profile {} for language {} for organization {}", profile.getName(), profile.getLanguage(), organization.getKey());
 
-    definedQProfileCreation.create(dbSession, profile, organization, changes);
+    definedQProfileInsert.create(regularSession, batchDbSession, profile, organization);
   }
 
   /**

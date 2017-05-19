@@ -19,7 +19,6 @@
  */
 package org.sonar.server.organization;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -52,9 +51,8 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.DefinedQProfile;
-import org.sonar.server.qualityprofile.DefinedQProfileCreationRule;
+import org.sonar.server.qualityprofile.DefinedQProfileInsertRule;
 import org.sonar.server.qualityprofile.DefinedQProfileRepositoryRule;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -66,8 +64,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
 
@@ -99,7 +95,7 @@ public class OrganizationCreationImplTest {
   @Rule
   public DefinedQProfileRepositoryRule definedQProfileRepositoryRule = new DefinedQProfileRepositoryRule();
   @Rule
-  public DefinedQProfileCreationRule definedQProfileCreationRule = new DefinedQProfileCreationRule();
+  public DefinedQProfileInsertRule definedQProfileCreationRule = new DefinedQProfileInsertRule();
 
   private DbSession dbSession = dbTester.getSession();
 
@@ -110,11 +106,10 @@ public class OrganizationCreationImplTest {
   private MapSettings settings = new MapSettings();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client());
-  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient);
 
   private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings, userIndexer,
-    definedQProfileRepositoryRule, definedQProfileCreationRule, defaultGroupCreator, activeRuleIndexer);
+    definedQProfileRepositoryRule, definedQProfileCreationRule, defaultGroupCreator);
 
   private UserDto someUser;
 
@@ -297,11 +292,6 @@ public class OrganizationCreationImplTest {
     DefinedQProfile definedQProfile3 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp3");
     DefinedQProfile definedQProfile4 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp4");
     definedQProfileRepositoryRule.initialize();
-    ActiveRuleChange[] changes = {newActiveRuleChange("0"), newActiveRuleChange("1"), newActiveRuleChange("2"), newActiveRuleChange("3"), newActiveRuleChange("4")};
-    definedQProfileCreationRule.addChanges();
-    definedQProfileCreationRule.addChanges(changes[2], changes[1], changes[4]);
-    definedQProfileCreationRule.addChanges(changes[3]);
-    definedQProfileCreationRule.addChanges(changes[0]);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
 
     underTest.create(dbSession, someUser, FULL_POPULATED_NEW_ORGANIZATION);
@@ -309,15 +299,13 @@ public class OrganizationCreationImplTest {
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
     assertThat(definedQProfileCreationRule.getCallLogs())
       .hasSize(4)
-      .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
+      .extracting(DefinedQProfileInsertRule.CallLog::getOrganizationDto)
       .extracting(OrganizationDto::getUuid)
       .containsOnly(organization.getUuid());
     assertThat(definedQProfileCreationRule.getCallLogs())
-      .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
+      .extracting(DefinedQProfileInsertRule.CallLog::getDefinedQProfile)
       .extracting(DefinedQProfile::getName)
       .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
-    verify(activeRuleIndexer).index(Arrays.asList(changes[2], changes[1], changes[4], changes[3], changes[0]));
-    verifyNoMoreInteractions(activeRuleIndexer);
   }
 
   @Test
@@ -514,11 +502,6 @@ public class OrganizationCreationImplTest {
     DefinedQProfile definedQProfile3 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp3");
     DefinedQProfile definedQProfile4 = definedQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp4");
     definedQProfileRepositoryRule.initialize();
-    ActiveRuleChange[] changes = {newActiveRuleChange("0"), newActiveRuleChange("1"), newActiveRuleChange("2"), newActiveRuleChange("3"), newActiveRuleChange("4")};
-    definedQProfileCreationRule.addChanges();
-    definedQProfileCreationRule.addChanges(changes[2], changes[1], changes[4]);
-    definedQProfileCreationRule.addChanges(changes[3]);
-    definedQProfileCreationRule.addChanges(changes[0]);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     enableCreatePersonalOrg(true);
 
@@ -527,15 +510,13 @@ public class OrganizationCreationImplTest {
     OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
     assertThat(definedQProfileCreationRule.getCallLogs())
       .hasSize(4)
-      .extracting(DefinedQProfileCreationRule.CallLog::getOrganizationDto)
+      .extracting(DefinedQProfileInsertRule.CallLog::getOrganizationDto)
       .extracting(OrganizationDto::getUuid)
       .containsOnly(organization.getUuid());
     assertThat(definedQProfileCreationRule.getCallLogs())
-      .extracting(DefinedQProfileCreationRule.CallLog::getDefinedQProfile)
+      .extracting(DefinedQProfileInsertRule.CallLog::getDefinedQProfile)
       .extracting(DefinedQProfile::getName)
       .containsExactly(definedQProfile1.getName(), definedQProfile2.getName(), definedQProfile3.getName(), definedQProfile4.getName());
-    verify(activeRuleIndexer).index(Arrays.asList(changes[2], changes[1], changes[4], changes[3], changes[0]));
-    verifyNoMoreInteractions(activeRuleIndexer);
   }
 
   private static ActiveRuleChange newActiveRuleChange(String id) {
