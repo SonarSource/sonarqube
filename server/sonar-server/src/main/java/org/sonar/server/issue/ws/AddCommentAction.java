@@ -73,7 +73,8 @@ public class AddCommentAction implements IssuesWsAction {
       .setSince("3.6")
       .setChangelog(
         new Change("6.3", "the response returns the issue with all its details"),
-        new Change("6.5", "the database ids of the components are removed from the response"))
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "add_comment-example.json"))
       .setPost(true);
