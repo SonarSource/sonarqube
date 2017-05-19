@@ -19,32 +19,22 @@
  */
 // @flow
 import React from 'react';
-import RadioToggle from '../../../components/controls/RadioToggle';
-import { translate } from '../../../helpers/l10n';
 
-export default class ViewSelect extends React.PureComponent {
-  props: {
-    onChange: string => void,
-    view: string
-  };
+type Props = { className?: string, size?: number };
 
-  handleChange = (view: string) => {
-    this.props.onChange(view);
-  };
-
-  render() {
-    const options = ['list', 'visualizations'].map(option => ({
-      value: option,
-      label: translate('projects.view', option)
-    }));
-
-    return (
-      <RadioToggle
-        name="view"
-        onCheck={this.handleChange}
-        options={options}
-        value={this.props.view}
+export default function CloseIcon({ className, size = 16 }: Props) {
+  /* eslint-disable max-len */
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      height={size}
+      width={size}
+      viewBox="0 0 16 16">
+      <path
+        fill="currentColor"
+        d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
       />
-    );
-  }
+    </svg>
+  );
 }

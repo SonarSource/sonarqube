@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for a view 1`] = `
+<div
+  onMouseDown={[Function]}
+  onMouseEnter={[Function]}
+  onMouseMove={[Function]}
+  title="Overall"
+>
+  <div>
+    <ListIcon
+      className="little-spacer-right"
+    />
+    Overall
+  </div>
+</div>
+`;
+
+exports[`should render correctly for a visualization 1`] = `
+<div
+  onMouseDown={[Function]}
+  onMouseEnter={[Function]}
+  onMouseMove={[Function]}
+  title="Coverage"
+>
+  <div>
+    <BubblesIcon
+      className="little-spacer-right"
+    />
+    Coverage
+  </div>
+</div>
+`;
