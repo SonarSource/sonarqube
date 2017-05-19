@@ -55,7 +55,7 @@ public class AddCommentAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
 
   public AddCommentAction(System2 system2, UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueUpdater issueUpdater, IssueFieldsSetter issueFieldsSetter,
-                          OperationResponseWriter responseWriter) {
+    OperationResponseWriter responseWriter) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -71,7 +71,9 @@ public class AddCommentAction implements IssuesWsAction {
       .setDescription("Add a comment.<br/>" +
         "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
-      .setChangelog(new Change("6.3", "the response returns the issue with all its details"))
+      .setChangelog(
+        new Change("6.3", "the response returns the issue with all its details"),
+        new Change("6.5", "the database ids of the components are removed from the response"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "add_comment-example.json"))
       .setPost(true);

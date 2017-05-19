@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.io.Resources;
 import java.util.Date;
 import org.sonar.api.issue.DefaultTransitions;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -65,6 +66,9 @@ public class DoTransitionAction implements IssuesWsAction {
       .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>" +
         "The transitions '" + DefaultTransitions.WONT_FIX + "' and '" + DefaultTransitions.FALSE_POSITIVE + "' require the permission 'Administer Issues'.")
       .setSince("3.6")
+      .setChangelog(
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "do_transition-example.json"))
       .setPost(true);

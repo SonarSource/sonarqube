@@ -4,7 +4,6 @@
     "rule": "squid:S2301",
     "severity": "MAJOR",
     "component": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
-    "componentId": 87163,
     "project": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
     "line": 78,
     "textRange": {
@@ -53,7 +52,6 @@
   },
   "components": [
     {
-      "id": 87163,
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
       "uuid": "AVfTIlxMwczdZ2UaLhnt",
       "enabled": true,
@@ -65,7 +63,6 @@
       "subProjectId": 23498
     },
     {
-      "id": 23498,
       "key": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
       "uuid": "8b745480-b598-4e34-af4a-cb2de1808e50",
       "enabled": true,

@@ -26,6 +26,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -81,6 +82,9 @@ public class AssignAction implements IssuesWsAction {
     WebService.NewAction action = controller.createAction(ACTION_ASSIGN)
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
+      .setChangelog(
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "assign-example.json"))
       .setPost(true);

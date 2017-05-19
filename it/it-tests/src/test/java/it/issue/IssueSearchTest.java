@@ -21,7 +21,6 @@ package it.issue;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
@@ -31,7 +30,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.base.Paging;
-import org.sonar.wsclient.component.Component;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
@@ -245,33 +243,6 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   @Test
-  public void components_contain_sub_project_id_and_project_id_informations() {
-    String fileKey = "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo";
-
-    Issues issues = issueClient().find(IssueQuery.create().components(fileKey));
-    assertThat(issues.list()).isNotEmpty();
-
-    Collection<Component> components = issues.components();
-
-    Component project = findComponent(components, "com.sonarsource.it.samples:multi-modules-sample");
-    assertThat(project.subProjectId()).isNull();
-    assertThat(project.projectId()).isNull();
-
-    Component subModuleA1 = findComponent(components, "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1");
-    assertThat(subModuleA1.subProjectId()).isEqualTo(project.id());
-    assertThat(subModuleA1.projectId()).isEqualTo(project.id());
-
-    Component file = findComponent(components, fileKey);
-    assertThat(file.subProjectId()).isNotNull();
-    assertThat(file.projectId()).isNotNull();
-
-    Issue issue = issues.list().get(0);
-    assertThat(issues.component(issue)).isNotNull();
-    assertThat(issues.component(issue).subProjectId()).isEqualTo(subModuleA1.id());
-    assertThat(issues.component(issue).projectId()).isEqualTo(project.id());
-  }
-
-  @Test
   public void return_issue_type() throws Exception {
     List<org.sonarqube.ws.Issues.Issue> issues = searchByRuleKey("xoo:OneBugIssuePerLine");
     assertThat(issues).isNotEmpty();
@@ -302,13 +273,6 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   private SearchWsResponse searchIssues(SearchWsRequest request) throws IOException {
     return newAdminWsClient(ORCHESTRATOR).issues().search(request);
-  }
-
-  private static Component findComponent(Collection<Component> components, String key) {
-    return components.stream()
-      .filter(input -> key.equals(input.key()))
-      .findFirst()
-      .orElseThrow(() -> new IllegalStateException("Component key not found: " + key));
   }
 
 }

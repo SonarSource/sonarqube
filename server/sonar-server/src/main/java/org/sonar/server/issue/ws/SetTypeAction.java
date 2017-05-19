@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.io.Resources;
 import java.util.Date;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -70,6 +71,9 @@ public class SetTypeAction implements IssuesWsAction {
         "  <li>'Administer Issues' rights on project of the specified issue</li>" +
         "</ul>")
       .setSince("5.5")
+      .setChangelog(
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "set_type-example.json"))
       .setPost(true);
