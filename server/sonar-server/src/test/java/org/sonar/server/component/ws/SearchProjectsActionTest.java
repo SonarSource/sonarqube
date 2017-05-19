@@ -84,6 +84,7 @@ import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.DATA;
+import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.RATING;
 import static org.sonar.server.es.ProjectIndexer.Cause.PROJECT_CREATION;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -97,6 +98,7 @@ public class SearchProjectsActionTest {
 
   private static final String NCLOC = "ncloc";
   private static final String COVERAGE = "coverage";
+  private static final String NEW_COVERAGE = "new_coverage";
   private static final String QUALITY_GATE_STATUS = "alert_status";
   private static final String IS_FAVOURITE_CRITERION = "isFavorite";
 
@@ -167,7 +169,7 @@ public class SearchProjectsActionTest {
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
     assertThat(facets.possibleValues()).containsOnly("ncloc", "duplicated_lines_density", "coverage", "sqale_rating", "reliability_rating", "security_rating", "alert_status",
-      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating");
+      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage");
   }
 
   @Test
@@ -352,6 +354,34 @@ public class SearchProjectsActionTest {
     SearchProjectsWsResponse result = call(request.setFilter("tags in (finance, offshore)"));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.getKey());
+  }
+
+  @Test
+  public void filter_projects_by_coverage() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(80d)));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(85d)));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
+
+    SearchProjectsWsResponse result = call(request.setFilter("coverage <= 80"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+  }
+
+  @Test
+  public void filter_projects_by_new_coverage() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType(PERCENT.name()));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(80d)));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(85d)));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(10d)));
+
+    SearchProjectsWsResponse result = call(request.setFilter("new_coverage <= 80"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
   }
 
   @Test
@@ -617,6 +647,54 @@ public class SearchProjectsActionTest {
         tuple("3", 1L),
         tuple("4", 0L),
         tuple("5", 1L));
+  }
+
+  @Test
+  public void return_coverage_facet() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(80d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(85d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(COVERAGE)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> COVERAGE.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-30.0", 1L),
+        tuple("30.0-50.0", 0L),
+        tuple("50.0-70.0", 0L),
+        tuple("70.0-80.0", 0L),
+        tuple("80.0-*", 2L));
+  }
+
+  @Test
+  public void return_new_coverage_facet() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType(PERCENT.name()));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(80d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(85d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(10d)));
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_COVERAGE)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> NEW_COVERAGE.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-30.0", 1L),
+        tuple("30.0-50.0", 0L),
+        tuple("50.0-70.0", 0L),
+        tuple("70.0-80.0", 0L),
+        tuple("80.0-*", 2L));
   }
 
   @Test
