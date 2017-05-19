@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -68,9 +69,9 @@ public class AddCommentAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(IssuesWsParameters.ACTION_ADD_COMMENT)
       .setDescription("Add a comment.<br/>" +
-        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.<br/>" +
-        "Since 6.3, the response contains the issue with all details, not only the added comment")
+        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
+      .setChangelog(new Change("6.3", "the response returns the issue with all its details"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "add_comment-example.json"))
       .setPost(true);
