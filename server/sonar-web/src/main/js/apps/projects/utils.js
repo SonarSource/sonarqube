@@ -47,6 +47,8 @@ export const saveAll = () => save(LOCALSTORAGE_ALL);
 
 export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);
 
+export const VIEWS = ['overall'];
+
 export const VISUALIZATIONS = [
   'risk',
   'reliability',

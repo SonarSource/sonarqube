@@ -19,8 +19,25 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import ViewSelect from '../ViewSelect';
+import PerspectiveSelect from '../PerspectiveSelect';
 
-it('should render options', () => {
-  expect(shallow(<ViewSelect view="visualizations" />)).toMatchSnapshot();
+it('should render correctly', () => {
+  expect(shallow(<PerspectiveSelect view="overall" />)).toMatchSnapshot();
+});
+
+it('should render with coverage selected', () => {
+  expect(
+    shallow(<PerspectiveSelect view="visualizations" visualization="coverage" />)
+  ).toMatchSnapshot();
+});
+
+it('should handle perspective change correctly', () => {
+  const onChange = jest.fn();
+  const instance = shallow(
+    <PerspectiveSelect view="visualizations" visualization="coverage" onChange={onChange} />
+  ).instance();
+  instance.handleChange({ value: 'overall', type: 'view' });
+  instance.handleChange({ value: 'leak', type: 'view' });
+  instance.handleChange({ value: 'coverage', type: 'visualization' });
+  expect(onChange.mock.calls).toMatchSnapshot();
 });
