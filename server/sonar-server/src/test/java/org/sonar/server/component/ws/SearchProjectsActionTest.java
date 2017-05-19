@@ -20,6 +20,9 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Joiner;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.function.Consumer;
@@ -28,6 +31,7 @@ import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
@@ -64,7 +68,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
@@ -84,6 +91,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
+@RunWith(DataProviderRunner.class)
 public class SearchProjectsActionTest {
 
   private static final String NCLOC = "ncloc";
@@ -99,6 +107,16 @@ public class SearchProjectsActionTest {
   public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
+  @DataProvider
+  public static Object[][] rating_metric_keys() {
+    return new Object[][] {{SQALE_RATING_KEY}, {RELIABILITY_RATING_KEY}, {SECURITY_RATING_KEY}};
+  }
+
+  @DataProvider
+  public static Object[][] new_rating_metric_keys() {
+    return new Object[][] {{NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+  }
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -148,7 +166,7 @@ public class SearchProjectsActionTest {
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
     assertThat(facets.possibleValues()).containsOnly("ncloc", "duplicated_lines_density", "coverage", "sqale_rating", "reliability_rating", "security_rating", "alert_status",
-      "languages", "tags", "new_reliability_rating");
+      "languages", "tags", "new_reliability_rating", "new_security_rating");
   }
 
   @Test
@@ -293,29 +311,31 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void filter_projects_by_reliability_rating() {
+  @UseDataProvider("rating_metric_keys")
+  public void filter_projects_by_rating(String metricKey) {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto reliabilityRating = db.measureDbTester().insertMetric(c -> c.setKey(RELIABILITY_RATING_KEY).setValueType(INT.name()));
-    ComponentDto project1 = insertProject(organizationDto, new Measure(reliabilityRating, c -> c.setValue(1d)));
-    ComponentDto project2 = insertProject(organizationDto, new Measure(reliabilityRating, c -> c.setValue(2d)));
-    ComponentDto project3 = insertProject(organizationDto, new Measure(reliabilityRating, c -> c.setValue(3d)));
+    MetricDto ratingMetric = db.measureDbTester().insertMetric(c -> c.setKey(metricKey).setValueType(INT.name()));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setValue(1d)));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setValue(2d)));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setValue(3d)));
 
-    SearchProjectsWsResponse result = call(request.setFilter("reliability_rating = 2"));
+    SearchProjectsWsResponse result = call(request.setFilter(metricKey + " = 2"));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.getKey());
   }
 
   @Test
-  public void filter_projects_by_new_reliability_rating() {
+  @UseDataProvider("new_rating_metric_keys")
+  public void filter_projects_by_new_rating(String newMetricKey) {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
-    MetricDto newReliabilityRating = db.measureDbTester().insertMetric(c -> c.setKey(NEW_RELIABILITY_RATING_KEY).setValueType(INT.name()));
-    ComponentDto project1 = insertProject(organizationDto, new Measure(newReliabilityRating, c -> c.setVariation(1d)));
-    ComponentDto project2 = insertProject(organizationDto, new Measure(newReliabilityRating, c -> c.setVariation(2d)));
-    ComponentDto project3 = insertProject(organizationDto, new Measure(newReliabilityRating, c -> c.setVariation(3d)));
+    MetricDto ratingMetric = db.measureDbTester().insertMetric(c -> c.setKey(newMetricKey).setValueType(INT.name()));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(1d)));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(2d)));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(ratingMetric, c -> c.setVariation(3d)));
 
-    SearchProjectsWsResponse result = call(request.setFilter("new_reliability_rating = 2"));
+    SearchProjectsWsResponse result = call(request.setFilter(newMetricKey + " = 2"));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactly(project2.getKey());
   }
@@ -547,19 +567,20 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void return_reliability_rating_facet() throws Exception {
+  @UseDataProvider("rating_metric_keys")
+  public void return_rating_facet(String ratingMetricKey) throws Exception {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
-    MetricDto reliabilityRating = db.measureDbTester().insertMetric(c -> c.setKey(RELIABILITY_RATING_KEY).setValueType(RATING.name()));
-    insertProject(organization, new Measure(reliabilityRating, c -> c.setValue(1d)));
-    insertProject(organization, new Measure(reliabilityRating, c -> c.setValue(1d)));
-    insertProject(organization, new Measure(reliabilityRating, c -> c.setValue(3d)));
-    insertProject(organization, new Measure(reliabilityRating, c -> c.setValue(5d)));
+    MetricDto ratingMetric = db.measureDbTester().insertMetric(c -> c.setKey(ratingMetricKey).setValueType(RATING.name()));
+    insertProject(organization, new Measure(ratingMetric, c -> c.setValue(1d)));
+    insertProject(organization, new Measure(ratingMetric, c -> c.setValue(1d)));
+    insertProject(organization, new Measure(ratingMetric, c -> c.setValue(3d)));
+    insertProject(organization, new Measure(ratingMetric, c -> c.setValue(5d)));
 
-    SearchProjectsWsResponse result = call(request.setFacets(singletonList(RELIABILITY_RATING_KEY)));
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(ratingMetricKey)));
 
     Common.Facet facet = result.getFacets().getFacetsList().stream()
-      .filter(oneFacet -> RELIABILITY_RATING_KEY.equals(oneFacet.getProperty()))
+      .filter(oneFacet -> ratingMetricKey.equals(oneFacet.getProperty()))
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
@@ -572,19 +593,20 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void return_new_reliability_rating_facet() throws Exception {
+  @UseDataProvider("new_rating_metric_keys")
+  public void return_new_rating_facet(String newRatingMetricKey) throws Exception {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
-    MetricDto newReliabilityRating = db.measureDbTester().insertMetric(c -> c.setKey(NEW_RELIABILITY_RATING_KEY).setValueType(RATING.name()));
-    insertProject(organization, new Measure(newReliabilityRating, c -> c.setVariation(1d)));
-    insertProject(organization, new Measure(newReliabilityRating, c -> c.setVariation(1d)));
-    insertProject(organization, new Measure(newReliabilityRating, c -> c.setVariation(3d)));
-    insertProject(organization, new Measure(newReliabilityRating, c -> c.setVariation(5d)));
+    MetricDto newRatingMetric = db.measureDbTester().insertMetric(c -> c.setKey(newRatingMetricKey).setValueType(RATING.name()));
+    insertProject(organization, new Measure(newRatingMetric, c -> c.setVariation(1d)));
+    insertProject(organization, new Measure(newRatingMetric, c -> c.setVariation(1d)));
+    insertProject(organization, new Measure(newRatingMetric, c -> c.setVariation(3d)));
+    insertProject(organization, new Measure(newRatingMetric, c -> c.setVariation(5d)));
 
-    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_RELIABILITY_RATING_KEY)));
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(newRatingMetricKey)));
 
     Common.Facet facet = result.getFacets().getFacetsList().stream()
-      .filter(oneFacet -> NEW_RELIABILITY_RATING_KEY.equals(oneFacet.getProperty()))
+      .filter(oneFacet -> newRatingMetricKey.equals(oneFacet.getProperty()))
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
