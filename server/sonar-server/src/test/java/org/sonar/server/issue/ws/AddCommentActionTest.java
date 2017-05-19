@@ -179,7 +179,7 @@ public class AddCommentActionTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.params()).hasSize(2);
-    assertThat(action.responseExample()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
   }
 
   private TestResponse call(@Nullable String issueKey, @Nullable String commentText) {
