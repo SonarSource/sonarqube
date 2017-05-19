@@ -21,6 +21,9 @@ package org.sonar.server.measure.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,6 +32,7 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
@@ -65,12 +69,14 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
+@RunWith(DataProviderRunner.class)
 public class ProjectMeasuresIndexTest {
 
   private static final String MAINTAINABILITY_RATING = "sqale_rating";
   private static final String RELIABILITY_RATING = "reliability_rating";
   private static final String NEW_RELIABILITY_RATING = "new_reliability_rating";
   private static final String SECURITY_RATING = "security_rating";
+  private static final String NEW_SECURITY_RATING = "new_security_rating";
   private static final String COVERAGE = "coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
   private static final String NCLOC = "ncloc";
@@ -93,6 +99,11 @@ public class ProjectMeasuresIndexTest {
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @DataProvider
+  public static Object[][] rating_metric_keys() {
+    return new Object[][] {{MAINTAINABILITY_RATING}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING}};
+  }
 
   private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, projectMeasureIndexer);
@@ -727,33 +738,34 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_maintainability_rating() {
+  @UseDataProvider("rating_metric_keys")
+  public void facet_on_rating(String metricKey) {
     index(
       // 3 docs with rating A
-      newDoc(MAINTAINABILITY_RATING, 1d),
-      newDoc(MAINTAINABILITY_RATING, 1d),
-      newDoc(MAINTAINABILITY_RATING, 1d),
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
       // 2 docs with rating B
-      newDoc(MAINTAINABILITY_RATING, 2d),
-      newDoc(MAINTAINABILITY_RATING, 2d),
+      newDoc(metricKey, 2d),
+      newDoc(metricKey, 2d),
       // 4 docs with rating C
-      newDoc(MAINTAINABILITY_RATING, 3d),
-      newDoc(MAINTAINABILITY_RATING, 3d),
-      newDoc(MAINTAINABILITY_RATING, 3d),
-      newDoc(MAINTAINABILITY_RATING, 3d),
+      newDoc(metricKey, 3d),
+      newDoc(metricKey, 3d),
+      newDoc(metricKey, 3d),
+      newDoc(metricKey, 3d),
       // 2 docs with rating D
-      newDoc(MAINTAINABILITY_RATING, 4d),
-      newDoc(MAINTAINABILITY_RATING, 4d),
+      newDoc(metricKey, 4d),
+      newDoc(metricKey, 4d),
       // 5 docs with rating E
-      newDoc(MAINTAINABILITY_RATING, 5d),
-      newDoc(MAINTAINABILITY_RATING, 5d),
-      newDoc(MAINTAINABILITY_RATING, 5d),
-      newDoc(MAINTAINABILITY_RATING, 5d),
-      newDoc(MAINTAINABILITY_RATING, 5d));
+      newDoc(metricKey, 5d),
+      newDoc(metricKey, 5d),
+      newDoc(metricKey, 5d),
+      newDoc(metricKey, 5d),
+      newDoc(metricKey, 5d));
 
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(MAINTAINABILITY_RATING)).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(metricKey)).getFacets();
 
-    assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
+    assertThat(facets.get(metricKey)).containsExactly(
       entry("1", 3L),
       entry("2", 2L),
       entry("3", 4L),
@@ -762,34 +774,35 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_maintainability_rating_is_sticky() {
+  @UseDataProvider("rating_metric_keys")
+  public void facet_on_rating_is_sticky(String metricKey) {
     index(
       // docs with rating A
-      newDoc(MAINTAINABILITY_RATING, 1d, NCLOC, 100d, COVERAGE, 0d),
-      newDoc(MAINTAINABILITY_RATING, 1d, NCLOC, 200d, COVERAGE, 0d),
-      newDoc(MAINTAINABILITY_RATING, 1d, NCLOC, 999d, COVERAGE, 0d),
+      newDoc(metricKey, 1d, NCLOC, 100d, COVERAGE, 0d),
+      newDoc(metricKey, 1d, NCLOC, 200d, COVERAGE, 0d),
+      newDoc(metricKey, 1d, NCLOC, 999d, COVERAGE, 0d),
       // docs with rating B
-      newDoc(MAINTAINABILITY_RATING, 2d, NCLOC, 2000d, COVERAGE, 0d),
-      newDoc(MAINTAINABILITY_RATING, 2d, NCLOC, 5000d, COVERAGE, 0d),
+      newDoc(metricKey, 2d, NCLOC, 2000d, COVERAGE, 0d),
+      newDoc(metricKey, 2d, NCLOC, 5000d, COVERAGE, 0d),
       // docs with rating C
-      newDoc(MAINTAINABILITY_RATING, 3d, NCLOC, 20000d, COVERAGE, 0d),
-      newDoc(MAINTAINABILITY_RATING, 3d, NCLOC, 30000d, COVERAGE, 0d),
-      newDoc(MAINTAINABILITY_RATING, 3d, NCLOC, 40000d, COVERAGE, 0d),
-      newDoc(MAINTAINABILITY_RATING, 3d, NCLOC, 50000d, COVERAGE, 0d),
+      newDoc(metricKey, 3d, NCLOC, 20000d, COVERAGE, 0d),
+      newDoc(metricKey, 3d, NCLOC, 30000d, COVERAGE, 0d),
+      newDoc(metricKey, 3d, NCLOC, 40000d, COVERAGE, 0d),
+      newDoc(metricKey, 3d, NCLOC, 50000d, COVERAGE, 0d),
       // docs with rating D
-      newDoc(MAINTAINABILITY_RATING, 4d, NCLOC, 120000d, COVERAGE, 0d),
+      newDoc(metricKey, 4d, NCLOC, 120000d, COVERAGE, 0d),
       // docs with rating E
-      newDoc(MAINTAINABILITY_RATING, 5d, NCLOC, 600000d, COVERAGE, 40d),
-      newDoc(MAINTAINABILITY_RATING, 5d, NCLOC, 700000d, COVERAGE, 50d),
-      newDoc(MAINTAINABILITY_RATING, 5d, NCLOC, 800000d, COVERAGE, 60d));
+      newDoc(metricKey, 5d, NCLOC, 600000d, COVERAGE, 40d),
+      newDoc(metricKey, 5d, NCLOC, 700000d, COVERAGE, 50d),
+      newDoc(metricKey, 5d, NCLOC, 800000d, COVERAGE, 60d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(MAINTAINABILITY_RATING, Operator.LT, 3d))
+      .addMetricCriterion(new MetricCriterion(metricKey, Operator.LT, 3d))
       .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d)),
-      new SearchOptions().addFacets(MAINTAINABILITY_RATING, NCLOC)).getFacets();
+      new SearchOptions().addFacets(metricKey, NCLOC)).getFacets();
 
     // Sticky facet on maintainability rating does not take into account maintainability rating filter
-    assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
+    assertThat(facets.get(metricKey)).containsExactly(
       entry("1", 3L),
       entry("2", 2L),
       entry("3", 4L),
@@ -805,140 +818,36 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_maintainability_rating_contains_only_projects_authorized_for_user() throws Exception {
+  @UseDataProvider("rating_metric_keys")
+  public void facet_on_rating_contains_only_projects_authorized_for_user(String metricKey) throws Exception {
     // User can see these projects
     indexForUser(USER1,
       // 3 docs with rating A
-      newDoc(MAINTAINABILITY_RATING, 1d),
-      newDoc(MAINTAINABILITY_RATING, 1d),
-      newDoc(MAINTAINABILITY_RATING, 1d),
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
+      newDoc(metricKey, 1d),
       // 2 docs with rating B
-      newDoc(MAINTAINABILITY_RATING, 2d),
-      newDoc(MAINTAINABILITY_RATING, 2d));
+      newDoc(metricKey, 2d),
+      newDoc(metricKey, 2d));
 
     // User cannot see these projects
     indexForUser(USER2,
       // docs with rating C
-      newDoc(MAINTAINABILITY_RATING, 3d),
+      newDoc(metricKey, 3d),
       // docs with rating D
-      newDoc(MAINTAINABILITY_RATING, 4d),
+      newDoc(metricKey, 4d),
       // docs with rating E
-      newDoc(MAINTAINABILITY_RATING, 5d));
+      newDoc(metricKey, 5d));
 
     userSession.logIn(USER1);
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(MAINTAINABILITY_RATING)).getFacets();
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(metricKey)).getFacets();
 
-    assertThat(facets.get(MAINTAINABILITY_RATING)).containsExactly(
+    assertThat(facets.get(metricKey)).containsExactly(
       entry("1", 3L),
       entry("2", 2L),
       entry("3", 0L),
       entry("4", 0L),
       entry("5", 0L));
-  }
-
-  @Test
-  public void facet_reliability_rating() {
-    index(
-      // 3 docs with rating A
-      newDoc(RELIABILITY_RATING, 1d),
-      newDoc(RELIABILITY_RATING, 1d),
-      newDoc(RELIABILITY_RATING, 1d),
-      // 2 docs with rating B
-      newDoc(RELIABILITY_RATING, 2d),
-      newDoc(RELIABILITY_RATING, 2d),
-      // 4 docs with rating C
-      newDoc(RELIABILITY_RATING, 3d),
-      newDoc(RELIABILITY_RATING, 3d),
-      newDoc(RELIABILITY_RATING, 3d),
-      newDoc(RELIABILITY_RATING, 3d),
-      // 2 docs with rating D
-      newDoc(RELIABILITY_RATING, 4d),
-      newDoc(RELIABILITY_RATING, 4d),
-      // 5 docs with rating E
-      newDoc(RELIABILITY_RATING, 5d),
-      newDoc(RELIABILITY_RATING, 5d),
-      newDoc(RELIABILITY_RATING, 5d),
-      newDoc(RELIABILITY_RATING, 5d),
-      newDoc(RELIABILITY_RATING, 5d));
-
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(RELIABILITY_RATING)).getFacets();
-
-    assertThat(facets.get(RELIABILITY_RATING)).containsExactly(
-      entry("1", 3L),
-      entry("2", 2L),
-      entry("3", 4L),
-      entry("4", 2L),
-      entry("5", 5L));
-  }
-
-  @Test
-  public void facet_new_reliability_rating() {
-    index(
-      // 3 docs with rating A
-      newDoc(NEW_RELIABILITY_RATING, 1d),
-      newDoc(NEW_RELIABILITY_RATING, 1d),
-      newDoc(NEW_RELIABILITY_RATING, 1d),
-      // 2 docs with rating B
-      newDoc(NEW_RELIABILITY_RATING, 2d),
-      newDoc(NEW_RELIABILITY_RATING, 2d),
-      // 4 docs with rating C
-      newDoc(NEW_RELIABILITY_RATING, 3d),
-      newDoc(NEW_RELIABILITY_RATING, 3d),
-      newDoc(NEW_RELIABILITY_RATING, 3d),
-      newDoc(NEW_RELIABILITY_RATING, 3d),
-      // 2 docs with rating D
-      newDoc(NEW_RELIABILITY_RATING, 4d),
-      newDoc(NEW_RELIABILITY_RATING, 4d),
-      // 5 docs with rating E
-      newDoc(NEW_RELIABILITY_RATING, 5d),
-      newDoc(NEW_RELIABILITY_RATING, 5d),
-      newDoc(NEW_RELIABILITY_RATING, 5d),
-      newDoc(NEW_RELIABILITY_RATING, 5d),
-      newDoc(NEW_RELIABILITY_RATING, 5d));
-
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_RELIABILITY_RATING)).getFacets();
-
-    assertThat(facets.get(NEW_RELIABILITY_RATING)).containsExactly(
-      entry("1", 3L),
-      entry("2", 2L),
-      entry("3", 4L),
-      entry("4", 2L),
-      entry("5", 5L));
-  }
-
-  @Test
-  public void facet_security_rating() {
-    index(
-      // 3 docs with rating A
-      newDoc(SECURITY_RATING, 1.0d),
-      newDoc(SECURITY_RATING, 1.0d),
-      newDoc(SECURITY_RATING, 1.0d),
-      // 2 docs with rating B
-      newDoc(SECURITY_RATING, 2.0d),
-      newDoc(SECURITY_RATING, 2.0d),
-      // 4 docs with rating C
-      newDoc(SECURITY_RATING, 3.0d),
-      newDoc(SECURITY_RATING, 3.0d),
-      newDoc(SECURITY_RATING, 3.0d),
-      newDoc(SECURITY_RATING, 3.0d),
-      // 2 docs with rating D
-      newDoc(SECURITY_RATING, 4.0d),
-      newDoc(SECURITY_RATING, 4.0d),
-      // 5 docs with rating E
-      newDoc(SECURITY_RATING, 5.0d),
-      newDoc(SECURITY_RATING, 5.0d),
-      newDoc(SECURITY_RATING, 5.0d),
-      newDoc(SECURITY_RATING, 5.0d),
-      newDoc(SECURITY_RATING, 5.0d));
-
-    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(SECURITY_RATING)).getFacets();
-
-    assertThat(facets.get(SECURITY_RATING)).containsExactly(
-      entry("1", 3L),
-      entry("2", 2L),
-      entry("3", 4L),
-      entry("4", 2L),
-      entry("5", 5L));
   }
 
   @Test
