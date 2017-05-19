@@ -28,6 +28,7 @@ import { sortQualifiers } from './utils';
 import type { Component, More, Results } from './utils';
 import RecentHistory from '../../components/RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import ClockIcon from '../../../components/common/ClockIcon';
 import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -361,15 +362,20 @@ export default class Search extends React.PureComponent {
               results={this.state.results}
               selected={this.state.selected}
             />
-            <div
-              className="navbar-search-shortcut-hint"
-              dangerouslySetInnerHTML={{
-                __html: translateWithParameters(
-                  'search.shortcut_hint',
-                  '<span class="shortcut-button shortcut-button-small">s</span>'
-                )
-              }}
-            />
+            <div className="navbar-search-shortcut-hint">
+              <div className="pull-right">
+                <ClockIcon className="little-spacer-right" size={12} />
+                {translate('recently_browsed')}
+              </div>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: translateWithParameters(
+                    'search.shortcut_hint',
+                    '<span class="shortcut-button shortcut-button-small">s</span>'
+                  )
+                }}
+              />
+            </div>
           </div>}
       </li>
     );
