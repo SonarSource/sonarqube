@@ -140,9 +140,15 @@ public class SearchProjectsTest {
     analyzeProject(projectKey, "shared/xoo-history-v2");
 
     SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).setFacets(asList(
-      "new_reliability_rating")).build());
+      "new_reliability_rating", "new_security_rating")).build());
 
     checkFacet(response, "new_reliability_rating",
+      tuple("1", 1L),
+      tuple("2", 0L),
+      tuple("3", 0L),
+      tuple("4", 0L),
+      tuple("5", 0L));
+    checkFacet(response, "new_security_rating",
       tuple("1", 1L),
       tuple("2", 0L),
       tuple("3", 0L),
