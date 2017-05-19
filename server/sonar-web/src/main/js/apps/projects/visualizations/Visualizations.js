@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import VisualizationsHeader from './VisualizationsHeader';
 import Risk from './Risk';
 import Reliability from './Reliability';
 import Security from './Security';
@@ -32,7 +31,6 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 export default class Visualizations extends React.PureComponent {
   props: {
     displayOrganizations: boolean,
-    onVisualizationChange: string => void,
     projects?: Array<*>,
     sort?: string,
     total?: number,
@@ -81,14 +79,8 @@ export default class Visualizations extends React.PureComponent {
 
     return (
       <div className="boxed-group projects-visualizations">
-        <VisualizationsHeader
-          onVisualizationChange={this.props.onVisualizationChange}
-          visualization={this.props.visualization}
-        />
         <div className="projects-visualization">
-          <div>
-            {projects != null && this.renderVisualization(projects)}
-          </div>
+          {projects != null && this.renderVisualization(projects)}
         </div>
         {this.renderFooter()}
       </div>
