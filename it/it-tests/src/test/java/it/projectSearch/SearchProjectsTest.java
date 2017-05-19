@@ -140,7 +140,7 @@ public class SearchProjectsTest {
     analyzeProject(projectKey, "shared/xoo-history-v2");
 
     SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).setFacets(asList(
-      "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage")).build());
+      "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density")).build());
 
     checkFacet(response, "new_reliability_rating",
       tuple("1", 1L),
@@ -166,6 +166,12 @@ public class SearchProjectsTest {
       tuple("50.0-70.0", 0L),
       tuple("70.0-80.0", 0L),
       tuple("80.0-*", 0L));
+    checkFacet(response, "new_duplicated_lines_density",
+      tuple("*-3.0", 0L),
+      tuple("3.0-5.0", 0L),
+      tuple("5.0-10.0", 0L),
+      tuple("10.0-20.0", 0L),
+      tuple("20.0-*", 0L));
   }
 
   private void checkFacet(SearchProjectsWsResponse response, String facetKey, Tuple... values) {
