@@ -81,6 +81,7 @@ public class ProjectMeasuresIndexTest {
   private static final String COVERAGE = "coverage";
   private static final String NEW_COVERAGE = "new_coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
+  private static final String NEW_DUPLICATION = "new_duplicated_lines_density";
   private static final String NCLOC = "ncloc";
   private static final String LANGUAGES = "languages";
 
@@ -772,6 +773,41 @@ public class ProjectMeasuresIndexTest {
       entry("5.0-10.0", 0L),
       entry("10.0-20.0", 0L),
       entry("20.0-*", 0L));
+  }
+
+  @Test
+  public void facet_new_duplicated_lines_density() {
+    index(
+      // 3 docs with duplication<3%
+      newDoc(NEW_DUPLICATION, 0d),
+      newDoc(NEW_DUPLICATION, 0d),
+      newDoc(NEW_DUPLICATION, 2.9d),
+      // 2 docs with duplication>=3% and duplication<5%
+      newDoc(NEW_DUPLICATION, 3d),
+      newDoc(NEW_DUPLICATION, 4.9d),
+      // 4 docs with duplication>=5% and duplication<10%
+      newDoc(NEW_DUPLICATION, 5d),
+      newDoc(NEW_DUPLICATION, 6d),
+      newDoc(NEW_DUPLICATION, 6d),
+      newDoc(NEW_DUPLICATION, 9.9d),
+      // 2 docs with duplication>=10% and duplication<20%
+      newDoc(NEW_DUPLICATION, 10d),
+      newDoc(NEW_DUPLICATION, 19.9d),
+      // 5 docs with duplication>= 20%
+      newDoc(NEW_DUPLICATION, 20d),
+      newDoc(NEW_DUPLICATION, 20d),
+      newDoc(NEW_DUPLICATION, 50d),
+      newDoc(NEW_DUPLICATION, 80d),
+      newDoc(NEW_DUPLICATION, 100d));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_DUPLICATION)).getFacets();
+
+    assertThat(facets.get(NEW_DUPLICATION)).containsExactly(
+      entry("*-3.0", 3L),
+      entry("3.0-5.0", 2L),
+      entry("5.0-10.0", 4L),
+      entry("10.0-20.0", 2L),
+      entry("20.0-*", 5L));
   }
 
   @Test
