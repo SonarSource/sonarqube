@@ -73,6 +73,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDE
 public class ProjectMeasuresIndexTest {
 
   private static final String MAINTAINABILITY_RATING = "sqale_rating";
+  private static final String NEW_MAINTAINABILITY_RATING_KEY = "new_maintainability_rating";
   private static final String RELIABILITY_RATING = "reliability_rating";
   private static final String NEW_RELIABILITY_RATING = "new_reliability_rating";
   private static final String SECURITY_RATING = "security_rating";
@@ -102,7 +103,7 @@ public class ProjectMeasuresIndexTest {
 
   @DataProvider
   public static Object[][] rating_metric_keys() {
-    return new Object[][] {{MAINTAINABILITY_RATING}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING}};
+    return new Object[][] {{MAINTAINABILITY_RATING}, {NEW_MAINTAINABILITY_RATING_KEY}, {RELIABILITY_RATING}, {NEW_RELIABILITY_RATING}, {SECURITY_RATING}, {NEW_SECURITY_RATING}};
   }
 
   private ProjectMeasuresIndexer projectMeasureIndexer = new ProjectMeasuresIndexer(null, es.client());
