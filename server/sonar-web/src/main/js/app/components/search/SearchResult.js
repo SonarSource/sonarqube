@@ -38,8 +38,45 @@ type Props = {|
   selected: boolean
 |};
 
+type State = {
+  tooltipVisible: boolean
+};
+
+const TOOLTIP_DELAY = 1000;
+
 export default class SearchResult extends React.PureComponent {
+  interval: ?number;
   props: Props;
+  state: State = { tooltipVisible: false };
+
+  componentDidMount() {
+    if (this.props.selected) {
+      this.scheduleTooltip();
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.props.selected && nextProps.selected) {
+      this.scheduleTooltip();
+    } else if (this.props.selected && !nextProps.selected) {
+      this.unscheduleTooltip();
+      this.setState({ tooltipVisible: false });
+    }
+  }
+
+  componentWillUnmount() {
+    this.unscheduleTooltip();
+  }
+
+  scheduleTooltip = () => {
+    this.interval = setTimeout(() => this.setState({ tooltipVisible: true }), TOOLTIP_DELAY);
+  };
+
+  unscheduleTooltip = () => {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  };
 
   handleMouseEnter = () => {
     this.props.onSelect(this.props.component.key);
@@ -79,7 +116,11 @@ export default class SearchResult extends React.PureComponent {
         className={this.props.selected ? 'active' : undefined}
         key={component.key}
         ref={node => this.props.innerRef(component.key, node)}>
-        <Tooltip mouseEnterDelay={1.0} overlay={component.key} placement="left">
+        <Tooltip
+          mouseEnterDelay={TOOLTIP_DELAY / 1000}
+          overlay={component.key}
+          placement="left"
+          visible={this.state.tooltipVisible}>
           <Link
             className="navbar-search-item-link"
             data-key={component.key}
