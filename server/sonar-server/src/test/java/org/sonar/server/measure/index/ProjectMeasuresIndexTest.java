@@ -79,6 +79,7 @@ public class ProjectMeasuresIndexTest {
   private static final String SECURITY_RATING = "security_rating";
   private static final String NEW_SECURITY_RATING = "new_security_rating";
   private static final String COVERAGE = "coverage";
+  private static final String NEW_COVERAGE = "new_coverage";
   private static final String DUPLICATION = "duplicated_lines_density";
   private static final String NCLOC = "ncloc";
   private static final String LANGUAGES = "languages";
@@ -632,6 +633,41 @@ public class ProjectMeasuresIndexTest {
       entry("50.0-70.0", 0L),
       entry("70.0-80.0", 0L),
       entry("80.0-*", 0L));
+  }
+
+  @Test
+  public void facet_new_coverage() {
+    index(
+      // 3 docs with coverage<30%
+      newDoc(NEW_COVERAGE, 0d),
+      newDoc(NEW_COVERAGE, 0d),
+      newDoc(NEW_COVERAGE, 29d),
+      // 2 docs with coverage>=30% and coverage<50%
+      newDoc(NEW_COVERAGE, 30d),
+      newDoc(NEW_COVERAGE, 49d),
+      // 4 docs with coverage>=50% and coverage<70%
+      newDoc(NEW_COVERAGE, 50d),
+      newDoc(NEW_COVERAGE, 60d),
+      newDoc(NEW_COVERAGE, 60d),
+      newDoc(NEW_COVERAGE, 69d),
+      // 2 docs with coverage>=70% and coverage<80%
+      newDoc(NEW_COVERAGE, 70d),
+      newDoc(NEW_COVERAGE, 79d),
+      // 5 docs with coverage>= 80%
+      newDoc(NEW_COVERAGE, 80d),
+      newDoc(NEW_COVERAGE, 80d),
+      newDoc(NEW_COVERAGE, 90d),
+      newDoc(NEW_COVERAGE, 90.5d),
+      newDoc(NEW_COVERAGE, 100d));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_COVERAGE)).getFacets();
+
+    assertThat(facets.get(NEW_COVERAGE)).containsExactly(
+      entry("*-30.0", 3L),
+      entry("30.0-50.0", 2L),
+      entry("50.0-70.0", 4L),
+      entry("70.0-80.0", 2L),
+      entry("80.0-*", 5L));
   }
 
   @Test
