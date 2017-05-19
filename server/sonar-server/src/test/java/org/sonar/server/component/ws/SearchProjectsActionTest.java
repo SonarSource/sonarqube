@@ -67,6 +67,7 @@ import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
@@ -115,7 +116,7 @@ public class SearchProjectsActionTest {
 
   @DataProvider
   public static Object[][] new_rating_metric_keys() {
-    return new Object[][] {{NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
+    return new Object[][] {{NEW_MAINTAINABILITY_RATING_KEY}, {NEW_RELIABILITY_RATING_KEY}, {NEW_SECURITY_RATING_KEY}};
   }
 
   private DbClient dbClient = db.getDbClient();
@@ -166,7 +167,7 @@ public class SearchProjectsActionTest {
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
     assertThat(facets.possibleValues()).containsOnly("ncloc", "duplicated_lines_density", "coverage", "sqale_rating", "reliability_rating", "security_rating", "alert_status",
-      "languages", "tags", "new_reliability_rating", "new_security_rating");
+      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating");
   }
 
   @Test
