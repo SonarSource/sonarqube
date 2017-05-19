@@ -67,6 +67,7 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -93,6 +94,7 @@ public class ProjectMeasuresIndex {
     NCLOC_KEY,
     DUPLICATED_LINES_DENSITY_KEY,
     COVERAGE_KEY,
+    NEW_COVERAGE_KEY,
     SQALE_RATING_KEY,
     NEW_MAINTAINABILITY_RATING_KEY,
     RELIABILITY_RATING_KEY,
@@ -103,13 +105,16 @@ public class ProjectMeasuresIndex {
     FILTER_LANGUAGES,
     FILTER_TAGS);
 
+  private static final Double[] COVERAGE_THRESHOLDS = new Double[]{30d, 50d, 70d, 80d};
+
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
     .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, 1_000d, 10_000d, 100_000d, 500_000d))
     .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, 3d, 5d, 10d, 20d))
-    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, 30d, 50d, 70d, 80d))
+    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
+    .put(NEW_COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
     .put(SQALE_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SQALE_RATING_KEY, facetBuilder))
     .put(NEW_MAINTAINABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_MAINTAINABILITY_RATING_KEY, facetBuilder))
     .put(RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, facetBuilder))
