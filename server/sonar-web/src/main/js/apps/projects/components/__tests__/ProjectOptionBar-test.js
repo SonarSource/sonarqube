@@ -17,35 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import ProjectOptionBar from '../ProjectOptionBar';
+import { click } from '../../../../helpers/testUtils';
 
-type Props = {
-  loading: boolean,
-  onOpenOptionBar: () => void,
-  total?: number
-};
+it('should render option bar closed', () => {
+  expect(shallow(<ProjectOptionBar open={false} view="overall" />)).toMatchSnapshot();
+});
 
-export default function PageHeader(props: Props) {
-  return (
-    <header className="page-header">
-      <div className="page-actions projects-page-actions">
-        <div className="text-right spacer-bottom">
-          <a className="button" href="#" onClick={props.onOpenOptionBar}>
-            {translate('projects.view_settings')}
-          </a>
-        </div>
+it('should render option bar open', () => {
+  expect(
+    shallow(<ProjectOptionBar open={true} view="visualizations" visualization="coverage" />)
+  ).toMatchSnapshot();
+});
 
-        {!!props.loading && <i className="spinner spacer-right" />}
-
-        {props.total != null &&
-          <span>
-            <strong id="projects-total">{props.total}</strong>
-            {' '}
-            {translate('projects._projects')}
-          </span>}
-      </div>
-    </header>
-  );
-}
+it('should call close method correctly', () => {
+  const toggle = jest.fn();
+  const wrapper = shallow(<ProjectOptionBar open={true} view="leak" onToggleOptionBar={toggle} />);
+  click(wrapper.find('a.projects-topbar-button-close'));
+  expect(toggle.mock.calls).toMatchSnapshot();
+});

@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should call close method correctly 1`] = `
+Array [
+  Array [
+    false,
+  ],
+]
+`;
+
+exports[`should render option bar closed 1`] = `
+<div
+  className="projects-topbar"
+>
+  <div
+    className="projects-topbar-actions"
+  >
+    <a
+      className="projects-topbar-button projects-topbar-button-close"
+      href="#"
+      onClick={[Function]}
+    >
+      <CloseIcon />
+    </a>
+    <div
+      className="projects-topbar-actions-inner"
+    >
+      <PerspectiveSelect
+        view="overall"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render option bar open 1`] = `
+<div
+  className="projects-topbar"
+>
+  <div
+    className="projects-topbar-actions open"
+  >
+    <a
+      className="projects-topbar-button projects-topbar-button-close"
+      href="#"
+      onClick={[Function]}
+    >
+      <CloseIcon />
+    </a>
+    <div
+      className="projects-topbar-actions-inner"
+    >
+      <PerspectiveSelect
+        view="visualizations"
+        visualization="coverage"
+      />
+    </div>
+  </div>
+</div>
+`;

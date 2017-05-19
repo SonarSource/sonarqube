@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
+import ProjectOptionBar from './ProjectOptionBar';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
@@ -28,33 +30,61 @@ import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
 import '../styles.css';
 
-export default class AllProjects extends React.PureComponent {
-  static propTypes = {
-    isFavorite: React.PropTypes.bool.isRequired,
-    location: React.PropTypes.object.isRequired,
-    fetchProjects: React.PropTypes.func.isRequired,
-    organization: React.PropTypes.object,
-    router: React.PropTypes.object.isRequired
-  };
+type Props = {
+  isFavorite: boolean,
+  location: { pathname: string, query: { [string]: string } },
+  fetchProjects: (query: string, isFavorite: boolean, organization?: {}) => Promise<*>,
+  organization?: { key: string },
+  router: { push: ({ pathname: string, query?: {} }) => void }
+};
 
-  state = {
-    query: {}
+type State = {
+  query: { [string]: string },
+  optionBarOpen: boolean
+};
+
+export default class AllProjects extends React.PureComponent {
+  props: Props;
+  state: State = {
+    query: {},
+    optionBarOpen: false
   };
 
   componentDidMount() {
     this.handleQueryChange();
-    document.getElementById('footer').classList.add('search-navigator-footer');
+    const footer = document.getElementById('footer');
+    footer && footer.classList.add('search-navigator-footer');
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query !== this.props.location.query) {
       this.handleQueryChange();
     }
   }
 
   componentWillUnmount() {
-    document.getElementById('footer').classList.remove('search-navigator-footer');
+    const footer = document.getElementById('footer');
+    footer && footer.classList.remove('search-navigator-footer');
   }
+
+  openOptionBar = (evt: Event & { currentTarget: HTMLElement }) => {
+    evt.currentTarget.blur();
+    evt.preventDefault();
+    this.handleOptionBarToggle(true);
+  };
+
+  handleOptionBarToggle = (open: boolean) => this.setState({ optionBarOpen: open });
+
+  handlePerspectiveChange = ({ view, visualization }: { view: string, visualization?: string }) => {
+    this.props.router.push({
+      pathname: this.props.location.pathname,
+      query: {
+        ...this.props.location.query,
+        view: view === 'overall' ? undefined : view,
+        visualization
+      }
+    });
+  };
 
   handleQueryChange() {
     const query = parseUrlQuery(this.props.location.query);
@@ -62,78 +92,60 @@ export default class AllProjects extends React.PureComponent {
     this.props.fetchProjects(query, this.props.isFavorite, this.props.organization);
   }
 
-  handleViewChange = view => {
-    const query = {
-      ...this.props.location.query,
-      view: view === 'list' ? undefined : view
-    };
-    if (query.view !== 'visualizations') {
-      Object.assign(query, { visualization: undefined });
-    }
-    this.props.router.push({
-      pathname: this.props.location.pathname,
-      query
-    });
-  };
-
-  handleVisualizationChange = visualization => {
-    this.props.router.push({
-      pathname: this.props.location.pathname,
-      query: {
-        ...this.props.location.query,
-        view: 'visualizations',
-        visualization
-      }
-    });
-  };
-
   render() {
-    const { query } = this.state;
+    const { query, optionBarOpen } = this.state;
     const isFiltered = Object.keys(query).some(key => query[key] != null);
 
-    const view = query.view || 'list';
+    const view = query.view || 'overall';
     const visualization = query.visualization || 'risk';
 
-    const top = this.props.organization ? 95 : 30;
+    const top = (this.props.organization ? 95 : 30) + (optionBarOpen ? 45 : 0);
 
     return (
-      <div className="layout-page projects-page">
+      <div>
         <Helmet title={translate('projects.page')} />
-        <div className="layout-page-side-outer">
-          <div className="layout-page-side" style={{ top }}>
-            <div className="layout-page-side-inner">
-              <div className="layout-page-filters">
-                <PageSidebar
-                  query={query}
-                  isFavorite={this.props.isFavorite}
-                  organization={this.props.organization}
-                />
+
+        <ProjectOptionBar
+          onPerspectiveChange={this.handlePerspectiveChange}
+          onToggleOptionBar={this.handleOptionBarToggle}
+          open={optionBarOpen}
+          view={view}
+          visualization={visualization}
+        />
+
+        <div className="layout-page projects-page">
+          <div className="layout-page-side-outer">
+            <div className="layout-page-side projects-page-side" style={{ top }}>
+              <div className="layout-page-side-inner">
+                <div className="layout-page-filters">
+                  <PageSidebar
+                    query={query}
+                    isFavorite={this.props.isFavorite}
+                    organization={this.props.organization}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="layout-page-main">
-          <div className="layout-page-main-inner">
-            <PageHeaderContainer onViewChange={this.handleViewChange} view={view} />
-            {view === 'list' &&
-              <ProjectsListContainer
-                isFavorite={this.props.isFavorite}
-                isFiltered={isFiltered}
-                organization={this.props.organization}
-              />}
-            {view === 'list' &&
-              <ProjectsListFooterContainer
-                query={query}
-                isFavorite={this.props.isFavorite}
-                organization={this.props.organization}
-              />}
-            {view === 'visualizations' &&
-              <VisualizationsContainer
-                onVisualizationChange={this.handleVisualizationChange}
-                sort={query.sort}
-                visualization={visualization}
-              />}
+          <div className="layout-page-main">
+            <div className="layout-page-main-inner">
+              <PageHeaderContainer onOpenOptionBar={this.openOptionBar} />
+              {view === 'overall' &&
+                <ProjectsListContainer
+                  isFavorite={this.props.isFavorite}
+                  isFiltered={isFiltered}
+                  organization={this.props.organization}
+                />}
+              {view === 'overall' &&
+                <ProjectsListFooterContainer
+                  query={query}
+                  isFavorite={this.props.isFavorite}
+                  organization={this.props.organization}
+                />}
+              {view === 'visualizations' &&
+                <VisualizationsContainer sort={query.sort} visualization={visualization} />}
+            </div>
           </div>
         </div>
       </div>

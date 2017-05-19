@@ -17,35 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
-import { translate } from '../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import PerspectiveSelectOption from '../PerspectiveSelectOption';
 
-type Props = {
-  loading: boolean,
-  onOpenOptionBar: () => void,
-  total?: number
-};
+it('should render correctly for a view', () => {
+  expect(
+    shallow(
+      <PerspectiveSelectOption option={{ value: 'overall', type: 'view', label: 'Overall' }}>
+        Overall
+      </PerspectiveSelectOption>
+    )
+  ).toMatchSnapshot();
+});
 
-export default function PageHeader(props: Props) {
-  return (
-    <header className="page-header">
-      <div className="page-actions projects-page-actions">
-        <div className="text-right spacer-bottom">
-          <a className="button" href="#" onClick={props.onOpenOptionBar}>
-            {translate('projects.view_settings')}
-          </a>
-        </div>
-
-        {!!props.loading && <i className="spinner spacer-right" />}
-
-        {props.total != null &&
-          <span>
-            <strong id="projects-total">{props.total}</strong>
-            {' '}
-            {translate('projects._projects')}
-          </span>}
-      </div>
-    </header>
-  );
-}
+it('should render correctly for a visualization', () => {
+  expect(
+    shallow(
+      <PerspectiveSelectOption
+        option={{ value: 'coverage', type: 'visualization', label: 'Coverage' }}>
+        Coverage
+      </PerspectiveSelectOption>
+    )
+  ).toMatchSnapshot();
+});
