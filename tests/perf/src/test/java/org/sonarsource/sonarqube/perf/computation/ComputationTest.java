@@ -75,7 +75,7 @@ public class ComputationTest extends PerfTestCase {
 
     orchestrator.executeBuild(scanner);
 
-    assertComputationDurationAround(340000L);
+    assertComputationDurationAround(350_000L);
   }
 
   private void assertComputationDurationAround(long expectedDuration) throws IOException {
