@@ -28,6 +28,7 @@ import { sortQualifiers } from './utils';
 import type { Component, More, Results } from './utils';
 import RecentHistory from '../../components/RecentHistory';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import ClockIcon from '../../../components/common/ClockIcon';
 import { getSuggestions } from '../../../api/components';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -162,30 +163,34 @@ export default class Search extends React.PureComponent {
   };
 
   search = (query: string) => {
-    this.setState({ loading: true });
-    const recentlyBrowsed = RecentHistory.get().map(component => component.key);
-    getSuggestions(query, recentlyBrowsed).then(response => {
-      // compare `this.state.query` and `query` to handle two request done almost at the same time
-      // in this case only the request that matches the current query should be taken
-      if (this.mounted && this.state.query === query) {
-        const results = {};
-        const more = {};
-        response.results.forEach(group => {
-          results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
-          more[group.q] = group.more;
-        });
-        const list = this.getPlainComponentsList(results, more);
-        this.setState(state => ({
-          loading: false,
-          more,
-          organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
-          projects: { ...state.projects, ...keyBy(response.projects, 'key') },
-          results,
-          selected: list.length > 0 ? list[0] : null,
-          shortQuery: response.warning === 'short_input'
-        }));
-      }
-    });
+    if (query.length === 0 || query.length >= 2) {
+      this.setState({ loading: true });
+      const recentlyBrowsed = RecentHistory.get().map(component => component.key);
+      getSuggestions(query, recentlyBrowsed).then(response => {
+        // compare `this.state.query` and `query` to handle two request done almost at the same time
+        // in this case only the request that matches the current query should be taken
+        if (this.mounted && this.state.query === query) {
+          const results = {};
+          const more = {};
+          response.results.forEach(group => {
+            results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
+            more[group.q] = group.more;
+          });
+          const list = this.getPlainComponentsList(results, more);
+          this.setState(state => ({
+            loading: false,
+            more,
+            organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
+            projects: { ...state.projects, ...keyBy(response.projects, 'key') },
+            results,
+            selected: list.length > 0 ? list[0] : null,
+            shortQuery: response.warning === 'short_input'
+          }));
+        }
+      });
+    } else {
+      this.setState({ loading: false });
+    }
   };
 
   searchMore = (qualifier: string) => {
@@ -216,9 +221,7 @@ export default class Search extends React.PureComponent {
   handleQueryChange = (event: { currentTarget: HTMLInputElement }) => {
     const query = event.currentTarget.value;
     this.setState({ query, shortQuery: query.length === 1 });
-    if (query.length === 0 || query.length >= 2) {
-      this.search(query);
-    }
+    this.search(query);
   };
 
   selectPrevious = () => {
@@ -359,15 +362,20 @@ export default class Search extends React.PureComponent {
               results={this.state.results}
               selected={this.state.selected}
             />
-            <div
-              className="navbar-search-shortcut-hint"
-              dangerouslySetInnerHTML={{
-                __html: translateWithParameters(
-                  'search.shortcut_hint',
-                  '<span class="shortcut-button shortcut-button-small">s</span>'
-                )
-              }}
-            />
+            <div className="navbar-search-shortcut-hint">
+              <div className="pull-right">
+                <ClockIcon className="little-spacer-right" size={12} />
+                {translate('recently_browsed')}
+              </div>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: translateWithParameters(
+                    'search.shortcut_hint',
+                    '<span class="shortcut-button shortcut-button-small">s</span>'
+                  )
+                }}
+              />
+            </div>
           </div>}
       </li>
     );

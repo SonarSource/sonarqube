@@ -6,6 +6,7 @@ exports[`renders favorite 1`] = `
     mouseEnterDelay={1}
     overlay="foo"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
@@ -51,6 +52,7 @@ exports[`renders match 1`] = `
     mouseEnterDelay={1}
     overlay="foo"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
@@ -95,6 +97,7 @@ exports[`renders organizations 1`] = `
     mouseEnterDelay={1}
     overlay="foo"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
@@ -144,6 +147,7 @@ exports[`renders organizations 2`] = `
     mouseEnterDelay={1}
     overlay="foo"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
@@ -188,6 +192,7 @@ exports[`renders projects 1`] = `
     mouseEnterDelay={1}
     overlay="qwe"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
@@ -237,6 +242,7 @@ exports[`renders recently browsed 1`] = `
     mouseEnterDelay={1}
     overlay="foo"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
@@ -281,6 +287,7 @@ exports[`renders selected 1`] = `
     mouseEnterDelay={1}
     overlay="foo"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
@@ -324,6 +331,7 @@ exports[`renders selected 2`] = `
     mouseEnterDelay={1}
     overlay="foo"
     placement="left"
+    visible={false}
   >
     <Link
       className="navbar-search-item-link"
