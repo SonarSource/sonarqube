@@ -109,9 +109,9 @@ public class ProjectMeasuresIndex {
     FILTER_LANGUAGES,
     FILTER_TAGS);
 
-  private static final Double[] LINES_THRESHOLDS = new Double[]{1_000d, 10_000d, 100_000d, 500_000d};
-  private static final Double[] COVERAGE_THRESHOLDS = new Double[]{30d, 50d, 70d, 80d};
-  private static final Double[] DUPLICATIONS_THRESHOLDS = new Double[]{3d, 5d, 10d, 20d};
+  private static final Double[] LINES_THRESHOLDS = new Double[] {1_000d, 10_000d, 100_000d, 500_000d};
+  private static final Double[] COVERAGE_THRESHOLDS = new Double[] {30d, 50d, 70d, 80d};
+  private static final Double[] DUPLICATIONS_THRESHOLDS = new Double[] {3d, 5d, 10d, 20d};
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
@@ -119,8 +119,10 @@ public class ProjectMeasuresIndex {
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
     .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, LINES_THRESHOLDS))
     .put(NEW_LINES_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_LINES_KEY, facetBuilder, LINES_THRESHOLDS))
-    .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
-    .put(NEW_DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
+    .put(DUPLICATED_LINES_DENSITY_KEY,
+      (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
+    .put(NEW_DUPLICATED_LINES_DENSITY_KEY,
+      (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, NEW_DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
     .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
     .put(NEW_COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
     .put(SQALE_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SQALE_RATING_KEY, facetBuilder))
@@ -186,6 +188,14 @@ public class ProjectMeasuresIndex {
     esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder, createRangeFacet(metricKey, thresholds)));
   }
 
+  private static void addRangeFacetIncludingNoData(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder, Double... thresholds) {
+    esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder,
+      AggregationBuilders.filter("combined_" + metricKey)
+        .filter(matchAllQuery())
+        .subAggregation(createRangeFacet(metricKey, thresholds))
+        .subAggregation(createNoDataFacet(metricKey))));
+  }
+
   private static void addRatingFacet(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder) {
     esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder, createRatingFacet(metricKey)));
   }
@@ -239,6 +249,12 @@ public class ProjectMeasuresIndex {
         AggregationBuilders.filter("filter_" + metricKey)
           .filter(termsQuery(FIELD_MEASURES_KEY, metricKey))
           .subAggregation(rangeAgg));
+  }
+
+  private static AbstractAggregationBuilder createNoDataFacet(String metricKey) {
+    return AggregationBuilders.filter("no_data_" + metricKey)
+      .filter(boolQuery()
+        .mustNot(nestedQuery(FIELD_MEASURES, termQuery(FIELD_MEASURES_KEY, metricKey))));
   }
 
   private static AbstractAggregationBuilder createRatingFacet(String metricKey) {
