@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -60,10 +61,13 @@ public class DeleteCommentAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_DELETE_COMMENT)
       .setDescription("Delete a comment.<br/>" +
-        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.<br/>" +
-        "Since 6.3, the response contains the issue with all details, not the removed comment.<br/>" +
-        "Since 6.3, 'key' parameter has been renamed to %s", PARAM_COMMENT)
+        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
+      .setChangelog(
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."),
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.3", "the response returns the issue with all its details"),
+        new Change("6.3", "the 'key' parameter is renamed 'comment'"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "delete_comment-example.json"))
       .setPost(true);

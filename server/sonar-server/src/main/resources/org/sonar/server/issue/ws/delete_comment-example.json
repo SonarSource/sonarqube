@@ -4,7 +4,6 @@
     "rule": "squid:S2301",
     "severity": "MAJOR",
     "component": "org.sonarsource.sonarlint.intellij:sonarlint-intellij:src/main/java/org/sonarlint/intellij/core/ServerIssueUpdater.java",
-    "componentId": 87163,
     "project": "org.sonarsource.sonarlint.intellij:sonarlint-intellij",
     "line": 78,
     "textRange": {
