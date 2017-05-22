@@ -69,6 +69,7 @@ import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -93,6 +94,7 @@ public class ProjectMeasuresIndex {
 
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
     NCLOC_KEY,
+    NEW_LINES_KEY,
     DUPLICATED_LINES_DENSITY_KEY,
     NEW_DUPLICATED_LINES_DENSITY_KEY,
     COVERAGE_KEY,
@@ -107,6 +109,7 @@ public class ProjectMeasuresIndex {
     FILTER_LANGUAGES,
     FILTER_TAGS);
 
+  private static final Double[] LINES_THRESHOLDS = new Double[]{1_000d, 10_000d, 100_000d, 500_000d};
   private static final Double[] COVERAGE_THRESHOLDS = new Double[]{30d, 50d, 70d, 80d};
   private static final Double[] DUPLICATIONS_THRESHOLDS = new Double[]{3d, 5d, 10d, 20d};
 
@@ -114,7 +117,8 @@ public class ProjectMeasuresIndex {
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
-    .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, 1_000d, 10_000d, 100_000d, 500_000d))
+    .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, LINES_THRESHOLDS))
+    .put(NEW_LINES_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_LINES_KEY, facetBuilder, LINES_THRESHOLDS))
     .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
     .put(NEW_DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
     .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
