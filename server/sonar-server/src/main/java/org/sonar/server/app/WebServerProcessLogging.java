@@ -20,8 +20,6 @@
 package org.sonar.server.app;
 
 import ch.qos.logback.classic.Level;
-import java.util.logging.LogManager;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.ProcessId;
 import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
@@ -53,8 +51,6 @@ public class WebServerProcessLogging extends ServerProcessLogging {
 
   @Override
   protected void extendConfigure() {
-    // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
-    LogManager.getLogManager().reset();
-    SLF4JBridgeHandler.install();
+    // No extension needed
   }
 }
