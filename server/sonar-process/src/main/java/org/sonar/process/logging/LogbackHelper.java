@@ -39,9 +39,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.LogManager;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -86,8 +88,13 @@ public class LogbackHelper {
   }
 
   public LoggerContextListener enableJulChangePropagation(LoggerContext loggerContext) {
+    LogManager.getLogManager().reset();
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
+
     LevelChangePropagator propagator = new LevelChangePropagator();
     propagator.setContext(loggerContext);
+    propagator.setResetJUL(true);
     propagator.start();
     loggerContext.addListener(propagator);
     return propagator;
