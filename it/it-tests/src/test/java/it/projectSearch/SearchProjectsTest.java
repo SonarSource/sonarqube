@@ -23,6 +23,9 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category6Suite;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -98,6 +101,7 @@ public class SearchProjectsTest {
       tuple("70.0-80.0", 0L),
       tuple("80.0-*", 0L));
     checkFacet(response, "duplicated_lines_density",
+      tuple("NO_DATA", 0L),
       tuple("*-3.0", 2L),
       tuple("3.0-5.0", 0L),
       tuple("5.0-10.0", 0L),
@@ -135,27 +139,32 @@ public class SearchProjectsTest {
   @Test
   public void should_return_facets_on_leak() throws Exception {
     setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
-    String projectKey = newProjectKey();
-    analyzeProject(projectKey, "shared/xoo-history-v1");
-    analyzeProject(projectKey, "shared/xoo-history-v2");
+    // This project has no duplication on new code
+    String projectKey1 = newProjectKey();
+    analyzeProject(projectKey1, "shared/xoo-sample", "2016-12-31");
+    analyzeProject(projectKey1, "shared/xoo-sample");
+    // This project has 0% duplication on new code
+    String projectKey2 = newProjectKey();
+    analyzeProject(projectKey2, "projectSearch/xoo-history-v1", "2016-12-31");
+    analyzeProject(projectKey2, "projectSearch/xoo-history-v2");
 
     SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).setFacets(asList(
       "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines")).build());
 
     checkFacet(response, "new_reliability_rating",
-      tuple("1", 1L),
+      tuple("1", 2L),
       tuple("2", 0L),
       tuple("3", 0L),
       tuple("4", 0L),
       tuple("5", 0L));
     checkFacet(response, "new_security_rating",
-      tuple("1", 1L),
+      tuple("1", 2L),
       tuple("2", 0L),
       tuple("3", 0L),
       tuple("4", 0L),
       tuple("5", 0L));
     checkFacet(response, "new_maintainability_rating",
-      tuple("1", 1L),
+      tuple("1", 2L),
       tuple("2", 0L),
       tuple("3", 0L),
       tuple("4", 0L),
@@ -167,13 +176,14 @@ public class SearchProjectsTest {
       tuple("70.0-80.0", 0L),
       tuple("80.0-*", 0L));
     checkFacet(response, "new_duplicated_lines_density",
-      tuple("*-3.0", 0L),
+      tuple("NO_DATA", 1L),
+      tuple("*-3.0", 1L),
       tuple("3.0-5.0", 0L),
       tuple("5.0-10.0", 0L),
       tuple("10.0-20.0", 0L),
       tuple("20.0-*", 0L));
     checkFacet(response, "new_lines",
-      tuple("*-1000.0", 0L),
+      tuple("*-1000.0", 1L),
       tuple("1000.0-10000.0", 0L),
       tuple("10000.0-100000.0", 0L),
       tuple("100000.0-500000.0", 0L),
@@ -182,7 +192,7 @@ public class SearchProjectsTest {
 
   private void checkFacet(SearchProjectsWsResponse response, String facetKey, Tuple... values) {
     Common.Facet facet = response.getFacets().getFacetsList().stream().filter(f -> f.getProperty().equals(facetKey)).findAny().get();
-    assertThat(facet.getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount).containsExactly(values);
+    assertThat(facet.getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount).containsExactlyInAnyOrder(values);
   }
 
   @Test
@@ -206,11 +216,22 @@ public class SearchProjectsTest {
   }
 
   private void analyzeProject(String projectKey, String relativePath) {
-    orchestrator.executeBuild(SonarScanner.create(projectDir(relativePath),
+    analyzeProject(projectKey, relativePath, null);
+  }
+
+  private void analyzeProject(String projectKey, String relativePath, @Nullable String analysisDate) {
+    List<String> keyValueProperties = new ArrayList<>(asList(
       "sonar.projectKey", projectKey,
       "sonar.organization", organizationKey,
       "sonar.profile", "with-many-rules",
-      "sonar.login", "admin", "sonar.password", "admin"));
+      "sonar.login", "admin", "sonar.password", "admin",
+      "sonar.scm.disabled", "false"
+    ));
+    if (analysisDate != null) {
+      keyValueProperties.add("sonar.projectDate");
+      keyValueProperties.add(analysisDate);
+    }
+    orchestrator.executeBuild(SonarScanner.create(projectDir(relativePath), keyValueProperties.toArray(new String[0])));
   }
 
   private SearchProjectsWsResponse searchProjects(String filter) throws IOException {
