@@ -710,6 +710,8 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void facet_duplicated_lines_density() {
     index(
+      // 1 doc with no duplication
+      newDocWithNoMeasure(),
       // 3 docs with duplication<3%
       newDoc(DUPLICATION, 0d),
       newDoc(DUPLICATION, 0d),
@@ -734,7 +736,8 @@ public class ProjectMeasuresIndexTest {
 
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(DUPLICATION)).getFacets();
 
-    assertThat(facets.get(DUPLICATION)).containsExactly(
+    assertThat(facets.get(DUPLICATION)).containsOnly(
+      entry("NO_DATA", 1L),
       entry("*-3.0", 3L),
       entry("3.0-5.0", 2L),
       entry("5.0-10.0", 4L),
@@ -745,6 +748,8 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void facet_duplicated_lines_density_is_sticky() {
     index(
+      // docs with no duplication
+      newDoc(NCLOC, 50_001d, COVERAGE, 29d),
       // docs with duplication<3%
       newDoc(DUPLICATION, 0d, NCLOC, 999d, COVERAGE, 0d),
       // docs with duplication>=3% and duplication<5%
@@ -764,14 +769,15 @@ public class ProjectMeasuresIndexTest {
       new SearchOptions().addFacets(DUPLICATION, NCLOC)).getFacets();
 
     // Sticky facet on duplication does not take into account duplication filter
-    assertThat(facets.get(DUPLICATION)).containsExactly(
+    assertThat(facets.get(DUPLICATION)).containsOnly(
+      entry("NO_DATA", 1L),
       entry("*-3.0", 1L),
       entry("3.0-5.0", 2L),
       entry("5.0-10.0", 1L),
       entry("10.0-20.0", 2L),
       entry("20.0-*", 0L));
     // But facet on ncloc does well take into into filters
-    assertThat(facets.get(NCLOC)).containsExactly(
+    assertThat(facets.get(NCLOC)).containsOnly(
       entry("*-1000.0", 1L),
       entry("1000.0-10000.0", 2L),
       entry("10000.0-100000.0", 1L),
@@ -783,6 +789,8 @@ public class ProjectMeasuresIndexTest {
   public void facet_duplicated_lines_density_contains_only_projects_authorized_for_user() throws Exception {
     // User can see these projects
     indexForUser(USER1,
+      // docs with no duplication
+      newDocWithNoMeasure(),
       // docs with duplication<3%
       newDoc(DUPLICATION, 0d),
       newDoc(DUPLICATION, 0d),
@@ -793,6 +801,9 @@ public class ProjectMeasuresIndexTest {
 
     // User cannot see these projects
     indexForUser(USER2,
+      // docs with no duplication
+      newDocWithNoMeasure(),
+      newDocWithNoMeasure(),
       // docs with duplication>=5% and duplication<10%
       newDoc(DUPLICATION, 5d),
       // docs with duplication>=10% and duplication<20%
@@ -803,7 +814,8 @@ public class ProjectMeasuresIndexTest {
     userSession.logIn(USER1);
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(DUPLICATION)).getFacets();
 
-    assertThat(facets.get(DUPLICATION)).containsExactly(
+    assertThat(facets.get(DUPLICATION)).containsOnly(
+      entry("NO_DATA", 1L),
       entry("*-3.0", 3L),
       entry("3.0-5.0", 2L),
       entry("5.0-10.0", 0L),
@@ -814,6 +826,9 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void facet_new_duplicated_lines_density() {
     index(
+      // 2 docs with no measure
+      newDocWithNoMeasure(),
+      newDocWithNoMeasure(),
       // 3 docs with duplication<3%
       newDoc(NEW_DUPLICATION, 0d),
       newDoc(NEW_DUPLICATION, 0d),
@@ -839,6 +854,7 @@ public class ProjectMeasuresIndexTest {
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_DUPLICATION)).getFacets();
 
     assertThat(facets.get(NEW_DUPLICATION)).containsExactly(
+      entry("NO_DATA", 2L),
       entry("*-3.0", 3L),
       entry("3.0-5.0", 2L),
       entry("5.0-10.0", 4L),
@@ -1355,6 +1371,10 @@ public class ProjectMeasuresIndexTest {
 
   private static Map<String, Object> newMeasure(String key, Object value) {
     return ImmutableMap.of("key", key, "value", value);
+  }
+
+  private static ProjectMeasuresDoc newDocWithNoMeasure() {
+    return newDoc(ComponentTesting.newPrivateProjectDto(ORG));
   }
 
   private static ProjectMeasuresDoc newDoc(String metric1, Object value1) {
