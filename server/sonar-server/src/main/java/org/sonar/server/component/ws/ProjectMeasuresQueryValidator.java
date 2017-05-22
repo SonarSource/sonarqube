@@ -20,6 +20,7 @@
 package org.sonar.server.component.ws;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,12 +30,16 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 
 public class ProjectMeasuresQueryValidator {
+
+  private static final Set<String> NON_METRIC_SORT_KEYS = new HashSet<>(asList(SORT_BY_NAME, SORT_BY_LAST_ANALYSIS_DATE));
 
   private final DbClient dbClient;
 
@@ -55,7 +60,7 @@ public class ProjectMeasuresQueryValidator {
 
   private static Set<String> getMetrics(ProjectMeasuresQuery query) {
     Set<String> metricKeys = query.getMetricCriteria().stream().map(MetricCriterion::getMetricKey).collect(toHashSet());
-    if (query.getSort() != null && !SORT_BY_NAME.equals(query.getSort())) {
+    if (query.getSort() != null && !NON_METRIC_SORT_KEYS.contains(query.getSort())) {
       metricKeys.add(query.getSort());
     }
     return metricKeys;

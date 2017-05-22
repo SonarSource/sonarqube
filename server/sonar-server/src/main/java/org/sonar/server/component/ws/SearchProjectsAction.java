@@ -72,6 +72,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -110,7 +111,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setChangelog(
         new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGES, PARAM_FILTER)),
         new Change("6.4", "The 'visibility' field is added"),
-        new Change("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics")
+        new Change("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
+        new Change("6.5", "Added the option 'analysisDate' for the 'sort' parameter")
       )
       .setHandler(this);
 
@@ -171,8 +173,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter on several tags you must use <code>tag in (offshore, java)</code></li>" +
         "</ul>");
     action.createParam(Param.SORT)
-      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), or by project name.<br/>" +
-        "See '%s' parameter description for the possible metric values", ALERT_STATUS_KEY, PARAM_FILTER)
+      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), or by project name.<br/>" +
+        "See '%s' parameter description for the possible metric values", ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
       .setExampleValue(NCLOC_KEY)
       .setSince("6.4");

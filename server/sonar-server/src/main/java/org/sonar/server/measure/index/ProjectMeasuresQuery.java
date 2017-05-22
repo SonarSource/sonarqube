@@ -33,6 +33,7 @@ import static org.sonar.server.component.ws.FilterParser.Operator;
 public class ProjectMeasuresQuery {
 
   public static final String SORT_BY_NAME = "name";
+  public static final String SORT_BY_LAST_ANALYSIS_DATE = "analysisDate";
 
   private List<MetricCriterion> metricCriteria = new ArrayList<>();
   private Metric.Level qualityGateStatus;
