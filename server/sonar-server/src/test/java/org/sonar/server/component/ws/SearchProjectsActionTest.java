@@ -103,6 +103,7 @@ public class SearchProjectsActionTest {
   private static final String COVERAGE = "coverage";
   private static final String NEW_COVERAGE = "new_coverage";
   private static final String QUALITY_GATE_STATUS = "alert_status";
+  private static final String ANALYSIS_DATE = "analysisDate";
   private static final String IS_FAVOURITE_CRITERION = "isFavorite";
 
   @Rule
@@ -150,7 +151,8 @@ public class SearchProjectsActionTest {
     assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "The 'languages' parameter accepts 'filter' to filter by language"),
       tuple("6.4", "The 'visibility' field is added"),
-      tuple("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics")
+      tuple("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
+      tuple("6.5", "Added the option 'analysisDate' for the 'sort' parameter")
     );
 
     Param organization = def.param("organization");
@@ -949,6 +951,31 @@ public class SearchProjectsActionTest {
       .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
     assertThat(call(request.setSort(QUALITY_GATE_STATUS).setAsc(false)).getComponentsList()).extracting(Component::getKey)
       .containsExactly(project1.getKey(), project2.getKey(), project3.getKey(), project4.getKey());
+  }
+
+  @Test
+  public void sort_by_last_analysis_date() throws Exception {
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization, p -> p.setKey("project1"));
+    authorizationIndexerTester.allowOnlyAnyone(project1);
+    ComponentDto project2 = db.components().insertPublicProject(organization, p -> p.setKey("project2"));
+    db.components().insertSnapshot(project2, snapshot -> snapshot.setCreatedAt(40_000_000_000L).setLast(true));
+    authorizationIndexerTester.allowOnlyAnyone(project2);
+    ComponentDto project3 = db.components().insertPublicProject(organization, p -> p.setKey("project3"));
+    db.components().insertSnapshot(project3, snapshot -> snapshot.setCreatedAt(20_000_000_000L).setLast(true));
+    authorizationIndexerTester.allowOnlyAnyone(project3);
+    ComponentDto project4 = db.components().insertPublicProject(organization, p -> p.setKey("project4"));
+    db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(10_000_000_000L).setLast(false));
+    db.components().insertSnapshot(project4, snapshot -> snapshot.setCreatedAt(30_000_000_000L).setLast(true));
+    authorizationIndexerTester.allowOnlyAnyone(project4);
+    projectMeasuresIndexer.indexOnStartup(null);
+
+    assertThat(call(request.setSort(ANALYSIS_DATE).setAsc(true)).getComponentsList()).extracting(Component::getKey)
+      .containsExactly(project3.getKey(), project4.getKey(), project2.getKey(), project1.getKey());
+
+    assertThat(call(request.setSort(ANALYSIS_DATE).setAsc(false)).getComponentsList()).extracting(Component::getKey)
+      .containsExactly(project2.getKey(), project4.getKey(), project3.getKey(), project1.getKey());
   }
 
   @Test
