@@ -83,6 +83,7 @@ public class ProjectMeasuresIndexTest {
   private static final String DUPLICATION = "duplicated_lines_density";
   private static final String NEW_DUPLICATION = "new_duplicated_lines_density";
   private static final String NCLOC = "ncloc";
+  private static final String NEW_LINES = "new_lines";
   private static final String LANGUAGES = "languages";
 
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
@@ -528,6 +529,41 @@ public class ProjectMeasuresIndexTest {
       entry("10000.0-100000.0", 0L),
       entry("100000.0-500000.0", 0L),
       entry("500000.0-*", 0L));
+  }
+
+  @Test
+  public void facet_new_lines() {
+    index(
+      // 3 docs with ncloc<1K
+      newDoc(NEW_LINES, 0d),
+      newDoc(NEW_LINES, 0d),
+      newDoc(NEW_LINES, 999d),
+      // 2 docs with ncloc>=1K and ncloc<10K
+      newDoc(NEW_LINES, 1_000d),
+      newDoc(NEW_LINES, 9_999d),
+      // 4 docs with ncloc>=10K and ncloc<100K
+      newDoc(NEW_LINES, 10_000d),
+      newDoc(NEW_LINES, 10_000d),
+      newDoc(NEW_LINES, 11_000d),
+      newDoc(NEW_LINES, 99_000d),
+      // 2 docs with ncloc>=100K and ncloc<500K
+      newDoc(NEW_LINES, 100_000d),
+      newDoc(NEW_LINES, 499_000d),
+      // 5 docs with ncloc>= 500K
+      newDoc(NEW_LINES, 500_000d),
+      newDoc(NEW_LINES, 100_000_000d),
+      newDoc(NEW_LINES, 500_000d),
+      newDoc(NEW_LINES, 1_000_000d),
+      newDoc(NEW_LINES, 100_000_000_000d));
+
+    Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_LINES)).getFacets();
+
+    assertThat(facets.get(NEW_LINES)).containsExactly(
+      entry("*-1000.0", 3L),
+      entry("1000.0-10000.0", 2L),
+      entry("10000.0-100000.0", 4L),
+      entry("100000.0-500000.0", 2L),
+      entry("500000.0-*", 5L));
   }
 
   @Test
