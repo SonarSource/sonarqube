@@ -222,8 +222,8 @@ public class OrganizationMembershipTest {
   @Test
   public void admin_can_manage_groups() {
     String orgKey = createOrganization();
-    String user = createUser();
-    adminClient.organizations().addMember(orgKey, user);
+    userRule.createUser("baz", "pwd");;
+    adminClient.organizations().addMember(orgKey, "baz");
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     // foo user
@@ -243,10 +243,10 @@ public class OrganizationMembershipTest {
   @Test
   public void groups_count_should_be_updated_when_a_member_was_just_added() {
     String orgKey = createOrganization();
-    String user = createUser();
+    userRule.createUser("neo", "pwd");
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page
-      .addMember(user)
+      .addMember("neo")
       .getMembersByIdx(1)
       .shouldHaveGroups(1)
       .manageGroupsOpen()
