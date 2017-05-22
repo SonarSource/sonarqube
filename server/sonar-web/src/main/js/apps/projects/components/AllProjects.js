@@ -131,13 +131,14 @@ export default class AllProjects extends React.PureComponent {
           <div className="layout-page-main">
             <div className="layout-page-main-inner">
               <PageHeaderContainer onOpenOptionBar={this.openOptionBar} />
-              {view === 'overall' &&
+              {view !== 'visualizations' &&
                 <ProjectsListContainer
                   isFavorite={this.props.isFavorite}
                   isFiltered={isFiltered}
                   organization={this.props.organization}
+                  cardType={view}
                 />}
-              {view === 'overall' &&
+              {view !== 'visualizations' &&
                 <ProjectsListFooterContainer
                   query={query}
                   isFavorite={this.props.isFavorite}

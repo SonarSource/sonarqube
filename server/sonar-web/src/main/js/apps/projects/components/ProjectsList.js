@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import ProjectCardContainer from './ProjectCardContainer';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import EmptyInstance from './EmptyInstance';
 import EmptySearch from '../../../components/common/EmptySearch';
 
+type Props = {
+  projects?: Array<string>,
+  isFavorite: boolean,
+  isFiltered: boolean,
+  organization?: { key: string },
+  cardType?: string
+};
+
 export default class ProjectsList extends React.PureComponent {
-  static propTypes = {
-    projects: React.PropTypes.arrayOf(React.PropTypes.string),
-    isFavorite: React.PropTypes.bool.isRequired,
-    isFiltered: React.PropTypes.bool.isRequired,
-    organization: React.PropTypes.object
-  };
+  props: Props;
 
   renderNoProjects() {
     if (this.props.isFavorite && !this.props.isFiltered) {
@@ -56,6 +60,7 @@ export default class ProjectsList extends React.PureComponent {
                 key={projectKey}
                 projectKey={projectKey}
                 organization={this.props.organization}
+                type={this.props.cardType}
               />
             ))
           : this.renderNoProjects()}
