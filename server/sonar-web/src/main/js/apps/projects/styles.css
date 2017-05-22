@@ -85,14 +85,37 @@
   margin: 0 -15px;
 }
 
+.project-card-leak-measures {
+  padding: 4px 0;
+  margin: 0 -4px 4px;
+  background-color: #fbf3d5;
+  border: 1px solid #eae3c7;
+}
+
 .project-card-measures .project-card-measure {
   width: 120px;
   box-sizing: border-box;
   padding: 0 15px;
 }
 
-.project-card-measures .project-card-measure:nth-child(-n+2) {
+.project-card-leak-measures .project-card-measure {
+  width: 140px;
+  box-sizing: border-box;
+  padding: 0 5px;
+}
+
+.project-card-measure.smaller-card {
   width: 90px;
+}
+
+@media (max-width: 1130px) {
+  .project-card-leak-measures .project-card-measure {
+    width: 134px;
+    padding: 0 2px;
+  }
+  .project-card-measure.smaller-card {
+    width: 81px;
+  }
 }
 
 .project-card-measure {
