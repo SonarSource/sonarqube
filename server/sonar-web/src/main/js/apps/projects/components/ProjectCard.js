@@ -23,90 +23,94 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { Link } from 'react-router';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
-import ProjectCardMeasures from './ProjectCardMeasures';
+import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
+import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import Organization from '../../../components/shared/Organization';
 import TagsList from '../../../components/tags/TagsList';
 import PrivateBadge from '../../../components/common/PrivateBadge';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-export default class ProjectCard extends React.PureComponent {
-  props: {
-    measures: { [string]: string },
-    organization?: {},
-    project?: {
-      analysisDate?: string,
-      key: string,
-      name: string,
-      tags: Array<string>,
-      isFavorite?: boolean,
-      organization?: string
-    }
-  };
+type Props = {
+  measures: { [string]: string },
+  organization?: { key: string },
+  project?: {
+    analysisDate?: string,
+    key: string,
+    name: string,
+    tags: Array<string>,
+    isFavorite?: boolean,
+    organization?: string
+  },
+  type?: string
+};
 
-  render() {
-    const { project } = this.props;
-
-    if (project == null) {
-      return null;
-    }
-
-    const isProjectAnalyzed = project.analysisDate != null;
-    // check reliability_rating because only some measures can be loaded
-    // if coming from visualizations tab
-    const areProjectMeasuresLoaded =
-      !isProjectAnalyzed ||
-      (this.props.measures != null &&
-        this.props.measures['reliability_rating'] != null &&
-        this.props.measures['sqale_rating'] != null);
-    const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
-
-    const className = classNames('boxed-group', 'project-card', {
-      'boxed-group-loading': !areProjectMeasuresLoaded
-    });
-
-    return (
-      <div data-key={project.key} className={className}>
-        {displayQualityGate &&
-          <div className="boxed-group-actions">
-            <ProjectCardQualityGate status={this.props.measures['alert_status']} />
-          </div>}
-
-        <div className="boxed-group-header">
-          {project.isFavorite != null &&
-            <FavoriteContainer className="spacer-right" componentKey={project.key} />}
-          <h2 className="project-card-name">
-            {this.props.organization == null &&
-              project.organization != null &&
-              <span className="text-normal">
-                <Organization organizationKey={project.organization} />
-              </span>}
-            <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>
-              {project.name}
-            </Link>
-          </h2>
-          {project.visibility === 'private' && <PrivateBadge className="spacer-left" />}
-          {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
-        </div>
-
-        {isProjectAnalyzed
-          ? <div className="boxed-group-inner">
-              {areProjectMeasuresLoaded && <ProjectCardMeasures measures={this.props.measures} />}
-            </div>
-          : <div className="boxed-group-inner">
-              <div className="note project-card-not-analyzed">
-                {translate('projects.not_analyzed')}
-              </div>
-            </div>}
-
-        {isProjectAnalyzed &&
-          <div className="project-card-analysis-date note">
-            {translateWithParameters(
-              'overview.last_analysis_on_x',
-              moment(project.analysisDate).format('LLL')
-            )}
-          </div>}
-      </div>
-    );
+export default function ProjectCard({ measures, organization, project, type }: Props) {
+  if (project == null) {
+    return null;
   }
+
+  const isProjectAnalyzed = project.analysisDate != null;
+  const isLeakView = type === 'leak';
+
+  let areProjectMeasuresLoaded;
+  // check for particular measures because only some measures can be loaded
+  // if coming from visualizations tab
+  if (isLeakView) {
+    areProjectMeasuresLoaded = measures != null && measures['new_bugs'];
+  } else {
+    areProjectMeasuresLoaded =
+      measures != null &&
+      measures['reliability_rating'] != null &&
+      measures['sqale_rating'] != null;
+  }
+
+  const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
+  const className = classNames('boxed-group', 'project-card', {
+    'boxed-group-loading': isProjectAnalyzed && !areProjectMeasuresLoaded
+  });
+
+  return (
+    <div data-key={project.key} className={className}>
+      {displayQualityGate &&
+        <div className="boxed-group-actions">
+          <ProjectCardQualityGate status={measures['alert_status']} />
+        </div>}
+
+      <div className="boxed-group-header">
+        {project.isFavorite != null &&
+          <FavoriteContainer className="spacer-right" componentKey={project.key} />}
+        <h2 className="project-card-name">
+          {organization == null &&
+            project.organization != null &&
+            <span className="text-normal">
+              <Organization organizationKey={project.organization} />
+            </span>}
+          <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
+        </h2>
+        {project.visibility === 'private' && <PrivateBadge className="spacer-left" />}
+        {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
+      </div>
+
+      {isProjectAnalyzed
+        ? <div className="boxed-group-inner">
+            {areProjectMeasuresLoaded && isLeakView
+              ? <ProjectCardLeakMeasures measures={measures} />
+              : <ProjectCardOverallMeasures measures={measures} />}
+          </div>
+        : <div className="boxed-group-inner">
+            <div className="note project-card-not-analyzed">
+              {translate('projects.not_analyzed')}
+            </div>
+          </div>}
+
+      {isProjectAnalyzed &&
+        <div className="project-card-analysis-date note">
+          {translateWithParameters(
+            'overview.last_analysis_on_x',
+            moment(project.analysisDate).format('LLL')
+          )}
+        </div>}
+    </div>
+  );
 }
