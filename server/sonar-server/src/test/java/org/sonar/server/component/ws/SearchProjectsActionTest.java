@@ -764,6 +764,7 @@ public class SearchProjectsActionTest {
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(15d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(5d)));
+    insertProject(organizationDto);
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(DUPLICATED_LINES_DENSITY_KEY)));
 
@@ -772,7 +773,8 @@ public class SearchProjectsActionTest {
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactly(
+      .containsOnly(
+        tuple("NO_DATA", 1L),
         tuple("*-3.0", 0L),
         tuple("3.0-5.0", 0L),
         tuple("5.0-10.0", 1L),
@@ -785,6 +787,7 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    insertProject(organizationDto);
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(10d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(15d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(5d)));
@@ -796,7 +799,8 @@ public class SearchProjectsActionTest {
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactly(
+      .containsOnly(
+        tuple("NO_DATA", 1L),
         tuple("*-3.0", 0L),
         tuple("3.0-5.0", 0L),
         tuple("5.0-10.0", 1L),

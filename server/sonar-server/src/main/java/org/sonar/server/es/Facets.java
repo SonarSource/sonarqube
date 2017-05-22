@@ -32,6 +32,7 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.HasAggregations;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
+import org.elasticsearch.search.aggregations.bucket.filter.Filter;
 import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -42,6 +43,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT
 public class Facets {
 
   public static final String TOTAL = "total";
+  private static final java.lang.String NO_DATA_PREFIX = "no_data_";
 
   private final LinkedHashMap<String, LinkedHashMap<String, Long>> facetsByName;
 
@@ -64,6 +66,8 @@ public class Facets {
       processMissingAggregation((Missing) aggregation);
     } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
       processTermsAggregation((Terms) aggregation);
+    } else if (Filter.class.isAssignableFrom(aggregation.getClass())) {
+      processSubAggregations((Filter) aggregation);
     } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
       processSubAggregations((HasAggregations) aggregation);
     } else if (Histogram.class.isAssignableFrom(aggregation.getClass())) {
@@ -108,6 +112,14 @@ public class Facets {
   }
 
   private void processSubAggregations(HasAggregations aggregation) {
+    if (Filter.class.isAssignableFrom(aggregation.getClass())) {
+      Filter filter = (Filter) aggregation;
+      if (filter.getName().startsWith(NO_DATA_PREFIX)) {
+        LinkedHashMap<String, Long> facet = getOrCreateFacet(filter.getName().replaceFirst(NO_DATA_PREFIX,""));
+        facet.put("NO_DATA", ((Filter) aggregation).getDocCount());
+      }
+    }
+
     for (Aggregation sub : aggregation.getAggregations()) {
       processAggregation(sub);
     }
