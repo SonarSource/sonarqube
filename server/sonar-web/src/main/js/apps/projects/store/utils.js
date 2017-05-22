@@ -48,7 +48,7 @@ const getAsArray = (values, elementGetter) => {
   return values.split(',').map(elementGetter);
 };
 
-const getView = rawValue => (rawValue === 'visualizations' ? rawValue : undefined);
+const getView = rawValue => (rawValue === 'overall' ? undefined : rawValue);
 
 const getVisualization = value => {
   return VISUALIZATIONS.includes(value) ? value : null;
