@@ -69,6 +69,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -171,7 +172,7 @@ public class SearchProjectsActionTest {
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
     assertThat(facets.possibleValues()).containsOnly("ncloc", "duplicated_lines_density", "coverage", "sqale_rating", "reliability_rating", "security_rating", "alert_status",
-      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density");
+      "languages", "tags", "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines");
   }
 
   @Test
@@ -410,6 +411,34 @@ public class SearchProjectsActionTest {
     ComponentDto project3 = insertProject(organizationDto, new Measure(newDuplications, c -> c.setVariation(10d)));
 
     SearchProjectsWsResponse result = call(request.setFilter("new_duplicated_lines_density <= 80"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+  }
+
+  @Test
+  public void filter_projects_by_ncloc() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto ncloc = db.measureDbTester().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(ncloc, c -> c.setValue(80d)));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(ncloc, c -> c.setValue(85d)));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(ncloc, c -> c.setValue(10d)));
+
+    SearchProjectsWsResponse result = call(request.setFilter("ncloc <= 80"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+  }
+
+  @Test
+  public void filter_projects_by_new_lines() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto newLines = db.measureDbTester().insertMetric(c -> c.setKey(NEW_LINES_KEY).setValueType(INT.name()));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(newLines, c -> c.setVariation(80d)));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(newLines, c -> c.setVariation(85d)));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(newLines, c -> c.setVariation(10d)));
+
+    SearchProjectsWsResponse result = call(request.setFilter("new_lines <= 80"));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
   }
@@ -773,6 +802,54 @@ public class SearchProjectsActionTest {
         tuple("5.0-10.0", 1L),
         tuple("10.0-20.0", 2L),
         tuple("20.0-*", 0L));
+  }
+
+  @Test
+  public void return_ncloc_facet() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(100d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(15_000d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setValue(50_000d)));
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NCLOC)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> NCLOC.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-1000.0", 1L),
+        tuple("1000.0-10000.0", 0L),
+        tuple("10000.0-100000.0", 2L),
+        tuple("100000.0-500000.0", 0L),
+        tuple("500000.0-*", 0L));
+  }
+
+  @Test
+  public void return_new_lines_facet() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(NEW_LINES_KEY).setValueType(INT.name()));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(100d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(15_000d)));
+    insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(50_000d)));
+
+    SearchProjectsWsResponse result = call(request.setFacets(singletonList(NEW_LINES_KEY)));
+
+    Common.Facet facet = result.getFacets().getFacetsList().stream()
+      .filter(oneFacet -> NEW_LINES_KEY.equals(oneFacet.getProperty()))
+      .findFirst().orElseThrow(IllegalStateException::new);
+    assertThat(facet.getValuesList())
+      .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(
+        tuple("*-1000.0", 1L),
+        tuple("1000.0-10000.0", 0L),
+        tuple("10000.0-100000.0", 2L),
+        tuple("100000.0-500000.0", 0L),
+        tuple("500000.0-*", 0L));
   }
 
   @Test
