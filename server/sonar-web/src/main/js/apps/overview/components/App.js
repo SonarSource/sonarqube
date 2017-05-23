@@ -26,6 +26,7 @@ import SourceViewer from '../../../components/SourceViewer/SourceViewer';
 
 type Props = {
   component: {
+    analysisDate?: string,
     id: string,
     key: string,
     qualifier: string,
@@ -58,7 +59,7 @@ class App extends React.PureComponent {
       );
     }
 
-    if (!component.snapshotDate) {
+    if (!component.analysisDate) {
       return <EmptyOverview {...this.props} />;
     }
 
