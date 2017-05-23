@@ -119,9 +119,11 @@ export default class AllProjects extends React.PureComponent {
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
                   <PageSidebar
-                    query={query}
                     isFavorite={this.props.isFavorite}
                     organization={this.props.organization}
+                    query={query}
+                    view={view}
+                    visualization={visualization}
                   />
                 </div>
               </div>
