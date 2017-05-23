@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -84,7 +84,6 @@ import static org.sonar.server.issue.TransitionAction.DO_TRANSITION_KEY;
 import static org.sonar.server.issue.TransitionAction.TRANSITION_PARAMETER;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_BULK_CHANGE;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ACTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADD_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMMENT;
@@ -120,21 +119,18 @@ public class BulkChangeAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_BULK_CHANGE)
       .setDescription("Bulk change on issues.<br/>" +
-        "Requires authentication.<br/>" +
-        "Since 6.3, 'actions' parameter is useless.")
+        "Requires authentication.")
       .setSince("3.7")
+      .setChangelog(
+        new Change("6.3", "'actions' parameter is ignored"))
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "bulk_change-example.json"))
+      .setResponseExample(getClass().getResource("bulk_change-example.json"))
       .setPost(true);
 
     action.createParam(PARAM_ISSUES)
       .setDescription("Comma-separated list of issue keys")
       .setRequired(true)
       .setExampleValue(UUID_EXAMPLE_01 + "," + UUID_EXAMPLE_02);
-    action.createParam(PARAM_ACTIONS)
-      .setDescription("No more needed since version 6.3")
-      .setDeprecatedSince("6.3")
-      .setExampleValue("assign,set_severity");
     action.createParam(PARAM_ASSIGN)
       .setDescription("To assign the list of issues to a specific user (login), or un-assign all the issues")
       .setExampleValue("john.smith")
