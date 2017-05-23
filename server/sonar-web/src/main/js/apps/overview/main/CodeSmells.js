@@ -25,7 +25,7 @@ import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
+import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 
 class CodeSmells extends React.PureComponent {
   renderHeader() {
