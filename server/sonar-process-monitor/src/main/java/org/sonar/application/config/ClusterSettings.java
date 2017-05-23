@@ -65,8 +65,13 @@ public class ClusterSettings implements Consumer<Props> {
       throw new MessageException(format("Property [%s] is forbidden", CLUSTER_WEB_LEADER));
     }
 
+    if (props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED) &&
+      !props.valueAsBoolean(ProcessProperties.CLUSTER_SEARCH_DISABLED, false)
+      ) {
+      ensureMandatoryProperty(props, SEARCH_HOST);
+      ensureNotLoopback(props, SEARCH_HOST);
+    }
     // Mandatory properties
-    ensureMandatoryProperty(props, SEARCH_HOST);
     ensureMandatoryProperty(props, CLUSTER_HOSTS);
     ensureMandatoryProperty(props, CLUSTER_SEARCH_HOSTS);
 
@@ -77,7 +82,6 @@ public class ClusterSettings implements Consumer<Props> {
     }
 
     // Loopback interfaces are forbidden for SEARCH_HOST and CLUSTER_NETWORK_INTERFACES
-    ensureNotLoopback(props, SEARCH_HOST);
     ensureNotLoopback(props, CLUSTER_HOSTS);
     ensureNotLoopback(props, CLUSTER_NETWORK_INTERFACES);
     ensureNotLoopback(props, CLUSTER_SEARCH_HOSTS);
