@@ -533,7 +533,8 @@ public class ProjectMeasuresIndexTest {
       entry("100000.0-500000.0", 2L),
       entry("500000.0-*", 0L));
     // But facet on coverage does well take into into filters
-    assertThat(facets.get(COVERAGE)).containsExactly(
+    assertThat(facets.get(COVERAGE)).containsOnly(
+      entry("NO_DATA", 0L),
       entry("*-30.0", 3L),
       entry("30.0-50.0", 0L),
       entry("50.0-70.0", 0L),
@@ -611,6 +612,8 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void facet_coverage() {
     index(
+      // 1 doc with no coverage
+      newDocWithNoMeasure(),
       // 3 docs with coverage<30%
       newDoc(COVERAGE, 0d),
       newDoc(COVERAGE, 0d),
@@ -635,7 +638,8 @@ public class ProjectMeasuresIndexTest {
 
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(COVERAGE)).getFacets();
 
-    assertThat(facets.get(COVERAGE)).containsExactly(
+    assertThat(facets.get(COVERAGE)).containsOnly(
+      entry("NO_DATA", 1L),
       entry("*-30.0", 3L),
       entry("30.0-50.0", 2L),
       entry("50.0-70.0", 4L),
@@ -646,6 +650,10 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void facet_coverage_is_sticky() {
     index(
+      // docs with no coverage
+      newDoc(NCLOC, 999d, DUPLICATION, 0d),
+      newDoc(NCLOC, 999d, DUPLICATION, 1d),
+      newDoc(NCLOC, 999d, DUPLICATION, 20d),
       // docs with coverage<30%
       newDoc(NCLOC, 999d, COVERAGE, 0d, DUPLICATION, 0d),
       newDoc(NCLOC, 1_000d, COVERAGE, 10d, DUPLICATION, 0d),
@@ -668,6 +676,7 @@ public class ProjectMeasuresIndexTest {
 
     // Sticky facet on coverage does not take into account coverage filter
     assertThat(facets.get(COVERAGE)).containsExactly(
+      entry("NO_DATA", 2L),
       entry("*-30.0", 3L),
       entry("30.0-50.0", 2L),
       entry("50.0-70.0", 1L),
@@ -686,6 +695,8 @@ public class ProjectMeasuresIndexTest {
   public void facet_coverage_contains_only_projects_authorized_for_user() throws Exception {
     // User can see these projects
     indexForUser(USER1,
+      // 1 doc with no coverage
+      newDocWithNoMeasure(),
       // docs with coverage<30%
       newDoc(COVERAGE, 0d),
       newDoc(COVERAGE, 0d),
@@ -696,6 +707,9 @@ public class ProjectMeasuresIndexTest {
 
     // User cannot see these projects
     indexForUser(USER2,
+      // 2 docs with no coverage
+      newDocWithNoMeasure(),
+      newDocWithNoMeasure(),
       // docs with coverage>=50% and coverage<70%
       newDoc(COVERAGE, 50d),
       // docs with coverage>=70% and coverage<80%
@@ -707,6 +721,7 @@ public class ProjectMeasuresIndexTest {
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(COVERAGE)).getFacets();
 
     assertThat(facets.get(COVERAGE)).containsExactly(
+      entry("NO_DATA", 1L),
       entry("*-30.0", 3L),
       entry("30.0-50.0", 2L),
       entry("50.0-70.0", 0L),
@@ -717,6 +732,8 @@ public class ProjectMeasuresIndexTest {
   @Test
   public void facet_new_coverage() {
     index(
+      // 1 doc with no coverage
+      newDocWithNoMeasure(),
       // 3 docs with coverage<30%
       newDoc(NEW_COVERAGE, 0d),
       newDoc(NEW_COVERAGE, 0d),
@@ -741,7 +758,8 @@ public class ProjectMeasuresIndexTest {
 
     Facets facets = underTest.search(new ProjectMeasuresQuery(), new SearchOptions().addFacets(NEW_COVERAGE)).getFacets();
 
-    assertThat(facets.get(NEW_COVERAGE)).containsExactly(
+    assertThat(facets.get(NEW_COVERAGE)).containsOnly(
+      entry("NO_DATA", 1L),
       entry("*-30.0", 3L),
       entry("30.0-50.0", 2L),
       entry("50.0-70.0", 4L),

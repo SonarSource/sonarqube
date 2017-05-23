@@ -743,6 +743,7 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    insertProject(organizationDto);
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(80d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(85d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
@@ -754,7 +755,8 @@ public class SearchProjectsActionTest {
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactly(
+      .containsOnly(
+        tuple("NO_DATA", 1L),
         tuple("*-30.0", 1L),
         tuple("30.0-50.0", 0L),
         tuple("50.0-70.0", 0L),
@@ -767,6 +769,7 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(NEW_COVERAGE).setValueType(PERCENT.name()));
+    insertProject(organizationDto);
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(80d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(85d)));
     insertProject(organizationDto, new Measure(coverage, c -> c.setVariation(10d)));
@@ -778,7 +781,8 @@ public class SearchProjectsActionTest {
       .findFirst().orElseThrow(IllegalStateException::new);
     assertThat(facet.getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
-      .containsExactly(
+      .containsOnly(
+        tuple("NO_DATA", 1L),
         tuple("*-30.0", 1L),
         tuple("30.0-50.0", 0L),
         tuple("50.0-70.0", 0L),
