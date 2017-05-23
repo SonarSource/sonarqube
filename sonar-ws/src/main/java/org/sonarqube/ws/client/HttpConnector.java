@@ -40,6 +40,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.String.format;
+import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
+import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 
 /**
  * Connect to any SonarQube server available through HTTP or HTTPS.
@@ -56,9 +60,9 @@ public class HttpConnector implements WsConnector {
    * It is required for further usage of {@link HttpUrl#resolve(String)}.
    */
   private final HttpUrl baseUrl;
-  private final String credentials;
   private final String systemPassCode;
   private final OkHttpClient okHttpClient;
+  private final OkHttpClient noRedirectOkHttpClient;
 
   private HttpConnector(Builder builder) {
     this.baseUrl = HttpUrl.parse(builder.url.endsWith("/") ? builder.url : format("%s/", builder.url));
@@ -67,13 +71,10 @@ public class HttpConnector implements WsConnector {
     OkHttpClientBuilder okHttpClientBuilder = new OkHttpClientBuilder();
     okHttpClientBuilder.setUserAgent(builder.userAgent);
 
-    if (isNullOrEmpty(builder.login)) {
-      // no login nor access token
-      this.credentials = null;
-    } else {
+    if (!isNullOrEmpty(builder.login)) {
       // password is null when login represents an access token. In this case
       // the Basic credentials consider an empty password.
-      this.credentials = Credentials.basic(builder.login, nullToEmpty(builder.password));
+      okHttpClientBuilder.setCredentials(Credentials.basic(builder.login, nullToEmpty(builder.password)));
     }
     this.systemPassCode = builder.systemPassCode;
     okHttpClientBuilder.setProxy(builder.proxy);
@@ -84,6 +85,14 @@ public class HttpConnector implements WsConnector {
     okHttpClientBuilder.setSSLSocketFactory(builder.sslSocketFactory);
     okHttpClientBuilder.setTrustManager(builder.sslTrustManager);
     this.okHttpClient = okHttpClientBuilder.build();
+    this.noRedirectOkHttpClient = newClientWithoutRedirect(this.okHttpClient);
+  }
+
+  private static OkHttpClient newClientWithoutRedirect(OkHttpClient client) {
+    return client.newBuilder()
+      .followRedirects(false)
+      .followSslRedirects(false)
+      .build();
   }
 
   @Override
@@ -111,7 +120,7 @@ public class HttpConnector implements WsConnector {
     completeUrlQueryParameters(getRequest, urlBuilder);
 
     Request.Builder okRequestBuilder = prepareOkRequestBuilder(getRequest, urlBuilder).get();
-    return doCall(okRequestBuilder.build());
+    return new OkHttpResponse(doCall(okHttpClient, okRequestBuilder.build()));
   }
 
   private WsResponse post(PostRequest postRequest) {
@@ -141,8 +150,10 @@ public class HttpConnector implements WsConnector {
       });
       body = bodyBuilder.build();
     }
-    Request.Builder reqBuilder = prepareOkRequestBuilder(postRequest, urlBuilder);
-    return doCall(reqBuilder.post(body).build());
+    Request.Builder okRequestBuilder = prepareOkRequestBuilder(postRequest, urlBuilder).post(body);
+    Response response = doCall(noRedirectOkHttpClient, okRequestBuilder.build());
+    response = checkRedirect(response);
+    return new OkHttpResponse(response);
   }
 
   private HttpUrl.Builder prepareUrlBuilder(WsRequest wsRequest) {
@@ -152,7 +163,7 @@ public class HttpConnector implements WsConnector {
       .newBuilder();
   }
 
-  private static void completeUrlQueryParameters(BaseRequest request, HttpUrl.Builder urlBuilder) {
+  private static void completeUrlQueryParameters(BaseRequest<?> request, HttpUrl.Builder urlBuilder) {
     request.getParameters().getKeys()
       .forEach(key -> request.getParameters().getValues(key)
         .forEach(value -> urlBuilder.addQueryParameter(key, value)));
@@ -163,25 +174,55 @@ public class HttpConnector implements WsConnector {
       .url(urlBuilder.build())
       .header("Accept", getRequest.getMediaType())
       .header("Accept-Charset", "UTF-8");
-    if (credentials != null) {
-      okHttpRequestBuilder.header("Authorization", credentials);
-    }
     if (systemPassCode != null) {
       okHttpRequestBuilder.header("X-Sonar-Passcode", systemPassCode);
     }
-    getRequest.getHeaders().getNames().forEach(name ->
-      okHttpRequestBuilder.header(name, getRequest.getHeaders().getValue(name).get()));
+    getRequest.getHeaders().getNames().forEach(name -> okHttpRequestBuilder.header(name, getRequest.getHeaders().getValue(name).get()));
     return okHttpRequestBuilder;
   }
 
-  private OkHttpResponse doCall(Request okRequest) {
-    Call call = okHttpClient.newCall(okRequest);
+  private static Response doCall(OkHttpClient client, Request okRequest) {
+    Call call = client.newCall(okRequest);
     try {
-      Response okResponse = call.execute();
-      return new OkHttpResponse(okResponse);
+      return call.execute();
     } catch (IOException e) {
       throw new IllegalStateException("Fail to request " + okRequest.url(), e);
     }
+  }
+
+  private Response checkRedirect(Response response) {
+    switch (response.code()) {
+      case HTTP_MOVED_PERM:
+      case HTTP_MOVED_TEMP:
+      case HTTP_TEMP_REDIRECT:
+      case HTTP_PERM_REDIRECT:
+        // OkHttpClient does not follow the redirect with the same HTTP method. A POST is
+        // redirected to a GET. Because of that the redirect must be manually implemented.
+        // See:
+        // https://github.com/square/okhttp/blob/07309c1c7d9e296014268ebd155ebf7ef8679f6c/okhttp/src/main/java/okhttp3/internal/http/RetryAndFollowUpInterceptor.java#L316
+        // https://github.com/square/okhttp/issues/936#issuecomment-266430151
+        return followPostRedirect(response);
+      default:
+        return response;
+    }
+  }
+
+  private Response followPostRedirect(Response response) {
+    String location = response.header("Location");
+    if (location == null) {
+      throw new IllegalStateException(format("Missing HTTP header 'Location' in redirect of %s", response.request().url()));
+    }
+    HttpUrl url = response.request().url().resolve(location);
+
+    // Don't follow redirects to unsupported protocols.
+    if (url == null) {
+      throw new IllegalStateException(format("Unsupported protocol in redirect of %s to %s", response.request().url(), location));
+    }
+
+    Request.Builder redirectRequest = response.request().newBuilder();
+    redirectRequest.post(response.request().body());
+    response.body().close();
+    return doCall(noRedirectOkHttpClient, redirectRequest.url(url).build());
   }
 
   /**

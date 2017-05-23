@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.List;
@@ -68,6 +69,31 @@ public class HttpConnectorTest {
   @After
   public void stop() throws Exception {
     server.close();
+  }
+
+  @Test
+  public void follow_redirects_post() throws IOException, InterruptedException {
+    MockWebServer server2 = new MockWebServer();
+    server2.start();
+    server2.url("").url().toString();
+
+    server.enqueue(new MockResponse()
+      .setResponseCode(302)
+      .setHeader("Location", server2.url("").url().toString()));
+
+    server2.enqueue(new MockResponse()
+      .setResponseCode(200));
+
+    underTest = HttpConnector.newBuilder().url(serverUrl).build();
+    PostRequest request = new PostRequest("api/ce/submit").setParam("projectKey", "project");
+    WsResponse response = underTest.call(request);
+
+    RecordedRequest recordedRequest = server2.takeRequest();
+
+    assertThat(recordedRequest.getMethod()).isEqualTo("POST");
+    assertThat(recordedRequest.getBody().readUtf8()).isEqualTo("projectKey=project");
+    assertThat(response.requestUrl()).isEqualTo(server2.url("").url().toString());
+    assertThat(response.code()).isEqualTo(200);
   }
 
   @Test
