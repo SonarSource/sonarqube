@@ -51,6 +51,7 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
@@ -59,6 +60,7 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_ASSIGNED_TO_ME;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_COUNT;
@@ -84,9 +86,11 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLANNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_REPORTERS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RESOLVED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_RULES;
@@ -99,6 +103,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 public class SearchAction implements IssuesWsAction {
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
+  private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
@@ -127,6 +132,7 @@ public class SearchAction implements IssuesWsAction {
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
       .setChangelog(
+        new Change("6.5", "parameters 'projects', 'projectUuids', 'moduleUuids', 'directories', 'fileUuids' are marked as internal"),
         new Change("6.3", "response field 'email' is renamed 'avatar'"),
         new Change("5.5", "response fields 'reporter' and 'actionPlan' are removed (drop of action plan and manual issue features)"),
         new Change("5.5", "parameters 'reporters', 'actionPlans' and 'planned' are dropped and therefore ignored (drop of action plan and manual issue features)"),
@@ -225,54 +231,60 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
         "A component can be a view, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+
     action.createParam(PARAM_COMPONENTS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=true.");
+
     action.createParam(PARAM_COMPONENT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component UUIDs). " +
+      .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "A component can be a project, module, directory or file.")
+      .setDeprecatedSince("6.5")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
+
     action.createParam(PARAM_COMPONENT_ROOTS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=false.");
+
     action.createParam(PARAM_COMPONENT_ROOT_UUIDS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentUuids AND onComponentOnly=false.");
 
     action.createParam(PARAM_PROJECTS)
-      .setDeprecatedSince("5.1")
-      .setDescription("See projectKeys");
-
-    action.createParam(PARAM_PROJECT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "If this parameter is set, projectUuids must not be set.")
-      .setDeprecatedKey(PARAM_PROJECTS, "6.3")
+      .setDeprecatedKey(PARAM_PROJECT_KEYS, "6.5")
+      .setInternal(true)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_PROJECT_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
+      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, projectKeys must not be set.")
+      .setInternal(true)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(PARAM_MODULE_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module UUIDs). " +
+      .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, moduleKeys must not be set.")
+      .setInternal(true)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(PARAM_DIRECTORIES)
       .setDescription("To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). " +
         "This parameter is only meaningful when a module is selected. " +
         INTERNAL_PARAMETER_DISCLAIMER)
+      .setInternal(true)
       .setSince("5.1")
       .setExampleValue("src/main/java/org/sonar/server/");
 
     action.createParam(PARAM_FILE_UUIDS)
-      .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file UUIDs). " +
+      .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file IDs). " +
         INTERNAL_PARAMETER_DISCLAIMER)
+      .setInternal(true)
       .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
 
     action.createParam(PARAM_ORGANIZATION)
@@ -375,6 +387,7 @@ public class SearchAction implements IssuesWsAction {
     }
     requestedFacets.stream()
       .filter(facetName -> !FACET_ASSIGNED_TO_ME.equals(facetName))
+      .filter(facetName -> !IGNORED_FACETS.contains(facetName))
       .forEach(facetName -> {
         LinkedHashMap<String, Long> buckets = facets.get(facetName);
         List<String> requestParams = wsRequest.paramAsStrings(facetName);
@@ -452,7 +465,7 @@ public class SearchAction implements IssuesWsAction {
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .setProjectKeys(request.paramAsStrings(PARAM_PROJECT_KEYS))
+      .setProjectKeys(request.paramAsStrings(PARAM_PROJECTS))
       .setProjectUuids(request.paramAsStrings(PARAM_PROJECT_UUIDS))
       .setProjects(request.paramAsStrings(PARAM_PROJECTS))
       .setResolutions(request.paramAsStrings(PARAM_RESOLUTIONS))
