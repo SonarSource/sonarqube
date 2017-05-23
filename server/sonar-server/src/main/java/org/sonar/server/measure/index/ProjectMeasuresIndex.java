@@ -123,8 +123,8 @@ public class ProjectMeasuresIndex {
       (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
     .put(NEW_DUPLICATED_LINES_DENSITY_KEY,
       (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, NEW_DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
-    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
-    .put(NEW_COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
+    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
+    .put(NEW_COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, NEW_COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
     .put(SQALE_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SQALE_RATING_KEY, facetBuilder))
     .put(NEW_MAINTAINABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_MAINTAINABILITY_RATING_KEY, facetBuilder))
     .put(RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, facetBuilder))
@@ -286,7 +286,7 @@ public class ProjectMeasuresIndex {
       BoolQueryBuilder metricFilters = boolQuery();
       entry.getValue()
         .stream()
-        .map(criterion -> toQuery(criterion))
+        .map(ProjectMeasuresIndex::toQuery)
         .forEach(metricFilters::must);
       filters.put(entry.getKey(), metricFilters);
     });
