@@ -66,6 +66,11 @@ exports[`should render correctly 1`] = `
           "value": "overall",
         },
         Object {
+          "label": "projects.view.leak",
+          "type": "view",
+          "value": "leak",
+        },
+        Object {
           "label": "projects.visualization.risk",
           "type": "visualization",
           "value": "risk",
@@ -154,6 +159,11 @@ exports[`should render with coverage selected 1`] = `
           "label": "projects.view.overall",
           "type": "view",
           "value": "overall",
+        },
+        Object {
+          "label": "projects.view.leak",
+          "type": "view",
+          "value": "leak",
         },
         Object {
           "label": "projects.visualization.risk",
