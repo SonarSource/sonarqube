@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -70,9 +71,10 @@ public class ChangelogAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_CHANGELOG)
       .setDescription("Display changelog of an issue.<br/>" +
-        "Require the 'Browse' permission on the project of the specified issue.<br/>" +
-        "Since 6.3, changes on effort are returning raw value in minutes, it doesn't return anymore the duration.")
+        "Requires the 'Browse' permission on the project of the specified issue.")
       .setSince("4.1")
+      .setChangelog(
+        new Change("6.3", "changes on effort is expressed with the raw value in minutes (instead of the duration previously)"))
       .setHandler(this)
       .setResponseExample(Resources.getResource(IssuesWs.class, "changelog-example.json"));
     action.createParam(PARAM_ISSUE)
