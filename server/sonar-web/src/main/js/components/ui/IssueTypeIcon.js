@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import BugIcon from './BugIcon';
-import VulnerabilityIcon from './VulnerabilityIcon';
-import CodeSmellIcon from './CodeSmellIcon';
+import BugIcon from '../icons-components/BugIcon';
+import VulnerabilityIcon from '../icons-components/VulnerabilityIcon';
+import CodeSmellIcon from '../icons-components/CodeSmellIcon';
 
 export default class IssueTypeIcon extends React.PureComponent {
   props: {
