@@ -32,6 +32,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -58,7 +59,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_ASSIGNED_TO_ME;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_COUNT;
@@ -84,7 +84,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PLANNED;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
@@ -122,14 +121,16 @@ public class SearchAction implements IssuesWsAction {
       .createAction(ACTION_SEARCH)
       .setHandler(this)
       .setDescription(
-        "Search for issues. Requires Browse permission on project(s).<br>" +
-          "At most one of the following parameters can be provided at the same time: %s, %s, %s, %s, %s<br>" +
-          "Since 5.5, response field 'debt' has been renamed to 'effort'.<br>" +
-          "Since 5.5, response field 'actionPlan' has been removed.<br>" +
-          "Since 5.5, response field 'reporter' has been removed, as manual issue feature has been dropped." +
-          "Since 6.3, response field 'email' has been replaced by 'avatar'",
+        "Search for issues.<br>" +
+          "At most one of the following parameters can be provided at the same time: %s, %s, %s, %s, %s.<br>" +
+          "Requires the 'Browse' permission on the specified project(s).",
         PARAM_COMPONENT_KEYS, PARAM_COMPONENT_UUIDS, PARAM_COMPONENTS, PARAM_COMPONENT_ROOT_UUIDS, PARAM_COMPONENT_ROOTS)
       .setSince("3.6")
+      .setChangelog(
+        new Change("6.3", "response field 'email' is renamed 'avatar'"),
+        new Change("5.5", "response fields 'reporter' and 'actionPlan' are removed (drop of action plan and manual issue features)"),
+        new Change("5.5", "parameters 'reporters', 'actionPlans' and 'planned' are dropped and therefore ignored (drop of action plan and manual issue features)"),
+        new Change("5.5", "response field 'debt' is renamed 'effort'"))
       .setResponseExample(getClass().getResource("search-example.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
@@ -176,20 +177,8 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(PARAM_TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
-      .setPossibleValues(RuleType.values())
+      .setPossibleValues((Object[]) RuleType.values())
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
-    action.createParam(DEPRECATED_PARAM_ACTION_PLANS)
-      .setDescription("Action plans are dropped in 5.5. This parameter has no effect. Comma-separated list of action plan keys (not names)")
-      .setDeprecatedSince("5.5")
-      .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
-    action.createParam(PARAM_PLANNED)
-      .setDescription("Since 5.5 this parameter is no more used, as action plan feature has been dropped")
-      .setDeprecatedSince("5.5")
-      .setBooleanPossibleValues();
-    action.createParam("reporters")
-      .setDescription("Since 5.5 this parameter is no more used, as manual issue feature has been dropped")
-      .setExampleValue("admin")
-      .setDeprecatedSince("5.5");
     action.createParam(PARAM_AUTHORS)
       .setDescription("Comma-separated list of SCM accounts")
       .setExampleValue("torvalds@linux-foundation.org");
