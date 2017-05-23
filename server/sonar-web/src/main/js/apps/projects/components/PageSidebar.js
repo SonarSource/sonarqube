@@ -17,109 +17,68 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import { Link } from 'react-router';
 import FavoriteFilterContainer from './FavoriteFilterContainer';
-import CoverageFilter from '../filters/CoverageFilter';
-import DuplicationsFilter from '../filters/DuplicationsFilter';
-import SizeFilter from '../filters/SizeFilter';
-import QualityGateFilter from '../filters/QualityGateFilter';
-import ReliabilityFilter from '../filters/ReliabilityFilter';
-import SecurityFilter from '../filters/SecurityFilter';
-import MaintainabilityFilter from '../filters/MaintainabilityFilter';
-import TagsFilterContainer from '../filters/TagsFilterContainer';
-import SearchFilterContainer from '../filters/SearchFilterContainer';
 import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
+import PageSidebarOverall from './PageSidebarOverall';
+import QualityGateFilter from '../filters/QualityGateFilter';
+import SearchFilterContainer from '../filters/SearchFilterContainer';
+import TagsFilterContainer from '../filters/TagsFilterContainer';
 import { translate } from '../../../helpers/l10n';
 
-export default class PageSidebar extends React.PureComponent {
-  static propTypes = {
-    query: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool.isRequired,
-    organization: React.PropTypes.object
-  };
+type Props = {
+  isFavorite: boolean,
+  organization?: { key: string },
+  query: { [string]: string },
+  view: string,
+  visualization: string
+};
 
-  render() {
-    const { query } = this.props;
+export default function PageSidebar({
+  query,
+  isFavorite,
+  organization,
+  view,
+  visualization
+}: Props) {
+  const isFiltered = Object.keys(query)
+    .filter(key => key !== 'view' && key !== 'visualization')
+    .some(key => query[key] != null);
+  const isLeakView = view === 'leak';
+  const basePathName = organization ? `/organizations/${organization.key}/projects` : '/projects';
+  const pathname = basePathName + (isFavorite ? '/favorite' : '');
 
-    const isFiltered = Object.keys(query)
-      .filter(key => key !== 'view' && key !== 'visualization')
-      .some(key => query[key] != null);
+  let linkQuery: ?{ view: string, visualization?: string };
+  if (view !== 'overall') {
+    linkQuery = { view };
 
-    const basePathName = this.props.organization
-      ? `/organizations/${this.props.organization.key}/projects`
-      : '/projects';
-    const pathname = basePathName + (this.props.isFavorite ? '/favorite' : '');
-    const linkQuery = query.view === 'visualizations'
-      ? { view: query.view, visualization: query.visualization }
-      : undefined;
-
-    return (
-      <div>
-        <FavoriteFilterContainer organization={this.props.organization} />
-
-        <div className="projects-facets-header clearfix">
-          {isFiltered &&
-            <div className="projects-facets-reset">
-              <Link to={{ pathname, query: linkQuery }} className="button button-red">
-                {translate('clear_all_filters')}
-              </Link>
-            </div>}
-
-          <h3>{translate('filters')}</h3>
-          <SearchFilterContainer
-            query={query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}
-          />
-        </div>
-
-        <QualityGateFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <ReliabilityFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <SecurityFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <MaintainabilityFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <CoverageFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <DuplicationsFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <SizeFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <LanguagesFilterContainer
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <TagsFilterContainer
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-      </div>
-    );
+    if (view === 'visualizations') {
+      linkQuery.visualization = visualization;
+    }
   }
+
+  return (
+    <div>
+      <FavoriteFilterContainer query={linkQuery} organization={organization} />
+
+      <div className="projects-facets-header clearfix">
+        {isFiltered &&
+          <div className="projects-facets-reset">
+            <Link to={{ pathname, query: linkQuery }} className="button button-red">
+              {translate('clear_all_filters')}
+            </Link>
+          </div>}
+
+        <h3>{translate('filters')}</h3>
+        <SearchFilterContainer query={query} isFavorite={isFavorite} organization={organization} />
+      </div>
+      <QualityGateFilter query={query} isFavorite={isFavorite} organization={organization} />
+      {!isLeakView &&
+        <PageSidebarOverall query={query} isFavorite={isFavorite} organization={organization} />}
+      <LanguagesFilterContainer query={query} isFavorite={isFavorite} organization={organization} />
+      <TagsFilterContainer query={query} isFavorite={isFavorite} organization={organization} />
+    </div>
+  );
 }

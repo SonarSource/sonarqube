@@ -21,13 +21,30 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import PageSidebar from '../PageSidebar';
 
-it('should handle `view` and `visualization`', () => {
-  const query = {
-    view: 'visualizations',
-    visualization: 'bugs'
-  };
-  const sidebar = shallow(<PageSidebar query={query} isFavorite={false} />);
+it('should render correctly', () => {
+  const sidebar = shallow(
+    <PageSidebar query={{ size: '3' }} view="overall" visualization="risk" isFavorite={true} />
+  );
+  expect(sidebar).toMatchSnapshot();
+});
+
+it('should render `leak` view correctly', () => {
+  const sidebar = shallow(
+    <PageSidebar query={{ view: 'leak' }} view="leak" visualization="risk" isFavorite={false} />
+  );
+  expect(sidebar).toMatchSnapshot();
+});
+
+it('reset function should work correctly with view and visualizations', () => {
+  const sidebar = shallow(
+    <PageSidebar
+      query={{ view: 'visualizations', visualization: 'bugs' }}
+      view="visualizations"
+      visualization="bugs"
+      isFavorite={false}
+    />
+  );
   expect(sidebar.find('.projects-facets-reset')).toMatchSnapshot();
-  sidebar.setProps({ query: { ...query, size: '3' } });
+  sidebar.setProps({ query: { size: '3' } });
   expect(sidebar.find('.projects-facets-reset')).toMatchSnapshot();
 });
