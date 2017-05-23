@@ -63,6 +63,7 @@ public class OkHttpClientBuilder {
 
   private String userAgent;
   private Proxy proxy;
+  private String credentials;
   private String proxyLogin;
   private String proxyPassword;
   private long connectTimeoutMs = -1;
@@ -138,6 +139,13 @@ public class OkHttpClientBuilder {
   }
 
   /**
+   * Set credentials that will be passed on every request
+   */
+  public void setCredentials(String credentials) {
+    this.credentials = credentials;
+  }
+
+  /**
    * Sets the default read timeout for new connections. A value of 0 means no timeout.
    * Default is defined by OkHttp (10 seconds in OkHttp 3.3).
    */
@@ -158,7 +166,7 @@ public class OkHttpClientBuilder {
     if (readTimeoutMs >= 0) {
       builder.readTimeout(readTimeoutMs, TimeUnit.MILLISECONDS);
     }
-    builder.addNetworkInterceptor(this::addUserAgent);
+    builder.addNetworkInterceptor(this::addHeaders);
     if (proxyLogin != null) {
       builder.proxyAuthenticator((route, response) -> {
         if (response.request().header(PROXY_AUTHORIZATION) != null) {
@@ -187,10 +195,13 @@ public class OkHttpClientBuilder {
     return builder.build();
   }
 
-  private Response addUserAgent(Interceptor.Chain chain) throws IOException {
+  private Response addHeaders(Interceptor.Chain chain) throws IOException {
     Request.Builder newRequest = chain.request().newBuilder();
     if (userAgent != null) {
       newRequest.header("User-Agent", userAgent);
+    }
+    if (credentials != null) {
+      newRequest.header("Authorization", credentials);
     }
     return chain.proceed(newRequest.build());
   }
@@ -285,4 +296,5 @@ public class OkHttpClientBuilder {
 
     return kmf.getKeyManagers();
   }
+
 }

@@ -20,6 +20,9 @@
 package org.sonarqube.tests;
 
 import com.sonar.orchestrator.Orchestrator;
+import org.junit.ClassRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.sonarqube.tests.analysis.ExtensionLifecycleTest;
 import org.sonarqube.tests.analysis.FavoriteTest;
 import org.sonarqube.tests.analysis.IssueJsonReportTest;
@@ -28,6 +31,7 @@ import org.sonarqube.tests.analysis.LinksTest;
 import org.sonarqube.tests.analysis.MultiLanguageTest;
 import org.sonarqube.tests.analysis.PermissionTest;
 import org.sonarqube.tests.analysis.ProjectBuilderTest;
+import org.sonarqube.tests.analysis.RedirectTest;
 import org.sonarqube.tests.analysis.ReportDumpTest;
 import org.sonarqube.tests.analysis.SSLTest;
 import org.sonarqube.tests.analysis.ScannerTest;
@@ -36,9 +40,6 @@ import org.sonarqube.tests.analysis.TempFolderTest;
 import org.sonarqube.tests.measure.DecimalScaleMetricTest;
 import org.sonarqube.tests.plugins.VersionPluginTest;
 import org.sonarqube.tests.webhook.WebhooksTest;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
@@ -60,6 +61,7 @@ import static util.ItUtils.xooPlugin;
   ReportDumpTest.class,
   SSLTest.class,
   FavoriteTest.class,
+  RedirectTest.class,
   // measures
   DecimalScaleMetricTest.class,
   WebhooksTest.class
