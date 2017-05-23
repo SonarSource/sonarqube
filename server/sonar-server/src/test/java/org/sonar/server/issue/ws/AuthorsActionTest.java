@@ -19,49 +19,93 @@
  */
 package org.sonar.server.issue.ws;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.WsActionTester;
 
-import java.util.Arrays;
+import static java.util.Collections.emptySet;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.test.JsonAssert.assertJson;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
 public class AuthorsActionTest {
+  @Rule
+  public DbTester db = DbTester.create();
+  @Rule
+  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  WebService.Controller controller;
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndex issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
+  private IssueService issueService = new IssueService(issueIndex);
 
-  WsTester tester;
+  private WsActionTester ws = new WsActionTester(new AuthorsAction(issueService));
 
-  @Mock
-  IssueService service;
+  @Test
+  public void json_example() {
+    db.issues().insertIssue(issue -> issue.setAuthorLogin("luke.skywalker"));
+    db.issues().insertIssue(issue -> issue.setAuthorLogin("leia.organa"));
+    issueIndexer.indexOnStartup(emptySet());
 
-  @Before
-  public void setUp() {
-    tester = new WsTester(new IssuesWs(new AuthorsAction(service)));
-    controller = tester.controller("api/issues");
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
-  public void fetch_authors() throws Exception {
-    String query = "luke";
-    int pageSize = 42;
-    when(service.listAuthors(query, pageSize))
-      .thenReturn(Arrays.asList("luke.skywalker", "luke@skywalker.name"));
+  public void search_by_query() {
+    String leia = "leia.organa";
+    String luke = "luke.skywalker";
+    db.issues().insertIssue(issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(issue -> issue.setAuthorLogin(luke));
+    issueIndexer.indexOnStartup(emptySet());
 
-    tester.newGetRequest("api/issues", "authors")
-      .setParam("q", query)
-      .setParam("ps", Integer.toString(pageSize))
-      .execute()
-      .assertJson(getClass(), "authors.json");
+    String result = ws.newRequest()
+      .setParam(TEXT_QUERY, "leia")
+      .execute().getInput();
 
-    verify(service).listAuthors(query, pageSize);
+    assertThat(result).contains(leia).doesNotContain(luke);
+  }
+
+  @Test
+  public void set_page_size() {
+    String han = "han.solo";
+    String leia = "leia.organa";
+    String luke = "luke.skywalker";
+    db.issues().insertIssue(issue -> issue.setAuthorLogin(han));
+    db.issues().insertIssue(issue -> issue.setAuthorLogin(leia));
+    db.issues().insertIssue(issue -> issue.setAuthorLogin(luke));
+    issueIndexer.indexOnStartup(emptySet());
+
+    String result = ws.newRequest()
+      .setParam(PAGE_SIZE, "2")
+      .execute().getInput();
+
+    assertThat(result).contains(han, leia).doesNotContain(luke);
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("authors");
+    assertThat(definition.since()).isEqualTo("5.1");
+    assertThat(definition.isInternal()).isFalse();
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("q", "ps");
   }
 }
