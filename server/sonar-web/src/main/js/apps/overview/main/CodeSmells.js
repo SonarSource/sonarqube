@@ -42,8 +42,8 @@ class CodeSmells extends React.PureComponent {
       Object.assign(params, { sinceLeakPeriod: 'true' });
     }
 
-    const formattedSnapshotDate = moment(component.snapshotDate).format('LLL');
-    const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
+    const formattedAnalysisDate = moment(component.analysisDate).format('LLL');
+    const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate);
 
     return (
       <Link to={getComponentIssuesUrl(component.key, params)}>
