@@ -152,8 +152,8 @@ public class SearchProjectsActionTest {
       tuple("6.4", "The 'languages' parameter accepts 'filter' to filter by language"),
       tuple("6.4", "The 'visibility' field is added"),
       tuple("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
-      tuple("6.5", "Added the option 'analysisDate' for the 'sort' parameter")
-    );
+      tuple("6.5", "Added the option 'analysisDate' for the 'sort' parameter"),
+      tuple("6.5", "Value 'leakPeriodDate' is added to parameter 'f'"));
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -171,7 +171,7 @@ public class SearchProjectsActionTest {
 
     Param additionalFields = def.param("f");
     assertThat(additionalFields.defaultValue()).isNull();
-    assertThat(additionalFields.possibleValues()).containsOnly("analysisDate");
+    assertThat(additionalFields.possibleValues()).containsOnly("analysisDate", "leakPeriodDate");
 
     Param facets = def.param("facets");
     assertThat(facets.defaultValue()).isNull();
@@ -996,8 +996,36 @@ public class SearchProjectsActionTest {
 
     SearchProjectsWsResponse result = call(request.setAdditionalFields(singletonList("analysisDate")));
 
-    assertThat(result.getComponentsList()).extracting(Component::getAnalysisDate)
-      .containsOnly(formatDateTime(new Date(20_000_000_000L)), formatDateTime(new Date(30_000_000_000L)), "");
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::hasAnalysisDate, Component::getAnalysisDate)
+      .containsOnly(
+        tuple(project1.getKey(), true, formatDateTime(new Date(20_000_000_000L))),
+        tuple(project2.getKey(), true, formatDateTime(new Date(30_000_000_000L))),
+        tuple(project3.getKey(), false, ""));
+  }
+
+  @Test
+  public void return_leak_period_date() {
+    userSession.logIn();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(organization);
+    db.components().insertSnapshot(project1, snapshot -> snapshot.setPeriodDate(10_000_000_000L));
+    authorizationIndexerTester.allowOnlyAnyone(project1);
+    // No leak period
+    ComponentDto project2 = db.components().insertPublicProject(organization);
+    db.components().insertSnapshot(project2, snapshot -> snapshot.setPeriodDate(null));
+    authorizationIndexerTester.allowOnlyAnyone(project2);
+    // No snapshot on project 3
+    ComponentDto project3 = db.components().insertPublicProject(organization);
+    authorizationIndexerTester.allowOnlyAnyone(project3);
+    projectMeasuresIndexer.indexOnStartup(null);
+
+    SearchProjectsWsResponse result = call(request.setAdditionalFields(singletonList("leakPeriodDate")));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey, Component::hasLeakPeriodDate, Component::getLeakPeriodDate)
+      .containsOnly(
+        tuple(project1.getKey(), true, formatDateTime(new Date(10_000_000_000L))),
+        tuple(project2.getKey(), false, ""),
+        tuple(project3.getKey(), false, ""));
   }
 
   @Test
