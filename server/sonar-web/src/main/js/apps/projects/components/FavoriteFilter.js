@@ -23,7 +23,17 @@ import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { saveAll, saveFavorite } from '../utils';
 
+type Props = {
+  user: {
+    isLoggedIn?: boolean
+  },
+  organization?: { key: string },
+  query: { [string]: string }
+};
+
 export default class FavoriteFilter extends React.PureComponent {
+  props: Props;
+
   handleSaveFavorite = () => {
     if (!this.props.organization) {
       saveFavorite();
@@ -54,7 +64,7 @@ export default class FavoriteFilter extends React.PureComponent {
         <div className="button-group">
           <Link
             id="favorite-projects"
-            to={pathnameForFavorite}
+            to={{ pathname: pathnameForFavorite, query: this.props.query }}
             className="button"
             activeClassName="button-active"
             onClick={this.handleSaveFavorite}>
@@ -62,7 +72,7 @@ export default class FavoriteFilter extends React.PureComponent {
           </Link>
           <IndexLink
             id="all-projects"
-            to={pathnameForAll}
+            to={{ pathname: pathnameForAll, query: this.props.query }}
             className="button"
             activeClassName="button-active"
             onClick={this.handleSaveAll}>
