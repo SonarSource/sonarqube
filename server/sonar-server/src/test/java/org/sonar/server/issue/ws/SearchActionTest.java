@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.tester.UserSessionRule;
@@ -56,12 +57,12 @@ public class SearchActionTest {
     assertThat(def.responseExampleAsString()).isNotEmpty();
 
     assertThat(def.params()).extracting("key").containsExactlyInAnyOrder(
-      "actionPlans", "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components",
+      "additionalFields", "asc", "assigned", "assignees", "authors", "componentKeys", "componentRootUuids", "componentRoots", "componentUuids", "components",
       "createdAfter", "createdAt", "createdBefore", "createdInLast", "directories", "facetMode", "facets", "fileUuids", "issues", "languages", "moduleUuids", "onComponentOnly",
-      "organization", "p", "planned", "projectKeys", "projectUuids", "projects", "ps", "reporters", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
+      "organization", "p", "projectUuids", "projects", "ps", "resolutions", "resolved", "rules", "s", "severities", "sinceLeakPeriod",
       "statuses", "tags", "types");
     assertThat(def.param("organization"))
-      .matches(p -> p.isInternal())
+      .matches(Param::isInternal)
       .matches(p -> p.since().equals("6.4"));
   }
 
