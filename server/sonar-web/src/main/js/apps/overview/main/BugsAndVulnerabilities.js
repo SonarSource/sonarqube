@@ -23,8 +23,8 @@ import enhance from './enhance';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getMetricName } from '../helpers/metrics';
 import { translate } from '../../../helpers/l10n';
-import BugIcon from '../../../components/ui/BugIcon';
-import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
+import BugIcon from '../../../components/icons-components/BugIcon';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 
 class BugsAndVulnerabilities extends React.PureComponent {
   renderHeader() {
