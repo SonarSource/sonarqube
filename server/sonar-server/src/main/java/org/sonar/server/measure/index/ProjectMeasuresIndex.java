@@ -284,9 +284,7 @@ public class ProjectMeasuresIndex {
       BoolQueryBuilder metricFilters = boolQuery();
       entry.getValue()
         .stream()
-        .map(criterion -> nestedQuery(FIELD_MEASURES, boolQuery()
-          .filter(termQuery(FIELD_MEASURES_KEY, criterion.getMetricKey()))
-          .filter(toValueQuery(criterion))))
+        .map(criterion -> toQuery(criterion))
         .forEach(metricFilters::must);
       filters.put(entry.getKey(), metricFilters);
     });
@@ -316,6 +314,15 @@ public class ProjectMeasuresIndex {
       return Optional.empty();
     }
     return Optional.of(ProjectsTextSearchQueryFactory.createQuery(queryText.get()));
+  }
+
+  private static QueryBuilder toQuery(MetricCriterion criterion) {
+    if (criterion.isNoData()) {
+      return boolQuery().mustNot(nestedQuery(FIELD_MEASURES, termQuery(FIELD_MEASURES_KEY, criterion.getMetricKey())));
+    }
+    return nestedQuery(FIELD_MEASURES, boolQuery()
+      .filter(termQuery(FIELD_MEASURES_KEY, criterion.getMetricKey()))
+      .filter(toValueQuery(criterion)));
   }
 
   private static QueryBuilder toValueQuery(MetricCriterion criterion) {

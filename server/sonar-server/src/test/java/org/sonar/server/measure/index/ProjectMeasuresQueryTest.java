@@ -46,11 +46,29 @@ public class ProjectMeasuresQueryTest {
 
   @Test
   public void add_metric_criterion() throws Exception {
-    underTest.addMetricCriterion(new MetricCriterion("coverage", EQ, 10d));
+    underTest.addMetricCriterion(MetricCriterion.create("coverage", EQ, 10d));
 
     assertThat(underTest.getMetricCriteria())
       .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::getValue)
       .containsOnly(tuple("coverage", EQ, 10d));
+  }
+
+  @Test
+  public void isNoData_returns_true_when_no_data() throws Exception {
+    underTest.addMetricCriterion(MetricCriterion.createNoData("coverage"));
+
+    assertThat(underTest.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::isNoData)
+      .containsOnly(tuple("coverage", true));
+  }
+
+  @Test
+  public void isNoData_returns_false_when_data_exists() throws Exception {
+    underTest.addMetricCriterion(MetricCriterion.create("coverage", EQ, 10d));
+
+    assertThat(underTest.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::getOperator, MetricCriterion::isNoData)
+      .containsOnly(tuple("coverage", EQ, false));
   }
 
   @Test
@@ -71,5 +89,21 @@ public class ProjectMeasuresQueryTest {
     expectedException.expectMessage("Sort cannot be null");
 
     underTest.setSort(null);
+  }
+
+  @Test
+  public void fail_to_get_value_when_no_data() throws Exception {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The criterion for metric coverage has no data");
+
+    MetricCriterion.createNoData("coverage").getValue();
+  }
+
+  @Test
+  public void fail_to_get_operator_when_no_data() throws Exception {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("The criterion for metric coverage has no data");
+
+    MetricCriterion.createNoData("coverage").getOperator();
   }
 }

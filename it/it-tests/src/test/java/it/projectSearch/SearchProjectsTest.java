@@ -86,11 +86,20 @@ public class SearchProjectsTest {
   @Test
   public void filter_projects_by_measure_values() throws Exception {
     String projectKey = newProjectKey();
-    analyzeProject(projectKey, "shared/xoo-sample");
+    analyzeProject(projectKey,"shared/xoo-sample");
 
     verifyFilterMatches(projectKey, "ncloc > 1");
     verifyFilterMatches(projectKey, "ncloc > 1 and comment_lines < 10000");
     verifyFilterDoesNotMatch("ncloc <= 1");
+  }
+
+  @Test
+  public void find_projects_with_no_data() throws Exception {
+    String projectKey = newProjectKey();
+    analyzeProject(projectKey,"shared/xoo-sample");
+
+    verifyFilterMatches(projectKey, "coverage = NO_DATA");
+    verifyFilterDoesNotMatch("ncloc = NO_DATA");
   }
 
   @Test
