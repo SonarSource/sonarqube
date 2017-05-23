@@ -206,6 +206,15 @@ public class SearchProjectsTest {
   }
 
   @Test
+  public void find_projects_with_no_data() throws Exception {
+    String projectKey = newProjectKey();
+    analyzeProject(projectKey,"shared/xoo-sample");
+
+    verifyFilterMatches(projectKey, "coverage = NO_DATA");
+    verifyFilterDoesNotMatch("ncloc = NO_DATA");
+  }
+
+  @Test
   public void provisioned_projects_should_be_included_to_results() throws Exception {
     String projectKey = newProjectKey();
     newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organizationKey).build());

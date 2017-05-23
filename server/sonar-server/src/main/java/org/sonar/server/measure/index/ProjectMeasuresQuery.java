@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.component.ws.FilterParser.Operator;
 
@@ -127,12 +128,13 @@ public class ProjectMeasuresQuery {
   public static class MetricCriterion {
     private final String metricKey;
     private final Operator operator;
-    private final double value;
+    @Nullable
+    private final Double value;
 
-    public MetricCriterion(String metricKey, Operator operator, double value) {
-      this.metricKey = requireNonNull(metricKey);
-      this.operator = requireNonNull(operator);
-      this.value = requireNonNull(value);
+    private MetricCriterion(String metricKey, @Nullable Operator operator, @Nullable Double value) {
+      this.metricKey = metricKey;
+      this.operator = operator;
+      this.value = value;
     }
 
     public String getMetricKey() {
@@ -140,11 +142,29 @@ public class ProjectMeasuresQuery {
     }
 
     public Operator getOperator() {
+      checkDataAvailable();
       return operator;
     }
 
     public double getValue() {
+      checkDataAvailable();
       return value;
+    }
+
+    public boolean isNoData() {
+      return value == null;
+    }
+
+    public static MetricCriterion createNoData(String metricKey) {
+      return new MetricCriterion(requireNonNull(metricKey), null, null);
+    }
+
+    public static MetricCriterion create(String metricKey, Operator operator, double value) {
+      return new MetricCriterion(requireNonNull(metricKey), requireNonNull(operator), value);
+    }
+
+    private void checkDataAvailable() {
+      checkState(!isNoData(), "The criterion for metric %s has no data", metricKey);
     }
   }
 

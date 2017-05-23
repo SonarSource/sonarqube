@@ -149,7 +149,9 @@ public class SearchProjectsActionTest {
     assertThat(def.params().stream().map(Param::key).collect(toList())).containsOnly("organization", "filter", "facets", "s", "asc", "ps", "p", "f");
     assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "The 'languages' parameter accepts 'filter' to filter by language"),
-      tuple("6.4", "The 'visibility' field is added"));
+      tuple("6.4", "The 'visibility' field is added"),
+      tuple("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics")
+    );
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -268,7 +270,7 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organization1 = db.organizations().insert();
     OrganizationDto organization2 = db.organizations().insert();
-    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(COVERAGE).setValueType(INT.name()));
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
     MetricDto ncloc = db.measureDbTester().insertMetric(c -> c.setKey(NCLOC).setValueType(INT.name()));
     ComponentDto project1 = insertProject(organization1, new Measure(coverage, c -> c.setValue(81d)), new Measure(ncloc, c -> c.setValue(10_000d)));
     ComponentDto project2 = insertProject(organization1, new Measure(coverage, c -> c.setValue(80d)), new Measure(ncloc, c -> c.setValue(10_000d)));
@@ -399,6 +401,34 @@ public class SearchProjectsActionTest {
     SearchProjectsWsResponse result = call(request.setFilter("duplicated_lines_density <= 80"));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project3.key());
+  }
+
+  @Test
+  public void filter_projects_by_no_duplication() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    MetricDto duplications = db.measureDbTester().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(coverage, c -> c.setValue(10d)));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(duplications, c -> c.setValue(0d)));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(duplications, c -> c.setValue(79d)));
+
+    SearchProjectsWsResponse result = call(request.setFilter("duplicated_lines_density = NO_DATA"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey());
+  }
+
+  @Test
+  public void filter_projects_by_no_duplication_should_not_return_projects_with_duplication() {
+    userSession.logIn();
+    OrganizationDto organizationDto = db.organizations().insert();
+    MetricDto coverage = db.measureDbTester().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
+    MetricDto duplications = db.measureDbTester().insertMetric(c -> c.setKey(DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()));
+    insertProject(organizationDto, new Measure(duplications, c -> c.setValue(10d)), new Measure(coverage, c -> c.setValue(50d)));
+
+    SearchProjectsWsResponse result = call(request.setFilter("duplicated_lines_density = NO_DATA"));
+
+    assertThat(result.getComponentsList()).extracting(Component::getKey).isEmpty();
   }
 
   @Test
