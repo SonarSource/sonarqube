@@ -1,18 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display analysis date 1`] = `
-<div
-  className="project-card-analysis-date note"
->
-  overview.last_analysis_on_x.January 1, 2017 12:00 AM
-</div>
-`;
-
 exports[`should display loading 1`] = `
 <div
   className="boxed-group project-card boxed-group-loading"
   data-key="foo"
 >
+  <div
+    className="boxed-group-actions text-right"
+  />
   <div
     className="boxed-group-header"
   >
@@ -37,11 +32,8 @@ exports[`should display loading 1`] = `
   </div>
   <div
     className="boxed-group-inner"
-  />
-  <div
-    className="project-card-analysis-date note"
   >
-    overview.last_analysis_on_x.January 1, 2017 12:00 AM
+    <ProjectCardMeasures />
   </div>
 </div>
 `;
@@ -52,26 +44,8 @@ exports[`should display tags 1`] = `
   data-key="foo"
 >
   <div
-    className="boxed-group-header"
+    className="boxed-group-actions text-right"
   >
-    <h2
-      className="project-card-name"
-    >
-      <Link
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/dashboard",
-            "query": Object {
-              "id": "foo",
-            },
-          }
-        }
-      >
-        Foo
-      </Link>
-    </h2>
     <TagsList
       allowUpdate={false}
       customClass="spacer-left"
@@ -84,12 +58,33 @@ exports[`should display tags 1`] = `
     />
   </div>
   <div
-    className="boxed-group-inner"
-  />
-  <div
-    className="project-card-analysis-date note"
+    className="boxed-group-header"
   >
-    overview.last_analysis_on_x.January 1, 2017 12:00 AM
+    <h2
+      className="project-card-name"
+    >
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/dashboard",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        Foo
+      </Link>
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <ProjectCardMeasures />
   </div>
 </div>
 `;
+
+exports[`should not display analysis date 1`] = `undefined`;

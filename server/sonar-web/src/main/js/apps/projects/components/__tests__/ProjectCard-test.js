@@ -24,7 +24,7 @@ import ProjectCard from '../ProjectCard';
 const PROJECT = { analysisDate: '2017-01-01', key: 'foo', name: 'Foo', tags: [] };
 const MEASURES = {};
 
-it('should display analysis date', () => {
+it('should not display analysis date', () => {
   expect(
     shallow(<ProjectCard measures={MEASURES} project={PROJECT} />).find(
       '.project-card-analysis-date'
