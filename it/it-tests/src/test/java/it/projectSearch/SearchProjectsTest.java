@@ -95,6 +95,7 @@ public class SearchProjectsTest {
       tuple("WARN", 0L),
       tuple("ERROR", 0L));
     checkFacet(response, "coverage",
+      tuple("NO_DATA", 2L),
       tuple("*-30.0", 0L),
       tuple("30.0-50.0", 0L),
       tuple("50.0-70.0", 0L),
@@ -170,6 +171,7 @@ public class SearchProjectsTest {
       tuple("4", 0L),
       tuple("5", 0L));
     checkFacet(response, "new_coverage",
+      tuple("NO_DATA", 2L),
       tuple("*-30.0", 0L),
       tuple("30.0-50.0", 0L),
       tuple("50.0-70.0", 0L),
