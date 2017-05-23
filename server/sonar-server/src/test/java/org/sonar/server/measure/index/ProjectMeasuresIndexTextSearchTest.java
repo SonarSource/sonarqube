@@ -280,11 +280,11 @@ public class ProjectMeasuresIndexTextSearchTest {
       newDoc(newPrivateProjectDto(ORG).setUuid("project3").setName("Apache").setKey("project3"), NCLOC, 50_000d),
       newDoc(newPrivateProjectDto(ORG).setUuid("project4").setName("Apache").setKey("project4"), NCLOC, 60_000d));
 
-    assertResults(new ProjectMeasuresQuery().setQueryText("apache").addMetricCriterion(new MetricCriterion(NCLOC, GT, 20_000d)), "project3", "project4", "project2");
-    assertResults(new ProjectMeasuresQuery().setQueryText("apache").addMetricCriterion(new MetricCriterion(NCLOC, LT, 55_000d)), "project3", "project2");
-    assertResults(new ProjectMeasuresQuery().setQueryText("PAC").addMetricCriterion(new MetricCriterion(NCLOC, LT, 55_000d)), "project3", "project2");
-    assertResults(new ProjectMeasuresQuery().setQueryText("apachee").addMetricCriterion(new MetricCriterion(NCLOC, GT, 30_000d)), "project2");
-    assertResults(new ProjectMeasuresQuery().setQueryText("unknown").addMetricCriterion(new MetricCriterion(NCLOC, GT, 20_000d)));
+    assertResults(new ProjectMeasuresQuery().setQueryText("apache").addMetricCriterion(MetricCriterion.create(NCLOC, GT, 20_000d)), "project3", "project4", "project2");
+    assertResults(new ProjectMeasuresQuery().setQueryText("apache").addMetricCriterion(MetricCriterion.create(NCLOC, LT, 55_000d)), "project3", "project2");
+    assertResults(new ProjectMeasuresQuery().setQueryText("PAC").addMetricCriterion(MetricCriterion.create(NCLOC, LT, 55_000d)), "project3", "project2");
+    assertResults(new ProjectMeasuresQuery().setQueryText("apachee").addMetricCriterion(MetricCriterion.create(NCLOC, GT, 30_000d)), "project2");
+    assertResults(new ProjectMeasuresQuery().setQueryText("unknown").addMetricCriterion(MetricCriterion.create(NCLOC, GT, 20_000d)));
   }
 
   private void index(ProjectMeasuresDoc... docs) {
