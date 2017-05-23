@@ -38,7 +38,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
@@ -64,6 +63,7 @@ import org.sonar.server.ui.PageRepository;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
@@ -181,7 +181,8 @@ public class ComponentAction implements NavigationWsAction {
     List<Page> pages = pageRepository.getComponentPages(false, component.qualifier());
     writeExtensions(json, component, pages);
     if (analysis != null) {
-      json.prop("version", analysis.getVersion()).prop("snapshotDate", DateUtils.formatDateTime(new Date(analysis.getCreatedAt())));
+      json.prop("version", analysis.getVersion())
+        .prop("analysisDate", formatDateTime(new Date(analysis.getCreatedAt())));
     }
   }
 
