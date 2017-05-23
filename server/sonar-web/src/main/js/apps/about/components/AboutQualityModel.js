@@ -19,9 +19,9 @@
  */
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import BugIcon from '../../../components/ui/BugIcon';
-import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
-import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
+import BugIcon from '../../../components/icons-components/BugIcon';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
+import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 
 export default function AboutQualityModel() {
   return (
