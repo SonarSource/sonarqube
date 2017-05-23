@@ -215,7 +215,7 @@ public class ProjectMeasuresIndexTest {
       newDoc(PROJECT3, COVERAGE, 81d, NCLOC, 10_000d));
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 80d));
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 80d));
 
     assertResults(query, PROJECT1);
   }
@@ -228,7 +228,7 @@ public class ProjectMeasuresIndexTest {
       newDoc(PROJECT3, COVERAGE, 81d, NCLOC, 10_000d));
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LTE, 80d));
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LTE, 80d));
 
     assertResults(query, PROJECT1, PROJECT2);
   }
@@ -240,10 +240,10 @@ public class ProjectMeasuresIndexTest {
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 30_001d),
       newDoc(PROJECT3, COVERAGE, 80d, NCLOC, 30_001d));
 
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GT, 30_000d));
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.create(NCLOC, Operator.GT, 30_000d));
     assertResults(query, PROJECT2, PROJECT3);
 
-    query = new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GT, 100_000d));
+    query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.create(NCLOC, Operator.GT, 100_000d));
     assertNoResults(query);
   }
 
@@ -254,10 +254,10 @@ public class ProjectMeasuresIndexTest {
       newDoc(PROJECT2, COVERAGE, 80d, NCLOC, 30_001d),
       newDoc(PROJECT3, COVERAGE, 80d, NCLOC, 30_001d));
 
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GTE, 30_001d));
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.create(NCLOC, Operator.GTE, 30_001d));
     assertResults(query, PROJECT2, PROJECT3);
 
-    query = new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion(NCLOC, Operator.GTE, 100_000d));
+    query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.create(NCLOC, Operator.GTE, 100_000d));
     assertNoResults(query);
   }
 
@@ -269,9 +269,51 @@ public class ProjectMeasuresIndexTest {
       newDoc(PROJECT3, COVERAGE, 81d, NCLOC, 10_000d));
 
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.EQ, 80d));
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.EQ, 80d));
 
     assertResults(query, PROJECT2);
+  }
+
+  @Test
+  public void filter_on_no_data_with_several_projects() {
+    index(
+      newDoc(PROJECT1, NCLOC, 1d),
+      newDoc(PROJECT2, DUPLICATION, 80d));
+
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery()
+      .addMetricCriterion(MetricCriterion.createNoData(DUPLICATION));
+
+    assertResults(query, PROJECT1);
+  }
+
+  @Test
+  public void filter_on_no_data_should_not_return_projects_with_data_and_other_measures() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(ORG);
+    index(newDoc(project, DUPLICATION, 80d, NCLOC, 1d));
+
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.createNoData(DUPLICATION));
+
+    assertNoResults(query);
+  }
+
+  @Test
+  public void filter_on_no_data_should_not_return_projects_with_data() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(ORG);
+    index(newDoc(project, DUPLICATION, 80d));
+
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.createNoData(DUPLICATION));
+
+    assertNoResults(query);
+  }
+
+  @Test
+  public void filter_on_no_data_should_return_projects_with_no_data() {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(ORG);
+    index(newDoc(project, NCLOC, 1d));
+
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.createNoData(DUPLICATION));
+
+    assertResults(query, project);
   }
 
   @Test
@@ -282,9 +324,9 @@ public class ProjectMeasuresIndexTest {
       newDoc(PROJECT3, COVERAGE, 79d, NCLOC, 10_000d));
 
     ProjectMeasuresQuery esQuery = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LTE, 80d))
-      .addMetricCriterion(new MetricCriterion(NCLOC, Operator.GT, 10_000d))
-      .addMetricCriterion(new MetricCriterion(NCLOC, Operator.LT, 11_000d));
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LTE, 80d))
+      .addMetricCriterion(MetricCriterion.create(NCLOC, Operator.GT, 10_000d))
+      .addMetricCriterion(MetricCriterion.create(NCLOC, Operator.LT, 11_000d));
     assertResults(esQuery, PROJECT2);
   }
 
@@ -479,8 +521,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 501_000d, COVERAGE, 81d, DUPLICATION, 20d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(NCLOC, Operator.LT, 10_000d))
-      .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d)),
+      .addMetricCriterion(MetricCriterion.create(NCLOC, Operator.LT, 10_000d))
+      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
       new SearchOptions().addFacets(NCLOC, COVERAGE)).getFacets();
 
     // Sticky facet on ncloc does not take into account ncloc filter
@@ -620,8 +662,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(NCLOC, 501_000d, COVERAGE, 810d, DUPLICATION, 20d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d))
-      .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d)),
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d))
+      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d)),
       new SearchOptions().addFacets(COVERAGE, NCLOC)).getFacets();
 
     // Sticky facet on coverage does not take into account coverage filter
@@ -764,8 +806,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(DUPLICATION, 20d, NCLOC, 1000000d, COVERAGE, 40d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(DUPLICATION, Operator.LT, 10d))
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d)),
+      .addMetricCriterion(MetricCriterion.create(DUPLICATION, Operator.LT, 10d))
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
       new SearchOptions().addFacets(DUPLICATION, NCLOC)).getFacets();
 
     // Sticky facet on duplication does not take into account duplication filter
@@ -922,8 +964,8 @@ public class ProjectMeasuresIndexTest {
       newDoc(metricKey, 5d, NCLOC, 800000d, COVERAGE, 60d));
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion(metricKey, Operator.LT, 3d))
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 30d)),
+      .addMetricCriterion(MetricCriterion.create(metricKey, Operator.LT, 3d))
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 30d)),
       new SearchOptions().addFacets(metricKey, NCLOC)).getFacets();
 
     // Sticky facet on maintainability rating does not take into account maintainability rating filter
@@ -1017,7 +1059,7 @@ public class ProjectMeasuresIndexTest {
 
     Facets facets = underTest.search(new ProjectMeasuresQuery()
       .setQualityGateStatus(ERROR)
-      .addMetricCriterion(new MetricCriterion(COVERAGE, Operator.LT, 55d)),
+      .addMetricCriterion(MetricCriterion.create(COVERAGE, Operator.LT, 55d)),
       new SearchOptions().addFacets(ALERT_STATUS_KEY, NCLOC)).getFacets();
 
     // Sticky facet on quality gate does not take into account quality gate filter
