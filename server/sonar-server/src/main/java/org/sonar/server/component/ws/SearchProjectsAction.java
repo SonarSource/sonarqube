@@ -38,7 +38,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -51,7 +50,6 @@ import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
@@ -68,12 +66,15 @@ import static java.util.Collections.emptyMap;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
@@ -86,7 +87,8 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 public class SearchProjectsAction implements ComponentsWsAction {
 
   private static final String ANALYSIS_DATE = "analysisDate";
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ANALYSIS_DATE);
+  private static final String LEAK_PERIOD_DATE = "leakPeriodDate";
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ANALYSIS_DATE, LEAK_PERIOD_DATE);
 
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
@@ -112,8 +114,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGES, PARAM_FILTER)),
         new Change("6.4", "The 'visibility' field is added"),
         new Change("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
-        new Change("6.5", "Added the option 'analysisDate' for the 'sort' parameter")
-      )
+        new Change("6.5", "Added the option 'analysisDate' for the 'sort' parameter"),
+        new Change("6.5", format("Value '%s' is added to parameter '%s'", LEAK_PERIOD_DATE, FIELDS)))
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)
@@ -272,7 +274,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private Map<String, SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, List<String> projectUuids) {
-    if (request.getAdditionalFields().contains(ANALYSIS_DATE)) {
+    if (request.getAdditionalFields().contains(ANALYSIS_DATE) || request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
       return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
         .stream()
         .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid));
@@ -291,14 +293,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
     if (httpRequest.hasParam(Param.FACETS)) {
       request.setFacets(httpRequest.paramAsStrings(Param.FACETS));
     }
-    if (httpRequest.hasParam(Param.FIELDS)) {
+    if (httpRequest.hasParam(FIELDS)) {
       request.setAdditionalFields(httpRequest.paramAsStrings(FIELDS));
     }
     return request.build();
   }
 
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
-    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
+    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
       userSession.isLoggedIn());
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
@@ -392,14 +394,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private static class DbToWsComponent implements Function<ComponentDto, Component> {
+    private final SearchProjectsRequest request;
     private final Component.Builder wsComponent;
     private final Map<String, OrganizationDto> organizationsByUuid;
     private final Set<String> favoriteProjectUuids;
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
 
-    private DbToWsComponent(Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids, Map<String, SnapshotDto> analysisByProjectUuid,
-      boolean isUserLoggedIn) {
+    private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids,
+      Map<String, SnapshotDto> analysisByProjectUuid, boolean isUserLoggedIn) {
+      this.request = request;
       this.analysisByProjectUuid = analysisByProjectUuid;
       this.wsComponent = Component.newBuilder();
       this.organizationsByUuid = organizationsByUuid;
@@ -409,10 +413,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     @Override
     public Component apply(ComponentDto dbComponent) {
-      OrganizationDto organizationDto = organizationsByUuid.get(dbComponent.getOrganizationUuid());
-      if (organizationDto == null) {
-        throw new NotFoundException(format("Organization with uuid '%s' not found", dbComponent.getOrganizationUuid()));
-      }
+      String organizationUuid = dbComponent.getOrganizationUuid();
+      OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
+      checkFound(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
       wsComponent
         .clear()
         .setOrganization(organizationDto.getKey())
@@ -424,7 +427,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbComponent.uuid());
       if (snapshotDto != null) {
-        wsComponent.setAnalysisDate(DateUtils.formatDateTime(snapshotDto.getCreatedAt()));
+        if (request.getAdditionalFields().contains(ANALYSIS_DATE)) {
+          wsComponent.setAnalysisDate(formatDateTime(snapshotDto.getCreatedAt()));
+        }
+        if (request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
+          setNullable(snapshotDto.getPeriodDate(), leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
+        }
       }
 
       if (isUserLoggedIn) {
