@@ -26,7 +26,6 @@ import CoverageRating from '../../../components/ui/CoverageRating';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
-import { formatMeasure } from '../../../helpers/measures';
 
 type Props = {
   measures?: { [string]: string }
@@ -95,9 +94,7 @@ export default function ProjectCardMeasures({ measures }: Props) {
           <div className="project-card-measure-number">
             {measures['duplicated_lines_density'] != null &&
               <span className="spacer-right">
-                <DuplicationsRating
-                  value={formatMeasure(measures['duplicated_lines_density'], 'FLOAT')}
-                />
+                <DuplicationsRating value={Number(measures['duplicated_lines_density'])} />
               </span>}
             <Measure
               measure={{ value: measures['duplicated_lines_density'] }}
@@ -111,11 +108,11 @@ export default function ProjectCardMeasures({ measures }: Props) {
       </div>
 
       {measures['ncloc'] != null &&
-        <div className="project-card-measure" data-key="ncloc">
+        <div className="project-card-measure pull-right" data-key="ncloc">
           <div className="project-card-measure-inner">
             <div className="project-card-measure-number">
               <span className="spacer-right">
-                <SizeRating value={formatMeasure(measures['ncloc'], 'INT')} />
+                <SizeRating value={Number(measures['ncloc'])} />
               </span>
               <Measure
                 measure={{ value: measures['ncloc'] }}

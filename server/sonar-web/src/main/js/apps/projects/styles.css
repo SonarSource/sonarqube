@@ -87,10 +87,11 @@
 
 .project-card-leak-measures {
   padding: 4px 0;
-  margin: 0 -4px 4px;
+  margin: 4px -4px;
   background-color: #fbf3d5;
   border: 1px solid #eae3c7;
 }
+
 
 .project-card-measures .project-card-measure {
   width: 120px;
@@ -136,8 +137,16 @@
   content: "";
 }
 
+.project-card-measure.pull-right {
+  text-align: right;
+}
+
 .project-card-measure.pull-right:before {
   display: none;
+}
+
+.project-card-measure.pull-right .project-card-measure-inner {
+  text-align: right;
 }
 
 .project-card-measure .level {
@@ -171,13 +180,6 @@
 
 .project-card-quality-gate {
   line-height: 24px;
-}
-
-.project-card-analysis-date {
-  margin-top: -15px;
-  padding-bottom: 5px;
-  padding-right: 20px;
-  text-align: right;
 }
 
 .project-card-not-analyzed {
