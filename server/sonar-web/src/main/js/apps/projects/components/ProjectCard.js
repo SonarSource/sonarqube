@@ -72,10 +72,20 @@ export default function ProjectCard({ measures, organization, project, type }: P
 
   return (
     <div data-key={project.key} className={className}>
-      {displayQualityGate &&
-        <div className="boxed-group-actions">
-          <ProjectCardQualityGate status={measures['alert_status']} />
-        </div>}
+
+      <div className="boxed-group-actions text-right">
+        {project.visibility === 'private' &&
+          <PrivateBadge className="spacer-left" tooltipPlacement="left" />}
+        {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
+        {isLeakView &&
+          isProjectAnalyzed &&
+          <div className="little-spacer-top spacer-left note">
+            {translateWithParameters(
+              'overview.last_analysis_on_x',
+              moment(project.analysisDate).format('LLL')
+            )}
+          </div>}
+      </div>
 
       <div className="boxed-group-header">
         {project.isFavorite != null &&
@@ -88,8 +98,7 @@ export default function ProjectCard({ measures, organization, project, type }: P
             </span>}
           <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
-        {project.visibility === 'private' && <PrivateBadge className="spacer-left" />}
-        {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
+        {displayQualityGate && <ProjectCardQualityGate status={measures['alert_status']} />}
       </div>
 
       {isProjectAnalyzed
@@ -103,14 +112,6 @@ export default function ProjectCard({ measures, organization, project, type }: P
               {translate('projects.not_analyzed')}
             </div>
           </div>}
-
-      {isProjectAnalyzed &&
-        <div className="project-card-analysis-date note">
-          {translateWithParameters(
-            'overview.last_analysis_on_x',
-            moment(project.analysisDate).format('LLL')
-          )}
-        </div>}
     </div>
   );
 }

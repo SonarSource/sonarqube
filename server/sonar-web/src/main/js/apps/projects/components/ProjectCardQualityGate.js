@@ -17,32 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import Level from '../../../components/ui/Level';
-import { translate } from '../../../helpers/l10n';
+import Tooltip from '../../../components/controls/Tooltip';
+import { formatMeasure } from '../../../helpers/measures';
+import { translateWithParameters } from '../../../helpers/l10n';
 
-export default class ProjectCardQualityGate extends React.PureComponent {
-  static propTypes = {
-    status: React.PropTypes.string
-  };
+export default function ProjectCardQualityGate({ status }: { status?: string }) {
+  if (!status) {
+    return null;
+  }
 
-  render() {
-    const { status } = this.props;
+  const tooltip = translateWithParameters(
+    'overview.quality_gate_x',
+    formatMeasure(status, 'LEVEL')
+  );
 
-    if (!status) {
-      return null;
-    }
-
-    return (
-      <div className="project-card-measure project-card-quality-gate">
+  return (
+    <div className="project-card-measure project-card-quality-gate spacer-left">
+      <Tooltip overlay={tooltip}>
         <div className="project-card-measure-inner">
-          <span className="small spacer-right">
-            {translate('overview.quality_gate')}
-            {':'}
-          </span>
           <Level level={status} small={true} />
         </div>
-      </div>
-    );
-  }
+      </Tooltip>
+    </div>
+  );
 }
