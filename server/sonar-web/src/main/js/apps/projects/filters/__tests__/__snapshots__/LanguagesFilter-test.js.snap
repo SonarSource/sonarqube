@@ -77,7 +77,7 @@ exports[`should render maximum 10 languages in the searchbox results 1`] = `
   halfWidth={false}
   header={
     <FilterHeader
-      name="Languages"
+      name="projects.facets.languages"
     />
   }
   highlightUnder={1}
@@ -157,7 +157,7 @@ exports[`should render the languages facet with the selected languages 1`] = `
   halfWidth={false}
   header={
     <FilterHeader
-      name="Languages"
+      name="projects.facets.languages"
     />
   }
   highlightUnder={1}
@@ -194,7 +194,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
   data-key="languages"
 >
   <FilterHeader
-    name="Languages"
+    name="projects.facets.languages"
   />
   <div
     className="search-navigator-facet-list"
@@ -379,7 +379,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
   halfWidth={false}
   header={
     <FilterHeader
-      name="Languages"
+      name="projects.facets.languages"
     />
   }
   highlightUnder={1}

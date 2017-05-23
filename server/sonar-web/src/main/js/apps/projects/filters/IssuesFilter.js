@@ -22,6 +22,7 @@ import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
 import SortingFilter from './SortingFilter';
 import Rating from '../../../components/ui/Rating';
+import { translate } from '../../../helpers/l10n';
 
 export default class IssuesFilter extends React.PureComponent {
   static propTypes = {
@@ -40,7 +41,9 @@ export default class IssuesFilter extends React.PureComponent {
     return (
       <span>
         <Rating value={option} small={true} muted={!selected} />
-        {option > 1 && option < 5 && <span className="note spacer-left">and worse</span>}
+        {option > 1 &&
+          option < 5 &&
+          <span className="note spacer-left">{translate('and_worse')}</span>}
       </span>
     );
   }
@@ -57,7 +60,7 @@ export default class IssuesFilter extends React.PureComponent {
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
         header={
-          <FilterHeader name={this.props.name}>
+          <FilterHeader name={translate('metric_domain', this.props.name)}>
             <SortingFilter
               property={this.props.property}
               query={this.props.query}
