@@ -96,13 +96,46 @@ public class EsClientProviderTest {
   }
 
   @Test
-  public void fail_if_cluster_host_is_badly_formatted() throws Exception {
+  public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used_when_search_disabled() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
-    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, "missing_colon");
+    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s:100000,%s:8081", localhost, localhost));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Badly formatted Elasticsearch host: missing_colon");
+    expectedException.expectMessage(format("Port number out of range: %s:100000", localhost));
+
     underTest.provide(settings);
+  }
+
+  @Test
+  public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used() throws Exception {
+    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(ProcessProperties.SEARCH_PORT, "100000");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Port out of range: 100000");
+
+    underTest.provide(settings);
+  }
+
+  @Test
+  public void es_client_provider_must_add_default_port_when_not_specified() throws Exception {
+    settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
+    settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s,%s:8081", localhost, localhost));
+
+    EsClient client = underTest.provide(settings);
+    TransportClient transportClient = (TransportClient) client.nativeClient();
+    assertThat(transportClient.transportAddresses()).hasSize(2);
+    TransportAddress address = transportClient.transportAddresses().get(0);
+    assertThat(address.getAddress()).isEqualTo(localhost);
+    assertThat(address.getPort()).isEqualTo(9001);
+    address = transportClient.transportAddresses().get(1);
+    assertThat(address.getAddress()).isEqualTo(localhost);
+    assertThat(address.getPort()).isEqualTo(8081);
+    assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [" + localhost + ":9001, " + localhost + ":8081]"), ""));
+
+    // keep in cache
+    assertThat(underTest.provide(settings)).isSameAs(client);
   }
 }
