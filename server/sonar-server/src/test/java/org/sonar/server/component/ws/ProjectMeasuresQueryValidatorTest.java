@@ -62,7 +62,7 @@ public class ProjectMeasuresQueryValidatorTest {
   @Test
   public void does_not_fail_when_metric_criteria_contains_an_existing_metric() throws Exception {
     insertValidMetric("ncloc");
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion("ncloc", GT, 10d));
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(MetricCriterion.create("ncloc", GT, 10d));
 
     underTest.validate(dbSession, query);
   }
@@ -71,7 +71,7 @@ public class ProjectMeasuresQueryValidatorTest {
   public void does_not_fail_when_sort_is_by_name() throws Exception {
     insertValidMetric("ncloc");
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("ncloc", GT, 10d))
+      .addMetricCriterion(MetricCriterion.create("ncloc", GT, 10d))
       .setSort("name");
 
     underTest.validate(dbSession, query);
@@ -82,7 +82,7 @@ public class ProjectMeasuresQueryValidatorTest {
     insertValidMetric("ncloc");
     insertValidMetric("debt");
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("ncloc", GT, 10d))
+      .addMetricCriterion(MetricCriterion.create("ncloc", GT, 10d))
       .setSort("debt");
 
     underTest.validate(dbSession, query);
@@ -96,11 +96,11 @@ public class ProjectMeasuresQueryValidatorTest {
     insertMetric(createValidMetric("distrib").setValueType(DISTRIB.name()));
     insertMetric(createValidMetric("string").setValueType(STRING.name()));
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("data", GT, 10d))
-      .addMetricCriterion(new MetricCriterion("distrib", EQ, 11d))
-      .addMetricCriterion(new MetricCriterion("ncloc", LTE, 20d))
-      .addMetricCriterion(new MetricCriterion("debt", LT, 20d))
-      .addMetricCriterion(new MetricCriterion("string", EQ, 40d));
+      .addMetricCriterion(MetricCriterion.create("data", GT, 10d))
+      .addMetricCriterion(MetricCriterion.create("distrib", EQ, 11d))
+      .addMetricCriterion(MetricCriterion.create("ncloc", LTE, 20d))
+      .addMetricCriterion(MetricCriterion.create("debt", LT, 20d))
+      .addMetricCriterion(MetricCriterion.create("string", EQ, 40d));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Following metrics are not numeric : [data, distrib, string]");
@@ -112,7 +112,7 @@ public class ProjectMeasuresQueryValidatorTest {
     insertMetric(createValidMetric("ncloc").setEnabled(false));
     insertMetric(createValidMetric("debt").setEnabled(false));
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("ncloc", GT, 10d))
+      .addMetricCriterion(MetricCriterion.create("ncloc", GT, 10d))
       .setSort("debt");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -124,7 +124,7 @@ public class ProjectMeasuresQueryValidatorTest {
   public void fail_when_metric_does_not_exists() throws Exception {
     insertValidMetric("ncloc");
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("unknown", GT, 10d))
+      .addMetricCriterion(MetricCriterion.create("unknown", GT, 10d))
       .setSort("debt");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -136,9 +136,9 @@ public class ProjectMeasuresQueryValidatorTest {
   public void return_all_unknown_metrics() throws Exception {
     insertValidMetric("ncloc");
     ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("debt", GT, 10d))
-      .addMetricCriterion(new MetricCriterion("ncloc", LTE, 20d))
-      .addMetricCriterion(new MetricCriterion("coverage", GT, 30d))
+      .addMetricCriterion(MetricCriterion.create("debt", GT, 10d))
+      .addMetricCriterion(MetricCriterion.create("ncloc", LTE, 20d))
+      .addMetricCriterion(MetricCriterion.create("coverage", GT, 30d))
       .setSort("duplications");
 
     expectedException.expect(IllegalArgumentException.class);

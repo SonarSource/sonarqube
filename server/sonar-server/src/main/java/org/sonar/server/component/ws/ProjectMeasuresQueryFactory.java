@@ -48,6 +48,7 @@ class ProjectMeasuresQueryFactory {
 
   public static final String IS_FAVORITE_CRITERION = "isFavorite";
   public static final String QUERY_KEY = "query";
+  private static final String NO_DATA = "NO_DATA";
 
   private static final Map<String, BiConsumer<Criterion, ProjectMeasuresQuery>> CRITERION_PROCESSORS = ImmutableMap.<String, BiConsumer<Criterion, ProjectMeasuresQuery>>builder()
     .put(IS_FAVORITE_CRITERION.toLowerCase(ENGLISH), (criterion, query) -> processIsFavorite(criterion))
@@ -132,7 +133,15 @@ class ProjectMeasuresQueryFactory {
   private static void processMetricCriterion(Criterion criterion, ProjectMeasuresQuery query) {
     checkOperator(criterion);
     checkValue(criterion);
-    query.addMetricCriterion(new MetricCriterion(criterion.getKey().toLowerCase(ENGLISH), criterion.getOperator(), parseValue(criterion.getValue())));
+    query.addMetricCriterion(createMetricCriterion(criterion, criterion.getKey().toLowerCase(ENGLISH), criterion.getOperator()));
+  }
+
+  private static MetricCriterion createMetricCriterion(Criterion criterion, String metricKey, Operator operator) {
+    if (NO_DATA.equalsIgnoreCase(criterion.getValue())) {
+      checkArgument(EQ.equals(operator), "%s can only be used with equals operator", NO_DATA);
+      return MetricCriterion.createNoData(metricKey);
+    }
+    return MetricCriterion.create(metricKey, operator, parseValue(criterion.getValue()));
   }
 
   private static double parseValue(String value) {
