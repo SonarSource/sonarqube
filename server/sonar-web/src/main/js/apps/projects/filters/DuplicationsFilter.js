@@ -26,6 +26,7 @@ import {
   getDuplicationsRatingLabel,
   getDuplicationsRatingAverageValue
 } from '../../../helpers/ratings';
+import { translate } from '../../../helpers/l10n';
 
 export default class DuplicationsFilter extends React.PureComponent {
   static propTypes = {
@@ -68,7 +69,7 @@ export default class DuplicationsFilter extends React.PureComponent {
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
         header={
-          <FilterHeader name="Duplications">
+          <FilterHeader name={translate('metric_domain.Duplications')}>
             <SortingFilter
               property={this.property}
               query={this.props.query}

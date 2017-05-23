@@ -25,6 +25,7 @@ import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { searchProjectTags } from '../../../api/components';
+import { translate } from '../../../helpers/l10n';
 
 type Props = {
   query: {},
@@ -104,7 +105,7 @@ export default class TagsFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={<FilterHeader name="Tags" />}
+        header={<FilterHeader name={translate('projects.facets.tags')} />}
         footer={
           <SearchableFilterFooter
             property={this.property}

@@ -25,6 +25,7 @@ import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { getLanguageByKey } from '../../../store/languages/reducer';
+import { translate } from '../../../helpers/l10n';
 
 type Props = {
   query: {},
@@ -81,7 +82,7 @@ export default class LanguagesFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={<FilterHeader name="Languages" />}
+        header={<FilterHeader name={translate('projects.facets.languages')} />}
         footer={
           <SearchableFilterFooter
             property={this.property}

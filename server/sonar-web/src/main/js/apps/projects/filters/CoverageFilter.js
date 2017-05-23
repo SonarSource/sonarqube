@@ -23,6 +23,7 @@ import FilterHeader from './FilterHeader';
 import SortingFilter from './SortingFilter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
+import { translate } from '../../../helpers/l10n';
 
 export default class CoverageFilter extends React.PureComponent {
   static propTypes = {
@@ -65,7 +66,7 @@ export default class CoverageFilter extends React.PureComponent {
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
         header={
-          <FilterHeader name="Coverage">
+          <FilterHeader name={translate('metric_domain.Coverage')}>
             <SortingFilter
               property={this.property}
               query={this.props.query}
