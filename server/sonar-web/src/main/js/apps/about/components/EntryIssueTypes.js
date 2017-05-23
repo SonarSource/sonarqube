@@ -23,9 +23,9 @@ import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getIssuesUrl } from '../../../helpers/urls';
-import BugIcon from '../../../components/ui/BugIcon';
-import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
-import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
+import BugIcon from '../../../components/icons-components/BugIcon';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
+import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 
 type Props = {
   bugs: ?number,

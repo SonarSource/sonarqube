@@ -20,10 +20,10 @@
 //@flow
 import React from 'react';
 import Measure from '../../component-measures/components/Measure';
-import BugIcon from '../../../components/ui/BugIcon';
-import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
+import BugIcon from '../../../components/icons-components/BugIcon';
+import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import Rating from '../../../components/ui/Rating';
-import VulnerabilityIcon from '../../../components/ui/VulnerabilityIcon';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
