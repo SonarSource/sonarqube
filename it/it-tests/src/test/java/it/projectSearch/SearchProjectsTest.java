@@ -41,12 +41,14 @@ import util.ItUtils;
 
 import static it.Category6Suite.enableOrganizationsSupport;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.restoreProfile;
+import static util.ItUtils.sanitizeTimezones;
 import static util.ItUtils.setServerProperty;
 
 /**
@@ -200,7 +202,7 @@ public class SearchProjectsTest {
   @Test
   public void filter_projects_by_measure_values() throws Exception {
     String projectKey = newProjectKey();
-    analyzeProject(projectKey,"shared/xoo-sample");
+    analyzeProject(projectKey, "shared/xoo-sample");
 
     verifyFilterMatches(projectKey, "ncloc > 1");
     verifyFilterMatches(projectKey, "ncloc > 1 and comment_lines < 10000");
@@ -223,7 +225,34 @@ public class SearchProjectsTest {
 
     SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).build());
 
-    assertThat(response.getComponentsList()).extracting(Component::getKey).contains(projectKey);
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(projectKey);
+  }
+
+  @Test
+  public void return_leak_period_date() throws Exception {
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
+    // This project has a leak period
+    String projectKey1 = newProjectKey();
+    analyzeProject(projectKey1, "shared/xoo-sample", "2016-12-31");
+    analyzeProject(projectKey1, "shared/xoo-sample");
+    // This project has only one analysis, so no leak period
+    String projectKey2 = newProjectKey();
+    analyzeProject(projectKey2, "shared/xoo-sample");
+    // This project is provisioned, so has no leak period
+    String projectKey3 = newProjectKey();
+    newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey3).setName(projectKey3).setOrganization(organizationKey).build());
+
+    SearchProjectsWsResponse response = searchProjects(
+      SearchProjectsRequest.builder().setAdditionalFields(singletonList("leakPeriodDate")).setOrganization(organizationKey).build());
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey, Component::hasLeakPeriodDate)
+      .containsOnly(
+        tuple(projectKey1, true),
+        tuple(projectKey2, false),
+        tuple(projectKey3, false));
+    Component project1 = response.getComponentsList().stream().filter(component -> component.getKey().equals(projectKey1)).findFirst()
+      .orElseThrow(() -> new IllegalStateException("Project1 is not found"));
+    assertThat(sanitizeTimezones(project1.getLeakPeriodDate())).isEqualTo("2016-12-31T00:00:00+0000");
   }
 
   private void analyzeProject(String projectKey, String relativePath) {
@@ -236,8 +265,7 @@ public class SearchProjectsTest {
       "sonar.organization", organizationKey,
       "sonar.profile", "with-many-rules",
       "sonar.login", "admin", "sonar.password", "admin",
-      "sonar.scm.disabled", "false"
-    ));
+      "sonar.scm.disabled", "false"));
     if (analysisDate != null) {
       keyValueProperties.add("sonar.projectDate");
       keyValueProperties.add(analysisDate);
