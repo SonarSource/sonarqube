@@ -109,7 +109,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setChangelog(
         new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGES, PARAM_FILTER)),
-        new Change("6.4", "The 'visibility' field is added"))
+        new Change("6.4", "The 'visibility' field is added"),
+        new Change("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics")
+      )
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)
@@ -133,6 +135,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         "   <code>filter=\"alert_status = ERROR and isFavorite and coverage >= 60 and coverage < 80\"</code></li>" +
         " <li>to filter projects with a reliability, security and maintainability rating equals or worse than B:<br>" +
         "   <code>filter=\"reliability_rating>=2 and security_rating>=2 and sqale_rating>=2\"</code></li>" +
+        " <li>to filter projects without duplication data:<br>" +
+        "   <code>filter=\"duplicated_lines_density = NO_DATA\"</code></li>" +
         "</ul>" +
         "To filter on project name or key, use the 'query' keyword, for instance : <code>filter='query = \"Sonar\"'</code>.<br>" +
         "<br>" +

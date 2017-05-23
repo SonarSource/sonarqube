@@ -274,6 +274,37 @@ public class ProjectMeasuresQueryFactoryTest {
   }
 
   @Test
+  public void filter_no_data() throws Exception {
+    List<Criterion> criteria = singletonList(Criterion.builder().setKey("duplicated_lines_density").setOperator(EQ).setValue("NO_DATA").build());
+
+    ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
+
+    assertThat(underTest.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::isNoData)
+      .containsOnly(tuple("duplicated_lines_density", true));
+  }
+
+  @Test
+  public void fail_to_use_no_data_with_operator_lower_than() throws Exception {
+    List<Criterion> criteria = singletonList(Criterion.builder().setKey("duplicated_lines_density").setOperator(LT).setValue("NO_DATA").build());
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("NO_DATA can only be used with equals operator");
+
+    newProjectMeasuresQuery(criteria, emptySet());
+  }
+
+  @Test
+  public void filter_no_data_with_other_case() throws Exception {
+    List<Criterion> criteria = singletonList(Criterion.builder().setKey("duplicated_lines_density").setOperator(EQ).setValue("nO_DaTa").build());
+
+    ProjectMeasuresQuery underTest = newProjectMeasuresQuery(criteria, emptySet());
+
+    assertThat(underTest.getMetricCriteria())
+      .extracting(MetricCriterion::getMetricKey, MetricCriterion::isNoData)
+      .containsOnly(tuple("duplicated_lines_density", true));
+  }
+
+  @Test
   public void accept_empty_query() throws Exception {
     ProjectMeasuresQuery result = newProjectMeasuresQuery(emptyList(), emptySet());
 
