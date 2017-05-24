@@ -84,7 +84,6 @@ public class OrganizationMembershipTest {
   @Test
   public void new_user_should_not_become_member_of_default_organization() throws Exception {
     String login = createUser();
-
     verifyMembership(login, "default-organization", false);
   }
 
@@ -152,65 +151,73 @@ public class OrganizationMembershipTest {
   @Test
   public void should_display_members_page() {
     String orgKey = createOrganization();
-    userRule.createUser("foo", "pwd");
-    userRule.createUser("bar", "pwd");
-    createUser();
 
-    adminClient.organizations().addMember(orgKey, "foo");
-    adminClient.organizations().addMember(orgKey, "bar");
+    String userFoo = createUser("foo");
+    adminClient.organizations().addMember(orgKey, userFoo);
+
+    String userBar = createUser("bar");
+    adminClient.organizations().addMember(orgKey, userBar);
+
+    createUser();
 
     MembersPage page = nav.openOrganizationMembers(orgKey);
     page
       .canNotAddMember()
       .shouldHaveTotal(3);
     page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator");
-    page.getMembersByIdx(1).shouldBeNamed("bar", "bar");
+    page.getMembersByIdx(1).shouldBeNamed(userBar, userBar);
     page.getMembersByIdx(2)
-      .shouldBeNamed("foo", "foo")
+      .shouldBeNamed(userFoo, userFoo)
       .shouldNotHaveActions();
   }
 
   @Test
   public void search_for_members() {
     String orgKey = createOrganization();
+
     String user1 = createUser();
-    String user2 = createUser();
-    createUser();
     adminClient.organizations().addMember(orgKey, user1);
+
+    String user2 = createUser("sameprefixuser");
     adminClient.organizations().addMember(orgKey, user2);
+
+    // Created to verify that only the user part of the org is returned
+    createUser("sameprefixuser");
 
     MembersPage page = nav.openOrganizationMembers(orgKey);
     page
-      .searchForMember("adm")
-      .shouldHaveTotal(1);
-    page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator");
-    page
-      .searchForMember(user2)
+      .searchForMember("sameprefixuser")
       .shouldHaveTotal(1);
     page.getMembersByIdx(0).shouldBeNamed(user2, user2);
+    page
+      .searchForMember(user1)
+      .shouldHaveTotal(1);
+    page.getMembersByIdx(0).shouldBeNamed(user1, user1);
   }
 
   @Test
   public void admin_can_add_members() {
     String orgKey = createOrganization();
-    String user = createUser();
+    String userFoo = createUser("foo");
     createUser();
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page
       .shouldHaveTotal(1)
-      .addMember(user)
+      .addMember(userFoo)
       .shouldHaveTotal(2);
     page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator").shouldHaveGroups(2);
-    page.getMembersByIdx(1).shouldBeNamed(user, user).shouldHaveGroups(1);
+    page.getMembersByIdx(1).shouldBeNamed(userFoo, userFoo).shouldHaveGroups(1);
   }
 
   @Test
   public void admin_can_remove_members() {
     String orgKey = createOrganization();
+
     String user1 = createUser();
-    String user2 = createUser();
     adminClient.organizations().addMember(orgKey, user1);
+
+    String user2 = createUser();
     adminClient.organizations().addMember(orgKey, user2);
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
@@ -222,8 +229,9 @@ public class OrganizationMembershipTest {
   @Test
   public void admin_can_manage_groups() {
     String orgKey = createOrganization();
-    userRule.createUser("baz", "pwd");;
-    adminClient.organizations().addMember(orgKey, "baz");
+
+    String userFoo = createUser("foo");
+    adminClient.organizations().addMember(orgKey, userFoo);
 
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     // foo user
@@ -243,10 +251,11 @@ public class OrganizationMembershipTest {
   @Test
   public void groups_count_should_be_updated_when_a_member_was_just_added() {
     String orgKey = createOrganization();
-    userRule.createUser("neo", "pwd");
+    String userFoo = createUser("foo");
+
     MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
     page
-      .addMember("neo")
+      .addMember(userFoo)
       .getMembersByIdx(1)
       .shouldHaveGroups(1)
       .manageGroupsOpen()
@@ -286,9 +295,12 @@ public class OrganizationMembershipTest {
   }
 
   private static String createUser() {
-    String login = randomAlphabetic(10).toLowerCase();
+    return createUser("");
+  }
+
+  private static String createUser(String prefix) {
+    String login = prefix + randomAlphabetic(10).toLowerCase();
     userRule.createUser(login, login);
     return login;
   }
-
 }
