@@ -113,11 +113,6 @@ class PurgeCommands {
     componentUuidsPartitions.forEach(purgeMapper::deleteComponents);
     session.commit();
     profiler.stop();
-
-    profiler.start("deleteAuthors (authors)");
-    componentIdPartitions.forEach(purgeMapper::deleteAuthors);
-    session.commit();
-    profiler.stop();
   }
 
   public void deleteComponentMeasures(List<String> analysisUuids, List<String> componentUuids) {

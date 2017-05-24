@@ -59,7 +59,6 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.source.FileSourceDao;
-import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
@@ -100,7 +99,6 @@ public class DbClient {
   private final CeTaskInputDao ceTaskInputDao;
   private final CeScannerContextDao ceScannerContextDao;
   private final FileSourceDao fileSourceDao;
-  private final AuthorDao authorDao;
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
@@ -155,7 +153,6 @@ public class DbClient {
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
-    authorDao = getDao(map, AuthorDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
@@ -293,10 +290,6 @@ public class DbClient {
 
   public FileSourceDao fileSourceDao() {
     return fileSourceDao;
-  }
-
-  public AuthorDao authorDao() {
-    return authorDao;
   }
 
   public ComponentLinkDao componentLinkDao() {

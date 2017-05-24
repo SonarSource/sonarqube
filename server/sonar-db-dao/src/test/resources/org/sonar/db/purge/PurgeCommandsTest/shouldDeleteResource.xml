@@ -105,14 +105,4 @@
                  change_type="comment"
                  change_data="this is a comment"/>
 
-  <authors id="1"
-           person_id="1"
-           login="tartanpion"
-           created_at="[null]"
-           updated_at="[null]"/>
-  <authors id="2"
-           person_id="1"
-           login="fanfoue"
-           created_at="[null]"
-           updated_at="[null]"/>
 </dataset>

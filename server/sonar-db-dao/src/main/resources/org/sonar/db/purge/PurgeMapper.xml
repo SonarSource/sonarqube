@@ -212,15 +212,6 @@
       </foreach>
   </delete>
 
-  <delete id="deleteAuthors" parameterType="map">
-    delete from authors
-    where
-      person_id in
-      <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-        #{resourceId}
-      </foreach>
-  </delete>
-
   <delete id="deleteComponentIssueChanges" parameterType="map">
     delete from issue_changes ic
     where exists (select * from issues i where i.kee=ic.issue_key and i.component_uuid in

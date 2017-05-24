@@ -48,7 +48,6 @@ public final class SqTables {
   public static final Set<String> TABLES = ImmutableSet.of(
     "active_rules",
     "active_rule_parameters",
-    "authors",
     "ce_activity",
     "ce_queue",
     "ce_task_input",

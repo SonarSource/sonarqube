@@ -88,7 +88,6 @@ public class PurgeCommandsTest {
     assertThat(dbTester.countRowsOfTable("events")).isEqualTo(2);
     assertThat(dbTester.countRowsOfTable("issues")).isZero();
     assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
-    assertThat(dbTester.countRowsOfTable("authors")).isZero();
   }
 
 
@@ -104,7 +103,6 @@ public class PurgeCommandsTest {
     assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("authors")).isEqualTo(2);
   }
 
   /**

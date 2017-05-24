@@ -105,8 +105,6 @@ import org.sonar.db.rule.RuleRepositoryMapper;
 import org.sonar.db.schemamigration.SchemaMigrationDto;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.source.FileSourceMapper;
-import org.sonar.db.user.AuthorDto;
-import org.sonar.db.user.AuthorMapper;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
 import org.sonar.db.user.GroupMembershipDto;
@@ -139,7 +137,6 @@ public class MyBatis implements Startable {
     // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
-    confBuilder.loadAlias("Author", AuthorDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
@@ -190,7 +187,6 @@ public class MyBatis implements Startable {
     // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveRuleMapper.class,
-      AuthorMapper.class,
       AuthorizationMapper.class,
       CeActivityMapper.class,
       CeQueueMapper.class,

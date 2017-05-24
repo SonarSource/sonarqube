@@ -60,7 +60,6 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.source.FileSourceDao;
-import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
@@ -75,7 +74,6 @@ public class DaoModule extends Module {
     // for readability and easier merge, keep list ordered alphabetically
     // =====================================================================
     ActiveRuleDao.class,
-    AuthorDao.class,
     AuthorizationDao.class,
     CeActivityDao.class,
     CeQueueDao.class,

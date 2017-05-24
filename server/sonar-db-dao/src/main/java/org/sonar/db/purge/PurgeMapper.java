@@ -64,8 +64,6 @@ public interface PurgeMapper {
 
   void deleteComponentEvents(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteAuthors(@Param("resourceIds") List<Long> resourceIds);
-
   List<PurgeableAnalysisDto> selectPurgeableAnalysesWithEvents(@Param("componentUuid") String componentUuid);
 
   List<PurgeableAnalysisDto> selectPurgeableAnalysesWithoutEvents(@Param("componentUuid") String componentUuid);
