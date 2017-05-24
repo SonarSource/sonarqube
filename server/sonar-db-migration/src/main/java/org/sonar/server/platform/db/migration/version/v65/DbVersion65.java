@@ -27,6 +27,7 @@ public class DbVersion65 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(1700, "Drop table AUTHORS", DropTableAuthors.class);
+      .add(1700, "Drop table AUTHORS", DropTableAuthors.class)
+      .add(1701, "Add rules_profiles.is_built_in", AddBuiltInFlagToRulesProfiles.class);
   }
 }
