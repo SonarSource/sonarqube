@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class DbVersion65 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1700, "Drop table AUTHORS", DropTableAuthors.class)
-      .add(1701, "Add rules_profiles.is_built_in", AddBuiltInFlagToRulesProfiles.class)
-      .add(1702, "Set rules_profiles.is_built_in to false", SetRulesProfilesIsBuiltInToFalse.class);
+public class SetRulesProfilesIsBuiltInToFalse extends DataChange {
+
+  public SetRulesProfilesIsBuiltInToFalse(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select id from rules_profiles where is_built_in is null");
+    massUpdate.rowPluralName("rules_profiles");
+    massUpdate.update("update rules_profiles set is_built_in=? where id=?");
+    massUpdate.execute((row, update) -> {
+      update.setBoolean(1, false);
+      update.setLong(2, row.getLong(1));
+      return true;
+    });
+  }
+
 }
