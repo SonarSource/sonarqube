@@ -21,31 +21,116 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import ProjectCard from '../ProjectCard';
 
-const PROJECT = { analysisDate: '2017-01-01', key: 'foo', name: 'Foo', tags: [] };
-const MEASURES = {};
+const PROJECT = {
+  analysisDate: '2017-01-01',
+  leakPeriodDate: '2016-12-01',
+  key: 'foo',
+  name: 'Foo',
+  tags: []
+};
+const MEASURES = {
+  alert_status: 'OK',
+  reliability_rating: '1.0',
+  sqale_rating: '1.0',
+  new_bugs: 12
+};
 
-it('should not display analysis date', () => {
-  expect(
-    shallow(<ProjectCard measures={MEASURES} project={PROJECT} />).find(
-      '.project-card-analysis-date'
-    )
-  ).toMatchSnapshot();
+jest.mock('moment', () => () => ({
+  format: () => 'March 1, 2017 9:36 AM',
+  fromNow: () => 'a month ago'
+}));
+
+describe('overall status project card', () => {
+  it('should never display analysis date', () => {
+    expect(
+      shallow(<ProjectCard measures={{}} project={PROJECT} />).find('.project-card-dates').exists()
+    ).toBeFalsy();
+  });
+
+  it('should display loading', () => {
+    const measures = { ...MEASURES, sqale_rating: undefined };
+    expect(
+      shallow(<ProjectCard project={PROJECT} />)
+        .find('.boxed-group')
+        .hasClass('boxed-group-loading')
+    ).toBeTruthy();
+    expect(
+      shallow(<ProjectCard measures={measures} project={PROJECT} />)
+        .find('.boxed-group')
+        .hasClass('boxed-group-loading')
+    ).toBeTruthy();
+  });
+
+  it('should not display the quality gate', () => {
+    const project = { ...PROJECT, analysisDate: undefined };
+    expect(
+      shallow(<ProjectCard measures={MEASURES} project={project} />)
+        .find('ProjectCardQualityGate')
+        .exists()
+    ).toBeFalsy();
+  });
+
+  it('should display tags', () => {
+    const project = { ...PROJECT, tags: ['foo', 'bar'] };
+    expect(shallow(<ProjectCard project={project} />).find('TagsList').exists()).toBeTruthy();
+  });
+
+  it('should private badge', () => {
+    const project = { ...PROJECT, visibility: 'private' };
+    expect(
+      shallow(<ProjectCard type="overall" project={project} />).find('PrivateBadge').exists()
+    ).toBeTruthy();
+  });
+
+  it('should display the overall measures and quality gate', () => {
+    expect(shallow(<ProjectCard measures={MEASURES} project={PROJECT} />)).toMatchSnapshot();
+  });
 });
 
-it('should NOT display analysis date', () => {
-  const project = { ...PROJECT, analysisDate: undefined };
-  expect(
-    shallow(<ProjectCard measures={MEASURES} project={project} />)
-      .find('.project-card-analysis-date')
-      .exists()
-  ).toBeFalsy();
-});
+describe('leak project card', () => {
+  it('should display analysis date and leak start date', () => {
+    const project = { ...PROJECT, leakPeriodDate: undefined, visibility: 'private' };
+    const card = shallow(<ProjectCard type="leak" measures={MEASURES} project={PROJECT} />);
+    const card2 = shallow(<ProjectCard type="leak" measures={MEASURES} project={project} />);
+    expect(card.find('.project-card-dates').exists()).toBeTruthy();
+    expect(card.find('.project-card-dates').find('span').getNodes()).toHaveLength(2);
+    expect(card.find('.project-card-dates').hasClass('width-100')).toBeFalsy();
+    expect(card2.find('.project-card-dates').find('span').getNodes()).toHaveLength(1);
+    expect(card2.find('.project-card-dates').hasClass('width-100')).toBeTruthy();
+  });
 
-it('should display loading', () => {
-  expect(shallow(<ProjectCard project={PROJECT} />)).toMatchSnapshot();
-});
+  it('should not display analysis date or leak start date', () => {
+    const project = { ...PROJECT, analysisDate: undefined };
+    const card = shallow(<ProjectCard type="leak" measures={MEASURES} project={project} />);
+    expect(card.find('.project-card-dates').exists()).toBeFalsy();
+  });
 
-it('should display tags', () => {
-  const project = { ...PROJECT, tags: ['foo', 'bar'] };
-  expect(shallow(<ProjectCard project={project} />)).toMatchSnapshot();
+  it('should display loading', () => {
+    const measures = { ...MEASURES, new_bugs: undefined };
+    expect(
+      shallow(<ProjectCard type="leak" measures={measures} project={PROJECT} />)
+        .find('.boxed-group')
+        .hasClass('boxed-group-loading')
+    ).toBeTruthy();
+  });
+
+  it('should display tags', () => {
+    const project = { ...PROJECT, tags: ['foo', 'bar'] };
+    expect(
+      shallow(<ProjectCard type="leak" project={project} />).find('TagsList').exists()
+    ).toBeTruthy();
+  });
+
+  it('should private badge', () => {
+    const project = { ...PROJECT, visibility: 'private' };
+    expect(
+      shallow(<ProjectCard type="leak" project={project} />).find('PrivateBadge').exists()
+    ).toBeTruthy();
+  });
+
+  it('should display the leak measures and quality gate', () => {
+    expect(
+      shallow(<ProjectCard type="leak" measures={MEASURES} project={PROJECT} />)
+    ).toMatchSnapshot();
+  });
 });

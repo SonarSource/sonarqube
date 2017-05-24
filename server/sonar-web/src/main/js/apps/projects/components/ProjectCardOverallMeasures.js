@@ -31,7 +31,7 @@ type Props = {
   measures?: { [string]: string }
 };
 
-export default function ProjectCardMeasures({ measures }: Props) {
+export default function ProjectCardOverallMeasures({ measures }: Props) {
   if (measures == null) {
     return null;
   }
