@@ -205,7 +205,7 @@ public class SearchProjectsTest {
     analyzeProject(projectKey, "shared/xoo-sample");
 
     verifyFilterMatches(projectKey, "ncloc > 1");
-    verifyFilterMatches(projectKey, "ncloc > 1 and comment_lines < 10000");
+    verifyFilterMatches(projectKey, "ncloc > 1 and duplicated_lines_density <= 100");
     verifyFilterDoesNotMatch("ncloc <= 1");
   }
 
