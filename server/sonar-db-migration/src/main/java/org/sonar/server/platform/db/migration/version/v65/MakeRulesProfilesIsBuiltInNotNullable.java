@@ -17,19 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion65 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1700, "Drop table AUTHORS", DropTableAuthors.class)
-      .add(1701, "Add rules_profiles.is_built_in", AddBuiltInFlagToRulesProfiles.class)
-      .add(1702, "Set rules_profiles.is_built_in to false", SetRulesProfilesIsBuiltInToFalse.class)
-      .add(1703, "Make rules_profiles.is_built_in not null", MakeRulesProfilesIsBuiltInNotNullable.class);
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+
+public class MakeRulesProfilesIsBuiltInNotNullable extends DdlChange {
+
+  public MakeRulesProfilesIsBuiltInNotNullable(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    BooleanColumnDef column = newBooleanColumnDefBuilder()
+      .setColumnName("is_built_in")
+      .setIsNullable(false)
+      .build();
+
+    context.execute(new AlterColumnsBuilder(getDialect(), "rules_profiles")
+      .updateColumn(column)
+      .build());
+  }
+
 }
