@@ -167,7 +167,7 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
-  public void create_fails_with_ISE_if_DefinedQProfileRepository_has_not_been_initialized() throws OrganizationCreation.KeyConflictException {
+  public void create_fails_with_ISE_if_BuiltInQProfileRepository_has_not_been_initialized() throws OrganizationCreation.KeyConflictException {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
 
     expectedException.expect(IllegalStateException.class);
@@ -287,7 +287,7 @@ public class OrganizationCreationImplTest {
   }
 
   @Test
-  public void create_creates_QualityProfile_for_each_DefinedQProfile_in_repository_and_index_ActiveRule_changes_in_order() throws OrganizationCreation.KeyConflictException {
+  public void create_creates_QualityProfile_for_each_BuiltInQProfile_in_repository_and_index_ActiveRule_changes_in_order() throws OrganizationCreation.KeyConflictException {
     BuiltInQProfile builtInQProfile1 = builtInQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp1");
     BuiltInQProfile builtInQProfile2 = builtInQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp2");
     BuiltInQProfile builtInQProfile3 = builtInQProfileRepositoryRule.add(LanguageTesting.newLanguage("foo"), "qp3");

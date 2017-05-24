@@ -86,6 +86,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
     QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
+    assertThat(profile.isBuiltIn()).isTrue();
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
@@ -100,6 +101,7 @@ public class RegisterQualityProfilesMediumTest {
 
     tester.get(Platform.class).restart();
 
+    assertThat(profile.isBuiltIn()).isTrue();
     assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
 
     // Check ActiveRules
@@ -134,6 +136,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
     QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
+    assertThat(profile.isBuiltIn()).isTrue();
 
     // Check Default Profile
     verifyDefaultProfile(organization, "xoo", "Basic");

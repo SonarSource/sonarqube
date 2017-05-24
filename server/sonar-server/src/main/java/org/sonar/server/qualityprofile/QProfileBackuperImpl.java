@@ -121,7 +121,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       if (overriddenProfileName != null) {
         targetName = new QProfileName(nameInBackup.getLanguage(), overriddenProfileName);
       }
-      return profileFactory.getOrCreate(dbSession, organization, targetName);
+      return profileFactory.getOrCreateCustom(dbSession, organization, targetName);
     });
   }
 
