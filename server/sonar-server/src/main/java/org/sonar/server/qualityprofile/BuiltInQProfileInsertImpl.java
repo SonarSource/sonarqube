@@ -57,14 +57,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
 
-public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
+public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   private final DbClient dbClient;
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final TypeValidations typeValidations;
   private RuleRepository ruleRepository;
 
-  public DefinedQProfileInsertImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory, TypeValidations typeValidations) {
+  public BuiltInQProfileInsertImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory, TypeValidations typeValidations) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
@@ -72,22 +72,22 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
   }
 
   @Override
-  public void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization) {
+  public void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile, OrganizationDto organization) {
     initRuleRepository(batchSession);
 
-    checkArgument(definedQProfile.getParentQProfileName() == null, "Inheritance of Quality Profiles is not supported yet");
+    checkArgument(builtInQProfile.getParentQProfileName() == null, "Inheritance of Quality Profiles is not supported yet");
 
     Date now = new Date(system2.now());
-    QualityProfileDto profileDto = insertQualityProfile(session, definedQProfile, organization, now);
+    QualityProfileDto profileDto = insertQualityProfile(session, builtInQProfile, organization, now);
 
-    List<ActiveRuleChange> localChanges = definedQProfile.getActiveRules()
+    List<ActiveRuleChange> localChanges = builtInQProfile.getActiveRules()
       .stream()
       .map(activeRule -> insertActiveRule(session, profileDto, activeRule, now.getTime()))
       .collect(MoreCollectors.toList());
 
     localChanges.forEach(change -> dbClient.qProfileChangeDao().insert(batchSession, change.toDto(null)));
 
-    insertTemplate(session, definedQProfile, organization);
+    insertTemplate(session, builtInQProfile, organization);
   }
 
   private void initRuleRepository(DbSession session) {
@@ -96,12 +96,13 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
     }
   }
 
-  private QualityProfileDto insertQualityProfile(DbSession session, DefinedQProfile definedQProfile, OrganizationDto organization, Date now) {
+  private QualityProfileDto insertQualityProfile(DbSession session, BuiltInQProfile builtInQProfile, OrganizationDto organization, Date now) {
     QualityProfileDto profileDto = QualityProfileDto.createFor(uuidFactory.create())
-      .setName(definedQProfile.getName())
+      .setName(builtInQProfile.getName())
       .setOrganizationUuid(organization.getUuid())
-      .setLanguage(definedQProfile.getLanguage())
-      .setDefault(definedQProfile.isDefault())
+      .setLanguage(builtInQProfile.getLanguage())
+      .setDefault(builtInQProfile.isDefault())
+      .setIsBuiltIn(true)
       .setRulesUpdatedAtAsDate(now);
     dbClient.qualityProfileDao().insert(session, profileDto);
     return profileDto;
@@ -163,7 +164,7 @@ public class DefinedQProfileInsertImpl implements DefinedQProfileInsert {
     return value;
   }
 
-  private void insertTemplate(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization) {
+  private void insertTemplate(DbSession session, BuiltInQProfile qualityProfile, OrganizationDto organization) {
     LoadedTemplateDto template = new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType());
     dbClient.loadedTemplateDao().insert(template, session);
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,8 @@ public class QualityProfileDaoTest {
     QualityProfileDto dto = QualityProfileDto.createFor("abcde")
       .setOrganizationUuid(organization.getUuid())
       .setName("ABCDE")
-      .setLanguage("xoo");
+      .setLanguage("xoo")
+      .setIsBuiltIn(true);
 
     underTest.insert(dbTester.getSession(), dto);
     dbTester.commit();
@@ -95,7 +97,8 @@ public class QualityProfileDaoTest {
       .setName("New Name")
       .setLanguage("js")
       .setParentKee("fghij")
-      .setDefault(false);
+      .setDefault(false)
+      .setIsBuiltIn(false);
 
     underTest.update(dbSession, dto);
     dbSession.commit();
@@ -168,12 +171,14 @@ public class QualityProfileDaoTest {
     assertThat(dto1.getName()).isEqualTo("Sonar Way");
     assertThat(dto1.getLanguage()).isEqualTo("java");
     assertThat(dto1.getParentKee()).isNull();
+    assertThat(dto1.isBuiltIn()).isTrue();
 
     QualityProfileDto dto2 = dtos.get(1);
     assertThat(dto2.getId()).isEqualTo(2);
     assertThat(dto2.getName()).isEqualTo("Sonar Way");
     assertThat(dto2.getLanguage()).isEqualTo("js");
     assertThat(dto2.getParentKee()).isNull();
+    assertThat(dto2.isBuiltIn()).isFalse();
   }
 
   @Test
@@ -449,6 +454,52 @@ public class QualityProfileDaoTest {
 
     assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo").getKey()).isEqualTo(profile3Language1.getKey());
     assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo2").getKey()).isEqualTo(profile2Language2.getKey());
+  }
+
+  @Test
+  public void selectOutdatedProfiles_returns_the_custom_profiles_with_specified_name() {
+    OrganizationDto org1 = dbTester.organizations().insert();
+    OrganizationDto org2 = dbTester.organizations().insert();
+    OrganizationDto org3 = dbTester.organizations().insert();
+    QualityProfileDto outdatedProfile1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QualityProfileDto outdatedProfile2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QualityProfileDto builtInProfile = dbTester.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
+    QualityProfileDto differentLanguage = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
+    QualityProfileDto differentName = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
+
+    Collection<String> keys = underTest.selectOutdatedProfiles(dbSession, "java", "foo");
+
+    assertThat(keys).containsExactlyInAnyOrder(outdatedProfile1.getKee(), outdatedProfile2.getKee());
+  }
+
+  @Test
+  public void selectOutdatedProfiles_returns_empty_list_if_no_match() {
+    assertThat(underTest.selectOutdatedProfiles(dbSession, "java", "foo")).isEmpty();
+  }
+
+  @Test
+  public void renameAndCommit_updates_name_of_specified_profiles() {
+    OrganizationDto org1 = dbTester.organizations().insert();
+    OrganizationDto org2 = dbTester.organizations().insert();
+    QualityProfileDto fooInOrg1 = dbTester.qualityProfiles().insert(org1, p->p.setName("foo"));
+    QualityProfileDto fooInOrg2 = dbTester.qualityProfiles().insert(org2, p->p.setName("foo"));
+    QualityProfileDto bar = dbTester.qualityProfiles().insert(org1, p->p.setName("bar"));
+
+    underTest.renameAndCommit(dbSession, asList(fooInOrg1.getKee(), fooInOrg2.getKee()), "foo (copy)");
+
+    assertThat(underTest.selectOrFailByKey(dbSession, fooInOrg1.getKey()).getName()).isEqualTo("foo (copy)");
+    assertThat(underTest.selectOrFailByKey(dbSession, fooInOrg2.getKey()).getName()).isEqualTo("foo (copy)");
+    assertThat(underTest.selectOrFailByKey(dbSession, bar.getKey()).getName()).isEqualTo("bar");
+  }
+
+  @Test
+  public void renameAndCommit_does_nothing_if_empty_keys() {
+    OrganizationDto org = dbTester.organizations().insert();
+    QualityProfileDto profile = dbTester.qualityProfiles().insert(org, p -> p.setName("foo"));
+
+    underTest.renameAndCommit(dbSession, Collections.emptyList(), "foo (copy)");
+
+    assertThat(underTest.selectOrFailByKey(dbSession, profile.getKey()).getName()).isEqualTo("foo");
   }
 
   private QualityProfileDto insertQualityProfileDto(String key, String name, String language) {

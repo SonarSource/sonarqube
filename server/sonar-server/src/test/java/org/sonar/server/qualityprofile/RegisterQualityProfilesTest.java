@@ -32,12 +32,15 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -59,16 +62,18 @@ public class RegisterQualityProfilesTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DefinedQProfileRepositoryRule definedQProfileRepositoryRule = new DefinedQProfileRepositoryRule();
+  public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbClient mockedDbClient = mock(DbClient.class);
   private ActiveRuleIndexer mockedActiveRuleIndexer = mock(ActiveRuleIndexer.class);
-  private DummyDefinedQProfileCreation definedQProfileCreation = new DummyDefinedQProfileCreation();
+  private DummyBuiltInQProfileCreation builtInQProfileCreation = new DummyBuiltInQProfileCreation();
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(
-    definedQProfileRepositoryRule,
+    builtInQProfileRepositoryRule,
     dbClient,
-    definedQProfileCreation,
+    builtInQProfileCreation,
     mockedActiveRuleIndexer);
 
   @Test
@@ -81,12 +86,12 @@ public class RegisterQualityProfilesTest {
 
   @Test
   public void no_action_in_DB_nothing_to_index_when_there_is_no_DefinedQProfile() {
-    RegisterQualityProfiles underTest = new RegisterQualityProfiles(definedQProfileRepositoryRule, mockedDbClient, null, mockedActiveRuleIndexer);
-    definedQProfileRepositoryRule.initialize();
+    RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, mockedDbClient, null, mockedActiveRuleIndexer);
+    builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs()).isEmpty();
+    assertThat(builtInQProfileCreation.getCallLogs()).isEmpty();
     verify(mockedDbClient).openSession(false);
     verify(mockedActiveRuleIndexer).index(Collections.emptyList());
     verifyNoMoreInteractions(mockedDbClient, mockedActiveRuleIndexer);
@@ -96,46 +101,46 @@ public class RegisterQualityProfilesTest {
   public void start_creates_qps_for_every_organization_in_DB_when_LoadedTemplate_table_is_empty() {
     OrganizationDto organization1 = dbTester.organizations().insert();
     OrganizationDto organization2 = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
-    definedQProfileRepositoryRule.initialize();
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
+    builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs())
+    assertThat(builtInQProfileCreation.getCallLogs())
       .containsExactly(
-        callLog(definedQProfile, dbTester.getDefaultOrganization()),
-        callLog(definedQProfile, organization1),
-        callLog(definedQProfile, organization2));
+        callLog(builtInQProfile, dbTester.getDefaultOrganization()),
+        callLog(builtInQProfile, organization1),
+        callLog(builtInQProfile, organization2));
   }
 
   @Test
   public void start_creates_qps_only_for_organizations_in_DB_without_loaded_template() {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(dbTester.getDefaultOrganization().getUuid(), definedQProfile.getLoadedTemplateType()), dbTester.getSession());
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(org1.getUuid(), definedQProfile.getLoadedTemplateType()), dbTester.getSession());
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
+    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(dbTester.getDefaultOrganization().getUuid(), builtInQProfile.getLoadedTemplateType()), dbTester.getSession());
+    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(org1.getUuid(), builtInQProfile.getLoadedTemplateType()), dbTester.getSession());
     dbTester.commit();
-    definedQProfileRepositoryRule.initialize();
+    builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs())
-      .containsExactly(callLog(definedQProfile, org2));
+    assertThat(builtInQProfileCreation.getCallLogs())
+      .containsExactly(callLog(builtInQProfile, org2));
   }
 
   @Test
   public void start_creates_different_qps_and_their_loaded_templates_if_several_profile_has_same_name_for_different_languages() {
     String name = "doh";
 
-    DefinedQProfile definedQProfile1 = definedQProfileRepositoryRule.add(FOO_LANGUAGE, name, true);
-    DefinedQProfile definedQProfile2 = definedQProfileRepositoryRule.add(BAR_LANGUAGE, name, true);
-    definedQProfileRepositoryRule.initialize();
+    BuiltInQProfile builtInQProfile1 = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, name, true);
+    BuiltInQProfile builtInQProfile2 = builtInQProfileRepositoryRule.add(BAR_LANGUAGE, name, true);
+    builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(definedQProfileCreation.getCallLogs())
-      .containsExactly(callLog(definedQProfile2, dbTester.getDefaultOrganization()), callLog(definedQProfile1, dbTester.getDefaultOrganization()));
+    assertThat(builtInQProfileCreation.getCallLogs())
+      .containsExactly(callLog(builtInQProfile2, dbTester.getDefaultOrganization()), callLog(builtInQProfile1, dbTester.getDefaultOrganization()));
   }
 
   @Test
@@ -143,17 +148,17 @@ public class RegisterQualityProfilesTest {
     dbTester.organizations().insert();
     dbTester.organizations().insert();
     dbTester.organizations().insert();
-    definedQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1", false);
-    definedQProfileRepositoryRule.initialize();
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1", false);
+    builtInQProfileRepositoryRule.initialize();
     ActiveRuleChange ruleChange1 = newActiveRuleChange("1");
     ActiveRuleChange ruleChange2 = newActiveRuleChange("2");
     ActiveRuleChange ruleChange3 = newActiveRuleChange("3");
     ActiveRuleChange ruleChange4 = newActiveRuleChange("4");
-    definedQProfileCreation.addChangesPerCall(ruleChange1, ruleChange3);
+    builtInQProfileCreation.addChangesPerCall(ruleChange1, ruleChange3);
     // no change for second org
-    definedQProfileCreation.addChangesPerCall();
-    definedQProfileCreation.addChangesPerCall(ruleChange2);
-    definedQProfileCreation.addChangesPerCall(ruleChange4);
+    builtInQProfileCreation.addChangesPerCall();
+    builtInQProfileCreation.addChangesPerCall(ruleChange2);
+    builtInQProfileCreation.addChangesPerCall(ruleChange4);
     ArgumentCaptor<List<ActiveRuleChange>> indexedChangesCaptor = ArgumentCaptor.forClass((Class<List<ActiveRuleChange>>) (Object) List.class);
     doNothing().when(mockedActiveRuleIndexer).index(indexedChangesCaptor.capture());
 
@@ -163,20 +168,37 @@ public class RegisterQualityProfilesTest {
       .containsExactly(ruleChange1, ruleChange3, ruleChange2, ruleChange4);
   }
 
+  @Test
+  public void rename_custom_outdated_profiles_if_same_name_than_builtin_profile() {
+    OrganizationDto org1 = dbTester.organizations().insert(org -> org.setKey("org1"));
+    OrganizationDto org2 = dbTester.organizations().insert(org -> org.setKey("org2"));
+
+    QualityProfileDto outdatedProfileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    QualityProfileDto outdatedProfileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", false);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg1.getKey()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg2.getKey()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)] in 2 organizations");
+  }
+
   private static ActiveRuleChange newActiveRuleChange(String id) {
     return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")));
   }
 
-  private class DummyDefinedQProfileCreation implements DefinedQProfileCreation {
+  private class DummyBuiltInQProfileCreation implements BuiltInQProfileCreation {
     private List<List<ActiveRuleChange>> changesPerCall;
     private Iterator<List<ActiveRuleChange>> changesPerCallIterator;
     private final List<CallLog> callLogs = new ArrayList<>();
 
     @Override
-    public void create(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+    public void create(DbSession session, BuiltInQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
       callLogs.add(callLog(qualityProfile, organization));
 
-      // RegisterQualityProfiles relies on the fact that DefinedQProfileCreation populates table LOADED_TEMPLATE each time create is called
+      // RegisterQualityProfiles relies on the fact that BuiltInQProfileCreation populates table LOADED_TEMPLATE each time create is called
       // to not loop infinitely
       dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType()), session);
 
@@ -201,11 +223,11 @@ public class RegisterQualityProfilesTest {
   }
 
   private static final class CallLog {
-    private final DefinedQProfile definedQProfile;
+    private final BuiltInQProfile builtInQProfile;
     private final OrganizationDto organization;
 
-    private CallLog(DefinedQProfile definedQProfile, OrganizationDto organization) {
-      this.definedQProfile = definedQProfile;
+    private CallLog(BuiltInQProfile builtInQProfile, OrganizationDto organization) {
+      this.builtInQProfile = builtInQProfile;
       this.organization = organization;
     }
 
@@ -218,25 +240,25 @@ public class RegisterQualityProfilesTest {
         return false;
       }
       CallLog callLog = (CallLog) o;
-      return definedQProfile == callLog.definedQProfile &&
+      return builtInQProfile == callLog.builtInQProfile &&
         organization.getUuid().equals(callLog.organization.getUuid());
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(definedQProfile, organization);
+      return Objects.hash(builtInQProfile, organization);
     }
 
     @Override
     public String toString() {
       return "CallLog{" +
-        "qp=" + definedQProfile.getLanguage() + '-' + definedQProfile.getName() + '-' + definedQProfile.isDefault() +
+        "qp=" + builtInQProfile.getLanguage() + '-' + builtInQProfile.getName() + '-' + builtInQProfile.isDefault() +
         ", org=" + organization.getKey() +
         '}';
     }
   }
 
-  private static CallLog callLog(DefinedQProfile definedQProfile, OrganizationDto organizationDto) {
-    return new CallLog(definedQProfile, organizationDto);
+  private static CallLog callLog(BuiltInQProfile builtInQProfile, OrganizationDto organizationDto) {
+    return new CallLog(builtInQProfile, organizationDto);
   }
 }

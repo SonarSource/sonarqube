@@ -17,24 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.BOOLEAN;
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+
+public class AddBuiltInFlagToRulesProfilesTest {
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddBuiltInFlagToRulesProfilesTest.class, "rules_profiles_6_4.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddBuiltInFlagToRulesProfiles underTest = new AddBuiltInFlagToRulesProfiles(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_1700() {
-    verifyMinimumMigrationNumber(underTest, 1700);
+  public void column_is_added_to_table() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("rules_profiles", "is_built_in", BOOLEAN, null, true);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 18);
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
+
 }

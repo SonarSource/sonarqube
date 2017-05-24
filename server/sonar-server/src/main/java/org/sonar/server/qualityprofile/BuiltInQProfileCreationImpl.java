@@ -28,22 +28,22 @@ import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
-public class DefinedQProfileCreationImpl implements DefinedQProfileCreation {
+public class BuiltInQProfileCreationImpl implements BuiltInQProfileCreation {
   private final DbClient dbClient;
   private final QProfileFactory profileFactory;
   private final RuleActivator ruleActivator;
 
-  public DefinedQProfileCreationImpl(DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator) {
+  public BuiltInQProfileCreationImpl(DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
   }
 
   @Override
-  public void create(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+  public void create(DbSession session, BuiltInQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
     QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, qualityProfile.getName(), qualityProfile.getLanguage(), session);
     if (profileDto == null) {
-      profileDto = profileFactory.create(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
+      profileDto = profileFactory.createBuiltIn(session, organization, qualityProfile.getQProfileName(), qualityProfile.isDefault());
       for (org.sonar.api.rules.ActiveRule activeRule : qualityProfile.getActiveRules()) {
         RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
         RuleActivation activation = new RuleActivation(ruleKey);

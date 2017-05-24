@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
 
-import java.util.List;
-import java.util.Map;
+package org.sonar.server.platform.db.migration.version.v65;
 
-public interface DefinedQProfileRepository {
-  /**
-   * Initializes the Repository.
-   *
-   * This method is intended to be called from a startup task
-   * (see {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup}).
-   *
-   * @throws IllegalStateException if called more then once
-   */
-  void initialize();
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-  /**
-   * @return an immutable map containing immutable lists.
-   *
-   * @throws IllegalStateException if {@link #initialize()} has not been called
-   */
-  Map<String, List<DefinedQProfile>> getQProfilesByLanguage();
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
+
+public class AddBuiltInFlagToRulesProfiles extends DdlChange {
+
+  public AddBuiltInFlagToRulesProfiles(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "rules_profiles")
+      .addColumn(newBooleanColumnDefBuilder()
+        .setColumnName("is_built_in")
+        .setIsNullable(true)
+        .build())
+      .build());
+  }
 }

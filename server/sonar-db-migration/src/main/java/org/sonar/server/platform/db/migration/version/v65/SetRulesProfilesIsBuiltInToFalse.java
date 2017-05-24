@@ -17,24 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class SetRulesProfilesIsBuiltInToFalse extends DataChange {
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
-
-  @Test
-  public void migrationNumber_starts_at_1700() {
-    verifyMinimumMigrationNumber(underTest, 1700);
+  public SetRulesProfilesIsBuiltInToFalse(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 18);
+  @Override
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select id from rules_profiles where is_built_in is null");
+    massUpdate.rowPluralName("rules_profiles");
+    massUpdate.update("update rules_profiles set is_built_in=? where id=?");
+    massUpdate.execute((row, update) -> {
+      update.setBoolean(1, false);
+      update.setLong(2, row.getLong(1));
+      return true;
+    });
   }
+
 }

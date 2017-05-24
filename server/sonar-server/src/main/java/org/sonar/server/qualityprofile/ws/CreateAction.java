@@ -123,7 +123,7 @@ public class CreateAction implements QProfileWsAction {
 
   private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request, OrganizationDto organization) {
     QProfileResult result = new QProfileResult();
-    QualityProfileDto profile = profileFactory.checkAndCreate(dbSession, organization,
+    QualityProfileDto profile = profileFactory.checkAndCreateCustom(dbSession, organization,
       QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
     result.setProfile(profile);
     for (ProfileImporter importer : importers) {

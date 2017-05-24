@@ -49,33 +49,33 @@ public class QProfileResetImpl implements QProfileReset {
   private final QProfileFactory factory;
   private final RuleActivator activator;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final DefinedQProfileRepository definedQProfileRepositories;
+  private final BuiltInQProfileRepository builtInQProfileRepositories;
 
   public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory,
-    DefinedQProfileRepository definedQProfileRepository) {
+    BuiltInQProfileRepository builtInQProfileRepository) {
     this.db = db;
     this.activator = activator;
     this.activeRuleIndexer = activeRuleIndexer;
     this.factory = factory;
-    this.definedQProfileRepositories = definedQProfileRepository;
+    this.builtInQProfileRepositories = builtInQProfileRepository;
   }
 
   @Override
   public void resetLanguage(DbSession dbSession, OrganizationDto organization, String language) {
-    definedQProfileRepositories.getQProfilesByLanguage()
+    builtInQProfileRepositories.getQProfilesByLanguage()
       .entrySet()
       .stream()
       .filter(entry -> entry.getKey().equals(language))
       .map(Map.Entry::getValue)
       .flatMap(List::stream)
-      .forEach(definedQProfile -> resetProfile(dbSession, organization, definedQProfile));
+      .forEach(builtInQProfile -> resetProfile(dbSession, organization, builtInQProfile));
   }
 
-  private void resetProfile(DbSession dbSession, OrganizationDto organization, DefinedQProfile definedQProfile) {
-    QualityProfileDto profile = factory.getOrCreate(dbSession, organization, definedQProfile.getQProfileName());
+  private void resetProfile(DbSession dbSession, OrganizationDto organization, BuiltInQProfile builtInQProfile) {
+    QualityProfileDto profile = factory.getOrCreateCustom(dbSession, organization, builtInQProfile.getQProfileName());
 
     List<RuleActivation> activations = Lists.newArrayList();
-    definedQProfile.getActiveRules().forEach(activeRule -> activations.add(getRuleActivation(dbSession, activeRule)));
+    builtInQProfile.getActiveRules().forEach(activeRule -> activations.add(getRuleActivation(dbSession, activeRule)));
     reset(dbSession, profile, activations);
   }
 

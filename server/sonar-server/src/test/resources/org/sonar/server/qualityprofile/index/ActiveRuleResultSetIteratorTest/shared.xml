@@ -38,6 +38,7 @@
                   kee="parent"
                   language="xoo"
                   parent_kee="[null]"
+                  is_built_in="[false]"
                   is_default="[false]"/>
 
   <rules_profiles id="2"
@@ -46,6 +47,7 @@
                   kee="child"
                   language="xoo"
                   parent_kee="parent"
+                  is_built_in="[false]"
                   is_default="[false]"/>
 
   <active_rules id="1"
@@ -71,6 +73,7 @@
                   kee="sonar-way"
                   language="xoo"
                   parent_kee="[null]"
+                  is_built_in="[false]"
                   is_default="[false]"/>
 
   <active_rules id="3"

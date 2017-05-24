@@ -19,21 +19,24 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.List;
+import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface BuiltInQProfileRepository {
+  /**
+   * Initializes the Repository.
+   *
+   * This method is intended to be called from a startup task
+   * (see {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup}).
+   *
+   * @throws IllegalStateException if called more then once
+   */
+  void initialize();
 
-public class DefinedQProfileLoaderTest {
-  @Rule
-  public DefinedQProfileRepositoryRule definedQProfileRepositoryRule = new DefinedQProfileRepositoryRule();
-
-  private DefinedQProfileLoader underTest = new DefinedQProfileLoader(definedQProfileRepositoryRule);
-
-  @Test
-  public void start_initializes_DefinedQProfileRepository() {
-    underTest.start();
-
-    assertThat(definedQProfileRepositoryRule.isInitialized()).isTrue();
-  }
+  /**
+   * @return an immutable map containing immutable lists.
+   *
+   * @throws IllegalStateException if {@link #initialize()} has not been called
+   */
+  Map<String, List<BuiltInQProfile>> getQProfilesByLanguage();
 }

@@ -49,16 +49,16 @@ public class MassRegisterQualityProfiles {
   private static final Pagination PROCESSED_ORGANIZATIONS_BATCH_SIZE = forPage(1).andSize(2000);
 
   private final Settings settings;
-  private final DefinedQProfileRepository definedQProfileRepository;
+  private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DbClient dbClient;
-  private final DefinedQProfileInsert definedQProfileInsert;
+  private final BuiltInQProfileInsert builtInQProfileInsert;
 
-  public MassRegisterQualityProfiles(Settings settings, DefinedQProfileRepository definedQProfileRepository,
-    DbClient dbClient, DefinedQProfileInsert definedQProfileInsert) {
+  public MassRegisterQualityProfiles(Settings settings, BuiltInQProfileRepository builtInQProfileRepository,
+    DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert) {
     this.settings = settings;
-    this.definedQProfileRepository = definedQProfileRepository;
+    this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
-    this.definedQProfileInsert = definedQProfileInsert;
+    this.builtInQProfileInsert = builtInQProfileInsert;
   }
 
   public void start() {
@@ -67,23 +67,23 @@ public class MassRegisterQualityProfiles {
     }
 
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Mass Register quality profiles");
-    if (definedQProfileRepository.getQProfilesByLanguage().isEmpty()) {
+    if (builtInQProfileRepository.getQProfilesByLanguage().isEmpty()) {
       return;
     }
 
     try (DbSession session = dbClient.openSession(false);
       DbSession batchSession = dbClient.openSession(true)) {
-      definedQProfileRepository.getQProfilesByLanguage()
+      builtInQProfileRepository.getQProfilesByLanguage()
         .forEach((key, value) -> registerPerLanguage(session, batchSession, value));
       profiler.stopDebug();
     }
   }
 
-  private void registerPerLanguage(DbSession session, DbSession batchSession, List<DefinedQProfile> qualityProfiles) {
+  private void registerPerLanguage(DbSession session, DbSession batchSession, List<BuiltInQProfile> qualityProfiles) {
     qualityProfiles.forEach(qp -> registerPerQualityProfile(session, batchSession, qp));
   }
 
-  private void registerPerQualityProfile(DbSession session, DbSession batchSession, DefinedQProfile qualityProfile) {
+  private void registerPerQualityProfile(DbSession session, DbSession batchSession, BuiltInQProfile qualityProfile) {
     LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
 
     Profiler profiler = Profiler.create(Loggers.get(getClass()));
@@ -93,21 +93,21 @@ public class MassRegisterQualityProfiles {
     }
   }
 
-  private List<OrganizationDto> getOrganizationsWithoutQP(DbSession session, DefinedQProfile qualityProfile) {
+  private List<OrganizationDto> getOrganizationsWithoutQP(DbSession session, BuiltInQProfile qualityProfile) {
     return dbClient.organizationDao().selectOrganizationsWithoutLoadedTemplate(session,
       qualityProfile.getLoadedTemplateType(), PROCESSED_ORGANIZATIONS_BATCH_SIZE);
   }
 
   private void registerPerQualityProfileAndOrganization(DbSession session, DbSession batchSession,
-    DefinedQProfile definedQProfile, OrganizationDto organization, Profiler profiler) {
+                                                        BuiltInQProfile builtInQProfile, OrganizationDto organization, Profiler profiler) {
     profiler.start();
 
-    definedQProfileInsert.create(session, batchSession, definedQProfile, organization);
+    builtInQProfileInsert.create(session, batchSession, builtInQProfile, organization);
 
     session.commit();
     batchSession.commit();
 
-    profiler.stopDebug(format("Register profile %s for organization %s", definedQProfile.getQProfileName(), organization.getKey()));
+    profiler.stopDebug(format("Register profile %s for organization %s", builtInQProfile.getQProfileName(), organization.getKey()));
   }
 
 }

@@ -15,11 +15,12 @@
     p.updated_at as updatedAt,
     p.rules_updated_at as rulesUpdatedAt,
     p.last_used as lastUsed,
-    p.user_updated_at as userUpdatedAt
+    p.user_updated_at as userUpdatedAt,
+    p.is_built_in as isBuiltIn
   </sql>
 
   <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO rules_profiles (organization_uuid, kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at, last_used, user_updated_at)
+    INSERT INTO rules_profiles (organization_uuid, kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at, last_used, user_updated_at, is_built_in)
     VALUES (
     #{organizationUuid, jdbcType=VARCHAR},
     #{kee, jdbcType=VARCHAR},
@@ -31,7 +32,9 @@
     #{updatedAt, jdbcType=TIMESTAMP},
     #{rulesUpdatedAt, jdbcType=VARCHAR},
     #{lastUsed, jdbcType=BIGINT},
-    #{userUpdatedAt, jdbcType=BIGINT})
+    #{userUpdatedAt, jdbcType=BIGINT},
+    #{isBuiltIn, jdbcType=BOOLEAN}
+    )
   </insert>
 
   <update id="update" parameterType="QualityProfile">
@@ -43,7 +46,8 @@
     updated_at=#{updatedAt, jdbcType=TIMESTAMP},
     rules_updated_at=#{rulesUpdatedAt, jdbcType=VARCHAR},
     last_used=#{lastUsed, jdbcType=BIGINT},
-    user_updated_at=#{userUpdatedAt, jdbcType=BIGINT}
+    user_updated_at=#{userUpdatedAt, jdbcType=BIGINT},
+    is_built_in=#{isBuiltIn, jdbcType=BOOLEAN}
     WHERE id=#{id}
   </update>
 
@@ -198,15 +202,19 @@
   </select>
 
   <insert id="insertProjectProfileAssociation" keyColumn="id" useGeneratedKeys="true">
-    INSERT INTO project_qprofiles (project_uuid, profile_key) VALUES (#{projectUuid}, #{profileKey})
+    INSERT INTO project_qprofiles (project_uuid, profile_key)
+    VALUES (#{projectUuid, jdbcType=VARCHAR}, #{profileKey, jdbcType=VARCHAR})
   </insert>
 
   <update id="updateProjectProfileAssociation">
-    UPDATE project_qprofiles SET profile_key=#{profileKey} WHERE project_uuid=#{projectUuid} AND profile_key=#{oldProfileKey}
+    UPDATE project_qprofiles
+    SET profile_key=#{profileKey, jdbcType=VARCHAR}
+    WHERE project_uuid=#{projectUuid, jdbcType=VARCHAR} AND profile_key=#{oldProfileKey, jdbcType=VARCHAR}
   </update>
 
   <update id="deleteProjectProfileAssociation">
-    DELETE FROM project_qprofiles WHERE project_uuid=#{projectUuid} AND profile_key=#{profileKey}
+    DELETE FROM project_qprofiles
+    WHERE project_uuid=#{projectUuid, jdbcType=VARCHAR} AND profile_key=#{profileKey, jdbcType=VARCHAR}
   </update>
 
   <update id="deleteProjectAssociationByProfileKeys" parameterType="String">
@@ -217,5 +225,21 @@
     </foreach>
   </update>
 
+  <select id="selectOutdatedProfiles" parameterType="map" resultType="string">
+    select rp.kee
+    from rules_profiles rp
+    inner join organizations o on o.uuid = rp.organization_uuid
+    where rp.language = #{language, jdbcType=VARCHAR}
+      and rp.name = #{name, jdbcType=VARCHAR}
+      and rp.is_built_in = ${_false}
+  </select>
+
+  <update id="rename" parameterType="map">
+    update rules_profiles
+    set
+      name = #{newName, jdbcType=VARCHAR},
+      updated_at = #{updatedAt, jdbcType=TIMESTAMP}
+    where kee in <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
+  </update>
 </mapper>
 

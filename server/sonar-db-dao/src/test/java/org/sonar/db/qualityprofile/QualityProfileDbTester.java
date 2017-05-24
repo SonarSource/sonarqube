@@ -20,6 +20,7 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.db.DbClient;
@@ -39,6 +40,10 @@ public class QualityProfileDbTester {
   public QualityProfileDbTester(DbTester db) {
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
+  }
+
+  public Optional<QualityProfileDto> selectByKey(String key) {
+    return Optional.ofNullable(dbClient.qualityProfileDao().selectByKey(dbSession, key));
   }
 
   /**

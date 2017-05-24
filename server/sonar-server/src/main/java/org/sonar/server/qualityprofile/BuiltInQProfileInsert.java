@@ -19,10 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 
-public class CachingDefinedQProfileCreationImpl extends DefinedQProfileCreationImpl implements CachingDefinedQProfileCreation {
-  public CachingDefinedQProfileCreationImpl(DbClient dbClient, QProfileFactory profileFactory, CachingRuleActivator ruleActivator) {
-    super(dbClient, profileFactory, ruleActivator);
-  }
+public interface BuiltInQProfileInsert {
+  void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile, OrganizationDto organization);
 }
