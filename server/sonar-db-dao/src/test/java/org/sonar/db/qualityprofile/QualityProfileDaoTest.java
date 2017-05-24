@@ -77,7 +77,8 @@ public class QualityProfileDaoTest {
     QualityProfileDto dto = QualityProfileDto.createFor("abcde")
       .setOrganizationUuid(organization.getUuid())
       .setName("ABCDE")
-      .setLanguage("xoo");
+      .setLanguage("xoo")
+      .setIsBuiltIn(true);
 
     underTest.insert(dbTester.getSession(), dto);
     dbTester.commit();
@@ -95,7 +96,8 @@ public class QualityProfileDaoTest {
       .setName("New Name")
       .setLanguage("js")
       .setParentKee("fghij")
-      .setDefault(false);
+      .setDefault(false)
+      .setIsBuiltIn(false);
 
     underTest.update(dbSession, dto);
     dbSession.commit();
@@ -168,12 +170,14 @@ public class QualityProfileDaoTest {
     assertThat(dto1.getName()).isEqualTo("Sonar Way");
     assertThat(dto1.getLanguage()).isEqualTo("java");
     assertThat(dto1.getParentKee()).isNull();
+    assertThat(dto1.isBuiltIn()).isTrue();
 
     QualityProfileDto dto2 = dtos.get(1);
     assertThat(dto2.getId()).isEqualTo(2);
     assertThat(dto2.getName()).isEqualTo("Sonar Way");
     assertThat(dto2.getLanguage()).isEqualTo("js");
     assertThat(dto2.getParentKee()).isNull();
+    assertThat(dto2.isBuiltIn()).isFalse();
   }
 
   @Test
