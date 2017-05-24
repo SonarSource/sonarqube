@@ -131,10 +131,9 @@ public class SearchProjectsActionTest {
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, new ProjectMeasuresIndexer(dbClient, es.client()));
   private ProjectMeasuresIndex index = new ProjectMeasuresIndex(es.client(), new AuthorizationTypeSupport(userSession));
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
-  private ProjectMeasuresQueryValidator queryValidator = new ProjectMeasuresQueryValidator(dbClient);
 
   private WsActionTester ws = new WsActionTester(
-    new SearchProjectsAction(dbClient, index, queryValidator, userSession));
+    new SearchProjectsAction(dbClient, index, userSession));
 
   private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
 
@@ -162,8 +161,22 @@ public class SearchProjectsActionTest {
 
     Param sort = def.param("s");
     assertThat(sort.defaultValue()).isEqualTo("name");
-    assertThat(sort.exampleValue()).isEqualTo("ncloc");
-    assertThat(sort.possibleValues()).isNull();
+    assertThat(sort.possibleValues()).containsExactlyInAnyOrder("coverage",
+      "reliability_rating",
+      "duplicated_lines_density",
+      "ncloc_language_distribution",
+      "new_lines",
+      "security_rating",
+      "new_reliability_rating",
+      "new_coverage",
+      "new_security_rating",
+      "sqale_rating",
+      "new_duplicated_lines_density",
+      "alert_status",
+      "ncloc",
+      "new_maintainability_rating",
+      "name",
+      "analysisDate");
 
     Param asc = def.param("asc");
     assertThat(asc.defaultValue()).isEqualTo("true");
@@ -1047,12 +1060,23 @@ public class SearchProjectsActionTest {
   }
 
   @Test
-  public void fail_when_metrics_are_unknown() {
+  public void fail_when_filter_metrics_are_unknown() {
     userSession.logIn();
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown metric(s) [coverage, debt]");
+    expectedException.expectMessage("Following metrics are not supported: 'debt'");
 
-    request.setFilter("coverage > 80").setSort("debt");
+    request.setFilter("debt > 80");
+
+    call(request);
+  }
+
+  @Test
+  public void fail_when_sort_metrics_are_unknown() {
+    userSession.logIn();
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 's' (debt) must be one of: [");
+
+    request.setSort("debt");
 
     call(request);
   }
