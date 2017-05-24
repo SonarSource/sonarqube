@@ -70,7 +70,7 @@ public class QProfileCopier {
     verify(sourceProfile, toProfileName);
     QualityProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(organization, toProfileName.getName(), toProfileName.getLanguage(), dbSession);
     if (toProfile == null) {
-      toProfile = factory.checkAndCreate(dbSession, organization, toProfileName);
+      toProfile = factory.checkAndCreateCustom(dbSession, organization, toProfileName);
       toProfile.setParentKee(sourceProfile.getParentKee());
       db.qualityProfileDao().update(dbSession, toProfile);
       dbSession.commit();
