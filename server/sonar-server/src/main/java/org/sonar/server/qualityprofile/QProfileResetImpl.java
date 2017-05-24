@@ -72,7 +72,7 @@ public class QProfileResetImpl implements QProfileReset {
   }
 
   private void resetProfile(DbSession dbSession, OrganizationDto organization, BuiltInQProfile builtInQProfile) {
-    QualityProfileDto profile = factory.getOrCreate(dbSession, organization, builtInQProfile.getQProfileName());
+    QualityProfileDto profile = factory.getOrCreateCustom(dbSession, organization, builtInQProfile.getQProfileName());
 
     List<RuleActivation> activations = Lists.newArrayList();
     builtInQProfile.getActiveRules().forEach(activeRule -> activations.add(getRuleActivation(dbSession, activeRule)));

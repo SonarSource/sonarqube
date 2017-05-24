@@ -54,11 +54,11 @@ public class QProfileFactory {
 
   // ------------- CREATION
 
-  QualityProfileDto getOrCreate(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+  QualityProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
     requireNonNull(organization);
     QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
-      profile = doCreate(dbSession, organization, name, false);
+      profile = doCreate(dbSession, organization, name, false, false);
     }
     return profile;
   }
@@ -68,11 +68,11 @@ public class QProfileFactory {
    *
    * @throws BadRequestException if a quality profile with the specified name already exists
    */
-  public QualityProfileDto checkAndCreate(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+  public QualityProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
     requireNonNull(organization);
     QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     checkRequest(dto == null, "Quality profile already exists: %s", name);
-    return doCreate(dbSession, organization, name, false);
+    return doCreate(dbSession, organization, name, false, false);
   }
 
   /**
@@ -80,8 +80,8 @@ public class QProfileFactory {
    *
    * A DB error will be thrown if the quality profile already exists.
    */
-  public QualityProfileDto create(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
-    return doCreate(dbSession, requireNonNull(organization), name, isDefault);
+  public QualityProfileDto createBuiltIn(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
+    return doCreate(dbSession, requireNonNull(organization), name, isDefault, true);
   }
 
   private static OrganizationDto requireNonNull(@Nullable OrganizationDto organization) {
@@ -89,7 +89,7 @@ public class QProfileFactory {
     return organization;
   }
 
-  private QualityProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
+  private QualityProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
@@ -99,6 +99,7 @@ public class QProfileFactory {
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
       .setDefault(isDefault)
+      .setIsBuiltIn(isBuiltIn)
       .setRulesUpdatedAtAsDate(now);
     db.qualityProfileDao().insert(dbSession, dto);
     return dto;
