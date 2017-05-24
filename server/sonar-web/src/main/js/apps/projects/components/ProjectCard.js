@@ -37,10 +37,12 @@ type Props = {
   project?: {
     analysisDate?: string,
     key: string,
+    leakPeriodDate?: string,
     name: string,
     tags: Array<string>,
     isFavorite?: boolean,
-    organization?: string
+    organization?: string,
+    visibility?: boolean
   },
   type?: string
 };
@@ -51,6 +53,9 @@ export default function ProjectCard({ measures, organization, project, type }: P
   }
 
   const isProjectAnalyzed = project.analysisDate != null;
+  const isPrivate = project.visibility === 'private';
+  const hasLeakPeriodStart = project.leakPeriodDate != null;
+  const hasTags = project.tags.length > 0;
   const isLeakView = type === 'leak';
 
   let areProjectMeasuresLoaded;
@@ -72,22 +77,7 @@ export default function ProjectCard({ measures, organization, project, type }: P
 
   return (
     <div data-key={project.key} className={className}>
-
-      <div className="boxed-group-actions text-right">
-        {project.visibility === 'private' &&
-          <PrivateBadge className="spacer-left" tooltipPlacement="left" />}
-        {project.tags.length > 0 && <TagsList tags={project.tags} customClass="spacer-left" />}
-        {isLeakView &&
-          isProjectAnalyzed &&
-          <div className="little-spacer-top spacer-left note">
-            {translateWithParameters(
-              'overview.last_analysis_on_x',
-              moment(project.analysisDate).format('LLL')
-            )}
-          </div>}
-      </div>
-
-      <div className="boxed-group-header">
+      <div className="boxed-group-header clearfix">
         {project.isFavorite != null &&
           <FavoriteContainer className="spacer-right" componentKey={project.key} />}
         <h2 className="project-card-name">
@@ -99,6 +89,31 @@ export default function ProjectCard({ measures, organization, project, type }: P
           <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
         {displayQualityGate && <ProjectCardQualityGate status={measures['alert_status']} />}
+        <div className="pull-right text-right">
+          {isPrivate && <PrivateBadge className="spacer-left" tooltipPlacement="left" />}
+          {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
+        </div>
+        {isLeakView &&
+          isProjectAnalyzed &&
+          <div
+            className={classNames('project-card-dates note text-right pull-right', {
+              'width-100': isPrivate || hasTags
+            })}>
+            {hasLeakPeriodStart &&
+              <span>
+                {translateWithParameters(
+                  'projects.leak_period_x',
+                  moment(project.leakPeriodDate).fromNow()
+                )}
+              </span>}
+            {isProjectAnalyzed &&
+              <span className="big-spacer-left">
+                {translateWithParameters(
+                  'projects.last_analysis_on_x',
+                  moment(project.analysisDate).format('LLL')
+                )}
+              </span>}
+          </div>}
       </div>
 
       {isProjectAnalyzed
