@@ -380,14 +380,14 @@ public class ItUtils {
 
   public static class ComponentNavigation {
     private String version;
-    private String snapshotDate;
+    private String analysisDate;
 
     public String getVersion() {
       return version;
     }
 
     public Date getDate() {
-      return toDatetime(snapshotDate);
+      return toDatetime(analysisDate);
     }
 
     public static ComponentNavigation parse(String json) {

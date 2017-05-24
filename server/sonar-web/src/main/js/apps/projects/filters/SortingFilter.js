@@ -33,10 +33,9 @@ export default class SortingFilter extends React.PureComponent {
     leftText: React.PropTypes.string,
     rightText: React.PropTypes.string
   };
+
   static defaultProps = {
-    sortDesc: 'left',
-    leftText: translate('worst'),
-    rightText: translate('best')
+    sortDesc: 'left'
   };
 
   isSortActive(side) {
@@ -78,13 +77,13 @@ export default class SortingFilter extends React.PureComponent {
             onClick={this.blurLink}
             className={this.getLinkClass('left')}
             to={this.getLinkPath('left')}>
-            {leftText}
+            {leftText || translate('worst')}
           </Link>
           <Link
             onClick={this.blurLink}
             className={this.getLinkClass('right')}
             to={this.getLinkPath('right')}>
-            {rightText}
+            {rightText || translate('best')}
           </Link>
         </div>
       </div>

@@ -84,7 +84,7 @@ export default class ComponentNav extends React.PureComponent {
                 {...this.props}
                 {...this.state}
                 version={this.props.component.version}
-                snapshotDate={this.props.component.snapshotDate}
+                analysisDate={this.props.component.analysisDate}
               />
             </TooltipsContainer>
 

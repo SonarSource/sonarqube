@@ -80,7 +80,7 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
   halfWidth={false}
   header={
     <FilterHeader
-      name="Tags"
+      name="projects.facets.tags"
     />
   }
   highlightUnder={1}
@@ -148,7 +148,7 @@ exports[`should render the tags facet with the selected tags 1`] = `
   halfWidth={false}
   header={
     <FilterHeader
-      name="Tags"
+      name="projects.facets.tags"
     />
   }
   highlightUnder={1}
@@ -185,7 +185,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
   data-key="tags"
 >
   <FilterHeader
-    name="Tags"
+    name="projects.facets.tags"
   />
   <div
     className="search-navigator-facet-list"
@@ -328,7 +328,7 @@ exports[`should render the tags without the ones in the facet 1`] = `
   halfWidth={false}
   header={
     <FilterHeader
-      name="Tags"
+      name="projects.facets.tags"
     />
   }
   highlightUnder={1}
@@ -396,7 +396,7 @@ exports[`should render the tags without the ones in the facet 2`] = `
   halfWidth={false}
   header={
     <FilterHeader
-      name="Tags"
+      name="projects.facets.tags"
     />
   }
   highlightUnder={1}

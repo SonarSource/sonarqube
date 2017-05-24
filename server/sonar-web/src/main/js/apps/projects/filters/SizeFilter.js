@@ -81,7 +81,7 @@ export default class SizeFilter extends React.PureComponent {
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
         header={
-          <FilterHeader name="Size">
+          <FilterHeader name={translate('metric_domain.Size')}>
             <SortingFilter
               property={this.property}
               query={this.props.query}
