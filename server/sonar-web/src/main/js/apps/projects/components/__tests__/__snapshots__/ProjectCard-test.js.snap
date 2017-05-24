@@ -1,15 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display loading 1`] = `
+exports[`leak project card should display the leak measures and quality gate 1`] = `
 <div
-  className="boxed-group project-card boxed-group-loading"
+  className="boxed-group project-card"
   data-key="foo"
 >
   <div
-    className="boxed-group-actions text-right"
-  />
-  <div
-    className="boxed-group-header"
+    className="boxed-group-header clearfix"
   >
     <h2
       className="project-card-name"
@@ -29,36 +26,49 @@ exports[`should display loading 1`] = `
         Foo
       </Link>
     </h2>
+    <ProjectCardQualityGate
+      status="OK"
+    />
+    <div
+      className="pull-right text-right"
+    />
+    <div
+      className="project-card-dates note text-right pull-right"
+    >
+      <span>
+        projects.leak_period_x.a month ago
+      </span>
+      <span
+        className="big-spacer-left"
+      >
+        projects.last_analysis_on_x.March 1, 2017 9:36 AM
+      </span>
+    </div>
   </div>
   <div
     className="boxed-group-inner"
   >
-    <ProjectCardMeasures />
-  </div>
-</div>
-`;
-
-exports[`should display tags 1`] = `
-<div
-  className="boxed-group project-card boxed-group-loading"
-  data-key="foo"
->
-  <div
-    className="boxed-group-actions text-right"
-  >
-    <TagsList
-      allowUpdate={false}
-      customClass="spacer-left"
-      tags={
-        Array [
-          "foo",
-          "bar",
-        ]
+    <ProjectCardLeakMeasures
+      measures={
+        Object {
+          "alert_status": "OK",
+          "new_bugs": 12,
+          "reliability_rating": "1.0",
+          "sqale_rating": "1.0",
+        }
       }
     />
   </div>
+</div>
+`;
+
+exports[`overall status project card should display the overall measures and quality gate 1`] = `
+<div
+  className="boxed-group project-card"
+  data-key="foo"
+>
   <div
-    className="boxed-group-header"
+    className="boxed-group-header clearfix"
   >
     <h2
       className="project-card-name"
@@ -78,13 +88,26 @@ exports[`should display tags 1`] = `
         Foo
       </Link>
     </h2>
+    <ProjectCardQualityGate
+      status="OK"
+    />
+    <div
+      className="pull-right text-right"
+    />
   </div>
   <div
     className="boxed-group-inner"
   >
-    <ProjectCardMeasures />
+    <ProjectCardOverallMeasures
+      measures={
+        Object {
+          "alert_status": "OK",
+          "new_bugs": 12,
+          "reliability_rating": "1.0",
+          "sqale_rating": "1.0",
+        }
+      }
+    />
   </div>
 </div>
 `;
-
-exports[`should not display analysis date 1`] = `undefined`;

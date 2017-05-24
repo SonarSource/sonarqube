@@ -73,12 +73,17 @@
 
 .project-card {
   position: relative;
-  min-height: 121px;
+  min-height: 114px;
   box-sizing: border-box;
 }
 
 .project-card-name {
   font-weight: 600;
+}
+
+.project-card-dates {
+  margin-top: 4px;
+  margin-bottom: -16px;
 }
 
 .project-card-measures {
