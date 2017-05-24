@@ -19,21 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.sonar.db.DbClient;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class DefinedQProfileLoaderTest {
-  @Rule
-  public DefinedQProfileRepositoryRule definedQProfileRepositoryRule = new DefinedQProfileRepositoryRule();
-
-  private DefinedQProfileLoader underTest = new DefinedQProfileLoader(definedQProfileRepositoryRule);
-
-  @Test
-  public void start_initializes_DefinedQProfileRepository() {
-    underTest.start();
-
-    assertThat(definedQProfileRepositoryRule.isInitialized()).isTrue();
+public class CachingBuiltInQProfileCreationImpl extends BuiltInQProfileCreationImpl implements CachingBuiltInQProfileCreation {
+  public CachingBuiltInQProfileCreationImpl(DbClient dbClient, QProfileFactory profileFactory, CachingRuleActivator ruleActivator) {
+    super(dbClient, profileFactory, ruleActivator);
   }
 }

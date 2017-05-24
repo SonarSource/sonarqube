@@ -19,8 +19,26 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.picocontainer.Startable;
+
 /**
- * Marker interface of any implementation of {@link DefinedQProfileCreation} which supports caching.
+ * Startable added to {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup} responsible for initializing
+ * {@link BuiltInQProfileRepository}.
  */
-public interface CachingDefinedQProfileCreation extends DefinedQProfileCreation {
+public class BuiltInQProfileLoader implements Startable {
+  private final BuiltInQProfileRepository builtInQProfileRepository;
+
+  public BuiltInQProfileLoader(BuiltInQProfileRepository builtInQProfileRepository) {
+    this.builtInQProfileRepository = builtInQProfileRepository;
+  }
+
+  @Override
+  public void start() {
+    builtInQProfileRepository.initialize();
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
+  }
 }
