@@ -210,9 +210,6 @@ public class SearchResponseFormat {
 
   private static Location convertLocation(DbIssues.Location source) {
     Location.Builder target = Location.newBuilder();
-    if (source.hasComponentId()) {
-      target.setComponentId(source.getComponentId());
-    }
     if (source.hasMsg()) {
       target.setMsg(source.getMsg());
     }

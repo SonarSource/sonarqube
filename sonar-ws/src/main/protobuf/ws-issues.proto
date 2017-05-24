@@ -120,7 +120,7 @@ message Flow {
 }
 
 message Location {
-  optional string componentId = 1;
+  optional string unusedComponentId = 1;
   // Only when component is a file. Can be empty for a file if this is an issue global to the file.
   optional sonarqube.ws.commons.TextRange textRange = 2;
   optional string msg = 3;
