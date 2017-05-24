@@ -26,6 +26,9 @@ import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.Dto;
 import org.sonar.db.organization.OrganizationDto;
 
+/**
+ * Represents the table "rules_profiles"
+ */
 public class QualityProfileDto extends Dto<String> {
 
   private Integer id;
@@ -43,6 +46,7 @@ public class QualityProfileDto extends Dto<String> {
   private Long lastUsed;
   private Long userUpdatedAt;
   private boolean isDefault;
+  private boolean isBuiltIn;
 
   public String getOrganizationUuid() {
     return organizationUuid;
@@ -148,6 +152,15 @@ public class QualityProfileDto extends Dto<String> {
 
   public QualityProfileDto setDefault(boolean isDefault) {
     this.isDefault = isDefault;
+    return this;
+  }
+
+  public boolean isBuiltIn() {
+    return isBuiltIn;
+  }
+
+  public QualityProfileDto setIsBuiltIn(boolean b) {
+    this.isBuiltIn = b;
     return this;
   }
 
