@@ -33,6 +33,7 @@ public class DbVersion65 implements DbVersion {
       .add(1703, "Populate EVENTS.COMPONENT_UUID", PopulateEventsComponentUuid.class)
       .add(1704, "Drop index EVENTS_COMPONENT_UUID", DropIndexEventsComponentUuid.class)
       .add(1705, "Make EVENTS.COMPONENT_UUID not nullable", MakeEventsComponentUuidNotNullable.class)
-      .add(1706, "Recreate index EVENTS_COMPONENT_UUID", RecreateIndexEventsComponentUuid.class);
+      .add(1706, "Recreate index EVENTS_COMPONENT_UUID", RecreateIndexEventsComponentUuid.class)
+      .add(1707, "Add rules_profiles.is_built_in", AddBuiltInFlagToRulesProfiles.class);
   }
 }
