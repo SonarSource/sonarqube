@@ -194,7 +194,7 @@ export const fetchProjects = (query, isFavorite, organization) => dispatch => {
   const data = convertToQueryData(query, isFavorite, organization, {
     ps,
     facets: FACETS.join(),
-    f: 'analysisDate'
+    f: 'analysisDate,leakPeriodDate'
   });
   return searchProjects(data).then(onReceiveProjects(dispatch, query), onFail(dispatch));
 };
@@ -206,7 +206,7 @@ export const fetchMoreProjects = (query, isFavorite, organization) => (dispatch,
   const data = convertToQueryData(query, isFavorite, organization, {
     ps: PAGE_SIZE,
     p: pageIndex + 1,
-    f: 'analysisDate'
+    f: 'analysisDate,leakPeriodDate'
   });
   return searchProjects(data).then(onReceiveMoreProjects(dispatch, query), onFail(dispatch));
 };
