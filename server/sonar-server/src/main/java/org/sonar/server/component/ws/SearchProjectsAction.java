@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -64,13 +65,14 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryValidator.NON_METRIC_SORT_KEYS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
@@ -92,13 +94,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
-  private final ProjectMeasuresQueryValidator queryValidator;
   private final UserSession userSession;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, ProjectMeasuresQueryValidator queryValidator, UserSession userSession) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession) {
     this.dbClient = dbClient;
     this.index = index;
-    this.queryValidator = queryValidator;
     this.userSession = userSession;
   }
 
@@ -128,7 +128,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setSince("6.3");
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
-      .setPossibleValues(SUPPORTED_FACETS);
+      .setPossibleValues(SUPPORTED_FACETS.stream().sorted().collect(MoreCollectors.toList(SUPPORTED_FACETS.size())));
     action
       .createParam(PARAM_FILTER)
       .setDescription("Filter of projects on name, key, measure value, quality gate, language, tag or whether a project is a favorite or not.<br>" +
@@ -144,8 +144,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         "</ul>" +
         "To filter on project name or key, use the 'query' keyword, for instance : <code>filter='query = \"Sonar\"'</code>.<br>" +
         "<br>" +
-        "To filter on any numeric metric, provide the metric key.<br>" +
-        "Use the WS api/metrics/search to find the key of a metric.<br>" +
+        "To filter on a numeric metric, provide the metric key.<br>" +
+        "These are the supported metric keys:<br>" +
+        "<ul>" +
+        METRIC_KEYS.stream().sorted().map(key -> "<li>" + key + "</li>").collect(Collectors.joining()) +
+        "</ul>" +
         "<br>" +
         "To filter on a rating, provide the corresponding metric key (ex: reliability_rating for reliability rating).<br>" +
         "The possible values are:" +
@@ -175,10 +178,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter on several tags you must use <code>tag in (offshore, java)</code></li>" +
         "</ul>");
     action.createParam(Param.SORT)
-      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), or by project name.<br/>" +
-        "See '%s' parameter description for the possible metric values", ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
+      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), or by project name.",
+        ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
-      .setExampleValue(NCLOC_KEY)
+      .setPossibleValues(
+        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(MoreCollectors.toList(METRIC_KEYS.size() + NON_METRIC_SORT_KEYS.size())))
       .setSince("6.4");
     action.createParam(Param.ASCENDING)
       .setDescription("Ascending sort")
@@ -231,7 +235,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .map(OrganizationDto::getUuid)
       .ifPresent(query::setOrganizationUuid);
 
-    queryValidator.validate(dbSession, query);
+    ProjectMeasuresQueryValidator.validate(query);
 
     SearchIdResult<String> esResults = index.search(query, new SearchOptions()
       .addFacets(request.getFacets())
