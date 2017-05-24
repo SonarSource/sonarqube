@@ -23,12 +23,12 @@ import java.util.List;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 
-public interface DefinedQProfileCreation {
+public interface BuiltInQProfileCreation {
   /**
-   * Persists the specified {@link DefinedQProfile} of the specified organization and adds any {@link ActiveRuleChange}
+   * Persists the specified {@link BuiltInQProfile} of the specified organization and adds any {@link ActiveRuleChange}
    * to the specified list.
    *
    * The session is not commit.
    */
-  void create(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes);
+  void create(DbSession session, BuiltInQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes);
 }

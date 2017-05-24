@@ -34,9 +34,9 @@ import org.sonar.core.util.stream.MoreCollectors;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
-public class DefinedQProfileRepositoryRule extends ExternalResource implements DefinedQProfileRepository {
+public class BuiltInQProfileRepositoryRule extends ExternalResource implements BuiltInQProfileRepository {
   private boolean initializeCalled = false;
-  private Map<String, List<DefinedQProfile>> qProfilesbyLanguage = new HashMap<>();
+  private Map<String, List<BuiltInQProfile>> qProfilesbyLanguage = new HashMap<>();
 
   @Override
   protected void before() throws Throwable {
@@ -51,7 +51,7 @@ public class DefinedQProfileRepositoryRule extends ExternalResource implements D
   }
 
   @Override
-  public Map<String, List<DefinedQProfile>> getQProfilesByLanguage() {
+  public Map<String, List<BuiltInQProfile>> getQProfilesByLanguage() {
     checkState(initializeCalled, "initialize must be called first");
 
     return ImmutableMap.copyOf(qProfilesbyLanguage);
@@ -61,31 +61,31 @@ public class DefinedQProfileRepositoryRule extends ExternalResource implements D
     return initializeCalled;
   }
 
-  public DefinedQProfileRepositoryRule set(String languageKey, DefinedQProfile first, DefinedQProfile... others) {
+  public BuiltInQProfileRepositoryRule set(String languageKey, BuiltInQProfile first, BuiltInQProfile... others) {
     qProfilesbyLanguage.put(
       languageKey,
       Stream.concat(Stream.of(first), Arrays.stream(others)).collect(toList(1 + others.length)));
     return this;
   }
 
-  public DefinedQProfile add(Language language, String profileName) {
+  public BuiltInQProfile add(Language language, String profileName) {
     return add(language, profileName, false);
   }
 
-  public DefinedQProfile add(Language language, String profileName, boolean isDefault) {
-    DefinedQProfile definedQProfile = create(language, profileName, isDefault);
+  public BuiltInQProfile add(Language language, String profileName, boolean isDefault) {
+    BuiltInQProfile builtInQProfile = create(language, profileName, isDefault);
     qProfilesbyLanguage.compute(language.getKey(),
       (key, existing) -> {
         if (existing == null) {
-          return ImmutableList.of(definedQProfile);
+          return ImmutableList.of(builtInQProfile);
         }
-        return Stream.concat(existing.stream(), Stream.of(definedQProfile)).collect(MoreCollectors.toList(existing.size() + 1));
+        return Stream.concat(existing.stream(), Stream.of(builtInQProfile)).collect(MoreCollectors.toList(existing.size() + 1));
       });
-    return definedQProfile;
+    return builtInQProfile;
   }
 
-  public DefinedQProfile create(Language language, String profileName, boolean isDefault, org.sonar.api.rules.ActiveRule... rules) {
-    return new DefinedQProfile.Builder()
+  public BuiltInQProfile create(Language language, String profileName, boolean isDefault, org.sonar.api.rules.ActiveRule... rules) {
+    return new BuiltInQProfile.Builder()
       .setLanguage(language.getKey())
       .setName(profileName)
       .setDeclaredDefault(isDefault)

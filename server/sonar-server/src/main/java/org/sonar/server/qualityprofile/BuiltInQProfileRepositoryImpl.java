@@ -53,22 +53,22 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.lowerCase;
 
-public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository {
-  private static final Logger LOGGER = Loggers.get(DefinedQProfileRepositoryImpl.class);
+public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository {
+  private static final Logger LOGGER = Loggers.get(BuiltInQProfileRepositoryImpl.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
   private final Languages languages;
   private final List<ProfileDefinition> definitions;
-  private Map<String, List<DefinedQProfile>> qProfilesByLanguage;
+  private Map<String, List<BuiltInQProfile>> qProfilesByLanguage;
 
   /**
    * Requires for pico container when no {@link ProfileDefinition} is defined at all
    */
-  public DefinedQProfileRepositoryImpl(Languages languages) {
+  public BuiltInQProfileRepositoryImpl(Languages languages) {
     this(languages, new ProfileDefinition[0]);
   }
 
-  public DefinedQProfileRepositoryImpl(Languages languages, ProfileDefinition... definitions) {
+  public BuiltInQProfileRepositoryImpl(Languages languages, ProfileDefinition... definitions) {
     this.languages = languages;
     this.definitions = ImmutableList.copyOf(definitions);
   }
@@ -85,7 +85,7 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
   }
 
   @Override
-  public Map<String, List<DefinedQProfile>> getQProfilesByLanguage() {
+  public Map<String, List<BuiltInQProfile>> getQProfilesByLanguage() {
     checkState(qProfilesByLanguage != null, "initialize must be called first");
 
     return qProfilesByLanguage;
@@ -132,22 +132,22 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
       });
   }
 
-  private static Map<String, List<DefinedQProfile>> toQualityProfilesByLanguage(ListMultimap<String, RulesProfile> rulesProfilesByLanguage) {
-    Map<String, List<DefinedQProfile.Builder>> buildersByLanguage = Multimaps.asMap(rulesProfilesByLanguage)
+  private static Map<String, List<BuiltInQProfile>> toQualityProfilesByLanguage(ListMultimap<String, RulesProfile> rulesProfilesByLanguage) {
+    Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = Multimaps.asMap(rulesProfilesByLanguage)
       .entrySet()
       .stream()
-      .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, DefinedQProfileRepositoryImpl::toQualityProfileBuilders));
+      .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, BuiltInQProfileRepositoryImpl::toQualityProfileBuilders));
     return buildersByLanguage
       .entrySet()
       .stream()
-      .filter(DefinedQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
+      .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
       .filter(entry -> ensureParentExists(entry.getKey(), entry.getValue()))
       .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, entry -> toQualityProfiles(entry.getValue()), buildersByLanguage.size()));
   }
 
-  private static boolean ensureParentExists(String language, List<DefinedQProfile.Builder> builders) {
+  private static boolean ensureParentExists(String language, List<BuiltInQProfile.Builder> builders) {
     Set<String> qProfileNames = builders.stream()
-      .map(DefinedQProfile.Builder::getName)
+      .map(BuiltInQProfile.Builder::getName)
       .collect(MoreCollectors.toSet(builders.size()));
     builders
       .forEach(builder -> {
@@ -160,21 +160,21 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
   }
 
   /**
-   * Creates {@link DefinedQProfile.Builder} for each unique quality profile name for a given language.
+   * Creates {@link BuiltInQProfile.Builder} for each unique quality profile name for a given language.
    * Builders will have the following properties populated:
    * <ul>
-   *   <li>{@link DefinedQProfile.Builder#language language}: key of the method's parameter</li>
-   *   <li>{@link DefinedQProfile.Builder#name name}: {@link RulesProfile#getName()}</li>
-   *   <li>{@link DefinedQProfile.Builder#declaredDefault declaredDefault}: {@code true} if at least one RulesProfile
+   *   <li>{@link BuiltInQProfile.Builder#language language}: key of the method's parameter</li>
+   *   <li>{@link BuiltInQProfile.Builder#name name}: {@link RulesProfile#getName()}</li>
+   *   <li>{@link BuiltInQProfile.Builder#declaredDefault declaredDefault}: {@code true} if at least one RulesProfile
    *       with a given name has {@link RulesProfile#getDefaultProfile()} is {@code true}</li>
-   *   <li>{@link DefinedQProfile.Builder#activeRules activeRules}: the concatenate of the active rules of all
+   *   <li>{@link BuiltInQProfile.Builder#activeRules activeRules}: the concatenate of the active rules of all
    *       RulesProfile with a given name</li>
    * </ul>
    */
-  private static List<DefinedQProfile.Builder> toQualityProfileBuilders(Map.Entry<String, List<RulesProfile>> rulesProfilesByLanguage) {
+  private static List<BuiltInQProfile.Builder> toQualityProfileBuilders(Map.Entry<String, List<RulesProfile>> rulesProfilesByLanguage) {
     String language = rulesProfilesByLanguage.getKey();
     // use a LinkedHashMap to keep order of insertion of RulesProfiles
-    Map<String, DefinedQProfile.Builder> qualityProfileBuildersByName = new LinkedHashMap<>();
+    Map<String, BuiltInQProfile.Builder> qualityProfileBuildersByName = new LinkedHashMap<>();
     for (RulesProfile rulesProfile : rulesProfilesByLanguage.getValue()) {
       qualityProfileBuildersByName.compute(
         rulesProfile.getName(),
@@ -184,21 +184,21 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
   }
 
   /**
-   * Fails if more than one {@link DefinedQProfile.Builder#declaredDefault} is {@code true}, otherwise returns {@code true}.
+   * Fails if more than one {@link BuiltInQProfile.Builder#declaredDefault} is {@code true}, otherwise returns {@code true}.
    */
-  private static boolean ensureAtMostOneDeclaredDefault(Map.Entry<String, List<DefinedQProfile.Builder>> entry) {
+  private static boolean ensureAtMostOneDeclaredDefault(Map.Entry<String, List<BuiltInQProfile.Builder>> entry) {
     Set<String> declaredDefaultProfileNames = entry.getValue().stream()
-      .filter(DefinedQProfile.Builder::isDeclaredDefault)
-      .map(DefinedQProfile.Builder::getName)
+      .filter(BuiltInQProfile.Builder::isDeclaredDefault)
+      .map(BuiltInQProfile.Builder::getName)
       .collect(MoreCollectors.toSet());
     checkState(declaredDefaultProfileNames.size() <= 1, "Several Quality profiles are flagged as default for the language %s: %s", entry.getKey(), declaredDefaultProfileNames);
     return true;
   }
 
-  private static DefinedQProfile.Builder updateOrCreateBuilder(String language, @Nullable DefinedQProfile.Builder existingBuilder, RulesProfile rulesProfile) {
-    DefinedQProfile.Builder builder = existingBuilder;
+  private static BuiltInQProfile.Builder updateOrCreateBuilder(String language, @Nullable BuiltInQProfile.Builder existingBuilder, RulesProfile rulesProfile) {
+    BuiltInQProfile.Builder builder = existingBuilder;
     if (builder == null) {
-      builder = new DefinedQProfile.Builder()
+      builder = new BuiltInQProfile.Builder()
         .setLanguage(language)
         .setName(rulesProfile.getName())
         .setParentName(rulesProfile.getParentName());
@@ -212,9 +212,9 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
       .addRules(rulesProfile.getActiveRules());
   }
 
-  private static List<DefinedQProfile> toQualityProfiles(List<DefinedQProfile.Builder> builders) {
-    if (builders.stream().noneMatch(DefinedQProfile.Builder::isDeclaredDefault)) {
-      Optional<DefinedQProfile.Builder> sonarWayProfile = builders.stream().filter(builder -> builder.getName().equals(DEFAULT_PROFILE_NAME)).findFirst();
+  private static List<BuiltInQProfile> toQualityProfiles(List<BuiltInQProfile.Builder> builders) {
+    if (builders.stream().noneMatch(BuiltInQProfile.Builder::isDeclaredDefault)) {
+      Optional<BuiltInQProfile.Builder> sonarWayProfile = builders.stream().filter(builder -> builder.getName().equals(DEFAULT_PROFILE_NAME)).findFirst();
       if (sonarWayProfile.isPresent()) {
         sonarWayProfile.get().setComputedDefault(true);
       } else {
@@ -229,19 +229,19 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
   }
 
   @VisibleForTesting
-  static class SortByParentName implements Comparator<DefinedQProfile.Builder> {
-    private final Map<String, DefinedQProfile.Builder> buildersByName;
+  static class SortByParentName implements Comparator<BuiltInQProfile.Builder> {
+    private final Map<String, BuiltInQProfile.Builder> buildersByName;
     @VisibleForTesting
     final Map<String, Integer> depthByBuilder;
 
     @VisibleForTesting
-    SortByParentName(Collection<DefinedQProfile.Builder> builders) {
+    SortByParentName(Collection<BuiltInQProfile.Builder> builders) {
       this.buildersByName = builders.stream()
-        .collect(MoreCollectors.uniqueIndex(DefinedQProfile.Builder::getName, Function.identity(), builders.size()));
+        .collect(MoreCollectors.uniqueIndex(BuiltInQProfile.Builder::getName, Function.identity(), builders.size()));
       this.depthByBuilder = buildDepthByBuilder(buildersByName, builders);
     }
 
-    private static Map<String, Integer> buildDepthByBuilder(Map<String, DefinedQProfile.Builder> buildersByName, Collection<DefinedQProfile.Builder> builders) {
+    private static Map<String, Integer> buildDepthByBuilder(Map<String, BuiltInQProfile.Builder> buildersByName, Collection<BuiltInQProfile.Builder> builders) {
       Map<String, Integer> depthByBuilder = new HashMap<>();
       builders.forEach(builder -> depthByBuilder.put(builder.getName(), 0));
       builders
@@ -251,8 +251,8 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
       return ImmutableMap.copyOf(depthByBuilder);
     }
 
-    private static void increaseDepth(Map<String, DefinedQProfile.Builder> buildersByName, Map<String, Integer> maps, DefinedQProfile.Builder builder) {
-      DefinedQProfile.Builder parent = buildersByName.get(builder.getParentName());
+    private static void increaseDepth(Map<String, BuiltInQProfile.Builder> buildersByName, Map<String, Integer> maps, BuiltInQProfile.Builder builder) {
+      BuiltInQProfile.Builder parent = buildersByName.get(builder.getParentName());
       if (parent.getParentName() != null) {
         increaseDepth(buildersByName, maps, parent);
       }
@@ -260,7 +260,7 @@ public class DefinedQProfileRepositoryImpl implements DefinedQProfileRepository 
     }
 
     @Override
-    public int compare(DefinedQProfile.Builder o1, DefinedQProfile.Builder o2) {
+    public int compare(BuiltInQProfile.Builder o1, BuiltInQProfile.Builder o2) {
       return depthByBuilder.getOrDefault(o1.getName(), 0) - depthByBuilder.getOrDefault(o2.getName(), 0);
     }
   }
