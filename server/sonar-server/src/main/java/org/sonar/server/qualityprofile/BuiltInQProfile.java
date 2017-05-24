@@ -38,14 +38,14 @@ import static org.sonar.db.loadedtemplate.LoadedTemplateDto.QUALITY_PROFILE_TYPE
  * Represent a Quality Profile as computed from {@link ProfileDefinition} provided by installed plugins.
  */
 @Immutable
-public final class DefinedQProfile {
+public final class BuiltInQProfile {
   private final QProfileName qProfileName;
   private final boolean isDefault;
   private final String loadedTemplateType;
   private final List<org.sonar.api.rules.ActiveRule> activeRules;
   private final QProfileName parentQProfileName;
 
-  private DefinedQProfile(Builder builder, MessageDigest messageDigest) {
+  private BuiltInQProfile(Builder builder, MessageDigest messageDigest) {
     this.qProfileName = new QProfileName(builder.language, builder.getName());
     this.isDefault = builder.declaredDefault || builder.computedDefault;
     this.loadedTemplateType = computeLoadedTemplateType(this.qProfileName, messageDigest);
@@ -138,8 +138,8 @@ public final class DefinedQProfile {
       return parentName;
     }
 
-    DefinedQProfile build(MessageDigest messageDigest) {
-      return new DefinedQProfile(this, messageDigest);
+    BuiltInQProfile build(MessageDigest messageDigest) {
+      return new BuiltInQProfile(this, messageDigest);
     }
   }
 }

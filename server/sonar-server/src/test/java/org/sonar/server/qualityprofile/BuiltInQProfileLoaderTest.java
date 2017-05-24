@@ -19,26 +19,21 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.picocontainer.Startable;
+import org.junit.Rule;
+import org.junit.Test;
 
-/**
- * Startable added to {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup} responsible for initializing
- * {@link DefinedQProfileRepository}.
- */
-public class DefinedQProfileLoader implements Startable {
-  private final DefinedQProfileRepository definedQProfileRepository;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  public DefinedQProfileLoader(DefinedQProfileRepository definedQProfileRepository) {
-    this.definedQProfileRepository = definedQProfileRepository;
-  }
+public class BuiltInQProfileLoaderTest {
+  @Rule
+  public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
 
-  @Override
-  public void start() {
-    definedQProfileRepository.initialize();
-  }
+  private BuiltInQProfileLoader underTest = new BuiltInQProfileLoader(builtInQProfileRepositoryRule);
 
-  @Override
-  public void stop() {
-    // nothing to do
+  @Test
+  public void start_initializes_DefinedQProfileRepository() {
+    underTest.start();
+
+    assertThat(builtInQProfileRepositoryRule.isInitialized()).isTrue();
   }
 }

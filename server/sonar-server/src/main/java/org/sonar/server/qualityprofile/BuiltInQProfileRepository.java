@@ -19,9 +19,24 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
+import java.util.List;
+import java.util.Map;
 
-public interface DefinedQProfileInsert {
-  void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization);
+public interface BuiltInQProfileRepository {
+  /**
+   * Initializes the Repository.
+   *
+   * This method is intended to be called from a startup task
+   * (see {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup}).
+   *
+   * @throws IllegalStateException if called more then once
+   */
+  void initialize();
+
+  /**
+   * @return an immutable map containing immutable lists.
+   *
+   * @throws IllegalStateException if {@link #initialize()} has not been called
+   */
+  Map<String, List<BuiltInQProfile>> getQProfilesByLanguage();
 }

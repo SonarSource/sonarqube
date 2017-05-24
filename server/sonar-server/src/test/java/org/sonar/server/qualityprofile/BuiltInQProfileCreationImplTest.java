@@ -59,7 +59,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.util.UtcDateUtils.formatDateTime;
 
-public class DefinedQProfileCreationImplTest {
+public class BuiltInQProfileCreationImplTest {
   private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
   private static final String TABLE_RULES_PROFILES = "RULES_PROFILES";
   private static final String TABLE_LOADED_TEMPLATES = "loaded_templates";
@@ -69,7 +69,7 @@ public class DefinedQProfileCreationImplTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
-  public DefinedQProfileRepositoryRule definedQProfileRepositoryRule = new DefinedQProfileRepositoryRule();
+  public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbClient.openSession(false);
@@ -77,7 +77,7 @@ public class DefinedQProfileCreationImplTest {
   private System2 mockedSystem2 = mock(System2.class);
   private RuleActivator mockedRuleActivator = mock(RuleActivator.class);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private DefinedQProfileCreationImpl underTest = new DefinedQProfileCreationImpl(
+  private BuiltInQProfileCreationImpl underTest = new BuiltInQProfileCreationImpl(
     dbClient,
     new QProfileFactory(dbClient, mockedUuidFactory, mockedSystem2, activeRuleIndexer),
     mockedRuleActivator);
@@ -91,12 +91,12 @@ public class DefinedQProfileCreationImplTest {
   @Test
   public void create_creates_qp_and_store_flag_in_loaded_templates_for_specified_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", false);
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", false);
     long date = 2_456_789L;
     String uuid = "uuid 1";
     mockForSingleQPInsert(uuid, date);
 
-    underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    underTest.create(dbSession, builtInQProfile, organization, activeRuleChanges);
     dbSession.commit();
 
     QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, "foo1");
@@ -113,7 +113,7 @@ public class DefinedQProfileCreationImplTest {
     assertThat(dto.isDefault()).isFalse();
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_RULES_PROFILES)).isEqualTo(1);
 
-    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(definedQProfile.getLoadedTemplateType(), organization.getUuid(), dbTester.getSession()))
+    assertThat(dbClient.loadedTemplateDao().countByTypeAndKey(builtInQProfile.getLoadedTemplateType(), organization.getUuid(), dbTester.getSession()))
       .isEqualTo(1);
     assertThat(dbTester.countRowsOfTable(dbTester.getSession(), TABLE_LOADED_TEMPLATES)).isEqualTo(1);
     assertThat(activeRuleChanges).isEmpty();
@@ -122,10 +122,10 @@ public class DefinedQProfileCreationImplTest {
   @Test
   public void create_persists_default_flag_of_DefinedQProfile() {
     OrganizationDto organization = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true);
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true);
     mockForSingleQPInsert();
 
-    underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    underTest.create(dbSession, builtInQProfile, organization, activeRuleChanges);
     dbSession.commit();
 
     assertThat(getPersistedQP(organization, FOO_LANGUAGE, "foo1").isDefault()).isTrue();
@@ -135,17 +135,17 @@ public class DefinedQProfileCreationImplTest {
   @Test
   public void create_does_not_update_existing_profile_if_it_already_exists() {
     OrganizationDto organization = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", false);
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", false);
     long date = 2_456_789L;
     String uuid = "uuid 1";
     mockForSingleQPInsert(uuid, date);
     QualityProfileDto existing = dbTester.qualityProfiles().insertQualityProfile(
       QualityProfileDto.createFor("a key")
-        .setName(definedQProfile.getName())
-        .setLanguage(definedQProfile.getLanguage())
+        .setName(builtInQProfile.getName())
+        .setLanguage(builtInQProfile.getLanguage())
         .setOrganizationUuid(organization.getUuid()));
 
-    underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    underTest.create(dbSession, builtInQProfile, organization, activeRuleChanges);
     dbSession.commit();
 
     QualityProfileDto dto = getPersistedQP(organization, FOO_LANGUAGE, "foo1");
@@ -166,12 +166,12 @@ public class DefinedQProfileCreationImplTest {
       asList(changes[2], changes[3]));
 
     OrganizationDto organization = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true,
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true,
       activeRule("A", RulePriority.INFO), activeRule("B", RulePriority.MINOR), activeRule("C", RulePriority.MAJOR),
       activeRule("D", RulePriority.CRITICAL), activeRule("E", RulePriority.BLOCKER));
     mockForSingleQPInsert();
 
-    underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    underTest.create(dbSession, builtInQProfile, organization, activeRuleChanges);
     dbSession.commit();
 
     assertThat(callLogs)
@@ -187,10 +187,10 @@ public class DefinedQProfileCreationImplTest {
 
     OrganizationDto organization = dbTester.organizations().insert();
     ActiveRule activeRule = activeRule("A", RulePriority.BLOCKER);
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true, activeRule);
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true, activeRule);
     mockForSingleQPInsert();
 
-    underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    underTest.create(dbSession, builtInQProfile, organization, activeRuleChanges);
     dbSession.commit();
 
     assertThat(callLogs)
@@ -213,12 +213,12 @@ public class DefinedQProfileCreationImplTest {
       Collections.emptyList());
 
     OrganizationDto organization = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true,
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true,
       activeRule("A", RulePriority.INFO), activeRule("B", RulePriority.MINOR), activeRule("C", RulePriority.MAJOR),
       activeRule("D", RulePriority.CRITICAL), activeRule("E", RulePriority.BLOCKER), activeRule("F", null));
     mockForSingleQPInsert();
 
-    underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    underTest.create(dbSession, builtInQProfile, organization, activeRuleChanges);
     dbSession.commit();
 
     assertThat(callLogs)
@@ -237,7 +237,7 @@ public class DefinedQProfileCreationImplTest {
     mockRuleActivatorActivate(callLogs, Collections.emptyList());
 
     OrganizationDto organization = dbTester.organizations().insert();
-    DefinedQProfile definedQProfile = definedQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true,
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.create(FOO_LANGUAGE, "foo1", true,
       activeRule("A", RulePriority.INFO,
         "param1", "value1",
         "param2", "value2",
@@ -245,7 +245,7 @@ public class DefinedQProfileCreationImplTest {
         "param4", "value4"));
     mockForSingleQPInsert();
 
-    underTest.create(dbSession, definedQProfile, organization, activeRuleChanges);
+    underTest.create(dbSession, builtInQProfile, organization, activeRuleChanges);
     dbSession.commit();
 
     Set<Map.Entry<String, String>> parameters = callLogs.get(0).getRuleActivation().getParameters().entrySet();

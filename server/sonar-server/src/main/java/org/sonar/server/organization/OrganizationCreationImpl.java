@@ -42,9 +42,9 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.qualityprofile.DefinedQProfile;
-import org.sonar.server.qualityprofile.DefinedQProfileInsert;
-import org.sonar.server.qualityprofile.DefinedQProfileRepository;
+import org.sonar.server.qualityprofile.BuiltInQProfile;
+import org.sonar.server.qualityprofile.BuiltInQProfileInsert;
+import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreator;
@@ -67,15 +67,15 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   private final UuidFactory uuidFactory;
   private final OrganizationValidation organizationValidation;
   private final Settings settings;
-  private final DefinedQProfileRepository definedQProfileRepository;
-  private final DefinedQProfileInsert definedQProfileInsert;
+  private final BuiltInQProfileRepository builtInQProfileRepository;
+  private final BuiltInQProfileInsert builtInQProfileInsert;
   private final DefaultGroupCreator defaultGroupCreator;
   private final UserIndexer userIndexer;
   private final ActiveRuleIndexer activeRuleIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Settings settings, UserIndexer userIndexer,
-    DefinedQProfileRepository definedQProfileRepository, DefinedQProfileInsert definedQProfileInsert,
+    BuiltInQProfileRepository builtInQProfileRepository, BuiltInQProfileInsert builtInQProfileInsert,
     DefaultGroupCreator defaultGroupCreator, ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
@@ -83,8 +83,8 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     this.organizationValidation = organizationValidation;
     this.settings = settings;
     this.userIndexer = userIndexer;
-    this.definedQProfileRepository = definedQProfileRepository;
-    this.definedQProfileInsert = definedQProfileInsert;
+    this.builtInQProfileRepository = builtInQProfileRepository;
+    this.builtInQProfileInsert = builtInQProfileInsert;
     this.defaultGroupCreator = defaultGroupCreator;
     this.activeRuleIndexer = activeRuleIndexer;
   }
@@ -268,16 +268,16 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   }
 
   private void insertQualityProfiles(DbSession dbSession, DbSession batchDbSession, OrganizationDto organization) {
-    definedQProfileRepository.getQProfilesByLanguage().entrySet()
+    builtInQProfileRepository.getQProfilesByLanguage().entrySet()
       .stream()
       .flatMap(entry -> entry.getValue().stream())
       .forEach(profile -> insertQualityProfile(dbSession, batchDbSession, profile, organization));
   }
 
-  private void insertQualityProfile(DbSession regularSession, DbSession batchDbSession, DefinedQProfile profile, OrganizationDto organization) {
+  private void insertQualityProfile(DbSession regularSession, DbSession batchDbSession, BuiltInQProfile profile, OrganizationDto organization) {
     LOGGER.debug("Creating quality profile {} for language {} for organization {}", profile.getName(), profile.getLanguage(), organization.getKey());
 
-    definedQProfileInsert.create(regularSession, batchDbSession, profile, organization);
+    builtInQProfileInsert.create(regularSession, batchDbSession, profile, organization);
   }
 
   /**

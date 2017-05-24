@@ -30,7 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public final class DefinedQProfileCreationRule extends ExternalResource implements DefinedQProfileCreation {
+public final class BuiltInQProfileCreationRule extends ExternalResource implements BuiltInQProfileCreation {
   private final List<CallLog> callLogs = new ArrayList<>();
   private List<List<ActiveRuleChange>> changesPerCall = null;
   private Iterator<List<ActiveRuleChange>> changesPerCallIterator = null;
@@ -43,7 +43,7 @@ public final class DefinedQProfileCreationRule extends ExternalResource implemen
   }
 
   @Override
-  public void create(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+  public void create(DbSession session, BuiltInQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
     callLogs.add(new CallLog(qualityProfile, organization));
 
     if (changesPerCallIterator == null) {
@@ -52,8 +52,8 @@ public final class DefinedQProfileCreationRule extends ExternalResource implemen
     changes.addAll(changesPerCallIterator.next());
   }
 
-  public DefinedQProfileCreationRule addChanges(ActiveRuleChange... changes) {
-    checkState(changesPerCallIterator == null, "Can't add changes if DefinedQProfileCreation is in use");
+  public BuiltInQProfileCreationRule addChanges(ActiveRuleChange... changes) {
+    checkState(changesPerCallIterator == null, "Can't add changes if BuiltInQProfileCreation is in use");
     if (changesPerCall == null) {
       changesPerCall = new ArrayList<>();
     }
@@ -66,16 +66,16 @@ public final class DefinedQProfileCreationRule extends ExternalResource implemen
   }
 
   public static final class CallLog {
-    private final DefinedQProfile definedQProfile;
+    private final BuiltInQProfile builtInQProfile;
     private final OrganizationDto organizationDto;
 
-    private CallLog(DefinedQProfile definedQProfile, OrganizationDto organizationDto) {
-      this.definedQProfile = definedQProfile;
+    private CallLog(BuiltInQProfile builtInQProfile, OrganizationDto organizationDto) {
+      this.builtInQProfile = builtInQProfile;
       this.organizationDto = organizationDto;
     }
 
-    public DefinedQProfile getDefinedQProfile() {
-      return definedQProfile;
+    public BuiltInQProfile getDefinedQProfile() {
+      return builtInQProfile;
     }
 
     public OrganizationDto getOrganizationDto() {

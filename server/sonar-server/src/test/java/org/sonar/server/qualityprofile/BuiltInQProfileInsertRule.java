@@ -25,8 +25,8 @@ import org.junit.rules.ExternalResource;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 
-public class DefinedQProfileInsertRule extends ExternalResource implements DefinedQProfileInsert {
-  private final List<DefinedQProfileInsertRule.CallLog> callLogs = new ArrayList<>();
+public class BuiltInQProfileInsertRule extends ExternalResource implements BuiltInQProfileInsert {
+  private final List<BuiltInQProfileInsertRule.CallLog> callLogs = new ArrayList<>();
 
   @Override
   protected void before() throws Throwable {
@@ -34,25 +34,25 @@ public class DefinedQProfileInsertRule extends ExternalResource implements Defin
   }
 
   @Override
-  public void create(DbSession session, DbSession batchSession, DefinedQProfile definedQProfile, OrganizationDto organization) {
-    callLogs.add(new DefinedQProfileInsertRule.CallLog(definedQProfile, organization));
+  public void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile, OrganizationDto organization) {
+    callLogs.add(new BuiltInQProfileInsertRule.CallLog(builtInQProfile, organization));
   }
 
-  public List<DefinedQProfileInsertRule.CallLog> getCallLogs() {
+  public List<BuiltInQProfileInsertRule.CallLog> getCallLogs() {
     return callLogs;
   }
 
   public static final class CallLog {
-    private final DefinedQProfile definedQProfile;
+    private final BuiltInQProfile builtInQProfile;
     private final OrganizationDto organizationDto;
 
-    private CallLog(DefinedQProfile definedQProfile, OrganizationDto organizationDto) {
-      this.definedQProfile = definedQProfile;
+    private CallLog(BuiltInQProfile builtInQProfile, OrganizationDto organizationDto) {
+      this.builtInQProfile = builtInQProfile;
       this.organizationDto = organizationDto;
     }
 
-    public DefinedQProfile getDefinedQProfile() {
-      return definedQProfile;
+    public BuiltInQProfile getDefinedQProfile() {
+      return builtInQProfile;
     }
 
     public OrganizationDto getOrganizationDto() {

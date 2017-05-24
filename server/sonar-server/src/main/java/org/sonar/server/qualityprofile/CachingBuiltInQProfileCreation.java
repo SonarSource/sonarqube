@@ -19,24 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.List;
-import java.util.Map;
-
-public interface DefinedQProfileRepository {
-  /**
-   * Initializes the Repository.
-   *
-   * This method is intended to be called from a startup task
-   * (see {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup}).
-   *
-   * @throws IllegalStateException if called more then once
-   */
-  void initialize();
-
-  /**
-   * @return an immutable map containing immutable lists.
-   *
-   * @throws IllegalStateException if {@link #initialize()} has not been called
-   */
-  Map<String, List<DefinedQProfile>> getQProfilesByLanguage();
+/**
+ * Marker interface of any implementation of {@link BuiltInQProfileCreation} which supports caching.
+ */
+public interface CachingBuiltInQProfileCreation extends BuiltInQProfileCreation {
 }
