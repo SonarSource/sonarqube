@@ -38,6 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class QualityProfileDao implements Dao {
 
@@ -179,6 +180,19 @@ public class QualityProfileDao implements Dao {
   public List<ProjectQprofileAssociationDto> selectProjectAssociations(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
     return mapper(session).selectProjectAssociations(organization.getUuid(), profileKey, nameQuery);
+  }
+
+  public Collection<String> selectOutdatedProfiles(DbSession dbSession, String language, String name) {
+    return mapper(dbSession).selectOutdatedProfiles(language, name);
+  }
+
+  public void renameAndCommit(DbSession dbSession, Collection<String> keys, String newName) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    Date now = new Date(system.now());
+    executeLargeUpdates(keys, partition -> {
+      mapper.rename(newName, now, partition);
+      dbSession.commit();
+    });
   }
 
   private static String sqlQueryString(@Nullable String query) {

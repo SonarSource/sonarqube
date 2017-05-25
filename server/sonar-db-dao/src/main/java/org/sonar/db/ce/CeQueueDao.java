@@ -22,7 +22,6 @@ package org.sonar.db.ce;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
@@ -93,7 +92,7 @@ public class CeQueueDao implements Dao {
     } else {
       // executeLargeUpdates won't call the SQL command if knownWorkerUUIDs is empty
       executeLargeUpdates(knownWorkerUUIDs,
-        (Consumer<List<String>>) uuids -> mapper(dbSession).resetTasksWithUnknownWorkerUUIDs(uuids, system2.now())
+        uuids -> mapper(dbSession).resetTasksWithUnknownWorkerUUIDs(uuids, system2.now())
       );
     }
   }
