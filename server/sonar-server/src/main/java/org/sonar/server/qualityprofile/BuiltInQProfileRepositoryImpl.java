@@ -19,23 +19,18 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import java.security.MessageDigest;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.profiles.ProfileDefinition;
@@ -141,22 +136,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       .entrySet()
       .stream()
       .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
-      .filter(entry -> ensureParentExists(entry.getKey(), entry.getValue()))
       .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, entry -> toQualityProfiles(entry.getValue()), buildersByLanguage.size()));
-  }
-
-  private static boolean ensureParentExists(String language, List<BuiltInQProfile.Builder> builders) {
-    Set<String> qProfileNames = builders.stream()
-      .map(BuiltInQProfile.Builder::getName)
-      .collect(MoreCollectors.toSet(builders.size()));
-    builders
-      .forEach(builder -> {
-        String parentName = builder.getParentName();
-        checkState(parentName == null || qProfileNames.contains(parentName),
-          "Quality profile with name %s references Quality profile with name %s as its parent, but it does not exist for language %s",
-          builder.getName(), builder.getParentName(), language);
-      });
-    return true;
   }
 
   /**
@@ -200,8 +180,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     if (builder == null) {
       builder = new BuiltInQProfile.Builder()
         .setLanguage(language)
-        .setName(rulesProfile.getName())
-        .setParentName(rulesProfile.getParentName());
+        .setName(rulesProfile.getName());
     }
     Boolean defaultProfile = rulesProfile.getDefaultProfile();
     boolean declaredDefault = defaultProfile != null && defaultProfile;
@@ -223,45 +202,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
     }
     MessageDigest md5Digest = DigestUtils.getMd5Digest();
     return builders.stream()
-      .sorted(new SortByParentName(builders))
       .map(builder -> builder.build(md5Digest))
       .collect(MoreCollectors.toList(builders.size()));
-  }
-
-  @VisibleForTesting
-  static class SortByParentName implements Comparator<BuiltInQProfile.Builder> {
-    private final Map<String, BuiltInQProfile.Builder> buildersByName;
-    @VisibleForTesting
-    final Map<String, Integer> depthByBuilder;
-
-    @VisibleForTesting
-    SortByParentName(Collection<BuiltInQProfile.Builder> builders) {
-      this.buildersByName = builders.stream()
-        .collect(MoreCollectors.uniqueIndex(BuiltInQProfile.Builder::getName, Function.identity(), builders.size()));
-      this.depthByBuilder = buildDepthByBuilder(buildersByName, builders);
-    }
-
-    private static Map<String, Integer> buildDepthByBuilder(Map<String, BuiltInQProfile.Builder> buildersByName, Collection<BuiltInQProfile.Builder> builders) {
-      Map<String, Integer> depthByBuilder = new HashMap<>();
-      builders.forEach(builder -> depthByBuilder.put(builder.getName(), 0));
-      builders
-        .stream()
-        .filter(builder -> builder.getParentName() != null)
-        .forEach(builder -> increaseDepth(buildersByName, depthByBuilder, builder));
-      return ImmutableMap.copyOf(depthByBuilder);
-    }
-
-    private static void increaseDepth(Map<String, BuiltInQProfile.Builder> buildersByName, Map<String, Integer> maps, BuiltInQProfile.Builder builder) {
-      BuiltInQProfile.Builder parent = buildersByName.get(builder.getParentName());
-      if (parent.getParentName() != null) {
-        increaseDepth(buildersByName, maps, parent);
-      }
-      maps.put(builder.getName(), maps.get(parent.getName()) + 1);
-    }
-
-    @Override
-    public int compare(BuiltInQProfile.Builder o1, BuiltInQProfile.Builder o2) {
-      return depthByBuilder.getOrDefault(o1.getName(), 0) - depthByBuilder.getOrDefault(o2.getName(), 0);
-    }
   }
 }

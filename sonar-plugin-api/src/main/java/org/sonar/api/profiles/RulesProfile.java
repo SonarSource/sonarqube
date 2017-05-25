@@ -64,7 +64,6 @@ public class RulesProfile implements Cloneable {
   private String name;
   private Boolean defaultProfile = Boolean.FALSE;
   private String language;
-  private String parentName;
   private List<ActiveRule> activeRules = new ArrayList<>();
 
   /**
@@ -217,22 +216,25 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * For internal use only.
+   * Does nothing.
    *
-   * @since 2.5
+   * @return {@code null}
+   * @deprecated in 6.5
    */
+  @Deprecated
   @CheckForNull
   public String getParentName() {
-    return parentName;
+    return null;
   }
 
   /**
-   * For internal use only.
+   * Does nothing.
    *
-   * @since 2.5
+   * @deprecated in 6.5
    */
+  @Deprecated
   public void setParentName(String parentName) {
-    this.parentName = parentName;
+    // does nothing
   }
 
   /**
@@ -338,7 +340,6 @@ public class RulesProfile implements Cloneable {
   public Object clone() {
     RulesProfile clone = RulesProfile.create(getName(), getLanguage());
     clone.setDefaultProfile(getDefaultProfile());
-    clone.setParentName(getParentName());
     if (activeRules != null && !activeRules.isEmpty()) {
       clone.setActiveRules(Lists.transform(activeRules, CloneFunction.INSTANCE));
     }
