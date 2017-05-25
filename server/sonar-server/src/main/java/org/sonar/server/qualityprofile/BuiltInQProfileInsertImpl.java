@@ -53,7 +53,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
 
@@ -74,8 +73,6 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   @Override
   public void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile, OrganizationDto organization) {
     initRuleRepository(batchSession);
-
-    checkArgument(builtInQProfile.getParentQProfileName() == null, "Inheritance of Quality Profiles is not supported yet");
 
     Date now = new Date(system2.now());
     QualityProfileDto profileDto = insertQualityProfile(session, builtInQProfile, organization, now);
