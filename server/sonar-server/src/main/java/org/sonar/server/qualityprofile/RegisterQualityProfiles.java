@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
@@ -48,7 +49,7 @@ public class RegisterQualityProfiles {
   private final ActiveRuleIndexer activeRuleIndexer;
 
   public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
-                                 DbClient dbClient, BuiltInQProfileCreation builtInQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
+    DbClient dbClient, BuiltInQProfileCreation builtInQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
     this.builtInQProfileCreation = builtInQProfileCreation;
@@ -72,13 +73,34 @@ public class RegisterQualityProfiles {
     session.commit();
   }
 
-  private void registerPerQualityProfile(DbSession session, BuiltInQProfile qualityProfile, List<ActiveRuleChange> changes) {
+  private void registerPerQualityProfile(DbSession dbSession, BuiltInQProfile qualityProfile, List<ActiveRuleChange> changes) {
     LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
 
+    renameOutdatedProfiles(dbSession, qualityProfile);
+
     List<OrganizationDto> organizationDtos;
-    while (!(organizationDtos = getOrganizationsWithoutQP(session, qualityProfile)).isEmpty()) {
-      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, qualityProfile, organization, changes));
+    while (!(organizationDtos = getOrganizationsWithoutQP(dbSession, qualityProfile)).isEmpty()) {
+      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(dbSession, qualityProfile, organization, changes));
     }
+  }
+
+  /**
+   * The Quality profiles created by users should be renamed when they have the same name
+   * as the built-in profile to be persisted.
+   *
+   * When upgrading from < 6.5 , all existing profiles are considered as "custom" (created
+   * by users) because the concept of built-in profile is not persisted. The "Sonar way" profiles
+   * are renamed to "Sonar way (outdated copy) in order to avoid conflicts with the new
+   * built-in profile "Sonar way", which has probably different configuration.
+   */
+  private void renameOutdatedProfiles(DbSession dbSession, BuiltInQProfile profile) {
+    Collection<String> profileKeys = dbClient.qualityProfileDao().selectOutdatedProfiles(dbSession, profile.getLanguage(), profile.getName());
+    if (profileKeys.isEmpty()) {
+      return;
+    }
+    String newName = profile.getName() + " (outdated copy)";
+    LOGGER.info("Rename Quality profiles [{}/{}] to [{}] in {} organizations", profile.getLanguage(), profile.getName(), newName, profileKeys.size());
+    dbClient.qualityProfileDao().renameAndCommit(dbSession, profileKeys, newName);
   }
 
   private List<OrganizationDto> getOrganizationsWithoutQP(DbSession session, BuiltInQProfile qualityProfile) {

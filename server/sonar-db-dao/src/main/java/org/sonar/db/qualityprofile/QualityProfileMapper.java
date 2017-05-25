@@ -20,6 +20,7 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
@@ -87,4 +88,8 @@ public interface QualityProfileMapper {
     @Param("organizationUuid") String organizationUuid,
     @Param("profileKey") String profileKey,
     @Param("nameQuery") String nameQuery);
+
+  List<String> selectOutdatedProfiles(@Param("language") String language, @Param("name") String name);
+
+  void rename(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("profileKeys") Collection<String> profileKeys);
 }
