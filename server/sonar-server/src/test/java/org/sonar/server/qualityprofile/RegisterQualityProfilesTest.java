@@ -32,12 +32,15 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Language;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -60,6 +63,8 @@ public class RegisterQualityProfilesTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbClient mockedDbClient = mock(DbClient.class);
@@ -161,6 +166,23 @@ public class RegisterQualityProfilesTest {
 
     assertThat(indexedChangesCaptor.getValue())
       .containsExactly(ruleChange1, ruleChange3, ruleChange2, ruleChange4);
+  }
+
+  @Test
+  public void rename_custom_outdated_profiles_if_same_name_than_builtin_profile() {
+    OrganizationDto org1 = dbTester.organizations().insert(org -> org.setKey("org1"));
+    OrganizationDto org2 = dbTester.organizations().insert(org -> org.setKey("org2"));
+
+    QualityProfileDto outdatedProfileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    QualityProfileDto outdatedProfileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", false);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg1.getKey()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg2.getKey()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)] in 2 organizations");
   }
 
   private static ActiveRuleChange newActiveRuleChange(String id) {
