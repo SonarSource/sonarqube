@@ -74,7 +74,8 @@ public class QualityProfilesService extends BaseService {
         .setParam(PARAM_DEFAULTS, request.getDefaults())
         .setParam(PARAM_LANGUAGE, request.getLanguage())
         .setParam(PARAM_PROFILE_NAME, request.getProfileName())
-        .setParam(PARAM_PROJECT_KEY, request.getProjectKey()),
+        .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
+        .setParam(PARAM_ORGANIZATION, request.getOrganizationKey()),
       SearchWsResponse.parser());
   }
 
