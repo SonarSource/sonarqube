@@ -53,6 +53,7 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.DefinedQProfile;
 import org.sonar.server.qualityprofile.DefinedQProfileInsertRule;
 import org.sonar.server.qualityprofile.DefinedQProfileRepositoryRule;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -107,9 +108,9 @@ public class OrganizationCreationImplTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client());
   private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient);
-
+  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
   private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings, userIndexer,
-    definedQProfileRepositoryRule, definedQProfileCreationRule, defaultGroupCreator);
+    definedQProfileRepositoryRule, definedQProfileCreationRule, defaultGroupCreator, activeRuleIndexer);
 
   private UserDto someUser;
 

@@ -45,6 +45,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.qualityprofile.DefinedQProfile;
 import org.sonar.server.qualityprofile.DefinedQProfileInsert;
 import org.sonar.server.qualityprofile.DefinedQProfileRepository;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupCreator;
 
@@ -70,11 +71,12 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   private final DefinedQProfileInsert definedQProfileInsert;
   private final DefaultGroupCreator defaultGroupCreator;
   private final UserIndexer userIndexer;
+  private final ActiveRuleIndexer activeRuleIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Settings settings, UserIndexer userIndexer,
     DefinedQProfileRepository definedQProfileRepository, DefinedQProfileInsert definedQProfileInsert,
-    DefaultGroupCreator defaultGroupCreator) {
+    DefaultGroupCreator defaultGroupCreator, ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
@@ -84,6 +86,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     this.definedQProfileRepository = definedQProfileRepository;
     this.definedQProfileInsert = definedQProfileInsert;
     this.defaultGroupCreator = defaultGroupCreator;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   @Override
@@ -108,6 +111,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       dbSession.commit();
       batchDbSession.commit();
 
+      activeRuleIndexer.index();
       // Elasticsearch is updated when DB session is committed
       userIndexer.index(userCreator.getLogin());
 
@@ -146,6 +150,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       dbSession.commit();
       batchDbSession.commit();
 
+      activeRuleIndexer.index();
       // Elasticsearch is updated when DB session is committed
       userIndexer.index(newUser.getLogin());
 

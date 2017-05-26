@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import it.Category6Suite;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.junit.After;
@@ -33,6 +34,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.HttpException;
@@ -103,7 +106,7 @@ public class OrganizationTest {
 
   @Test
   public void create_update_delete_organizations_and_check_security() {
-    verifyOrganizationDoesNotExit(KEY);
+    assertThatOrganizationDoesNotExit(KEY);
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(NAME)
@@ -120,6 +123,7 @@ public class OrganizationTest {
     assertThat(createdOrganization.getAvatar()).isEqualTo(AVATAR_URL);
 
     verifySingleSearchResult(createdOrganization, NAME, DESCRIPTION, URL, AVATAR_URL);
+    assertThatBuiltInQualityProfilesExist(createdOrganization.getKey());
 
     // update by id
     adminOrganizationService.update(new UpdateWsRequest.Builder()
@@ -153,7 +157,8 @@ public class OrganizationTest {
 
     // delete organization
     adminOrganizationService.delete(createdOrganization.getKey());
-    verifyOrganizationDoesNotExit(KEY);
+    assertThatOrganizationDoesNotExit(createdOrganization.getKey());
+    assertThatQualityProfilesDoNotExist(createdOrganization.getKey());
 
     adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(NAME)
@@ -164,24 +169,24 @@ public class OrganizationTest {
 
     // verify anonymous can't create update nor delete an organization by default
     verifyAnonymousNotAuthorized(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthenticated(service -> service.delete(KEY));
+    assertThatUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
+    assertThatUserNotAuthenticated(service -> service.delete(KEY));
 
     // verify logged in user without any permission can't create update nor delete an organization by default
     userRule.createUser(USER_LOGIN, USER_LOGIN);
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.delete(KEY));
+    assertThatUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
+    assertThatUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
+    assertThatUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.delete(KEY));
 
     setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
     // verify anonymous still can't create update nor delete an organization if property is true
-    verifyUserNotAuthenticated(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthenticated(service -> service.delete(KEY));
+    assertThatUserNotAuthenticated(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
+    assertThatUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
+    assertThatUserNotAuthenticated(service -> service.delete(KEY));
 
     // verify logged in user without any permission can't create nor update nor delete an organization if property is true
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.delete(KEY));
+    assertThatUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
+    assertThatUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.delete(KEY));
     // clean-up
     adminOrganizationService.delete(KEY);
     verifySingleSearchResult(
@@ -198,7 +203,7 @@ public class OrganizationTest {
     }
   }
 
-  private void verifyUserNotAuthenticated(Consumer<OrganizationService> consumer) {
+  private void assertThatUserNotAuthenticated(Consumer<OrganizationService> consumer) {
     try {
       consumer.accept(anonymousOrganizationService);
       fail("An HttpException should have been raised");
@@ -207,7 +212,7 @@ public class OrganizationTest {
     }
   }
 
-  private void verifyUserNotAuthorized(String login, String password, Consumer<OrganizationService> consumer) {
+  private void assertThatUserNotAuthorized(String login, String password, Consumer<OrganizationService> consumer) {
     try {
       OrganizationService organizationService = newUserWsClient(orchestrator, login, password).organizations();
       consumer.accept(organizationService);
@@ -270,7 +275,7 @@ public class OrganizationTest {
 
   @Test
   public void an_organization_member_can_analyze_project() {
-    verifyOrganizationDoesNotExit(KEY);
+    assertThatOrganizationDoesNotExit(KEY);
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(KEY)
@@ -292,7 +297,7 @@ public class OrganizationTest {
 
   @Test
   public void by_default_anonymous_cannot_analyse_project_on_organization() {
-    verifyOrganizationDoesNotExit(KEY);
+    assertThatOrganizationDoesNotExit(KEY);
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(KEY)
@@ -337,7 +342,7 @@ public class OrganizationTest {
 
   @Test
   public void deleting_an_organization_also_deletes_projects_and_check_security() {
-    verifyOrganizationDoesNotExit(KEY);
+    assertThatOrganizationDoesNotExit(KEY);
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
       .setName(KEY)
@@ -366,7 +371,7 @@ public class OrganizationTest {
     adminOrganizationService.delete(KEY);
 
     expect404HttpError(() -> searchSampleProject(KEY, componentsService));
-    verifyOrganizationDoesNotExit(KEY);
+    assertThatOrganizationDoesNotExit(KEY);
   }
 
   @Test
@@ -417,7 +422,7 @@ public class OrganizationTest {
     }
   }
 
-  private void verifyOrganizationDoesNotExit(String organizationKey) {
+  private void assertThatOrganizationDoesNotExit(String organizationKey) {
     Organizations.SearchWsResponse searchWsResponse = anonymousOrganizationService.search(new SearchWsRequest.Builder().setOrganizations(organizationKey).build());
     assertThat(searchWsResponse.getOrganizationsList()).isEmpty();
   }
@@ -444,6 +449,36 @@ public class OrganizationTest {
       assertThat(searchedOrganization.hasAvatar()).isFalse();
     } else {
       assertThat(searchedOrganization.getAvatar()).isEqualTo(avatarUrl);
+    }
+  }
+
+  private void assertThatBuiltInQualityProfilesExist(String organizationKey) {
+    org.sonarqube.ws.client.qualityprofile.SearchWsRequest profilesRequest = new org.sonarqube.ws.client.qualityprofile.SearchWsRequest().setOrganizationKey(organizationKey);
+    QualityProfiles.SearchWsResponse response = adminClient.qualityProfiles().search(profilesRequest);
+    assertThat(response.getProfilesCount()).isGreaterThan(0);
+    for (QualityProfiles.SearchWsResponse.QualityProfile profile : response.getProfilesList()) {
+      assertThat(profile.getIsInherited()).isFalse();
+      assertThat(profile.getProjectCount()).isEqualTo(0);
+      if (profile.getName().toLowerCase(Locale.ENGLISH).contains("empty")) {
+        assertThat(profile.getActiveRuleCount()).isEqualTo(0);
+      } else {
+        assertThat(profile.getActiveRuleCount()).isGreaterThan(0);
+        // that allows to check the Elasticsearch index of active rules
+        Rules.SearchResponse activeRulesResponse = adminClient.rules().search(new org.sonarqube.ws.client.rule.SearchWsRequest().setActivation(true).setQProfile(profile.getKey()));
+        assertThat(activeRulesResponse.getTotal()).isEqualTo(profile.getActiveRuleCount());
+        assertThat(activeRulesResponse.getRulesCount()).isEqualTo((int)profile.getActiveRuleCount());
+      }
+    }
+  }
+
+  private void assertThatQualityProfilesDoNotExist(String organizationKey) {
+    org.sonarqube.ws.client.qualityprofile.SearchWsRequest profilesRequest = new org.sonarqube.ws.client.qualityprofile.SearchWsRequest().setOrganizationKey(organizationKey);
+    try {
+      adminClient.qualityProfiles().search(profilesRequest);
+      fail();
+    } catch (HttpException e) {
+      assertThat(e.code()).isEqualTo(404);
+      assertThat(e.getMessage()).contains("No organization with key '" + organizationKey + "'");
     }
   }
 }
