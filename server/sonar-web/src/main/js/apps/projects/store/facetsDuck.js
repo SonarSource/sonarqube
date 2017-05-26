@@ -24,14 +24,20 @@ import { mapMetricToProperty } from './utils';
 
 const CUMULATIVE_FACETS = [
   'reliability',
+  'new_reliability',
   'security',
+  'new_security',
   'maintainability',
+  'new_maintainability',
   'coverage',
+  'new_coverage',
   'duplications',
-  'size'
+  'new_duplications',
+  'size',
+  'new_lines'
 ];
 
-const REVERSED_FACETS = ['coverage'];
+const REVERSED_FACETS = ['coverage', 'new_coverage'];
 
 const mapFacetValues = values => {
   const map = {};

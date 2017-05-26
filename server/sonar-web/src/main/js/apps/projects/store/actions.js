@@ -82,6 +82,18 @@ const FACETS = [
   'tags'
 ];
 
+const LEAK_FACETS = [
+  'new_reliability_rating',
+  'new_security_rating',
+  'new_maintainability_rating',
+  'new_coverage',
+  'new_duplicated_lines_density',
+  'new_lines',
+  'alert_status',
+  'languages',
+  'tags'
+];
+
 const onFail = dispatch => error => {
   parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
   dispatch(updateState({ loading: false }));
@@ -122,6 +134,13 @@ const defineMetrics = query => {
     default:
       return METRICS;
   }
+};
+
+const defineFacets = query => {
+  if (query.view === 'leak') {
+    return LEAK_FACETS;
+  }
+  return FACETS;
 };
 
 const fetchProjectMeasures = (projects, query) => dispatch => {
@@ -193,7 +212,7 @@ export const fetchProjects = (query, isFavorite, organization) => dispatch => {
   const ps = query.view === 'visualizations' ? PAGE_SIZE_VISUALIZATIONS : PAGE_SIZE;
   const data = convertToQueryData(query, isFavorite, organization, {
     ps,
-    facets: FACETS.join(),
+    facets: defineFacets(query).join(),
     f: 'analysisDate,leakPeriodDate'
   });
   return searchProjects(data).then(onReceiveProjects(dispatch, query), onFail(dispatch));
