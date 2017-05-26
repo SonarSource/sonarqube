@@ -106,7 +106,7 @@ public abstract class DatabaseCommands {
 
     @Override
     String truncateSql(String table) {
-      return "TRUNCATE TABLE " + table + " REUSE STORAGE";
+      return "DELETE FROM " + table;
     }
 
     @Override
