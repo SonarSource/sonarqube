@@ -20,6 +20,7 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
+import it.issue.IssueTagsTest;
 import it.issue.OrganizationIssueAssignTest;
 import it.organization.BillingTest;
 import it.organization.OrganizationMembershipTest;
@@ -47,7 +48,8 @@ import static util.ItUtils.xooPlugin;
   OrganizationQualityProfilesPageTest.class,
   OrganizationTest.class,
   OrganizationUiExtensionsTest.class,
-  BillingTest.class
+  BillingTest.class,
+  IssueTagsTest.class
 })
 public class Category6Suite {
 
