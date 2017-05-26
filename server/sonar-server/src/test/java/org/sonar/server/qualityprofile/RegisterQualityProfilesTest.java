@@ -20,17 +20,12 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Language;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -39,17 +34,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class RegisterQualityProfilesTest {
   private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
@@ -67,9 +58,8 @@ public class RegisterQualityProfilesTest {
   public LogTester logTester = new LogTester();
 
   private DbClient dbClient = dbTester.getDbClient();
-  private DbClient mockedDbClient = mock(DbClient.class);
   private ActiveRuleIndexer mockedActiveRuleIndexer = mock(ActiveRuleIndexer.class);
-  private DummyBuiltInQProfileCreation builtInQProfileCreation = new DummyBuiltInQProfileCreation();
+  private DummyBuiltInQProfileInsert builtInQProfileCreation = new DummyBuiltInQProfileInsert();
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(
     builtInQProfileRepositoryRule,
     dbClient,
@@ -77,24 +67,11 @@ public class RegisterQualityProfilesTest {
     mockedActiveRuleIndexer);
 
   @Test
-  public void start_fails_if_DefinedQProfileRepository_has_not_been_initialized() {
+  public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("initialize must be called first");
 
     underTest.start();
-  }
-
-  @Test
-  public void no_action_in_DB_nothing_to_index_when_there_is_no_DefinedQProfile() {
-    RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, mockedDbClient, null, mockedActiveRuleIndexer);
-    builtInQProfileRepositoryRule.initialize();
-
-    underTest.start();
-
-    assertThat(builtInQProfileCreation.getCallLogs()).isEmpty();
-    verify(mockedDbClient).openSession(false);
-    verify(mockedActiveRuleIndexer).index(Collections.emptyList());
-    verifyNoMoreInteractions(mockedDbClient, mockedActiveRuleIndexer);
   }
 
   @Test
@@ -144,31 +121,6 @@ public class RegisterQualityProfilesTest {
   }
 
   @Test
-  public void start_indexes_ActiveRuleChanges_in_order() {
-    dbTester.organizations().insert();
-    dbTester.organizations().insert();
-    dbTester.organizations().insert();
-    builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1", false);
-    builtInQProfileRepositoryRule.initialize();
-    ActiveRuleChange ruleChange1 = newActiveRuleChange("1");
-    ActiveRuleChange ruleChange2 = newActiveRuleChange("2");
-    ActiveRuleChange ruleChange3 = newActiveRuleChange("3");
-    ActiveRuleChange ruleChange4 = newActiveRuleChange("4");
-    builtInQProfileCreation.addChangesPerCall(ruleChange1, ruleChange3);
-    // no change for second org
-    builtInQProfileCreation.addChangesPerCall();
-    builtInQProfileCreation.addChangesPerCall(ruleChange2);
-    builtInQProfileCreation.addChangesPerCall(ruleChange4);
-    ArgumentCaptor<List<ActiveRuleChange>> indexedChangesCaptor = ArgumentCaptor.forClass((Class<List<ActiveRuleChange>>) (Object) List.class);
-    doNothing().when(mockedActiveRuleIndexer).index(indexedChangesCaptor.capture());
-
-    underTest.start();
-
-    assertThat(indexedChangesCaptor.getValue())
-      .containsExactly(ruleChange1, ruleChange3, ruleChange2, ruleChange4);
-  }
-
-  @Test
   public void rename_custom_outdated_profiles_if_same_name_than_builtin_profile() {
     OrganizationDto org1 = dbTester.organizations().insert(org -> org.setKey("org1"));
     OrganizationDto org2 = dbTester.organizations().insert(org -> org.setKey("org2"));
@@ -185,36 +137,16 @@ public class RegisterQualityProfilesTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)] in 2 organizations");
   }
 
-  private static ActiveRuleChange newActiveRuleChange(String id) {
-    return ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(id, RuleKey.of(id + "1", id + "2")));
-  }
-
-  private class DummyBuiltInQProfileCreation implements BuiltInQProfileCreation {
-    private List<List<ActiveRuleChange>> changesPerCall;
-    private Iterator<List<ActiveRuleChange>> changesPerCallIterator;
+  private class DummyBuiltInQProfileInsert implements BuiltInQProfileInsert {
     private final List<CallLog> callLogs = new ArrayList<>();
 
     @Override
-    public void create(DbSession session, BuiltInQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
+    public void create(DbSession session, DbSession batchSession, BuiltInQProfile qualityProfile, OrganizationDto organization) {
       callLogs.add(callLog(qualityProfile, organization));
 
       // RegisterQualityProfiles relies on the fact that BuiltInQProfileCreation populates table LOADED_TEMPLATE each time create is called
       // to not loop infinitely
       dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType()), session);
-
-      if (changesPerCall != null) {
-        if (changesPerCallIterator == null) {
-          this.changesPerCallIterator = changesPerCall.iterator();
-        }
-        changes.addAll(changesPerCallIterator.next());
-      }
-    }
-
-    void addChangesPerCall(ActiveRuleChange... changes) {
-      if (changesPerCall == null) {
-        this.changesPerCall = new ArrayList<>();
-      }
-      changesPerCall.add(Arrays.asList(changes));
     }
 
     List<CallLog> getCallLogs() {
