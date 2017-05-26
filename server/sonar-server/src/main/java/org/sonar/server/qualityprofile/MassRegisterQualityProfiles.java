@@ -99,7 +99,7 @@ public class MassRegisterQualityProfiles {
   }
 
   private void registerPerQualityProfileAndOrganization(DbSession session, DbSession batchSession,
-                                                        DefinedQProfile definedQProfile, OrganizationDto organization, Profiler profiler) {
+    DefinedQProfile definedQProfile, OrganizationDto organization, Profiler profiler) {
     profiler.start();
 
     definedQProfileInsert.create(session, batchSession, definedQProfile, organization);
