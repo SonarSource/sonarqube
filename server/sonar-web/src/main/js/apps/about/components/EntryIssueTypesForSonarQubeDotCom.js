@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
@@ -26,18 +27,23 @@ import BugIconForSonarQubeDotCom from './BugIconForSonarQubeDotCom';
 import VulnerabilityIconForSonarQubeDotCom from './VulnerabilityIconForSonarQubeDotCom';
 import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
 
-export default class EntryIssueTypesForSonarQubeDotCom extends React.PureComponent {
-  static propTypes = {
-    bugs: React.PropTypes.number.isRequired,
-    vulnerabilities: React.PropTypes.number.isRequired,
-    codeSmells: React.PropTypes.number.isRequired
-  };
+type Props = {
+  bugs: ?number,
+  codeSmells: ?number,
+  loading: boolean,
+  vulnerabilities: ?number
+};
 
-  render() {
-    const { bugs, vulnerabilities, codeSmells } = this.props;
-
-    return (
-      <div className="about-page-projects">
+export default function EntryIssueTypesForSonarQubeDotCom({
+  bugs,
+  codeSmells,
+  loading,
+  vulnerabilities
+}: Props) {
+  return (
+    <div className="about-page-projects">
+      {loading && <i className="spinner" />}
+      {!loading &&
         <table className="about-page-issue-types">
           <tbody>
             <tr>
@@ -84,8 +90,7 @@ export default class EntryIssueTypesForSonarQubeDotCom extends React.PureCompone
               </td>
             </tr>
           </tbody>
-        </table>
-      </div>
-    );
-  }
+        </table>}
+    </div>
+  );
 }
