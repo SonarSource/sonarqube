@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-./scripts/setupRamdisk.sh
+./.travis/setup_ramdisk.sh
 
 function installPhantomJs {
   echo "Setup PhantomJS 2.1"
@@ -128,10 +128,6 @@ case "$TARGET" in
 
 BUILD)
 
-  # Hack to keep job alive even if no logs during more than 10 minutes.
-  # That can occur when uploading sonarqube.zip to Artifactory.
-  ./clock.sh &
-
   installJdk8
   installMaven
   fixBuildVersion
@@ -203,6 +199,3 @@ WEB_TESTS)
   ;;
 
 esac
-
-#stop the clock
-touch stop
