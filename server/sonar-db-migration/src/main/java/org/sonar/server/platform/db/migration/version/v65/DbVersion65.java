@@ -27,6 +27,8 @@ public class DbVersion65 implements DbVersion {
   @Override
   public void addSteps(MigrationStepRegistry registry) {
     registry
-      .add(1700, "Drop table AUTHORS", DropTableAuthors.class);
+      .add(1700, "Drop table AUTHORS", DropTableAuthors.class)
+      .add(1701, "Clean orphans from USER_ROLES", CleanOrphanRowsInUserRoles.class)
+      .add(1702, "Clean orphans from GROUP_ROLES", CleanOrphanRowsInGroupRoles.class);
   }
 }
