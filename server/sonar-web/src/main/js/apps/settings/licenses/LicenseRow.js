@@ -28,11 +28,7 @@ export default class LicenseRow extends React.PureComponent {
     setLicense: React.PropTypes.func.isRequired
   };
 
-  handleSet(value) {
-    return this.props.setLicense(this.props.license.key, value).catch(() => {
-      /* do nothing */
-    });
-  }
+  handleSet = value => this.props.setLicense(this.props.license.key, value);
 
   render() {
     const { license } = this.props;
@@ -59,7 +55,7 @@ export default class LicenseRow extends React.PureComponent {
           </div>
         </td>
         <td className="text-right">
-          <LicenseChangeForm license={license} onChange={value => this.handleSet(value)} />
+          <LicenseChangeForm license={license} onChange={this.handleSet} />
         </td>
       </tr>
     );
