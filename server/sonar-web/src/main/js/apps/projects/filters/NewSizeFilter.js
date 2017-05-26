@@ -20,31 +20,38 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import Rating from '../../../components/ui/Rating';
+import SortingFilter from './SortingFilter';
 import { translate } from '../../../helpers/l10n';
+import { getSizeRatingLabel } from '../../../helpers/ratings';
 
-export default class IssuesFilter extends React.PureComponent {
+export default class NewSizeFilter extends React.PureComponent {
   static propTypes = {
     className: React.PropTypes.string,
-    headerDetail: React.PropTypes.element,
+    query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
     organization: React.PropTypes.object,
-    name: React.PropTypes.string.isRequired,
-    property: React.PropTypes.string.isRequired,
-    query: React.PropTypes.object.isRequired
+    property: React.PropTypes.string
+  };
+
+  static defaultProps = {
+    property: 'new_lines'
   };
 
   getFacetValueForOption(facet, option) {
-    return facet[option];
+    const map = [
+      '*-1000.0',
+      '1000.0-10000.0',
+      '10000.0-100000.0',
+      '100000.0-500000.0',
+      '500000.0-*'
+    ];
+    return facet[map[option - 1]];
   }
 
-  renderOption(option, selected) {
+  renderOption(option) {
     return (
       <span>
-        <Rating value={option} small={true} muted={!selected} />
-        {option > 1 &&
-          option < 5 &&
-          <span className="note spacer-left">{translate('and_worse')}</span>}
+        {getSizeRatingLabel(option)}
       </span>
     );
   }
@@ -53,7 +60,7 @@ export default class IssuesFilter extends React.PureComponent {
     return (
       <FilterContainer
         property={this.props.property}
-        className={this.props.className}
+        className="leak-facet-box"
         options={[1, 2, 3, 4, 5]}
         query={this.props.query}
         renderOption={this.renderOption}
@@ -62,8 +69,15 @@ export default class IssuesFilter extends React.PureComponent {
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
         header={
-          <FilterHeader name={translate('metric_domain', this.props.name)}>
-            {this.props.headerDetail}
+          <FilterHeader name={translate('metric_domain.new_size')}>
+            <SortingFilter
+              property={this.props.property}
+              query={this.props.query}
+              isFavorite={this.props.isFavorite}
+              organization={this.props.organization}
+              leftText={translate('biggest')}
+              rightText={translate('smallest')}
+            />
           </FilterHeader>
         }
       />

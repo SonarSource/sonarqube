@@ -22,9 +22,20 @@ import React from 'react';
 import { Link } from 'react-router';
 import FavoriteFilterContainer from './FavoriteFilterContainer';
 import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
-import PageSidebarOverall from './PageSidebarOverall';
+import CoverageFilter from '../filters/CoverageFilter';
+import DuplicationsFilter from '../filters/DuplicationsFilter';
+import MaintainabilityFilter from '../filters/MaintainabilityFilter';
+import NewCoverageFilter from '../filters/NewCoverageFilter';
+import NewDuplicationsFilter from '../filters/NewDuplicationsFilter';
+import NewMaintainabilityFilter from '../filters/NewMaintainabilityFilter';
+import NewReliabilityFilter from '../filters/NewReliabilityFilter';
+import NewSecurityFilter from '../filters/NewSecurityFilter';
+import NewSizeFilter from '../filters/NewSizeFilter';
 import QualityGateFilter from '../filters/QualityGateFilter';
+import ReliabilityFilter from '../filters/ReliabilityFilter';
+import SecurityFilter from '../filters/SecurityFilter';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
+import SizeFilter from '../filters/SizeFilter';
 import TagsFilterContainer from '../filters/TagsFilterContainer';
 import { translate } from '../../../helpers/l10n';
 
@@ -49,6 +60,7 @@ export default function PageSidebar({
   const isLeakView = view === 'leak';
   const basePathName = organization ? `/organizations/${organization.key}/projects` : '/projects';
   const pathname = basePathName + (isFavorite ? '/favorite' : '');
+  const facetProps = { query, isFavorite, organization };
 
   let linkQuery: ?{ view: string, visualization?: string };
   if (view !== 'overall') {
@@ -72,13 +84,27 @@ export default function PageSidebar({
           </div>}
 
         <h3>{translate('filters')}</h3>
-        <SearchFilterContainer query={query} isFavorite={isFavorite} organization={organization} />
+        <SearchFilterContainer {...facetProps} />
       </div>
-      <QualityGateFilter query={query} isFavorite={isFavorite} organization={organization} />
-      {!isLeakView &&
-        <PageSidebarOverall query={query} isFavorite={isFavorite} organization={organization} />}
-      <LanguagesFilterContainer query={query} isFavorite={isFavorite} organization={organization} />
-      <TagsFilterContainer query={query} isFavorite={isFavorite} organization={organization} />
+      <QualityGateFilter {...facetProps} />
+      {!isLeakView && [
+        <ReliabilityFilter key="reliability" {...facetProps} />,
+        <SecurityFilter key="security" {...facetProps} />,
+        <MaintainabilityFilter key="maintainability" {...facetProps} />,
+        <CoverageFilter key="coverage" {...facetProps} />,
+        <DuplicationsFilter key="duplications" {...facetProps} />,
+        <SizeFilter key="size" {...facetProps} />
+      ]}
+      {isLeakView && [
+        <NewReliabilityFilter key="new_reliability" {...facetProps} />,
+        <NewSecurityFilter key="new_security" {...facetProps} />,
+        <NewMaintainabilityFilter key="new_maintainability" {...facetProps} />,
+        <NewCoverageFilter key="new_coverage" {...facetProps} />,
+        <NewDuplicationsFilter key="new_duplications" {...facetProps} />,
+        <NewSizeFilter key="new_size" {...facetProps} />
+      ]}
+      <LanguagesFilterContainer {...facetProps} />
+      <TagsFilterContainer {...facetProps} />
     </div>
   );
 }

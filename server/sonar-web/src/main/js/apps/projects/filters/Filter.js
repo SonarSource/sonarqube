@@ -27,6 +27,7 @@ import { translate } from '../../../helpers/l10n';
 export default class Filter extends React.PureComponent {
   static propTypes = {
     property: React.PropTypes.string.isRequired,
+    className: React.PropTypes.string,
     options: React.PropTypes.array.isRequired,
     query: React.PropTypes.object.isRequired,
     renderOption: React.PropTypes.func.isRequired,
@@ -146,7 +147,9 @@ export default class Filter extends React.PureComponent {
 
   render() {
     return (
-      <div className="search-navigator-facet-box" data-key={this.props.property}>
+      <div
+        className={classNames('search-navigator-facet-box', this.props.className)}
+        data-key={this.props.property}>
         {this.props.header}
         {this.renderOptions()}
         {this.props.footer}
