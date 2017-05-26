@@ -584,6 +584,7 @@ public class IssueIndex {
     SearchRequestBuilder requestBuilder = client
       .prepareSearch(INDEX_TYPE_ISSUE)
       .setQuery(boolQuery()
+        .filter(createAuthorizationFilter(true))
         .filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid())))
       .setSize(0);
 

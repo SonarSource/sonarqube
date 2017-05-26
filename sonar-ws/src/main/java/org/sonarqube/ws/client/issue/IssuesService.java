@@ -19,6 +19,9 @@
  */
 package org.sonarqube.ws.client.issue;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.SearchWsResponse;
@@ -26,6 +29,7 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.WsResponse;
 
 import static org.sonar.api.server.ws.WebService.Param.FACETS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -40,7 +44,9 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSIT
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_EDIT_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_SEVERITY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_TAGS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_PARAM_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE;
@@ -70,6 +76,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ON_COMPONENT_ONLY;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PROJECT_UUIDS;
@@ -207,4 +214,17 @@ public class IssuesService extends BaseService {
       Issues.Operation.parser());
   }
 
+
+  public Issues.Operation setTags(String issue, String... tags) {
+    return call(new PostRequest(path(ACTION_SET_TAGS))
+        .setParam(PARAM_ISSUE, issue)
+        .setParam(PARAM_TAGS, Arrays.stream(tags).collect(Collectors.joining(","))),
+      Issues.Operation.parser());
+  }
+
+  public WsResponse getTags(@Nullable String organization) {
+    return call(new PostRequest(path(ACTION_TAGS))
+      .setParam(PARAM_ORGANIZATION, organization)
+    );
+  }
 }

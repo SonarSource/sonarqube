@@ -42,6 +42,7 @@ public class IssuesWsParameters {
   public static final String ACTION_SET_TAGS = "set_tags";
   public static final String ACTION_SET_TYPE = "set_type";
   public static final String ACTION_BULK_CHANGE = "bulk_change";
+  public static final String ACTION_TAGS = "tags";
 
   public static final String PARAM_ISSUE = "issue";
   public static final String PARAM_COMMENT = "comment";
