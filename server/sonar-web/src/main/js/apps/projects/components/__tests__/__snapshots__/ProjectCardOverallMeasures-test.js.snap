@@ -226,7 +226,7 @@ exports[`should render correctly with all data 1`] = `
     data-key="ncloc"
   >
     <div
-      className="project-card-measure-inner"
+      className="project-card-measure-inner pull-right"
     >
       <div
         className="project-card-measure-number"
@@ -270,7 +270,7 @@ exports[`should render ncloc correctly 1`] = `
   data-key="ncloc"
 >
   <div
-    className="project-card-measure-inner"
+    className="project-card-measure-inner pull-right"
   >
     <div
       className="project-card-measure-number"

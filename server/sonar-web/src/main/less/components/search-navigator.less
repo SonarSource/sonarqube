@@ -74,10 +74,19 @@
 .search-navigator-facet-box {
   background-color: @barBackgroundColor;
   font-size: @baseFontSize;
+
+  &.leak-facet-box {
+    background-color: @leakBackgroundColor;
+    border: 1px solid @leakBorderColor;
+  }
 }
 
-.search-navigator-facet-box:not(.hidden) + .search-navigator-facet-box {
+.search-navigator-facet-box:not(.hidden):not(.leak-facet-box) + .search-navigator-facet-box:not(.leak-facet-box) {
   border-top: 1px solid @barBorderColor;
+}
+
+.leak-facet-box:not(.hidden) + .leak-facet-box {
+  border-top: none;
 }
 
 .search-navigator-facet-box-collapsed {
@@ -198,31 +207,45 @@
     background-color: @red;
     color: #fff;
   }
+}
 
-  &.active {
-    border: 1px solid @blue;
-    padding: 3px 5px;
+.leak-facet-box .search-navigator-facet {
+  .facet-name {
+    background-color: @leakBackgroundColor;
+  }
+
+  .facet-stat {
+    background-color: @leakBackgroundColor;
+
+    &:before {
+      background-image: linear-gradient(to right, fade(@leakBackgroundColor, 0%), @leakBackgroundColor 75%);
+    }
+  }
+}
+
+.search-navigator-facet.active {
+  border: 1px solid @blue;
+  padding: 3px 5px;
+  background-color: @lightBlue;
+  text-decoration: none;
+
+  .facet-name {
     background-color: @lightBlue;
-    text-decoration: none;
+  }
 
-    .facet-name {
-      background-color: @lightBlue;
+  .facet-stat {
+    border-color: @blue;
+    background-color: @lightBlue;
+    top: -1px;
+    right: -1px;
+
+    &:before {
+      background-image: linear-gradient(to right, fade(@lightBlue, 0%), @lightBlue 75%);
     }
+  }
 
-    .facet-stat {
-      border-color: @blue;
-      background-color: @lightBlue;
-      top: -1px;
-      right: -1px;
-
-      &:before {
-        background-image: linear-gradient(to right, fade(@lightBlue, 0%), @lightBlue 75%);
-      }
-    }
-
-    .facet-toggle {
-      display: inline;
-    }
+  .facet-toggle {
+    display: inline;
   }
 }
 
@@ -309,6 +332,10 @@
   border-bottom: none;
   color: @baseFontColor;
   font-weight: 600;
+
+  & > .note {
+    font-weight: 400;
+  }
 }
 
 .search-navigator-facet-header-button {

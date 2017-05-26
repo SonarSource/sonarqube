@@ -47,7 +47,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
             />
             <Rating value={measures['new_reliability_rating']} />
           </div>
-          <div className="project-card-measure-label">
+          <div className="project-card-measure-label-with-icon">
             <BugIcon className="little-spacer-right vertical-bottom" />
             {translate('metric.new_bugs.name')}
           </div>
@@ -64,7 +64,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
             />
             <Rating value={measures['new_security_rating']} />
           </div>
-          <div className="project-card-measure-label">
+          <div className="project-card-measure-label-with-icon">
             <VulnerabilityIcon className="little-spacer-right vertical-bottom" />
             {translate('metric.new_vulnerabilities.name')}
           </div>
@@ -81,7 +81,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
             />
             <Rating value={measures['new_maintainability_rating']} />
           </div>
-          <div className="project-card-measure-label">
+          <div className="project-card-measure-label-with-icon">
             <CodeSmellIcon className="little-spacer-right vertical-bottom" />
             {translate('metric.new_code_smells.name')}
           </div>

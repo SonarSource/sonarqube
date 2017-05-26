@@ -57,6 +57,55 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     }
   />
+  <NewReliabilityFilter
+    isFavorite={false}
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
+  <NewSecurityFilter
+    isFavorite={false}
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
+  <NewMaintainabilityFilter
+    isFavorite={false}
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
+  <NewCoverageFilter
+    isFavorite={false}
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
+  <NewDuplicationsFilter
+    isFavorite={false}
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
+  <NewSizeFilter
+    isFavorite={false}
+    property="new_lines"
+    query={
+      Object {
+        "view": "leak",
+      }
+    }
+  />
   <Connect(withRouter(LanguagesFilter))
     isFavorite={false}
     query={
@@ -119,8 +168,51 @@ exports[`should render correctly 1`] = `
       }
     }
   />
-  <PageSidebarOverall
+  <ReliabilityFilter
     isFavorite={true}
+    query={
+      Object {
+        "size": "3",
+      }
+    }
+  />
+  <SecurityFilter
+    isFavorite={true}
+    query={
+      Object {
+        "size": "3",
+      }
+    }
+  />
+  <MaintainabilityFilter
+    isFavorite={true}
+    query={
+      Object {
+        "size": "3",
+      }
+    }
+  />
+  <CoverageFilter
+    isFavorite={true}
+    property="coverage"
+    query={
+      Object {
+        "size": "3",
+      }
+    }
+  />
+  <DuplicationsFilter
+    isFavorite={true}
+    property="duplications"
+    query={
+      Object {
+        "size": "3",
+      }
+    }
+  />
+  <SizeFilter
+    isFavorite={true}
+    property="size"
     query={
       Object {
         "size": "3",
