@@ -89,14 +89,9 @@ describe('overall status project card', () => {
 
 describe('leak project card', () => {
   it('should display analysis date and leak start date', () => {
-    const project = { ...PROJECT, leakPeriodDate: undefined, visibility: 'private' };
     const card = shallow(<ProjectCard type="leak" measures={MEASURES} project={PROJECT} />);
-    const card2 = shallow(<ProjectCard type="leak" measures={MEASURES} project={project} />);
     expect(card.find('.project-card-dates').exists()).toBeTruthy();
     expect(card.find('.project-card-dates').find('span').getNodes()).toHaveLength(2);
-    expect(card.find('.project-card-dates').hasClass('width-100')).toBeFalsy();
-    expect(card2.find('.project-card-dates').find('span').getNodes()).toHaveLength(1);
-    expect(card2.find('.project-card-dates').hasClass('width-100')).toBeTruthy();
   });
 
   it('should not display analysis date or leak start date', () => {

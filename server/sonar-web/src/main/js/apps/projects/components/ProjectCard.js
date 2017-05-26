@@ -95,10 +95,7 @@ export default function ProjectCard({ measures, organization, project, type }: P
         </div>
         {isLeakView &&
           isProjectAnalyzed &&
-          <div
-            className={classNames('project-card-dates note text-right pull-right', {
-              'width-100': isPrivate || hasTags
-            })}>
+          <div className="project-card-dates note text-right pull-right">
             {hasLeakPeriodStart &&
               <span>
                 {translateWithParameters(
