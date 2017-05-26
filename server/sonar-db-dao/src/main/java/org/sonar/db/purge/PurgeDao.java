@@ -162,6 +162,7 @@ public class PurgeDao implements Dao {
     commands.deletePermissions(rootId);
     commands.deleteAnalyses(rootUuid);
     commands.deleteComponents(childrenIds);
+    commands.deleteIssues(rootUuid);
     commands.deleteFileSources(rootUuid);
     commands.deleteCeActivity(rootUuid);
     commands.deleteCeQueue(rootUuid);

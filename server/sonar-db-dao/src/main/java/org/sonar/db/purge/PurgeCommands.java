@@ -63,7 +63,7 @@ class PurgeCommands {
     profiler.stop();
 
     List<List<String>> analysisUuidsPartitions = Lists.partition(IdUuidPairs.uuids(purgeMapper.selectAnalysisIdsAndUuids(new PurgeSnapshotQuery().setComponentUuid(rootUuid))),
-      MAX_SNAPSHOTS_PER_QUERY);
+        MAX_SNAPSHOTS_PER_QUERY);
 
     deleteAnalysisDuplications(analysisUuidsPartitions);
 
@@ -80,8 +80,8 @@ class PurgeCommands {
 
   void deleteAnalyses(PurgeSnapshotQuery... queries) {
     List<IdUuidPair> snapshotIds = from(asList(queries))
-      .transformAndConcat(purgeMapper::selectAnalysisIdsAndUuids)
-      .toList();
+        .transformAndConcat(purgeMapper::selectAnalysisIdsAndUuids)
+        .toList();
     deleteAnalyses(snapshotIds);
   }
 
@@ -115,7 +115,7 @@ class PurgeCommands {
     profiler.start("deleteSnapshotWastedMeasures (project_measures)");
     List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
     analysisUuidsPartitions
-      .forEach(analysisUuidsPartition -> purgeMapper.deleteAnalysisWastedMeasures(analysisUuidsPartition, metricIdsWithoutHistoricalData));
+        .forEach(analysisUuidsPartition -> purgeMapper.deleteAnalysisWastedMeasures(analysisUuidsPartition, metricIdsWithoutHistoricalData));
     session.commit();
     profiler.stop();
 
@@ -144,6 +144,18 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteIssues(String rootUuid) {
+    profiler.start("deleteIssues (issue_changes)");
+    purgeMapper.deleteComponentIssueChanges(rootUuid);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteIssues (issues)");
+    purgeMapper.deleteComponentIssues(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteComponents(List<IdUuidPair> componentIdUuids) {
     List<List<Long>> componentIdPartitions = Lists.partition(IdUuidPairs.ids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     List<List<String>> componentUuidsPartitions = Lists.partition(IdUuidPairs.uuids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
@@ -165,16 +177,6 @@ class PurgeCommands {
 
     profiler.start("deleteResourceManualMeasures (manual_measures)");
     componentUuidsPartitions.forEach(purgeMapper::deleteComponentManualMeasures);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteComponentIssueChanges (issue_changes)");
-    componentUuidsPartitions.forEach(purgeMapper::deleteComponentIssueChanges);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteComponentIssues (issues)");
-    componentUuidsPartitions.forEach(purgeMapper::deleteComponentIssues);
     session.commit();
     profiler.stop();
 

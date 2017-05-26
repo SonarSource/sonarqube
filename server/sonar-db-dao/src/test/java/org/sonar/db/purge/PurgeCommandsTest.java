@@ -91,8 +91,8 @@ public class PurgeCommandsTest {
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("events")).isEqualTo(3);
-    assertThat(dbTester.countRowsOfTable("issues")).isZero();
-    assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
+    assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
   }
 
 
@@ -105,9 +105,24 @@ public class PurgeCommandsTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
-    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("events")).isZero();
     assertThat(dbTester.countRowsOfTable("issues")).isEqualTo(1);
     assertThat(dbTester.countRowsOfTable("issue_changes")).isEqualTo(1);
+  }
+
+
+  @Test
+  public void shouldDeleteIssuesAndIssueChanges() {
+    dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
+
+    PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler);
+    purgeCommands.deleteIssues("uuid_1");
+
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
+    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(3);
+    assertThat(dbTester.countRowsOfTable("issues")).isZero();
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
   }
 
   @Test

@@ -80,7 +80,7 @@
   <issues id="1"
           kee="ABCDE"
           component_uuid="uuid_1"
-          project_uuid="1"
+          project_uuid="uuid_1"
           status="CLOSED"
           resolution="[null]"
           line="200"
