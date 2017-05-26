@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import GlobalLoading from './GlobalLoading';
 import { requestMessages } from '../../helpers/l10n';
 
 export default class LocalizationContainer extends React.PureComponent {
@@ -44,6 +45,9 @@ export default class LocalizationContainer extends React.PureComponent {
   };
 
   render() {
-    return this.state.loading ? null : this.props.children;
+    if (this.state.loading) {
+      return <GlobalLoading />;
+    }
+    return this.props.children;
   }
 }
