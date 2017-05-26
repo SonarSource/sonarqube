@@ -57,11 +57,17 @@ const getVisualization = value => {
 export const parseUrlQuery = urlQuery => ({
   gate: getAsLevel(urlQuery['gate']),
   reliability: getAsNumericRating(urlQuery['reliability']),
+  new_reliability: getAsNumericRating(urlQuery['new_reliability']),
   security: getAsNumericRating(urlQuery['security']),
+  new_security: getAsNumericRating(urlQuery['new_security']),
   maintainability: getAsNumericRating(urlQuery['maintainability']),
+  new_maintainability: getAsNumericRating(urlQuery['new_maintainability']),
   coverage: getAsNumericRating(urlQuery['coverage']),
+  new_coverage: getAsNumericRating(urlQuery['new_coverage']),
   duplications: getAsNumericRating(urlQuery['duplications']),
+  new_duplications: getAsNumericRating(urlQuery['new_duplications']),
   size: getAsNumericRating(urlQuery['size']),
+  new_lines: getAsNumericRating(urlQuery['new_lines']),
   languages: getAsArray(urlQuery['languages'], getAsString),
   tags: getAsArray(urlQuery['tags'], getAsString),
   search: getAsString(urlQuery['search']),
@@ -73,11 +79,17 @@ export const parseUrlQuery = urlQuery => ({
 export const mapMetricToProperty = metricKey => {
   const map = {
     reliability_rating: 'reliability',
+    new_reliability_rating: 'new_reliability',
     security_rating: 'security',
+    new_security_rating: 'new_security',
     sqale_rating: 'maintainability',
+    new_maintainability_rating: 'new_maintainability',
     coverage: 'coverage',
+    new_coverage: 'new_coverage',
     duplicated_lines_density: 'duplications',
+    new_duplicated_lines_density: 'new_duplications',
     ncloc: 'size',
+    new_lines: 'new_lines',
     alert_status: 'gate',
     languages: 'languages',
     tags: 'tags',
@@ -89,11 +101,17 @@ export const mapMetricToProperty = metricKey => {
 export const mapPropertyToMetric = property => {
   const map = {
     reliability: 'reliability_rating',
+    new_reliability: 'new_reliability_rating',
     security: 'security_rating',
+    new_security: 'new_security_rating',
     maintainability: 'sqale_rating',
+    new_maintainability: 'new_maintainability_rating',
     coverage: 'coverage',
+    new_coverage: 'new_coverage',
     duplications: 'duplicated_lines_density',
+    new_duplications: 'new_duplicated_lines_density',
     size: 'ncloc',
+    new_lines: 'new_lines',
     gate: 'alert_status',
     languages: 'languages',
     tags: 'tags',
@@ -110,54 +128,67 @@ const convertIssuesRating = (metric, rating) => {
   }
 };
 
-const convertCoverage = coverage => {
+const convertCoverage = (metric, coverage) => {
   switch (coverage) {
     case 1:
-      return mapPropertyToMetric('coverage') + ' >= 80';
+      return metric + ' >= 80';
     case 2:
-      return mapPropertyToMetric('coverage') + ' < 80';
+      return metric + ' < 80';
     case 3:
-      return mapPropertyToMetric('coverage') + ' < 70';
+      return metric + ' < 70';
     case 4:
-      return mapPropertyToMetric('coverage') + ' < 50';
+      return metric + ' < 50';
     case 5:
-      return mapPropertyToMetric('coverage') + ' < 30';
+      return metric + ' < 30';
     default:
       return '';
   }
 };
 
-const convertDuplications = duplications => {
+const convertDuplications = (metric, duplications) => {
   switch (duplications) {
     case 1:
-      return mapPropertyToMetric('duplications') + ' < 3';
+      return metric + ' < 3';
     case 2:
-      return mapPropertyToMetric('duplications') + ' >= 3';
+      return metric + ' >= 3';
     case 3:
-      return mapPropertyToMetric('duplications') + ' >= 5';
+      return metric + ' >= 5';
     case 4:
-      return mapPropertyToMetric('duplications') + ' >= 10';
+      return metric + ' >= 10';
     case 5:
-      return mapPropertyToMetric('duplications') + ' >= 20';
+      return metric + ' >= 20';
     default:
       return '';
   }
 };
 
-const convertSize = size => {
+const convertSize = (metric, size) => {
   switch (size) {
     case 1:
-      return mapPropertyToMetric('size') + ' < 1000';
+      return metric + ' < 1000';
     case 2:
-      return mapPropertyToMetric('size') + ' >= 1000';
+      return metric + ' >= 1000';
     case 3:
-      return mapPropertyToMetric('size') + ' >= 10000';
+      return metric + ' >= 10000';
     case 4:
-      return mapPropertyToMetric('size') + ' >= 100000';
+      return metric + ' >= 100000';
     case 5:
-      return mapPropertyToMetric('size') + ' >= 500000';
+      return metric + ' >= 500000';
     default:
       return '';
+  }
+};
+
+const convertArrayMetric = (metric, items) => {
+  if (!Array.isArray(items) || items.length < 2) {
+    return metric + ' = ' + items;
+  }
+  return `${metric} IN (${items.join(', ')})`;
+};
+
+const pushMetricToArray = (query, property, conditionsArray, convertFunction) => {
+  if (query[property] != null) {
+    conditionsArray.push(convertFunction(mapPropertyToMetric(property), query[property]));
   }
 };
 
@@ -172,34 +203,30 @@ export const convertToFilter = (query, isFavorite) => {
     conditions.push(mapPropertyToMetric('gate') + ' = ' + query['gate']);
   }
 
-  if (query['coverage'] != null) {
-    conditions.push(convertCoverage(query['coverage']));
-  }
+  ['coverage', 'new_coverage'].forEach(property =>
+    pushMetricToArray(query, property, conditions, convertCoverage)
+  );
 
-  if (query['duplications'] != null) {
-    conditions.push(convertDuplications(query['duplications']));
-  }
+  ['duplications', 'new_duplications'].forEach(property =>
+    pushMetricToArray(query, property, conditions, convertDuplications)
+  );
 
-  if (query['size'] != null) {
-    conditions.push(convertSize(query['size']));
-  }
+  ['size', 'new_lines'].forEach(property =>
+    pushMetricToArray(query, property, conditions, convertSize)
+  );
 
-  ['reliability', 'security', 'maintainability'].forEach(property => {
-    if (query[property] != null) {
-      conditions.push(convertIssuesRating(mapPropertyToMetric(property), query[property]));
-    }
-  });
+  [
+    'reliability',
+    'security',
+    'maintainability',
+    'new_reliability',
+    'new_security',
+    'new_maintainability'
+  ].forEach(property => pushMetricToArray(query, property, conditions, convertIssuesRating));
 
-  ['languages', 'tags'].forEach(property => {
-    const items = query[property];
-    if (items != null) {
-      if (!Array.isArray(items) || items.length < 2) {
-        conditions.push(mapPropertyToMetric(property) + ' = ' + items);
-      } else {
-        conditions.push(`${mapPropertyToMetric(property)} IN (${items.join(', ')})`);
-      }
-    }
-  });
+  ['languages', 'tags'].forEach(property =>
+    pushMetricToArray(query, property, conditions, convertArrayMetric)
+  );
 
   if (query['search'] != null) {
     conditions.push(`${mapPropertyToMetric('search')} = "${query['search']}"`);

@@ -27,12 +27,16 @@ import { translate } from '../../../helpers/l10n';
 
 export default class CoverageFilter extends React.PureComponent {
   static propTypes = {
+    className: React.PropTypes.string,
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object,
+    property: React.PropTypes.string
   };
 
-  property = 'coverage';
+  static defaultProps = {
+    property: 'coverage'
+  };
 
   getFacetValueForOption(facet, option) {
     const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
@@ -57,7 +61,8 @@ export default class CoverageFilter extends React.PureComponent {
   render() {
     return (
       <FilterContainer
-        property={this.property}
+        property={this.props.property}
+        className={this.props.className}
         options={[1, 2, 3, 4, 5]}
         query={this.props.query}
         renderOption={this.renderOption}
@@ -68,7 +73,7 @@ export default class CoverageFilter extends React.PureComponent {
         header={
           <FilterHeader name={translate('metric_domain.Coverage')}>
             <SortingFilter
-              property={this.property}
+              property={this.props.property}
               query={this.props.query}
               isFavorite={this.props.isFavorite}
               organization={this.props.organization}

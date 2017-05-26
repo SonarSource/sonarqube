@@ -109,7 +109,7 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
 
       {measures['ncloc'] != null &&
         <div className="project-card-measure pull-right" data-key="ncloc">
-          <div className="project-card-measure-inner">
+          <div className="project-card-measure-inner pull-right">
             <div className="project-card-measure-number">
               <span className="spacer-right">
                 <SizeRating value={Number(measures['ncloc'])} />
