@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { withRouter } from 'react-router';
+import GlobalLoading from './GlobalLoading';
 import { getSystemStatus } from '../../api/system';
 
 class MigrationContainer extends React.PureComponent {
@@ -44,7 +45,7 @@ class MigrationContainer extends React.PureComponent {
 
   render() {
     if (this.state.loading) {
-      return null;
+      return <GlobalLoading />;
     }
 
     return this.props.children;
