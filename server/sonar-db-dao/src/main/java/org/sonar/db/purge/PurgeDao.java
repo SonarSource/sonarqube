@@ -154,6 +154,12 @@ public class PurgeDao implements Dao {
 
   private static void deleteProject(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
     List<IdUuidPair> childrenIds = mapper.selectComponentsByProjectUuid(rootUuid);
+    long rootId = childrenIds.stream()
+      .filter(pair -> pair.getUuid().equals(rootUuid))
+      .map(IdUuidPair::getId)
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("Couldn't find component for root uuid " + rootUuid));
+    commands.deletePermissions(rootId);
     commands.deleteAnalyses(rootUuid);
     commands.deleteComponents(childrenIds);
     commands.deleteFileSources(rootUuid);

@@ -181,19 +181,13 @@
   <delete id="deleteComponentGroupRoles" parameterType="map">
     delete from group_roles
     where
-      resource_id in
-      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
-        #{componentId}
-      </foreach>
+      resource_id = #{rootId,jdbcType=INTEGER}
   </delete>
 
   <delete id="deleteComponentUserRoles" parameterType="map">
     delete from user_roles
     where
-      resource_id in
-      <foreach collection="componentIds" open="(" close=")" item="componentId" separator=",">
-        #{componentId}
-      </foreach>
+      resource_id = #{rootId,jdbcType=INTEGER}
   </delete>
 
   <delete id="deleteComponentManualMeasures" parameterType="map">

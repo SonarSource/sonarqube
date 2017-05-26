@@ -60,6 +60,18 @@ class PurgeCommands {
     deleteAnalyses(purgeMapper.selectAnalysisIdsAndUuids(new PurgeSnapshotQuery().setComponentUuid(rootUuid)));
   }
 
+  void deletePermissions(long rootId) {
+    profiler.start("deletePermissions (group_roles)");
+    purgeMapper.deleteComponentGroupRoles(rootId);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deletePermissions (user_roles)");
+    purgeMapper.deleteComponentUserRoles(rootId);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteComponents(List<IdUuidPair> componentIdUuids) {
     List<List<Long>> componentIdPartitions = Lists.partition(IdUuidPairs.ids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     List<List<String>> componentUuidsPartitions = Lists.partition(IdUuidPairs.uuids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
@@ -76,16 +88,6 @@ class PurgeCommands {
 
     profiler.start("deleteResourceProperties (properties)");
     componentIdPartitions.forEach(purgeMapper::deleteComponentProperties);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteResourceGroupRoles (group_roles)");
-    componentIdPartitions.forEach(purgeMapper::deleteComponentGroupRoles);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteResourceUserRoles (user_roles)");
-    componentIdPartitions.forEach(purgeMapper::deleteComponentUserRoles);
     session.commit();
     profiler.stop();
 
