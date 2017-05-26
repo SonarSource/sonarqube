@@ -82,7 +82,6 @@ export default class ChangelogPopup extends React.PureComponent {
                 <td className="thin text-left text-top nowrap">
                   {moment(issue.creationDate).format('LLL')}
                 </td>
-                <td className="thin text-left text-top nowrap" />
                 <td className="text-left text-top">
                   {author ? `${translate('created_by')} ${author}` : translate('created')}
                 </td>
@@ -93,16 +92,17 @@ export default class ChangelogPopup extends React.PureComponent {
                   <td className="thin text-left text-top nowrap">
                     {moment(item.creationDate).format('LLL')}
                   </td>
-                  <td className="thin text-left text-top nowrap">
-                    <Avatar
-                      className="little-spacer-right"
-                      hash={item.avatar}
-                      name={item.userName}
-                      size={16}
-                    />
-                    {item.userName}
-                  </td>
                   <td className="text-left text-top">
+                    {item.userName &&
+                      <p>
+                        <Avatar
+                          className="little-spacer-right"
+                          hash={item.avatar}
+                          name={item.userName}
+                          size={16}
+                        />
+                        {item.userName}
+                      </p>}
                     {item.diffs.map(diff => <IssueChangelogDiff key={diff.key} diff={diff} />)}
                   </td>
                 </tr>

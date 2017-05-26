@@ -18,9 +18,6 @@ exports[`should render the changelog popup correctly 1`] = `
             March 1, 2017 9:36 AM
           </td>
           <td
-            className="thin text-left text-top nowrap"
-          />
-          <td
             className="text-left text-top"
           >
             created_by john.david.dalton@gmail.com
@@ -33,19 +30,17 @@ exports[`should render the changelog popup correctly 1`] = `
             March 1, 2017 9:36 AM
           </td>
           <td
-            className="thin text-left text-top nowrap"
-          >
-            <Connect(Avatar)
-              className="little-spacer-right"
-              hash="gravatarhash"
-              name="john.doe"
-              size={16}
-            />
-            john.doe
-          </td>
-          <td
             className="text-left text-top"
           >
+            <p>
+              <Connect(Avatar)
+                className="little-spacer-right"
+                hash="gravatarhash"
+                name="john.doe"
+                size={16}
+              />
+              john.doe
+            </p>
             <IssueChangelogDiff
               diff={
                 Object {
