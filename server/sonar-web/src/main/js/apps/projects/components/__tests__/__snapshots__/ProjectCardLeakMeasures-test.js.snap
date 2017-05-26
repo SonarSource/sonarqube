@@ -105,7 +105,7 @@ exports[`should render correctly with all data 1`] = `
         />
       </div>
       <div
-        className="project-card-measure-label"
+        className="project-card-measure-label-with-icon"
       >
         <BugIcon
           className="little-spacer-right vertical-bottom"
@@ -145,7 +145,7 @@ exports[`should render correctly with all data 1`] = `
         />
       </div>
       <div
-        className="project-card-measure-label"
+        className="project-card-measure-label-with-icon"
       >
         <VulnerabilityIcon
           className="little-spacer-right vertical-bottom"
@@ -185,7 +185,7 @@ exports[`should render correctly with all data 1`] = `
         />
       </div>
       <div
-        className="project-card-measure-label"
+        className="project-card-measure-label-with-icon"
       >
         <CodeSmellIcon
           className="little-spacer-right vertical-bottom"

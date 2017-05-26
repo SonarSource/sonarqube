@@ -30,12 +30,16 @@ import { translate } from '../../../helpers/l10n';
 
 export default class DuplicationsFilter extends React.PureComponent {
   static propTypes = {
+    className: React.PropTypes.string,
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object,
+    property: React.PropTypes.string
   };
 
-  property = 'duplications';
+  static defaultProps = {
+    property: 'duplications'
+  };
 
   getFacetValueForOption(facet, option) {
     const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*'];
@@ -60,7 +64,8 @@ export default class DuplicationsFilter extends React.PureComponent {
   render() {
     return (
       <FilterContainer
-        property={this.property}
+        property={this.props.property}
+        className={this.props.className}
         options={[1, 2, 3, 4, 5]}
         query={this.props.query}
         renderOption={this.renderOption}
@@ -71,7 +76,7 @@ export default class DuplicationsFilter extends React.PureComponent {
         header={
           <FilterHeader name={translate('metric_domain.Duplications')}>
             <SortingFilter
-              property={this.property}
+              property={this.props.property}
               query={this.props.query}
               isFavorite={this.props.isFavorite}
               organization={this.props.organization}
