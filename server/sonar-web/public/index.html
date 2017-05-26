@@ -28,7 +28,12 @@
     <title>SonarQube</title>
   </head>
   <body>
-    <div id="content"></div>
+    <div id="content">
+      <div class="global-loading">
+        <i class="spinner global-loading-spinner"></i>
+        <span class="global-loading-text">Loading...</span>
+      </div>
+    </div>
     <script>window.baseUrl = '%WEB_CONTEXT%';</script>
     <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
     <script src="%WEB_CONTEXT%/<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
