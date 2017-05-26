@@ -82,6 +82,7 @@
 }
 
 .project-card-dates {
+  width: 100%;
   margin-top: 4px;
   margin-bottom: -16px;
 }
@@ -91,7 +92,7 @@
 }
 
 .project-card-leak-measures {
-  padding: 4px 0;
+  padding: 8px 0;
   margin: 4px -4px;
   background-color: #fbf3d5;
   border: 1px solid #eae3c7;
@@ -166,12 +167,17 @@
 }
 
 .project-card-measure-number {
-  line-height: 24px;
+  line-height: 25px;
   font-size: 18px;
 }
 
 .project-card-measure-label {
   margin-top: 4px;
+  font-size: 12px;
+}
+
+.project-card-measure-label-with-icon {
+  margin-top: 2px;
   font-size: 12px;
 }
 
