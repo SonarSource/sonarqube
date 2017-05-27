@@ -19,17 +19,27 @@
  */
 package org.sonar.server.platform.db.migration.version.v65;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class DbVersion65 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1700, "Drop table AUTHORS", DropTableAuthors.class)
-      .add(1701, "Add rules_profiles.is_built_in", AddBuiltInFlagToRulesProfiles.class)
-      .add(1702, "Set rules_profiles.is_built_in to false", SetRulesProfilesIsBuiltInToFalse.class)
-      .add(1703, "Make rules_profiles.is_built_in not null", MakeRulesProfilesIsBuiltInNotNullable.class)
-      .add(1704, "Delete unused loaded_templates on quality profiles", DeleteLoadedTemplatesOnQProfiles.class);
+public class DeleteLoadedTemplatesOnQProfiles extends DataChange {
+
+  public DeleteLoadedTemplatesOnQProfiles(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select id from loaded_templates where template_type like 'QUALITY_PROFILE.%'");
+    massUpdate.rowPluralName("loaded_templates");
+    massUpdate.update("delete from loaded_templates where id=?");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
+  }
+
 }

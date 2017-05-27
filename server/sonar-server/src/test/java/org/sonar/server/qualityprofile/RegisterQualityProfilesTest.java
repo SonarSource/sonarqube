@@ -32,7 +32,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.language.LanguageTesting;
@@ -75,7 +74,7 @@ public class RegisterQualityProfilesTest {
   }
 
   @Test
-  public void start_creates_qps_for_every_organization_in_DB_when_LoadedTemplate_table_is_empty() {
+  public void create_built_in_profile_on_organizations_that_dont_have_it() {
     OrganizationDto organization1 = dbTester.organizations().insert();
     OrganizationDto organization2 = dbTester.organizations().insert();
     BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
@@ -88,22 +87,6 @@ public class RegisterQualityProfilesTest {
         callLog(builtInQProfile, dbTester.getDefaultOrganization()),
         callLog(builtInQProfile, organization1),
         callLog(builtInQProfile, organization2));
-  }
-
-  @Test
-  public void start_creates_qps_only_for_organizations_in_DB_without_loaded_template() {
-    OrganizationDto org1 = dbTester.organizations().insert();
-    OrganizationDto org2 = dbTester.organizations().insert();
-    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(dbTester.getDefaultOrganization().getUuid(), builtInQProfile.getLoadedTemplateType()), dbTester.getSession());
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(org1.getUuid(), builtInQProfile.getLoadedTemplateType()), dbTester.getSession());
-    dbTester.commit();
-    builtInQProfileRepositoryRule.initialize();
-
-    underTest.start();
-
-    assertThat(builtInQProfileCreation.getCallLogs())
-      .containsExactly(callLog(builtInQProfile, org2));
   }
 
   @Test
@@ -143,10 +126,6 @@ public class RegisterQualityProfilesTest {
     @Override
     public void create(DbSession session, DbSession batchSession, BuiltInQProfile qualityProfile, OrganizationDto organization) {
       callLogs.add(callLog(qualityProfile, organization));
-
-      // RegisterQualityProfiles relies on the fact that BuiltInQProfileCreation populates table LOADED_TEMPLATE each time create is called
-      // to not loop infinitely
-      dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType()), session);
     }
 
     List<CallLog> getCallLogs() {

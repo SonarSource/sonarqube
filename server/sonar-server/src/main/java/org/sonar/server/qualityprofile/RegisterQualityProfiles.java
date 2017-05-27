@@ -27,12 +27,10 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.Pagination;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.lang.String.format;
-import static org.sonar.db.Pagination.forPage;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -41,7 +39,6 @@ import static org.sonar.db.Pagination.forPage;
 public class RegisterQualityProfiles {
 
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
-  private static final Pagination PROCESSED_ORGANIZATIONS_BATCH_SIZE = forPage(1).andSize(2000);
 
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DbClient dbClient;
@@ -75,23 +72,17 @@ public class RegisterQualityProfiles {
     qualityProfiles.forEach(qp -> registerPerQualityProfile(session, batchSession, qp));
   }
 
-  private void registerPerQualityProfile(DbSession dbSession, DbSession batchSession, BuiltInQProfile qualityProfile) {
-    LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
+  private void registerPerQualityProfile(DbSession dbSession, DbSession batchSession, BuiltInQProfile builtInProfile) {
+    LOGGER.info("Register profile {}", builtInProfile.getQProfileName());
 
     Profiler profiler = Profiler.create(Loggers.get(getClass()));
-    renameOutdatedProfiles(dbSession, qualityProfile);
-    List<OrganizationDto> organizationDtos;
-    while (!(organizationDtos = getOrganizationsWithoutQP(dbSession, qualityProfile)).isEmpty()) {
-      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(dbSession, batchSession, qualityProfile, organization, profiler));
-    }
+    renameOutdatedProfiles(dbSession, builtInProfile);
+
+    dbClient.organizationDao().selectWithoutQualityProfile(dbSession, builtInProfile.getLanguage(), builtInProfile.getName()).forEach(
+      organization -> registerProfileOnOrganization(dbSession, batchSession, builtInProfile, organization, profiler));
   }
 
-  private List<OrganizationDto> getOrganizationsWithoutQP(DbSession session, BuiltInQProfile qualityProfile) {
-    return dbClient.organizationDao().selectOrganizationsWithoutLoadedTemplate(session,
-      qualityProfile.getLoadedTemplateType(), PROCESSED_ORGANIZATIONS_BATCH_SIZE);
-  }
-
-  private void registerPerQualityProfileAndOrganization(DbSession session, DbSession batchSession,
+  private void registerProfileOnOrganization(DbSession session, DbSession batchSession,
     BuiltInQProfile builtInQProfile, OrganizationDto organization, Profiler profiler) {
     profiler.start();
 

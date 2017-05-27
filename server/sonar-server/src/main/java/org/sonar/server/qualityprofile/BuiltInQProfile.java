@@ -20,17 +20,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.profiles.ProfileDefinition;
-
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.codec.binary.Hex.encodeHexString;
-import static org.apache.commons.lang.StringUtils.lowerCase;
-import static org.sonar.db.loadedtemplate.LoadedTemplateDto.QUALITY_PROFILE_TYPE;
 
 /**
  * Represent a Quality Profile as computed from {@link ProfileDefinition} provided by installed plugins.
@@ -39,19 +32,12 @@ import static org.sonar.db.loadedtemplate.LoadedTemplateDto.QUALITY_PROFILE_TYPE
 public final class BuiltInQProfile {
   private final QProfileName qProfileName;
   private final boolean isDefault;
-  private final String loadedTemplateType;
   private final List<org.sonar.api.rules.ActiveRule> activeRules;
 
-  private BuiltInQProfile(Builder builder, MessageDigest messageDigest) {
+  private BuiltInQProfile(Builder builder) {
     this.qProfileName = new QProfileName(builder.language, builder.getName());
     this.isDefault = builder.declaredDefault || builder.computedDefault;
-    this.loadedTemplateType = computeLoadedTemplateType(this.qProfileName, messageDigest);
     this.activeRules = ImmutableList.copyOf(builder.activeRules);
-  }
-
-  private static String computeLoadedTemplateType(QProfileName qProfileName, MessageDigest messageDigest) {
-    String qpIdentifier = lowerCase(qProfileName.getLanguage()) + ":" + qProfileName.getName();
-    return format("%s.%s", QUALITY_PROFILE_TYPE, encodeHexString(messageDigest.digest(qpIdentifier.getBytes(UTF_8))));
   }
 
   public String getName() {
@@ -68,10 +54,6 @@ public final class BuiltInQProfile {
 
   public boolean isDefault() {
     return isDefault;
-  }
-
-  public String getLoadedTemplateType() {
-    return loadedTemplateType;
   }
 
   public List<org.sonar.api.rules.ActiveRule> getActiveRules() {
@@ -118,8 +100,8 @@ public final class BuiltInQProfile {
       return this;
     }
 
-    BuiltInQProfile build(MessageDigest messageDigest) {
-      return new BuiltInQProfile(this, messageDigest);
+    BuiltInQProfile build() {
+      return new BuiltInQProfile(this);
     }
   }
 }
