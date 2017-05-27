@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.Map;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
@@ -49,12 +48,8 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.db.loadedtemplate.LoadedTemplateDto.QUALITY_PROFILE_TYPE;
 import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 
 // TODO replace this MediumTest by DbTester and EsTester
@@ -230,28 +225,6 @@ public class RegisterQualityProfilesMediumTest {
     verifyDefaultProfile(organization, "xoo", "two");
   }
 
-  /**
-   * Probably for db migration
-   */
-  @Test
-  public void clean_up_profiles_if_missing_loaded_template() {
-    tester = new ServerTester().withEsIndexes().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
-    tester.start();
-    DbClient dbClient = dbClient();
-    dbSession = dbClient().openSession(false);
-    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
-
-    String loadedTemplateType = computeLoadedTemplateType(new QProfileName("xoo", "Basic"));
-    dbClient().loadedTemplateDao().delete(dbSession, loadedTemplateType, organization.getUuid());
-    dbSession.commit();
-    assertThat(dbClient().loadedTemplateDao().countByTypeAndKey(loadedTemplateType, organization.getUuid(), dbSession)).isEqualTo(0);
-    dbSession.close();
-
-    tester.get(Platform.class).restart();
-
-    // do not fail
-  }
-
   private void verifyDefaultProfile(OrganizationDto organization, String language, String name) {
     dbSession = dbClient().openSession(false);
     QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
@@ -317,10 +290,5 @@ public class RegisterQualityProfilesMediumTest {
       profile.setDefaultProfile(asDefault);
       return profile;
     }
-  }
-
-  private String computeLoadedTemplateType(QProfileName qProfileName) {
-    String qpIdentifier = lowerCase(qProfileName.getLanguage()) + ":" + qProfileName.getName();
-    return format("%s.%s", QUALITY_PROFILE_TYPE, DigestUtils.md5Hex(qpIdentifier.getBytes(UTF_8)));
   }
 }

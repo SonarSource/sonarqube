@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.resources.Language;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -89,7 +88,7 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
       .setLanguage(language.getKey())
       .setName(profileName)
       .setDeclaredDefault(isDefault)
-        .addRules(Arrays.asList(rules))
-      .build(DigestUtils.getMd5Digest());
+      .addRules(Arrays.asList(rules))
+      .build();
   }
 }

@@ -42,7 +42,6 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -83,8 +82,6 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       .collect(MoreCollectors.toList());
 
     localChanges.forEach(change -> dbClient.qProfileChangeDao().insert(batchSession, change.toDto(null)));
-
-    insertTemplate(session, builtInQProfile, organization);
   }
 
   private void initRuleRepository(DbSession session) {
@@ -159,11 +156,6 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
     }
     return value;
-  }
-
-  private void insertTemplate(DbSession session, BuiltInQProfile qualityProfile, OrganizationDto organization) {
-    LoadedTemplateDto template = new LoadedTemplateDto(organization.getUuid(), qualityProfile.getLoadedTemplateType());
-    dbClient.loadedTemplateDao().insert(template, session);
   }
 
   public static class RuleRepository {
