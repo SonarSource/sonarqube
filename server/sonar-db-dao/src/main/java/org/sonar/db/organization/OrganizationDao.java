@@ -75,8 +75,8 @@ public class OrganizationDao implements Dao {
     return getMapper(dbSession).selectByPermission(userId, permission);
   }
 
-  public List<OrganizationDto> selectOrganizationsWithoutLoadedTemplate(DbSession dbSession, String loadedTemplateType, Pagination pagination) {
-    return getMapper(dbSession).selectOrganizationsWithoutLoadedTemplate(loadedTemplateType, pagination);
+  public List<OrganizationDto> selectWithoutQualityProfile(DbSession dbSession, String profileLanguage, String profileName) {
+    return getMapper(dbSession).selectWithoutQualityProfile(profileLanguage, profileName);
   }
 
   /**
