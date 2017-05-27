@@ -129,57 +129,17 @@
       and gu.user_id = #{userId,jdbcType=INTEGER}
   </select>
 
-  <select id="selectOrganizationsWithoutLoadedTemplate" parameterType="map" resultType="Organization">
+  <select id="selectWithoutQualityProfile" parameterType="map" resultType="Organization">
     select
-      <include refid="selectColumns"/>
-    <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
-    order by
-      org.created_at asc
-    limit #{pagination.pageSize,jdbcType=INTEGER} offset #{pagination.offset,jdbcType=INTEGER}
+    <include refid="selectColumns"/>
+    from organizations org
+    where not exists (
+      select 1 from rules_profiles p
+      where p.organization_uuid = org.uuid
+      and p.language = #{profileLanguage, jdbcType=VARCHAR}
+      and p.name = #{profileName, jdbcType=VARCHAR}
+    )
   </select>
-
-  <select id="selectOrganizationsWithoutLoadedTemplate" parameterType="map" resultType="Organization" databaseId="mssql">
-    select * from (
-      select
-        row_number() over(order by org.created_at asc) as number,
-        <include refid="selectColumns"/>
-      <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
-    ) as query
-    where
-      query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-    order by
-      query.createdAt asc
-  </select>
-
-  <select id="selectOrganizationsWithoutLoadedTemplate" parameterType="map" resultType="Organization" databaseId="oracle">
-    select * from (
-      select rownum as rn, t.* from (
-        select
-          <include refid="selectColumns"/>
-        <include refid="sqlSelectOrganizationsWithoutLoadedTemplate"/>
-        order by
-          org.created_at asc
-      ) t
-    ) t
-    where
-      t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
-  </select>
-
-  <sql id="sqlSelectOrganizationsWithoutLoadedTemplate">
-    from
-      organizations org
-    where
-      not exists (
-        select
-          1
-        from
-          loaded_templates lt
-        where
-          lt.template_type=#{loadedTemplateType,jdbcType=VARCHAR}
-          and lt.kee=org.uuid
-      )
-  </sql>
-
   <select id="selectDefaultGroupIdByUuid" resultType="Integer">
     select org.default_group_id
     from organizations org

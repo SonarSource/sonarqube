@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
@@ -44,6 +43,7 @@ public class DbVersion65 implements DbVersion {
       .add(1714, "Purge developer data", PurgeDeveloperData.class)
       .add(1715, "Add rules_profiles.is_built_in", AddBuiltInFlagToRulesProfiles.class)
       .add(1716, "Set rules_profiles.is_built_in to false", SetRulesProfilesIsBuiltInToFalse.class)
-      .add(1717, "Make rules_profiles.is_built_in not null", MakeRulesProfilesIsBuiltInNotNullable.class);
+      .add(1717, "Make rules_profiles.is_built_in not null", MakeRulesProfilesIsBuiltInNotNullable.class)
+      .add(1718, "Delete unused loaded_templates on quality profiles", DeleteLoadedTemplatesOnQProfiles.class);
   }
 }

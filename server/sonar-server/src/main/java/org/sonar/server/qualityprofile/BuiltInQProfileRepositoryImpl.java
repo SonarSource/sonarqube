@@ -23,7 +23,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
@@ -200,9 +198,8 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
         builders.iterator().next().setComputedDefault(true);
       }
     }
-    MessageDigest md5Digest = DigestUtils.getMd5Digest();
     return builders.stream()
-      .map(builder -> builder.build(md5Digest))
+      .map(BuiltInQProfile.Builder::build)
       .collect(MoreCollectors.toList(builders.size()));
   }
 }
