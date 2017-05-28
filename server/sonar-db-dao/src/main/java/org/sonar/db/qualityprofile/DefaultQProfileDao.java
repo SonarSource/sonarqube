@@ -19,8 +19,10 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
 public class DefaultQProfileDao implements Dao {
@@ -37,6 +39,11 @@ public class DefaultQProfileDao implements Dao {
     if (mapper.update(dto, now) == 0) {
       mapper.insert(dto, now);
     }
+  }
+
+  public void deleteByQProfileUuids(DbSession dbSession, Collection<String> qProfileUuids) {
+    DefaultQProfileMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(qProfileUuids, mapper::deleteByQProfileUuids);
   }
 
   private static DefaultQProfileMapper mapper(DbSession dbSession) {

@@ -52,6 +52,13 @@ public class DefaultQProfileDto {
     return this;
   }
 
+  public static DefaultQProfileDto from(QualityProfileDto profile) {
+    return new DefaultQProfileDto()
+      .setOrganizationUuid(profile.getOrganizationUuid())
+      .setLanguage(profile.getLanguage())
+      .setQProfileUuid(profile.getKee());
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("DefaultQProfileDto{");

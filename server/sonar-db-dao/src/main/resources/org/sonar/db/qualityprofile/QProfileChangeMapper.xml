@@ -71,12 +71,12 @@
     order by created_at desc
   </sql>
 
-  <update id="deleteByProfileKeys" parameterType="String">
+  <delete id="deleteByProfileKeys" parameterType="String">
     delete from qprofile_changes
     where qprofile_key in
     <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
       #{profileKey, jdbcType=VARCHAR}
     </foreach>
-  </update>
+  </delete>
 </mapper>
 
