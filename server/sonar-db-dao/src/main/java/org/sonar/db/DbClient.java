@@ -53,6 +53,7 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.DefaultQProfileDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
@@ -116,6 +117,7 @@ public class DbClient {
   private final QProfileChangeDao qProfileChangeDao;
   private final UserPermissionDao userPermissionDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
+  private final DefaultQProfileDao defaultQProfileDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
@@ -170,6 +172,7 @@ public class DbClient {
     qProfileChangeDao = getDao(map, QProfileChangeDao.class);
     userPermissionDao = getDao(map, UserPermissionDao.class);
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
+    defaultQProfileDao = getDao(map, DefaultQProfileDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -358,6 +361,10 @@ public class DbClient {
 
   public WebhookDeliveryDao webhookDeliveryDao() {
     return webhookDeliveryDao;
+  }
+
+  public DefaultQProfileDao defaultQProfileDao() {
+    return defaultQProfileDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {
