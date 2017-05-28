@@ -144,7 +144,7 @@ public class CopyActionTest {
       "  \"name\": \"" + targetProfile.getName() + "\"," +
       "  \"language\": \"lang1\"," +
       "  \"languageName\": \"Lang1\"," +
-      "  \"isDefault\": " + targetProfile.isDefault() + "," +
+      "  \"isDefault\": false," +
       "  \"isInherited\": false" +
       "}");
     QualityProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), targetProfile.getKey());

@@ -83,6 +83,7 @@ public class CopyAction implements QProfileWsAction {
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, sourceProfile.getOrganizationUuid());
 
       QualityProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
+      boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, copiedProfile.getOrganizationUuid(), copiedProfile.getKee());
 
       String languageKey = copiedProfile.getLanguage();
       Language language = languages.get(copiedProfile.getLanguage());
@@ -93,7 +94,7 @@ public class CopyAction implements QProfileWsAction {
           .prop("name", copiedProfile.getName())
           .prop("language", languageKey)
           .prop("languageName", language == null ? null : language.getName())
-          .prop("isDefault", copiedProfile.isDefault())
+          .prop("isDefault", isDefault)
           .prop("isInherited", parentKey != null)
           .prop("parentKey", parentKey)
           .endObject().close();
