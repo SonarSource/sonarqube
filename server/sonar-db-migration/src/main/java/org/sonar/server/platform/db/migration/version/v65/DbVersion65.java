@@ -30,6 +30,7 @@ public class DbVersion65 implements DbVersion {
       .add(1701, "Add rules_profiles.is_built_in", AddBuiltInFlagToRulesProfiles.class)
       .add(1702, "Set rules_profiles.is_built_in to false", SetRulesProfilesIsBuiltInToFalse.class)
       .add(1703, "Make rules_profiles.is_built_in not null", MakeRulesProfilesIsBuiltInNotNullable.class)
-      .add(1704, "Delete unused loaded_templates on quality profiles", DeleteLoadedTemplatesOnQProfiles.class);
+      .add(1704, "Delete unused loaded_templates on quality profiles", DeleteLoadedTemplatesOnQProfiles.class)
+      .add(1705, "Create table default_qprofiles", CreateTableDefaultQProfiles.class);
   }
 }
