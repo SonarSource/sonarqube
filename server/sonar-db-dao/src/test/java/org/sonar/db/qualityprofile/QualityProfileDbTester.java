@@ -34,12 +34,14 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 
 public class QualityProfileDbTester {
+  private final DbTester dbTester;
   private final DbClient dbClient;
   private final DbSession dbSession;
 
-  public QualityProfileDbTester(DbTester db) {
-    this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+  public QualityProfileDbTester(DbTester dbTester) {
+    this.dbTester = dbTester;
+    this.dbClient = dbTester.getDbClient();
+    this.dbSession = dbTester.getSession();
   }
 
   public Optional<QualityProfileDto> selectByKey(String key) {
@@ -97,5 +99,23 @@ public class QualityProfileDbTester {
     dbClient.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
     return activeRule;
+  }
+
+  public void markAsDefault(QualityProfileDto profile) {
+    DefaultQProfileDto dto = new DefaultQProfileDto()
+      .setOrganizationUuid(profile.getOrganizationUuid())
+      .setLanguage(profile.getLanguage())
+      .setQProfileUuid(profile.getKee());
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, dto);
+    dbSession.commit();
+  }
+
+  public Optional<String> selectUuidOfDefaultProfile(OrganizationDto org, String language) {
+    return dbTester.select("select qprofile_uuid as \"profileUuid\" " +
+      " from default_qprofiles " +
+      " where organization_uuid='" + org.getUuid() + "' and language='" + language + "'")
+      .stream()
+      .findFirst()
+      .map(m -> (String)m.get("profileUuid"));
   }
 }
