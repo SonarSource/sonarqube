@@ -54,6 +54,7 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.DefaultQProfileDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
@@ -83,6 +84,7 @@ public class DaoModule extends Module {
     ComponentKeyUpdaterDao.class,
     ComponentLinkDao.class,
     CustomMeasureDao.class,
+    DefaultQProfileDao.class,
     DuplicationDao.class,
     EventDao.class,
     FileSourceDao.class,

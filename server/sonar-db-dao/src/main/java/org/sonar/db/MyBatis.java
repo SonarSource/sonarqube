@@ -95,6 +95,7 @@ import org.sonar.db.qualitygate.QualityGateMapper;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleMapper;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.DefaultQProfileMapper;
 import org.sonar.db.qualityprofile.QProfileChangeMapper;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
@@ -196,6 +197,7 @@ public class MyBatis implements Startable {
       ComponentLinkMapper.class,
       ComponentMapper.class,
       CustomMeasureMapper.class,
+      DefaultQProfileMapper.class,
       DuplicationMapper.class,
       EventMapper.class,
       FileSourceMapper.class,

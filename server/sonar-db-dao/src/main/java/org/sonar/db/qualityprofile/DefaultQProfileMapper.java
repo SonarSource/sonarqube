@@ -19,24 +19,10 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import org.junit.Test;
+import org.apache.ibatis.annotations.Param;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface DefaultQProfileMapper {
+  void insert(@Param("dto") DefaultQProfileDto dto, @Param("now") long now);
 
-public class ActiveRuleParamDtoTest {
-
-  @Test
-  public void groupByKey() {
-    assertThat(ActiveRuleParamDto.groupByKey(Collections.emptyList())).isEmpty();
-
-    Collection<ActiveRuleParamDto> dtos = Arrays.asList(
-      new ActiveRuleParamDto().setKey("foo"), new ActiveRuleParamDto().setKey("bar")
-      );
-    Map<String, ActiveRuleParamDto> group = ActiveRuleParamDto.groupByKey(dtos);
-    assertThat(group.keySet()).containsOnly("foo", "bar");
-  }
+  int update(@Param("dto") DefaultQProfileDto dto, @Param("now") long now);
 }
