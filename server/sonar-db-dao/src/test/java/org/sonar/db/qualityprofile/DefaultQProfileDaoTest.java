@@ -27,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultQProfileDaoTest {
@@ -49,7 +50,7 @@ public class DefaultQProfileDaoTest {
     dbSession.commit();
 
     assertThat(countRows()).isEqualTo(1);
-    assertThat(selectUuidOfDefaultProfile(org, dto.getLanguage())).isEqualTo(dto.getQProfileUuid());
+    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org, dto.getLanguage())).hasValue(dto.getQProfileUuid());
   }
 
   @Test
@@ -69,11 +70,26 @@ public class DefaultQProfileDaoTest {
     dbSession.commit();
 
     assertThat(countRows()).isEqualTo(1);
-    assertThat(selectUuidOfDefaultProfile(org, dto.getLanguage())).isEqualTo(newQProfileUuid);
+    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org, dto.getLanguage())).hasValue(newQProfileUuid);
   }
 
-  private String selectUuidOfDefaultProfile(OrganizationDto org, String language) {
-    return dbTester.qualityProfiles().selectUuidOfDefaultProfile(org, language).get();
+  @Test
+  public void deleteByQProfileUuids_deletes_rows_related_to_specified_profile() {
+    OrganizationDto org1 = dbTester.organizations().insert();
+    OrganizationDto org2 = dbTester.organizations().insert();
+    underTest.insertOrUpdate(dbSession, new DefaultQProfileDto().setOrganizationUuid(org1.getUuid()).setLanguage("java").setQProfileUuid("u1"));
+    underTest.insertOrUpdate(dbSession, new DefaultQProfileDto().setOrganizationUuid(org1.getUuid()).setLanguage("js").setQProfileUuid("u2"));
+    underTest.insertOrUpdate(dbSession, new DefaultQProfileDto().setOrganizationUuid(org2.getUuid()).setLanguage("java").setQProfileUuid("u3"));
+    underTest.insertOrUpdate(dbSession, new DefaultQProfileDto().setOrganizationUuid(org2.getUuid()).setLanguage("js").setQProfileUuid("u4"));
+
+    underTest.deleteByQProfileUuids(dbSession, asList("u1", "u3"));
+    dbSession.commit();
+
+    assertThat(countRows()).isEqualTo(2);
+    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org1, "java")).isEmpty();
+    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org1, "js")).hasValue("u2");
+    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org2, "java")).isEmpty();
+    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org2, "js")).hasValue("u4");
   }
 
   private int countRows() {
