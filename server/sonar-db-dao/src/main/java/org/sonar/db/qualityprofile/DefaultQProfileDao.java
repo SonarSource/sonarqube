@@ -19,24 +19,27 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import org.junit.Test;
+import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DefaultQProfileDao implements Dao {
 
-public class ActiveRuleParamDtoTest {
+  private final System2 system2;
 
-  @Test
-  public void groupByKey() {
-    assertThat(ActiveRuleParamDto.groupByKey(Collections.emptyList())).isEmpty();
+  public DefaultQProfileDao(System2 system2) {
+    this.system2 = system2;
+  }
 
-    Collection<ActiveRuleParamDto> dtos = Arrays.asList(
-      new ActiveRuleParamDto().setKey("foo"), new ActiveRuleParamDto().setKey("bar")
-      );
-    Map<String, ActiveRuleParamDto> group = ActiveRuleParamDto.groupByKey(dtos);
-    assertThat(group.keySet()).containsOnly("foo", "bar");
+  public void insertOrUpdate(DbSession dbSession, DefaultQProfileDto dto) {
+    long now = system2.now();
+    DefaultQProfileMapper mapper = mapper(dbSession);
+    if (mapper.update(dto, now) == 0) {
+      mapper.insert(dto, now);
+    }
+  }
+
+  private static DefaultQProfileMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(DefaultQProfileMapper.class);
   }
 }
