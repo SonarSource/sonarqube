@@ -33,7 +33,7 @@ type State = {
   stacktrace: ?string
 };
 
-export default class ScannerContext extends React.PureComponent {
+export default class Stacktrace extends React.PureComponent {
   mounted: boolean;
   props: Props;
   state: State = {

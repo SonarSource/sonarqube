@@ -70,7 +70,7 @@ export default class LicenseChangeForm extends React.PureComponent {
         {this.state.modalOpen &&
           <Modal
             isOpen={true}
-            contentLabel="modal"
+            contentLabel="license update"
             className="modal"
             overlayClassName="modal-overlay"
             onRequestClose={this.closeModal}>

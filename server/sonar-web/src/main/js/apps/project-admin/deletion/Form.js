@@ -79,7 +79,7 @@ export default class Form extends React.PureComponent {
         {this.state.modalOpen &&
           <Modal
             isOpen={true}
-            contentLabel="shortcuts help"
+            contentLabel="project deletion"
             className="modal"
             overlayClassName="modal-overlay"
             onRequestClose={this.closeModal}>
