@@ -1,0 +1,5 @@
+FROM postgres:9
+
+ENV POSTGRES_PASSWORD sonarsource
+
+EXPOSE 5432
