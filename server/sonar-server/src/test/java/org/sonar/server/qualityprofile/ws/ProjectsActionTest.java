@@ -86,7 +86,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").execute().assertJson(this.getClass(), "authorized_selected.json");
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").execute().assertJson(this.getClass(), "authorized_selected.json");
   }
 
   @Test
@@ -101,20 +101,20 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "2")
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").setParam("pageSize", "2")
       .execute().assertJson(this.getClass(), "selected_page1.json");
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "2").setParam("page", "2")
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").setParam("pageSize", "2").setParam("page", "2")
       .execute().assertJson(this.getClass(), "selected_page2.json");
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "2").setParam("page", "3")
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").setParam("pageSize", "2").setParam("page", "3")
       .execute().assertJson(this.getClass(), "empty.json");
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "2").setParam("page", "4")
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").setParam("pageSize", "2").setParam("page", "4")
       .execute().assertJson(this.getClass(), "empty.json");
 
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "1")
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "1")
       .execute().assertJson(this.getClass(), "selected_ps3_page1.json");
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "2")
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "2")
       .execute().assertJson(this.getClass(), "selected_ps3_page2.json");
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "3")
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "3")
       .execute().assertJson(this.getClass(), "empty.json");
   }
 
@@ -130,7 +130,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "deselected").execute().assertJson(this.getClass(), "deselected.json");
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "deselected").execute().assertJson(this.getClass(), "deselected.json");
   }
 
   @Test
@@ -147,7 +147,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "all").execute().assertJson(this.getClass(), "all.json");
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "all").execute().assertJson(this.getClass(), "all.json");
   }
 
   @Test
@@ -162,7 +162,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "all").setParam("query", "project t").execute().assertJson(this.getClass(), "all_filtered.json");
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "all").setParam("query", "project t").execute().assertJson(this.getClass(), "all_filtered.json");
   }
 
   @Test(expected = NotFoundException.class)
@@ -184,7 +184,7 @@ public class ProjectsActionTest {
 
     dbSession.commit();
 
-    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "all").execute().assertJson(this.getClass(), "return_deprecated_uuid_field.json");
+    newRequest().setParam("key", xooP1.getKee()).setParam("selected", "all").execute().assertJson(this.getClass(), "return_deprecated_uuid_field.json");
   }
 
   private void createProfiles() {
@@ -205,9 +205,9 @@ public class ProjectsActionTest {
     return ComponentTesting.newPrivateProjectDto(organizationDto, uuid).setName(name);
   }
 
-  private void associateProjectsWithProfile(DbSession session, RulesProfileDto profile, ComponentDto... projects) {
+  private void associateProjectsWithProfile(DbSession dbSession, RulesProfileDto profile, ComponentDto... projects) {
     for (ComponentDto project : projects) {
-      dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKey(), session);
+      dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
     }
   }
 }

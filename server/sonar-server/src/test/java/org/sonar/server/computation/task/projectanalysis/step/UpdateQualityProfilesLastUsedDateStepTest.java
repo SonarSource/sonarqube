@@ -95,7 +95,7 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
     qualityProfileDb.insertQualityProfiles(sonarWayJava, sonarWayPhp, myQualityProfile);
 
     measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(
-      toJson(sonarWayJava.getKey(), myQualityProfile.getKey())));
+      toJson(sonarWayJava.getKee(), myQualityProfile.getKee())));
 
     underTest.execute();
 
@@ -108,14 +108,14 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   public void ancestor_profiles_are_updated() throws Exception {
     // Parent profiles should be updated
     RulesProfileDto rootProfile = newQualityProfileDto().setKey("root");
-    RulesProfileDto parentProfile = newQualityProfileDto().setKey("parent").setParentKee(rootProfile.getKey());
+    RulesProfileDto parentProfile = newQualityProfileDto().setKey("parent").setParentKee(rootProfile.getKee());
     // Current profile => should be updated
-    RulesProfileDto currentProfile = newQualityProfileDto().setKey("current").setParentKee(parentProfile.getKey());
+    RulesProfileDto currentProfile = newQualityProfileDto().setKey("current").setParentKee(parentProfile.getKee());
     // Child of current profile => should not be updated
-    RulesProfileDto childProfile = newQualityProfileDto().setKey("child").setParentKee(currentProfile.getKey());
+    RulesProfileDto childProfile = newQualityProfileDto().setKey("child").setParentKee(currentProfile.getKee());
     qualityProfileDb.insertQualityProfiles(rootProfile, parentProfile, currentProfile, childProfile);
 
-    measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKey())));
+    measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKee())));
 
     underTest.execute();
 
@@ -130,7 +130,7 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
     RulesProfileDto currentProfile = newQualityProfileDto().setKey("current").setParentKee("unknown");
     qualityProfileDb.insertQualityProfiles(currentProfile);
 
-    measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKey())));
+    measureRepository.addRawMeasure(1, QUALITY_PROFILES_KEY, Measure.newMeasureBuilder().create(toJson(currentProfile.getKee())));
 
     expectedException.expect(RowNotFoundException.class);
     underTest.execute();
@@ -142,11 +142,11 @@ public class UpdateQualityProfilesLastUsedDateStepTest {
   }
 
   private void assertQualityProfileIsUpdated(RulesProfileDto qp) {
-    assertThat(selectLastUser(qp.getKey())).withFailMessage("Quality profile '%s' hasn't been updated. Value: %d", qp.getKey(), qp.getLastUsed()).isEqualTo(ANALYSIS_DATE);
+    assertThat(selectLastUser(qp.getKee())).withFailMessage("Quality profile '%s' hasn't been updated. Value: %d", qp.getKee(), qp.getLastUsed()).isEqualTo(ANALYSIS_DATE);
   }
 
   private void assertQualityProfileIsTheSame(RulesProfileDto qp) {
-    assertThat(selectLastUser(qp.getKey())).isEqualTo(qp.getLastUsed());
+    assertThat(selectLastUser(qp.getKee())).isEqualTo(qp.getLastUsed());
   }
 
   @CheckForNull

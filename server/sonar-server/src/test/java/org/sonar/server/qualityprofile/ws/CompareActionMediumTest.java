@@ -120,8 +120,8 @@ public class CompareActionMediumTest {
     session.commit();
 
     wsTester.newGetRequest("api/qualityprofiles", "compare")
-      .setParam("leftKey", profile1.getKey())
-      .setParam("rightKey", profile2.getKey())
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
       .execute().assertJson(this.getClass(), "compare_nominal.json");
   }
 
@@ -136,8 +136,8 @@ public class CompareActionMediumTest {
     session.commit();
 
     wsTester.newGetRequest("api/qualityprofiles", "compare")
-      .setParam("leftKey", profile1.getKey())
-      .setParam("rightKey", profile2.getKey())
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
       .execute().assertJson(this.getClass(), "compare_param_on_left.json");
   }
 
@@ -152,8 +152,8 @@ public class CompareActionMediumTest {
     session.commit();
 
     wsTester.newGetRequest("api/qualityprofiles", "compare")
-      .setParam("leftKey", profile1.getKey())
-      .setParam("rightKey", profile2.getKey())
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
       .execute().assertJson(this.getClass(), "compare_param_on_right.json");
   }
 

@@ -129,7 +129,7 @@ public class RuleQueryFactoryTest {
       PARAM_IS_TEMPLATE, "true",
       PARAM_LANGUAGES, "java,js",
       TEXT_QUERY, "S001",
-      PARAM_QPROFILE, qualityProfile.getKey(),
+      PARAM_QPROFILE, qualityProfile.getKee(),
       PARAM_ORGANIZATION, organization.getKey(),
       PARAM_REPOSITORIES, "pmd,checkstyle",
       PARAM_SEVERITIES, "MINOR,CRITICAL",
@@ -151,7 +151,7 @@ public class RuleQueryFactoryTest {
     assertThat(result.isTemplate()).isTrue();
     assertThat(result.getLanguages()).containsOnly(qualityProfile.getLanguage());
     assertThat(result.getQueryText()).isEqualTo("S001");
-    assertThat(result.getQProfileKey()).isEqualTo(qualityProfile.getKey());
+    assertThat(result.getQProfileKey()).isEqualTo(qualityProfile.getKee());
     assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
     assertThat(result.getRepositories()).containsOnly("pmd", "checkstyle");
     assertThat(result.getRuleKey()).isNull();
@@ -167,7 +167,7 @@ public class RuleQueryFactoryTest {
   @Test
   public void use_quality_profiles_language_if_available() throws Exception {
     RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
-    String qualityProfileKey = qualityProfile.getKey();
+    String qualityProfileKey = qualityProfile.getKee();
 
     RuleQuery result = execute(
       PARAM_LANGUAGES, "specifiedLanguage",
@@ -225,7 +225,7 @@ public class RuleQueryFactoryTest {
 
     RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization1);
 
-    String qualityProfileKey = qualityProfile.getKey();
+    String qualityProfileKey = qualityProfile.getKee();
     String organization2Key = organization2.getKey();
 
     thrown.expect(IllegalArgumentException.class);

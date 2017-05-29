@@ -28,9 +28,9 @@ import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
 
-  void insert(RulesProfileDto dto);
+  void insert(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
 
-  void update(RulesProfileDto dto);
+  void update(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
 
   void deleteByKeys(@Param("profileKeys") Collection<String> profileKeys);
 
@@ -39,12 +39,17 @@ public interface QualityProfileMapper {
   @CheckForNull
   RulesProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
-  List<RulesProfileDto> selectDefaultProfiles(@Param("organizationUuid") String organizationUuid, @Param("languages") List<String> languages);
+  List<RulesProfileDto> selectDefaultProfiles(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("languages") Collection<String> languages);
 
   @CheckForNull
   RulesProfileDto selectByNameAndLanguage(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("language") String language);
 
-  List<RulesProfileDto> selectByNameAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("languages") List<String> languages);
+  List<RulesProfileDto> selectByNameAndLanguages(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("name") String name,
+    @Param("languages") Collection<String> languages);
 
   @CheckForNull
   RulesProfileDto selectByKey(String key);
@@ -61,14 +66,25 @@ public interface QualityProfileMapper {
 
   List<KeyLongValue> countProjectsByProfileKey(@Param("organizationUuid") String organizationUuid);
 
-  RulesProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
+  @CheckForNull
+  RulesProfileDto selectAssociatedToProjectUuidAndLanguage(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("projectUuid") String projectUuid,
+    @Param("language") String language);
 
-  List<RulesProfileDto> selectByProjectAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("projectKey") String projectKey,
-                                                    @Param("languages") List<String> input);
+  List<RulesProfileDto> selectAssociatedToProjectUuidAndLanguages(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("projectUuid") String projectUuid,
+    @Param("languages") Collection<String> languages);
 
-  void insertProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
+  void insertProjectProfileAssociation(
+    @Param("projectUuid") String projectUuid,
+    @Param("profileUuid") String profileUuid);
 
-  void updateProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey, @Param("oldProfileKey") String oldProfileKey);
+  void updateProjectProfileAssociation(
+    @Param("projectUuid") String projectUuid,
+    @Param("profileUuid") String profileUuid,
+    @Param("oldProfileUuid") String oldProfileUuid);
 
   void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 

@@ -109,7 +109,7 @@ public class RestoreAction implements QProfileWsAction {
     JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
     jsonProfile
       .prop("organization", organization.getKey())
-      .prop("key", profile.getKey())
+      .prop("key", profile.getKee())
       .prop("name", profile.getName())
       .prop("language", languageKey)
       .prop("isDefault", false)

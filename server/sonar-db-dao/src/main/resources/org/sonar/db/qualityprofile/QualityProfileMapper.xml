@@ -10,42 +10,40 @@
     p.name as name,
     p.language as language,
     p.parent_kee as parentKee,
-    p.created_at as createdAt,
-    p.updated_at as updatedAt,
     p.rules_updated_at as rulesUpdatedAt,
     p.last_used as lastUsed,
     p.user_updated_at as userUpdatedAt,
     p.is_built_in as isBuiltIn
   </sql>
 
-  <insert id="insert" parameterType="RulesProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
     INSERT INTO rules_profiles (organization_uuid, kee, parent_kee, name, language, created_at, updated_at, rules_updated_at, last_used, user_updated_at, is_built_in)
     VALUES (
-    #{organizationUuid, jdbcType=VARCHAR},
-    #{kee, jdbcType=VARCHAR},
-    #{parentKee, jdbcType=VARCHAR},
-    #{name, jdbcType=VARCHAR},
-    #{language, jdbcType=VARCHAR},
-    #{createdAt, jdbcType=TIMESTAMP},
-    #{updatedAt, jdbcType=TIMESTAMP},
-    #{rulesUpdatedAt, jdbcType=VARCHAR},
-    #{lastUsed, jdbcType=BIGINT},
-    #{userUpdatedAt, jdbcType=BIGINT},
-    #{isBuiltIn, jdbcType=BOOLEAN}
+    #{dto.organizationUuid, jdbcType=VARCHAR},
+    #{dto.kee, jdbcType=VARCHAR},
+    #{dto.parentKee, jdbcType=VARCHAR},
+    #{dto.name, jdbcType=VARCHAR},
+    #{dto.language, jdbcType=VARCHAR},
+    #{now, jdbcType=TIMESTAMP},
+    #{now, jdbcType=TIMESTAMP},
+    #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
+    #{dto.lastUsed, jdbcType=BIGINT},
+    #{dto.userUpdatedAt, jdbcType=BIGINT},
+    #{dto.isBuiltIn, jdbcType=BOOLEAN}
     )
   </insert>
 
-  <update id="update" parameterType="RulesProfile">
+  <update id="update" parameterType="map">
     UPDATE rules_profiles SET
-    name=#{name, jdbcType=VARCHAR},
-    language=#{language, jdbcType=VARCHAR},
-    parent_kee=#{parentKee, jdbcType=VARCHAR},
-    updated_at=#{updatedAt, jdbcType=TIMESTAMP},
-    rules_updated_at=#{rulesUpdatedAt, jdbcType=VARCHAR},
-    last_used=#{lastUsed, jdbcType=BIGINT},
-    user_updated_at=#{userUpdatedAt, jdbcType=BIGINT},
-    is_built_in=#{isBuiltIn, jdbcType=BOOLEAN}
-    WHERE id=#{id}
+    name=#{dto.name, jdbcType=VARCHAR},
+    language=#{dto.language, jdbcType=VARCHAR},
+    parent_kee=#{dto.parentKee, jdbcType=VARCHAR},
+    updated_at=#{now, jdbcType=TIMESTAMP},
+    rules_updated_at=#{dto.rulesUpdatedAt, jdbcType=VARCHAR},
+    last_used=#{dto.lastUsed, jdbcType=BIGINT},
+    user_updated_at=#{dto.userUpdatedAt, jdbcType=BIGINT},
+    is_built_in=#{dto.isBuiltIn, jdbcType=BOOLEAN}
+    WHERE id=#{dto.id}
   </update>
 
   <update id="deleteByKeys" parameterType="String">
@@ -180,35 +178,45 @@
     group by pp.profile_key
   </select>
 
-  <select id="selectByProjectAndLanguage" parameterType="map" resultType="RulesProfile">
-    SELECT
+  <select id="selectAssociatedToProjectUuidAndLanguage" parameterType="map" resultType="RulesProfile">
+    select
     <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    JOIN project_qprofiles pp ON pp.profile_key=p.kee
-    JOIN projects project ON pp.project_uuid=project.uuid AND project.kee=#{projectKey}
-    WHERE p.language=#{language}
+    from rules_profiles p
+    inner join project_qprofiles pp ON pp.profile_key = p.kee
+    where
+      p.language = #{language, jdbcType=VARCHAR}
+      and pp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+      and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByProjectAndLanguages" parameterType="map" resultType="RulesProfile">
-    SELECT
+  <select id="selectAssociatedToProjectUuidAndLanguages" parameterType="map" resultType="RulesProfile">
+    select
     <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    JOIN project_qprofiles pp ON pp.profile_key=p.kee
-    JOIN projects project ON pp.project_uuid=project.uuid AND project.kee=#{projectKey, jdbcType=VARCHAR}
-    JOIN organizations org ON project.organization_uuid = org.uuid AND p.organization_uuid = org.uuid
-    WHERE p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
-    AND org.uuid = #{organizationUuid, jdbcType=VARCHAR}
+    from rules_profiles p
+    inner join project_qprofiles pq ON pq.profile_key = p.kee
+    where
+      p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      and pq.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+      and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <insert id="insertProjectProfileAssociation" keyColumn="id" useGeneratedKeys="true">
-    INSERT INTO project_qprofiles (project_uuid, profile_key)
-    VALUES (#{projectUuid, jdbcType=VARCHAR}, #{profileKey, jdbcType=VARCHAR})
+  <insert id="insertProjectProfileAssociation" useGeneratedKeys="false">
+    insert into project_qprofiles (
+      project_uuid,
+      profile_key
+    ) values (
+      #{projectUuid, jdbcType=VARCHAR},
+      #{profileUuid, jdbcType=VARCHAR}
+    )
   </insert>
 
   <update id="updateProjectProfileAssociation">
-    UPDATE project_qprofiles
-    SET profile_key=#{profileKey, jdbcType=VARCHAR}
-    WHERE project_uuid=#{projectUuid, jdbcType=VARCHAR} AND profile_key=#{oldProfileKey, jdbcType=VARCHAR}
+    update project_qprofiles
+    set
+      profile_key = #{profileUuid, jdbcType=VARCHAR}
+    where
+      project_uuid = #{projectUuid, jdbcType=VARCHAR}
+      and profile_key = #{oldProfileUuid, jdbcType=VARCHAR}
   </update>
 
   <update id="deleteProjectProfileAssociation">

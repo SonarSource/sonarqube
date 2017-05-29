@@ -50,9 +50,9 @@ public class QProfileWsSupportTest {
   public void getProfile_returns_the_profile_specified_by_key() {
     RulesProfileDto profile = db.qualityProfiles().insertQualityProfile(QualityProfileTesting.newQualityProfileDto());
 
-    RulesProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromKey(profile.getKey()));
+    RulesProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromKey(profile.getKee()));
 
-    assertThat(loaded.getKey()).isEqualTo(profile.getKey());
+    assertThat(loaded.getKee()).isEqualTo(profile.getKee());
     assertThat(loaded.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
     assertThat(loaded.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(loaded.getName()).isEqualTo(profile.getName());
@@ -73,7 +73,7 @@ public class QProfileWsSupportTest {
 
     RulesProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromName(null, profile.getLanguage(), profile.getName()));
 
-    assertThat(loaded.getKey()).isEqualTo(profile.getKey());
+    assertThat(loaded.getKee()).isEqualTo(profile.getKee());
     assertThat(loaded.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
     assertThat(loaded.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(loaded.getName()).isEqualTo(profile.getName());

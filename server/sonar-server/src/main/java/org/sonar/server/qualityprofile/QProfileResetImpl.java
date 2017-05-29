@@ -109,7 +109,7 @@ public class QProfileResetImpl implements QProfileReset {
 
     for (RuleActivation activation : activations) {
       try {
-        List<ActiveRuleChange> changes = activator.activate(dbSession, activation, profile.getKey());
+        List<ActiveRuleChange> changes = activator.activate(dbSession, activation, profile.getKee());
         ruleToBeDeactivated.remove(activation.getRuleKey());
         result.incrementSucceeded();
         result.addChanges(changes);

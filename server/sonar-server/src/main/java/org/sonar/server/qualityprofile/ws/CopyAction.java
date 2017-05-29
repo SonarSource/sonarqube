@@ -90,7 +90,7 @@ public class CopyAction implements QProfileWsAction {
       String parentKey = copiedProfile.getParentKee();
       response.newJsonWriter()
           .beginObject()
-          .prop("key", copiedProfile.getKey())
+          .prop("key", copiedProfile.getKee())
           .prop("name", copiedProfile.getName())
           .prop("language", languageKey)
           .prop("languageName", language == null ? null : language.getName())

@@ -159,7 +159,7 @@ public class QProfileBackuperMediumTest {
     RulesProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profile.getKey());
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profile.getKee());
     assertThat(activeRules).hasSize(1);
     ActiveRuleDto activeRuleDoc = activeRules.get(0);
     assertThat(activeRuleDoc.getSeverityString()).isEqualTo("BLOCKER");
@@ -172,7 +172,7 @@ public class QProfileBackuperMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("7");
 
     // Check in es
-    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profile.getKey()).setActivation(true))).containsOnly(XOO_X1);
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profile.getKee()).setActivation(true))).containsOnly(XOO_X1);
   }
 
   @Test
@@ -381,7 +381,7 @@ public class QProfileBackuperMediumTest {
 
     RulesProfileDto target = db.qualityProfileDao().selectByNameAndLanguage(organization, "P3", "xoo", dbSession);
     assertThat(target).isNotNull();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, target.getKey())).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, target.getKee())).hasSize(1);
   }
 
   @Test

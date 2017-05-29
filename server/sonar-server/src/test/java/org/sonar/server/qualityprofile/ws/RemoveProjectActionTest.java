@@ -156,7 +156,7 @@ public class RemoveProjectActionTest {
 
     tester.newRequest()
       .setParam("projectUuid", "unknown")
-      .setParam("profileKey", profile.getKey())
+      .setParam("profileKey", profile.getKee())
       .execute();
   }
 
@@ -175,13 +175,13 @@ public class RemoveProjectActionTest {
   }
 
   private void assertProjectIsAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
-    RulesProfileDto loaded = dbClient.qualityProfileDao().selectByProjectAndLanguage(db.getSession(), project.getKey(), profile.getLanguage());
-    assertThat(loaded.getKey()).isEqualTo(profile.getKey());
+    RulesProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
+    assertThat(loaded.getKee()).isEqualTo(profile.getKee());
   }
 
   private void assertProjectIsNotAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
-    RulesProfileDto loaded = dbClient.qualityProfileDao().selectByProjectAndLanguage(db.getSession(), project.getKey(), profile.getLanguage());
-    assertThat(loaded == null || !loaded.getKey().equals(profile.getKey())).isTrue();
+    RulesProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
+    assertThat(loaded == null || !loaded.getKee().equals(profile.getKee())).isTrue();
   }
 
   private void logInAsProfileAdmin() {
@@ -191,7 +191,7 @@ public class RemoveProjectActionTest {
   private TestResponse call(ComponentDto project, RulesProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
       .setParam("projectUuid", project.uuid())
-      .setParam("profileKey", qualityProfile.getKey());
+      .setParam("profileKey", qualityProfile.getKee());
     return request.execute();
   }
 }

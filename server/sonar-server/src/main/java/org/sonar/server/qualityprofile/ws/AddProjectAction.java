@@ -87,13 +87,13 @@ public class AddProjectAction implements QProfileWsAction {
         throw new IllegalArgumentException("Project and Quality profile must have same organization");
       }
 
-      RulesProfileDto currentProfile = dbClient.qualityProfileDao().selectByProjectAndLanguage(dbSession, project.key(), profile.getLanguage());
+      RulesProfileDto currentProfile = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage());
       if (currentProfile == null) {
         // project uses the default profile
-        dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKey(), dbSession);
+        dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
         dbSession.commit();
-      } else if (!profile.getKey().equals(currentProfile.getKey())) {
-        dbClient.qualityProfileDao().updateProjectProfileAssociation(project.uuid(), profile.getKey(), currentProfile.getKey(), dbSession);
+      } else if (!profile.getKee().equals(currentProfile.getKee())) {
+        dbClient.qualityProfileDao().updateProjectProfileAssociation(dbSession, project, profile.getKee(), currentProfile.getKee());
         dbSession.commit();
       }
     }

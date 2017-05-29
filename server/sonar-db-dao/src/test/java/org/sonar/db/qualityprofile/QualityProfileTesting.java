@@ -19,7 +19,6 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.util.Date;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,8 +36,6 @@ public class QualityProfileTesting {
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))
       .setLastUsed(nextLong());
-    dto.setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
     return dto;
   }
 
@@ -56,7 +53,7 @@ public class QualityProfileTesting {
     // can be defined by tests
     DbSession dbSession = dbTester.getSession();
     QProfileChangeMapper mapper = dbSession.getMapper(QProfileChangeMapper.class);
-    stream(dtos).forEach(dto -> mapper.insert(dto));
+    stream(dtos).forEach(mapper::insert);
     dbSession.commit();
   }
 }

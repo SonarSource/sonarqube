@@ -86,10 +86,10 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKee())).hasSize(2);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKee(), ruleKey);
     assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
 
     // Check in ES
@@ -139,11 +139,11 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKee())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
-    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile.getKey(), ruleKey)).get();
-    assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKey());
+    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile.getKee(), ruleKey)).get();
+    assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKee());
     assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 

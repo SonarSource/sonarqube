@@ -206,7 +206,7 @@ public class RuleActivatorMediumTest {
       ImmutableMap.of("max", "7", "min", "3"));
     assertThat(changes).hasSize(1);
     assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED);
-    assertProfileHasBeenUpdatedManually(profileDto.getKey());
+    assertProfileHasBeenUpdatedManually(profileDto.getKee());
   }
 
   @Test

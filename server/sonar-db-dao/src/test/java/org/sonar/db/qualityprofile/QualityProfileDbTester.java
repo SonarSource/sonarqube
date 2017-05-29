@@ -75,14 +75,14 @@ public class QualityProfileDbTester {
   public void insertProjectWithQualityProfileAssociations(ComponentDto project, RulesProfileDto... qualityProfiles) {
     dbClient.componentDao().insert(dbSession, project);
     for (RulesProfileDto qualityProfile : qualityProfiles) {
-      dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
+      dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, qualityProfile);
     }
     dbSession.commit();
   }
 
   public void associateProjectWithQualityProfile(ComponentDto project, RulesProfileDto... qualityProfiles) {
     for (RulesProfileDto qualityProfile : qualityProfiles) {
-      dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
+      dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, qualityProfile);
     }
     dbSession.commit();
   }

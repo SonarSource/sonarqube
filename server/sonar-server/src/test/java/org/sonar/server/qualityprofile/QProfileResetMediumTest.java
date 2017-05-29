@@ -126,13 +126,13 @@ public class QProfileResetMediumTest {
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
     RulesProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKee(), ruleKey);
 
     // Change the severity and the value of the parameter in the active rule
     tester.get(RuleActivator.class).activate(dbSession,
       new RuleActivation(ruleKey).setSeverity(BLOCKER)
         .setParameter("acceptWhitespace", "false"),
-      profile.getKey());
+      profile.getKee());
     dbSession.commit();
 
     // Verify severity and param has changed
@@ -175,7 +175,7 @@ public class QProfileResetMediumTest {
     }, defProfile);
 
     RulesProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), RuleKey.of("xoo", "x1"));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKee(), RuleKey.of("xoo", "x1"));
 
     // Change param in the rule def
     register(new Rules() {

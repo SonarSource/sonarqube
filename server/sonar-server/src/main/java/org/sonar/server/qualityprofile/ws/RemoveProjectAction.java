@@ -86,7 +86,7 @@ public class RemoveProjectAction implements QProfileWsAction {
         throw new IllegalArgumentException("Project and Quality profile must have same organization");
       }
 
-      dbClient.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), profile.getKey(), dbSession);
+      dbClient.qualityProfileDao().deleteProjectProfileAssociation(dbSession, project, profile);
       dbSession.commit();
 
       response.noContent();

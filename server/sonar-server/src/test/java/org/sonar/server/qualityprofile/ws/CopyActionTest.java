@@ -99,7 +99,7 @@ public class CopyActionTest {
     RulesProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
     TestResponse response = tester.newRequest()
       .setMethod("POST")
-      .setParam("fromKey", sourceProfile.getKey())
+      .setParam("fromKey", sourceProfile.getKee())
       .setParam("toName", "target-name")
       .execute();
 
@@ -114,14 +114,14 @@ public class CopyActionTest {
       "}");
     RulesProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
       db.getSession());
-    assertThat(loadedProfile.getKey()).isEqualTo(generatedUuid);
+    assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
     assertThat(loadedProfile.getParentKee()).isNull();
 
-    assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());
+    assertThat(backuper.backupedProfile.getKee()).isEqualTo(sourceProfile.getKee());
     assertThat(backuper.restoredProfile.getOrganizationUuid()).isEqualTo(sourceProfile.getOrganizationUuid());
     assertThat(backuper.restoredProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
     assertThat(backuper.restoredProfile.getName()).isEqualTo("target-name");
-    assertThat(backuper.restoredProfile.getKey()).isEqualTo(generatedUuid);
+    assertThat(backuper.restoredProfile.getKee()).isEqualTo(generatedUuid);
     assertThat(backuper.restoredProfile.getParentKee()).isNull();
   }
 
@@ -134,23 +134,23 @@ public class CopyActionTest {
 
     TestResponse response = tester.newRequest()
       .setMethod("POST")
-      .setParam("fromKey", sourceProfile.getKey())
+      .setParam("fromKey", sourceProfile.getKee())
       .setParam("toName", targetProfile.getName())
       .execute();
 
     assertJson(response.getInput()).isSimilarTo("{" +
-      "  \"key\": \"" + targetProfile.getKey() + "\"," +
+      "  \"key\": \"" + targetProfile.getKee() + "\"," +
       "  \"name\": \"" + targetProfile.getName() + "\"," +
       "  \"language\": \"lang1\"," +
       "  \"languageName\": \"Lang1\"," +
       "  \"isDefault\": false," +
       "  \"isInherited\": false" +
       "}");
-    RulesProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), targetProfile.getKey());
+    RulesProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), targetProfile.getKee());
     assertThat(loadedProfile).isNotNull();
 
-    assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());
-    assertThat(backuper.restoredProfile.getKey()).isEqualTo(targetProfile.getKey());
+    assertThat(backuper.backupedProfile.getKee()).isEqualTo(sourceProfile.getKee());
+    assertThat(backuper.restoredProfile.getKee()).isEqualTo(targetProfile.getKee());
   }
 
   @Test
@@ -159,11 +159,11 @@ public class CopyActionTest {
     logInAsQProfileAdministrator(organization);
 
     RulesProfileDto parentProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
-    RulesProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setParentKee(parentProfile.getKey()));
+    RulesProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setParentKee(parentProfile.getKee()));
 
     TestResponse response = tester.newRequest()
       .setMethod("POST")
-      .setParam("fromKey", sourceProfile.getKey())
+      .setParam("fromKey", sourceProfile.getKee())
       .setParam("toName", "target-name")
       .execute();
 
@@ -178,15 +178,15 @@ public class CopyActionTest {
       "}");
     RulesProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
       db.getSession());
-    assertThat(loadedProfile.getKey()).isEqualTo(generatedUuid);
-    assertThat(loadedProfile.getParentKee()).isEqualTo(parentProfile.getKey());
+    assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(loadedProfile.getParentKee()).isEqualTo(parentProfile.getKee());
 
-    assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());
+    assertThat(backuper.backupedProfile.getKee()).isEqualTo(sourceProfile.getKee());
     assertThat(backuper.restoredProfile.getOrganizationUuid()).isEqualTo(sourceProfile.getOrganizationUuid());
     assertThat(backuper.restoredProfile.getLanguage()).isEqualTo(sourceProfile.getLanguage());
     assertThat(backuper.restoredProfile.getName()).isEqualTo("target-name");
-    assertThat(backuper.restoredProfile.getKey()).isEqualTo(generatedUuid);
-    assertThat(backuper.restoredProfile.getParentKee()).isEqualTo(parentProfile.getKey());
+    assertThat(backuper.restoredProfile.getKee()).isEqualTo(generatedUuid);
+    assertThat(backuper.restoredProfile.getParentKee()).isEqualTo(parentProfile.getKee());
   }
 
   @Test
@@ -214,7 +214,7 @@ public class CopyActionTest {
 
     tester.newRequest()
       .setMethod("POST")
-      .setParam("fromKey", profile.getKey())
+      .setParam("fromKey", profile.getKee())
       .setParam("toName", "bar")
       .execute();
   }
@@ -230,7 +230,7 @@ public class CopyActionTest {
 
     tester.newRequest()
       .setMethod("POST")
-      .setParam("fromKey", profile.getKey())
+      .setParam("fromKey", profile.getKee())
       .setParam("toName", "bar")
       .execute();
   }

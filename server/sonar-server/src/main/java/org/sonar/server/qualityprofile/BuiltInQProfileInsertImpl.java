@@ -118,7 +118,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
 
     List<ActiveRuleParamDto> paramDtos = insertActiveRuleParams(session, activeRule, ruleKey, dto);
 
-    ActiveRuleChange change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(profileDto.getKey(), ruleKey));
+    ActiveRuleChange change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(profileDto.getKee(), ruleKey));
     change.setSeverity(dto.getSeverityString());
     paramDtos.forEach(paramDto -> change.setParameter(paramDto.getKey(), paramDto.getValue()));
     return change;

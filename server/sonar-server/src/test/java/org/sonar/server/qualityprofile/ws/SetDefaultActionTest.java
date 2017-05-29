@@ -99,8 +99,8 @@ public class SetDefaultActionTest {
   public void set_default_profile_using_key() throws Exception {
     logInAsQProfileAdministrator();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKey());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKey());
+    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
+    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
 
     TestResponse response = tester.newRequest()
       .setMethod("POST")
@@ -108,7 +108,7 @@ public class SetDefaultActionTest {
 
     assertThat(response.getInput()).isEmpty();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKey());
+    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
     checkDefaultProfile(organization, xoo2Key, xoo2Profile.getKee());
 
     // One more time!
@@ -117,7 +117,7 @@ public class SetDefaultActionTest {
       .setParam("profileKey", xoo2Profile.getKee()).execute();
 
     assertThat(response2.getInput()).isEmpty();
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKey());
+    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
     checkDefaultProfile(organization, xoo2Key, xoo2Profile.getKee());
   }
 
@@ -125,8 +125,8 @@ public class SetDefaultActionTest {
   public void set_default_profile_using_language_and_name() throws Exception {
     logInAsQProfileAdministrator();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKey());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKey());
+    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
+    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
 
     TestResponse response = tester.newRequest().setMethod("POST")
       .setParam("language", xoo2Profile.getLanguage())
@@ -136,7 +136,7 @@ public class SetDefaultActionTest {
 
     assertThat(response.getInput()).isEmpty();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKey());
+    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
     checkDefaultProfile(organization, xoo2Key, xoo2Profile.getKee());
   }
 
@@ -161,8 +161,8 @@ public class SetDefaultActionTest {
     db.qualityProfiles().insertQualityProfiles(profileOrg1Old, profileOrg1New, profileOrg2);
     db.qualityProfiles().markAsDefault(profileOrg1Old, profileOrg2);
 
-    checkDefaultProfile(organization1, xoo1Key, profileOrg1Old.getKey());
-    checkDefaultProfile(organization2, xoo1Key, profileOrg2.getKey());
+    checkDefaultProfile(organization1, xoo1Key, profileOrg1Old.getKee());
+    checkDefaultProfile(organization2, xoo1Key, profileOrg2.getKee());
 
     TestResponse response = tester.newRequest().setMethod("POST")
       .setParam("language", profileOrg1New.getLanguage())
@@ -173,7 +173,7 @@ public class SetDefaultActionTest {
     assertThat(response.getInput()).isEmpty();
     assertThat(response.getStatus()).isEqualTo(204);
 
-    checkDefaultProfile(organization1, xoo1Key, profileOrg1New.getKey());
+    checkDefaultProfile(organization1, xoo1Key, profileOrg1New.getKee());
     checkDefaultProfile(organization2, xoo1Key, profileOrg2.getKee());
   }
 
@@ -188,8 +188,8 @@ public class SetDefaultActionTest {
       .setParam("profileKey", "unknown-profile-666")
       .execute();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKey());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKey());
+    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
+    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
   }
 
   @Test
@@ -204,8 +204,8 @@ public class SetDefaultActionTest {
       Fail.failBecauseExceptionWasNotThrown(NotFoundException.class);
     } catch (NotFoundException nfe) {
       assertThat(nfe).hasMessage("Quality Profile for language 'xoo2' and name 'Unknown' does not exist");
-      checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKey());
-      checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKey());
+      checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
+      checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
     }
   }
 
@@ -251,6 +251,6 @@ public class SetDefaultActionTest {
   }
 
   private void checkDefaultProfile(OrganizationDto organization, String language, String key) {
-    assertThat(dbClient.qualityProfileDao().selectDefaultProfile(db.getSession(), organization, language).getKey()).isEqualTo(key);
+    assertThat(dbClient.qualityProfileDao().selectDefaultProfile(db.getSession(), organization, language).getKee()).isEqualTo(key);
   }
 }

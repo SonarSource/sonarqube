@@ -83,7 +83,7 @@ public class SearchData {
   }
 
   boolean isDefault(RulesProfileDto profile) {
-    return defaultProfileKeys.contains(profile.getKey());
+    return defaultProfileKeys.contains(profile.getKee());
   }
 
   SearchData setDefaultProfileKeys(Set<String> s) {
