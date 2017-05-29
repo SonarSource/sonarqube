@@ -22,7 +22,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import RenameProfileView from '../views/RenameProfileView';
 import CopyProfileForm from './CopyProfileForm';
-import DeleteProfileView from '../views/DeleteProfileView';
+import DeleteProfileForm from './DeleteProfileForm';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
@@ -39,7 +39,8 @@ type Props = {
 };
 
 type State = {
-  copyFormOpen: boolean
+  copyFormOpen: boolean,
+  deleteFormOpen: boolean
 };
 
 export default class ProfileActions extends React.PureComponent {
@@ -56,7 +57,10 @@ export default class ProfileActions extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.state = { copyFormOpen: false };
+    this.state = {
+      copyFormOpen: false,
+      deleteFormOpen: false
+    };
   }
 
   handleRenameClick = (e: SyntheticInputEvent) => {
@@ -96,14 +100,18 @@ export default class ProfileActions extends React.PureComponent {
     setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles);
   };
 
-  handleDeleteClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new DeleteProfileView({ profile: this.props.profile })
-      .on('done', () => {
-        this.context.router.replace(getProfilesPath(this.props.organization));
-        this.props.updateProfiles();
-      })
-      .render();
+  handleDeleteClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ deleteFormOpen: true });
+  };
+
+  handleProfileDelete = () => {
+    this.context.router.replace(getProfilesPath(this.props.organization));
+    this.props.updateProfiles();
+  };
+
+  closeDeleteForm = () => {
+    this.setState({ deleteFormOpen: false });
   };
 
   render() {
@@ -172,6 +180,14 @@ export default class ProfileActions extends React.PureComponent {
           <CopyProfileForm
             onClose={this.closeCopyForm}
             onCopy={this.handleProfileCopy}
+            onRequestFail={this.props.onRequestFail}
+            profile={profile}
+          />}
+
+        {this.state.deleteFormOpen &&
+          <DeleteProfileForm
+            onClose={this.closeDeleteForm}
+            onDelete={this.handleProfileDelete}
             onRequestFail={this.props.onRequestFail}
             profile={profile}
           />}
