@@ -27,6 +27,11 @@ import { getMeasures } from '../../../api/measures';
 import { getMetrics } from '../../../api/metrics';
 import { formatMeasure } from '../../../helpers/measures';
 
+const severityComparator = severity => {
+  const SEVERITIES_ORDER = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
+  return SEVERITIES_ORDER.indexOf(severity);
+};
+
 export default ModalView.extend({
   template: Template,
   testsOrder: ['ERROR', 'FAILURE', 'OK', 'SKIPPED'],
@@ -168,7 +173,7 @@ export default ModalView.extend({
 
         const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
         const sortedSeveritiesFacet = sortBy(severitiesFacet, facet =>
-          window.severityComparator(facet.val)
+          severityComparator(facet.val)
         );
 
         const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
