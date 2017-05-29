@@ -6,7 +6,6 @@
                   organization_uuid="org-123"
                   parent_kee="java_parent"
                   kee="java_child1"
-                  is_default="[false]"
                   is_built_in="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
@@ -18,7 +17,6 @@
                   organization_uuid="org-123"
                   parent_kee="java_parent"
                   kee="java_child2"
-                  is_default="[false]"
                   is_built_in="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
@@ -30,7 +28,6 @@
                   organization_uuid="org-123"
                   parent_kee="[null]"
                   kee="java_parent"
-                  is_default="[false]"
                   is_built_in="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
@@ -45,7 +42,6 @@
                   parent_kee="js_parent"
                   kee="js_child1"
                   is_built_in="[false]"
-                  is_default="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
                   updated_at="[null]"/>
@@ -57,7 +53,6 @@
                   parent_kee="js_parent"
                   kee="js_child2"
                   is_built_in="[false]"
-                  is_default="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
                   updated_at="[null]"/>
@@ -69,7 +64,6 @@
                   parent_kee="[null]"
                   kee="js_parent"
                   is_built_in="[false]"
-                  is_default="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
                   updated_at="[null]"/>

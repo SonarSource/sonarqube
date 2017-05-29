@@ -39,7 +39,7 @@
                   language="xoo"
                   parent_kee="[null]"
                   is_built_in="[false]"
-                  is_default="[false]"/>
+  />
 
   <rules_profiles id="2"
                   name="Child"
@@ -48,7 +48,7 @@
                   language="xoo"
                   parent_kee="parent"
                   is_built_in="[false]"
-                  is_default="[false]"/>
+  />
 
   <active_rules id="1"
                 profile_id="2"
@@ -74,7 +74,7 @@
                   language="xoo"
                   parent_kee="[null]"
                   is_built_in="[false]"
-                  is_default="[false]"/>
+  />
 
   <active_rules id="3"
                 profile_id="3"
