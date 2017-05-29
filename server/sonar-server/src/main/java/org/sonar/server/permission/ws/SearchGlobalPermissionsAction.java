@@ -94,7 +94,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
             .setKey(permissionKey)
             .setName(i18nName(permissionKey))
             .setDescription(i18nDescriptionMessage(permissionKey))
-            .setUsersCount(countUsers(dbSession, org, query))
+            .setUsersCount(countUsers(dbSession, query))
             .setGroupsCount(countGroups(dbSession, org, permissionKey)));
       });
 
@@ -114,8 +114,8 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     return dbClient.groupPermissionDao().countGroupsByQuery(dbSession, query);
   }
 
-  private int countUsers(DbSession dbSession, OrganizationDto org, PermissionQuery permissionQuery) {
-    return dbClient.userPermissionDao().countUsers(dbSession, org.getUuid(), permissionQuery);
+  private int countUsers(DbSession dbSession, PermissionQuery permissionQuery) {
+    return dbClient.userPermissionDao().countUsersByQuery(dbSession, permissionQuery);
   }
 
   private static PermissionQuery permissionQuery(String permissionKey, OrganizationDto org) {
