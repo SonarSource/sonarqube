@@ -99,7 +99,6 @@ public class QProfileFactoryMediumTest {
     assertThat(writtenDto.getLanguage()).isEqualTo("xoo");
     assertThat(writtenDto.getId()).isNotNull();
     assertThat(writtenDto.getParentKee()).isNull();
-    assertThat(writtenDto.isDefault()).isTrue();
 
     // reload the dto
     QualityProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
@@ -178,6 +177,5 @@ public class QProfileFactoryMediumTest {
     assertThat(readDto.getLanguage()).isEqualTo(writtenDto.getLanguage());
     assertThat(readDto.getId()).isEqualTo(writtenDto.getId());
     assertThat(readDto.getParentKee()).isEqualTo(writtenDto.getParentKee());
-    assertThat(readDto.isDefault()).isEqualTo(writtenDto.isDefault());
   }
 }

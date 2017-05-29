@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
@@ -34,6 +35,7 @@ public class SearchData {
   private Map<String, Long> activeRuleCountByProfileKey;
   private Map<String, Long> activeDeprecatedRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
+  private Set<String> defaultProfileKeys;
 
   public SearchData setOrganization(OrganizationDto organization) {
     this.organization = organization;
@@ -78,5 +80,14 @@ public class SearchData {
 
   public long getActiveDeprecatedRuleCount(String profileKey) {
     return firstNonNull(activeDeprecatedRuleCountByProfileKey.get(profileKey), 0L);
+  }
+
+  boolean isDefault(QualityProfileDto profile) {
+    return defaultProfileKeys.contains(profile.getKey());
+  }
+
+  SearchData setDefaultProfileKeys(Set<String> s) {
+    this.defaultProfileKeys = s;
+    return this;
   }
 }

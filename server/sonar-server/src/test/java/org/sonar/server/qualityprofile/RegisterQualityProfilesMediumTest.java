@@ -39,6 +39,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.es.SearchOptions;
@@ -211,11 +212,8 @@ public class RegisterQualityProfilesMediumTest {
     dbSession = dbClient().openSession(false);
     OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
-    QualityProfileDao dao = dbClient().qualityProfileDao();
-    dao.update(dbSession, dao.selectDefaultProfile(dbSession, organization, "xoo")
-      .setDefault(false));
-    dao.update(dbSession, dao.selectByNameAndLanguage(organization, "two", "xoo", dbSession)
-      .setDefault(true));
+    QualityProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "two", "xoo", dbSession);
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
     dbSession.commit();
 
     verifyDefaultProfile(organization, "xoo", "two");

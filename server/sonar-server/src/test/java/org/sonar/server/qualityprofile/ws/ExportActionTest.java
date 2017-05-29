@@ -187,14 +187,15 @@ public class ExportActionTest {
   public void do_not_mismatch_profiles_with_other_organizations_and_languages() {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
-    QualityProfileDto defaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
-    QualityProfileDto defaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
-    QualityProfileDto defaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
-    QualityProfileDto defaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
+    QualityProfileDto defaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("Sonar Way"));
+    QualityProfileDto nonDefaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("My Way"));
+    QualityProfileDto defaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("Sonar Way"));
+    QualityProfileDto nonDefaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("My Way"));
+    QualityProfileDto defaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("Sonar Way"));
+    QualityProfileDto nonDefaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("My Way"));
+    QualityProfileDto defaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("Sonar Way"));
+    QualityProfileDto nonDefaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("My Way"));
+    db.qualityProfiles().markAsDefault(defaultJavaInOrg1, defaultJavaInOrg2, defaultXooInOrg1, defaultXooInOrg2);
 
     WsActionTester tester = newWsActionTester();
 
@@ -218,7 +219,11 @@ public class ExportActionTest {
   }
 
   private QualityProfileDto createProfile(OrganizationDto organization, boolean isDefault) {
-    return db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(isDefault));
+    QualityProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO_LANGUAGE));
+    if (isDefault) {
+      db.qualityProfiles().markAsDefault(profile);
+    }
+    return profile;
   }
 
   private WsActionTester newWsActionTester(ProfileExporter... profileExporters) {

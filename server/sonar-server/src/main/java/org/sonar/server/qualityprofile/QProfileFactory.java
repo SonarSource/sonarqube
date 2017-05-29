@@ -99,7 +99,6 @@ public class QProfileFactory {
       .setName(name.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
-      .setDefault(isDefault)
       .setIsBuiltIn(isBuiltIn)
       .setRulesUpdatedAtAsDate(now);
     db.qualityProfileDao().insert(dbSession, dto);

@@ -7,7 +7,7 @@
                   parent_kee="[null]"
                   kee="java_sonar_way"
                   is_built_in="[true]"
-                  is_default="[true]"
+                  is_default="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
                   updated_at="[null]"
@@ -27,5 +27,11 @@
                   updated_at="[null]"
                   last_used="123456789"
                   user_updated_at="987654321"/>
+
+  <default_qprofiles
+    organization_uuid="QualityProfileDaoTest-ORG"
+    language="java"
+    qprofile_uuid="java_sonar_way"
+  />
 
 </dataset>

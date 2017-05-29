@@ -221,7 +221,6 @@ public class RestoreActionTest {
         throw new IllegalStateException(e);
       }
       QualityProfileDto profile = QualityProfileDto.createFor("P1")
-        .setDefault(false)
         .setLanguage("xoo")
         .setName(overriddenProfileName != null ? overriddenProfileName : "the-name-in-backup");
       restoredSummary = new QProfileRestoreSummary(profile, new BulkChangeResult());
