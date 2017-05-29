@@ -19,28 +19,20 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import ProjectsOptionBar from '../ProjectsOptionBar';
-import { click } from '../../../../helpers/testUtils';
+import ProjectsSortingSelect from '../ProjectsSortingSelect';
 
-it('should render option bar closed', () => {
-  expect(shallow(<ProjectsOptionBar open={false} view="overall" />)).toMatchSnapshot();
+it('should render correctly for overall view', () => {
+  expect(shallow(<ProjectsSortingSelect selectedSort="name" view="overall" />)).toMatchSnapshot();
 });
 
-it('should render option bar open', () => {
+it('should render correctly for leak view', () => {
   expect(
-    shallow(<ProjectsOptionBar open={true} view="leak" visualization="risk" />)
+    shallow(<ProjectsSortingSelect selectedSort="new_coverage" view="leak" />)
   ).toMatchSnapshot();
 });
 
-it.skip('should not render sorting options for visualizations', () => {
+it('should handle the descending sort direction', () => {
   expect(
-    shallow(<ProjectsOptionBar open={true} view="visualizations" visualization="coverage" />)
+    shallow(<ProjectsSortingSelect selectedSort="-vulnerability" view="overall" />)
   ).toMatchSnapshot();
-});
-
-it('should call close method correctly', () => {
-  const toggle = jest.fn();
-  const wrapper = shallow(<ProjectsOptionBar open={true} view="leak" onToggleOptionBar={toggle} />);
-  click(wrapper.find('a.projects-topbar-button'));
-  expect(toggle.mock.calls).toMatchSnapshot();
 });

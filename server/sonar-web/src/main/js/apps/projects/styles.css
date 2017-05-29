@@ -39,28 +39,23 @@
   border-bottom: 1px solid #e6e6e6;
 }
 
+.projects-topbar-item {
+  padding: 0 24px;
+}
+
 .projects-topbar-button {
   box-sizing: border-box;
   float: right;
   padding: 11px;
+  padding-top: 15px;
   border: none;
+  border-left: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
   width: 46px;
   height: 46px;
-  color: #777;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-}
-
-.projects-topbar-button-close {
-  padding-top: 15px;
-  border-left: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
-}
-
-.projects-topbar-button:hover, .project-topbar-button:focus, .project-topbar-button:active {
-  color: #444;
-  outline: none;
 }
 
 .projects-sidebar {

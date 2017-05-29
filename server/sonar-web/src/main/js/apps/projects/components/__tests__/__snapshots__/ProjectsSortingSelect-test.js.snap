@@ -1,0 +1,352 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should handle the descending sort direction 1`] = `
+<div>
+  <label>
+    projects.sort_by
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-large"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.name",
+          "short": undefined,
+          "value": "name",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.analysis_date",
+          "short": undefined,
+          "value": "analysis_date",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.reliability",
+          "short": undefined,
+          "value": "reliability",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.security",
+          "short": undefined,
+          "value": "security",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.maintainability",
+          "short": undefined,
+          "value": "maintainability",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.coverage",
+          "short": undefined,
+          "value": "coverage",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.duplications",
+          "short": undefined,
+          "value": "duplications",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.size",
+          "short": undefined,
+          "value": "size",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="vulnerability"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+  <Tooltip
+    overlay="projects.sort_descending"
+    placement="bottom"
+  >
+    <a
+      className="spacer-left button-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <SortDescIcon
+        className="little-spacer-top"
+      />
+    </a>
+  </Tooltip>
+</div>
+`;
+
+exports[`should render correctly for leak view 1`] = `
+<div>
+  <label>
+    projects.sort_by
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-large"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.name",
+          "short": undefined,
+          "value": "name",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.analysis_date",
+          "short": undefined,
+          "value": "analysis_date",
+        },
+        Object {
+          "complement": "projects.sorting.on_new_code",
+          "label": "projects.sorting.new_reliability",
+          "short": "projects.sorting.new_reliability.short",
+          "value": "new_reliability",
+        },
+        Object {
+          "complement": "projects.sorting.on_new_code",
+          "label": "projects.sorting.new_security",
+          "short": "projects.sorting.new_security.short",
+          "value": "new_security",
+        },
+        Object {
+          "complement": "projects.sorting.on_new_code",
+          "label": "projects.sorting.new_maintainability",
+          "short": "projects.sorting.new_maintainability.short",
+          "value": "new_maintainability",
+        },
+        Object {
+          "complement": "projects.sorting.on_new_code",
+          "label": "projects.sorting.new_coverage",
+          "short": "projects.sorting.new_coverage.short",
+          "value": "new_coverage",
+        },
+        Object {
+          "complement": "projects.sorting.on_new_lines",
+          "label": "projects.sorting.new_duplications",
+          "short": "projects.sorting.new_duplications.short",
+          "value": "new_duplications",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.new_lines",
+          "short": undefined,
+          "value": "new_lines",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="new_coverage"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+  <Tooltip
+    overlay="projects.sort_ascending"
+    placement="bottom"
+  >
+    <a
+      className="spacer-left button-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <SortAscIcon
+        className="little-spacer-top"
+      />
+    </a>
+  </Tooltip>
+</div>
+`;
+
+exports[`should render correctly for overall view 1`] = `
+<div>
+  <label>
+    projects.sort_by
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-large"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.name",
+          "short": undefined,
+          "value": "name",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.analysis_date",
+          "short": undefined,
+          "value": "analysis_date",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.reliability",
+          "short": undefined,
+          "value": "reliability",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.security",
+          "short": undefined,
+          "value": "security",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.maintainability",
+          "short": undefined,
+          "value": "maintainability",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.coverage",
+          "short": undefined,
+          "value": "coverage",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.duplications",
+          "short": undefined,
+          "value": "duplications",
+        },
+        Object {
+          "complement": undefined,
+          "label": "projects.sorting.size",
+          "short": undefined,
+          "value": "size",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="name"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+  <Tooltip
+    overlay="projects.sort_ascending"
+    placement="bottom"
+  >
+    <a
+      className="spacer-left button-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <SortAscIcon
+        className="little-spacer-top"
+      />
+    </a>
+  </Tooltip>
+</div>
+`;

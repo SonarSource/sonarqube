@@ -30,7 +30,7 @@ import NewDuplicationsFilter from '../filters/NewDuplicationsFilter';
 import NewMaintainabilityFilter from '../filters/NewMaintainabilityFilter';
 import NewReliabilityFilter from '../filters/NewReliabilityFilter';
 import NewSecurityFilter from '../filters/NewSecurityFilter';
-import NewSizeFilter from '../filters/NewSizeFilter';
+import NewLinesFilter from '../filters/NewLinesFilter';
 import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
@@ -101,7 +101,7 @@ export default function PageSidebar({
         <NewMaintainabilityFilter key="new_maintainability" {...facetProps} />,
         <NewCoverageFilter key="new_coverage" {...facetProps} />,
         <NewDuplicationsFilter key="new_duplications" {...facetProps} />,
-        <NewSizeFilter key="new_size" {...facetProps} />
+        <NewLinesFilter key="new_size" {...facetProps} />
       ]}
       <LanguagesFilterContainer {...facetProps} />
       <TagsFilterContainer {...facetProps} />
