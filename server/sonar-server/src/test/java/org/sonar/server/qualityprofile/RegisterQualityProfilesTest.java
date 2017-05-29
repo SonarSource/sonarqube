@@ -33,7 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -108,8 +108,8 @@ public class RegisterQualityProfilesTest {
     OrganizationDto org1 = dbTester.organizations().insert(org -> org.setKey("org1"));
     OrganizationDto org2 = dbTester.organizations().insert(org -> org.setKey("org2"));
 
-    QualityProfileDto outdatedProfileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
-    QualityProfileDto outdatedProfileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    RulesProfileDto outdatedProfileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    RulesProfileDto outdatedProfileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
     builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", false);
     builtInQProfileRepositoryRule.initialize();
 

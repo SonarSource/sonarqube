@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -68,7 +68,7 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
         return;
       }
 
-      List<QualityProfileDto> dtos = dbClient.qualityProfileDao().selectByKeys(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).collect(Collectors.toList()));
+      List<RulesProfileDto> dtos = dbClient.qualityProfileDao().selectByKeys(dbSession, qualityProfiles.stream().map(QualityProfile::getQpKey).collect(Collectors.toList()));
       dtos.addAll(getAncestors(dbSession, dtos));
       long analysisDate = analysisMetadataHolder.getAnalysisDate();
       dtos.forEach(dto -> {
@@ -80,16 +80,16 @@ public class UpdateQualityProfilesLastUsedDateStep implements ComputationStep {
     }
   }
 
-  private List<QualityProfileDto> getAncestors(DbSession dbSession, List<QualityProfileDto> dtos) {
-    List<QualityProfileDto> ancestors = new ArrayList<>();
+  private List<RulesProfileDto> getAncestors(DbSession dbSession, List<RulesProfileDto> dtos) {
+    List<RulesProfileDto> ancestors = new ArrayList<>();
     dtos.forEach(dto -> incrementAncestors(dbSession, dto, ancestors));
     return ancestors;
   }
 
-  private void incrementAncestors(DbSession session, QualityProfileDto profile, List<QualityProfileDto> ancestors) {
+  private void incrementAncestors(DbSession session, RulesProfileDto profile, List<RulesProfileDto> ancestors) {
     String parentKey = profile.getParentKee();
     if (parentKey != null) {
-      QualityProfileDto parentDto = dbClient.qualityProfileDao().selectOrFailByKey(session, parentKey);
+      RulesProfileDto parentDto = dbClient.qualityProfileDao().selectOrFailByKey(session, parentKey);
       ancestors.add(parentDto);
       incrementAncestors(session, parentDto, ancestors);
     }

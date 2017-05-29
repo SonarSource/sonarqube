@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
@@ -102,7 +102,7 @@ public class RestoreAction implements QProfileWsAction {
   }
 
   private void writeResponse(JsonWriter json, OrganizationDto organization, QProfileRestoreSummary summary) {
-    QualityProfileDto profile = summary.getProfile();
+    RulesProfileDto profile = summary.getProfile();
     String languageKey = profile.getLanguage();
     Language language = languages.get(languageKey);
 

@@ -38,7 +38,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -115,7 +115,7 @@ public class CreateActionTest {
 
     CreateWsResponse response = executeRequest("New Profile", XOO_LANGUAGE);
 
-    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
+    RulesProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
     assertThat(dto.getKey()).isNotNull();
     assertThat(dto.getLanguage()).isEqualTo(XOO_LANGUAGE);
     assertThat(dto.getName()).isEqualTo("New Profile");
@@ -137,7 +137,7 @@ public class CreateActionTest {
 
     executeRequest("New Profile", XOO_LANGUAGE, ImmutableMap.of("xoo_lint", "<xml/>"));
 
-    QualityProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
+    RulesProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
     assertThat(dto.getKey()).isNotNull();
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, dto.getKey())).hasSize(1);
     assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(dto.getKey()).setActivation(true))).hasSize(1);

@@ -63,8 +63,8 @@ public class ActiveRuleDaoTest {
 
   private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
 
-  private QualityProfileDto profile1 = QualityProfileDto.createFor("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
-  private QualityProfileDto profile2 = QualityProfileDto.createFor("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
+  private RulesProfileDto profile1 = RulesProfileDto.createFor("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
+  private RulesProfileDto profile2 = RulesProfileDto.createFor("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
 
   private RuleDefinitionDto rule1 = RuleTesting.newRule(RuleTesting.XOO_X1);
   private RuleDefinitionDto rule2 = RuleTesting.newRule(RuleTesting.XOO_X2);
@@ -334,7 +334,7 @@ public class ActiveRuleDaoTest {
     assertThat(dbTester.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
   }
 
-  private static ActiveRuleDto newRow(QualityProfileDto profile, RuleDefinitionDto rule) {
+  private static ActiveRuleDto newRow(RulesProfileDto profile, RuleDefinitionDto rule) {
     return createFor(profile, rule).setSeverity(BLOCKER);
   }
 

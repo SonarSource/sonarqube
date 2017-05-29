@@ -35,7 +35,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
@@ -275,7 +275,7 @@ public class ShowActionMediumTest {
     RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, ruleDto, regexParam);
 
-    QualityProfileDto profile = QualityProfileDto.createFor("profile")
+    RulesProfileDto profile = RulesProfileDto.createFor("profile")
       .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setName("Profile")
       .setLanguage("xoo");

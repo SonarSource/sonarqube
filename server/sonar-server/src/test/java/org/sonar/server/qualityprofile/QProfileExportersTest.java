@@ -41,7 +41,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -102,7 +102,7 @@ public class QProfileExportersTest {
 
   @Test
   public void import_xml() {
-    QualityProfileDto profileDto = QProfileTesting.newQProfileDto("org-123", QProfileName.createFor("xoo", "import_xml"), "import_xml");
+    RulesProfileDto profileDto = QProfileTesting.newQProfileDto("org-123", QProfileName.createFor("xoo", "import_xml"), "import_xml");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 

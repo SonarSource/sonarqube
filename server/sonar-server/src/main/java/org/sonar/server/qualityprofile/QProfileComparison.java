@@ -36,7 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
 @ServerSide
 @ComputeEngineSide
@@ -48,7 +48,7 @@ public class QProfileComparison {
     this.dbClient = dbClient;
   }
 
-  public QProfileComparisonResult compare(DbSession dbSession, QualityProfileDto left, QualityProfileDto right) {
+  public QProfileComparisonResult compare(DbSession dbSession, RulesProfileDto left, RulesProfileDto right) {
     Map<RuleKey, ActiveRuleDto> leftActiveRulesByRuleKey = loadActiveRules(dbSession, left);
     Map<RuleKey, ActiveRuleDto> rightActiveRulesByRuleKey = loadActiveRules(dbSession, right);
 
@@ -86,29 +86,29 @@ public class QProfileComparison {
     }
   }
 
-  private Map<RuleKey, ActiveRuleDto> loadActiveRules(DbSession session, QualityProfileDto profile) {
+  private Map<RuleKey, ActiveRuleDto> loadActiveRules(DbSession session, RulesProfileDto profile) {
     return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfileKey(session, profile.getKey()), ActiveRuleToRuleKey.INSTANCE);
   }
 
   public static class QProfileComparisonResult {
 
-    private final QualityProfileDto left;
-    private final QualityProfileDto right;
+    private final RulesProfileDto left;
+    private final RulesProfileDto right;
     private final Map<RuleKey, ActiveRuleDto> inLeft = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDto> inRight = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDiff> modified = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDto> same = Maps.newHashMap();
 
-    public QProfileComparisonResult(QualityProfileDto left, QualityProfileDto right) {
+    public QProfileComparisonResult(RulesProfileDto left, RulesProfileDto right) {
       this.left = left;
       this.right = right;
     }
 
-    public QualityProfileDto left() {
+    public RulesProfileDto left() {
       return left;
     }
 
-    public QualityProfileDto right() {
+    public RulesProfileDto right() {
       return right;
     }
 

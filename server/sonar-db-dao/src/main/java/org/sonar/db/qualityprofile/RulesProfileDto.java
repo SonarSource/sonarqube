@@ -29,7 +29,7 @@ import org.sonar.db.organization.OrganizationDto;
 /**
  * Represents the table "rules_profiles"
  */
-public class QualityProfileDto extends Dto<String> {
+public class RulesProfileDto extends Dto<String> {
 
   private Integer id;
   /**
@@ -51,7 +51,7 @@ public class QualityProfileDto extends Dto<String> {
     return organizationUuid;
   }
 
-  public QualityProfileDto setOrganizationUuid(String organizationUuid) {
+  public RulesProfileDto setOrganizationUuid(String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;
   }
@@ -61,7 +61,7 @@ public class QualityProfileDto extends Dto<String> {
     return kee;
   }
 
-  public QualityProfileDto setKey(String s) {
+  public RulesProfileDto setKey(String s) {
     return setKee(s);
   }
 
@@ -69,7 +69,7 @@ public class QualityProfileDto extends Dto<String> {
     return kee;
   }
 
-  public QualityProfileDto setKee(String s) {
+  public RulesProfileDto setKee(String s) {
     this.kee = s;
     return this;
   }
@@ -78,7 +78,7 @@ public class QualityProfileDto extends Dto<String> {
     return id;
   }
 
-  public QualityProfileDto setId(Integer id) {
+  public RulesProfileDto setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -87,7 +87,7 @@ public class QualityProfileDto extends Dto<String> {
     return name;
   }
 
-  public QualityProfileDto setName(String name) {
+  public RulesProfileDto setName(String name) {
     this.name = name;
     return this;
   }
@@ -96,7 +96,7 @@ public class QualityProfileDto extends Dto<String> {
     return language;
   }
 
-  public QualityProfileDto setLanguage(String language) {
+  public RulesProfileDto setLanguage(String language) {
     this.language = language;
     return this;
   }
@@ -106,7 +106,7 @@ public class QualityProfileDto extends Dto<String> {
     return parentKee;
   }
 
-  public QualityProfileDto setParentKee(@Nullable String s) {
+  public RulesProfileDto setParentKee(@Nullable String s) {
     this.parentKee = s;
     return this;
   }
@@ -115,12 +115,12 @@ public class QualityProfileDto extends Dto<String> {
     return rulesUpdatedAt;
   }
 
-  public QualityProfileDto setRulesUpdatedAt(String s) {
+  public RulesProfileDto setRulesUpdatedAt(String s) {
     this.rulesUpdatedAt = s;
     return this;
   }
 
-  public QualityProfileDto setRulesUpdatedAtAsDate(Date d) {
+  public RulesProfileDto setRulesUpdatedAtAsDate(Date d) {
     this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
     return this;
   }
@@ -130,7 +130,7 @@ public class QualityProfileDto extends Dto<String> {
     return lastUsed;
   }
 
-  public QualityProfileDto setLastUsed(@Nullable Long lastUsed) {
+  public RulesProfileDto setLastUsed(@Nullable Long lastUsed) {
     this.lastUsed = lastUsed;
     return this;
   }
@@ -140,7 +140,7 @@ public class QualityProfileDto extends Dto<String> {
     return userUpdatedAt;
   }
 
-  public QualityProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
+  public RulesProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
     this.userUpdatedAt = userUpdatedAt;
     return this;
   }
@@ -149,12 +149,12 @@ public class QualityProfileDto extends Dto<String> {
     return isBuiltIn;
   }
 
-  public QualityProfileDto setIsBuiltIn(boolean b) {
+  public RulesProfileDto setIsBuiltIn(boolean b) {
     this.isBuiltIn = b;
     return this;
   }
 
-  public static QualityProfileDto createFor(String key) {
-    return new QualityProfileDto().setKee(key);
+  public static RulesProfileDto createFor(String key) {
+    return new RulesProfileDto().setKee(key);
   }
 }

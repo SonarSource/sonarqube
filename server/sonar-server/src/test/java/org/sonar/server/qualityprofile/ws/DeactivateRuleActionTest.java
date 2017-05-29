@@ -34,7 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -96,7 +96,7 @@ public class DeactivateRuleActionTest {
   @Test
   public void should_fail_if_not_organization_quality_profile_administrator() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
@@ -109,7 +109,7 @@ public class DeactivateRuleActionTest {
   @Test
   public void deactivate_rule_in_default_organization() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
@@ -128,7 +128,7 @@ public class DeactivateRuleActionTest {
   @Test
   public void deactivate_rule_in_specific_organization() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")

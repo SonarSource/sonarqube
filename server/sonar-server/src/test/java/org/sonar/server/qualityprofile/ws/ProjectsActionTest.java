@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.exceptions.NotFoundException;
@@ -52,8 +52,8 @@ public class ProjectsActionTest {
 
   private OrganizationDto organizationDto;
   private UserDto user;
-  private QualityProfileDto xooP1;
-  private QualityProfileDto xooP2;
+  private RulesProfileDto xooP1;
+  private RulesProfileDto xooP2;
   private ComponentDto project1;
   private ComponentDto project2;
   private ComponentDto project3;
@@ -205,7 +205,7 @@ public class ProjectsActionTest {
     return ComponentTesting.newPrivateProjectDto(organizationDto, uuid).setName(name);
   }
 
-  private void associateProjectsWithProfile(DbSession session, QualityProfileDto profile, ComponentDto... projects) {
+  private void associateProjectsWithProfile(DbSession session, RulesProfileDto profile, ComponentDto... projects) {
     for (ComponentDto project : projects) {
       dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKey(), session);
     }
