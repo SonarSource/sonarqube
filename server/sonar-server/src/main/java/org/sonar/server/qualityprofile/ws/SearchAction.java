@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
@@ -30,6 +31,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -156,12 +158,16 @@ public class SearchAction implements QProfileWsAction {
         }
       }
 
+      List<QualityProfileDto> profiles = dataLoader.findProfiles(dbSession, request, organization, project);
+      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profiles.stream().map(QualityProfileDto::getKey).collect(MoreCollectors.toList()));
+
       return new SearchData()
         .setOrganization(organization)
-        .setProfiles(dataLoader.findProfiles(dbSession, request, organization, project))
+        .setProfiles(profiles)
         .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileKey(dbSession, organization))
         .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED))
-        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession, organization));
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession, organization))
+        .setDefaultProfileKeys(defaultProfiles);
     }
   }
 
@@ -203,14 +209,15 @@ public class SearchAction implements QProfileWsAction {
       setNullable(profile.getUserUpdatedAt(), userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));
       profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
       profileBuilder.setActiveDeprecatedRuleCount(data.getActiveDeprecatedRuleCount(profileKey));
-      if (!profile.isDefault()) {
+      boolean isDefault = data.isDefault(profile);
+      profileBuilder.setIsDefault(isDefault);
+      if (!isDefault) {
         profileBuilder.setProjectCount(data.getProjectCount(profileKey));
       }
 
       writeLanguageFields(profileBuilder, profile);
       writeParentFields(profileBuilder, profile, profilesByKey);
       profileBuilder.setIsInherited(profile.getParentKee() != null);
-      profileBuilder.setIsDefault(profile.isDefault());
       profileBuilder.setIsBuiltIn(profile.isBuiltIn());
     }
 

@@ -19,9 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -89,7 +87,8 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findDefaults() throws Exception {
-    insertQualityProfile(organization, dto -> dto.setDefault(true));
+    QualityProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().markAsDefault(profile);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
@@ -99,7 +98,8 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findForProject() throws Exception {
-    insertQualityProfile(organization, dto -> dto.setDefault(true));
+    QualityProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().markAsDefault(profile);
     ComponentDto project1 = insertProject();
     assertThat(findProfiles(
       new SearchWsRequest()
@@ -109,11 +109,12 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findAllForLanguage() throws Exception {
-    QualityProfileDto qualityProfile = insertQualityProfile(organization, dto -> dto.setDefault(true));
+    QualityProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().markAsDefault(profile);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setLanguage(qualityProfile.getLanguage()),
+        .setLanguage(profile.getLanguage()),
       null)).hasSize(1);
     assertThat(findProfiles(
       new SearchWsRequest()
@@ -127,13 +128,11 @@ public class SearchDataLoaderTest {
       .findProfiles(dbTester.getSession(), request, organization, project);
   }
 
-  private QualityProfileDto insertQualityProfile(OrganizationDto organization, Consumer<QualityProfileDto>... specials) {
+  private QualityProfileDto insertQualityProfile(OrganizationDto organization) {
     Language language = insertLanguage();
     QualityProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(language.getKey());
-    Arrays.stream(specials)
-      .forEachOrdered(c -> c.accept(qualityProfile));
     dbTester.qualityProfiles().insertQualityProfile(qualityProfile);
     return qualityProfile;
   }

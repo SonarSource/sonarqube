@@ -97,7 +97,6 @@ public class QualityProfileDaoTest {
       .setName("New Name")
       .setLanguage("js")
       .setParentKee("fghij")
-      .setDefault(false)
       .setIsBuiltIn(false);
 
     underTest.update(dbSession, dto);

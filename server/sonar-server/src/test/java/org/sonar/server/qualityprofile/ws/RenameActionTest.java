@@ -250,8 +250,7 @@ public class RenameActionTest {
       QualityProfileDto.createFor("sonar-way-xoo1-12345")
         .setOrganizationUuid(orgUuid)
         .setLanguage(xoo1Key)
-        .setName("Sonar way")
-        .setDefault(true),
+        .setName("Sonar way"),
 
       QualityProfileDto.createFor("sonar-way-xoo2-23456")
         .setOrganizationUuid(orgUuid)
@@ -262,8 +261,7 @@ public class RenameActionTest {
         .setOrganizationUuid(orgUuid)
         .setLanguage(xoo2Key)
         .setName("My Sonar way")
-        .setParentKee("sonar-way-xoo2-23456")
-        .setDefault(true));
+        .setParentKee("sonar-way-xoo2-23456"));
     db.commit();
   }
 
