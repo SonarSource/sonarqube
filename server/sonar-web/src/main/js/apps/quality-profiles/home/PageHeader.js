@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import CreateProfileView from '../views/CreateProfileView';
-import RestoreProfileView from '../views/RestoreProfileView';
+import RestoreProfileForm from './RestoreProfileForm';
 import RestoreBuiltInProfilesView from '../views/RestoreBuiltInProfilesView';
 import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
@@ -29,8 +29,14 @@ import { getImporters } from '../../../api/quality-profiles';
 type Props = {
   canAdmin: boolean,
   languages: Array<{ key: string, name: string }>,
+  onRequestFail: Object => void,
   organization: ?string,
   updateProfiles: () => Promise<*>
+};
+
+type State = {
+  importers?: Array<{}>,
+  restoreFormOpen: boolean
 };
 
 export default class PageHeader extends React.PureComponent {
@@ -41,7 +47,9 @@ export default class PageHeader extends React.PureComponent {
     router: React.PropTypes.object
   };
 
-  state = {};
+  state: State = {
+    restoreFormOpen: false
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -82,13 +90,13 @@ export default class PageHeader extends React.PureComponent {
     });
   };
 
-  handleRestoreClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new RestoreProfileView({
-      organization: this.props.organization
-    })
-      .on('done', this.props.updateProfiles)
-      .render();
+  handleRestoreClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ restoreFormOpen: true });
+  };
+
+  closeRestoreForm = () => {
+    this.setState({ restoreFormOpen: false });
   };
 
   handleRestoreBuiltIn = (e: SyntheticInputEvent) => {
@@ -139,6 +147,14 @@ export default class PageHeader extends React.PureComponent {
           <br />
           {translate('quality_profiles.intro2')}
         </div>
+
+        {this.state.restoreFormOpen &&
+          <RestoreProfileForm
+            onClose={this.closeRestoreForm}
+            onRequestFail={this.props.onRequestFail}
+            onRestore={this.props.updateProfiles}
+            organization={this.props.organization}
+          />}
       </header>
     );
   }
