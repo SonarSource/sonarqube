@@ -32,7 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
@@ -84,7 +84,7 @@ public class ChangelogAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     QProfileReference reference = QProfileReference.from(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = wsSupport.getProfile(dbSession, reference);
+      RulesProfileDto profile = wsSupport.getProfile(dbSession, reference);
 
       QProfileChangeQuery query = new QProfileChangeQuery(profile.getKey());
       Date since = parseStartingDateOrDateTime(request.param(PARAM_SINCE));

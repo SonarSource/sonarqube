@@ -39,8 +39,9 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.index.RuleIndex;
@@ -79,7 +80,7 @@ public class RegisterQualityProfilesMediumTest {
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
     assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
+    RulesProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
     assertThat(profile.isBuiltIn()).isTrue();
 
@@ -129,7 +130,7 @@ public class RegisterQualityProfilesMediumTest {
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
     assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
+    RulesProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
     assertThat(profile.isBuiltIn()).isTrue();
 
@@ -211,11 +212,8 @@ public class RegisterQualityProfilesMediumTest {
     dbSession = dbClient().openSession(false);
     OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
-    QualityProfileDao dao = dbClient().qualityProfileDao();
-    dao.update(dbSession, dao.selectDefaultProfile(dbSession, organization, "xoo")
-      .setDefault(false));
-    dao.update(dbSession, dao.selectByNameAndLanguage(organization, "two", "xoo", dbSession)
-      .setDefault(true));
+    RulesProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "two", "xoo", dbSession);
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
     dbSession.commit();
 
     verifyDefaultProfile(organization, "xoo", "two");
@@ -227,7 +225,7 @@ public class RegisterQualityProfilesMediumTest {
 
   private void verifyDefaultProfile(OrganizationDto organization, String language, String name) {
     dbSession = dbClient().openSession(false);
-    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
+    RulesProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
     assertThat(defaultProfile).isNotNull();
     assertThat(defaultProfile.getName()).isEqualTo(name);
   }

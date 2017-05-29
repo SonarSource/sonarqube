@@ -28,7 +28,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
@@ -85,7 +85,7 @@ public class ChangeParentAction implements QProfileWsAction {
     QProfileReference reference = QProfileReference.from(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = wsSupport.getProfile(dbSession, reference);
+      RulesProfileDto profile = wsSupport.getProfile(dbSession, reference);
       String organizationUuid = profile.getOrganizationUuid();
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' of profile '%s'", organizationUuid, profile.getKee())));
@@ -99,7 +99,7 @@ public class ChangeParentAction implements QProfileWsAction {
         String parentOrganizationKey = parentKey == null ? organization.getKey() : null;
         String parentLanguage = parentKey == null ? request.param(PARAM_LANGUAGE) : null;
         QProfileReference parentRef = QProfileReference.from(parentKey, parentOrganizationKey, parentLanguage, parentName);
-        QualityProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
+        RulesProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
         ruleActivator.setParent(dbSession, profile.getKey(), parent.getKey());
       }
       response.noContent();

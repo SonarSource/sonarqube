@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -92,7 +92,7 @@ public class ExportActionTest {
 
   @Test
   public void export_profile_in_default_organization() {
-    QualityProfileDto profile = createProfile(db.getDefaultOrganization(), false);
+    RulesProfileDto profile = createProfile(db.getDefaultOrganization(), false);
 
     WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
     String result = tester.newRequest()
@@ -107,7 +107,7 @@ public class ExportActionTest {
   @Test
   public void export_profile_in_specified_organization() {
     OrganizationDto organization = db.organizations().insert();
-    QualityProfileDto profile = createProfile(organization, false);
+    RulesProfileDto profile = createProfile(organization, false);
 
     WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
     String result = tester.newRequest()
@@ -137,8 +137,8 @@ public class ExportActionTest {
 
   @Test
   public void export_default_profile() throws Exception {
-    QualityProfileDto nonDefaultProfile = createProfile(db.getDefaultOrganization(), false);
-    QualityProfileDto defaultProfile = createProfile(db.getDefaultOrganization(), true);
+    RulesProfileDto nonDefaultProfile = createProfile(db.getDefaultOrganization(), false);
+    RulesProfileDto defaultProfile = createProfile(db.getDefaultOrganization(), true);
 
     WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
     String result = tester.newRequest()
@@ -172,7 +172,7 @@ public class ExportActionTest {
   @Test
   public void return_backup_when_exporter_is_not_specified() throws Exception {
     OrganizationDto organization = db.getDefaultOrganization();
-    QualityProfileDto profile = createProfile(organization, false);
+    RulesProfileDto profile = createProfile(organization, false);
 
     String result = newWsActionTester(newExporter("polop")).newRequest()
       .setParam("language", profile.getLanguage())
@@ -187,14 +187,15 @@ public class ExportActionTest {
   public void do_not_mismatch_profiles_with_other_organizations_and_languages() {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
-    QualityProfileDto defaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
-    QualityProfileDto defaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
-    QualityProfileDto defaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
-    QualityProfileDto defaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(true), p -> p.setName("Sonar Way"));
-    QualityProfileDto nonDefaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(false), p -> p.setName("My Way"));
+    RulesProfileDto defaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("Sonar Way"));
+    RulesProfileDto nonDefaultJavaInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("My Way"));
+    RulesProfileDto defaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("Sonar Way"));
+    RulesProfileDto nonDefaultXooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("My Way"));
+    RulesProfileDto defaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("Sonar Way"));
+    RulesProfileDto nonDefaultJavaInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(JAVA_LANGUAGE), p -> p.setName("My Way"));
+    RulesProfileDto defaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("Sonar Way"));
+    RulesProfileDto nonDefaultXooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setName("My Way"));
+    db.qualityProfiles().markAsDefault(defaultJavaInOrg1, defaultJavaInOrg2, defaultXooInOrg1, defaultXooInOrg2);
 
     WsActionTester tester = newWsActionTester();
 
@@ -217,8 +218,12 @@ public class ExportActionTest {
         .isEqualTo("Backup of java/" + defaultJavaInOrg1.getKey());
   }
 
-  private QualityProfileDto createProfile(OrganizationDto organization, boolean isDefault) {
-    return db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO_LANGUAGE), p -> p.setDefault(isDefault));
+  private RulesProfileDto createProfile(OrganizationDto organization, boolean isDefault) {
+    RulesProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO_LANGUAGE));
+    if (isDefault) {
+      db.qualityProfiles().markAsDefault(profile);
+    }
+    return profile;
   }
 
   private WsActionTester newWsActionTester(ProfileExporter... profileExporters) {
@@ -247,7 +252,7 @@ public class ExportActionTest {
   private static class TestBackuper implements QProfileBackuper {
 
     @Override
-    public void backup(DbSession dbSession, QualityProfileDto profile, Writer backupWriter) {
+    public void backup(DbSession dbSession, RulesProfileDto profile, Writer backupWriter) {
       try {
         backupWriter.write(format("Backup of %s/%s", profile.getLanguage(), profile.getKey()));
       } catch (IOException e) {
@@ -261,7 +266,7 @@ public class ExportActionTest {
     }
 
     @Override
-    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile) {
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, RulesProfileDto profile) {
       throw new UnsupportedOperationException();
     }
   }

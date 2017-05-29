@@ -42,7 +42,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -125,7 +125,7 @@ public class QProfileResetMediumTest {
       defProfile);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
+    RulesProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
 
     // Change the severity and the value of the parameter in the active rule
@@ -174,7 +174,7 @@ public class QProfileResetMediumTest {
       }
     }, defProfile);
 
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
+    RulesProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage(defaultOrganization, "Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), RuleKey.of("xoo", "x1"));
 
     // Change param in the rule def

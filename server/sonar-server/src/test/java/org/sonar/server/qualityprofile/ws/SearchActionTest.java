@@ -19,9 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,7 +40,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -128,30 +126,29 @@ public class SearchActionTest {
   public void ws_returns_the_profiles_of_default_organization() throws Exception {
     OrganizationDto organization = getDefaultOrganization();
 
-    QualityProfileDto defaultProfile = QualityProfileDto.createFor("sonar-way-xoo1-12345")
+    RulesProfileDto defaultProfile = RulesProfileDto.createFor("sonar-way-xoo1-12345")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(xoo1.getKey())
       .setName("Sonar way")
-      .setIsBuiltIn(false)
-      .setDefault(true);
-    QualityProfileDto parentProfile = QualityProfileDto
+      .setIsBuiltIn(false);
+    RulesProfileDto parentProfile = RulesProfileDto
       .createFor("sonar-way-xoo2-23456")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(xoo2.getKey())
       .setName("Sonar way")
       .setIsBuiltIn(true);
-    QualityProfileDto childProfile = QualityProfileDto
+    RulesProfileDto childProfile = RulesProfileDto
       .createFor("my-sonar-way-xoo2-34567")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(xoo2.getKey())
       .setName("My Sonar way")
       .setParentKee(parentProfile.getKey());
-    QualityProfileDto profileOnUnknownLang = QualityProfileDto.createFor("sonar-way-other-666")
+    RulesProfileDto profileOnUnknownLang = RulesProfileDto.createFor("sonar-way-other-666")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("other")
-      .setName("Sonar way")
-      .setDefault(true);
+      .setName("Sonar way");
     qualityProfileDao.insert(dbSession, defaultProfile, parentProfile, childProfile, profileOnUnknownLang);
+    db.qualityProfiles().markAsDefault(defaultProfile, profileOnUnknownLang);
 
     ComponentDto project1 = db.components().insertPrivateProject(organization);
     ComponentDto project2 = db.components().insertPrivateProject(organization);
@@ -176,7 +173,7 @@ public class SearchActionTest {
 
   @Test
   public void response_contains_statistics_on_active_rules() {
-    QualityProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(xoo1.getKey()));
+    RulesProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(xoo1.getKey()));
     RuleDefinitionDto rule = db.rules().insertRule(r -> r.setLanguage(xoo1.getKey())).getDefinition();
     RuleDefinitionDto deprecatedRule1 = db.rules().insertRule(r -> r.setStatus(RuleStatus.DEPRECATED)).getDefinition();
     RuleDefinitionDto deprecatedRule2 = db.rules().insertRule(r -> r.setStatus(RuleStatus.DEPRECATED)).getDefinition();
@@ -217,7 +214,7 @@ public class SearchActionTest {
   @Test
   public void search_for_language() throws Exception {
     qualityProfileDb.insertQualityProfiles(
-      QualityProfileDto.createFor("sonar-way-xoo1-12345")
+      RulesProfileDto.createFor("sonar-way-xoo1-12345")
         .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .setLanguage(xoo1.getKey())
         .setName("Sonar way"));
@@ -231,11 +228,12 @@ public class SearchActionTest {
   public void search_for_project_qp() {
     OrganizationDto org = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(org);
-    QualityProfileDto qualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()));
+    RulesProfileDto qualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()));
     db.qualityProfiles().associateProjectWithQualityProfile(project, qualityProfileOnXoo1);
-    QualityProfileDto qualityProfileOnXoo2 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo2.getKey()).setDefault(true));
-    db.qualityProfiles().associateProjectWithQualityProfile(project, qualityProfileOnXoo2);
-    db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setDefault(true));
+    RulesProfileDto defaultProfileOnXoo2 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo2.getKey()));
+    db.qualityProfiles().associateProjectWithQualityProfile(project, defaultProfileOnXoo2);
+    RulesProfileDto defaultProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()));
+    db.qualityProfiles().markAsDefault(defaultProfileOnXoo2, defaultProfileOnXoo1);
 
     SearchWsResponse result = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.key())
@@ -243,7 +241,7 @@ public class SearchActionTest {
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
-      .containsExactlyInAnyOrder(qualityProfileOnXoo1.getKey(), qualityProfileOnXoo2.getKey());
+      .containsExactlyInAnyOrder(qualityProfileOnXoo1.getKey(), defaultProfileOnXoo2.getKey());
   }
 
   @Test
@@ -266,22 +264,20 @@ public class SearchActionTest {
   @Test
   public void search_for_default_qp_with_profile_name() {
     String orgUuid = defaultOrganizationProvider.get().getUuid();
-    QualityProfileDto qualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-12345")
+    RulesProfileDto qualityProfileOnXoo1 = RulesProfileDto.createFor("sonar-way-xoo1-12345")
       .setOrganizationUuid(orgUuid)
       .setLanguage(xoo1.getKey())
-      .setName("Sonar way")
-      .setDefault(false);
-    QualityProfileDto qualityProfileOnXoo2 = QualityProfileDto.createFor("sonar-way-xoo2-12345")
+      .setName("Sonar way");
+    RulesProfileDto qualityProfileOnXoo2 = RulesProfileDto.createFor("sonar-way-xoo2-12345")
       .setOrganizationUuid(orgUuid)
       .setLanguage(xoo2.getKey())
-      .setName("Sonar way")
-      .setDefault(true);
-    QualityProfileDto anotherQualityProfileOnXoo1 = QualityProfileDto.createFor("sonar-way-xoo1-45678")
+      .setName("Sonar way");
+    RulesProfileDto anotherQualityProfileOnXoo1 = RulesProfileDto.createFor("sonar-way-xoo1-45678")
       .setOrganizationUuid(orgUuid)
       .setLanguage(xoo1.getKey())
-      .setName("Another way")
-      .setDefault(true);
+      .setName("Another way");
     qualityProfileDb.insertQualityProfiles(qualityProfileOnXoo1, qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
+    db.qualityProfiles().markAsDefault(qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
 
     String result = ws.newRequest()
       .setParam(PARAM_DEFAULTS, Boolean.TRUE.toString())
@@ -296,9 +292,10 @@ public class SearchActionTest {
   @Test
   public void search_by_profile_name() {
     OrganizationDto org = db.organizations().insert();
-    QualityProfileDto qualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setName("Sonar way"));
-    QualityProfileDto qualityProfileOnXoo2 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo2.getKey()).setName("Sonar way").setDefault(true));
-    QualityProfileDto anotherQualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setName("Another way").setDefault(true));
+    RulesProfileDto qualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setName("Sonar way"));
+    RulesProfileDto qualityProfileOnXoo2 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo2.getKey()).setName("Sonar way"));
+    RulesProfileDto anotherQualityProfileOnXoo1 = db.qualityProfiles().insert(org, q -> q.setLanguage(xoo1.getKey()).setName("Another way"));
+    db.qualityProfiles().markAsDefault(qualityProfileOnXoo2, anotherQualityProfileOnXoo1);
     ComponentDto project = componentDb.insertPrivateProject(org);
 
     SearchWsResponse result = ws.newRequest()
@@ -315,16 +312,16 @@ public class SearchActionTest {
 
   @Test
   public void search_default_profile_by_profile_name_and_org() {
-    List<QualityProfileDto> profiles = new ArrayList<>();
     for (String orgKey : Arrays.asList("ORG1", "ORG2")) {
       OrganizationDto org = db.organizations().insert(OrganizationTesting.newOrganizationDto().setKey(orgKey));
-      profiles.add(createProfile("A", xoo1, org, "MATCH", false));
-      profiles.add(createProfile("B", xoo2, org, "NOMATCH", false));
-      profiles.add(createProfile("C", xoo1, org, "NOMATCH", true));
-      profiles.add(createProfile("D", xoo2, org, "NOMATCH", true));
+      dbClient.qualityProfileDao().insert(dbSession, createProfile("A", xoo1, org, "MATCH"));
+      dbClient.qualityProfileDao().insert(dbSession, createProfile("B", xoo2, org, "NOMATCH"));
+      RulesProfileDto defaultProfileC = createProfile("C", xoo1, org, "NOMATCH");
+      dbClient.qualityProfileDao().insert(dbSession, defaultProfileC);
+      RulesProfileDto defaultProfileD = createProfile("D", xoo2, org, "NOMATCH");
+      dbClient.qualityProfileDao().insert(dbSession, defaultProfileD);
+      db.qualityProfiles().markAsDefault(defaultProfileC, defaultProfileD);
     }
-
-    profiles.forEach(db.qualityProfiles()::insertQualityProfile);
 
     SearchWsRequest request = new SearchWsRequest()
       .setDefaults(true)
@@ -415,20 +412,19 @@ public class SearchActionTest {
 
   private void minimalValidSetup() {
     for (Language language : Arrays.asList(xoo1, xoo2)) {
-      db.qualityProfiles().insertQualityProfile(
+      RulesProfileDto profile = db.qualityProfiles().insertQualityProfile(
         QualityProfileTesting.newQualityProfileDto()
           .setOrganizationUuid(getDefaultOrganization().getUuid())
-          .setLanguage(language.getKey())
-          .setDefault(true));
+          .setLanguage(language.getKey()));
+      db.qualityProfiles().markAsDefault(profile);
     }
   }
 
-  private QualityProfileDto createProfile(String keySuffix, Language language, OrganizationDto org, String name, boolean isDefault) {
-    return QualityProfileDto.createFor(org.getKey() + "-" + keySuffix)
+  private RulesProfileDto createProfile(String keySuffix, Language language, OrganizationDto org, String name) {
+    return RulesProfileDto.createFor(org.getKey() + "-" + keySuffix)
       .setOrganizationUuid(org.getUuid())
       .setLanguage(language.getKey())
-      .setName(name)
-      .setDefault(isDefault);
+      .setName(name);
   }
 
   private SearchWsResponse findProfiles(SearchWsRequest request) {

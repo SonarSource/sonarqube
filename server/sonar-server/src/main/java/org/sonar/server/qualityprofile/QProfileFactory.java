@@ -30,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
@@ -55,9 +55,9 @@ public class QProfileFactory {
 
   // ------------- CREATION
 
-  QualityProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+  RulesProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
     requireNonNull(organization);
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
+    RulesProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
       profile = doCreate(dbSession, organization, name, false, false);
     }
@@ -69,9 +69,9 @@ public class QProfileFactory {
    *
    * @throws BadRequestException if a quality profile with the specified name already exists
    */
-  public QualityProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+  public RulesProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
     requireNonNull(organization);
-    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
+    RulesProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     checkRequest(dto == null, "Quality profile already exists: %s", name);
     return doCreate(dbSession, organization, name, false, false);
   }
@@ -81,7 +81,7 @@ public class QProfileFactory {
    *
    * A DB error will be thrown if the quality profile already exists.
    */
-  public QualityProfileDto createBuiltIn(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
+  public RulesProfileDto createBuiltIn(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
     return doCreate(dbSession, requireNonNull(organization), name, isDefault, true);
   }
 
@@ -90,16 +90,15 @@ public class QProfileFactory {
     return organization;
   }
 
-  private QualityProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {
+  private RulesProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
     Date now = new Date(system2.now());
-    QualityProfileDto dto = QualityProfileDto.createFor(uuidFactory.create())
+    RulesProfileDto dto = RulesProfileDto.createFor(uuidFactory.create())
       .setName(name.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
-      .setDefault(isDefault)
       .setIsBuiltIn(isBuiltIn)
       .setRulesUpdatedAtAsDate(now);
     db.qualityProfileDao().insert(dbSession, dto);

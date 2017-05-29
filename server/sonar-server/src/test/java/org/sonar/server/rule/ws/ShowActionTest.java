@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.es.EsClient;
@@ -134,7 +134,7 @@ public class ShowActionTest {
   public void show_rule_with_activation() throws Exception {
     OrganizationDto organization = dbTester.organizations().insert();
 
-    QualityProfileDto profile = QProfileTesting.newXooP1(organization);
+    RulesProfileDto profile = QProfileTesting.newXooP1(organization);
     dbClient.qualityProfileDao().insert(dbTester.getSession(), profile);
     dbTester.commit();
 
@@ -176,7 +176,7 @@ public class ShowActionTest {
   public void show_rule_without_activation() throws Exception {
     OrganizationDto organization = dbTester.organizations().insert();
 
-    QualityProfileDto profile = QProfileTesting.newXooP1(organization);
+    RulesProfileDto profile = QProfileTesting.newXooP1(organization);
     dbClient.qualityProfileDao().insert(dbTester.getSession(), profile);
     dbTester.commit();
 

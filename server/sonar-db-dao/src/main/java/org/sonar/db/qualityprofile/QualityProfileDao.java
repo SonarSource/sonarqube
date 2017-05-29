@@ -49,35 +49,35 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectByKey(DbSession session, String key) {
+  public RulesProfileDto selectByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
-  public QualityProfileDto selectOrFailByKey(DbSession session, String key) {
-    QualityProfileDto dto = selectByKey(session, key);
+  public RulesProfileDto selectOrFailByKey(DbSession session, String key) {
+    RulesProfileDto dto = selectByKey(session, key);
     if (dto == null) {
       throw new RowNotFoundException("Quality profile not found: " + key);
     }
     return dto;
   }
 
-  public List<QualityProfileDto> selectByKeys(DbSession session, List<String> keys) {
+  public List<RulesProfileDto> selectByKeys(DbSession session, List<String> keys) {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
-  public List<QualityProfileDto> selectAll(DbSession session, OrganizationDto organization) {
+  public List<RulesProfileDto> selectAll(DbSession session, OrganizationDto organization) {
     return mapper(session).selectAll(organization.getUuid());
   }
 
-  public void insert(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
+  public void insert(DbSession session, RulesProfileDto profile, RulesProfileDto... otherProfiles) {
     QualityProfileMapper mapper = mapper(session);
     doInsert(mapper, profile);
-    for (QualityProfileDto other : otherProfiles) {
+    for (RulesProfileDto other : otherProfiles) {
       doInsert(mapper, other);
     }
   }
 
-  private void doInsert(QualityProfileMapper mapper, QualityProfileDto profile) {
+  private void doInsert(QualityProfileMapper mapper, RulesProfileDto profile) {
     Preconditions.checkArgument(profile.getId() == null, "Quality profile is already persisted (got id %d)", profile.getId());
     Date now = new Date(system.now());
     profile.setCreatedAt(now);
@@ -85,52 +85,52 @@ public class QualityProfileDao implements Dao {
     mapper.insert(profile);
   }
 
-  public void update(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
+  public void update(DbSession session, RulesProfileDto profile, RulesProfileDto... otherProfiles) {
     QualityProfileMapper mapper = mapper(session);
     doUpdate(mapper, profile);
-    for (QualityProfileDto otherProfile : otherProfiles) {
+    for (RulesProfileDto otherProfile : otherProfiles) {
       doUpdate(mapper, otherProfile);
     }
   }
 
-  private void doUpdate(QualityProfileMapper mapper, QualityProfileDto profile) {
+  private void doUpdate(QualityProfileMapper mapper, RulesProfileDto profile) {
     Preconditions.checkArgument(profile.getId() != null, "Quality profile is not persisted");
     profile.setUpdatedAt(new Date(system.now()));
     mapper.update(profile);
   }
 
-  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
+  public List<RulesProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
     return executeLargeInputs(languageKeys, chunk -> mapper(session).selectDefaultProfiles(organization.getUuid(), chunk));
   }
 
   @CheckForNull
-  public QualityProfileDto selectDefaultProfile(DbSession session, OrganizationDto organization, String language) {
+  public RulesProfileDto selectDefaultProfile(DbSession session, OrganizationDto organization, String language) {
     return mapper(session).selectDefaultProfile(organization.getUuid(), language);
   }
 
   @CheckForNull
-  public QualityProfileDto selectByProjectAndLanguage(DbSession session, String projectKey, String language) {
+  public RulesProfileDto selectByProjectAndLanguage(DbSession session, String projectKey, String language) {
     return mapper(session).selectByProjectAndLanguage(projectKey, language);
   }
 
-  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, ComponentDto project, Collection<String> languageKeys) {
+  public List<RulesProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, ComponentDto project, Collection<String> languageKeys) {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), project.getKey(), input));
   }
 
-  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
+  public List<RulesProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
     return mapper(dbSession).selectByLanguage(organization.getUuid(), language);
   }
 
-  public List<QualityProfileDto> selectChildren(DbSession session, String key) {
+  public List<RulesProfileDto> selectChildren(DbSession session, String key) {
     return mapper(session).selectChildren(key);
   }
 
   /**
    * All descendants, in the top-down order.
    */
-  public List<QualityProfileDto> selectDescendants(DbSession session, String key) {
-    List<QualityProfileDto> descendants = Lists.newArrayList();
-    for (QualityProfileDto child : selectChildren(session, key)) {
+  public List<RulesProfileDto> selectDescendants(DbSession session, String key) {
+    List<RulesProfileDto> descendants = Lists.newArrayList();
+    for (RulesProfileDto child : selectChildren(session, key)) {
       descendants.add(child);
       descendants.addAll(selectDescendants(session, child.getKey()));
     }
@@ -138,11 +138,11 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectByNameAndLanguage(OrganizationDto organization, String name, String language, DbSession session) {
+  public RulesProfileDto selectByNameAndLanguage(OrganizationDto organization, String name, String language, DbSession session) {
     return mapper(session).selectByNameAndLanguage(organization.getUuid(), name, language);
   }
 
-  public List<QualityProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
+  public List<RulesProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
     return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organization.getUuid(), name, input));
   }
 

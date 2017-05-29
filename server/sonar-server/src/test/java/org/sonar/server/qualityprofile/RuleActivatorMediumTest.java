@@ -40,7 +40,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -98,7 +98,7 @@ public class RuleActivatorMediumTest {
 
   ActiveRuleIndexer activeRuleIndexer;
 
-  QualityProfileDto profileDto;
+  RulesProfileDto profileDto;
   private OrganizationDto organization;
 
   @Before
@@ -1197,13 +1197,13 @@ public class RuleActivatorMediumTest {
   }
 
   private void assertProfileHasBeenUpdatedManually(String profileKey) {
-    QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    RulesProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
     assertThat(profile.getRulesUpdatedAt()).isNotEmpty();
     assertThat(profile.getUserUpdatedAt()).isNotNull();
   }
 
   private void assertProfileHasBeenUpdatedAutomatically(String profileKey) {
-    QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    RulesProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
     assertThat(profile.getRulesUpdatedAt()).isNotEmpty();
     assertThat(profile.getUserUpdatedAt()).isNull();
   }

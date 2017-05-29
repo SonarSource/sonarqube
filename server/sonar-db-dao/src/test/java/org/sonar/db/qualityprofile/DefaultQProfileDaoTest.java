@@ -42,7 +42,7 @@ public class DefaultQProfileDaoTest {
   @Test
   public void insertOrUpdate_inserts_row_when_does_not_exist() {
     OrganizationDto org = dbTester.organizations().insert();
-    QualityProfileDto profile = dbTester.qualityProfiles().insert(org);
+    RulesProfileDto profile = dbTester.qualityProfiles().insert(org);
     DefaultQProfileDto dto = DefaultQProfileDto.from(profile);
 
     underTest.insertOrUpdate(dbSession, dto);
@@ -94,8 +94,8 @@ public class DefaultQProfileDaoTest {
   @Test
   public void selectExistingQProfileUuids_filters_defaults() {
     OrganizationDto org = dbTester.organizations().insert();
-    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(org);
-    QualityProfileDto profile2 = dbTester.qualityProfiles().insert(org);
+    RulesProfileDto profile1 = dbTester.qualityProfiles().insert(org);
+    RulesProfileDto profile2 = dbTester.qualityProfiles().insert(org);
     dbTester.qualityProfiles().markAsDefault(profile1);
 
     List<String> profileUuids = asList(profile1.getKee(), profile2.getKee(), "other");
@@ -106,8 +106,8 @@ public class DefaultQProfileDaoTest {
   @Test
   public void isDefault_returns_true_if_profile_is_marked_as_default() {
     OrganizationDto org = dbTester.organizations().insert();
-    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(org);
-    QualityProfileDto profile2 = dbTester.qualityProfiles().insert(org);
+    RulesProfileDto profile1 = dbTester.qualityProfiles().insert(org);
+    RulesProfileDto profile2 = dbTester.qualityProfiles().insert(org);
     dbTester.qualityProfiles().markAsDefault(profile1);
 
     assertThat(underTest.isDefault(dbSession, org.getUuid(), profile1.getKee())).isTrue();
@@ -115,7 +115,7 @@ public class DefaultQProfileDaoTest {
     assertThat(underTest.isDefault(dbSession, org.getUuid(), "does_not_exist")).isFalse();
   }
 
-  private void assertThatIsDefault(OrganizationDto org, QualityProfileDto profile) {
+  private void assertThatIsDefault(OrganizationDto org, RulesProfileDto profile) {
     assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org, profile.getLanguage())).hasValue(profile.getKee());
     assertThat(underTest.isDefault(dbSession, org.getUuid(), profile.getKee())).isTrue();
   }

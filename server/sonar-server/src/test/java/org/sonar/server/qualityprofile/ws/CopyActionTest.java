@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.language.LanguageTesting;
@@ -96,7 +96,7 @@ public class CopyActionTest {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
 
-    QualityProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    RulesProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
     TestResponse response = tester.newRequest()
       .setMethod("POST")
       .setParam("fromKey", sourceProfile.getKey())
@@ -112,10 +112,9 @@ public class CopyActionTest {
       "  \"isDefault\": false," +
       "  \"isInherited\": false" +
       "}");
-    QualityProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
+    RulesProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
       db.getSession());
     assertThat(loadedProfile.getKey()).isEqualTo(generatedUuid);
-    assertThat(loadedProfile.isDefault()).isFalse();
     assertThat(loadedProfile.getParentKee()).isNull();
 
     assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());
@@ -130,8 +129,8 @@ public class CopyActionTest {
   public void copy_rules_on_existing_profile_in_default_organization() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
-    QualityProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
-    QualityProfileDto targetProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    RulesProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    RulesProfileDto targetProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
 
     TestResponse response = tester.newRequest()
       .setMethod("POST")
@@ -147,7 +146,7 @@ public class CopyActionTest {
       "  \"isDefault\": false," +
       "  \"isInherited\": false" +
       "}");
-    QualityProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), targetProfile.getKey());
+    RulesProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), targetProfile.getKey());
     assertThat(loadedProfile).isNotNull();
 
     assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());
@@ -159,8 +158,8 @@ public class CopyActionTest {
     OrganizationDto organization = db.organizations().insert();
     logInAsQProfileAdministrator(organization);
 
-    QualityProfileDto parentProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
-    QualityProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setParentKee(parentProfile.getKey()));
+    RulesProfileDto parentProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    RulesProfileDto sourceProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setParentKee(parentProfile.getKey()));
 
     TestResponse response = tester.newRequest()
       .setMethod("POST")
@@ -177,10 +176,9 @@ public class CopyActionTest {
       "  \"isDefault\": false," +
       "  \"isInherited\": true" +
       "}");
-    QualityProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
+    RulesProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
       db.getSession());
     assertThat(loadedProfile.getKey()).isEqualTo(generatedUuid);
-    assertThat(loadedProfile.isDefault()).isFalse();
     assertThat(loadedProfile.getParentKee()).isEqualTo(parentProfile.getKey());
 
     assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());
@@ -208,7 +206,7 @@ public class CopyActionTest {
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator_of_organization() {
     OrganizationDto organization = db.organizations().insert();
-    QualityProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    RulesProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
     userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
 
     expectedException.expect(ForbiddenException.class);
@@ -224,7 +222,7 @@ public class CopyActionTest {
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
     OrganizationDto organization = db.organizations().insert();
-    QualityProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    RulesProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
     userSession.logIn().addPermission(OrganizationPermission.SCAN, organization);
 
     expectedException.expect(ForbiddenException.class);
@@ -271,11 +269,11 @@ public class CopyActionTest {
 
   private static class TestBackuper implements QProfileBackuper {
 
-    private QualityProfileDto backupedProfile;
-    private QualityProfileDto restoredProfile;
+    private RulesProfileDto backupedProfile;
+    private RulesProfileDto restoredProfile;
 
     @Override
-    public void backup(DbSession dbSession, QualityProfileDto profile, Writer backupWriter) {
+    public void backup(DbSession dbSession, RulesProfileDto profile, Writer backupWriter) {
       if (this.backupedProfile != null) {
         throw new IllegalStateException("Already backup-ed/backed-up");
       }
@@ -288,7 +286,7 @@ public class CopyActionTest {
     }
 
     @Override
-    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile) {
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, RulesProfileDto profile) {
       if (this.restoredProfile != null) {
         throw new IllegalStateException("Already restored");
       }

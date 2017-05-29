@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
@@ -30,11 +31,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -156,12 +158,16 @@ public class SearchAction implements QProfileWsAction {
         }
       }
 
+      List<RulesProfileDto> profiles = dataLoader.findProfiles(dbSession, request, organization, project);
+      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profiles.stream().map(RulesProfileDto::getKey).collect(MoreCollectors.toList()));
+
       return new SearchData()
         .setOrganization(organization)
-        .setProfiles(dataLoader.findProfiles(dbSession, request, organization, project))
+        .setProfiles(profiles)
         .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileKey(dbSession, organization))
         .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED))
-        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession, organization));
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession, organization))
+        .setDefaultProfileKeys(defaultProfiles);
     }
   }
 
@@ -186,12 +192,12 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private SearchWsResponse buildResponse(SearchData data) {
-    List<QualityProfileDto> profiles = data.getProfiles();
-    Map<String, QualityProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QualityProfileDto::getKey, identity()));
+    List<RulesProfileDto> profiles = data.getProfiles();
+    Map<String, RulesProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(RulesProfileDto::getKey, identity()));
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
-    for (QualityProfileDto profile : profiles) {
+    for (RulesProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
       String profileKey = profile.getKey();
@@ -203,21 +209,22 @@ public class SearchAction implements QProfileWsAction {
       setNullable(profile.getUserUpdatedAt(), userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));
       profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
       profileBuilder.setActiveDeprecatedRuleCount(data.getActiveDeprecatedRuleCount(profileKey));
-      if (!profile.isDefault()) {
+      boolean isDefault = data.isDefault(profile);
+      profileBuilder.setIsDefault(isDefault);
+      if (!isDefault) {
         profileBuilder.setProjectCount(data.getProjectCount(profileKey));
       }
 
       writeLanguageFields(profileBuilder, profile);
       writeParentFields(profileBuilder, profile, profilesByKey);
       profileBuilder.setIsInherited(profile.getParentKee() != null);
-      profileBuilder.setIsDefault(profile.isDefault());
       profileBuilder.setIsBuiltIn(profile.isBuiltIn());
     }
 
     return response.build();
   }
 
-  private void writeLanguageFields(QualityProfile.Builder profileBuilder, QualityProfileDto profile) {
+  private void writeLanguageFields(QualityProfile.Builder profileBuilder, RulesProfileDto profile) {
     String languageKey = profile.getLanguage();
     if (languageKey == null) {
       return;
@@ -230,14 +237,14 @@ public class SearchAction implements QProfileWsAction {
     }
   }
 
-  private static void writeParentFields(QualityProfile.Builder profileBuilder, QualityProfileDto profile, Map<String, QualityProfileDto> profilesByKey) {
+  private static void writeParentFields(QualityProfile.Builder profileBuilder, RulesProfileDto profile, Map<String, RulesProfileDto> profilesByKey) {
     String parentKey = profile.getParentKee();
     if (parentKey == null) {
       return;
     }
 
     profileBuilder.setParentKey(parentKey);
-    QualityProfileDto parent = profilesByKey.get(parentKey);
+    RulesProfileDto parent = profilesByKey.get(parentKey);
     if (parent != null && parent.getName() != null) {
       profileBuilder.setParentName(parent.getName());
     }

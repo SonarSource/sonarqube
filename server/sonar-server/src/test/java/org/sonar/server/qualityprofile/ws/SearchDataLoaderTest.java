@@ -19,9 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.language.LanguageTesting;
@@ -89,7 +87,8 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findDefaults() throws Exception {
-    insertQualityProfile(organization, dto -> dto.setDefault(true));
+    RulesProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().markAsDefault(profile);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
@@ -99,7 +98,8 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findForProject() throws Exception {
-    insertQualityProfile(organization, dto -> dto.setDefault(true));
+    RulesProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().markAsDefault(profile);
     ComponentDto project1 = insertProject();
     assertThat(findProfiles(
       new SearchWsRequest()
@@ -109,11 +109,12 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findAllForLanguage() throws Exception {
-    QualityProfileDto qualityProfile = insertQualityProfile(organization, dto -> dto.setDefault(true));
+    RulesProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().markAsDefault(profile);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
-        .setLanguage(qualityProfile.getLanguage()),
+        .setLanguage(profile.getLanguage()),
       null)).hasSize(1);
     assertThat(findProfiles(
       new SearchWsRequest()
@@ -122,18 +123,16 @@ public class SearchDataLoaderTest {
       null)).hasSize(0);
   }
 
-  private List<QualityProfileDto> findProfiles(SearchWsRequest request, @Nullable ComponentDto project) {
+  private List<RulesProfileDto> findProfiles(SearchWsRequest request, @Nullable ComponentDto project) {
     return new SearchDataLoader(languages, profileLookup, dbTester.getDbClient())
       .findProfiles(dbTester.getSession(), request, organization, project);
   }
 
-  private QualityProfileDto insertQualityProfile(OrganizationDto organization, Consumer<QualityProfileDto>... specials) {
+  private RulesProfileDto insertQualityProfile(OrganizationDto organization) {
     Language language = insertLanguage();
-    QualityProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
+    RulesProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(language.getKey());
-    Arrays.stream(specials)
-      .forEachOrdered(c -> c.accept(qualityProfile));
     dbTester.qualityProfiles().insertQualityProfile(qualityProfile);
     return qualityProfile;
   }

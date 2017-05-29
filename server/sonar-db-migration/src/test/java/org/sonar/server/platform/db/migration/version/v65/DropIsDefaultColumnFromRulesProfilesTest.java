@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.server.platform.db.migration.version.v65;
 
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static java.util.Objects.requireNonNull;
+public class DropIsDefaultColumnFromRulesProfilesTest {
 
-public final class QProfileRestoreSummary {
-  private final RulesProfileDto profile;
-  private final BulkChangeResult ruleChanges;
+  private static final String TABLE_NAME = "rules_profiles";
 
-  public QProfileRestoreSummary(RulesProfileDto profile, BulkChangeResult ruleChanges) {
-    this.profile = requireNonNull(profile);
-    this.ruleChanges = requireNonNull(ruleChanges);
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropIsDefaultColumnFromRulesProfilesTest.class, "initial.sql");
+
+  private DropIsDefaultColumnFromRulesProfiles underTest = new DropIsDefaultColumnFromRulesProfiles(db.database());
+
+  @Test
+  public void column_is_dropped() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist(TABLE_NAME, "is_default");
   }
 
-  public RulesProfileDto getProfile() {
-    return profile;
-  }
-
-  public BulkChangeResult getRuleChanges() {
-    return ruleChanges;
-  }
 }

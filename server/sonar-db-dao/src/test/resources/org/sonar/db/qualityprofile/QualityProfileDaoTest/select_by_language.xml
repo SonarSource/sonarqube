@@ -7,7 +7,6 @@
                   parent_kee="[null]"
                   kee="java_sonar_way"
                   is_built_in="[false]"
-                  is_default="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
                   updated_at="[null]"/>
@@ -19,7 +18,6 @@
                   parent_kee="[null]"
                   kee="js_sonar_way"
                   is_built_in="[false]"
-                  is_default="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
                   updated_at="[null]"/>
@@ -31,7 +29,6 @@
                   parent_kee="[null]"
                   kee="java_sonar_way2"
                   is_built_in="[false]"
-                  is_default="[false]"
                   rules_updated_at="[null]"
                   created_at="[null]"
                   updated_at="[null]"/>

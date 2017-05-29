@@ -31,7 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.ws.TestRequest;
@@ -117,7 +117,7 @@ public class RuleQueryFactoryTest {
 
   @Test
   public void create_query() throws Exception {
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
 
     RuleQuery result = execute(
       PARAM_RULE_KEY, "ruleKey",
@@ -166,7 +166,7 @@ public class RuleQueryFactoryTest {
 
   @Test
   public void use_quality_profiles_language_if_available() throws Exception {
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     String qualityProfileKey = qualityProfile.getKey();
 
     RuleQuery result = execute(
@@ -188,7 +188,7 @@ public class RuleQueryFactoryTest {
   @Test
   public void create_query_add_language_from_profile() throws Exception {
     String profileKey = "sonar-way";
-    dbClient.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey)
+    dbClient.qualityProfileDao().insert(dbSession, RulesProfileDto.createFor(profileKey)
       .setOrganizationUuid(organization.getUuid())
       .setName("Sonar Way")
       .setLanguage("xoo"));
@@ -205,7 +205,7 @@ public class RuleQueryFactoryTest {
   @Test
   public void filter_on_quality_profiles_organization_if_searching_for_actives_with_no_organization_specified() throws Exception {
     String profileKey = "sonar-way";
-    dbClient.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey)
+    dbClient.qualityProfileDao().insert(dbSession, RulesProfileDto.createFor(profileKey)
       .setOrganizationUuid(organization.getUuid())
       .setName("Sonar Way")
       .setLanguage("xoo"));
@@ -223,7 +223,7 @@ public class RuleQueryFactoryTest {
     OrganizationDto organization1 = dbTester.organizations().insert();
     OrganizationDto organization2 = dbTester.organizations().insert();
 
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization1);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization1);
 
     String qualityProfileKey = qualityProfile.getKey();
     String organization2Key = organization2.getKey();

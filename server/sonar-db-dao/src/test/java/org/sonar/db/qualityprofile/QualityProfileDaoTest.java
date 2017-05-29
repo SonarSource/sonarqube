@@ -75,7 +75,7 @@ public class QualityProfileDaoTest {
   public void insert() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    QualityProfileDto dto = QualityProfileDto.createFor("abcde")
+    RulesProfileDto dto = RulesProfileDto.createFor("abcde")
       .setOrganizationUuid(organization.getUuid())
       .setName("ABCDE")
       .setLanguage("xoo")
@@ -91,13 +91,12 @@ public class QualityProfileDaoTest {
   public void update() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    QualityProfileDto dto = QualityProfileDto.createFor("key")
+    RulesProfileDto dto = RulesProfileDto.createFor("key")
       .setId(1)
       .setOrganizationUuid(organization.getUuid())
       .setName("New Name")
       .setLanguage("js")
       .setParentKee("fghij")
-      .setDefault(false)
       .setIsBuiltIn(false);
 
     underTest.update(dbSession, dto);
@@ -108,9 +107,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void test_deleteByKeys() {
-    QualityProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    QualityProfileDto p2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    QualityProfileDto p3 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    RulesProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    RulesProfileDto p2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    RulesProfileDto p3 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
 
     underTest.deleteByKeys(dbSession, asList(p1.getKey(), p3.getKey(), "does_not_exist"));
 
@@ -121,7 +120,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void deleteByKeys_does_nothing_if_empty_keys() {
-    QualityProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    RulesProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
 
     underTest.deleteByKeys(dbSession, Collections.emptyList());
 
@@ -130,7 +129,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void deleteProjectAssociationsByProfileKeys_does_nothing_if_empty_keys() {
-    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    RulesProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
     ComponentDto project1 = dbTester.components().insertPrivateProject();
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profile1);
 
@@ -141,8 +140,8 @@ public class QualityProfileDaoTest {
 
   @Test
   public void deleteProjectAssociationsByProfileKeys_deletes_rows_from_table_project_profiles() {
-    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    QualityProfileDto profile2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    RulesProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    RulesProfileDto profile2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
     ComponentDto project1 = dbTester.components().insertPrivateProject();
     ComponentDto project2 = dbTester.components().insertPrivateProject();
     ComponentDto project3 = dbTester.components().insertPrivateProject();
@@ -162,18 +161,18 @@ public class QualityProfileDaoTest {
   public void find_all() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
+    List<RulesProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
 
     assertThat(dtos).hasSize(2);
 
-    QualityProfileDto dto1 = dtos.get(0);
+    RulesProfileDto dto1 = dtos.get(0);
     assertThat(dto1.getId()).isEqualTo(1);
     assertThat(dto1.getName()).isEqualTo("Sonar Way");
     assertThat(dto1.getLanguage()).isEqualTo("java");
     assertThat(dto1.getParentKee()).isNull();
     assertThat(dto1.isBuiltIn()).isTrue();
 
-    QualityProfileDto dto2 = dtos.get(1);
+    RulesProfileDto dto2 = dtos.get(1);
     assertThat(dto2.getId()).isEqualTo(2);
     assertThat(dto2.getName()).isEqualTo("Sonar Way");
     assertThat(dto2.getLanguage()).isEqualTo("js");
@@ -185,7 +184,7 @@ public class QualityProfileDaoTest {
   public void find_all_is_sorted_by_profile_name() {
     dbTester.prepareDbUnit(getClass(), "select_all_is_sorted_by_profile_name.xml");
 
-    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
+    List<RulesProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
 
     assertThat(dtos).hasSize(3);
     assertThat(dtos.get(0).getName()).isEqualTo("First");
@@ -197,7 +196,7 @@ public class QualityProfileDaoTest {
   public void get_default_profile() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    QualityProfileDto java = underTest.selectDefaultProfile(dbTester.getSession(), organization, "java");
+    RulesProfileDto java = underTest.selectDefaultProfile(dbTester.getSession(), organization, "java");
     assertThat(java).isNotNull();
     assertThat(java.getKey()).isEqualTo("java_sonar_way");
 
@@ -209,7 +208,7 @@ public class QualityProfileDaoTest {
   public void get_default_profiles() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<QualityProfileDto> java = underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("java"));
+    List<RulesProfileDto> java = underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("java"));
     assertThat(java).extracting("key").containsOnly("java_sonar_way");
 
     assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("js"))).isEmpty();
@@ -221,7 +220,7 @@ public class QualityProfileDaoTest {
   public void get_by_name_and_language() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    QualityProfileDto dto = underTest.selectByNameAndLanguage(organization, "Sonar Way", "java", dbTester.getSession());
+    RulesProfileDto dto = underTest.selectByNameAndLanguage(organization, "Sonar Way", "java", dbTester.getSession());
     assertThat(dto.getId()).isEqualTo(1);
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
@@ -235,9 +234,9 @@ public class QualityProfileDaoTest {
   public void get_by_name_and_languages() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<QualityProfileDto> dtos = underTest.selectByNameAndLanguages(organization, "Sonar Way", singletonList("java"), dbTester.getSession());
+    List<RulesProfileDto> dtos = underTest.selectByNameAndLanguages(organization, "Sonar Way", singletonList("java"), dbTester.getSession());
     assertThat(dtos).hasSize(1);
-    QualityProfileDto dto = dtos.iterator().next();
+    RulesProfileDto dto = dtos.iterator().next();
     assertThat(dto.getId()).isEqualTo(1);
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
@@ -249,13 +248,13 @@ public class QualityProfileDaoTest {
 
   @Test
   public void should_find_by_language() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+    RulesProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
 
-    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, organization, profile.getLanguage());
+    List<RulesProfileDto> results = underTest.selectByLanguage(dbSession, organization, profile.getLanguage());
     assertThat(results).hasSize(1);
-    QualityProfileDto result = results.get(0);
+    RulesProfileDto result = results.get(0);
 
     assertThat(result.getId()).isEqualTo(profile.getId());
     assertThat(result.getName()).isEqualTo(profile.getName());
@@ -266,21 +265,21 @@ public class QualityProfileDaoTest {
 
   @Test
   public void should_not_find_by_language_in_wrong_organization() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+    RulesProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
 
-    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, OrganizationTesting.newOrganizationDto(), profile.getLanguage());
+    List<RulesProfileDto> results = underTest.selectByLanguage(dbSession, OrganizationTesting.newOrganizationDto(), profile.getLanguage());
     assertThat(results).isEmpty();
   }
 
   @Test
   public void should_not_find_by_language_with_wrong_language() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+    RulesProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
 
-    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, organization, "another language");
+    List<RulesProfileDto> results = underTest.selectByLanguage(dbSession, organization, "another language");
     assertThat(results).isEmpty();
   }
 
@@ -288,17 +287,17 @@ public class QualityProfileDaoTest {
   public void find_children() {
     dbTester.prepareDbUnit(getClass(), "inheritance.xml");
 
-    List<QualityProfileDto> dtos = underTest.selectChildren(dbTester.getSession(), "java_parent");
+    List<RulesProfileDto> dtos = underTest.selectChildren(dbTester.getSession(), "java_parent");
 
     assertThat(dtos).hasSize(2);
 
-    QualityProfileDto dto1 = dtos.get(0);
+    RulesProfileDto dto1 = dtos.get(0);
     assertThat(dto1.getId()).isEqualTo(1);
     assertThat(dto1.getName()).isEqualTo("Child1");
     assertThat(dto1.getLanguage()).isEqualTo("java");
     assertThat(dto1.getParentKee()).isEqualTo("java_parent");
 
-    QualityProfileDto dto2 = dtos.get(1);
+    RulesProfileDto dto2 = dtos.get(1);
     assertThat(dto2.getId()).isEqualTo(2);
     assertThat(dto2.getName()).isEqualTo("Child2");
     assertThat(dto2.getLanguage()).isEqualTo("java");
@@ -307,15 +306,15 @@ public class QualityProfileDaoTest {
 
   @Test
   public void countProjectsByProfileKey() {
-    QualityProfileDto profileWithoutProjects = dbTester.qualityProfiles().insert(organization);
-    QualityProfileDto profileWithProjects = dbTester.qualityProfiles().insert(organization);
+    RulesProfileDto profileWithoutProjects = dbTester.qualityProfiles().insert(organization);
+    RulesProfileDto profileWithProjects = dbTester.qualityProfiles().insert(organization);
     ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
     ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profileWithProjects);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profileWithProjects);
 
     OrganizationDto otherOrg = dbTester.organizations().insert();
-    QualityProfileDto profileInOtherOrg = dbTester.qualityProfiles().insert(otherOrg);
+    RulesProfileDto profileInOtherOrg = dbTester.qualityProfiles().insert(otherOrg);
     ComponentDto projectInOtherOrg = dbTester.components().insertPrivateProject(otherOrg);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(projectInOtherOrg, profileInOtherOrg);
 
@@ -327,7 +326,7 @@ public class QualityProfileDaoTest {
   public void select_by_project_key_and_language() {
     dbTester.prepareDbUnit(getClass(), "projects.xml");
 
-    QualityProfileDto dto = underTest.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "java");
+    RulesProfileDto dto = underTest.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "java");
     assertThat(dto.getId()).isEqualTo(1);
 
     assertThat(underTest.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "unkown")).isNull();
@@ -341,7 +340,7 @@ public class QualityProfileDaoTest {
     OrganizationDto organization = dbTester.organizations().insert(OrganizationTesting.newOrganizationDto().setUuid("org1"));
     ComponentDto project = dbTester.getDbClient().componentDao().selectOrFailByKey(dbTester.getSession(), "org.codehaus.sonar:sonar");
     ComponentDto unknownProject = dbTester.components().insertPrivateProject(organization, p -> p.setKey("unknown"));
-    List<QualityProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("java"));
+    List<RulesProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("java"));
     assertThat(dto).extracting("id").containsOnly(1);
 
     assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("unkown"))).isEmpty();
@@ -358,7 +357,7 @@ public class QualityProfileDaoTest {
     assertThat(underTest.selectByKey(dbSession, "qp-key-42")).isNull();
     assertThat(underTest.selectByKeys(dbSession, newArrayList("qp-key-1", "qp-key-3", "qp-key-42")))
       .hasSize(2)
-      .extracting(QualityProfileDto::getKey).containsOnlyOnce("qp-key-1", "qp-key-3");
+      .extracting(RulesProfileDto::getKey).containsOnlyOnce("qp-key-1", "qp-key-3");
     assertThat(underTest.selectByKeys(dbSession, emptyList())).isEmpty();
   }
 
@@ -370,12 +369,12 @@ public class QualityProfileDaoTest {
     OrganizationDto organization2 = dbTester.organizations().insert();
     ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
-    QualityProfileDto profile1 = newQualityProfileDto();
+    RulesProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
     qualityProfileDb.associateProjectWithQualityProfile(project1, profile1);
     qualityProfileDb.associateProjectWithQualityProfile(project2, profile1);
 
-    QualityProfileDto profile2 = newQualityProfileDto();
+    RulesProfileDto profile2 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project3, profile2);
 
@@ -397,11 +396,11 @@ public class QualityProfileDaoTest {
     OrganizationDto organization2 = dbTester.organizations().insert();
     ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
-    QualityProfileDto profile1 = newQualityProfileDto();
+    RulesProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
     qualityProfileDb.associateProjectWithQualityProfile(project1, profile1);
 
-    QualityProfileDto profile2 = newQualityProfileDto();
+    RulesProfileDto profile2 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
 
@@ -423,11 +422,11 @@ public class QualityProfileDaoTest {
     OrganizationDto organization2 = dbTester.organizations().insert();
     ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
-    QualityProfileDto profile1 = newQualityProfileDto();
+    RulesProfileDto profile1 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile1);
     qualityProfileDb.associateProjectWithQualityProfile(project1, profile1);
 
-    QualityProfileDto profile2 = newQualityProfileDto();
+    RulesProfileDto profile2 = newQualityProfileDto();
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
 
@@ -445,9 +444,9 @@ public class QualityProfileDaoTest {
   @Test
   public void update_project_profile_association() {
     ComponentDto project = dbTester.components().insertPrivateProject();
-    QualityProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
-    QualityProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
-    QualityProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");
+    RulesProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
+    RulesProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
+    RulesProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");
     qualityProfileDb.associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
 
     underTest.updateProjectProfileAssociation(project.uuid(), profile3Language1.getKey(), profile1Language1.getKey(), dbSession);
@@ -461,11 +460,11 @@ public class QualityProfileDaoTest {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
     OrganizationDto org3 = dbTester.organizations().insert();
-    QualityProfileDto outdatedProfile1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
-    QualityProfileDto outdatedProfile2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
-    QualityProfileDto builtInProfile = dbTester.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
-    QualityProfileDto differentLanguage = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
-    QualityProfileDto differentName = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
+    RulesProfileDto outdatedProfile1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    RulesProfileDto outdatedProfile2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    RulesProfileDto builtInProfile = dbTester.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
+    RulesProfileDto differentLanguage = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
+    RulesProfileDto differentName = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
 
     Collection<String> keys = underTest.selectOutdatedProfiles(dbSession, "java", "foo");
 
@@ -481,9 +480,9 @@ public class QualityProfileDaoTest {
   public void renameAndCommit_updates_name_of_specified_profiles() {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
-    QualityProfileDto fooInOrg1 = dbTester.qualityProfiles().insert(org1, p->p.setName("foo"));
-    QualityProfileDto fooInOrg2 = dbTester.qualityProfiles().insert(org2, p->p.setName("foo"));
-    QualityProfileDto bar = dbTester.qualityProfiles().insert(org1, p->p.setName("bar"));
+    RulesProfileDto fooInOrg1 = dbTester.qualityProfiles().insert(org1, p->p.setName("foo"));
+    RulesProfileDto fooInOrg2 = dbTester.qualityProfiles().insert(org2, p->p.setName("foo"));
+    RulesProfileDto bar = dbTester.qualityProfiles().insert(org1, p->p.setName("bar"));
 
     underTest.renameAndCommit(dbSession, asList(fooInOrg1.getKee(), fooInOrg2.getKee()), "foo (copy)");
 
@@ -495,15 +494,15 @@ public class QualityProfileDaoTest {
   @Test
   public void renameAndCommit_does_nothing_if_empty_keys() {
     OrganizationDto org = dbTester.organizations().insert();
-    QualityProfileDto profile = dbTester.qualityProfiles().insert(org, p -> p.setName("foo"));
+    RulesProfileDto profile = dbTester.qualityProfiles().insert(org, p -> p.setName("foo"));
 
     underTest.renameAndCommit(dbSession, Collections.emptyList(), "foo (copy)");
 
     assertThat(underTest.selectOrFailByKey(dbSession, profile.getKey()).getName()).isEqualTo("foo");
   }
 
-  private QualityProfileDto insertQualityProfileDto(String key, String name, String language) {
-    QualityProfileDto dto = QualityProfileDto.createFor(key)
+  private RulesProfileDto insertQualityProfileDto(String key, String name, String language) {
+    RulesProfileDto dto = RulesProfileDto.createFor(key)
       .setOrganizationUuid(organization.getUuid())
       .setName(name)
       .setLanguage(language);
