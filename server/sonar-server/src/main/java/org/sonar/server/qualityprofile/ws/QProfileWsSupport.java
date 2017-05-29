@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
@@ -50,7 +50,7 @@ public class QProfileWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
-  public OrganizationDto getOrganization(DbSession dbSession, QualityProfileDto profile) {
+  public OrganizationDto getOrganization(DbSession dbSession, RulesProfileDto profile) {
     requireNonNull(profile);
     String organizationUuid = profile.getOrganizationUuid();
     return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
@@ -79,8 +79,8 @@ public class QProfileWsSupport {
    *
    * @throws org.sonar.server.exceptions.NotFoundException if the specified organization or profile do not exist
    */
-  public QualityProfileDto getProfile(DbSession dbSession, QProfileReference ref) {
-    QualityProfileDto profile;
+  public RulesProfileDto getProfile(DbSession dbSession, QProfileReference ref) {
+    RulesProfileDto profile;
     if (ref.hasKey()) {
       profile = dbClient.qualityProfileDao().selectByKey(dbSession, ref.getKey());
       checkFound(profile, "Quality Profile with key '%s' does not exist", ref.getKey());
@@ -94,7 +94,7 @@ public class QProfileWsSupport {
   }
 
   public void checkPermission(DbSession dbSession, String qualityProfileKey) {
-    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
+    RulesProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
     OrganizationDto organization = getOrganization(dbSession, qualityProfile);
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }

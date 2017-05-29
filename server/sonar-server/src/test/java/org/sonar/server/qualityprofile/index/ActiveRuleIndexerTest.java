@@ -31,7 +31,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -144,7 +144,7 @@ public class ActiveRuleIndexerTest {
     // Index one active rule
     RuleDefinitionDto rule = RuleTesting.newRule(RULE_KEY_1);
     dbTester.rules().insert(rule);
-    QualityProfileDto profile = QualityProfileDto.createFor("qp")
+    RulesProfileDto profile = RulesProfileDto.createFor("qp")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("xoo")
       .setName("profile");

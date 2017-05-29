@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 import java.util.Collection;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
 public interface QProfileReset {
   /**
@@ -34,5 +34,5 @@ public interface QProfileReset {
   /**
    * Reset the rules of the specified profile.
    */
-  BulkChangeResult reset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations);
+  BulkChangeResult reset(DbSession dbSession, RulesProfileDto profile, Collection<RuleActivation> activations);
 }

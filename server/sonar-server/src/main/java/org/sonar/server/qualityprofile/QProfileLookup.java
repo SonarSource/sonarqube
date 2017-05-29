@@ -24,7 +24,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -37,23 +37,23 @@ public class QProfileLookup {
     this.db = db;
   }
 
-  public List<QualityProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
+  public List<RulesProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
     return db.qualityProfileDao().selectAll(dbSession, organization);
   }
 
-  public List<QualityProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {
+  public List<RulesProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {
     return db.qualityProfileDao().selectByLanguage(dbSession, organization, language);
   }
 
-  public List<QualityProfileDto> ancestors(QualityProfileDto profile, DbSession session) {
-    List<QualityProfileDto> ancestors = newArrayList();
+  public List<RulesProfileDto> ancestors(RulesProfileDto profile, DbSession session) {
+    List<RulesProfileDto> ancestors = newArrayList();
     incrementAncestors(profile, ancestors, session);
     return ancestors;
   }
 
-  private void incrementAncestors(QualityProfileDto profile, List<QualityProfileDto> ancestors, DbSession session) {
+  private void incrementAncestors(RulesProfileDto profile, List<RulesProfileDto> ancestors, DbSession session) {
     if (profile.getParentKee() != null) {
-      QualityProfileDto parentDto = db.qualityProfileDao().selectByKey(session, profile.getParentKee());
+      RulesProfileDto parentDto = db.qualityProfileDao().selectByKey(session, profile.getParentKee());
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : " + profile.getId());
       }

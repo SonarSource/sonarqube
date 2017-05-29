@@ -31,7 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -72,8 +72,8 @@ public class DeleteActionTest {
   public void delete_profile_by_key() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    QualityProfileDto profile1 = createProfile(organization);
-    QualityProfileDto profile2 = createProfile(organization);
+    RulesProfileDto profile1 = createProfile(organization);
+    RulesProfileDto profile2 = createProfile(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project, profile1);
 
     logInAsQProfileAdministrator(organization);
@@ -92,8 +92,8 @@ public class DeleteActionTest {
   public void delete_profile_by_language_and_name_in_default_organization() throws Exception {
     OrganizationDto organization = dbTester.getDefaultOrganization();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    QualityProfileDto profile1 = createProfile(organization);
-    QualityProfileDto profile2 = createProfile(organization);
+    RulesProfileDto profile1 = createProfile(organization);
+    RulesProfileDto profile2 = createProfile(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project, profile1);
 
     logInAsQProfileAdministrator(organization);
@@ -114,8 +114,8 @@ public class DeleteActionTest {
   public void delete_profile_by_language_and_name_in_specified_organization() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
-    QualityProfileDto profile1 = createProfile(organization);
-    QualityProfileDto profile2 = createProfile(organization);
+    RulesProfileDto profile1 = createProfile(organization);
+    RulesProfileDto profile2 = createProfile(organization);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project, profile1);
     logInAsQProfileAdministrator(organization);
 
@@ -136,8 +136,8 @@ public class DeleteActionTest {
     OrganizationDto organization1 = dbTester.organizations().insert();
     OrganizationDto organization2 = dbTester.organizations().insert();
 
-    QualityProfileDto profileInOrg1 = createProfile(organization1);
-    QualityProfileDto profileInOrg2 = createProfile(organization2);
+    RulesProfileDto profileInOrg1 = createProfile(organization1);
+    RulesProfileDto profileInOrg2 = createProfile(organization2);
 
     logInAsQProfileAdministrator(organization1);
 
@@ -152,7 +152,7 @@ public class DeleteActionTest {
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
-    QualityProfileDto profile = createProfile(dbTester.getDefaultOrganization());
+    RulesProfileDto profile = createProfile(dbTester.getDefaultOrganization());
 
     expectedException.expect(UnauthorizedException.class);
 
@@ -177,7 +177,7 @@ public class DeleteActionTest {
   @Test
   public void throw_IAE_if_missing_language_parameter() {
     OrganizationDto organization = dbTester.organizations().insert();
-    QualityProfileDto profile = createProfile(organization);
+    RulesProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -193,7 +193,7 @@ public class DeleteActionTest {
   @Test
   public void throw_IAE_if_missing_name_parameter() throws Exception {
     OrganizationDto organization = dbTester.organizations().insert();
-    QualityProfileDto profile = createProfile(organization);
+    RulesProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -209,7 +209,7 @@ public class DeleteActionTest {
   @Test
   public void throw_IAE_if_too_many_parameters_to_reference_profile() {
     OrganizationDto organization = dbTester.organizations().insert();
-    QualityProfileDto profile = createProfile(organization);
+    RulesProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -240,7 +240,7 @@ public class DeleteActionTest {
   @Test
   public void throw_ISE_if_deleting_default_profile() {
     OrganizationDto organization = dbTester.organizations().insert();
-    QualityProfileDto profile = createProfile(organization);
+    RulesProfileDto profile = createProfile(organization);
     dbTester.qualityProfiles().markAsDefault(profile);
     logInAsQProfileAdministrator(organization);
 
@@ -256,8 +256,8 @@ public class DeleteActionTest {
   @Test
   public void throw_ISE_if_a_descendant_is_marked_as_default() {
     OrganizationDto organization = dbTester.organizations().insert();
-    QualityProfileDto parentProfile = createProfile(organization);
-    QualityProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE),
+    RulesProfileDto parentProfile = createProfile(organization);
+    RulesProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE),
       p -> p.setParentKee(parentProfile.getKey()));
     dbTester.qualityProfiles().markAsDefault(childProfile);
     logInAsQProfileAdministrator(organization);
@@ -278,16 +278,16 @@ public class DeleteActionTest {
       .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 
-  private void verifyProfileDoesNotExist(QualityProfileDto profile, OrganizationDto organization) {
+  private void verifyProfileDoesNotExist(RulesProfileDto profile, OrganizationDto organization) {
     assertThat(dbClient.qualityProfileDao().selectByKey(session, profile.getKey())).isNull();
     assertThat(dbClient.qualityProfileDao().selectSelectedProjects(organization, profile.getKey(), null, session)).isEmpty();
   }
 
-  private void verifyProfileExists(QualityProfileDto profile) {
+  private void verifyProfileExists(RulesProfileDto profile) {
     assertThat(dbClient.qualityProfileDao().selectByKey(session, profile.getKey())).isNotNull();
   }
 
-  private QualityProfileDto createProfile(OrganizationDto organization) {
+  private RulesProfileDto createProfile(OrganizationDto organization) {
     return dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
   }
 }

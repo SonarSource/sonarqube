@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -72,7 +72,7 @@ public class QProfileResetImpl implements QProfileReset {
   }
 
   private void resetProfile(DbSession dbSession, OrganizationDto organization, BuiltInQProfile builtInQProfile) {
-    QualityProfileDto profile = factory.getOrCreateCustom(dbSession, organization, builtInQProfile.getQProfileName());
+    RulesProfileDto profile = factory.getOrCreateCustom(dbSession, organization, builtInQProfile.getQProfileName());
 
     List<RuleActivation> activations = Lists.newArrayList();
     builtInQProfile.getActiveRules().forEach(activeRule -> activations.add(getRuleActivation(dbSession, activeRule)));
@@ -95,7 +95,7 @@ public class QProfileResetImpl implements QProfileReset {
   }
 
   @Override
-  public BulkChangeResult reset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations) {
+  public BulkChangeResult reset(DbSession dbSession, RulesProfileDto profile, Collection<RuleActivation> activations) {
     requireNonNull(profile.getId(), "Quality profile must be persisted");
     BulkChangeResult result = new BulkChangeResult();
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();

@@ -26,7 +26,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
@@ -78,7 +78,7 @@ public class BackupActionTest {
 
   @Test
   public void returns_backup_of_profile_with_specified_key() throws Exception {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QualityProfileTesting.newQualityProfileDto());
+    RulesProfileDto profile = db.qualityProfiles().insertQualityProfile(QualityProfileTesting.newQualityProfileDto());
 
     TestResponse response = tester.newRequest().setParam("profileKey", profile.getKey()).execute();
     assertThat(response.getMediaType()).isEqualTo("application/xml");
@@ -88,7 +88,7 @@ public class BackupActionTest {
 
   @Test
   public void returns_backup_of_profile_with_specified_name_on_default_organization() throws Exception {
-    QualityProfileDto profile = newProfile(db.getDefaultOrganization());
+    RulesProfileDto profile = newProfile(db.getDefaultOrganization());
     db.qualityProfiles().insertQualityProfile(profile);
 
     TestResponse response = tester.newRequest()
@@ -101,7 +101,7 @@ public class BackupActionTest {
   @Test
   public void returns_backup_of_profile_with_specified_name_and_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
-    QualityProfileDto profile = newProfile(org);
+    RulesProfileDto profile = newProfile(org);
     db.qualityProfiles().insertQualityProfile(profile);
 
     TestResponse response = tester.newRequest()
@@ -135,10 +135,10 @@ public class BackupActionTest {
   @Test
   public void throws_NotFoundException_if_profile_name_exists_but_in_another_organization() throws Exception {
     OrganizationDto org1 = db.organizations().insert();
-    QualityProfileDto profileInOrg1 = newProfile(org1);
+    RulesProfileDto profileInOrg1 = newProfile(org1);
     db.qualityProfiles().insertQualityProfile(profileInOrg1);
     OrganizationDto org2 = db.organizations().insert();
-    QualityProfileDto profileInOrg2 = newProfile(org2).setLanguage(profileInOrg1.getLanguage());
+    RulesProfileDto profileInOrg2 = newProfile(org2).setLanguage(profileInOrg1.getLanguage());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile for language 'xoo' and name '" + profileInOrg1.getName() + "' does not exist in organization '" + org2.getKey() +"'");
@@ -157,7 +157,7 @@ public class BackupActionTest {
     tester.newRequest().execute();
   }
 
-  private static String xmlForProfileWithoutRules(QualityProfileDto profile) {
+  private static String xmlForProfileWithoutRules(RulesProfileDto profile) {
     return "<?xml version='1.0' encoding='UTF-8'?>" +
       "<profile>" +
       "  <name>" + profile.getName() + "</name>" +
@@ -166,7 +166,7 @@ public class BackupActionTest {
       "</profile>";
   }
 
-  private static QualityProfileDto newProfile(OrganizationDto org) {
+  private static RulesProfileDto newProfile(OrganizationDto org) {
     return QualityProfileTesting.newQualityProfileDto()
       .setLanguage(A_LANGUAGE)
       .setOrganizationUuid(org.getUuid());

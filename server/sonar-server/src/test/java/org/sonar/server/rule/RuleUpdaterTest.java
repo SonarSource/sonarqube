@@ -42,7 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -446,7 +446,7 @@ public class RuleUpdaterTest {
     db.rules().insertRuleParam(customRule, param -> param.setName("message").setType("STRING").setDescription("message"));
 
     // Create a quality profile
-    QualityProfileDto profileDto = QProfileTesting.newXooP1(db.getDefaultOrganization());
+    RulesProfileDto profileDto = QProfileTesting.newXooP1(db.getDefaultOrganization());
     db.getDbClient().qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 

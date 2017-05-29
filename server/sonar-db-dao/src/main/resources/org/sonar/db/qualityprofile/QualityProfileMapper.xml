@@ -18,7 +18,7 @@
     p.is_built_in as isBuiltIn
   </sql>
 
-  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="RulesProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO rules_profiles (organization_uuid, kee, parent_kee, name, language, created_at, updated_at, rules_updated_at, last_used, user_updated_at, is_built_in)
     VALUES (
     #{organizationUuid, jdbcType=VARCHAR},
@@ -35,7 +35,7 @@
     )
   </insert>
 
-  <update id="update" parameterType="QualityProfile">
+  <update id="update" parameterType="RulesProfile">
     UPDATE rules_profiles SET
     name=#{name, jdbcType=VARCHAR},
     language=#{language, jdbcType=VARCHAR},
@@ -54,7 +54,7 @@
       <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
   </update>
 
-  <select id="selectAll" parameterType="map" resultType="QualityProfile">
+  <select id="selectAll" parameterType="map" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -62,7 +62,7 @@
     ORDER BY p.name, p.language
   </select>
 
-  <select id="selectByNameAndLanguage" parameterType="map" resultType="QualityProfile">
+  <select id="selectByNameAndLanguage" parameterType="map" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -73,7 +73,7 @@
     </if>
   </select>
 
-  <select id="selectByNameAndLanguages" parameterType="map" resultType="QualityProfile">
+  <select id="selectByNameAndLanguages" parameterType="map" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -82,14 +82,14 @@
     AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByKey" parameterType="string" resultType="QualityProfile">
+  <select id="selectByKey" parameterType="string" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
     WHERE p.kee=#{id}
   </select>
 
-  <select id="selectByKeys" parameterType="string" resultType="QualityProfile">
+  <select id="selectByKeys" parameterType="string" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -99,7 +99,7 @@
     </foreach>
   </select>
 
-  <select id="selectByLanguage" parameterType="String" resultType="QualityProfile">
+  <select id="selectByLanguage" parameterType="String" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -108,7 +108,7 @@
     ORDER BY p.name
   </select>
 
-  <select id="selectChildren" parameterType="string" resultType="QualityProfile">
+  <select id="selectChildren" parameterType="string" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -116,7 +116,7 @@
     ORDER BY p.name
   </select>
 
-  <select id="selectDefaultProfile" parameterType="map" resultType="QualityProfile">
+  <select id="selectDefaultProfile" parameterType="map" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -126,7 +126,7 @@
     AND dp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectDefaultProfiles" parameterType="map" resultType="QualityProfile">
+  <select id="selectDefaultProfiles" parameterType="map" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -180,7 +180,7 @@
     group by pp.profile_key
   </select>
 
-  <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
+  <select id="selectByProjectAndLanguage" parameterType="map" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p
@@ -189,7 +189,7 @@
     WHERE p.language=#{language}
   </select>
 
-  <select id="selectByProjectAndLanguages" parameterType="map" resultType="QualityProfile">
+  <select id="selectByProjectAndLanguages" parameterType="map" resultType="RulesProfile">
     SELECT
     <include refid="profilesColumns"/>
     FROM rules_profiles p

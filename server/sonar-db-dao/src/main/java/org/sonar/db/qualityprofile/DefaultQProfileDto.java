@@ -52,7 +52,7 @@ public class DefaultQProfileDto {
     return this;
   }
 
-  public static DefaultQProfileDto from(QualityProfileDto profile) {
+  public static DefaultQProfileDto from(RulesProfileDto profile) {
     return new DefaultQProfileDto()
       .setOrganizationUuid(profile.getOrganizationUuid())
       .setLanguage(profile.getLanguage())

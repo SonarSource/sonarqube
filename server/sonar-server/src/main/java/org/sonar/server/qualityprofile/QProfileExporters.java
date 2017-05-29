@@ -44,7 +44,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -103,12 +103,12 @@ public class QProfileExporters {
     return exporter.getMimeType();
   }
 
-  public void export(QualityProfileDto profile, String exporterKey, Writer writer) {
+  public void export(RulesProfileDto profile, String exporterKey, Writer writer) {
     ProfileExporter exporter = findExporter(exporterKey);
     exporter.exportProfile(wrap(profile), writer);
   }
 
-  private RulesProfile wrap(QualityProfileDto profile) {
+  private RulesProfile wrap(RulesProfileDto profile) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
       List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey());
@@ -137,11 +137,11 @@ public class QProfileExporters {
     throw new NotFoundException("Unknown quality profile exporter: " + exporterKey);
   }
 
-  public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, InputStream xml, DbSession dbSession) {
+  public QProfileResult importXml(RulesProfileDto profileDto, String importerKey, InputStream xml, DbSession dbSession) {
     return importXml(profileDto, importerKey, new InputStreamReader(xml, StandardCharsets.UTF_8), dbSession);
   }
 
-  private QProfileResult importXml(QualityProfileDto profileDto, String importerKey, Reader xml, DbSession dbSession) {
+  private QProfileResult importXml(RulesProfileDto profileDto, String importerKey, Reader xml, DbSession dbSession) {
     QProfileResult result = new QProfileResult();
     ValidationMessages messages = ValidationMessages.create();
     ProfileImporter importer = getProfileImporter(importerKey);
@@ -152,7 +152,7 @@ public class QProfileExporters {
     return result;
   }
 
-  private List<ActiveRuleChange> importProfile(QualityProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
+  private List<ActiveRuleChange> importProfile(RulesProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
     List<ActiveRuleChange> changes = new ArrayList<>();
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
       changes.addAll(ruleActivator.activate(dbSession, toRuleActivation(activeRule), profileDto));

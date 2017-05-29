@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -31,7 +31,7 @@ import static com.google.common.collect.ImmutableMap.copyOf;
 
 public class SearchData {
   private OrganizationDto organization;
-  private List<QualityProfileDto> profiles;
+  private List<RulesProfileDto> profiles;
   private Map<String, Long> activeRuleCountByProfileKey;
   private Map<String, Long> activeDeprecatedRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
@@ -46,11 +46,11 @@ public class SearchData {
     return organization;
   }
 
-  public List<QualityProfileDto> getProfiles() {
+  public List<RulesProfileDto> getProfiles() {
     return profiles;
   }
 
-  public SearchData setProfiles(List<QualityProfileDto> profiles) {
+  public SearchData setProfiles(List<RulesProfileDto> profiles) {
     this.profiles = copyOf(profiles);
     return this;
   }
@@ -82,7 +82,7 @@ public class SearchData {
     return firstNonNull(activeDeprecatedRuleCountByProfileKey.get(profileKey), 0L);
   }
 
-  boolean isDefault(QualityProfileDto profile) {
+  boolean isDefault(RulesProfileDto profile) {
     return defaultProfileKeys.contains(profile.getKey());
   }
 

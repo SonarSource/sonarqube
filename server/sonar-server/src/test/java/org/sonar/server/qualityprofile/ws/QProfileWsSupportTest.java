@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -48,9 +48,9 @@ public class QProfileWsSupportTest {
 
   @Test
   public void getProfile_returns_the_profile_specified_by_key() {
-    QualityProfileDto profile = db.qualityProfiles().insertQualityProfile(QualityProfileTesting.newQualityProfileDto());
+    RulesProfileDto profile = db.qualityProfiles().insertQualityProfile(QualityProfileTesting.newQualityProfileDto());
 
-    QualityProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromKey(profile.getKey()));
+    RulesProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromKey(profile.getKey()));
 
     assertThat(loaded.getKey()).isEqualTo(profile.getKey());
     assertThat(loaded.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
@@ -68,10 +68,10 @@ public class QProfileWsSupportTest {
 
   @Test
   public void getProfile_returns_the_profile_specified_by_name_and_default_organization() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
+    RulesProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
     db.qualityProfiles().insertQualityProfile(profile);
 
-    QualityProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromName(null, profile.getLanguage(), profile.getName()));
+    RulesProfileDto loaded = underTest.getProfile(db.getSession(), QProfileReference.fromName(null, profile.getLanguage(), profile.getName()));
 
     assertThat(loaded.getKey()).isEqualTo(profile.getKey());
     assertThat(loaded.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
@@ -81,7 +81,7 @@ public class QProfileWsSupportTest {
 
   @Test
   public void getProfile_throws_NotFoundException_if_specified_name_does_not_exist_on_default_organization() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
+    RulesProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(db.getDefaultOrganization().getUuid());
     db.qualityProfiles().insertQualityProfile(profile);
 
     expectedException.expect(NotFoundException.class);
@@ -93,7 +93,7 @@ public class QProfileWsSupportTest {
   @Test
   public void getProfile_throws_NotFoundException_if_specified_name_does_not_exist_on_specified_organization() {
     OrganizationDto org1 = db.organizations().insert();
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(org1.getUuid());
+    RulesProfileDto profile = QualityProfileTesting.newQualityProfileDto().setOrganizationUuid(org1.getUuid());
     db.qualityProfiles().insertQualityProfile(profile);
     OrganizationDto org2 = db.organizations().insert();
 

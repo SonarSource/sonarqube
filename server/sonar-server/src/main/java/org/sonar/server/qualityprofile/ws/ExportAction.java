@@ -38,7 +38,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.util.LanguageParamUtils;
@@ -111,12 +111,12 @@ public class ExportAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
-      QualityProfileDto profile = loadProfile(dbSession, organization, language, name);
+      RulesProfileDto profile = loadProfile(dbSession, organization, language, name);
       writeResponse(dbSession, profile, exporterKey, response);
     }
   }
 
-  private void writeResponse(DbSession dbSession, QualityProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
+  private void writeResponse(DbSession dbSession, RulesProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
     Stream stream = response.stream();
     try (
       OutputStream output = response.stream().output();
@@ -131,8 +131,8 @@ public class ExportAction implements QProfileWsAction {
     }
   }
 
-  private QualityProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, String language, @Nullable String name) {
-    QualityProfileDto profile;
+  private RulesProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, String language, @Nullable String name) {
+    RulesProfileDto profile;
     if (name == null) {
       // return the default profile
       profile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
