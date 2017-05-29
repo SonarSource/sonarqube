@@ -20,6 +20,7 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Collection;
+import java.util.Set;
 import org.apache.ibatis.annotations.Param;
 
 public interface DefaultQProfileMapper {
@@ -28,4 +29,8 @@ public interface DefaultQProfileMapper {
   int update(@Param("dto") DefaultQProfileDto dto, @Param("now") long now);
 
   void deleteByQProfileUuids(@Param("qProfileUuids") Collection<String> qProfileUuids);
+
+  Set<String> selectExistingQProfileUuids(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("qProfileUuids") Collection<String> qProfileUuids);
 }

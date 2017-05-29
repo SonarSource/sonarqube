@@ -240,7 +240,8 @@ public class DeleteActionTest {
   @Test
   public void throw_ISE_if_deleting_default_profile() {
     OrganizationDto organization = dbTester.organizations().insert();
-    QualityProfileDto profile = createDefaultProfile(organization);
+    QualityProfileDto profile = createProfile(organization);
+    dbTester.qualityProfiles().markAsDefault(profile);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -256,8 +257,9 @@ public class DeleteActionTest {
   public void throw_ISE_if_a_descendant_is_marked_as_default() {
     OrganizationDto organization = dbTester.organizations().insert();
     QualityProfileDto parentProfile = createProfile(organization);
-    QualityProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setDefault(true),
+    QualityProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE),
       p -> p.setParentKee(parentProfile.getKey()));
+    dbTester.qualityProfiles().markAsDefault(childProfile);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -286,10 +288,6 @@ public class DeleteActionTest {
   }
 
   private QualityProfileDto createProfile(OrganizationDto organization) {
-    return dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setDefault(false));
-  }
-
-  private QualityProfileDto createDefaultProfile(OrganizationDto organization) {
-    return dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE), p -> p.setDefault(true));
+    return dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -41,16 +42,14 @@ public class DefaultQProfileDaoTest {
   @Test
   public void insertOrUpdate_inserts_row_when_does_not_exist() {
     OrganizationDto org = dbTester.organizations().insert();
-    DefaultQProfileDto dto = new DefaultQProfileDto()
-      .setLanguage("java")
-      .setOrganizationUuid(org.getUuid())
-      .setQProfileUuid(Uuids.create());
+    QualityProfileDto profile = dbTester.qualityProfiles().insert(org);
+    DefaultQProfileDto dto = DefaultQProfileDto.from(profile);
 
     underTest.insertOrUpdate(dbSession, dto);
     dbSession.commit();
 
     assertThat(countRows()).isEqualTo(1);
-    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org, dto.getLanguage())).hasValue(dto.getQProfileUuid());
+    assertThatIsDefault(org, profile);
   }
 
   @Test
@@ -90,6 +89,35 @@ public class DefaultQProfileDaoTest {
     assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org1, "js")).hasValue("u2");
     assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org2, "java")).isEmpty();
     assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org2, "js")).hasValue("u4");
+  }
+
+  @Test
+  public void selectExistingQProfileUuids_filters_defaults() {
+    OrganizationDto org = dbTester.organizations().insert();
+    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(org);
+    QualityProfileDto profile2 = dbTester.qualityProfiles().insert(org);
+    dbTester.qualityProfiles().markAsDefault(profile1);
+
+    List<String> profileUuids = asList(profile1.getKee(), profile2.getKee(), "other");
+    assertThat(underTest.selectExistingQProfileUuids(dbSession, org.getUuid(), profileUuids))
+      .containsExactly(profile1.getKee());
+  }
+
+  @Test
+  public void isDefault_returns_true_if_profile_is_marked_as_default() {
+    OrganizationDto org = dbTester.organizations().insert();
+    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(org);
+    QualityProfileDto profile2 = dbTester.qualityProfiles().insert(org);
+    dbTester.qualityProfiles().markAsDefault(profile1);
+
+    assertThat(underTest.isDefault(dbSession, org.getUuid(), profile1.getKee())).isTrue();
+    assertThat(underTest.isDefault(dbSession, org.getUuid(), profile2.getKee())).isFalse();
+    assertThat(underTest.isDefault(dbSession, org.getUuid(), "does_not_exist")).isFalse();
+  }
+
+  private void assertThatIsDefault(OrganizationDto org, QualityProfileDto profile) {
+    assertThat(dbTester.qualityProfiles().selectUuidOfDefaultProfile(org, profile.getLanguage())).hasValue(profile.getKee());
+    assertThat(underTest.isDefault(dbSession, org.getUuid(), profile.getKee())).isTrue();
   }
 
   private int countRows() {

@@ -29,6 +29,7 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -102,6 +103,9 @@ public class QProfileFactory {
       .setIsBuiltIn(isBuiltIn)
       .setRulesUpdatedAtAsDate(now);
     db.qualityProfileDao().insert(dbSession, dto);
+    if (isDefault) {
+      db.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(dto));
+    }
     return dto;
   }
 
@@ -119,6 +123,7 @@ public class QProfileFactory {
       db.activeRuleDao().deleteParametersByProfileKeys(dbSession, profileKeys);
       db.activeRuleDao().deleteByProfileKeys(dbSession, profileKeys);
       db.qProfileChangeDao().deleteByProfileKeys(dbSession, profileKeys);
+      db.defaultQProfileDao().deleteByQProfileUuids(dbSession, profileKeys);
       db.qualityProfileDao().deleteByKeys(dbSession, profileKeys);
       dbSession.commit();
       activeRuleIndexer.deleteByProfileKeys(profileKeys);
