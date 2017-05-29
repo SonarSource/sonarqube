@@ -56,9 +56,6 @@ public class UpgradeTest {
   private static final String LATEST_JAVA_RELEASE = "LATEST_RELEASE";
   private static final Version VERSION_5_2 = Version.create("5.2");
   private static final Version VERSION_5_6_1 = Version.create("5.6.1");
-  private static final Version VERSION_5_6 = Version.create("5.6");
-  private static final Version VERSION_6_0 = Version.create("6.0");
-  private static final Version VERSION_6_1 = Version.create("6.1");
   private static final Version VERSION_CURRENT = Version.create("DEV");
 
   private Orchestrator orchestrator;
@@ -77,18 +74,8 @@ public class UpgradeTest {
   }
 
   @Test
-  public void test_upgrade_from_5_2_via_5_6() {
-    testDatabaseUpgrade(VERSION_5_2, VERSION_5_6);
-  }
-
-  @Test
-  public void test_upgrade_from_6_0() {
-    testDatabaseUpgrade(VERSION_6_0);
-  }
-
-  @Test
-  public void test_upgrade_from_6_1() {
-    testDatabaseUpgrade(VERSION_6_1);
+  public void test_upgrade_from_5_2_via_5_6_1() {
+    testDatabaseUpgrade(VERSION_5_2, VERSION_5_6_1);
   }
 
   private void testDatabaseUpgrade(Version fromVersion, Version... intermediaryVersions) {
@@ -144,8 +131,6 @@ public class UpgradeTest {
     checkUrlIsReturningOk("/api/system/status");
     checkUrlIsReturningOk("/api/system/db_migration_status");
     checkUrlIsReturningOk("/api/webservices/list");
-    // TODO Reactivate when latest Sonarqube version will be in repox
-    // checkUrlIsReturningOkOnlyForDevVersion("/api/l10n/index", sqVersion);
 
     // These urls should not be available when system requires a migration
     checkUrlIsReturningNotFound("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
