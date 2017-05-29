@@ -200,10 +200,7 @@
   <delete id="deleteComponentEvents" parameterType="map">
     delete from events
     where
-      component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid,jdbcType=VARCHAR}
-      </foreach>
+      component_uuid = #{componentUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteComponentIssueChanges" parameterType="map">
