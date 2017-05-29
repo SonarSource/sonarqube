@@ -120,6 +120,7 @@ export default class AllProjects extends React.PureComponent {
   };
 
   render() {
+    const { isFavorite, organization } = this.props;
     const { query, optionBarOpen } = this.state;
     const isFiltered = Object.keys(query).some(key => query[key] != null);
 
@@ -127,7 +128,7 @@ export default class AllProjects extends React.PureComponent {
     const visualization = query.visualization || 'risk';
     const selectedSort = query.sort || 'name';
 
-    const top = (this.props.organization ? 95 : 30) + (optionBarOpen ? 45 : 0);
+    const top = (organization ? 95 : 30) + (optionBarOpen ? 45 : 0);
 
     return (
       <div>
@@ -149,8 +150,8 @@ export default class AllProjects extends React.PureComponent {
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
                   <PageSidebar
-                    isFavorite={this.props.isFavorite}
-                    organization={this.props.organization}
+                    isFavorite={isFavorite}
+                    organization={organization}
                     query={query}
                     view={view}
                     visualization={visualization}
@@ -162,19 +163,24 @@ export default class AllProjects extends React.PureComponent {
 
           <div className="layout-page-main">
             <div className="layout-page-main-inner">
-              <PageHeaderContainer onOpenOptionBar={this.openOptionBar} />
+              <PageHeaderContainer
+                query={query}
+                isFavorite={isFavorite}
+                organization={organization}
+                onOpenOptionBar={this.openOptionBar}
+              />
               {view !== 'visualizations' &&
                 <ProjectsListContainer
-                  isFavorite={this.props.isFavorite}
+                  isFavorite={isFavorite}
                   isFiltered={isFiltered}
-                  organization={this.props.organization}
+                  organization={organization}
                   cardType={view}
                 />}
               {view !== 'visualizations' &&
                 <ProjectsListFooterContainer
                   query={query}
-                  isFavorite={this.props.isFavorite}
-                  organization={this.props.organization}
+                  isFavorite={isFavorite}
+                  organization={organization}
                 />}
               {view === 'visualizations' &&
                 <VisualizationsContainer sort={query.sort} visualization={visualization} />}

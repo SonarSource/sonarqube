@@ -34,7 +34,6 @@ import NewLinesFilter from '../filters/NewLinesFilter';
 import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
-import SearchFilterContainer from '../filters/SearchFilterContainer';
 import SizeFilter from '../filters/SizeFilter';
 import TagsFilterContainer from '../filters/TagsFilterContainer';
 import { translate } from '../../../helpers/l10n';
@@ -84,7 +83,6 @@ export default function PageSidebar({
           </div>}
 
         <h3>{translate('filters')}</h3>
-        <SearchFilterContainer {...facetProps} />
       </div>
       <QualityGateFilter {...facetProps} />
       {!isLeakView && [

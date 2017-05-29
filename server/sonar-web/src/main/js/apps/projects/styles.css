@@ -223,21 +223,18 @@
 }
 
 .projects-facet-search {
-  position: relative;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 300px;
 }
 
 .projects-facet-search .note {
   position: absolute;
-  opacity: 0;
-  left: 0;
-  bottom: -7px;
-  transition: opacity 0.3s ease;
-}
-
-.projects-facet-search input.touched ~ .note {
-  opacity: 1;
+  top: 1px;
+  right: 30px;
+  line-height: 24px;
+  pointer-events: none;
 }
 
 .projects-facets-reset {
