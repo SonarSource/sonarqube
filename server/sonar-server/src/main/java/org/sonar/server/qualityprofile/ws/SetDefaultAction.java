@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.user.UserSession;
 
@@ -77,11 +78,12 @@ public class SetDefaultAction implements QProfileWsAction {
     response.noContent();
   }
 
-  public void setDefault(DbSession session, OrganizationDto organization, QualityProfileDto qualityProfile) {
-    QualityProfileDto previousDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, organization, qualityProfile.getLanguage());
+  public void setDefault(DbSession dbSession, OrganizationDto organization, QualityProfileDto profile) {
+    QualityProfileDto previousDefault = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, profile.getLanguage());
     if (previousDefault != null) {
-      dbClient.qualityProfileDao().update(session, previousDefault.setDefault(false));
+      dbClient.qualityProfileDao().update(dbSession, previousDefault.setDefault(false));
     }
-    dbClient.qualityProfileDao().update(session, qualityProfile.setDefault(true));
+    dbClient.qualityProfileDao().update(dbSession, profile.setDefault(true));
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
   }
 }
