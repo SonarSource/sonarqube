@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,6 +59,7 @@ import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -98,8 +100,7 @@ public class SearchActionTest {
       new SearchDataLoader(
         languages,
         new QProfileLookup(dbClient),
-        dbClient
-      ),
+        dbClient),
       languages,
       dbClient,
       qProfileWsSupport);
@@ -131,12 +132,14 @@ public class SearchActionTest {
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(xoo1.getKey())
       .setName("Sonar way")
+      .setIsBuiltIn(false)
       .setDefault(true);
     QualityProfileDto parentProfile = QualityProfileDto
       .createFor("sonar-way-xoo2-23456")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(xoo2.getKey())
-      .setName("Sonar way");
+      .setName("Sonar way")
+      .setIsBuiltIn(true);
     QualityProfileDto childProfile = QualityProfileDto
       .createFor("my-sonar-way-xoo2-34567")
       .setOrganizationUuid(organization.getUuid())
@@ -145,7 +148,8 @@ public class SearchActionTest {
       .setParentKee(parentProfile.getKey());
     QualityProfileDto profileOnUnknownLang = QualityProfileDto.createFor("sonar-way-other-666")
       .setOrganizationUuid(organization.getUuid())
-      .setLanguage("other").setName("Sonar way")
+      .setLanguage("other")
+      .setName("Sonar way")
       .setDefault(true);
     qualityProfileDao.insert(dbSession, defaultProfile, parentProfile, childProfile, profileOnUnknownLang);
 
@@ -154,49 +158,20 @@ public class SearchActionTest {
     db.qualityProfiles().associateProjectWithQualityProfile(project1, parentProfile);
     db.qualityProfiles().associateProjectWithQualityProfile(project2, parentProfile);
 
-    String result = ws.newRequest().execute().getInput();
+    SearchWsResponse result = ws.newRequest().executeProtobuf(SearchWsResponse.class);
 
-    assertJson(result).isSimilarTo("{" +
-      "  \"profiles\": [" +
-      "    {" +
-      "      \"key\": \"sonar-way-xoo1-12345\"," +
-      "      \"name\": \"Sonar way\"," +
-      "      \"language\": \"xoo1\"," +
-      "      \"languageName\": \"Xoo1\"," +
-      "      \"isInherited\": false," +
-      "      \"isDefault\": true," +
-      "      \"activeRuleCount\": 0," +
-      "      \"activeDeprecatedRuleCount\": 0," +
-      "      \"organization\": \"" + organization.getKey() + "\"" +
-      "    }," +
-      "    {" +
-      "      \"key\": \"my-sonar-way-xoo2-34567\"," +
-      "      \"name\": \"My Sonar way\"," +
-      "      \"language\": \"xoo2\"," +
-      "      \"languageName\": \"Xoo2\"," +
-      "      \"isInherited\": true," +
-      "      \"isDefault\": false," +
-      "      \"parentKey\": \"sonar-way-xoo2-23456\"," +
-      "      \"parentName\": \"Sonar way\"," +
-      "      \"activeRuleCount\": 0," +
-      "      \"activeDeprecatedRuleCount\": 0," +
-      "      \"projectCount\": 0," +
-      "      \"organization\": \"" + organization.getKey() + "\"" +
-      "    }," +
-      "    {" +
-      "      \"key\": \"sonar-way-xoo2-23456\"," +
-      "      \"name\": \"Sonar way\"," +
-      "      \"language\": \"xoo2\"," +
-      "      \"languageName\": \"Xoo2\"," +
-      "      \"isInherited\": false," +
-      "      \"isDefault\": false," +
-      "      \"activeRuleCount\": 0," +
-      "      \"activeDeprecatedRuleCount\": 0," +
-      "      \"projectCount\": 2," +
-      "      \"organization\": \"" + organization.getKey() + "\"" +
-      "    }" +
-      "  ]" +
-      "}");
+    Function<QualityProfile, String> getParentKey = qp -> qp.hasParentKey() ? qp.getParentKey() : null;
+    Function<QualityProfile, String> getParentName = qp -> qp.hasParentName() ? qp.getParentName() : null;
+    Function<QualityProfile, Long> getProjectCount = qp -> qp.hasProjectCount() ? qp.getProjectCount() : null;
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey, QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getLanguageName,
+        QualityProfile::getIsInherited, QualityProfile::getIsDefault, QualityProfile::getIsBuiltIn,
+        QualityProfile::getActiveRuleCount, QualityProfile::getActiveDeprecatedRuleCount, getProjectCount,
+        QualityProfile::getOrganization, getParentKey, getParentName)
+      .containsExactlyInAnyOrder(
+        tuple("sonar-way-xoo1-12345", "Sonar way", "xoo1", "Xoo1", false, true, false, 0L, 0L, null, organization.getKey(), null, null),
+        tuple("my-sonar-way-xoo2-34567", "My Sonar way", "xoo2", "Xoo2", true, false, false, 0L, 0L, 0L, organization.getKey(), "sonar-way-xoo2-23456", "Sonar way"),
+        tuple("sonar-way-xoo2-23456", "Sonar way", "xoo2", "Xoo2", false, false, true, 0L, 0L, 2L, organization.getKey(), null, null));
   }
 
   @Test
