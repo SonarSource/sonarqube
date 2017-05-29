@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -108,7 +108,7 @@ public class DeactivateRulesActionTest {
   @Test
   public void should_fail_if_not_organization_quality_profile_administrator() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("profile_key", qualityProfile.getKey());

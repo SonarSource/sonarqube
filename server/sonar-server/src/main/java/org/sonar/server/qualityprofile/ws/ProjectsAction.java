@@ -40,7 +40,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -135,7 +135,7 @@ public class ProjectsAction implements QProfileWsAction {
   }
 
   private List<ProjectQprofileAssociationDto> loadProjects(String profileKey, DbSession session, String selected, String query) {
-    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(session, profileKey);
+    RulesProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(session, profileKey);
     OrganizationDto organization = wsSupport.getOrganization(session, qualityProfile);
     List<ProjectQprofileAssociationDto> projects = Lists.newArrayList();
     SelectionMode selectionMode = SelectionMode.fromParam(selected);

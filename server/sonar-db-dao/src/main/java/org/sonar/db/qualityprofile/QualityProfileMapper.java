@@ -28,43 +28,43 @@ import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
 
-  void insert(QualityProfileDto dto);
+  void insert(RulesProfileDto dto);
 
-  void update(QualityProfileDto dto);
+  void update(RulesProfileDto dto);
 
   void deleteByKeys(@Param("profileKeys") Collection<String> profileKeys);
 
-  List<QualityProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
+  List<RulesProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
-  QualityProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
+  RulesProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
-  List<QualityProfileDto> selectDefaultProfiles(@Param("organizationUuid") String organizationUuid, @Param("languages") List<String> languages);
-
-  @CheckForNull
-  QualityProfileDto selectByNameAndLanguage(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("language") String language);
-
-  List<QualityProfileDto> selectByNameAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("languages") List<String> languages);
+  List<RulesProfileDto> selectDefaultProfiles(@Param("organizationUuid") String organizationUuid, @Param("languages") List<String> languages);
 
   @CheckForNull
-  QualityProfileDto selectByKey(String key);
+  RulesProfileDto selectByNameAndLanguage(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("language") String language);
 
-  List<QualityProfileDto> selectByLanguage(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
+  List<RulesProfileDto> selectByNameAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("languages") List<String> languages);
 
-  List<QualityProfileDto> selectByKeys(@Param("keys") List<String> keys);
+  @CheckForNull
+  RulesProfileDto selectByKey(String key);
+
+  List<RulesProfileDto> selectByLanguage(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
+
+  List<RulesProfileDto> selectByKeys(@Param("keys") List<String> keys);
 
   // INHERITANCE
 
-  List<QualityProfileDto> selectChildren(String key);
+  List<RulesProfileDto> selectChildren(String key);
 
   // PROJECTS
 
   List<KeyLongValue> countProjectsByProfileKey(@Param("organizationUuid") String organizationUuid);
 
-  QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
+  RulesProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
 
-  List<QualityProfileDto> selectByProjectAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("projectKey") String projectKey,
-    @Param("languages") List<String> input);
+  List<RulesProfileDto> selectByProjectAndLanguages(@Param("organizationUuid") String organizationUuid, @Param("projectKey") String projectKey,
+                                                    @Param("languages") List<String> input);
 
   void insertProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 

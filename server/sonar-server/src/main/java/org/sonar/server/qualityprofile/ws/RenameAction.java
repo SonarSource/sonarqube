@@ -30,7 +30,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -88,7 +88,7 @@ public class RenameAction implements QProfileWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto qualityProfile = ofNullable(dbClient.qualityProfileDao().selectByKey(dbSession, profileKey))
+      RulesProfileDto qualityProfile = ofNullable(dbClient.qualityProfileDao().selectByKey(dbSession, profileKey))
           .orElseThrow(() -> new NotFoundException("Quality profile not found: " + profileKey));
 
       String organizationUuid = qualityProfile.getOrganizationUuid();

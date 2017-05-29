@@ -41,7 +41,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
@@ -311,7 +311,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_all_active_rules() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
+    RulesProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
@@ -336,10 +336,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_profile_active_rules() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
+    RulesProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    QualityProfileDto profile2 = QProfileTesting.newXooP2(defaultOrganizationDto);
+    RulesProfileDto profile2 = QProfileTesting.newXooP2(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile2);
 
     dbSession.commit();
@@ -411,10 +411,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_profile_active_rules_with_inheritance() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
+    RulesProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
 
-    QualityProfileDto profile2 = QProfileTesting.newXooP2(defaultOrganizationDto).setParentKee(profile.getKee());
+    RulesProfileDto profile2 = QProfileTesting.newXooP2(defaultOrganizationDto).setParentKee(profile.getKee());
     tester.get(QualityProfileDao.class).insert(dbSession, profile2);
 
     dbSession.commit();
@@ -442,7 +442,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_all_active_rules_params() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
+    RulesProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
     RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
     insertRule(rule);
@@ -488,7 +488,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void get_note_as_markdown_and_html() throws Exception {
-    QualityProfileDto profile = QProfileTesting.newXooP1("org-123");
+    RulesProfileDto profile = QProfileTesting.newXooP1("org-123");
     tester.get(QualityProfileDao.class).insert(dbSession, profile);
     RuleDto rule = RuleTesting.newXooX1(defaultOrganizationDto).setNoteData("this is *bold*");
     insertRule(rule.getDefinition());
@@ -636,7 +636,7 @@ public class SearchActionMediumTest {
     result.assertJson(getClass(), "search_rules_with_deprecated_fields.json");
   }
 
-  private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDefinitionDto rule) {
+  private ActiveRuleDto newActiveRule(RulesProfileDto profile, RuleDefinitionDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
       .setInheritance(null)
       .setSeverity("BLOCKER");

@@ -44,7 +44,7 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -126,14 +126,14 @@ public class QProfileBackuperMediumTest {
     ruleIndexer.indexRuleDefinition(blahRule.getKey());
 
     // create profile P1 with rules x2 and x1 activated
-    QualityProfileDto profile = newXooP1(organization);
+    RulesProfileDto profile = newXooP1(organization);
     db.qualityProfileDao().insert(dbSession, profile);
     RuleActivation activation1 = new RuleActivation(XOO_X2).setSeverity("MINOR");
     RuleActivation activation2 = new RuleActivation(XOO_X1);
     RuleActivation activation3 = new RuleActivation(blahRuleKey);
     activation2.setSeverity(Severity.BLOCKER);
     activation2.setParameter("max", "7");
-    QualityProfileDto profileDto = get(XOO_P1_NAME);
+    RulesProfileDto profileDto = get(XOO_P1_NAME);
     tester.get(RuleActivator.class).activate(dbSession, activation1, profileDto);
     tester.get(RuleActivator.class).activate(dbSession, activation2, profileDto);
     tester.get(RuleActivator.class).activate(dbSession, activation3, profileDto);
@@ -156,7 +156,7 @@ public class QProfileBackuperMediumTest {
       organization, null);
 
     // Check in db
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
+    RulesProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profile.getKey());
@@ -182,7 +182,7 @@ public class QProfileBackuperMediumTest {
     RuleActivation activation = new RuleActivation(XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
-    QualityProfileDto profileDto = get(XOO_P1_NAME);
+    RulesProfileDto profileDto = get(XOO_P1_NAME);
     tester.get(RuleActivator.class).activate(dbSession, activation, profileDto);
 
     activation = new RuleActivation(XOO_X2);
@@ -379,7 +379,7 @@ public class QProfileBackuperMediumTest {
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
     assertThat(activeRules).hasSize(0);
 
-    QualityProfileDto target = db.qualityProfileDao().selectByNameAndLanguage(organization, "P3", "xoo", dbSession);
+    RulesProfileDto target = db.qualityProfileDao().selectByNameAndLanguage(organization, "P3", "xoo", dbSession);
     assertThat(target).isNotNull();
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, target.getKey())).hasSize(1);
   }
@@ -392,7 +392,7 @@ public class QProfileBackuperMediumTest {
 
     dbSession.clearCache();
     assertThat(anyActiveRuleExists()).isFalse();
-    List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, organization);
+    List<RulesProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession, organization);
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
   }
@@ -404,7 +404,7 @@ public class QProfileBackuperMediumTest {
     }
   }
 
-  private QualityProfileDto get(QProfileName profileName) {
+  private RulesProfileDto get(QProfileName profileName) {
     return db.qualityProfileDao().selectByNameAndLanguage(organization, profileName.getName(), profileName.getLanguage(), dbSession);
   }
 }

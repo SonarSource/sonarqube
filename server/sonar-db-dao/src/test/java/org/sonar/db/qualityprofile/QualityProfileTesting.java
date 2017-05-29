@@ -30,9 +30,9 @@ import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class QualityProfileTesting {
 
-  public static QualityProfileDto newQualityProfileDto() {
+  public static RulesProfileDto newQualityProfileDto() {
     String uuid = Uuids.createFast();
-    QualityProfileDto dto = QualityProfileDto.createFor(uuid)
+    RulesProfileDto dto = RulesProfileDto.createFor(uuid)
       .setOrganizationUuid(randomAlphanumeric(40))
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))
