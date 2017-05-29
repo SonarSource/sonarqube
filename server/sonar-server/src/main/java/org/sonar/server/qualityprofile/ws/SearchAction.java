@@ -44,6 +44,7 @@ import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -194,22 +195,12 @@ public class SearchAction implements QProfileWsAction {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
       String profileKey = profile.getKey();
-      if (profile.getOrganizationUuid() != null) {
-        profileBuilder.setOrganization(data.getOrganization().getKey());
-      }
+      setNullable(profile.getOrganizationUuid(), o -> profileBuilder.setOrganization(data.getOrganization().getKey()));
       profileBuilder.setKey(profileKey);
-      if (profile.getName() != null) {
-        profileBuilder.setName(profile.getName());
-      }
-      if (profile.getRulesUpdatedAt() != null) {
-        profileBuilder.setRulesUpdatedAt(profile.getRulesUpdatedAt());
-      }
-      if (profile.getLastUsed() != null) {
-        profileBuilder.setLastUsed(formatDateTime(profile.getLastUsed()));
-      }
-      if (profile.getUserUpdatedAt() != null) {
-        profileBuilder.setUserUpdatedAt(formatDateTime(profile.getUserUpdatedAt()));
-      }
+      setNullable(profile.getName(), profileBuilder::setName);
+      setNullable(profile.getRulesUpdatedAt(), profileBuilder::setRulesUpdatedAt);
+      setNullable(profile.getLastUsed(), last -> profileBuilder.setLastUsed(formatDateTime(last)));
+      setNullable(profile.getUserUpdatedAt(), userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));
       profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
       profileBuilder.setActiveDeprecatedRuleCount(data.getActiveDeprecatedRuleCount(profileKey));
       if (!profile.isDefault()) {
@@ -220,6 +211,7 @@ public class SearchAction implements QProfileWsAction {
       writeParentFields(profileBuilder, profile, profilesByKey);
       profileBuilder.setIsInherited(profile.getParentKee() != null);
       profileBuilder.setIsDefault(profile.isDefault());
+      profileBuilder.setIsBuiltIn(profile.isBuiltIn());
     }
 
     return response.build();
