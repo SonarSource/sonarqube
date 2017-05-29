@@ -46,6 +46,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -90,7 +91,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     }
   }
 
-  private QualityProfileDto insertQualityProfile(DbSession session, BuiltInQProfile builtInQProfile, OrganizationDto organization, Date now) {
+  private QualityProfileDto insertQualityProfile(DbSession dbSession, BuiltInQProfile builtInQProfile, OrganizationDto organization, Date now) {
     QualityProfileDto profileDto = QualityProfileDto.createFor(uuidFactory.create())
       .setName(builtInQProfile.getName())
       .setOrganizationUuid(organization.getUuid())
@@ -98,7 +99,10 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       .setDefault(builtInQProfile.isDefault())
       .setIsBuiltIn(true)
       .setRulesUpdatedAtAsDate(now);
-    dbClient.qualityProfileDao().insert(session, profileDto);
+    dbClient.qualityProfileDao().insert(dbSession, profileDto);
+    if (builtInQProfile.isDefault()) {
+      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profileDto));
+    }
     return profileDto;
   }
 

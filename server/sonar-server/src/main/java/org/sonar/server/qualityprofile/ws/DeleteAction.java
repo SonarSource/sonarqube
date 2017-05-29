@@ -19,7 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -74,7 +76,7 @@ public class DeleteAction implements QProfileWsAction {
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, profile.getOrganizationUuid());
 
       List<QualityProfileDto> descendants = selectDescendants(dbSession, profile);
-      ensureNoneIsMarkedAsDefault(profile, descendants);
+      ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);
 
       profileFactory.deleteByKeys(dbSession, toKeys(profile, descendants));
       dbSession.commit();
@@ -86,10 +88,16 @@ public class DeleteAction implements QProfileWsAction {
     return dbClient.qualityProfileDao().selectDescendants(dbSession, profile.getKey());
   }
 
-  private static void ensureNoneIsMarkedAsDefault(QualityProfileDto profile, List<QualityProfileDto> descendants) {
-    checkArgument(!profile.isDefault(), "Profile '%s' cannot be deleted because it is marked as default", profile.getName());
+  private void ensureNoneIsMarkedAsDefault(DbSession dbSession, QualityProfileDto profile, List<QualityProfileDto> descendants) {
+    Set<String> allUuids = new HashSet<>();
+    allUuids.add(profile.getKee());
+    descendants.forEach(p -> allUuids.add(p.getKee()));
+
+    Set<String> uuidsOfDefaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, profile.getOrganizationUuid(), allUuids);
+
+    checkArgument(!uuidsOfDefaultProfiles.contains(profile.getKee()), "Profile '%s' cannot be deleted because it is marked as default", profile.getName());
     descendants.stream()
-      .filter(QualityProfileDto::isDefault)
+      .filter(p -> uuidsOfDefaultProfiles.contains(p.getKee()))
       .findFirst()
       .ifPresent(p -> {
         throw new IllegalArgumentException(String.format("Profile '%s' cannot be deleted because its descendant named '%s' is marked as default", profile.getName(), p.getName()));
