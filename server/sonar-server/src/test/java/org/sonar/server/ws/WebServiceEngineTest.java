@@ -347,8 +347,9 @@ public class WebServiceEngineTest {
         .setHandler((request, response) -> {
           throw BadRequestException.create("Bad request !");
         });
-      createNewDefaultAction(newController, "fail_with_multiple_messages")
-        .createParam("count", "Number of error messages to generate")
+      NewAction failWithMultipleMessages = createNewDefaultAction(newController, "fail_with_multiple_messages");
+      failWithMultipleMessages.createParam("count").setDescription("Number of error messages to generate");
+      failWithMultipleMessages
         .setHandler((request, response) -> {
           List<String> errors = new ArrayList<>();
           for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
