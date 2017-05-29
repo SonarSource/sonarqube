@@ -63,10 +63,4 @@ public abstract class ProjectBuilder {
     build(context.projectReactor());
   }
 
-  /**
-   * @deprecated since 3.7 override {@link #build(Context)} instead
-   */
-  @Deprecated
-  protected void build(ProjectReactor reactor) {
-  }
 }

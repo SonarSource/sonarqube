@@ -28,11 +28,6 @@ public enum TypeOfText {
   CONSTANT("c"),
   COMMENT("cd"),
   /**
-   * @deprecated use {@link #COMMENT}
-   */
-  @Deprecated
-  CPP_DOC("cppd"),
-  /**
    * For example Javadoc
    */
   STRUCTURED_COMMENT("j"),

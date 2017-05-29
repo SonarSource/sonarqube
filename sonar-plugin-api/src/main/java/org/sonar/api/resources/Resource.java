@@ -32,66 +32,6 @@ import org.sonar.api.batch.fs.InputComponent;
 @Deprecated
 public abstract class Resource implements Serializable {
 
-  /**
-   * @deprecated since 2.6. Use Scopes.PROJECT.
-   */
-  @Deprecated
-  public static final String SCOPE_SET = Scopes.PROJECT;
-
-  /**
-   * @deprecated since 2.6. Use Scopes.DIRECTORY.
-   */
-  @Deprecated
-  public static final String SCOPE_SPACE = Scopes.DIRECTORY;
-
-  /**
-   * @deprecated since 2.6. Use Scopes.FILE.
-   */
-  @Deprecated
-  public static final String SCOPE_ENTITY = Scopes.FILE;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.VIEW.
-   */
-  @Deprecated
-  public static final String QUALIFIER_VIEW = Qualifiers.VIEW;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.SUBVIEW.
-   */
-  @Deprecated
-  public static final String QUALIFIER_SUBVIEW = Qualifiers.SUBVIEW;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.LIBRARY.
-   */
-  @Deprecated
-  public static final String QUALIFIER_LIB = Qualifiers.LIBRARY;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.PROJECT.
-   */
-  @Deprecated
-  public static final String QUALIFIER_PROJECT = Qualifiers.PROJECT;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.MODULE.
-   */
-  @Deprecated
-  public static final String QUALIFIER_MODULE = Qualifiers.MODULE;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.DIRECTORY.
-   */
-  @Deprecated
-  public static final String QUALIFIER_DIRECTORY = Qualifiers.DIRECTORY;
-
-  /**
-   * @deprecated since 2.6. Use Qualifiers.FILE.
-   */
-  @Deprecated
-  public static final String QUALIFIER_FILE = Qualifiers.FILE;
-
   private Integer id;
 
   private String key;
@@ -239,24 +179,6 @@ public abstract class Resource implements Serializable {
    */
   public final Resource setEffectiveKey(String effectiveKey) {
     this.effectiveKey = effectiveKey;
-    return this;
-  }
-
-  /**
-   * @deprecated since 2.6.
-   */
-  @Deprecated
-  public final boolean isExcluded() {
-    return false;
-  }
-
-  /**
-   * Internal use only
-   *
-   * @deprecated since 2.6 should use SensorContext#isExcluded(resource). It will make inheritance of Resource easier.
-   */
-  @Deprecated
-  public final Resource setExcluded(boolean b) {
     return this;
   }
 

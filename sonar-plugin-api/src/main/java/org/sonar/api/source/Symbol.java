@@ -38,10 +38,4 @@ public interface Symbol {
    */
   @Deprecated
   int getDeclarationEndOffset();
-
-  /**
-   * @deprecated in 4.3 not used.
-   */
-  @Deprecated
-  String getFullyQualifiedName();
 }

@@ -43,15 +43,6 @@ public abstract class SecurityRealm {
   }
 
   /**
-   * @return {@link LoginPasswordAuthenticator} associated with this realm, never null
-   * @deprecated replaced by doGetAuthenticator in version 3.1
-   */
-  @Deprecated
-  public LoginPasswordAuthenticator getLoginPasswordAuthenticator() {
-    return null;
-  }
-
-  /**
    * @since 3.1
    */
   public Authenticator doGetAuthenticator() {

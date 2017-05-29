@@ -88,38 +88,8 @@ public class Rule {
   private String tags;
   private String systemTags;
 
-  /**
-   * @deprecated since 2.3. Use the factory method {@link #create()}
-   */
-  @Deprecated
-  public Rule() {
-  }
-
-  /**
-   * Creates rule with minimum set of info
-   *
-   * @param pluginName the plugin name indicates which plugin the rule belongs to
-   * @param key        the key should be unique within a plugin, but it is even more careful for the time being that it is unique across the
-   *                   application
-   * @deprecated since 2.3. Use the factory method {@link #create()}
-   */
-  @Deprecated
-  public Rule(String pluginName, String key) {
-    this.pluginName = pluginName;
-    this.key = key;
-    this.configKey = key;
-  }
-
   public Integer getId() {
     return id;
-  }
-
-  /**
-   * @deprecated since 2.3. visibility should be decreased to protected or package
-   */
-  @Deprecated
-  public void setId(Integer id) {
-    this.id = id;
   }
 
   public String getName() {
@@ -263,40 +233,6 @@ public class Rule {
   }
 
   /**
-   * @deprecated since 4.4, use {@link #isTemplate()}
-   */
-  @Deprecated
-  public Cardinality getCardinality() {
-    return isTemplate ? Cardinality.MULTIPLE : Cardinality.SINGLE;
-  }
-
-  /**
-   * @deprecated since 4.4, use {@link #setIsTemplate(boolean)}
-   */
-  @Deprecated
-  public Rule setCardinality(Cardinality c) {
-    this.isTemplate = Cardinality.MULTIPLE.equals(c);
-    return this;
-  }
-
-  /**
-   * @deprecated since 4.4, use {@link #getTemplate()}
-   */
-  @Deprecated
-  public Rule getParent() {
-    return template;
-  }
-
-  /**
-   * @deprecated since 4.4, use {@link #setTemplate(Rule)}}
-   */
-  @Deprecated
-  public Rule setParent(Rule parent) {
-    this.template = parent;
-    return this;
-  }
-
-  /**
    * @since 4.4
    */
   public Rule getTemplate() {
@@ -396,52 +332,6 @@ public class Rule {
    */
   public String[] getSystemTags() {
     return systemTags == null ? new String[0] : StringUtils.split(systemTags, ',');
-  }
-
-  /**
-   * For internal use only.
-   *
-   * @deprecated since 4.4, use {@link #getCharacteristicKey()}
-   * @since 4.3
-   */
-  @CheckForNull
-  @Deprecated
-  public Integer getCharacteristicId() {
-    return null;
-  }
-
-  /**
-   * For internal use only.
-   *
-   * @deprecated since 4.4, use {@link #setCharacteristicKey(String)}
-   * @since 4.3
-   */
-  @Deprecated
-  public Rule setCharacteristicId(@Nullable Integer characteristicId) {
-    return this;
-  }
-
-  /**
-   * For internal use only.
-   *
-   * @deprecated since 4.4, use {@link #getDefaultCharacteristicKey()}
-   * @since 4.3
-   */
-  @CheckForNull
-  @Deprecated
-  public Integer getDefaultCharacteristicId() {
-    return null;
-  }
-
-  /**
-   * For internal use only.
-   *
-   * @deprecated since 4.4, use {@link #setDefaultCharacteristicKey(String)}
-   * @since 4.3
-   */
-  @Deprecated
-  public Rule setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
-    return this;
   }
 
   @Override

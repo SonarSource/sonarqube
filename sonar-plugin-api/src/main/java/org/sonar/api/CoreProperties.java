@@ -158,12 +158,6 @@ public interface CoreProperties {
    */
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
 
-  /**
-   * @deprecated since 4.2 projects are now multi-language
-   */
-  @Deprecated
-  String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
-
   /* Exclusions */
   String PROJECT_INCLUSIONS_PROPERTY = "sonar.inclusions";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
@@ -206,12 +200,6 @@ public interface CoreProperties {
   String CORE_DEFAULT_GROUP_DEFAULT_VALUE = "sonar-users";
 
   boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
-
-  /**
-   * @deprecated since 2.14. See http://jira.sonarsource.com/browse/SONAR-3153. Replaced by {@link #CORE_AUTHENTICATOR_REALM}.
-   */
-  @Deprecated
-  String CORE_AUTHENTICATOR_CLASS = "sonar.authenticator.class";
 
   /**
    * @since 2.14

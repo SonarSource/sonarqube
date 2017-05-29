@@ -24,7 +24,6 @@ import java.util.List;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Resource;
 
 /**
  * Implement this extension to get Copy/Paste detection for your language.
@@ -39,13 +38,5 @@ public interface CpdMapping {
   Tokenizer getTokenizer();
 
   Language getLanguage();
-
-  /**
-   * @deprecated since 4.2 not used anymore
-   */
-  @Deprecated
-  default Resource createResource(File file, List<File> sourceDirs) {
-    throw new UnsupportedOperationException("Never called by the platform");
-  }
 
 }
