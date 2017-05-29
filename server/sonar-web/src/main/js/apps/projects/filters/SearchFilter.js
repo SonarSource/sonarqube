@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import classNames from 'classnames';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 type Props = {
@@ -62,23 +61,21 @@ export default class SearchFilter extends React.PureComponent {
 
   render() {
     const { userQuery } = this.state;
-    const inputClassName = classNames('input-super-large', {
-      touched: userQuery != null && userQuery.length === 1
-    });
-
+    const shortQuery = userQuery != null && userQuery.length === 1;
     return (
       <div className="projects-facet-search" data-key="search">
         <input
           type="search"
           value={userQuery || ''}
-          className={inputClassName}
+          className="input-super-large"
           placeholder={translate('projects.search')}
           onChange={this.handleQueryChange}
           autoComplete="off"
         />
-        <span className="note spacer-left">
-          {translateWithParameters('select2.tooShort', 2)}
-        </span>
+        {shortQuery &&
+          <span className="note spacer-left">
+            {translateWithParameters('select2.tooShort', 2)}
+          </span>}
       </div>
     );
   }

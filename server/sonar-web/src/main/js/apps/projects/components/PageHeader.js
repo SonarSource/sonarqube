@@ -19,17 +19,26 @@
  */
 // @flow
 import React from 'react';
+import SearchFilterContainer from '../filters/SearchFilterContainer';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
+  isFavorite?: boolean,
   loading: boolean,
   onOpenOptionBar: () => void,
+  organization?: { key: string },
+  query: { [string]: string },
   total?: number
 };
 
 export default function PageHeader(props: Props) {
   return (
     <header className="page-header">
+      <SearchFilterContainer
+        isFavorite={props.isFavorite}
+        organization={props.organization}
+        query={props.query}
+      />
       <div className="page-actions projects-page-actions text-right">
         <div className="spacer-bottom">
           <a className="button js-projects-topbar-open" href="#" onClick={props.onOpenOptionBar}>

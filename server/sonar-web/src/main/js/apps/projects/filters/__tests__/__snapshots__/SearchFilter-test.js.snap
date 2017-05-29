@@ -7,7 +7,7 @@ exports[`should display a help message when there is less than 2 characters 1`] 
 >
   <input
     autoComplete="off"
-    className="input-super-large touched"
+    className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
@@ -34,11 +34,6 @@ exports[`should display a help message when there is less than 2 characters 2`] 
     type="search"
     value="foo"
   />
-  <span
-    className="note spacer-left"
-  >
-    select2.tooShort.2
-  </span>
 </div>
 `;
 
@@ -55,11 +50,6 @@ exports[`should render correctly without any search query 1`] = `
     type="search"
     value=""
   />
-  <span
-    className="note spacer-left"
-  >
-    select2.tooShort.2
-  </span>
 </div>
 `;
 
@@ -76,10 +66,5 @@ exports[`should render with a search query 1`] = `
     type="search"
     value="foo"
   />
-  <span
-    className="note spacer-left"
-  >
-    select2.tooShort.2
-  </span>
 </div>
 `;

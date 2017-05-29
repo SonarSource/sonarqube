@@ -40,14 +40,6 @@ exports[`should render \`leak\` view correctly 1`] = `
     <h3>
       filters
     </h3>
-    <withRouter(SearchFilterContainer)
-      isFavorite={false}
-      query={
-        Object {
-          "view": "leak",
-        }
-      }
-    />
   </div>
   <QualityGateFilter
     isFavorite={false}
@@ -151,14 +143,6 @@ exports[`should render correctly 1`] = `
     <h3>
       filters
     </h3>
-    <withRouter(SearchFilterContainer)
-      isFavorite={true}
-      query={
-        Object {
-          "size": "3",
-        }
-      }
-    />
   </div>
   <QualityGateFilter
     isFavorite={true}
