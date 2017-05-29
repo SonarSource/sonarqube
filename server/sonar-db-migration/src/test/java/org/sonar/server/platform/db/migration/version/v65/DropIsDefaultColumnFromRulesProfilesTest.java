@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropIsDefaultColumnFromRulesProfilesTest {
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+  private static final String TABLE_NAME = "rules_profiles";
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropIsDefaultColumnFromRulesProfilesTest.class, "initial.sql");
+
+  private DropIsDefaultColumnFromRulesProfiles underTest = new DropIsDefaultColumnFromRulesProfiles(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1700() {
-    verifyMinimumMigrationNumber(underTest, 1700);
+  public void column_is_dropped() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist(TABLE_NAME, "is_default");
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 8);
-  }
 }

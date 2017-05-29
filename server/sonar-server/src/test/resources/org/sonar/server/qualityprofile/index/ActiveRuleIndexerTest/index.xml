@@ -22,8 +22,7 @@
                   kee="sonar-way"
                   language="xoo"
                   parent_kee="[null]"
-                  is_built_in="[false]"
-                  is_default="[false]"/>
+                  is_built_in="[false]"/>
 
   <active_rules id="1"
                 profile_id="100"
