@@ -96,7 +96,6 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
       .setName(builtInQProfile.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(builtInQProfile.getLanguage())
-      .setDefault(builtInQProfile.isDefault())
       .setIsBuiltIn(true)
       .setRulesUpdatedAtAsDate(now);
     dbClient.qualityProfileDao().insert(dbSession, profileDto);

@@ -115,7 +115,6 @@ public class CopyActionTest {
     QualityProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
       db.getSession());
     assertThat(loadedProfile.getKey()).isEqualTo(generatedUuid);
-    assertThat(loadedProfile.isDefault()).isFalse();
     assertThat(loadedProfile.getParentKee()).isNull();
 
     assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());
@@ -180,7 +179,6 @@ public class CopyActionTest {
     QualityProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(organization, "target-name", sourceProfile.getLanguage(),
       db.getSession());
     assertThat(loadedProfile.getKey()).isEqualTo(generatedUuid);
-    assertThat(loadedProfile.isDefault()).isFalse();
     assertThat(loadedProfile.getParentKee()).isEqualTo(parentProfile.getKey());
 
     assertThat(backuper.backupedProfile.getKey()).isEqualTo(sourceProfile.getKey());

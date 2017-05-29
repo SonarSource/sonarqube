@@ -45,7 +45,6 @@ public class QualityProfileDto extends Dto<String> {
   private String rulesUpdatedAt;
   private Long lastUsed;
   private Long userUpdatedAt;
-  private boolean isDefault;
   private boolean isBuiltIn;
 
   public String getOrganizationUuid() {
@@ -143,15 +142,6 @@ public class QualityProfileDto extends Dto<String> {
 
   public QualityProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
     this.userUpdatedAt = userUpdatedAt;
-    return this;
-  }
-
-  public boolean isDefault() {
-    return isDefault;
-  }
-
-  public QualityProfileDto setDefault(boolean isDefault) {
-    this.isDefault = isDefault;
     return this;
   }
 

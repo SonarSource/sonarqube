@@ -24,8 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -82,18 +80,17 @@ public class SetDefaultActionTest {
     String organizationUuid = organization.getUuid();
     xoo1Profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationUuid)
-      .setLanguage(xoo1Key)
-      .setDefault(true);
+      .setLanguage(xoo1Key);
     xoo2Profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationUuid)
       .setLanguage(xoo2Key);
     xoo2Profile2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationUuid)
       .setLanguage(xoo2Key)
-      .setParentKee(xoo2Profile.getKee())
-      .setDefault(true);
+      .setParentKee(xoo2Profile.getKee());
     dbClient.qualityProfileDao().insert(db.getSession(), xoo1Profile, xoo2Profile, xoo2Profile2);
     db.commit();
+    db.qualityProfiles().markAsDefault(xoo1Profile, xoo2Profile2);
 
     tester = new WsActionTester(underTest);
   }
@@ -154,17 +151,15 @@ public class SetDefaultActionTest {
 
     QualityProfileDto profileOrg1Old = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization1.getUuid())
-      .setLanguage(xoo1Key)
-      .setDefault(true);
+      .setLanguage(xoo1Key);
     QualityProfileDto profileOrg1New = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization1.getUuid())
-      .setLanguage(xoo1Key)
-      .setDefault(false);
+      .setLanguage(xoo1Key);
     QualityProfileDto profileOrg2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization2.getUuid())
-      .setLanguage(xoo1Key)
-      .setDefault(true);
+      .setLanguage(xoo1Key);
     db.qualityProfiles().insertQualityProfiles(profileOrg1Old, profileOrg1New, profileOrg2);
+    db.qualityProfiles().markAsDefault(profileOrg1Old, profileOrg2);
 
     checkDefaultProfile(organization1, xoo1Key, profileOrg1Old.getKey());
     checkDefaultProfile(organization2, xoo1Key, profileOrg2.getKey());
