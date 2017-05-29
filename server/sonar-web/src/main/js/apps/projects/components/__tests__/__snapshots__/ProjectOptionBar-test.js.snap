@@ -8,15 +8,15 @@ Array [
 ]
 `;
 
-exports[`should render option bar closed 1`] = `
+exports[`should not render sorting options for visualizations 1`] = `
 <div
   className="projects-topbar"
 >
   <div
-    className="projects-topbar-actions"
+    className="projects-topbar-actions open"
   >
     <a
-      className="projects-topbar-button projects-topbar-button-close"
+      className="projects-topbar-button button-icon"
       href="#"
       onClick={[Function]}
     >
@@ -26,6 +26,38 @@ exports[`should render option bar closed 1`] = `
       className="projects-topbar-actions-inner"
     >
       <PerspectiveSelect
+        className="projects-topbar-item"
+        view="visualizations"
+        visualization="coverage"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render option bar closed 1`] = `
+<div
+  className="projects-topbar"
+>
+  <div
+    className="projects-topbar-actions"
+  >
+    <a
+      className="projects-topbar-button button-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <CloseIcon />
+    </a>
+    <div
+      className="projects-topbar-actions-inner"
+    >
+      <PerspectiveSelect
+        className="projects-topbar-item js-projects-perspective-select"
+        view="overall"
+      />
+      <ProjectsSortingSelect
+        className="projects-topbar-item js-projects-sorting-select"
         view="overall"
       />
     </div>
@@ -41,7 +73,7 @@ exports[`should render option bar open 1`] = `
     className="projects-topbar-actions open"
   >
     <a
-      className="projects-topbar-button projects-topbar-button-close"
+      className="projects-topbar-button button-icon"
       href="#"
       onClick={[Function]}
     >
@@ -51,8 +83,13 @@ exports[`should render option bar open 1`] = `
       className="projects-topbar-actions-inner"
     >
       <PerspectiveSelect
-        view="visualizations"
-        visualization="coverage"
+        className="projects-topbar-item js-projects-perspective-select"
+        view="leak"
+        visualization="risk"
+      />
+      <ProjectsSortingSelect
+        className="projects-topbar-item js-projects-sorting-select"
+        view="leak"
       />
     </div>
   </div>
