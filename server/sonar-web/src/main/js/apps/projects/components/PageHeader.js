@@ -30,9 +30,9 @@ type Props = {
 export default function PageHeader(props: Props) {
   return (
     <header className="page-header">
-      <div className="page-actions projects-page-actions">
-        <div className="text-right spacer-bottom">
-          <a className="button" href="#" onClick={props.onOpenOptionBar}>
+      <div className="page-actions projects-page-actions text-right">
+        <div className="spacer-bottom">
+          <a className="button js-projects-topbar-open" href="#" onClick={props.onOpenOptionBar}>
             {translate('projects.view_settings')}
           </a>
         </div>

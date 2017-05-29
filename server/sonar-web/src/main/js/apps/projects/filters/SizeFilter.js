@@ -20,7 +20,6 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import SortingFilter from './SortingFilter';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
@@ -72,18 +71,7 @@ export default class SizeFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={
-          <FilterHeader name={translate('metric_domain.Size')}>
-            <SortingFilter
-              property={this.props.property}
-              query={this.props.query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-              leftText={translate('biggest')}
-              rightText={translate('smallest')}
-            />
-          </FilterHeader>
-        }
+        header={<FilterHeader name={translate('metric_domain.Size')} />}
       />
     );
   }

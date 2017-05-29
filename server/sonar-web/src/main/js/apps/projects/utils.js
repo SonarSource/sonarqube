@@ -47,6 +47,42 @@ export const saveAll = () => save(LOCALSTORAGE_ALL);
 
 export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);
 
+export const SORTING_METRICS = [
+  { value: 'name' },
+  { value: 'reliability' },
+  { value: 'security' },
+  { value: 'maintainability' },
+  { value: 'coverage' },
+  { value: 'duplications' },
+  { value: 'size' }
+];
+
+export const SORTING_LEAK_METRICS = [
+  { value: 'name' },
+  { value: 'new_reliability', complement: 'on_new_code' },
+  { value: 'new_security', complement: 'on_new_code' },
+  { value: 'new_maintainability', complement: 'on_new_code' },
+  { value: 'new_coverage', complement: 'on_new_code' },
+  { value: 'new_duplications', complement: 'on_new_lines' },
+  { value: 'new_lines' }
+];
+
+export const SORTING_SWITCH = {
+  name: 'name',
+  reliability: 'new_reliability',
+  security: 'new_security',
+  maintainability: 'new_maintainability',
+  coverage: 'new_coverage',
+  duplications: 'new_duplications',
+  size: 'new_lines',
+  new_reliability: 'reliability',
+  new_security: 'security',
+  new_maintainability: 'maintainability',
+  new_coverage: 'coverage',
+  new_duplications: 'duplications',
+  new_lines: 'size'
+};
+
 export const VIEWS = ['overall', 'leak'];
 
 export const VISUALIZATIONS = [
@@ -60,4 +96,9 @@ export const VISUALIZATIONS = [
 
 export const localizeSorting = (sort?: string) => {
   return translate('projects.sort', sort || 'name');
+};
+
+export const parseSorting = (sort: string): { sortValue: string, sortDesc: boolean } => {
+  const desc = sort[0] === '-';
+  return { sortValue: desc ? sort.substr(1) : sort, sortDesc: desc };
 };
