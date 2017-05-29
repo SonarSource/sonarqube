@@ -90,7 +90,7 @@ public class PurgeCommandsTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable("events")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable("events")).isZero();
     assertThat(dbTester.countRowsOfTable("issues")).isZero();
     assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
   }

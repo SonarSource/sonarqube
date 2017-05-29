@@ -17,22 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class DbVersion65 implements DbVersion {
+import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class RecreateIndexEventsComponentUuid extends DdlChange {
+
+  public RecreateIndexEventsComponentUuid(Database db) {
+    super(db);
+  }
+
   @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1700, "Drop table AUTHORS", DropTableAuthors.class)
-      .add(1701, "Clean orphans from USER_ROLES", CleanOrphanRowsInUserRoles.class)
-      .add(1702, "Clean orphans from GROUP_ROLES", CleanOrphanRowsInGroupRoles.class)
-      .add(1703, "Populate EVENTS.COMPONENT_UUID", PopulateEventsComponentUuid.class)
-      .add(1704, "Drop index EVENTS_COMPONENT_UUID", DropIndexEventsComponentUuid.class)
-      .add(1705, "Make EVENTS.COMPONENT_UUID not nullable", MakeEventsComponentUuidNotNullable.class)
-      .add(1706, "Recreate index EVENTS_COMPONENT_UUID", RecreateIndexEventsComponentUuid.class);
+  public void execute(Context context) throws SQLException {
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setTable("events")
+      .setName("events_component_uuid")
+      .setUnique(false)
+      .addColumn(newVarcharColumnDefBuilder()
+        .setColumnName("component_uuid")
+        .setLimit(VarcharColumnDef.UUID_VARCHAR_SIZE)
+        .setIsNullable(false)
+        .build())
+      .build());
   }
 }

@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class RecreateIndexEventsComponentUuidTest {
+  private static final String TABLE_EVENTS = "events";
+  private static final String INDEX_EVENTS_COMPONENT_UUID = "events_component_uuid";
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(RecreateIndexEventsComponentUuidTest.class, "events.sql");
+
+  private RecreateIndexEventsComponentUuid underTest = new RecreateIndexEventsComponentUuid(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1700);
-  }
+  public void execute_adds_index_EVENTS_COMPONENT_UUID() throws SQLException {
+    db.assertIndexDoesNotExist(TABLE_EVENTS, INDEX_EVENTS_COMPONENT_UUID);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
+    underTest.execute();
+
+    db.assertIndex(TABLE_EVENTS, INDEX_EVENTS_COMPONENT_UUID, "component_uuid");
   }
 }
