@@ -18,12 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ScannerContextView from '../views/ScannerContextView';
-import StacktraceView from '../views/StacktraceView';
+import ScannerContext from './ScannerContext';
+import Stacktrace from './Stacktrace';
 import { STATUSES } from './../constants';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class TaskActions extends React.PureComponent {
+  state = {
+    scannerContextOpen: false,
+    stacktraceOpen: false
+  };
+
   handleFilterClick(e) {
     e.preventDefault();
     this.props.onFilterTask(this.props.task);
@@ -36,13 +41,17 @@ export default class TaskActions extends React.PureComponent {
 
   handleShowScannerContextClick(e) {
     e.preventDefault();
-    new ScannerContextView({ task: this.props.task }).render();
+    this.setState({ scannerContextOpen: true });
   }
+
+  closeScannerContext = () => this.setState({ scannerContextOpen: false });
 
   handleShowStacktraceClick(e) {
     e.preventDefault();
-    new StacktraceView({ task: this.props.task }).render();
+    this.setState({ stacktraceOpen: true });
   }
+
+  closeStacktrace = () => this.setState({ stacktraceOpen: false });
 
   render() {
     const { component, task } = this.props;
@@ -102,6 +111,11 @@ export default class TaskActions extends React.PureComponent {
               </li>}
           </ul>
         </div>
+
+        {this.state.scannerContextOpen &&
+          <ScannerContext onClose={this.closeScannerContext} task={task} />}
+
+        {this.state.stacktraceOpen && <Stacktrace onClose={this.closeStacktrace} task={task} />}
       </td>
     );
   }
