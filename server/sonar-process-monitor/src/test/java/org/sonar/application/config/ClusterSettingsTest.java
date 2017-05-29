@@ -114,7 +114,7 @@ public class ClusterSettingsTest {
     settings.set(CLUSTER_ENABLED, "true");
     settings.set(CLUSTER_SEARCH_DISABLED, "true");
     settings.set(CLUSTER_SEARCH_HOSTS, "192.168.1.1,192.168.1.2");
-    settings.set(SEARCH_HOST, "::1");
+    settings.set(SEARCH_HOST, "127.0.0.1");
 
     new ClusterSettings().accept(settings.getProps());
   }
