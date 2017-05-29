@@ -20,10 +20,13 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Collection;
+import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+
+import static java.util.Collections.singletonList;
 
 public class DefaultQProfileDao implements Dao {
 
@@ -44,6 +47,14 @@ public class DefaultQProfileDao implements Dao {
   public void deleteByQProfileUuids(DbSession dbSession, Collection<String> qProfileUuids) {
     DefaultQProfileMapper mapper = mapper(dbSession);
     DatabaseUtils.executeLargeUpdates(qProfileUuids, mapper::deleteByQProfileUuids);
+  }
+
+  public Set<String> selectExistingQProfileUuids(DbSession dbSession, String organizationUuid, Collection<String> qProfileUuids) {
+    return mapper(dbSession).selectExistingQProfileUuids(organizationUuid, qProfileUuids);
+  }
+
+  public boolean isDefault(DbSession dbSession, String organizationUuid, String qProfileUuid) {
+    return selectExistingQProfileUuids(dbSession, organizationUuid, singletonList(qProfileUuid)).contains(qProfileUuid);
   }
 
   private static DefaultQProfileMapper mapper(DbSession dbSession) {
