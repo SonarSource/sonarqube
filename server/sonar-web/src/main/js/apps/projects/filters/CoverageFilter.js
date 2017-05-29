@@ -20,7 +20,6 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import SortingFilter from './SortingFilter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
 import { translate } from '../../../helpers/l10n';
@@ -70,17 +69,7 @@ export default class CoverageFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={
-          <FilterHeader name={translate('metric_domain.Coverage')}>
-            <SortingFilter
-              property={this.props.property}
-              query={this.props.query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-              sortDesc="right"
-            />
-          </FilterHeader>
-        }
+        header={<FilterHeader name={translate('metric_domain.Coverage')} />}
       />
     );
   }

@@ -20,7 +20,6 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import SortingFilter from './SortingFilter';
 import DuplicationsRating from '../../../components/ui/DuplicationsRating';
 import {
   getDuplicationsRatingLabel,
@@ -73,16 +72,7 @@ export default class DuplicationsFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={
-          <FilterHeader name={translate('metric_domain.Duplications')}>
-            <SortingFilter
-              property={this.props.property}
-              query={this.props.query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-            />
-          </FilterHeader>
-        }
+        header={<FilterHeader name={translate('metric_domain.Duplications')} />}
       />
     );
   }

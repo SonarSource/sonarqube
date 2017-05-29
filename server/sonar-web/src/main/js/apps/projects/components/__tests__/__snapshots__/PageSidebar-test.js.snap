@@ -97,7 +97,7 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     }
   />
-  <NewSizeFilter
+  <NewLinesFilter
     isFavorite={false}
     property="new_lines"
     query={

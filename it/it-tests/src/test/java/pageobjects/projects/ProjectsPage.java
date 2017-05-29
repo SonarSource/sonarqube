@@ -89,4 +89,26 @@ public class ProjectsPage {
     searchInput.setValue("").sendKeys(search);
     return this;
   }
+
+  public ProjectsPage sortProjects(String sort) {
+    SelenideElement topbar = $(".projects-topbar-actions").should(Condition.exist);
+    if (!topbar.has(Condition.hasClass("open"))){
+      $(".js-projects-topbar-open").click();
+    }
+    topbar.should(Condition.hasClass("open"));
+    SelenideElement sortSelect = topbar.$(".js-projects-sorting-select");
+    sortSelect.$(".Select-value").should(Condition.exist).click();
+    sortSelect.$(".Select-option[title='" + sort + "']").should(Condition.exist).click();
+    return this;
+  }
+
+  public ProjectsPage invertSorting() {
+    SelenideElement topbar = $(".projects-topbar-actions").should(Condition.exist);
+    if (!topbar.has(Condition.hasClass("open"))){
+      $(".js-projects-topbar-open").click();
+    }
+    topbar.should(Condition.hasClass("open"));
+    topbar.$(".js-projects-sorting-select a.button-icon").should(Condition.exist).click();
+    return this;
+  }
 }

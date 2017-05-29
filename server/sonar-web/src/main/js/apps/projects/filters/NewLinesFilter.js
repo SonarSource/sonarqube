@@ -20,11 +20,10 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import SortingFilter from './SortingFilter';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel } from '../../../helpers/ratings';
 
-export default class NewSizeFilter extends React.PureComponent {
+export default class NewLinesFilter extends React.PureComponent {
   static propTypes = {
     className: React.PropTypes.string,
     query: React.PropTypes.object.isRequired,
@@ -68,18 +67,7 @@ export default class NewSizeFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={
-          <FilterHeader name={translate('metric_domain.new_size')}>
-            <SortingFilter
-              property={this.props.property}
-              query={this.props.query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-              leftText={translate('biggest')}
-              rightText={translate('smallest')}
-            />
-          </FilterHeader>
-        }
+        header={<FilterHeader name={translate('projects.facets.new_lines')} />}
       />
     );
   }
