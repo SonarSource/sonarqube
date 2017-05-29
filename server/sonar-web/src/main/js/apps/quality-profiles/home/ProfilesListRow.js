@@ -30,6 +30,7 @@ import type { Profile } from '../propTypes';
 
 type Props = {
   canAdmin: boolean,
+  onRequestFail: Object => void,
   organization: ?string,
   profile: Profile,
   updateProfiles: () => Promise<*>
@@ -160,6 +161,7 @@ export default class ProfilesListRow extends React.PureComponent {
               <ProfileActions
                 canAdmin={this.props.canAdmin}
                 fromList={true}
+                onRequestFail={this.props.onRequestFail}
                 organization={this.props.organization}
                 profile={this.props.profile}
                 updateProfiles={this.props.updateProfiles}

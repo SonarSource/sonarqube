@@ -21,7 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import RenameProfileView from '../views/RenameProfileView';
-import CopyProfileView from '../views/CopyProfileView';
+import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileView from '../views/DeleteProfileView';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
@@ -32,13 +32,19 @@ import type { Profile } from '../propTypes';
 type Props = {
   canAdmin: boolean,
   fromList: boolean,
+  onRequestFail: Object => void,
   organization: ?string,
   profile: Profile,
   updateProfiles: () => Promise<*>
 };
 
+type State = {
+  copyFormOpen: boolean
+};
+
 export default class ProfileActions extends React.PureComponent {
   props: Props;
+  state: State;
 
   static defaultProps = {
     fromList: false
@@ -47,6 +53,11 @@ export default class ProfileActions extends React.PureComponent {
   static contextTypes = {
     router: React.PropTypes.object
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { copyFormOpen: false };
+  }
 
   handleRenameClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
@@ -63,17 +74,21 @@ export default class ProfileActions extends React.PureComponent {
       .render();
   };
 
-  handleCopyClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new CopyProfileView({ profile: this.props.profile })
-      .on('done', profile => {
-        this.props.updateProfiles().then(() => {
-          this.context.router.push(
-            getProfilePath(profile.name, profile.language, this.props.organization)
-          );
-        });
-      })
-      .render();
+  handleCopyClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ copyFormOpen: true });
+  };
+
+  handleProfileCopy = (name: string) => {
+    this.props.updateProfiles().then(() => {
+      this.context.router.push(
+        getProfilePath(name, this.props.profile.language, this.props.organization)
+      );
+    });
+  };
+
+  closeCopyForm = () => {
+    this.setState({ copyFormOpen: false });
   };
 
   handleSetDefaultClick = (e: SyntheticInputEvent) => {
@@ -152,6 +167,14 @@ export default class ProfileActions extends React.PureComponent {
               {translate('delete')}
             </a>
           </li>}
+
+        {this.state.copyFormOpen &&
+          <CopyProfileForm
+            onClose={this.closeCopyForm}
+            onCopy={this.handleProfileCopy}
+            onRequestFail={this.props.onRequestFail}
+            profile={profile}
+          />}
       </ul>
     );
   }
