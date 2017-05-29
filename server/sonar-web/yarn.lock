@@ -4934,10 +4934,6 @@ raw-body@^1.1.6:
     bytes "1.0.0"
     iconv-lite "0.4.8"
 
-raw-loader@~0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/raw-loader/-/raw-loader-0.5.1.tgz#0c3d0beaed8a01c966d9787bf778281252a979aa"
-
 rc-align@2.x:
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/rc-align/-/rc-align-2.3.3.tgz#15e2fd329fde9c2dec16e4a0e0ec20fba2ffdbc0"
@@ -5415,12 +5411,6 @@ sane@~1.5.0:
 sax@^1.2.1, sax@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.1.tgz#7b8e656190b228e81a66aea748480d828cd2d37a"
-
-script-loader@0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/script-loader/-/script-loader-0.6.1.tgz#183c6103945aaf5134b46f03003b5ee2bad44ceb"
-  dependencies:
-    raw-loader "~0.5.1"
 
 select@^1.0.6:
   version "1.1.0"

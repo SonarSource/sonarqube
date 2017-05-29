@@ -97,7 +97,6 @@
     "react-transform-hmr": "1.0.4",
     "recursive-readdir": "2.1.0",
     "rimraf": "2.5.4",
-    "script-loader": "0.6.1",
     "strip-ansi": "3.0.1",
     "style-loader": "0.13.0",
     "webpack": "1.13.2",

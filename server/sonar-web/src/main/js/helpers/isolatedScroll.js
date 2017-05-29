@@ -17,17 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-(function ($) {
+import $ from 'jquery';
 
-  $.fn.isolatedScroll = function () {
-      this.on('wheel', function (e) {
-        var delta = -e.originalEvent.deltaY;
-        var bottomOverflow = this.scrollTop + $(this).outerHeight() - this.scrollHeight >= 0;
-        var topOverflow = this.scrollTop <= 0;
-        if ((delta < 0 && bottomOverflow) || (delta > 0 && topOverflow)) {
-          e.preventDefault();
-        }
-      });
-  };
-
-})(window.jQuery);
+$.fn.isolatedScroll = function() {
+  this.on('wheel', function(event) {
+    const delta = -event.originalEvent.deltaY;
+    const bottomOverflow = this.scrollTop + $(this).outerHeight() - this.scrollHeight >= 0;
+    const topOverflow = this.scrollTop <= 0;
+    if ((delta < 0 && bottomOverflow) || (delta > 0 && topOverflow)) {
+      event.preventDefault();
+    }
+  });
+};
