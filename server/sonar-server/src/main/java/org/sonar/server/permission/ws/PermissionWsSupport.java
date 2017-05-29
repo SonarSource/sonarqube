@@ -72,13 +72,13 @@ public class PermissionWsSupport {
     String key = request.param(PermissionsWsParameters.PARAM_PROJECT_KEY);
     if (uuid != null || key != null) {
       ProjectWsRef ref = ProjectWsRef.newWsProjectRef(uuid, key);
-      return Optional.of(componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, ref.uuid(), ref.key(), resourceTypes));
+      return Optional.of(componentFinder.getRootComponentByUuidOrKey(dbSession, ref.uuid(), ref.key(), resourceTypes));
     }
     return Optional.empty();
   }
 
   public ComponentDto getRootComponentOrModule(DbSession dbSession, ProjectWsRef projectRef) {
-    return componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key(), resourceTypes);
+    return componentFinder.getRootComponentByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key(), resourceTypes);
   }
 
   public GroupIdOrAnyone findGroup(DbSession dbSession, Request request) {

@@ -38,7 +38,11 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_GROUP_ID;
@@ -157,6 +161,48 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     newRequest()
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, "not-found")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_component_is_a_module() throws Exception {
+    ComponentDto module = db.components().insertComponent(newModuleDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert())));
+
+    failIfComponentIsNotAProjectOrView(module);
+  }
+
+  @Test
+  public void fail_when_component_is_a_directory() throws Exception {
+    ComponentDto file = db.components().insertComponent(newDirectory(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), "A/B"));
+
+    failIfComponentIsNotAProjectOrView(file);
+  }
+
+  @Test
+  public void fail_when_component_is_a_file() throws Exception {
+    ComponentDto file = db.components().insertComponent(newFileDto(ComponentTesting.newPrivateProjectDto(db.organizations().insert()), null, "file-uuid"));
+
+    failIfComponentIsNotAProjectOrView(file);
+  }
+
+  @Test
+  public void fail_when_component_is_a_subview() throws Exception {
+    ComponentDto file = db.components().insertComponent(newSubView(ComponentTesting.newView(db.organizations().insert())));
+
+    failIfComponentIsNotAProjectOrView(file);
+  }
+
+  private void failIfComponentIsNotAProjectOrView(ComponentDto file) {
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization(), "sonar-administrators");
+    loginAsAdmin(db.getDefaultOrganization());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Component '" + file.key() + "' (id: " + file.uuid() + ") must be a project or a view.");
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .setParam(PARAM_PROJECT_ID, file.uuid())
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -391,7 +437,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     newRequest()
-        .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_GROUP_NAME, group.getName())
       .setParam(PARAM_PROJECT_ID, project.uuid())
       .setParam(PARAM_PERMISSION, CODEVIEWER)

@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -67,36 +68,34 @@ public class ComponentFinder {
     return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "Component id '%s' not found", uuid);
   }
 
-  /**
-   * A project can be:
-   * <ul>
-   * <li>a project – ex: SonarQube</li>
-   * <li>a view – ex: Language Team</li>
-   * <li>a developer – ex: Simon Brandhof</li>
-   * </ul>
-   */
-  public ComponentDto getRootComponentOrModuleByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ResourceTypes resourceTypes) {
+  public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ResourceTypes resourceTypes) {
     ComponentDto project;
     if (projectUuid != null) {
       project = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, projectUuid), "Project id '%s' not found", projectUuid);
     } else {
       project = checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, projectKey), "Project key '%s' not found", projectKey);
     }
-    checkIsProjectOrModule(project, resourceTypes);
+    checkIsProject(project, resourceTypes);
 
     return project;
   }
 
-  private static void checkIsProjectOrModule(ComponentDto component, ResourceTypes resourceTypes) {
+  private static void checkIsProject(ComponentDto component, ResourceTypes resourceTypes) {
+    Set<String> rootQualifiers = getRootQualifiers(resourceTypes);
+
+    checkRequest(component.scope().equals(Scopes.PROJECT) && rootQualifiers.contains(component.qualifier()),
+      format(
+        "Component '%s' (id: %s) must be a project%s.",
+        component.key(), component.uuid(),
+        rootQualifiers.contains(Qualifiers.VIEW) ? " or a view" : ""));
+  }
+
+  private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
     Collection<ResourceType> rootTypes = resourceTypes.getRoots();
-    Set<String> rootQualifiers = rootTypes
+    return rootTypes
       .stream()
       .map(ResourceType::getQualifier)
       .collect(MoreCollectors.toSet(rootTypes.size()));
-    String qualifier = component.qualifier();
-
-    checkRequest(rootQualifiers.contains(qualifier) || Qualifiers.MODULE.equals(qualifier),
-      format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
   }
 
   public OrganizationDto getOrganization(DbSession dbSession, ComponentDto component) {
@@ -115,8 +114,7 @@ public class ComponentFinder {
     DEVELOPER_ID_AND_KEY("developerId", "developerKey"),
     COMPONENT_ID_AND_COMPONENT("componentId", "component"),
     PROJECT_ID_AND_PROJECT("projectId", "project"),
-    PROJECT_ID_AND_FROM("projectId", "from")
-    ;
+    PROJECT_ID_AND_FROM("projectId", "from");
 
     private final String uuidParamName;
     private final String keyParamName;
