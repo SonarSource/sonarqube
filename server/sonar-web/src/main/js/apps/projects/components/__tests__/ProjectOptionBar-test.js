@@ -28,11 +28,19 @@ it('should render option bar closed', () => {
 
 it('should render option bar open', () => {
   expect(
-    shallow(<ProjectsOptionBar open={true} view="leak" visualization="risk" />)
+    shallow(
+      <ProjectsOptionBar
+        open={true}
+        view="leak"
+        visualization="risk"
+        projects={[1, 2, 3]}
+        projectsAppState={{ total: 3 }}
+      />
+    )
   ).toMatchSnapshot();
 });
 
-it.skip('should not render sorting options for visualizations', () => {
+it('should render disabled sorting options for visualizations', () => {
   expect(
     shallow(<ProjectsOptionBar open={true} view="visualizations" visualization="coverage" />)
   ).toMatchSnapshot();

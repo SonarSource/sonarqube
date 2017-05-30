@@ -54,7 +54,7 @@ export default function PageSidebar({
   visualization
 }: Props) {
   const isFiltered = Object.keys(query)
-    .filter(key => key !== 'view' && key !== 'visualization')
+    .filter(key => !['view', 'visualization', 'sort'].includes(key))
     .some(key => query[key] != null);
   const isLeakView = view === 'leak';
   const basePathName = organization ? `/organizations/${organization.key}/projects` : '/projects';
