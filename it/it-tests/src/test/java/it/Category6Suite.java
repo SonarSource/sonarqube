@@ -25,6 +25,7 @@ import it.organization.BillingTest;
 import it.organization.OrganizationMembershipTest;
 import it.organization.OrganizationTest;
 import it.qualityProfile.OrganizationQualityProfilesPageTest;
+import it.qualityProfile.QualityProfilesBuiltInTest;
 import it.uiExtension.OrganizationUiExtensionsTest;
 import it.user.OrganizationIdentityProviderTest;
 import org.junit.BeforeClass;
@@ -47,6 +48,7 @@ import static util.ItUtils.xooPlugin;
   OrganizationQualityProfilesPageTest.class,
   OrganizationTest.class,
   OrganizationUiExtensionsTest.class,
+  QualityProfilesBuiltInTest.class,
   BillingTest.class
 })
 public class Category6Suite {
