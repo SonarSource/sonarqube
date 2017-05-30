@@ -5,6 +5,10 @@ jdk: oraclejdk8
 script: ./travis.sh
 dist: trusty
 
+branches:
+  only:
+  - master
+
 env:
   - TARGET=BUILD
   - TARGET=WEB_TESTS
