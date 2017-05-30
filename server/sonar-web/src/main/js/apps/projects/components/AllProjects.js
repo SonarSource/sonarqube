@@ -95,13 +95,8 @@ export default class AllProjects extends React.PureComponent {
     }
   };
 
-  handleSortChange = (sort: string, desc: boolean) => {
-    if (sort === 'name' && !desc) {
-      this.updateLocationQuery({ sort: undefined });
-    } else {
-      this.updateLocationQuery({ sort: (desc ? '-' : '') + sort });
-    }
-  };
+  handleSortChange = (sort: string, desc: boolean) =>
+    this.updateLocationQuery({ sort: (desc ? '-' : '') + sort });
 
   handleQueryChange() {
     const query = parseUrlQuery(this.props.location.query);

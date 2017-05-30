@@ -49,6 +49,7 @@ export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);
 
 export const SORTING_METRICS = [
   { value: 'name' },
+  { value: 'analysis_date' },
   { value: 'reliability' },
   { value: 'security' },
   { value: 'maintainability' },
@@ -59,6 +60,7 @@ export const SORTING_METRICS = [
 
 export const SORTING_LEAK_METRICS = [
   { value: 'name' },
+  { value: 'analysis_date' },
   { value: 'new_reliability', complement: 'on_new_code' },
   { value: 'new_security', complement: 'on_new_code' },
   { value: 'new_maintainability', complement: 'on_new_code' },
@@ -68,6 +70,7 @@ export const SORTING_LEAK_METRICS = [
 ];
 
 export const SORTING_SWITCH = {
+  analysis_date: 'analysis_date',
   name: 'name',
   reliability: 'new_reliability',
   security: 'new_security',
