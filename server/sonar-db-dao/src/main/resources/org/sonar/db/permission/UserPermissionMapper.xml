@@ -3,55 +3,66 @@
 
 <mapper namespace="org.sonar.db.permission.UserPermissionMapper">
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
+  <select id="selectUserPermissionsByQueryAndUserIds" parameterType="map" resultType="org.sonar.db.permission.UserPermissionDto">
     select
       u.id as userId,
       ur.organization_uuid as organizationUuid,
       ur.resource_id as componentId,
       ur.role as permission
-    <include refid="sqlQuery" />
-    order by lower(u.name), u.name, ur.role
+    <include refid="sqlQueryJoins" />
+    <where>
+      u.id in <foreach collection="userIds" open="(" close=")" item="userId" separator=",">#{userId,jdbcType=INTEGER}</foreach>
+      <include refid="sqlQueryFilters" />
+    </where>
+  </select>
+
+  <select id="selectUserIdsByQuery" parameterType="map" resultType="int">
+    select
+      distinct u.id, lower(u.name) as lowerName
+      <include refid="sqlQueryJoins" />
+      <where>
+        <include refid="sqlQueryFilters" />
+      </where>
+    order by lowerName asc
   </select>
 
   <select id="countUsersByQuery" parameterType="map" resultType="int">
     select count(distinct(u.id))
-    <include refid="sqlQuery" />
+    <include refid="sqlQueryJoins" />
+    <where>
+      <include refid="sqlQueryFilters" />
+    </where>
   </select>
 
-  <sql id="sqlQuery">
+  <sql id="sqlQueryJoins">
     from users u
     left join user_roles ur on ur.user_id = u.id
     left join projects p on ur.resource_id = p.id
     inner join organization_members om on u.id=om.user_id and om.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
-    <where>
-      <if test="userLogins == null">
-        and u.active = ${_true}
-      </if>
-      <if test="userLogins != null">
-        and u.login in <foreach collection="userLogins" open="(" close=")" item="userLogin" separator=",">#{userLogin,jdbcType=VARCHAR}</foreach>
-      </if>
-      <if test="query.searchQueryToSql != null">
-        and (
-        lower(u.name) like #{query.searchQueryToSqlLowercase,jdbcType=VARCHAR} ESCAPE '/'
-        or u.email like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
-        or u.login like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/')
+  </sql>
 
+  <sql id="sqlQueryFilters">
+    and u.active = ${_true}
+    <if test="query.searchQueryToSql != null">
+      and (
+      lower(u.name) like #{query.searchQueryToSqlLowercase,jdbcType=VARCHAR} ESCAPE '/'
+      or u.email like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/'
+      or u.login like #{query.searchQueryToSql,jdbcType=VARCHAR} ESCAPE '/')
+    </if>
+    <!-- filter rows with user permissions -->
+    <if test="query.withAtLeastOnePermission()">
+      and ur.organization_uuid = om.organization_uuid
+      and ur.role is not null
+      <if test="query.componentUuid==null">
+        and ur.resource_id is null
       </if>
-      <!-- filter rows with user permissions -->
-      <if test="query.withAtLeastOnePermission()">
-        and ur.organization_uuid = #{query.organizationUuid,jdbcType=VARCHAR}
-        and ur.role is not null
-        <if test="query.componentUuid==null">
-          and ur.resource_id is null
-        </if>
-        <if test="query.componentUuid!=null">
-          and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
-        </if>
-        <if test="query.permission!=null">
-          and ur.role = #{query.permission,jdbcType=VARCHAR}
-        </if>
+      <if test="query.componentUuid!=null">
+        and p.uuid = #{query.componentUuid,jdbcType=VARCHAR}
       </if>
-    </where>
+      <if test="query.permission!=null">
+        and ur.role = #{query.permission,jdbcType=VARCHAR}
+      </if>
+    </if>
   </sql>
 
   <select id="selectGlobalPermissionsOfUser" parameterType="map" resultType="string">
