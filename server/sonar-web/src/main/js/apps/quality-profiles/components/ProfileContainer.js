@@ -31,6 +31,7 @@ type Props = {
     pathname: string,
     query: { key?: string, language: string, name: string }
   },
+  onRequestFail: Object => void,
   organization: ?string,
   profiles: Array<Profile>,
   router: { replace: () => void },
@@ -78,6 +79,7 @@ export default class ProfileContainer extends React.PureComponent {
     }
 
     const child = React.cloneElement(this.props.children, {
+      onRequestFail: this.props.onRequestFail,
       organization,
       profile,
       profiles,
@@ -89,6 +91,7 @@ export default class ProfileContainer extends React.PureComponent {
         <Helmet title={profile.name} />
         <ProfileHeader
           canAdmin={this.props.canAdmin}
+          onRequestFail={this.props.onRequestFail}
           organization={organization}
           profile={profile}
           updateProfiles={this.props.updateProfiles}

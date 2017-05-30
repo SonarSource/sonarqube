@@ -30,6 +30,7 @@ type Props = {
   canAdmin: boolean,
   languages: Array<{ key: string, name: string }>,
   location: { query: { [string]: string } },
+  onRequestFail: Object => void,
   organization: ?string,
   profiles: Array<Profile>,
   updateProfiles: () => Promise<*>
@@ -43,6 +44,7 @@ export default class ProfilesList extends React.PureComponent {
       <ProfilesListRow
         canAdmin={this.props.canAdmin}
         key={profile.key}
+        onRequestFail={this.props.onRequestFail}
         organization={this.props.organization}
         profile={profile}
         updateProfiles={this.props.updateProfiles}

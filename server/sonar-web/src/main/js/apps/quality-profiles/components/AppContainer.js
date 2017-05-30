@@ -20,6 +20,7 @@
 import { connect } from 'react-redux';
 import App from './App';
 import { getLanguages, getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
+import { onFail } from '../../../store/rootActions';
 
 const mapStateToProps = (state, ownProps) => ({
   currentUser: getCurrentUser(state),
@@ -29,4 +30,8 @@ const mapStateToProps = (state, ownProps) => ({
     : null
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = dispatch => ({
+  onRequestFail: error => onFail(dispatch)(error)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

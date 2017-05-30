@@ -19,76 +19,63 @@
  */
 // @flow
 import React from 'react';
-import CreateProfileView from '../views/CreateProfileView';
-import RestoreProfileView from '../views/RestoreProfileView';
+import CreateProfileForm from './CreateProfileForm';
+import RestoreProfileForm from './RestoreProfileForm';
 import RestoreBuiltInProfilesView from '../views/RestoreBuiltInProfilesView';
+import type { Profile } from '../propTypes';
 import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import { getImporters } from '../../../api/quality-profiles';
 
 type Props = {
   canAdmin: boolean,
   languages: Array<{ key: string, name: string }>,
+  onRequestFail: Object => void,
   organization: ?string,
   updateProfiles: () => Promise<*>
 };
 
+type State = {
+  createFormOpen: boolean,
+  restoreFormOpen: boolean
+};
+
 export default class PageHeader extends React.PureComponent {
-  mounted: boolean;
   props: Props;
 
   static contextTypes = {
     router: React.PropTypes.object
   };
 
-  state = {};
+  state: State = {
+    createFormOpen: false,
+    restoreFormOpen: false
+  };
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  handleCreateClick = (event: Event & { currentTarget: HTMLButtonElement }) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.setState({ createFormOpen: true });
+  };
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
-
-  retrieveImporters() {
-    if (this.state.importers) {
-      return Promise.resolve(this.state.importers);
-    } else {
-      return getImporters().then(importers => {
-        this.setState({ importers });
-        return importers;
-      });
-    }
-  }
-
-  handleCreateClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    e.target.blur();
-    this.retrieveImporters().then(importers => {
-      new CreateProfileView({
-        languages: this.props.languages,
-        organization: this.props.organization,
-        importers
-      })
-        .on('done', profile => {
-          this.props.updateProfiles().then(() => {
-            this.context.router.push(
-              getProfilePath(profile.name, profile.language, this.props.organization)
-            );
-          });
-        })
-        .render();
+  handleCreate = (profile: Profile) => {
+    this.props.updateProfiles().then(() => {
+      this.context.router.push(
+        getProfilePath(profile.name, profile.language, this.props.organization)
+      );
     });
   };
 
-  handleRestoreClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new RestoreProfileView({
-      organization: this.props.organization
-    })
-      .on('done', this.props.updateProfiles)
-      .render();
+  closeCreateForm = () => {
+    this.setState({ createFormOpen: false });
+  };
+
+  handleRestoreClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ restoreFormOpen: true });
+  };
+
+  closeRestoreForm = () => {
+    this.setState({ restoreFormOpen: false });
   };
 
   handleRestoreBuiltIn = (e: SyntheticInputEvent) => {
@@ -139,6 +126,23 @@ export default class PageHeader extends React.PureComponent {
           <br />
           {translate('quality_profiles.intro2')}
         </div>
+
+        {this.state.restoreFormOpen &&
+          <RestoreProfileForm
+            onClose={this.closeRestoreForm}
+            onRequestFail={this.props.onRequestFail}
+            onRestore={this.props.updateProfiles}
+            organization={this.props.organization}
+          />}
+
+        {this.state.createFormOpen &&
+          <CreateProfileForm
+            languages={this.props.languages}
+            onClose={this.closeCreateForm}
+            onRequestFail={this.props.onRequestFail}
+            onCreate={this.handleCreate}
+            organization={this.props.organization}
+          />}
       </header>
     );
   }

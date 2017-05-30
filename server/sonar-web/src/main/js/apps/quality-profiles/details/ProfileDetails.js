@@ -28,6 +28,7 @@ import type { Profile, Exporter } from '../propTypes';
 type Props = {
   canAdmin: boolean,
   exporters: Array<Exporter>,
+  onRequestFail: Object => void,
   organization: ?string,
   profile: Profile,
   profiles: Array<Profile>,

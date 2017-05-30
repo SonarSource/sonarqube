@@ -37,7 +37,8 @@ export type Profile = {
   userUpdatedAt?: string,
   lastUsed?: string,
   rulesUpdatedAt: string,
-  depth: number
+  depth: number,
+  childrenCount: number
 };
 
 export type Exporter = {

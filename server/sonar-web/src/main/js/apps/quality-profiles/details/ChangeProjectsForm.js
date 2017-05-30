@@ -18,39 +18,47 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+import React from 'react';
+import Modal from 'react-modal';
 import escapeHtml from 'escape-html';
-import ModalFormView from '../../../components/common/modal-form';
-import Template from '../templates/quality-profiles-change-projects.hbs';
+import type { Profile } from '../propTypes';
 import { translate } from '../../../helpers/l10n';
-import '../../../components/SelectList';
 
-export default ModalFormView.extend({
-  template: Template,
+type Props = {
+  onClose: () => void,
+  organization: ?string,
+  profile: Profile
+};
 
-  onRender() {
-    // TODO remove uuid usage
+export default class ChangeProjectsForm extends React.PureComponent {
+  container: HTMLElement;
+  props: Props;
 
-    ModalFormView.prototype.onRender.apply(this, arguments);
+  componentDidMount() {
+    this.renderSelectList();
+  }
 
-    const { key } = this.options.profile;
+  handleCloseClick = (event: Event) => {
+    event.preventDefault();
+    this.props.onClose();
+  };
+
+  renderSelectList() {
+    const { key } = this.props.profile;
 
     const searchUrl =
       window.baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
 
     new window.SelectList({
       searchUrl,
-      el: this.$('#profile-projects'),
+      el: this.container,
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      dangerouslyUnescapedHtmlFormat(item) {
-        return escapeHtml(item.name);
-      },
+      dangerouslyUnescapedHtmlFormat: item => escapeHtml(item.name),
       selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
       deselectUrl: window.baseUrl + '/api/qualityprofiles/remove_project',
-      extra: {
-        profileKey: key
-      },
+      extra: { profileKey: key },
       selectParameter: 'projectUuid',
       selectParameterValue: 'uuid',
       labels: {
@@ -64,10 +72,32 @@ export default ModalFormView.extend({
         deselect: translate('quality_profiles.projects.deselect_hint')
       }
     });
-  },
-
-  onDestroy() {
-    this.options.loadProjects();
-    ModalFormView.prototype.onDestroy.apply(this, arguments);
   }
-});
+
+  render() {
+    const header = translate('projects');
+
+    return (
+      <Modal
+        isOpen={true}
+        contentLabel={header}
+        className="modal"
+        overlayClassName="modal-overlay"
+        onRequestClose={this.props.onClose}>
+
+        <div className="modal-head">
+          <h2>{header}</h2>
+        </div>
+
+        <div className="modal-body">
+          <div id="profile-projects" ref={node => (this.container = node)} />
+        </div>
+
+        <div className="modal-foot">
+          <a href="#" onClick={this.handleCloseClick}>{translate('close')}</a>
+        </div>
+
+      </Modal>
+    );
+  }
+}

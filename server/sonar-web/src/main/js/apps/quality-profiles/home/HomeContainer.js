@@ -28,6 +28,7 @@ type Props = {
   canAdmin: boolean,
   languages: Array<{ key: string, name: string }>,
   location: { query: { [string]: string } },
+  onRequestFail: Object => void,
   organization?: string,
   profiles: Array<Profile>,
   updateProfiles: () => Promise<*>
