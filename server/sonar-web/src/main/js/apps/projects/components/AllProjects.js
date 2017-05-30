@@ -21,7 +21,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 import PageHeaderContainer from './PageHeaderContainer';
-import ProjectsOptionBar from './ProjectsOptionBar';
+import ProjectsOptionBarContainer from './ProjectsOptionBarContainer';
 import ProjectsListContainer from './ProjectsListContainer';
 import ProjectsListFooterContainer from './ProjectsListFooterContainer';
 import PageSidebar from './PageSidebar';
@@ -129,7 +129,7 @@ export default class AllProjects extends React.PureComponent {
       <div>
         <Helmet title={translate('projects.page')} />
 
-        <ProjectsOptionBar
+        <ProjectsOptionBarContainer
           onPerspectiveChange={this.handlePerspectiveChange}
           onSortChange={this.handleSortChange}
           onToggleOptionBar={this.handleOptionBarToggle}

@@ -8,7 +8,7 @@ Array [
 ]
 `;
 
-exports[`should not render sorting options for visualizations 1`] = `
+exports[`should render disabled sorting options for visualizations 1`] = `
 <div
   className="projects-topbar"
 >
@@ -26,10 +26,21 @@ exports[`should not render sorting options for visualizations 1`] = `
       className="projects-topbar-actions-inner"
     >
       <PerspectiveSelect
-        className="projects-topbar-item"
+        className="projects-topbar-item js-projects-perspective-select"
         view="visualizations"
         visualization="coverage"
       />
+      <Tooltip
+        overlay="projects.sort.disabled"
+        placement="bottom"
+      >
+        <div>
+          <ProjectsSortingSelect
+            className="projects-topbar-item js-projects-sorting-select disabled"
+            view="visualizations"
+          />
+        </div>
+      </Tooltip>
     </div>
   </div>
 </div>
