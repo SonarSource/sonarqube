@@ -121,6 +121,7 @@ export default class ProfileInheritance extends React.PureComponent {
             {translate('quality_profiles.profile_inheritance')}
           </h2>
           {this.props.canAdmin &&
+            !this.props.profile.isBuiltIn &&
             <button className="pull-right js-change-parent" onClick={this.handleChangeParentClick}>
               {translate('quality_profiles.change_parent')}
             </button>}
