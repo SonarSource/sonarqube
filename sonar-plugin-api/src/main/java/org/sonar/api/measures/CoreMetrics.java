@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.utils.SonarException;
 
 /**
  * @since 1.10

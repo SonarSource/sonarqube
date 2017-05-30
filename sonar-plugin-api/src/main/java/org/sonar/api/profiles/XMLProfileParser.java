@@ -48,6 +48,17 @@ public class XMLProfileParser {
 
   private final RuleFinder ruleFinder;
 
+  /**
+   * For backward compatibility.
+   *
+   * @deprecated since 2.5. Plugins shouldn't directly instantiate this class,
+   * because it should be retrieved as an IoC dependency.
+   */
+  @Deprecated
+  public XMLProfileParser(RuleFinder ruleFinder) {
+    this.ruleFinder = ruleFinder;
+  }
+
   public RulesProfile parseResource(ClassLoader classloader, String xmlClassPath, ValidationMessages messages) {
     Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), StandardCharsets.UTF_8);
     try {
