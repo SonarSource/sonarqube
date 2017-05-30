@@ -205,9 +205,9 @@ public class ProjectsActionTest {
     return ComponentTesting.newPrivateProjectDto(organizationDto, uuid).setName(name);
   }
 
-  private void associateProjectsWithProfile(DbSession session, RulesProfileDto profile, ComponentDto... projects) {
+  private void associateProjectsWithProfile(DbSession dbSession, RulesProfileDto profile, ComponentDto... projects) {
     for (ComponentDto project : projects) {
-      dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), session);
+      dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
     }
   }
 }

@@ -97,7 +97,7 @@ public class SearchDataLoader {
     // look up profiles by profileName (if any) for each language
     Set<String> unresolvedLanguages = lookupByProfileName(dbSession, organization, qualityProfiles, languageKeys, profileName);
     // look up profile by componentKey for each language for which we don't have one yet
-    Set<String> stillUnresolvedLanguages = lookupByModule(dbSession, organization, qualityProfiles, unresolvedLanguages, project);
+    Set<String> stillUnresolvedLanguages = lookupByModule(dbSession, qualityProfiles, unresolvedLanguages, project);
     // look up profile by default for each language for which we don't have one yet
     Set<String> noDefaultProfileLanguages = lookupDefaults(dbSession, organization, qualityProfiles, stillUnresolvedLanguages);
 
@@ -118,7 +118,7 @@ public class SearchDataLoader {
   }
 
   private Set<String> lookupByProfileName(DbSession dbSession, OrganizationDto organization, Map<String, RulesProfileDto> qualityProfiles, Set<String> languageKeys,
-                                          @Nullable String profileName) {
+    @Nullable String profileName) {
     if (languageKeys.isEmpty() || profileName == null) {
       return languageKeys;
     }
@@ -129,13 +129,13 @@ public class SearchDataLoader {
     return difference(languageKeys, qualityProfiles.keySet());
   }
 
-  private Set<String> lookupByModule(DbSession dbSession, OrganizationDto organization, Map<String, RulesProfileDto> qualityProfiles, Set<String> languageKeys,
-                                     ComponentDto project) {
+  private Set<String> lookupByModule(DbSession dbSession, Map<String, RulesProfileDto> qualityProfiles, Set<String> languageKeys,
+    ComponentDto project) {
     if (languageKeys.isEmpty()) {
       return languageKeys;
     }
 
-    dbClient.qualityProfileDao().selectByProjectAndLanguages(dbSession, organization, project, languageKeys)
+    dbClient.qualityProfileDao().selectAssociatedToProjectUuidAndLanguages(dbSession, project, languageKeys)
       .forEach(qualityProfile -> qualityProfiles.put(qualityProfile.getLanguage(), qualityProfile));
     return difference(languageKeys, qualityProfiles.keySet());
   }
