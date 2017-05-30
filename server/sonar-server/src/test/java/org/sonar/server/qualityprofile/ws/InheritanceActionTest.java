@@ -45,7 +45,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
-import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
@@ -60,6 +59,7 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.qualityprofile.QProfileTesting.newQProfileDto;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class InheritanceActionTest {
@@ -113,17 +113,18 @@ public class InheritanceActionTest {
     RuleDefinitionDto rule3 = createRule("xoo", "rule3");
 
     /*
-     * groupWide (2) <- companyWide (2) <- buWide (2, 1 overriding) <- (forProject1 (2), forProject2 (2))
+     * sonar way (2) <- companyWide (2) <- buWide (2, 1 overriding) <- (forProject1 (2), forProject2 (2))
      */
-    RulesProfileDto groupWide = createProfile("xoo", "My Group Profile", "xoo-my-group-profile-01234");
-    createActiveRule(rule1, groupWide);
-    createActiveRule(rule2, groupWide);
+    RulesProfileDto sonarway = dbTester.qualityProfiles().insertQualityProfile(
+      newQProfileDto(organization, QProfileName.createFor("xoo", "Sonar way"), "xoo-sonar-way").setIsBuiltIn(true));
+    createActiveRule(rule1, sonarway);
+    createActiveRule(rule2, sonarway);
 
     dbSession.commit();
     activeRuleIndexer.index();
 
     RulesProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
-    setParent(groupWide, companyWide);
+    setParent(sonarway, companyWide);
 
     RulesProfileDto buWide = createProfile("xoo", "My BU Profile", "xoo-my-bu-profile-23456");
     setParent(companyWide, buWide);
@@ -230,7 +231,7 @@ public class InheritanceActionTest {
   }
 
   private RulesProfileDto createProfile(String lang, String name, String key) {
-    RulesProfileDto profile = QProfileTesting.newQProfileDto(organization, new QProfileName(lang, name), key);
+    RulesProfileDto profile = newQProfileDto(organization, new QProfileName(lang, name), key);
     dbClient.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     return profile;
