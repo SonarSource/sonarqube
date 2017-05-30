@@ -108,6 +108,9 @@ public class VarcharColumnDef extends AbstractColumnDef {
      * Unit is ignored for the columns created before SonarQube 6.3 (except for issues.message which
      * has been fixed in migration 1151 of SonarQube 5.6. See SONAR-7493).
      *
+     * In most cases this method should not be called with parameter {@code true} after
+     * version 6.3.
+     *
      * @param b whether unit of length is hardcoded to CHAR.
      */
     public Builder setIgnoreOracleUnit(boolean b) {
