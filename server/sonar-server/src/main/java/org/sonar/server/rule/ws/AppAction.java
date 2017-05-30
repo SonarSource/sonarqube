@@ -95,6 +95,7 @@ public class AppAction implements RulesWsAction {
           .prop("name", profile.getName())
           .prop("lang", profile.getLanguage())
           .prop("parentKey", profile.getParentKee())
+          .prop("isBuiltIn", profile.isBuiltIn())
           .endObject();
       }
     }

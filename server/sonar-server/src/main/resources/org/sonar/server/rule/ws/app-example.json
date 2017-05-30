@@ -2,123 +2,32 @@
   "canWrite": false,
   "qualityprofiles": [
     {
-      "key": "cs-c-qp-for-sonarsource-73109",
-      "name": "C# QP for SonarSource",
-      "lang": "cs"
-    },
-    {
-      "key": "java-default-with-mojo-conventions-49307",
-      "name": "Default - Maven Conventions",
-      "lang": "java",
-      "parentKey": "java-top-profile-without-formatting-conventions-50037"
-    },
-    {
-      "key": "java-default-with-sonarsource-conventions-27339",
-      "name": "Default - SonarSource conventions",
-      "lang": "java",
-      "parentKey": "java-top-profile-without-formatting-conventions-50037"
-    },
-    {
       "key": "java-top-profile-without-formatting-conventions-50037",
       "name": "Default - Top",
-      "lang": "java"
-    },
-    {
-      "key": "php-drupal-15274",
-      "name": "Drupal",
-      "lang": "php"
-    },
-    {
-      "key": "java-findbugs-14954",
-      "name": "FindBugs",
-      "lang": "java"
-    },
-    {
-      "key": "java-findbugs-security-audit-88783",
-      "name": "FindBugs Security Audit",
-      "lang": "java"
-    },
-    {
-      "key": "java-findbugs-security-minimal-21735",
-      "name": "FindBugs Security Minimal",
-      "lang": "java"
-    },
-    {
-      "key": "java-for-sq-java-plugin-only-92289",
-      "name": "For Java and JavaScript Plugins",
       "lang": "java",
-      "parentKey": "java-default-with-sonarsource-conventions-27339"
-    },
-    {
-      "key": "java-for-sq-only-95381",
-      "name": "For SQ Only",
-      "lang": "java",
-      "parentKey": "java-default-with-sonarsource-conventions-27339"
-    },
-    {
-      "key": "php-psr-2-06315",
-      "name": "PSR-2",
-      "lang": "php"
-    },
-    {
-      "key": "js-sonarsource-javascript-conventions-62984",
-      "name": "SonarSource JavaScript Conventions",
-      "lang": "js",
-      "parentKey": "js-sonar-way"
-    },
-    {
-      "key": "c-sonar-way",
-      "name": "Sonar way",
-      "lang": "c"
-    },
-    {
-      "key": "cpp-sonar-way",
-      "name": "Sonar way",
-      "lang": "cpp"
-    },
-    {
-      "key": "cs-sonar-way-94087",
-      "name": "Sonar way",
-      "lang": "cs"
-    },
-    {
-      "key": "grvy-sonar-way-06443",
-      "name": "Sonar way",
-      "lang": "grvy"
+      "isBuiltIn": false
     },
     {
       "key": "java-sonar-way-80423",
       "name": "Sonar way",
-      "lang": "java"
+      "lang": "java",
+      "isBuiltIn": true
     },
     {
       "key": "js-sonar-way",
       "name": "Sonar way",
-      "lang": "js"
-    },
-    {
-      "key": "objc-sonar-way-10164",
-      "name": "Sonar way",
-      "lang": "objc"
+      "lang": "js",
+      "isBuiltIn": true
     },
     {
       "key": "php-sonar-way-05548",
       "name": "Sonar way",
-      "lang": "php"
-    },
-    {
-      "key": "java-without-findbugs",
-      "name": "Without Findbugs",
-      "lang": "java"
+      "lang": "php",
+      "isBuiltIn": true
     }
   ],
   "languages": {
-    "c": "C",
-    "cpp": "C++",
-    "objc": "Objective-C",
     "js": "JavaScript",
-    "cs": "C#",
-    "grvy": "Groovy",
     "java": "Java",
     "php": "PHP"
   },
@@ -127,31 +36,6 @@
       "key": "clirr",
       "name": "Clirr",
       "language": "java"
-    },
-    {
-      "key": "grvy",
-      "name": "CodeNarc",
-      "language": "grvy"
-    },
-    {
-      "key": "common-c",
-      "name": "Common SonarQube",
-      "language": "c"
-    },
-    {
-      "key": "common-cpp",
-      "name": "Common SonarQube",
-      "language": "cpp"
-    },
-    {
-      "key": "common-cs",
-      "name": "Common SonarQube",
-      "language": "cs"
-    },
-    {
-      "key": "common-grvy",
-      "name": "Common SonarQube",
-      "language": "grvy"
     },
     {
       "key": "common-java",
@@ -164,64 +48,14 @@
       "language": "js"
     },
     {
-      "key": "common-objc",
-      "name": "Common SonarQube",
-      "language": "objc"
-    },
-    {
       "key": "common-php",
       "name": "Common SonarQube",
       "language": "php"
     },
     {
-      "key": "c-cppcheck",
-      "name": "Cppcheck",
-      "language": "c"
-    },
-    {
-      "key": "cpp-cppcheck",
-      "name": "Cppcheck",
-      "language": "cpp"
-    },
-    {
-      "key": "fxcop",
-      "name": "FxCop / Code Analysis",
-      "language": "cs"
-    },
-    {
-      "key": "resharper-cs",
-      "name": "ReSharper",
-      "language": "cs"
-    },
-    {
-      "key": "resharper-vbnet",
-      "name": "ReSharper",
-      "language": "vbnet"
-    },
-    {
-      "key": "c",
-      "name": "SonarQube",
-      "language": "c"
-    },
-    {
-      "key": "cpp",
-      "name": "SonarQube",
-      "language": "cpp"
-    },
-    {
-      "key": "csharpsquid",
-      "name": "SonarQube",
-      "language": "cs"
-    },
-    {
       "key": "javascript",
       "name": "SonarQube",
       "language": "js"
-    },
-    {
-      "key": "objc",
-      "name": "SonarQube",
-      "language": "objc"
     },
     {
       "key": "php",
@@ -232,11 +66,6 @@
       "key": "squid",
       "name": "SonarQube",
       "language": "java"
-    },
-    {
-      "key": "stylecop",
-      "name": "StyleCop",
-      "language": "cs"
     }
   ],
   "statuses": {
@@ -263,233 +92,6 @@
       "key": "TRANSPORTABILITY",
       "name": "Transportability",
       "parent": "REUSABILITY"
-    },
-    {
-      "key": "PORTABILITY",
-      "name": "Portability"
-    },
-    {
-      "key": "COMPILER_RELATED_PORTABILITY",
-      "name": "Compiler",
-      "parent": "PORTABILITY"
-    },
-    {
-      "key": "HARDWARE_RELATED_PORTABILITY",
-      "name": "Hardware",
-      "parent": "PORTABILITY"
-    },
-    {
-      "key": "LANGUAGE_RELATED_PORTABILITY",
-      "name": "Language",
-      "parent": "PORTABILITY"
-    },
-    {
-      "key": "OS_RELATED_PORTABILITY",
-      "name": "OS",
-      "parent": "PORTABILITY"
-    },
-    {
-      "key": "PORTABILITY_COMPLIANCE",
-      "name": "Portability Compliance",
-      "parent": "PORTABILITY"
-    },
-    {
-      "key": "SOFTWARE_RELATED_PORTABILITY",
-      "name": "Software",
-      "parent": "PORTABILITY"
-    },
-    {
-      "key": "TIME_ZONE_RELATED_PORTABILITY",
-      "name": "Time zone",
-      "parent": "PORTABILITY"
-    },
-    {
-      "key": "MAINTAINABILITY",
-      "name": "Maintainability"
-    },
-    {
-      "key": "MAINTAINABILITY_COMPLIANCE",
-      "name": "Maintainability Compliance",
-      "parent": "MAINTAINABILITY"
-    },
-    {
-      "key": "READABILITY",
-      "name": "Readability",
-      "parent": "MAINTAINABILITY"
-    },
-    {
-      "key": "UNDERSTANDABILITY",
-      "name": "Understandability",
-      "parent": "MAINTAINABILITY"
-    },
-    {
-      "key": "SECURITY",
-      "name": "Security"
-    },
-    {
-      "key": "API_ABUSE",
-      "name": "API abuse",
-      "parent": "SECURITY"
-    },
-    {
-      "key": "ERRORS",
-      "name": "Errors",
-      "parent": "SECURITY"
-    },
-    {
-      "key": "INPUT_VALIDATION_AND_REPRESENTATION",
-      "name": "Input validation and representation",
-      "parent": "SECURITY"
-    },
-    {
-      "key": "SECURITY_COMPLIANCE",
-      "name": "Security Compliance",
-      "parent": "SECURITY"
-    },
-    {
-      "key": "SECURITY_FEATURES",
-      "name": "Security features",
-      "parent": "SECURITY"
-    },
-    {
-      "key": "USABILITY",
-      "name": "Usability"
-    },
-    {
-      "key": "USABILITY_ACCESSIBILITY",
-      "name": "Accessibility",
-      "parent": "USABILITY"
-    },
-    {
-      "key": "USABILITY_EASE_OF_USE",
-      "name": "Ease of Use",
-      "parent": "USABILITY"
-    },
-    {
-      "key": "USABILITY_COMPLIANCE",
-      "name": "Usability Compliance",
-      "parent": "USABILITY"
-    },
-    {
-      "key": "EFFICIENCY",
-      "name": "Efficiency"
-    },
-    {
-      "key": "EFFICIENCY_COMPLIANCE",
-      "name": "Efficiency Compliance",
-      "parent": "EFFICIENCY"
-    },
-    {
-      "key": "MEMORY_EFFICIENCY",
-      "name": "Memory use",
-      "parent": "EFFICIENCY"
-    },
-    {
-      "key": "NETWORK_USE",
-      "name": "Network use",
-      "parent": "EFFICIENCY"
-    },
-    {
-      "key": "CPU_EFFICIENCY",
-      "name": "Processor use",
-      "parent": "EFFICIENCY"
-    },
-    {
-      "key": "CHANGEABILITY",
-      "name": "Changeability"
-    },
-    {
-      "key": "ARCHITECTURE_CHANGEABILITY",
-      "name": "Architecture",
-      "parent": "CHANGEABILITY"
-    },
-    {
-      "key": "CHANGEABILITY_COMPLIANCE",
-      "name": "Changeability Compliance",
-      "parent": "CHANGEABILITY"
-    },
-    {
-      "key": "DATA_CHANGEABILITY",
-      "name": "Data",
-      "parent": "CHANGEABILITY"
-    },
-    {
-      "key": "LOGIC_CHANGEABILITY",
-      "name": "Logic",
-      "parent": "CHANGEABILITY"
-    },
-    {
-      "key": "RELIABILITY",
-      "name": "Reliability"
-    },
-    {
-      "key": "ARCHITECTURE_RELIABILITY",
-      "name": "Architecture",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "DATA_RELIABILITY",
-      "name": "Data",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "EXCEPTION_HANDLING",
-      "name": "Exception handling",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "FAULT_TOLERANCE",
-      "name": "Fault tolerance",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "INSTRUCTION_RELIABILITY",
-      "name": "Instruction",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "LOGIC_RELIABILITY",
-      "name": "Logic",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "RELIABILITY_COMPLIANCE",
-      "name": "Reliability Compliance",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "RESOURCE_RELIABILITY",
-      "name": "Resource",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "SYNCHRONIZATION_RELIABILITY",
-      "name": "Synchronization",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "UNIT_TESTS",
-      "name": "Unit tests coverage",
-      "parent": "RELIABILITY"
-    },
-    {
-      "key": "TESTABILITY",
-      "name": "Testability"
-    },
-    {
-      "key": "INTEGRATION_TESTABILITY",
-      "name": "Integration level",
-      "parent": "TESTABILITY"
-    },
-    {
-      "key": "TESTABILITY_COMPLIANCE",
-      "name": "Testability Compliance",
-      "parent": "TESTABILITY"
-    },
-    {
-      "key": "UNIT_TESTABILITY",
-      "name": "Unit level",
-      "parent": "TESTABILITY"
     }
   ]
 }
