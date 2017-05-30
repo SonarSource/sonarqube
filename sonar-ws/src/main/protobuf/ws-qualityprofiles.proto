@@ -62,7 +62,6 @@ message CreateWsResponse {
     optional Infos infos = 7;
     optional Warnings warnings = 8;
     optional string organization = 9;
-    optional bool isBuiltIn = 10;
 
     message Infos {
       repeated string infos = 1;
@@ -86,5 +85,6 @@ message InheritanceWsResponse {
     optional string parent = 3;
     optional int64 activeRuleCount = 4;
     optional int64 overridingRuleCount = 5;
+    optional bool isBuiltIn = 6;
   }
 }

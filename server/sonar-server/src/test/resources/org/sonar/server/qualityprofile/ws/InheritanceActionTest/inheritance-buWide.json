@@ -1,14 +1,40 @@
 {
   "profile": {
-    "key": "xoo-my-bu-profile-23456", "name": "My BU Profile", "parent": "xoo-my-company-profile-12345",
-    "activeRuleCount": 2, "overridingRuleCount": 1
+    "key": "xoo-my-bu-profile-23456",
+    "name": "My BU Profile",
+    "parent": "xoo-my-company-profile-12345",
+    "activeRuleCount": 2,
+    "overridingRuleCount": 1,
+    "isBuiltIn": false
   },
   "ancestors": [
-    {"key": "xoo-my-company-profile-12345", "name": "My Company Profile", "parent": "xoo-my-group-profile-01234", "activeRuleCount": 2},
-    {"key": "xoo-my-group-profile-01234", "name": "My Group Profile", "activeRuleCount": 2}
+    {
+      "key": "xoo-my-company-profile-12345",
+      "name": "My Company Profile",
+      "parent": "xoo-sonar-way",
+      "activeRuleCount": 2,
+      "isBuiltIn": false
+    },
+    {
+      "key": "xoo-sonar-way",
+      "name": "Sonar way",
+      "activeRuleCount": 2,
+      "isBuiltIn": true
+    }
   ],
   "children": [
-    {"key": "xoo-for-project-one-34567", "name": "For Project One", "activeRuleCount": 3},
-    {"key": "xoo-for-project-two-45678", "name": "For Project Two", "activeRuleCount": 2, "overridingRuleCount": 1}
+    {
+      "key": "xoo-for-project-one-34567",
+      "name": "For Project One",
+      "activeRuleCount": 3,
+      "isBuiltIn": false
+    },
+    {
+      "key": "xoo-for-project-two-45678",
+      "name": "For Project Two",
+      "activeRuleCount": 2,
+      "overridingRuleCount": 1,
+      "isBuiltIn": false
+    }
   ]
 }
