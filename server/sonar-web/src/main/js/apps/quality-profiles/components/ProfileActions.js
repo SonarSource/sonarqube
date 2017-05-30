@@ -201,7 +201,7 @@ export default class ProfileActions extends React.PureComponent {
 
         {this.state.renameFormOpen &&
           <RenameProfileForm
-            onClose={this.closeDeleteForm}
+            onClose={this.closeRenameForm}
             onRename={this.handleProfileRename}
             onRequestFail={this.props.onRequestFail}
             profile={profile}

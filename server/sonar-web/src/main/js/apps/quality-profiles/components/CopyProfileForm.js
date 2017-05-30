@@ -84,6 +84,8 @@ export default class CopyProfileForm extends React.PureComponent {
       profile.name,
       profile.languageName
     );
+    const submitDisabled =
+      this.state.loading || !this.state.name || this.state.name === profile.name;
 
     return (
       <Modal
@@ -117,7 +119,7 @@ export default class CopyProfileForm extends React.PureComponent {
           </div>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button disabled={this.state.loading || !this.state.name} id="copy-profile-submit">
+            <button disabled={submitDisabled} id="copy-profile-submit">
               {translate('copy')}
             </button>
             <a href="#" id="copy-profile-cancel" onClick={this.handleCancelClick}>

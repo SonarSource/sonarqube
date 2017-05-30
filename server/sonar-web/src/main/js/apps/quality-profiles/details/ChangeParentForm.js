@@ -88,6 +88,11 @@ export default class ChangeParentForm extends React.PureComponent {
       ...sortBy(profiles, 'name').map(profile => ({ label: profile.name, value: profile.key }))
     ];
 
+    const submitDisabled =
+      this.state.loading ||
+      this.state.selected == null ||
+      this.state.selected === this.props.profile.parentKey;
+
     return (
       <Modal
         isOpen={true}
@@ -121,9 +126,7 @@ export default class ChangeParentForm extends React.PureComponent {
           </div>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button
-              disabled={this.state.loading || this.state.selected == null}
-              id="change-profile-parent-submit">
+            <button disabled={submitDisabled} id="change-profile-parent-submit">
               {translate('change_verb')}
             </button>
             <a href="#" id="change-profile-parent-cancel" onClick={this.handleCancelClick}>

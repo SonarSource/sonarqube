@@ -84,6 +84,8 @@ export default class RenameProfileForm extends React.PureComponent {
       profile.name,
       profile.languageName
     );
+    const submitDisabled =
+      this.state.loading || !this.state.name || this.state.name === profile.name;
 
     return (
       <Modal
@@ -117,7 +119,7 @@ export default class RenameProfileForm extends React.PureComponent {
           </div>
           <div className="modal-foot">
             {this.state.loading && <i className="spinner spacer-right" />}
-            <button disabled={this.state.loading || !this.state.name} id="rename-profile-submit">
+            <button disabled={submitDisabled} id="rename-profile-submit">
               {translate('rename')}
             </button>
             <a href="#" id="rename-profile-cancel" onClick={this.handleCancelClick}>
