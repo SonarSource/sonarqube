@@ -37,14 +37,6 @@ import org.sonar.api.server.ServerSide;
 @ComputeEngineSide
 public interface RuleFinder {
 
-  /**
-   * @since 2.5
-   * @deprecated since 4.4, Please use {@link #findByKey(org.sonar.api.rule.RuleKey)}}
-   */
-  @CheckForNull
-  @Deprecated
-  Rule findById(int ruleId);
-
   @CheckForNull
   Rule findByKey(String repositoryKey, String key);
 

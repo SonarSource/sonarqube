@@ -40,28 +40,6 @@ public class ActiveRule implements Cloneable {
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<>();
   private String inheritance;
 
-  /**
-   * @deprecated visibility should be reduced to protected or package
-   */
-  @Deprecated
-  public ActiveRule() {
-  }
-
-  /**
-   * @deprecated visibility should be reduced to protected or package
-   */
-  @Deprecated
-  public ActiveRule(RulesProfile profile, Rule rule, RulePriority severity) {
-    this.rule = rule;
-    if (severity == null && rule != null) {
-      this.severity = rule.getSeverity();
-    } else {
-      this.severity = severity;
-    }
-
-    this.rulesProfile = profile;
-  }
-
   public Integer getId() {
     return id;
   }
@@ -92,24 +70,8 @@ public class ActiveRule implements Cloneable {
     return StringUtils.equals(OVERRIDES, inheritance);
   }
 
-  /**
-   * @deprecated visibility should be decreased to protected or package
-   */
-  @Deprecated
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
   public Rule getRule() {
     return rule;
-  }
-
-  /**
-   * @deprecated visibility should be reduced to protected or package
-   */
-  @Deprecated
-  public void setRule(Rule rule) {
-    this.rule = rule;
   }
 
   /**
@@ -126,44 +88,12 @@ public class ActiveRule implements Cloneable {
     this.severity = severity;
   }
 
-  /**
-   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.sonarsource.com/browse/SONAR-1829
-   */
-  @Deprecated
-  public RulePriority getPriority() {
-    return severity;
-  }
-
-  /**
-   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.sonarsource.com/browse/SONAR-1829
-   */
-  @Deprecated
-  public void setPriority(RulePriority priority) {
-    this.severity = priority;
-  }
-
   public RulesProfile getRulesProfile() {
     return rulesProfile;
   }
 
-  /**
-   * @deprecated visibility should be reduced to protected or package
-   */
-  @Deprecated
-  public void setRulesProfile(RulesProfile rulesProfile) {
-    this.rulesProfile = rulesProfile;
-  }
-
   public List<ActiveRuleParam> getActiveRuleParams() {
     return activeRuleParams;
-  }
-
-  /**
-   * @deprecated use setParameter()
-   */
-  @Deprecated
-  public void setActiveRuleParams(List<ActiveRuleParam> params) {
-    this.activeRuleParams = params;
   }
 
   public ActiveRule setParameter(String key, String value) {
@@ -185,14 +115,6 @@ public class ActiveRule implements Cloneable {
     return null;
   }
 
-  /**
-   * @deprecated since 2.3 use {@link #getRepositoryKey()} instead
-   */
-  @Deprecated
-  public String getPluginName() {
-    return rule.getRepositoryKey();
-  }
-
   public String getRepositoryKey() {
     return rule.getRepositoryKey();
   }
@@ -209,46 +131,6 @@ public class ActiveRule implements Cloneable {
    */
   public String getRuleKey() {
     return rule.getKey();
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public String getNoteData() {
-    return null;
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public String getNoteUserLogin() {
-    return null;
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public Date getNoteCreatedAt() {
-    return null;
-  }
-
-  /**
-   * @since 4.2
-   * @deprecated in 4.4. Feature dropped.
-   */
-  @CheckForNull
-  @Deprecated
-  public Date getNoteUpdatedAt() {
-    return null;
   }
 
   @Override
