@@ -35,6 +35,7 @@ import org.sonar.server.ws.WsUtils;
 
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 @ServerSide
@@ -50,6 +51,15 @@ public class QProfileWsSupport {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
+  public static NewParam createOrganizationParam(NewAction action) {
+    return action
+      .createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key")
+      .setRequired(false)
+      .setInternal(true)
+      .setExampleValue("my-org");
+  }
+
   public OrganizationDto getOrganization(DbSession dbSession, RulesProfileDto profile) {
     requireNonNull(profile);
     String organizationUuid = profile.getOrganizationUuid();
@@ -63,15 +73,6 @@ public class QProfileWsSupport {
     return WsUtils.checkFoundWithOptional(
       dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
       "No organization with key '%s'", organizationOrDefaultKey);
-  }
-
-  public static NewParam createOrganizationParam(NewAction action) {
-    return action
-      .createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org");
   }
 
   /**
@@ -93,9 +94,12 @@ public class QProfileWsSupport {
     return profile;
   }
 
-  public void checkPermission(DbSession dbSession, String qualityProfileKey) {
-    RulesProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
-    OrganizationDto organization = getOrganization(dbSession, qualityProfile);
+  public void checkPermission(DbSession dbSession, RulesProfileDto rulesProfile) {
+    OrganizationDto organization = getOrganization(dbSession, rulesProfile);
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+  }
+
+  public void checkNotBuiltInt(RulesProfileDto profile) {
+    checkRequest(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
   }
 }

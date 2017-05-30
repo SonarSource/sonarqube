@@ -89,29 +89,27 @@ public class SearchAction implements QProfileWsAction {
       .setSince("6.4");
 
     action
-      .createParam(PARAM_LANGUAGE)
-      .setDescription(
-        format("Language key. If provided, only profiles for the given language are returned. " +
-          "It should not be used with '%s', '%s or '%s' at the same time.", PARAM_DEFAULTS, PARAM_PROJECT_KEY, PARAM_PROFILE_NAME))
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
-      .setDeprecatedSince("6.4");
-
-    action.createParam(PARAM_PROJECT_KEY)
-      .setDescription(format("Project or module key. If provided, '%s' and '%s' parameters should not be provided.",
-        PARAM_LANGUAGE, PARAM_DEFAULTS))
-      .setExampleValue("my-project-key");
-
-    action
       .createParam(PARAM_DEFAULTS)
-      .setDescription(format("If set to true, return only the quality profile marked as default for each language, '%s' and '%s' parameters must not be set.",
-        PARAM_LANGUAGE, PARAM_PROJECT_KEY))
+      .setDescription(format("If set to true, return only the quality profile marked as default for each language, the '%s' parameter must not be set.", PARAM_PROJECT_KEY))
       .setDefaultValue(false)
       .setBooleanPossibleValues();
 
+    action.createParam(PARAM_PROJECT_KEY)
+      .setDescription(format("Project or module key. If provided, the '%s' parameter should not be provided.", PARAM_DEFAULTS))
+      .setExampleValue("my-project-key");
+
+    action
+      .createParam(PARAM_LANGUAGE)
+      .setDeprecatedSince("6.4")
+      .setDescription(
+        format("Language key. If provided, only profiles for the given language are returned. " +
+          "It should not be used with '%s', '%s or '%s' at the same time.", PARAM_DEFAULTS, PARAM_PROJECT_KEY, PARAM_PROFILE_NAME))
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+
     action.createParam(PARAM_PROFILE_NAME)
+      .setDeprecatedSince("6.4")
       .setDescription(format("Profile name. It should be always used with the '%s' or '%s' parameter.", PARAM_PROJECT_KEY, PARAM_DEFAULTS))
-      .setExampleValue("SonarQube Way")
-      .setDeprecatedSince("6.4");
+      .setExampleValue("SonarQube Way");
   }
 
   @Override

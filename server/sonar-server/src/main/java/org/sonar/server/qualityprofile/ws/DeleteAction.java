@@ -44,14 +44,14 @@ public class DeleteAction implements QProfileWsAction {
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final QProfileWsSupport qProfileWsSupport;
+  private final QProfileWsSupport wsSupport;
 
-  public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession, QProfileWsSupport qProfileWsSupport) {
+  public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
     this.languages = languages;
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.qProfileWsSupport = qProfileWsSupport;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -72,8 +72,9 @@ public class DeleteAction implements QProfileWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RulesProfileDto profile = qProfileWsSupport.getProfile(dbSession, QProfileReference.from(request));
+      RulesProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, profile.getOrganizationUuid());
+      wsSupport.checkNotBuiltInt(profile);
 
       List<RulesProfileDto> descendants = selectDescendants(dbSession, profile);
       ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);

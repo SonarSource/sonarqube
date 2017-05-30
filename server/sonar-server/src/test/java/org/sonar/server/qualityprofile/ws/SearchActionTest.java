@@ -40,8 +40,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
-import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.language.LanguageTesting;
@@ -106,20 +106,35 @@ public class SearchActionTest {
   }
 
   @Test
-  public void define_search() {
-    WebService.Action search = ws.getDef();
-    assertThat(search).isNotNull();
-    assertThat(search.isPost()).isFalse();
-    assertThat(search.param("language").possibleValues()).containsExactly("xoo1", "xoo2");
-    assertThat(search.param("language").deprecatedSince()).isEqualTo("6.4");
-    assertThat(search.param("profileName").deprecatedSince()).isEqualTo("6.4");
-    assertThat(search.param("projectKey")).isNotNull();
-    assertThat(search.param("defaults")).isNotNull();
-    assertThat(search.param("organization")).isNotNull();
-    assertThat(search.param("organization").isRequired()).isFalse();
-    assertThat(search.param("organization").isInternal()).isTrue();
-    assertThat(search.param("organization").description()).isNotEmpty();
-    assertThat(search.param("organization").since()).isEqualTo("6.4");
+  public void definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action.key()).isEqualTo("search");
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.isPost()).isFalse();
+
+    WebService.Param organization = action.param("organization");
+    assertThat(organization).isNotNull();
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.isInternal()).isTrue();
+    assertThat(organization.description()).isNotEmpty();
+    assertThat(organization.since()).isEqualTo("6.4");
+
+    WebService.Param defaults = action.param("defaults");
+    assertThat(defaults.description()).isEqualTo("If set to true, return only the quality profile marked as default for each language, " +
+      "the 'projectKey' parameter must not be set.");
+
+    WebService.Param projectKey = action.param("projectKey");
+    assertThat(projectKey.description()).isEqualTo("Project or module key. If provided, the 'defaults' parameter should not be provided.");
+
+    WebService.Param language = action.param("language");
+    assertThat(language.possibleValues()).containsExactly("xoo1", "xoo2");
+    assertThat(language.deprecatedSince()).isEqualTo("6.4");
+    assertThat(language.description()).isEqualTo("Language key. If provided, only profiles for the given language are returned. " +
+      "It should not be used with 'defaults', 'projectKey or 'profileName' at the same time.");
+
+    WebService.Param profileName = action.param("profileName");
+    assertThat(profileName.deprecatedSince()).isEqualTo("6.4");
+    assertThat(profileName.description()).isEqualTo("Profile name. It should be always used with the 'projectKey' or 'defaults' parameter.");
   }
 
   @Test

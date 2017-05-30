@@ -207,9 +207,8 @@ public class IssuesModeTest {
 
   // SONAR-8518
   @Test
-  public void shoud_support_sonar_profile_prop() throws IOException {
+  public void should_support_sonar_profile_prop() throws IOException {
     restoreProfile("one-issue-per-line.xml");
-    restoreProfile("empty.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
 

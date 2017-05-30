@@ -26,11 +26,13 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.qualityprofile.ws.QProfileReference.fromKey;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
 
 @ServerSide
@@ -81,7 +83,9 @@ public class ActivateRulesAction implements QProfileWsAction {
     userSession.checkLoggedIn();
     BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      wsSupport.checkPermission(dbSession, qualityProfileKey);
+      RulesProfileDto profile = wsSupport.getProfile(dbSession, fromKey(qualityProfileKey));
+      wsSupport.checkPermission(dbSession, profile);
+      wsSupport.checkNotBuiltInt(profile);
       result = ruleActivator.bulkActivate(ruleQueryFactory.createRuleQuery(dbSession, request), qualityProfileKey, request.param(SEVERITY));
     }
     BulkChangeWsResponse.writeResponse(result, response);
