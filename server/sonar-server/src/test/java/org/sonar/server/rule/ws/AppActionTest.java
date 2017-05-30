@@ -117,13 +117,15 @@ public class AppActionTest {
       "    {" +
       "      \"key\": \"XOO_P1\"," +
       "      \"name\": \"P1\"," +
-      "      \"lang\": \"xoo\"" +
+      "      \"lang\": \"xoo\"," +
+      "      \"isBuiltIn\": true" +
       "    }," +
       "    {" +
       "      \"key\": \"XOO_P2\"," +
       "      \"name\": \"P2\"," +
       "      \"lang\": \"xoo\"," +
-      "      \"parentKey\": \"XOO_P1\"" +
+      "      \"parentKey\": \"XOO_P1\"," +
+      "      \"isBuiltIn\": false" +
       "    }" +
       "  ]" +
       "}");
@@ -217,7 +219,7 @@ public class AppActionTest {
   }
 
   private void insertQualityProfiles(OrganizationDto organization) {
-    RulesProfileDto profile1 = QProfileTesting.newXooP1(organization);
+    RulesProfileDto profile1 = QProfileTesting.newXooP1(organization).setIsBuiltIn(true);
     RulesProfileDto profile2 = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile2);
