@@ -51,7 +51,7 @@ public final class Scopes {
    */
   public static final String FILE = "FIL";
 
-  public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE, PROGRAM_UNIT, BLOCK_UNIT};
+  public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE};
 
   private Scopes() {
     // only static methods
