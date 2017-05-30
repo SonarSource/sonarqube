@@ -25,8 +25,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.permission.PermissionsService;
 import util.user.UserRule;
 
 import static util.ItUtils.newAdminWsClient;
@@ -44,12 +45,12 @@ public class QualityProfileAdminPermissionTest {
   @ClassRule
   public static UserRule userRule = UserRule.from(orchestrator);
 
-  private static PermissionsService permissionsWsClient;
+  private static WsClient adminWsClient;
 
   @BeforeClass
   public static void init() {
     orchestrator.resetData();
-    permissionsWsClient = newAdminWsClient(orchestrator).permissions();
+    adminWsClient = newAdminWsClient(orchestrator);
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
   }
 
@@ -62,13 +63,21 @@ public class QualityProfileAdminPermissionTest {
   public void permission_should_grant_access_to_profile() {
     userRule.createUser("not_profileadm", "userpwd");
     userRule.createUser("profileadm", "papwd");
-    permissionsWsClient.addUser(new AddUserWsRequest().setLogin("profileadm").setPermission("profileadmin"));
+    adminWsClient.permissions().addUser(new AddUserWsRequest().setLogin("profileadm").setPermission("profileadmin"));
+    createProfile("xoo", "foo");
 
     runSelenese(orchestrator,
       // Verify normal user is not allowed to do any modification
       "/authorisation/QualityProfileAdminPermissionTest/normal-user.html",
       // Verify profile admin is allowed to do modifications
       "/authorisation/QualityProfileAdminPermissionTest/profile-admin.html");
+  }
+
+  private static void createProfile(String language, String name) {
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/qualityprofiles/create")
+        .setParam("language", language)
+        .setParam("name", name));
   }
 
 }
