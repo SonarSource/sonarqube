@@ -93,10 +93,10 @@ export default function ProjectCard({ measures, organization, project, type }: P
           {isPrivate && <PrivateBadge className="spacer-left" tooltipPlacement="left" />}
           {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
-        {isLeakView &&
-          isProjectAnalyzed &&
+        {isProjectAnalyzed &&
           <div className="project-card-dates note text-right pull-right">
-            {hasLeakPeriodStart &&
+            {isLeakView &&
+              hasLeakPeriodStart &&
               <span>
                 {translateWithParameters(
                   'projects.leak_period_x',
@@ -115,9 +115,10 @@ export default function ProjectCard({ measures, organization, project, type }: P
 
       {isProjectAnalyzed
         ? <div className="boxed-group-inner">
-            {areProjectMeasuresLoaded && isLeakView
-              ? <ProjectCardLeakMeasures measures={measures} />
-              : <ProjectCardOverallMeasures measures={measures} />}
+            {areProjectMeasuresLoaded &&
+              (isLeakView
+                ? <ProjectCardLeakMeasures measures={measures} />
+                : <ProjectCardOverallMeasures measures={measures} />)}
           </div>
         : <div className="boxed-group-inner">
             <div className="note project-card-not-analyzed">
