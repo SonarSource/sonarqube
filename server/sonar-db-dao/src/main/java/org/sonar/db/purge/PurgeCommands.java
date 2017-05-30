@@ -156,6 +156,13 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteLinks(String rootUuid) {
+    profiler.start("deleteLinks (project_links)");
+    purgeMapper.deleteComponentLinks(rootUuid);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteComponents(List<IdUuidPair> componentIdUuids) {
     List<List<Long>> componentIdPartitions = Lists.partition(IdUuidPairs.ids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     List<List<String>> componentUuidsPartitions = Lists.partition(IdUuidPairs.uuids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
@@ -164,11 +171,6 @@ class PurgeCommands {
     // Batch requests can only relate to the same PreparedStatement.
 
     // possible missing optimization: filter requests according to resource scope
-
-    profiler.start("deleteResourceLinks (project_links)");
-    componentUuidsPartitions.forEach(purgeMapper::deleteComponentLinks);
-    session.commit();
-    profiler.stop();
 
     profiler.start("deleteResourceProperties (properties)");
     componentIdPartitions.forEach(purgeMapper::deleteComponentProperties);

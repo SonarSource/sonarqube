@@ -154,10 +154,7 @@
   <delete id="deleteComponentLinks" parameterType="map">
     delete from project_links
     where
-      component_uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid,jdbcType=VARCHAR}
-      </foreach>
+      component_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteComponentProperties" parameterType="map">

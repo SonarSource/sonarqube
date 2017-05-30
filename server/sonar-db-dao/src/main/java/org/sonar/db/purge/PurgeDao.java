@@ -160,6 +160,7 @@ public class PurgeDao implements Dao {
       .findFirst()
       .orElseThrow(() -> new IllegalStateException("Couldn't find component for root uuid " + rootUuid));
     commands.deletePermissions(rootId);
+    commands.deleteLinks(rootUuid);
     commands.deleteAnalyses(rootUuid);
     commands.deleteComponents(childrenIds);
     commands.deleteIssues(rootUuid);

@@ -50,7 +50,7 @@ public interface PurgeMapper {
 
   void resolveComponentIssuesNotAlreadyResolved(@Param("componentUuids") List<String> componentUuids, @Param("dateAsLong") Long dateAsLong);
 
-  void deleteComponentLinks(@Param("componentUuids") List<String> componentUuids);
+  void deleteComponentLinks(@Param("rootUuid") String rootUuid);
 
   void deleteComponentProperties(@Param("componentIds") List<Long> componentIds);
 
