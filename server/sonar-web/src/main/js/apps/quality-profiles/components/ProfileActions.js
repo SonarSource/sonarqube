@@ -139,16 +139,18 @@ export default class ProfileActions extends React.PureComponent {
     return (
       <ul className="dropdown-menu dropdown-menu-right">
         {canAdmin &&
+          !profile.isBuiltIn &&
           <li>
             <Link to={activateMoreUrl}>
               {translate('quality_profiles.activate_more_rules')}
             </Link>
           </li>}
-        <li>
-          <a id="quality-profile-backup" href={backupUrl}>
-            {translate('backup_verb')}
-          </a>
-        </li>
+        {!profile.isBuiltIn &&
+          <li>
+            <a id="quality-profile-backup" href={backupUrl}>
+              {translate('backup_verb')}
+            </a>
+          </li>}
         <li>
           <Link
             to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
@@ -163,6 +165,7 @@ export default class ProfileActions extends React.PureComponent {
             </a>
           </li>}
         {canAdmin &&
+          !profile.isBuiltIn &&
           <li>
             <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick}>
               {translate('rename')}
@@ -177,6 +180,7 @@ export default class ProfileActions extends React.PureComponent {
           </li>}
         {canAdmin &&
           !profile.isDefault &&
+          !profile.isBuiltIn &&
           <li>
             <a id="quality-profile-delete" href="#" onClick={this.handleDeleteClick}>
               {translate('delete')}
