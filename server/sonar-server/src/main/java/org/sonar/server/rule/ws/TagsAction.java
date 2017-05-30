@@ -65,7 +65,8 @@ public class TagsAction implements RulesWsAction {
     action.createParam("ps")
       .setDescription("The size of the list to return, 0 for all tags")
       .setExampleValue("25")
-      .setDefaultValue("0");
+      .setDefaultValue("0")
+      .setDeprecatedSince("6.4");
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setRequired(false)

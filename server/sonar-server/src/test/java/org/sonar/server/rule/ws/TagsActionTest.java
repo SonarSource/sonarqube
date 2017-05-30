@@ -86,6 +86,7 @@ public class TagsActionTest {
     assertThat(pageSize.defaultValue()).isEqualTo("0");
     assertThat(pageSize.description()).isNotEmpty();
     assertThat(pageSize.exampleValue()).isNotEmpty();
+    assertThat(pageSize.deprecatedSince()).isEqualTo("6.4");
 
     WebService.Param organization = action.param("organization");
     assertThat(organization).isNotNull();
