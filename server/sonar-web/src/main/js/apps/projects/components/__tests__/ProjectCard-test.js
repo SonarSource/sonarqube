@@ -41,9 +41,14 @@ jest.mock('moment', () => () => ({
 }));
 
 describe('overall status project card', () => {
-  it('should never display analysis date', () => {
+  it('should display analysis date (and not leak period) when defined', () => {
     expect(
       shallow(<ProjectCard measures={{}} project={PROJECT} />).find('.project-card-dates').exists()
+    ).toBeTruthy();
+    expect(
+      shallow(<ProjectCard measures={{}} project={{ ...PROJECT, analysisDate: undefined }} />)
+        .find('.project-card-dates')
+        .exists()
     ).toBeFalsy();
   });
 
