@@ -94,11 +94,6 @@ export function getExporters() {
   return getJSON(url).then(r => r.exporters);
 }
 
-export function restoreBuiltInProfiles(data: Object) {
-  const url = '/api/qualityprofiles/restore_built_in';
-  return post(url, data);
-}
-
 export function getProfileChangelog(data: Object) {
   const url = '/api/qualityprofiles/changelog';
   return getJSON(url, data);

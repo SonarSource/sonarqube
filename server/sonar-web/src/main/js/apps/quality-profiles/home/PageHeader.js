@@ -21,7 +21,6 @@
 import React from 'react';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
-import RestoreBuiltInProfilesView from '../views/RestoreBuiltInProfilesView';
 import type { Profile } from '../propTypes';
 import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
@@ -78,16 +77,6 @@ export default class PageHeader extends React.PureComponent {
     this.setState({ restoreFormOpen: false });
   };
 
-  handleRestoreBuiltIn = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new RestoreBuiltInProfilesView({
-      languages: this.props.languages,
-      organization: this.props.organization
-    })
-      .on('done', this.props.updateProfiles)
-      .render();
-  };
-
   render() {
     return (
       <header className="page-header">
@@ -107,15 +96,6 @@ export default class PageHeader extends React.PureComponent {
               <li>
                 <a href="#" id="quality-profiles-restore" onClick={this.handleRestoreClick}>
                   {translate('quality_profiles.restore_profile')}
-                </a>
-              </li>
-
-              <li>
-                <a
-                  href="#"
-                  id="quality-profiles-restore-built-in"
-                  onClick={this.handleRestoreBuiltIn}>
-                  {translate('quality_profiles.restore_built_in_profiles')}
                 </a>
               </li>
             </ul>
