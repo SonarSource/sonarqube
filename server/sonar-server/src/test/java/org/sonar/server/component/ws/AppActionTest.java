@@ -36,7 +36,7 @@ import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureTesting;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -66,11 +66,10 @@ public class AppActionTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private AppAction underTest = new AppAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient()));
+  private AppAction underTest = new AppAction(dbTester.getDbClient(), userSessionRule, TestComponentFinder.from(dbTester));
   private WsActionTester wsTester = new WsActionTester(underTest);
 
   @Before

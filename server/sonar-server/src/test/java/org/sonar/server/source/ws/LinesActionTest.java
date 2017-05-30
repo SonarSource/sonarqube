@@ -34,7 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -83,7 +83,7 @@ public class LinesActionTest {
     sourceService = new SourceService(dbTester.getDbClient(), htmlSourceDecorator);
     componentDao = new ComponentDao();
     wsTester = new WsTester(new SourcesWs(
-      new LinesAction(new ComponentFinder(dbTester.getDbClient()), dbTester.getDbClient(), sourceService, htmlSourceDecorator, userSessionRule)));
+      new LinesAction(TestComponentFinder.from(dbTester), dbTester.getDbClient(), sourceService, htmlSourceDecorator, userSessionRule)));
     project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
     file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);
   }

@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -83,7 +84,7 @@ public class BulkUpdateKeyActionTest {
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
-  private ComponentFinder componentFinder = new ComponentFinder(dbClient);
+  private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private ComponentService componentService = mock(ComponentService.class);
   private WsActionTester ws = new WsActionTester(
     new BulkUpdateKeyAction(dbClient, componentFinder, componentService, userSession));

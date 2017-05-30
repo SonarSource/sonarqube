@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -45,7 +45,6 @@ public class HashActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -55,7 +54,7 @@ public class HashActionTest {
   public void before() {
     DbClient dbClient = db.getDbClient();
 
-    tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule, new ComponentFinder(dbClient))));
+    tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule, TestComponentFinder.from(db))));
   }
 
   @Test

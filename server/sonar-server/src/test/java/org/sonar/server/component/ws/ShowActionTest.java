@@ -35,7 +35,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -67,7 +67,7 @@ public class ShowActionTest {
 
   private ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  private WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), new ComponentFinder(db.getDbClient())));
+  private WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db)));
 
   @Test
   public void verify_definition() throws Exception {

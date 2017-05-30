@@ -43,9 +43,11 @@ public class ComponentFinder {
   private static final String MSG_PARAMETER_MUST_NOT_BE_EMPTY = "The '%s' parameter must not be empty";
 
   private final DbClient dbClient;
+  private final ResourceTypes resourceTypes;
 
-  public ComponentFinder(DbClient dbClient) {
+  public ComponentFinder(DbClient dbClient, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
+    this.resourceTypes = resourceTypes;
   }
 
   public ComponentDto getByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
@@ -68,7 +70,7 @@ public class ComponentFinder {
     return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "Component id '%s' not found", uuid);
   }
 
-  public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ResourceTypes resourceTypes) {
+  public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
     ComponentDto project;
     if (projectUuid != null) {
       project = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, projectUuid), "Project id '%s' not found", projectUuid);

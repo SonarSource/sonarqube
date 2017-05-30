@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -57,12 +58,11 @@ public class CreateActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
@@ -72,7 +72,7 @@ public class CreateActionTest {
 
   @Before
   public void setUp() {
-    ComponentFinder componentFinder = new ComponentFinder(dbClient);
+    ComponentFinder componentFinder = TestComponentFinder.from(db);
     underTest = new CreateAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
   }

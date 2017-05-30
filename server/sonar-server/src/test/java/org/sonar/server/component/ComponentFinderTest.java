@@ -38,12 +38,11 @@ public class ComponentFinderTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private final DbSession dbSession = db.getSession();
-  private ComponentFinder underTest = new ComponentFinder(db.getDbClient());
+  private ComponentFinder underTest = TestComponentFinder.from(db);
 
   @Test
   public void fail_when_the_uuid_and_key_are_null() {

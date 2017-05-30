@@ -30,7 +30,7 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,15 +47,13 @@ public class ComponentActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), System2.INSTANCE);
-  private ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter, new ComponentFinder(dbTester.getDbClient()));
+  private ComponentAction underTest = new ComponentAction(userSession, dbTester.getDbClient(), formatter, TestComponentFinder.from(dbTester));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test

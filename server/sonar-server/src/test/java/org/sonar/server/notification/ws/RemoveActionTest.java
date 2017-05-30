@@ -30,7 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -100,7 +100,7 @@ public class RemoveActionTest {
       new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
       new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel});
     notificationUpdater = new NotificationUpdater(dbClient);
-    underTest = new RemoveAction(notificationCenter, notificationUpdater, dbClient, new ComponentFinder(dbClient), userSession);
+    underTest = new RemoveAction(notificationCenter, notificationUpdater, dbClient, TestComponentFinder.from(db), userSession);
     ws = new WsActionTester(underTest);
   }
 

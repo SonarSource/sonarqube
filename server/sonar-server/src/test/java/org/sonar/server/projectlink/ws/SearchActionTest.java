@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -70,7 +71,7 @@ public class SearchActionTest {
 
   @Before
   public void setUp() {
-    ComponentFinder componentFinder = new ComponentFinder(dbClient);
+    ComponentFinder componentFinder = TestComponentFinder.from(db);
     underTest = new SearchAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
   }

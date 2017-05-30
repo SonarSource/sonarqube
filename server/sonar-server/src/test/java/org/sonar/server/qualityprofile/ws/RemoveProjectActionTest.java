@@ -24,11 +24,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -58,7 +60,8 @@ public class RemoveProjectActionTest {
   private DbClient dbClient = db.getDbClient();
   private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
-  private RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages, new ComponentFinder(dbClient), wsSupport);
+  private RemoveProjectAction underTest = new RemoveProjectAction(dbClient, userSession, languages,
+      new ComponentFinder(dbClient, new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT)), wsSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test

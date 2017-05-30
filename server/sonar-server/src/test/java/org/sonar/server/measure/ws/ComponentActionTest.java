@@ -35,7 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -64,14 +64,14 @@ public class ComponentActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private final DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new ComponentAction(dbClient, new ComponentFinder(dbClient), userSession));
+  private WsActionTester ws = new WsActionTester(new ComponentAction(dbClient, TestComponentFinder.from(db), userSession));
 
   @Before
   public void setUp() {

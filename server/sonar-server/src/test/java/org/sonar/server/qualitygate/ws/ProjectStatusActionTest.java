@@ -35,7 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -72,7 +72,7 @@ public class ProjectStatusActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
 
-    ws = new WsActionTester(new ProjectStatusAction(dbClient, new ComponentFinder(dbClient), userSession));
+    ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
   }
 
   @Test

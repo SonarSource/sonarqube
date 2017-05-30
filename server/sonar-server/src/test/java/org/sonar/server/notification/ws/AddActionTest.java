@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -59,12 +59,14 @@ public class AddActionTest {
   private static final String NOTIF_NEW_ISSUES = "Dispatcher2";
   private static final String NOTIF_NEW_QUALITY_GATE_STATUS = "Dispatcher3";
   private static final String USER_LOGIN = "george.orwell";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession;
   @Rule
   public DbTester db = DbTester.create();
+
   private DbClient dbClient = db.getDbClient();
 
   private NotificationChannel emailChannel = new FakeNotificationChannel("EmailChannel");
@@ -98,7 +100,7 @@ public class AddActionTest {
     notificationCenter = new NotificationCenter(
       new NotificationDispatcherMetadata[] {metadata1, metadata2, metadata3},
       new NotificationChannel[] {emailChannel, twitterChannel, defaultChannel});
-    underTest = new AddAction(notificationCenter, new NotificationUpdater(dbClient), dbClient, new ComponentFinder(dbClient), userSession);
+    underTest = new AddAction(notificationCenter, new NotificationUpdater(dbClient), dbClient, TestComponentFinder.from(db), userSession);
     ws = new WsActionTester(underTest);
   }
 

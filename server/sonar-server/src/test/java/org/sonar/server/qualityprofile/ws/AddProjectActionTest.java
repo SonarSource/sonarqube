@@ -31,7 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -60,7 +60,7 @@ public class AddProjectActionTest {
   private DbClient dbClient = db.getDbClient();
   private Languages languages = LanguageTesting.newLanguages(LANGUAGE_1, LANGUAGE_2);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
-  private AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, new ComponentFinder(dbClient), wsSupport);
+  private AddProjectAction underTest = new AddProjectAction(dbClient, userSession, languages, TestComponentFinder.from(db), wsSupport);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test

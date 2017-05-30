@@ -75,7 +75,7 @@ public class TreeActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule();
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
 
@@ -83,7 +83,7 @@ public class TreeActionTest {
 
   @Before
   public void setUp() {
-    ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient), resourceTypes, userSession, Mockito.mock(I18n.class)));
+    ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient, resourceTypes), resourceTypes, userSession, Mockito.mock(I18n.class)));
     resourceTypes.setChildrenQualifiers(Qualifiers.MODULE, Qualifiers.FILE, Qualifiers.DIRECTORY);
     resourceTypes.setLeavesQualifiers(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   }

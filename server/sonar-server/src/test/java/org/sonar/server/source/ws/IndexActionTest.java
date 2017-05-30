@@ -28,7 +28,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -46,15 +46,13 @@ public class IndexActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   WsActionTester tester = new WsActionTester(
-    new IndexAction(db.getDbClient(), new SourceService(db.getDbClient(), new HtmlSourceDecorator()), userSession, new ComponentFinder(db.getDbClient())));
+    new IndexAction(db.getDbClient(), new SourceService(db.getDbClient(), new HtmlSourceDecorator()), userSession, TestComponentFinder.from(db)));
 
   @Test
   public void get_json() throws Exception {

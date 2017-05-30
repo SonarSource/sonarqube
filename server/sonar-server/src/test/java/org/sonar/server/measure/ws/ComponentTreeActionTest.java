@@ -88,14 +88,14 @@ public class ComponentTreeActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private I18nRule i18n = new I18nRule();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule();
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
   private WsActionTester ws = new WsActionTester(
     new ComponentTreeAction(
-      new ComponentTreeDataLoader(dbClient, new ComponentFinder(dbClient), userSession, resourceTypes),
+      new ComponentTreeDataLoader(dbClient, new ComponentFinder(dbClient, resourceTypes), userSession, resourceTypes),
       i18n, resourceTypes));
 
   @Before

@@ -69,7 +69,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected PermissionWsSupport newPermissionWsSupport() {
     DbClient dbClient = db.getDbClient();
-    return new PermissionWsSupport(dbClient, new ComponentFinder(dbClient), newGroupWsSupport(), newRootResourceTypes());
+    return new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, newRootResourceTypes()), newGroupWsSupport());
   }
 
   protected ResourceTypesRule newRootResourceTypes() {

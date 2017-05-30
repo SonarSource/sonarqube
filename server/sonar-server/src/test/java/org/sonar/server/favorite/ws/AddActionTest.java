@@ -32,7 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -60,11 +60,12 @@ public class AddActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
   private FavoriteUpdater favoriteUpdater = new FavoriteUpdater(dbClient);
-  private WsActionTester ws = new WsActionTester(new AddAction(userSession, dbClient, favoriteUpdater, new ComponentFinder(dbClient)));
+  private WsActionTester ws = new WsActionTester(new AddAction(userSession, dbClient, favoriteUpdater, TestComponentFinder.from(db)));
 
   @Test
   public void add_a_project() {

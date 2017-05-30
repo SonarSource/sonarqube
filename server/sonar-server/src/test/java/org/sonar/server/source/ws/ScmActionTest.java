@@ -33,7 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
@@ -61,7 +61,7 @@ public class ScmActionTest {
   @Before
   public void setUp() {
     tester = new WsTester(
-      new SourcesWs(new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()), userSessionRule, new ComponentFinder(dbClient))));
+      new SourcesWs(new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()), userSessionRule, TestComponentFinder.from(dbTester))));
 
     project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID);
     file = ComponentTesting.newFileDto(project, null, FILE_UUID).setKey(FILE_KEY);

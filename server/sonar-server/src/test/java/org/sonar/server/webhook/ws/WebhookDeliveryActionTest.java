@@ -32,6 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -61,7 +62,7 @@ public class WebhookDeliveryActionTest {
 
   @Before
   public void setUp() {
-    ComponentFinder componentFinder = new ComponentFinder(dbClient);
+    ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveryAction underTest = new WebhookDeliveryAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
     project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setKey("my-project"));

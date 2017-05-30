@@ -46,6 +46,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.scanner.protocol.GsonHelper;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.i18n.I18nRule;
@@ -73,13 +74,13 @@ public class SetActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   private PropertyDbTester propertyDb = new PropertyDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ComponentFinder componentFinder = new ComponentFinder(dbClient);
+  private ComponentFinder componentFinder = TestComponentFinder.from(db);
 
   private I18nRule i18n = new I18nRule();
   private PropertyDefinitions definitions = new PropertyDefinitions();

@@ -30,7 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -78,7 +78,7 @@ public class ListActionTest {
   private ComponentDto mainFile;
   private ComponentDto testFile;
 
-  private WsActionTester ws = new WsActionTester(new ListAction(dbClient, testIndex, userSessionRule, new ComponentFinder(dbClient)));
+  private WsActionTester ws = new WsActionTester(new ListAction(dbClient, testIndex, userSessionRule, TestComponentFinder.from(db)));
 
   @Before
   public void setUp() throws Exception {

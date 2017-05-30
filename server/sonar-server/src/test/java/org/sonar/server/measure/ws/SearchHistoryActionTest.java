@@ -39,7 +39,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -77,10 +77,11 @@ public class SearchHistoryActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create();
+
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new SearchHistoryAction(dbClient, new ComponentFinder(dbClient), userSession));
+  private WsActionTester ws = new WsActionTester(new SearchHistoryAction(dbClient, TestComponentFinder.from(db), userSession));
 
   private ComponentDto project;
   private SnapshotDto analysis;

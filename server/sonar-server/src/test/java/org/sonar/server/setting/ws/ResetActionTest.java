@@ -39,6 +39,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.i18n.I18nRule;
@@ -62,10 +63,8 @@ public class ResetActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -74,7 +73,7 @@ public class ResetActionTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ComponentFinder componentFinder = new ComponentFinder(dbClient);
+  private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private PropertyDefinitions definitions = new PropertyDefinitions();
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations settingValidations = new SettingValidations(definitions, dbClient, i18n);

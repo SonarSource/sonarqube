@@ -33,6 +33,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualitygate.QualityGates;
@@ -48,10 +49,8 @@ public class DeselectActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -65,7 +64,7 @@ public class DeselectActionTest {
 
   @Before
   public void setUp() {
-    ComponentFinder componentFinder = new ComponentFinder(dbClient);
+    ComponentFinder componentFinder = TestComponentFinder.from(db);
     underTest = new DeselectAction(qualityGates, dbClient, componentFinder);
     ws = new WsActionTester(underTest);
 

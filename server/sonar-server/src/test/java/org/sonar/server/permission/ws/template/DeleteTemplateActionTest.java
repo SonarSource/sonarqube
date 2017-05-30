@@ -80,10 +80,10 @@ public class DeleteTemplateActionTest {
   public void setUp() throws Exception {
     GroupWsSupport groupWsSupport = new GroupWsSupport(dbClient, TestDefaultOrganizationProvider.from(db), new DefaultGroupFinder(db.getDbClient()));
     this.underTestWithoutViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
-      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient), groupWsSupport, resourceTypes),
+      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport),
       defaultTemplatesResolver));
     this.underTestWithViews = new WsActionTester(new DeleteTemplateAction(dbClient, userSession,
-      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient), groupWsSupport, resourceTypesWithViews),
+      new PermissionWsSupport(dbClient, new ComponentFinder(dbClient, resourceTypes), groupWsSupport),
       defaultTemplatesResolverWithViews));
   }
 

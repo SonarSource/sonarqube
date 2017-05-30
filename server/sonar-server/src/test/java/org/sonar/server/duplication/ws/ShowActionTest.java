@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.startup.RegisterMetrics;
@@ -45,10 +45,8 @@ public class ShowActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create();
 
@@ -59,7 +57,7 @@ public class ShowActionTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new DuplicationsWs(new ShowAction(db.getDbClient(), parser, duplicationsJsonWriter, userSessionRule, new ComponentFinder(db.getDbClient()))));
+    tester = new WsTester(new DuplicationsWs(new ShowAction(db.getDbClient(), parser, duplicationsJsonWriter, userSessionRule, TestComponentFinder.from(db))));
 
     db.getDbClient().metricDao().insert(db.getSession(), dataMetric);
     db.commit();
