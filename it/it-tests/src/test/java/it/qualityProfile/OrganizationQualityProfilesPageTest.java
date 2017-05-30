@@ -152,9 +152,7 @@ public class OrganizationQualityProfilesPageTest {
   public void testRestoration() throws Exception {
     deleteProfile("xoo", "empty");
 
-    runSelenese(orchestrator,
-      "/organization/OrganizationQualityProfilesPageTest/should_restore.html",
-      "/organization/OrganizationQualityProfilesPageTest/should_restore_built_in.html");
+    runSelenese(orchestrator, "/organization/OrganizationQualityProfilesPageTest/should_restore.html");
   }
 
   private static void createProfile(String language, String name) {

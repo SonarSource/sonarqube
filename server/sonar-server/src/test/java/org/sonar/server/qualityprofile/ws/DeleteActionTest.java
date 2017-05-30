@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -129,6 +130,20 @@ public class DeleteActionTest {
 
     verifyProfileDoesNotExist(profile1, organization);
     verifyProfileExists(profile2);
+  }
+
+  @Test
+  public void fail_if_built_in_profile() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    RulesProfileDto profile1 = dbTester.qualityProfiles().insert(organization, p -> p.setIsBuiltIn(true));
+    logInAsQProfileAdministrator(organization);
+
+    expectedException.expect(BadRequestException.class);
+
+    tester.newRequest()
+      .setMethod("POST")
+      .setParam("profileKey", profile1.getKee())
+      .execute();
   }
 
   @Test

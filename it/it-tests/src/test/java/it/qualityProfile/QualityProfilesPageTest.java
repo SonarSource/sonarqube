@@ -134,9 +134,7 @@ public class QualityProfilesPageTest {
   public void testRestoration() throws Exception {
     deleteProfile("xoo", "empty");
 
-    runSelenese(orchestrator,
-      "/qualityProfile/QualityProfilesPageTest/should_restore.html",
-      "/qualityProfile/QualityProfilesPageTest/should_restore_built_in.html");
+    runSelenese(orchestrator, "/qualityProfile/QualityProfilesPageTest/should_restore.html");
   }
 
   private static void createProfile(String language, String name) {

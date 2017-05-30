@@ -36,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -62,7 +63,7 @@ public class ActivateRuleActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
@@ -94,7 +95,7 @@ public class ActivateRuleActionTest {
       .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
       .setParam("profile_key", randomAlphanumeric(UUID_SIZE));
 
-    thrown.expect(UnauthorizedException.class);
+    expectedException.expect(UnauthorizedException.class);
     request.execute();
   }
 
@@ -107,7 +108,24 @@ public class ActivateRuleActionTest {
       .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
       .setParam("profile_key", qualityProfile.getKee());
 
-    thrown.expect(ForbiddenException.class);
+    expectedException.expect(ForbiddenException.class);
+
+    request.execute();
+  }
+
+  @Test
+  public void fail_activate_if_built_in_profile() {
+    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
+      .setParam("profile_key", qualityProfile.getKee());
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Operation forbidden for built-in Quality Profile 'Xoo profile' with language 'xoo'");
+
     request.execute();
   }
 
