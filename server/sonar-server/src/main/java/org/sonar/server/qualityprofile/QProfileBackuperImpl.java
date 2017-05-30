@@ -83,7 +83,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
   @Override
   public void backup(DbSession dbSession, RulesProfileDto profileDto, Writer writer) {
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey());
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee());
     activeRules.sort(BackupActiveRuleComparator.INSTANCE);
     writeXml(dbSession, writer, profileDto, activeRules.iterator());
   }
@@ -129,7 +129,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, RulesProfileDto profile) {
     return restore(dbSession, backup, nameInBackup -> {
       checkArgument(profile.getLanguage().equals(nameInBackup.getLanguage()),
-        "Can't restore %s backup on %s profile with key [%s]. Languages are different.", nameInBackup.getLanguage(), profile.getLanguage(), profile.getKey());
+        "Can't restore %s backup on %s profile with key [%s]. Languages are different.", nameInBackup.getLanguage(), profile.getLanguage(), profile.getKee());
       return profile;
     });
   }

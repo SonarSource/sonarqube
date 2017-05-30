@@ -69,7 +69,7 @@ public class QProfileFactoryTest {
     RulesProfileDto profile2 = createRandomProfile(org);
     RulesProfileDto profile3 = createRandomProfile(org);
 
-    List<String> profileKeys = asList(profile1.getKey(), profile2.getKey(), "does_not_exist");
+    List<String> profileKeys = asList(profile1.getKee(), profile2.getKee(), "does_not_exist");
     underTest.deleteByKeys(db.getSession(), profileKeys);
 
     verify(activeRuleIndexer).deleteByProfileKeys(profileKeys);
@@ -108,6 +108,6 @@ public class QProfileFactoryTest {
   }
 
   private AbstractObjectAssert<?, RulesProfileDto> assertQualityProfileFromDb(RulesProfileDto profile) {
-    return assertThat(db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), profile.getKey()));
+    return assertThat(db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), profile.getKee()));
   }
 }

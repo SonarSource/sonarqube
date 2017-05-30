@@ -159,7 +159,7 @@ public class SearchAction implements QProfileWsAction {
       }
 
       List<RulesProfileDto> profiles = dataLoader.findProfiles(dbSession, request, organization, project);
-      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profiles.stream().map(RulesProfileDto::getKey).collect(MoreCollectors.toList()));
+      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profiles.stream().map(RulesProfileDto::getKee).collect(MoreCollectors.toList()));
 
       return new SearchData()
         .setOrganization(organization)
@@ -193,14 +193,14 @@ public class SearchAction implements QProfileWsAction {
 
   private SearchWsResponse buildResponse(SearchData data) {
     List<RulesProfileDto> profiles = data.getProfiles();
-    Map<String, RulesProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(RulesProfileDto::getKey, identity()));
+    Map<String, RulesProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(RulesProfileDto::getKee, identity()));
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
     for (RulesProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
-      String profileKey = profile.getKey();
+      String profileKey = profile.getKee();
       setNullable(profile.getOrganizationUuid(), o -> profileBuilder.setOrganization(data.getOrganization().getKey()));
       profileBuilder.setKey(profileKey);
       setNullable(profile.getName(), profileBuilder::setName);

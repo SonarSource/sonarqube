@@ -94,14 +94,14 @@ public class RenameActionTest {
       .setLanguage("xoo")
       .setName("Old, valid name");
     db.qualityProfiles().insertQualityProfile(qualityProfile1);
-    String qualityProfileKey1 = qualityProfile1.getKey();
+    String qualityProfileKey1 = qualityProfile1.getKee();
 
     RulesProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("xoo")
       .setName("Invalid, duplicated name");
     db.qualityProfiles().insertQualityProfile(qualityProfile2);
-    String qualityProfileKey2 = qualityProfile2.getKey();
+    String qualityProfileKey2 = qualityProfile2.getKee();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Quality profile already exists: Invalid, duplicated name");
@@ -121,14 +121,14 @@ public class RenameActionTest {
       .setLanguage("xoo")
       .setName("Old, unique name");
     db.qualityProfiles().insertQualityProfile(qualityProfile1);
-    String qualityProfileKey1 = qualityProfile1.getKey();
+    String qualityProfileKey1 = qualityProfile1.getKee();
 
     RulesProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationY.getUuid())
       .setLanguage("xoo")
       .setName("Duplicated name");
     db.qualityProfiles().insertQualityProfile(qualityProfile2);
-    String qualityProfileKey2 = qualityProfile2.getKey();
+    String qualityProfileKey2 = qualityProfile2.getKee();
 
     underTest.doHandle("Duplicated name", qualityProfileKey1);
 
@@ -170,7 +170,7 @@ public class RenameActionTest {
     RulesProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationY.getUuid());
     db.qualityProfiles().insertQualityProfile(qualityProfile);
-    String qualityProfileKey = qualityProfile.getKey();
+    String qualityProfileKey = qualityProfile.getKee();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -241,7 +241,7 @@ public class RenameActionTest {
     RulesProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     db.qualityProfiles().insertQualityProfile(qualityProfile);
-    return qualityProfile.getKey();
+    return qualityProfile.getKee();
   }
 
   private void createProfiles() {

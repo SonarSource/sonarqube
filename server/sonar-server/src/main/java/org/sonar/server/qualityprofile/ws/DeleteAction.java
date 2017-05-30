@@ -85,7 +85,7 @@ public class DeleteAction implements QProfileWsAction {
   }
 
   private List<RulesProfileDto> selectDescendants(DbSession dbSession, RulesProfileDto profile) {
-    return dbClient.qualityProfileDao().selectDescendants(dbSession, profile.getKey());
+    return dbClient.qualityProfileDao().selectDescendants(dbSession, profile.getKee());
   }
 
   private void ensureNoneIsMarkedAsDefault(DbSession dbSession, RulesProfileDto profile, List<RulesProfileDto> descendants) {

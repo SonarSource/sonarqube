@@ -80,10 +80,10 @@ public class BackupActionTest {
   public void returns_backup_of_profile_with_specified_key() throws Exception {
     RulesProfileDto profile = db.qualityProfiles().insertQualityProfile(QualityProfileTesting.newQualityProfileDto());
 
-    TestResponse response = tester.newRequest().setParam("profileKey", profile.getKey()).execute();
+    TestResponse response = tester.newRequest().setParam("profileKey", profile.getKee()).execute();
     assertThat(response.getMediaType()).isEqualTo("application/xml");
     assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
-    assertThat(response.getHeader("Content-Disposition")).isEqualTo("attachment; filename=" + profile.getKey() + ".xml");
+    assertThat(response.getHeader("Content-Disposition")).isEqualTo("attachment; filename=" + profile.getKee() + ".xml");
   }
 
   @Test

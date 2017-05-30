@@ -91,8 +91,8 @@ public class QProfileComparisonMediumTest {
   @Test
   public void compare_empty_profiles() {
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isEmpty();
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
@@ -111,8 +111,8 @@ public class QProfileComparisonMediumTest {
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
@@ -126,8 +126,8 @@ public class QProfileComparisonMediumTest {
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isEmpty();
     assertThat(result.inLeft()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
     assertThat(result.inRight()).isEmpty();
@@ -141,8 +141,8 @@ public class QProfileComparisonMediumTest {
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isEmpty();
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
@@ -157,8 +157,8 @@ public class QProfileComparisonMediumTest {
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isEmpty();
     assertThat(result.inLeft()).isNotEmpty().containsOnlyKeys(xooRule1.getKey());
     assertThat(result.inRight()).isNotEmpty().containsOnlyKeys(xooRule2.getKey());
@@ -173,8 +173,8 @@ public class QProfileComparisonMediumTest {
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isEmpty();
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
@@ -194,8 +194,8 @@ public class QProfileComparisonMediumTest {
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isEmpty();
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();
@@ -218,8 +218,8 @@ public class QProfileComparisonMediumTest {
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
-    assertThat(result.left().getKey()).isEqualTo(left.getKey());
-    assertThat(result.right().getKey()).isEqualTo(right.getKey());
+    assertThat(result.left().getKee()).isEqualTo(left.getKee());
+    assertThat(result.right().getKee()).isEqualTo(right.getKee());
     assertThat(result.same()).isEmpty();
     assertThat(result.inLeft()).isEmpty();
     assertThat(result.inRight()).isEmpty();

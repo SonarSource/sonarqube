@@ -116,12 +116,12 @@ public class CreateActionTest {
     CreateWsResponse response = executeRequest("New Profile", XOO_LANGUAGE);
 
     RulesProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
-    assertThat(dto.getKey()).isNotNull();
+    assertThat(dto.getKee()).isNotNull();
     assertThat(dto.getLanguage()).isEqualTo(XOO_LANGUAGE);
     assertThat(dto.getName()).isEqualTo("New Profile");
 
     QualityProfile profile = response.getProfile();
-    assertThat(profile.getKey()).isEqualTo(dto.getKey());
+    assertThat(profile.getKey()).isEqualTo(dto.getKee());
     assertThat(profile.getName()).isEqualTo("New Profile");
     assertThat(profile.getLanguage()).isEqualTo(XOO_LANGUAGE);
     assertThat(profile.getIsInherited()).isFalse();
@@ -138,9 +138,9 @@ public class CreateActionTest {
     executeRequest("New Profile", XOO_LANGUAGE, ImmutableMap.of("xoo_lint", "<xml/>"));
 
     RulesProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, "New Profile", XOO_LANGUAGE, dbSession);
-    assertThat(dto.getKey()).isNotNull();
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, dto.getKey())).hasSize(1);
-    assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(dto.getKey()).setActivation(true))).hasSize(1);
+    assertThat(dto.getKee()).isNotNull();
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, dto.getKee())).hasSize(1);
+    assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(dto.getKee()).setActivation(true))).hasSize(1);
   }
 
   @Test

@@ -58,7 +58,7 @@ public class RuleActivatorContextFactory {
 
   private RuleActivatorContext create(RuleKey ruleKey, DbSession session, RuleActivatorContext context) {
     initRule(ruleKey, context, session);
-    initActiveRules(context.profile().getKey(), ruleKey, context, session, false);
+    initActiveRules(context.profile().getKee(), ruleKey, context, session, false);
     String parentKee = context.profile().getParentKee();
     if (parentKee != null) {
       initActiveRules(parentKee, ruleKey, context, session, true);

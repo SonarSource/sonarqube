@@ -112,7 +112,7 @@ public class ActivateRulesActionTest {
     RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam("profile_key", qualityProfile.getKey());
+      .setParam("profile_key", qualityProfile.getKee());
 
     thrown.expect(ForbiddenException.class);
     request.execute();

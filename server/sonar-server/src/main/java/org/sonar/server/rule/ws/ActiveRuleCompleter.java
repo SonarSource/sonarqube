@@ -220,6 +220,6 @@ public class ActiveRuleCompleter {
     }
     setNullable(profile.getParentKee(), profileResponse::setParent);
 
-    profilesResponse.put(profile.getKey(), profileResponse.build());
+    profilesResponse.put(profile.getKee(), profileResponse.build());
   }
 }

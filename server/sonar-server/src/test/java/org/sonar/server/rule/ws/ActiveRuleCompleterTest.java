@@ -48,7 +48,7 @@ public class ActiveRuleCompleterTest {
 
     List<Rules.Active> result = activeRuleCompleter.completeShow(dbTester.getSession(), organization, rule);
 
-    assertThat(result).extracting(Rules.Active::getQProfile).containsExactlyInAnyOrder(qualityProfile.getKey());
+    assertThat(result).extracting(Rules.Active::getQProfile).containsExactlyInAnyOrder(qualityProfile.getKee());
     assertThat(result).extracting(Rules.Active::getSeverity).containsExactlyInAnyOrder(activeRule.getSeverityString());
   }
 }

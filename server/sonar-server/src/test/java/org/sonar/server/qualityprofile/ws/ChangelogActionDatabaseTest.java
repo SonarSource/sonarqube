@@ -71,7 +71,7 @@ public class ChangelogActionDatabaseTest {
 
     String response = wsTester.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", qualityProfile.getKey())
+      .setParam("profileKey", qualityProfile.getKee())
       .execute()
       .getInput();
 
@@ -131,7 +131,7 @@ public class ChangelogActionDatabaseTest {
 
     String response = wsTester.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", qualityProfile.getKey())
+      .setParam("profileKey", qualityProfile.getKee())
       .execute()
       .getInput();
 
@@ -145,14 +145,14 @@ public class ChangelogActionDatabaseTest {
     QProfileChangeDto change = QualityProfileTesting.newQProfileChangeDto()
       .setKey(null)
       .setCreatedAt(0)
-      .setProfileKey(qualityProfile.getKey());
+      .setProfileKey(qualityProfile.getKee());
     DbSession session = dbTester.getSession();
     dbTester.getDbClient().qProfileChangeDao().insert(session, change);
     session.commit();
 
     String response = wsTester.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", qualityProfile.getKey())
+      .setParam("profileKey", qualityProfile.getKee())
       .execute()
       .getInput();
 

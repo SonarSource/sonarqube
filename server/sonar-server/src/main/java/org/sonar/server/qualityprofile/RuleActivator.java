@@ -228,7 +228,7 @@ public class RuleActivator {
     List<ActiveRuleChange> changes = Lists.newArrayList();
 
     // get all inherited profiles
-    String qualityProfileKey = rulesProfileDto.getKey();
+    String qualityProfileKey = rulesProfileDto.getKee();
     List<RulesProfileDto> children = getChildren(session, qualityProfileKey);
     for (RulesProfileDto child : children) {
       RuleActivation childActivation = new RuleActivation(activation).setCascade(true);
@@ -373,7 +373,7 @@ public class RuleActivator {
     List<RulesProfileDto> profiles = getChildren(dbSession, key.qProfile());
 
     for (RulesProfileDto profile : profiles) {
-      ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), key.ruleKey());
+      ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKee(), key.ruleKey());
       changes.addAll(cascadeDeactivation(activeRuleKey, dbSession, true, force));
     }
 
@@ -494,7 +494,7 @@ public class RuleActivator {
       List<ActiveRuleChange> changes = new ArrayList<>();
       profileDto.setParentKee(null);
       db.qualityProfileDao().update(dbSession, profileDto);
-      for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())) {
+      for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee())) {
         if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
           changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
         } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {

@@ -56,8 +56,8 @@ public class CompareActionTest {
     dbTester.qualityProfiles().insertQualityProfiles(left, right);
 
     TestRequest request = wsTester.newRequest().setMethod("POST")
-      .setParam("leftKey", left.getKey())
-      .setParam("rightKey", right.getKey());
+      .setParam("leftKey", left.getKee())
+      .setParam("rightKey", right.getKee());
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Cannot compare quality profiles of different organizations.");

@@ -28,9 +28,9 @@ import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
 
-  void insert(RulesProfileDto dto);
+  void insert(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
 
-  void update(RulesProfileDto dto);
+  void update(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
 
   void deleteByKeys(@Param("profileKeys") Collection<String> profileKeys);
 

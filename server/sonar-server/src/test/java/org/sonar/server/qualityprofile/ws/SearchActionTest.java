@@ -142,7 +142,7 @@ public class SearchActionTest {
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(xoo2.getKey())
       .setName("My Sonar way")
-      .setParentKee(parentProfile.getKey());
+      .setParentKee(parentProfile.getKee());
     RulesProfileDto profileOnUnknownLang = RulesProfileDto.createFor("sonar-way-other-666")
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("other")
@@ -185,7 +185,7 @@ public class SearchActionTest {
 
     assertJson(result).isSimilarTo("{\"profiles\":[" +
       "{" +
-      "     \"key\":\"" + profile.getKey() + "\"," +
+      "     \"key\":\"" + profile.getKee() + "\"," +
       "     \"activeRuleCount\":3," +
       "     \"activeDeprecatedRuleCount\":2" +
       "}]}");
@@ -241,7 +241,7 @@ public class SearchActionTest {
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
-      .containsExactlyInAnyOrder(qualityProfileOnXoo1.getKey(), defaultProfileOnXoo2.getKey());
+      .containsExactlyInAnyOrder(qualityProfileOnXoo1.getKee(), defaultProfileOnXoo2.getKee());
   }
 
   @Test
@@ -306,8 +306,8 @@ public class SearchActionTest {
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getKey)
-      .contains(qualityProfileOnXoo1.getKey(), qualityProfileOnXoo2.getKey())
-      .doesNotContain(anotherQualityProfileOnXoo1.getKey());
+      .contains(qualityProfileOnXoo1.getKee(), qualityProfileOnXoo2.getKee())
+      .doesNotContain(anotherQualityProfileOnXoo1.getKee());
   }
 
   @Test

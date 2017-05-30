@@ -213,7 +213,7 @@ public class AddProjectActionTest {
 
     tester.newRequest()
       .setParam("projectUuid", "unknown")
-      .setParam("profileKey", profile.getKey())
+      .setParam("profileKey", profile.getKee())
       .execute();
   }
 
@@ -233,12 +233,12 @@ public class AddProjectActionTest {
 
   private void assertProjectIsAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
     RulesProfileDto loaded = dbClient.qualityProfileDao().selectByProjectAndLanguage(db.getSession(), project.getKey(), profile.getLanguage());
-    assertThat(loaded.getKey()).isEqualTo(profile.getKey());
+    assertThat(loaded.getKee()).isEqualTo(profile.getKee());
   }
 
   private void assertProjectIsNotAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
     RulesProfileDto loaded = dbClient.qualityProfileDao().selectByProjectAndLanguage(db.getSession(), project.getKey(), profile.getLanguage());
-    assertThat(loaded == null || !loaded.getKey().equals(profile.getKey())).isTrue();
+    assertThat(loaded == null || !loaded.getKee().equals(profile.getKee())).isTrue();
   }
 
   private void logInAsProfileAdmin(OrganizationDto organization) {
@@ -248,7 +248,7 @@ public class AddProjectActionTest {
   private TestResponse call(ComponentDto project, RulesProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
       .setParam("projectUuid", project.uuid())
-      .setParam("profileKey", qualityProfile.getKey());
+      .setParam("profileKey", qualityProfile.getKee());
     return request.execute();
   }
 

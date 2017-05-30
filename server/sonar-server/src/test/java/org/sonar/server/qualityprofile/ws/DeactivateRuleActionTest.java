@@ -100,7 +100,7 @@ public class DeactivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
-      .setParam("profile_key", qualityProfile.getKey());
+      .setParam("profile_key", qualityProfile.getKee());
 
     thrown.expect(ForbiddenException.class);
     request.execute();
@@ -114,7 +114,7 @@ public class DeactivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", ruleKey.toString())
-      .setParam("profile_key", qualityProfile.getKey());
+      .setParam("profile_key", qualityProfile.getKee());
 
     TestResponse response = request.execute();
 
@@ -122,7 +122,7 @@ public class DeactivateRuleActionTest {
     ArgumentCaptor<ActiveRuleKey> captor = ArgumentCaptor.forClass(ActiveRuleKey.class);
     Mockito.verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), captor.capture());
     assertThat(captor.getValue().ruleKey()).isEqualTo(ruleKey);
-    assertThat(captor.getValue().qProfile()).isEqualTo(qualityProfile.getKey());
+    assertThat(captor.getValue().qProfile()).isEqualTo(qualityProfile.getKee());
   }
 
   @Test
@@ -134,7 +134,7 @@ public class DeactivateRuleActionTest {
       .setMethod("POST")
       .setParam("organization", organization.getKey())
       .setParam("rule_key", ruleKey.toString())
-      .setParam("profile_key", qualityProfile.getKey());
+      .setParam("profile_key", qualityProfile.getKee());
 
     TestResponse response = request.execute();
 
@@ -142,6 +142,6 @@ public class DeactivateRuleActionTest {
     ArgumentCaptor<ActiveRuleKey> captor = ArgumentCaptor.forClass(ActiveRuleKey.class);
     Mockito.verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), captor.capture());
     assertThat(captor.getValue().ruleKey()).isEqualTo(ruleKey);
-    assertThat(captor.getValue().qProfile()).isEqualTo(qualityProfile.getKey());
+    assertThat(captor.getValue().qProfile()).isEqualTo(qualityProfile.getKee());
   }
 }

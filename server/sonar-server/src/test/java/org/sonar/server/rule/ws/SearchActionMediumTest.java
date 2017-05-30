@@ -393,7 +393,7 @@ public class SearchActionMediumTest {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.TEXT_QUERY, "x1");
     request.setParam(PARAM_ACTIVATION, "true");
-    request.setParam(PARAM_QPROFILE, profile2.getKey());
+    request.setParam(PARAM_QPROFILE, profile2.getKee());
     request.setParam(WebService.Param.FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules.json");
@@ -434,7 +434,7 @@ public class SearchActionMediumTest {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.TEXT_QUERY, "x1");
     request.setParam(PARAM_ACTIVATION, "true");
-    request.setParam(PARAM_QPROFILE, profile2.getKey());
+    request.setParam(PARAM_QPROFILE, profile2.getKee());
     request.setParam(WebService.Param.FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules_inheritance.json");
