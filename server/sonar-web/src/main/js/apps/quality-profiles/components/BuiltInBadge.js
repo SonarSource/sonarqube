@@ -20,19 +20,32 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import Tooltip from '../controls/Tooltip';
-import { translate } from '../../helpers/l10n';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate } from '../../../helpers/l10n';
 
-type Props = {
-  className?: string
-};
+type Props = {|
+  className?: string,
+  tooltip?: boolean
+|};
 
-export default function PrivateBadge(props: Props) {
-  return (
-    <Tooltip overlay={translate('visibility.private.description')}>
-      <div className={classNames('private-badge', props.className)}>
-        {translate('visibility.private')}
-      </div>
-    </Tooltip>
+export default function BuiltInBadge(props: Props) {
+  const badge = (
+    <div className={classNames('built-in-badge', props.className)}>
+      {translate('quality_profiles.built_in')}
+    </div>
   );
+
+  const overlay = (
+    <span>
+      {translate('quality_profiles.built_in.description.1')}
+      {' '}
+      {translate('quality_profiles.built_in.description.2')}
+    </span>
+  );
+
+  return props.tooltip ? <Tooltip overlay={overlay}>{badge}</Tooltip> : badge;
 }
+
+BuiltInBadge.defaultProps = {
+  tooltip: true
+};

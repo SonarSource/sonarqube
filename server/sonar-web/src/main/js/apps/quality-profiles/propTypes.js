@@ -25,6 +25,7 @@ const { shape, string, number, bool, arrayOf } = PropTypes;
 export type Profile = {
   key: string,
   name: string,
+  isBuiltIn: boolean,
   isDefault: boolean,
   isInherited: boolean,
   language: string,
