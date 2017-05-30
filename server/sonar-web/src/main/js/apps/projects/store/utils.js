@@ -78,6 +78,7 @@ export const parseUrlQuery = urlQuery => ({
 
 export const mapMetricToProperty = metricKey => {
   const map = {
+    analysisDate: 'analysis_date',
     reliability_rating: 'reliability',
     new_reliability_rating: 'new_reliability',
     security_rating: 'security',
@@ -100,6 +101,7 @@ export const mapMetricToProperty = metricKey => {
 
 export const mapPropertyToMetric = property => {
   const map = {
+    analysis_date: 'analysisDate',
     reliability: 'reliability_rating',
     new_reliability: 'new_reliability_rating',
     security: 'security_rating',
