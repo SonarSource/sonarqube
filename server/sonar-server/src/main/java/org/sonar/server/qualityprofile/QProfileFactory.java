@@ -34,6 +34,7 @@ import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -55,12 +56,20 @@ public class QProfileFactory {
 
   // ------------- CREATION
 
+  private static OrganizationDto requireNonNull(@Nullable OrganizationDto organization) {
+    Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
+    return organization;
+  }
+
   RulesProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
     requireNonNull(organization);
     RulesProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
       profile = doCreate(dbSession, organization, name, false, false);
+    } else {
+      checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
     }
+
     return profile;
   }
 
@@ -83,11 +92,6 @@ public class QProfileFactory {
    */
   public RulesProfileDto createBuiltIn(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
     return doCreate(dbSession, requireNonNull(organization), name, isDefault, true);
-  }
-
-  private static OrganizationDto requireNonNull(@Nullable OrganizationDto organization) {
-    Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
-    return organization;
   }
 
   private RulesProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {

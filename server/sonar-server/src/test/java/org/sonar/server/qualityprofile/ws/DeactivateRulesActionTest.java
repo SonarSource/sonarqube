@@ -29,6 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -91,8 +92,7 @@ public class DeactivateRulesActionTest {
       "available_since",
       "activation",
       "severities",
-      "organization"
-    );
+      "organization");
   }
 
   @Test
@@ -102,6 +102,19 @@ public class DeactivateRulesActionTest {
       .setParam("profile_key", randomAlphanumeric(UUID_SIZE));
 
     thrown.expect(UnauthorizedException.class);
+    request.execute();
+  }
+
+  @Test
+  public void fail_if_built_in_profile() {
+    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization, p -> p.setIsBuiltIn(true));
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam("profile_key", qualityProfile.getKee());
+
+    thrown.expect(BadRequestException.class);
+
     request.execute();
   }
 
