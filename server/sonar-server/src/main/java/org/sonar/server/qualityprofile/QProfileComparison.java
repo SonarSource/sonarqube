@@ -87,7 +87,7 @@ public class QProfileComparison {
   }
 
   private Map<RuleKey, ActiveRuleDto> loadActiveRules(DbSession session, RulesProfileDto profile) {
-    return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfileKey(session, profile.getKey()), ActiveRuleToRuleKey.INSTANCE);
+    return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfileKey(session, profile.getKee()), ActiveRuleToRuleKey.INSTANCE);
   }
 
   public static class QProfileComparisonResult {

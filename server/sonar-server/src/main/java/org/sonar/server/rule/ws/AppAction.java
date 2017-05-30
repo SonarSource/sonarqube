@@ -91,7 +91,7 @@ public class AppAction implements RulesWsAction {
       if (languageIsSupported(profile)) {
         json
           .beginObject()
-          .prop("key", profile.getKey())
+          .prop("key", profile.getKee())
           .prop("name", profile.getName())
           .prop("lang", profile.getLanguage())
           .prop("parentKey", profile.getParentKee())

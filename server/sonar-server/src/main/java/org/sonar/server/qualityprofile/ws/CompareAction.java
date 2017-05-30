@@ -149,7 +149,7 @@ public class CompareAction implements QProfileWsAction {
   }
 
   private void writeProfile(JsonWriter json, RulesProfileDto profile) {
-    json.prop(ATTRIBUTE_KEY, profile.getKey())
+    json.prop(ATTRIBUTE_KEY, profile.getKee())
       .prop(ATTRIBUTE_NAME, profile.getName());
   }
 

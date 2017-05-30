@@ -10,42 +10,40 @@
     p.name as name,
     p.language as language,
     p.parent_kee as parentKee,
-    p.created_at as createdAt,
-    p.updated_at as updatedAt,
     p.rules_updated_at as rulesUpdatedAt,
     p.last_used as lastUsed,
     p.user_updated_at as userUpdatedAt,
     p.is_built_in as isBuiltIn
   </sql>
 
-  <insert id="insert" parameterType="RulesProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
     INSERT INTO rules_profiles (organization_uuid, kee, parent_kee, name, language, created_at, updated_at, rules_updated_at, last_used, user_updated_at, is_built_in)
     VALUES (
-    #{organizationUuid, jdbcType=VARCHAR},
-    #{kee, jdbcType=VARCHAR},
-    #{parentKee, jdbcType=VARCHAR},
-    #{name, jdbcType=VARCHAR},
-    #{language, jdbcType=VARCHAR},
-    #{createdAt, jdbcType=TIMESTAMP},
-    #{updatedAt, jdbcType=TIMESTAMP},
-    #{rulesUpdatedAt, jdbcType=VARCHAR},
-    #{lastUsed, jdbcType=BIGINT},
-    #{userUpdatedAt, jdbcType=BIGINT},
-    #{isBuiltIn, jdbcType=BOOLEAN}
+    #{dto.organizationUuid, jdbcType=VARCHAR},
+    #{dto.kee, jdbcType=VARCHAR},
+    #{dto.parentKee, jdbcType=VARCHAR},
+    #{dto.name, jdbcType=VARCHAR},
+    #{dto.language, jdbcType=VARCHAR},
+    #{now, jdbcType=TIMESTAMP},
+    #{now, jdbcType=TIMESTAMP},
+    #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
+    #{dto.lastUsed, jdbcType=BIGINT},
+    #{dto.userUpdatedAt, jdbcType=BIGINT},
+    #{dto.isBuiltIn, jdbcType=BOOLEAN}
     )
   </insert>
 
-  <update id="update" parameterType="RulesProfile">
+  <update id="update" parameterType="map">
     UPDATE rules_profiles SET
-    name=#{name, jdbcType=VARCHAR},
-    language=#{language, jdbcType=VARCHAR},
-    parent_kee=#{parentKee, jdbcType=VARCHAR},
-    updated_at=#{updatedAt, jdbcType=TIMESTAMP},
-    rules_updated_at=#{rulesUpdatedAt, jdbcType=VARCHAR},
-    last_used=#{lastUsed, jdbcType=BIGINT},
-    user_updated_at=#{userUpdatedAt, jdbcType=BIGINT},
-    is_built_in=#{isBuiltIn, jdbcType=BOOLEAN}
-    WHERE id=#{id}
+    name=#{dto.name, jdbcType=VARCHAR},
+    language=#{dto.language, jdbcType=VARCHAR},
+    parent_kee=#{dto.parentKee, jdbcType=VARCHAR},
+    updated_at=#{now, jdbcType=TIMESTAMP},
+    rules_updated_at=#{dto.rulesUpdatedAt, jdbcType=VARCHAR},
+    last_used=#{dto.lastUsed, jdbcType=BIGINT},
+    user_updated_at=#{dto.userUpdatedAt, jdbcType=BIGINT},
+    is_built_in=#{dto.isBuiltIn, jdbcType=BOOLEAN}
+    WHERE id=#{dto.id}
   </update>
 
   <update id="deleteByKeys" parameterType="String">

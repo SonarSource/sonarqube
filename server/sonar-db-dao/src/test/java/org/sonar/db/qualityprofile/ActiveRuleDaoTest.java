@@ -131,7 +131,7 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, activeRule);
 
     assertThat(underTest.selectByKey(dbSession, activeRule.getKey())).isPresent();
-    assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile2.getKey(), rule2.getKey()))).isAbsent();
+    assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile2.getKee(), rule2.getKey()))).isAbsent();
   }
 
   @Test
@@ -143,7 +143,7 @@ public class ActiveRuleDaoTest {
 
     thrown.expect(RowNotFoundException.class);
     thrown.expectMessage("Active rule with key 'qp2:xoo:x2' does not exist");
-    underTest.selectOrFailByKey(dbSession, ActiveRuleKey.of(profile2.getKey(), rule2.getKey()));
+    underTest.selectOrFailByKey(dbSession, ActiveRuleKey.of(profile2.getKee(), rule2.getKey()));
   }
 
   @Test
@@ -182,8 +182,8 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbTester.getSession(), activeRule2);
     dbSession.commit();
 
-    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKey())).hasSize(2);
-    assertThat(underTest.selectByProfileKey(dbSession, profile2.getKey())).isEmpty();
+    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKee())).hasSize(2);
+    assertThat(underTest.selectByProfileKey(dbSession, profile2.getKee())).isEmpty();
   }
 
   @Test
@@ -192,7 +192,7 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();
 
-    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKey())).isEmpty();
+    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKee())).isEmpty();
   }
 
   @Test
@@ -207,7 +207,7 @@ public class ActiveRuleDaoTest {
 
     ActiveRuleDto result = underTest.selectOrFailByKey(dbSession, activeRule.getKey());
     assertThat(result.getId()).isEqualTo(activeRule.getId());
-    assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
+    assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1.getKee(), rule1.getKey()));
     assertThat(result.getRuleId()).isEqualTo(rule1.getId());
     assertThat(result.getProfileId()).isEqualTo(profile1.getId());
     assertThat(result.getSeverityString()).isEqualTo(BLOCKER);
@@ -259,9 +259,9 @@ public class ActiveRuleDaoTest {
     underTest.update(dbTester.getSession(), activeRuleUpdated);
     dbSession.commit();
 
-    ActiveRuleDto result = underTest.selectOrFailByKey(dbSession, ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
+    ActiveRuleDto result = underTest.selectOrFailByKey(dbSession, ActiveRuleKey.of(profile1.getKee(), rule1.getKey()));
     assertThat(result.getId()).isEqualTo(activeRule.getId());
-    assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
+    assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1.getKee(), rule1.getKey()));
     assertThat(result.getRuleId()).isEqualTo(rule1.getId());
     assertThat(result.getProfileId()).isEqualTo(profile1.getId());
     assertThat(result.getSeverityString()).isEqualTo(MAJOR);
@@ -305,12 +305,12 @@ public class ActiveRuleDaoTest {
 
     underTest.delete(dbSession, activeRule.getKey());
 
-    assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile1.getKey(), rule1.getKey()))).isAbsent();
+    assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile1.getKee(), rule1.getKey()))).isAbsent();
   }
 
   @Test
   public void delete_does_not_fail_when_active_rule_does_not_exist() {
-    underTest.delete(dbSession, ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
+    underTest.delete(dbSession, ActiveRuleKey.of(profile1.getKee(), rule1.getKey()));
   }
 
   @Test
@@ -319,10 +319,10 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, newRow(profile1, rule2));
     underTest.insert(dbSession, newRow(profile2, rule1));
 
-    underTest.deleteByProfileKeys(dbSession, asList(profile1.getKey()));
+    underTest.deleteByProfileKeys(dbSession, asList(profile1.getKee()));
 
     assertThat(dbTester.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
-    assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile2.getKey(), rule1.getKey()))).isPresent();
+    assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile2.getKee(), rule1.getKey()))).isPresent();
   }
 
   @Test
@@ -378,7 +378,7 @@ public class ActiveRuleDaoTest {
     assertThat(underTest.selectParamByKeyAndName(activeRule.getKey(), activeRuleParam1.getKey(), dbSession)).isNotNull();
 
     assertThat(underTest.selectParamByKeyAndName(activeRule.getKey(), "unknown", dbSession)).isNull();
-    assertThat(underTest.selectParamByKeyAndName(ActiveRuleKey.of(profile2.getKey(), rule1.getKey()), "unknown", dbSession)).isNull();
+    assertThat(underTest.selectParamByKeyAndName(ActiveRuleKey.of(profile2.getKee(), rule1.getKey()), "unknown", dbSession)).isNull();
   }
 
   @Test
@@ -486,7 +486,7 @@ public class ActiveRuleDaoTest {
     ActiveRuleParamDto param2 = ActiveRuleParamDto.createFor(rule1Param1).setValue("bar");
     underTest.insertParam(dbSession, activeRuleInProfile2, param2);
 
-    underTest.deleteParametersByProfileKeys(dbSession, asList(profile1.getKey(), "does_not_exist"));
+    underTest.deleteParametersByProfileKeys(dbSession, asList(profile1.getKee(), "does_not_exist"));
 
     List<ActiveRuleParamDto> params = underTest.selectAllParams(dbSession);
     assertThat(params).hasSize(1);
@@ -523,7 +523,7 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void does_not_fail_to_delete_param_by_key_and_name_when_active_rule_does_not_exist() {
-    underTest.deleteParamByKeyAndName(dbSession, ActiveRuleKey.of(profile1.getKey(), rule1.getKey()), rule1Param1.getName());
+    underTest.deleteParamByKeyAndName(dbSession, ActiveRuleKey.of(profile1.getKee(), rule1.getKey()), rule1Param1.getName());
   }
 
   @Test
@@ -584,8 +584,8 @@ public class ActiveRuleDaoTest {
     Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
 
     assertThat(counts).containsOnly(
-      entry(profile1.getKey(), 2L),
-      entry(profile2.getKey(), 1L));
+      entry(profile1.getKee(), 2L),
+      entry(profile2.getKee(), 1L));
   }
 
   @Test
@@ -609,7 +609,7 @@ public class ActiveRuleDaoTest {
 
     Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
 
-    assertThat(counts).containsExactly(entry(profile1.getKey(), 1L));
+    assertThat(counts).containsExactly(entry(profile1.getKee(), 1L));
   }
 
   @Test
@@ -622,7 +622,7 @@ public class ActiveRuleDaoTest {
 
     Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.BETA);
 
-    assertThat(counts).containsOnly(entry(profile2.getKey(), 2L));
+    assertThat(counts).containsOnly(entry(profile2.getKee(), 2L));
   }
 
   @Test
@@ -647,7 +647,7 @@ public class ActiveRuleDaoTest {
 
     Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
 
-    assertThat(counts).containsOnly(entry(profile2.getKey(), 1L));
+    assertThat(counts).containsOnly(entry(profile2.getKee(), 1L));
   }
 
   @Test
@@ -671,6 +671,6 @@ public class ActiveRuleDaoTest {
 
     Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
 
-    assertThat(counts).containsOnly(entry(profile1.getKey(), 1L));
+    assertThat(counts).containsOnly(entry(profile1.getKee(), 1L));
   }
 }

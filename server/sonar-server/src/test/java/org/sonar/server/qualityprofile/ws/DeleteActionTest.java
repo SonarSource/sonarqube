@@ -80,7 +80,7 @@ public class DeleteActionTest {
 
     TestResponse response = tester.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profile1.getKey())
+      .setParam("profileKey", profile1.getKee())
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
@@ -146,7 +146,7 @@ public class DeleteActionTest {
 
     tester.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profileInOrg2.getKey())
+      .setParam("profileKey", profileInOrg2.getKee())
       .execute();
   }
 
@@ -158,7 +158,7 @@ public class DeleteActionTest {
 
     tester.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profile.getKey())
+      .setParam("profileKey", profile.getKee())
       .execute();
   }
 
@@ -220,7 +220,7 @@ public class DeleteActionTest {
       .setParam("organization", organization.getKey())
       .setParam("language", profile.getLanguage())
       .setParam("profileName", profile.getName())
-      .setParam("profileKey", profile.getKey())
+      .setParam("profileKey", profile.getKee())
       .execute();
   }
 
@@ -249,7 +249,7 @@ public class DeleteActionTest {
 
     tester.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profile.getKey())
+      .setParam("profileKey", profile.getKee())
       .execute();
   }
 
@@ -258,7 +258,7 @@ public class DeleteActionTest {
     OrganizationDto organization = dbTester.organizations().insert();
     RulesProfileDto parentProfile = createProfile(organization);
     RulesProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE),
-      p -> p.setParentKee(parentProfile.getKey()));
+      p -> p.setParentKee(parentProfile.getKee()));
     dbTester.qualityProfiles().markAsDefault(childProfile);
     logInAsQProfileAdministrator(organization);
 
@@ -268,7 +268,7 @@ public class DeleteActionTest {
 
     tester.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", parentProfile.getKey())
+      .setParam("profileKey", parentProfile.getKee())
       .execute();
   }
 
@@ -279,12 +279,12 @@ public class DeleteActionTest {
   }
 
   private void verifyProfileDoesNotExist(RulesProfileDto profile, OrganizationDto organization) {
-    assertThat(dbClient.qualityProfileDao().selectByKey(session, profile.getKey())).isNull();
-    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(organization, profile.getKey(), null, session)).isEmpty();
+    assertThat(dbClient.qualityProfileDao().selectByKey(session, profile.getKee())).isNull();
+    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(organization, profile.getKee(), null, session)).isEmpty();
   }
 
   private void verifyProfileExists(RulesProfileDto profile) {
-    assertThat(dbClient.qualityProfileDao().selectByKey(session, profile.getKey())).isNotNull();
+    assertThat(dbClient.qualityProfileDao().selectByKey(session, profile.getKee())).isNotNull();
   }
 
   private RulesProfileDto createProfile(OrganizationDto organization) {

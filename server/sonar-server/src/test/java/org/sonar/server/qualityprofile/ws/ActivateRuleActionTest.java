@@ -105,7 +105,7 @@ public class ActivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
-      .setParam("profile_key", qualityProfile.getKey());
+      .setParam("profile_key", qualityProfile.getKee());
 
     thrown.expect(ForbiddenException.class);
     request.execute();
@@ -119,7 +119,7 @@ public class ActivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", ruleKey.toString())
-      .setParam("profile_key", qualityProfile.getKey())
+      .setParam("profile_key", qualityProfile.getKee())
       .setParam("severity", "BLOCKER")
       .setParam("params", "key1=v1;key2=v2")
       .setParam("reset", "false");
@@ -128,7 +128,7 @@ public class ActivateRuleActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleActivation> captor = ArgumentCaptor.forClass(RuleActivation.class);
-    Mockito.verify(ruleActivator).activate(any(DbSession.class), captor.capture(), eq(qualityProfile.getKey()));
+    Mockito.verify(ruleActivator).activate(any(DbSession.class), captor.capture(), eq(qualityProfile.getKee()));
     assertThat(captor.getValue().getRuleKey()).isEqualTo(ruleKey);
     assertThat(captor.getValue().getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(captor.getValue().getParameters()).containsExactly(entry("key1", "v1"), entry("key2", "v2"));
@@ -143,7 +143,7 @@ public class ActivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", ruleKey.toString())
-      .setParam("profile_key", qualityProfile.getKey())
+      .setParam("profile_key", qualityProfile.getKee())
       .setParam("severity", "BLOCKER")
       .setParam("params", "key1=v1;key2=v2")
       .setParam("reset", "false");
@@ -152,7 +152,7 @@ public class ActivateRuleActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleActivation> captor = ArgumentCaptor.forClass(RuleActivation.class);
-    Mockito.verify(ruleActivator).activate(any(DbSession.class), captor.capture(), eq(qualityProfile.getKey()));
+    Mockito.verify(ruleActivator).activate(any(DbSession.class), captor.capture(), eq(qualityProfile.getKee()));
     assertThat(captor.getValue().getRuleKey()).isEqualTo(ruleKey);
     assertThat(captor.getValue().getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(captor.getValue().getParameters()).containsExactly(entry("key1", "v1"), entry("key2", "v2"));

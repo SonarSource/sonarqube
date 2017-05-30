@@ -115,8 +115,8 @@ public class RegisterQualityProfilesTest {
 
     underTest.start();
 
-    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg1.getKey()).get().getName()).isEqualTo("Sonar way (outdated copy)");
-    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg2.getKey()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg1.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg2.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)] in 2 organizations");
   }
 

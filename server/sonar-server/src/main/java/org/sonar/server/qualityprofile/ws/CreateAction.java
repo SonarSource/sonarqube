@@ -150,7 +150,7 @@ public class CreateAction implements QProfileWsAction {
     String language = result.profile().getLanguage();
     CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
       .setOrganization(organization.getKey())
-      .setKey(result.profile().getKey())
+      .setKey(result.profile().getKee())
       .setName(result.profile().getName())
       .setLanguage(language)
       .setLanguageName(languages.get(result.profile().getLanguage()).getName())

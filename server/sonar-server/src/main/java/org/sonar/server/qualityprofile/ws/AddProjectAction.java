@@ -90,10 +90,10 @@ public class AddProjectAction implements QProfileWsAction {
       RulesProfileDto currentProfile = dbClient.qualityProfileDao().selectByProjectAndLanguage(dbSession, project.key(), profile.getLanguage());
       if (currentProfile == null) {
         // project uses the default profile
-        dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKey(), dbSession);
+        dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profile.getKee(), dbSession);
         dbSession.commit();
-      } else if (!profile.getKey().equals(currentProfile.getKey())) {
-        dbClient.qualityProfileDao().updateProjectProfileAssociation(project.uuid(), profile.getKey(), currentProfile.getKey(), dbSession);
+      } else if (!profile.getKee().equals(currentProfile.getKee())) {
+        dbClient.qualityProfileDao().updateProjectProfileAssociation(project.uuid(), profile.getKee(), currentProfile.getKee(), dbSession);
         dbSession.commit();
       }
     }

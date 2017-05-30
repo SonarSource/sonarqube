@@ -174,16 +174,16 @@ public class InheritanceActionTest {
     InputStream response = wsActionTester.newRequest()
       .setMethod("GET")
       .setMediaType(PROTOBUF)
-      .setParam("profileKey", child.getKey())
+      .setParam("profileKey", child.getKee())
       .execute()
       .getInputStream();
 
     InheritanceWsResponse result = InheritanceWsResponse.parseFrom(response);
 
-    assertThat(result.getProfile().getKey()).isEqualTo(child.getKey());
+    assertThat(result.getProfile().getKey()).isEqualTo(child.getKee());
     assertThat(result.getProfile().getActiveRuleCount()).isEqualTo(childRules);
 
-    assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getKey).containsExactly(parent.getKey());
+    assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getKey).containsExactly(parent.getKee());
     assertThat(result.getAncestorsList()).extracting(InheritanceWsResponse.QualityProfile::getActiveRuleCount).containsExactly(parentRules);
   }
 
@@ -201,12 +201,12 @@ public class InheritanceActionTest {
     InputStream response = wsActionTester.newRequest()
       .setMethod("GET")
       .setMediaType(PROTOBUF)
-      .setParam("profileKey", profile.getKey())
+      .setParam("profileKey", profile.getKee())
       .execute()
       .getInputStream();
 
     InheritanceWsResponse result = InheritanceWsResponse.parseFrom(response);
-    assertThat(result.getProfile().getKey()).isEqualTo(profile.getKey());
+    assertThat(result.getProfile().getKey()).isEqualTo(profile.getKee());
     assertThat(result.getProfile().getActiveRuleCount()).isEqualTo(activeRules);
   }
 
@@ -238,7 +238,7 @@ public class InheritanceActionTest {
   }
 
   private void setParent(RulesProfileDto profile, RulesProfileDto parent) {
-    ruleActivator.setParent(dbSession, parent.getKey(), profile.getKey());
+    ruleActivator.setParent(dbSession, parent.getKee(), profile.getKee());
   }
 
   private RuleDefinitionDto createRule(String lang, String id) {
@@ -266,7 +266,7 @@ public class InheritanceActionTest {
   }
 
   private void overrideActiveRuleSeverity(RuleDefinitionDto rule, RulesProfileDto profile, String severity) {
-    ruleActivator.activate(dbSession, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKey());
+    ruleActivator.activate(dbSession, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKee());
     dbSession.commit();
     activeRuleIndexer.index();
   }

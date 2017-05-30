@@ -331,7 +331,7 @@ public class DeleteActionTest {
     verifyOrganizationDoesNotExist(org);
     assertThat(db.select("select kee as \"profileKey\" from rules_profiles"))
       .extracting(row -> (String) row.get("profileKey"))
-      .containsOnly(profileInOtherOrg.getKey());
+      .containsOnly(profileInOtherOrg.getKee());
   }
 
   private void verifyOrganizationDoesNotExist(OrganizationDto organization) {

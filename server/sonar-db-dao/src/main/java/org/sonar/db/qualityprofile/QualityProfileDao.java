@@ -79,10 +79,7 @@ public class QualityProfileDao implements Dao {
 
   private void doInsert(QualityProfileMapper mapper, RulesProfileDto profile) {
     Preconditions.checkArgument(profile.getId() == null, "Quality profile is already persisted (got id %d)", profile.getId());
-    Date now = new Date(system.now());
-    profile.setCreatedAt(now);
-    profile.setUpdatedAt(now);
-    mapper.insert(profile);
+    mapper.insert(profile, new Date(system.now()));
   }
 
   public void update(DbSession session, RulesProfileDto profile, RulesProfileDto... otherProfiles) {
@@ -95,8 +92,7 @@ public class QualityProfileDao implements Dao {
 
   private void doUpdate(QualityProfileMapper mapper, RulesProfileDto profile) {
     Preconditions.checkArgument(profile.getId() != null, "Quality profile is not persisted");
-    profile.setUpdatedAt(new Date(system.now()));
-    mapper.update(profile);
+    mapper.update(profile, new Date(system.now()));
   }
 
   public List<RulesProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
@@ -132,7 +128,7 @@ public class QualityProfileDao implements Dao {
     List<RulesProfileDto> descendants = Lists.newArrayList();
     for (RulesProfileDto child : selectChildren(session, key)) {
       descendants.add(child);
-      descendants.addAll(selectDescendants(session, child.getKey()));
+      descendants.addAll(selectDescendants(session, child.getKee()));
     }
     return descendants;
   }

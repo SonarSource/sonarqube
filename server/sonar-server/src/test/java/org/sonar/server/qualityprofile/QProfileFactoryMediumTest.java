@@ -73,7 +73,7 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
-    assertThat(writtenDto.getKey()).isNotEmpty();
+    assertThat(writtenDto.getKee()).isNotEmpty();
     assertThat(writtenDto.getName()).isEqualTo("P1");
     assertThat(writtenDto.getLanguage()).isEqualTo("xoo");
     assertThat(writtenDto.getId()).isNotNull();
@@ -94,7 +94,7 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
-    assertThat(writtenDto.getKey()).isNotEmpty();
+    assertThat(writtenDto.getKee()).isNotEmpty();
     assertThat(writtenDto.getName()).isEqualTo("P1");
     assertThat(writtenDto.getLanguage()).isEqualTo("xoo");
     assertThat(writtenDto.getId()).isNotNull();
@@ -173,7 +173,7 @@ public class QProfileFactoryMediumTest {
   private static void assertEqual(RulesProfileDto writtenDto, RulesProfileDto readDto) {
     assertThat(readDto.getOrganizationUuid()).isEqualTo(writtenDto.getOrganizationUuid());
     assertThat(readDto.getName()).isEqualTo(writtenDto.getName());
-    assertThat(readDto.getKey()).startsWith(writtenDto.getKey());
+    assertThat(readDto.getKee()).startsWith(writtenDto.getKee());
     assertThat(readDto.getLanguage()).isEqualTo(writtenDto.getLanguage());
     assertThat(readDto.getId()).isEqualTo(writtenDto.getId());
     assertThat(readDto.getParentKee()).isEqualTo(writtenDto.getParentKee());

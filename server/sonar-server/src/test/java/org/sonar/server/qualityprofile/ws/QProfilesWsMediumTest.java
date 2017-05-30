@@ -106,17 +106,17 @@ public class QProfilesWsMediumTest {
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(1);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_DEACTIVATE_RULE);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
     request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
   }
 
   @Test
@@ -134,16 +134,16 @@ public class QProfilesWsMediumTest {
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(4);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     WsTester.Result result = request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
   }
 
   @Test
@@ -160,17 +160,17 @@ public class QProfilesWsMediumTest {
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(2);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     WsTester.Result result = request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
-    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).hasSize(2);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(0);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKee())).hasSize(2);
   }
 
   @Test
@@ -184,17 +184,17 @@ public class QProfilesWsMediumTest {
     activeRuIndexer.index();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(2);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(WebService.Param.TEXT_QUERY, "hello");
     WsTester.Result result = request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(1);
   }
 
   @Test
@@ -205,17 +205,17 @@ public class QProfilesWsMediumTest {
     ruleIndexer.indexRuleDefinition(rule.getKey());
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
     WsTester.Result result = request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(1);
   }
 
   @Test
@@ -226,12 +226,12 @@ public class QProfilesWsMediumTest {
     ruleIndexer.indexRuleDefinition(rule.getKey());
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
 
     try {
       // 1. Activate Rule
       WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-      request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+      request.setParam(PARAM_PROFILE_KEY, profile.getKee());
       request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
       request.execute();
       session.clearCache();
@@ -249,18 +249,18 @@ public class QProfilesWsMediumTest {
     ruleIndexer.indexRuleDefinition(rule.getKey());
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
     request.setParam(PARAM_SEVERITY, "MINOR");
     WsTester.Result result = request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), rule.getKey());
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKee(), rule.getKey());
 
     assertThat(db.activeRuleDao().selectOrFailByKey(session, activeRuleKey).getSeverityString())
       .isEqualTo("MINOR");
@@ -276,17 +276,17 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(PARAM_LANGUAGES, "java");
     request.execute().assertJson(getClass(), "bulk_activate_rule.json");
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(4);
   }
 
   @Test
@@ -300,17 +300,17 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKee())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, php.getKey());
+    request.setParam(PARAM_PROFILE_KEY, php.getKee());
     request.setParam(PARAM_LANGUAGES, "php");
     request.execute().assertJson(getClass(), "bulk_activate_rule_not_all.json");
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).hasSize(2);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKee())).hasSize(2);
   }
 
   @Test
@@ -323,27 +323,27 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
 
     // 1. Activate Rule with query returning 0 hits
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(WebService.Param.TEXT_QUERY, "php");
     request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(0);
 
     // 1. Activate Rule with query returning 1 hits
     request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(WebService.Param.TEXT_QUERY, "world");
     request.execute();
     session.commit();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).hasSize(1);
   }
 
   @Test
@@ -354,7 +354,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKee())).isEmpty();
 
     // 2. Assert ActiveRule with BLOCKER severity
     assertThat(tester.get(RuleIndex.class).search(
@@ -363,7 +363,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule with query returning 2 hits
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(ActivateRulesAction.PROFILE_KEY, profile.getKey());
+    request.setParam(ActivateRulesAction.PROFILE_KEY, profile.getKee());
     request.setParam(ActivateRulesAction.SEVERITY, "MINOR");
     request.execute();
     session.commit();
@@ -371,7 +371,7 @@ public class QProfilesWsMediumTest {
     // 2. Assert ActiveRule with MINOR severity
     assertThat(tester.get(ActiveRuleDao.class).selectByRuleId(session, organization, rule0.getId()).get(0).getSeverityString()).isEqualTo("MINOR");
     assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery()
-      .setQProfileKey(profile.getKey())
+      .setQProfileKey(profile.getKee())
       .setKey(rule0.getKey().toString())
       .setActiveSeverities(Collections.singleton("MINOR"))
       .setActivation(true))).hasSize(1);
@@ -389,14 +389,14 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, javaProfile.getKey());
-    request.setParam(PARAM_QPROFILE, javaProfile.getKey());
+    request.setParam(PARAM_PROFILE_KEY, javaProfile.getKee());
+    request.setParam(PARAM_QPROFILE, javaProfile.getKee());
     request.setParam("activation", "false");
     request.execute().assertJson(getClass(), "does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile.json");
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, javaProfile.getKey())).hasSize(2);
+    assertThat(db.activeRuleDao().selectByProfileKey(session, javaProfile.getKee())).hasSize(2);
   }
 
   @Test
@@ -421,7 +421,7 @@ public class QProfilesWsMediumTest {
 
     // 1. reset child rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-    request.setParam("profile_key", subProfile.getKey());
+    request.setParam("profile_key", subProfile.getKee());
     request.setParam("rule_key", rule.getKey().toString());
     request.setParam("reset", "true");
     request.execute();

@@ -194,7 +194,7 @@ public class QProfileCopierMediumTest {
   private void verifyOneActiveRule(QProfileName profileName, String expectedSeverity,
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     RulesProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, profileName.getName(), profileName.getLanguage(), dbSession);
-    verifyOneActiveRule(dto.getKey(), expectedSeverity, expectedInheritance, expectedParams);
+    verifyOneActiveRule(dto.getKee(), expectedSeverity, expectedInheritance, expectedParams);
   }
 
   private void verifyOneActiveRule(String profileKey, String expectedSeverity, @Nullable String expectedInheritance, Map<String, String> expectedParams) {

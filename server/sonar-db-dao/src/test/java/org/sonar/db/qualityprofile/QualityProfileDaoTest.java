@@ -111,11 +111,11 @@ public class QualityProfileDaoTest {
     RulesProfileDto p2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
     RulesProfileDto p3 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
 
-    underTest.deleteByKeys(dbSession, asList(p1.getKey(), p3.getKey(), "does_not_exist"));
+    underTest.deleteByKeys(dbSession, asList(p1.getKee(), p3.getKee(), "does_not_exist"));
 
     List<Map<String, Object>> keysInDb = dbTester.select(dbSession, "select kee as \"key\" from rules_profiles");
     assertThat(keysInDb).hasSize(1);
-    assertThat(keysInDb.get(0).get("key")).isEqualTo(p2.getKey());
+    assertThat(keysInDb.get(0).get("key")).isEqualTo(p2.getKee());
   }
 
   @Test
@@ -149,12 +149,12 @@ public class QualityProfileDaoTest {
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profile1);
     dbTester.qualityProfiles().associateProjectWithQualityProfile(project3, profile2);
 
-    underTest.deleteProjectAssociationsByProfileKeys(dbSession, asList(profile1.getKey(), "does_not_exist"));
+    underTest.deleteProjectAssociationsByProfileKeys(dbSession, asList(profile1.getKee(), "does_not_exist"));
 
     List<Map<String, Object>> rows = dbTester.select(dbSession, "select project_uuid as \"projectUuid\", profile_key as \"profileKey\" from project_qprofiles");
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).get("projectUuid")).isEqualTo(project3.uuid());
-    assertThat(rows.get(0).get("profileKey")).isEqualTo(profile2.getKey());
+    assertThat(rows.get(0).get("profileKey")).isEqualTo(profile2.getKee());
   }
 
   @Test
@@ -198,7 +198,7 @@ public class QualityProfileDaoTest {
 
     RulesProfileDto java = underTest.selectDefaultProfile(dbTester.getSession(), organization, "java");
     assertThat(java).isNotNull();
-    assertThat(java.getKey()).isEqualTo("java_sonar_way");
+    assertThat(java.getKee()).isEqualTo("java_sonar_way");
 
     assertThat(underTest.selectDefaultProfile(dbTester.getSession(), dbTester.organizations().insert(), "java")).isNull();
     assertThat(underTest.selectDefaultProfile(dbTester.getSession(), organization, "js")).isNull();
@@ -209,11 +209,11 @@ public class QualityProfileDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<RulesProfileDto> java = underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("java"));
-    assertThat(java).extracting("key").containsOnly("java_sonar_way");
+    assertThat(java).extracting(RulesProfileDto::getKee).containsOnly("java_sonar_way");
 
     assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("js"))).isEmpty();
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("java", "js"))).extracting("key").containsOnly("java_sonar_way");
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("js", "java"))).extracting("key").containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("java", "js"))).extracting(RulesProfileDto::getKee).containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("js", "java"))).extracting(RulesProfileDto::getKee).containsOnly("java_sonar_way");
   }
 
   @Test
@@ -258,7 +258,7 @@ public class QualityProfileDaoTest {
 
     assertThat(result.getId()).isEqualTo(profile.getId());
     assertThat(result.getName()).isEqualTo(profile.getName());
-    assertThat(result.getKey()).isEqualTo(profile.getKey());
+    assertThat(result.getKee()).isEqualTo(profile.getKee());
     assertThat(result.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(result.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
   }
@@ -319,7 +319,7 @@ public class QualityProfileDaoTest {
     dbTester.qualityProfiles().associateProjectWithQualityProfile(projectInOtherOrg, profileInOtherOrg);
 
     assertThat(underTest.countProjectsByProfileKey(dbTester.getSession(), organization)).containsOnly(
-      MapEntry.entry(profileWithProjects.getKey(), 2L));
+      MapEntry.entry(profileWithProjects.getKee(), 2L));
   }
 
   @Test
@@ -357,7 +357,7 @@ public class QualityProfileDaoTest {
     assertThat(underTest.selectByKey(dbSession, "qp-key-42")).isNull();
     assertThat(underTest.selectByKeys(dbSession, newArrayList("qp-key-1", "qp-key-3", "qp-key-42")))
       .hasSize(2)
-      .extracting(RulesProfileDto::getKey).containsOnlyOnce("qp-key-1", "qp-key-3");
+      .extracting(RulesProfileDto::getKee).containsOnlyOnce("qp-key-1", "qp-key-3");
     assertThat(underTest.selectByKeys(dbSession, emptyList())).isEmpty();
   }
 
@@ -378,13 +378,13 @@ public class QualityProfileDaoTest {
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project3, profile2);
 
-    assertThat(underTest.selectSelectedProjects(organization, profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectSelectedProjects(organization, profile1.getKee(), null, dbSession))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
-        tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), profile1.getKey()));
+        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKee()),
+        tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), profile1.getKee()));
 
-    assertThat(underTest.selectSelectedProjects(organization, profile1.getKey(), "ect1", dbSession)).hasSize(1);
+    assertThat(underTest.selectSelectedProjects(organization, profile1.getKee(), "ect1", dbSession)).hasSize(1);
     assertThat(underTest.selectSelectedProjects(organization, "unknown", null, dbSession)).isEmpty();
   }
 
@@ -404,13 +404,13 @@ public class QualityProfileDaoTest {
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
 
-    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKee(), null, dbSession))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsExactly(
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
         tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
-    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKey(), "ect2", dbSession)).hasSize(1);
+    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKee(), "ect2", dbSession)).hasSize(1);
     assertThat(underTest.selectDeselectedProjects(organization, "unknown", null, dbSession)).hasSize(3);
   }
 
@@ -430,14 +430,14 @@ public class QualityProfileDaoTest {
     qualityProfileDb.insertQualityProfiles(profile2);
     qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
 
-    assertThat(underTest.selectProjectAssociations(organization, profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectProjectAssociations(organization, profile1.getKee(), null, dbSession))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
+        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKee()),
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
         tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
-    assertThat(underTest.selectProjectAssociations(organization, profile1.getKey(), "ect2", dbSession)).hasSize(1);
+    assertThat(underTest.selectProjectAssociations(organization, profile1.getKee(), "ect2", dbSession)).hasSize(1);
     assertThat(underTest.selectProjectAssociations(organization, "unknown", null, dbSession)).hasSize(3);
   }
 
@@ -449,10 +449,10 @@ public class QualityProfileDaoTest {
     RulesProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");
     qualityProfileDb.associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
 
-    underTest.updateProjectProfileAssociation(project.uuid(), profile3Language1.getKey(), profile1Language1.getKey(), dbSession);
+    underTest.updateProjectProfileAssociation(project.uuid(), profile3Language1.getKee(), profile1Language1.getKee(), dbSession);
 
-    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo").getKey()).isEqualTo(profile3Language1.getKey());
-    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo2").getKey()).isEqualTo(profile2Language2.getKey());
+    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo").getKee()).isEqualTo(profile3Language1.getKee());
+    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo2").getKee()).isEqualTo(profile2Language2.getKee());
   }
 
   @Test
@@ -486,9 +486,9 @@ public class QualityProfileDaoTest {
 
     underTest.renameAndCommit(dbSession, asList(fooInOrg1.getKee(), fooInOrg2.getKee()), "foo (copy)");
 
-    assertThat(underTest.selectOrFailByKey(dbSession, fooInOrg1.getKey()).getName()).isEqualTo("foo (copy)");
-    assertThat(underTest.selectOrFailByKey(dbSession, fooInOrg2.getKey()).getName()).isEqualTo("foo (copy)");
-    assertThat(underTest.selectOrFailByKey(dbSession, bar.getKey()).getName()).isEqualTo("bar");
+    assertThat(underTest.selectOrFailByKey(dbSession, fooInOrg1.getKee()).getName()).isEqualTo("foo (copy)");
+    assertThat(underTest.selectOrFailByKey(dbSession, fooInOrg2.getKee()).getName()).isEqualTo("foo (copy)");
+    assertThat(underTest.selectOrFailByKey(dbSession, bar.getKee()).getName()).isEqualTo("bar");
   }
 
   @Test
@@ -498,7 +498,7 @@ public class QualityProfileDaoTest {
 
     underTest.renameAndCommit(dbSession, Collections.emptyList(), "foo (copy)");
 
-    assertThat(underTest.selectOrFailByKey(dbSession, profile.getKey()).getName()).isEqualTo("foo");
+    assertThat(underTest.selectOrFailByKey(dbSession, profile.getKee()).getName()).isEqualTo("foo");
   }
 
   private RulesProfileDto insertQualityProfileDto(String key, String name, String language) {

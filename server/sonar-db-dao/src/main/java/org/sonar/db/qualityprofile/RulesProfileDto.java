@@ -23,13 +23,12 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UtcDateUtils;
-import org.sonar.db.Dto;
 import org.sonar.db.organization.OrganizationDto;
 
 /**
  * Represents the table "rules_profiles"
  */
-public class RulesProfileDto extends Dto<String> {
+public class RulesProfileDto {
 
   private Integer id;
   /**
@@ -54,11 +53,6 @@ public class RulesProfileDto extends Dto<String> {
   public RulesProfileDto setOrganizationUuid(String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;
-  }
-
-  @Override
-  public String getKey() {
-    return kee;
   }
 
   public RulesProfileDto setKey(String s) {

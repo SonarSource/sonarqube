@@ -136,7 +136,7 @@ public class DeleteAction implements OrganizationsWsAction {
   private void deleteQualityProfiles(DbSession dbSession, OrganizationDto organization) {
     List<RulesProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession, organization);
     List<String> profileKeys = profiles.stream()
-      .map(RulesProfileDto::getKey)
+      .map(RulesProfileDto::getKee)
       .collect(MoreCollectors.toArrayList(profiles.size()));
     qProfileFactory.deleteByKeys(dbSession, profileKeys);
     dbSession.commit();

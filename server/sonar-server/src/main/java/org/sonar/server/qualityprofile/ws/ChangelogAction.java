@@ -86,7 +86,7 @@ public class ChangelogAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       RulesProfileDto profile = wsSupport.getProfile(dbSession, reference);
 
-      QProfileChangeQuery query = new QProfileChangeQuery(profile.getKey());
+      QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
       Date since = parseStartingDateOrDateTime(request.param(PARAM_SINCE));
       if (since != null) {
         query.setFromIncluded(since.getTime());

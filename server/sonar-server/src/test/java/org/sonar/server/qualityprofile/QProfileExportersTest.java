@@ -106,21 +106,21 @@ public class QProfileExportersTest {
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee())).isEmpty();
 
     QProfileResult result = exporters.importXml(profileDto, "XooProfileImporter", toInputStream("<xml/>", UTF_8), dbSession);
     dbSession.commit();
     activeRuleIndexer.index(result.getChanges());
 
     // Check in db
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey());
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee());
     assertThat(activeRules).hasSize(1);
     ActiveRuleDto activeRule = activeRules.get(0);
     assertThat(activeRule.getKey().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check in es
-    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profileDto.getKey()).setActivation(true))).containsOnly(RuleKey.of("xoo", "R1"));
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profileDto.getKee()).setActivation(true))).containsOnly(RuleKey.of("xoo", "R1"));
   }
 
   @Test

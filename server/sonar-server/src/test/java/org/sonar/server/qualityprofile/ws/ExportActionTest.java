@@ -180,7 +180,7 @@ public class ExportActionTest {
       .execute()
       .getInput();
 
-    assertThat(result).isEqualTo("Backup of " + profile.getLanguage() + "/" + profile.getKey());
+    assertThat(result).isEqualTo("Backup of " + profile.getLanguage() + "/" + profile.getKee());
   }
 
   @Test
@@ -205,7 +205,7 @@ public class ExportActionTest {
       .setParam("language", defaultJavaInOrg1.getLanguage())
       .execute()
       .getInput())
-        .isEqualTo("Backup of java/" + defaultJavaInOrg1.getKey());
+        .isEqualTo("Backup of java/" + defaultJavaInOrg1.getKee());
 
     // profile for specified organization, language and name --> do not mix with Xoo profile or profile with same lang/name on other
     // organization
@@ -215,7 +215,7 @@ public class ExportActionTest {
       .setParam("name", defaultJavaInOrg1.getName())
       .execute()
       .getInput())
-        .isEqualTo("Backup of java/" + defaultJavaInOrg1.getKey());
+        .isEqualTo("Backup of java/" + defaultJavaInOrg1.getKee());
   }
 
   private RulesProfileDto createProfile(OrganizationDto organization, boolean isDefault) {
@@ -254,7 +254,7 @@ public class ExportActionTest {
     @Override
     public void backup(DbSession dbSession, RulesProfileDto profile, Writer backupWriter) {
       try {
-        backupWriter.write(format("Backup of %s/%s", profile.getLanguage(), profile.getKey()));
+        backupWriter.write(format("Backup of %s/%s", profile.getLanguage(), profile.getKee()));
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }

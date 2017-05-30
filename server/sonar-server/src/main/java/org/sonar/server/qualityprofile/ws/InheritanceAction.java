@@ -76,7 +76,7 @@ public class InheritanceAction implements QProfileWsAction {
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' for quality profile '%s'", organizationUuid, profile.getKee())));
       List<RulesProfileDto> ancestors = profileLookup.ancestors(profile, dbSession);
-      List<RulesProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKey());
+      List<RulesProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKee());
       Statistics statistics = new Statistics(dbSession, organization);
 
       writeProtobuf(buildResponse(profile, ancestors, children, statistics), request, response);
@@ -104,7 +104,7 @@ public class InheritanceAction implements QProfileWsAction {
   }
 
   private static QualityProfile buildProfile(RulesProfileDto qualityProfile, Statistics statistics) {
-    String key = qualityProfile.getKey();
+    String key = qualityProfile.getKee();
     QualityProfile.Builder builder = QualityProfile.newBuilder()
       .setKey(key)
       .setName(qualityProfile.getName())
