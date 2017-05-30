@@ -129,6 +129,14 @@ public class Project extends Resource implements Component {
     return definition.getDescription();
   }
 
+  /** 
+   * @deprecated since 4.2 use {@link org.sonar.api.batch.fs.FileSystem#languages()}
+   */
+  @Override
+  public Language getLanguage() {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   public String getScope() {
     return Scopes.PROJECT;
