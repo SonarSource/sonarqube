@@ -90,6 +90,7 @@ public class ChangeParentAction implements QProfileWsAction {
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' of profile '%s'", organizationUuid, profile.getKee())));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
+      wsSupport.checkNotBuiltInt(profile);
 
       String parentKey = request.param(PARAM_PARENT_KEY);
       String parentName = request.param(PARAM_PARENT_NAME);

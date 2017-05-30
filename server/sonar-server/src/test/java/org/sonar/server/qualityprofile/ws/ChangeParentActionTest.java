@@ -40,13 +40,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -323,6 +324,25 @@ public class ChangeParentActionTest {
     List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
     assertThat(activeRules).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+  }
+
+  @Test
+  public void fail_if_built_in_profile() {
+    RulesProfileDto child = dbTester.qualityProfiles().insert(organization, p -> p
+      .setLanguage(language.getKey())
+      .setIsBuiltIn(true));
+
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+
+    TestRequest request = wsActionTester.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_PROFILE_KEY, child.getKee())
+      .setParam("parentKey", "palap");
+
+    thrown.expect(BadRequestException.class);
+
+    request.execute();
   }
 
   @Test

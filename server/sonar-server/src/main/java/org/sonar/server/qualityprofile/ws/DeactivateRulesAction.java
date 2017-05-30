@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.ws.RuleQueryFactory;
@@ -76,7 +77,9 @@ public class DeactivateRulesAction implements QProfileWsAction {
     userSession.checkLoggedIn();
     BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
-      wsSupport.checkPermission(dbSession, qualityProfileKey);
+      RulesProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));
+      wsSupport.checkPermission(dbSession, profile);
+      wsSupport.checkNotBuiltInt(profile);
       result = ruleActivator.bulkDeactivate(ruleQueryFactory.createRuleQuery(dbSession, request), qualityProfileKey);
     }
     BulkChangeWsResponse.writeResponse(result, response);

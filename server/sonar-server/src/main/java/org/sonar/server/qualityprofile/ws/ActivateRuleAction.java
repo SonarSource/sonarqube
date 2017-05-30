@@ -30,6 +30,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -106,7 +107,9 @@ public class ActivateRuleAction implements QProfileWsAction {
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      wsSupport.checkPermission(dbSession, profileKey);
+      RulesProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
+      wsSupport.checkPermission(dbSession, profile);
+      wsSupport.checkNotBuiltInt(profile);
       List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileKey);
       dbSession.commit();
       activeRuleIndexer.index(changes);

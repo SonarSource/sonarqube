@@ -66,7 +66,7 @@ public class RenameActionTest {
     QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
     underTest = new RenameAction(
       dbClient,
-      userSessionRule);
+      userSessionRule, wsSupport);
     tester = new WsTester(new QProfilesWs(
       underTest));
     organization = db.organizations().insert();
@@ -194,12 +194,22 @@ public class RenameActionTest {
     logInAsQProfileAdministrator();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality profile not found: polop");
+    expectedException.expectMessage("Quality Profile with key 'polop' does not exist");
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "polop")
       .setParam("name", "Uh oh, I don't know this profile")
       .execute();
+  }
+
+  @Test
+  public void fail_if_profile_is_built_in() {
+    logInAsQProfileAdministrator();
+    String qualityProfileKey = db.qualityProfiles().insert(organization, p -> p.setIsBuiltIn(true)).getKee();
+
+    expectedException.expect(BadRequestException.class);
+
+    underTest.doHandle("the new name", qualityProfileKey);
   }
 
   @Test
@@ -232,7 +242,7 @@ public class RenameActionTest {
     logInAsQProfileAdministrator();
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Quality profile not found: unknown");
+    expectedException.expectMessage("Quality Profile with key 'unknown' does not exist");
 
     underTest.doHandle("the new name", "unknown");
   }

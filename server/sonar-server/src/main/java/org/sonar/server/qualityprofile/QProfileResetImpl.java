@@ -19,84 +19,41 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 @ServerSide
 public class QProfileResetImpl implements QProfileReset {
 
   private final DbClient db;
-  private final QProfileFactory factory;
   private final RuleActivator activator;
   private final ActiveRuleIndexer activeRuleIndexer;
-  private final BuiltInQProfileRepository builtInQProfileRepositories;
 
-  public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, QProfileFactory factory,
-    BuiltInQProfileRepository builtInQProfileRepository) {
+  public QProfileResetImpl(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer) {
     this.db = db;
     this.activator = activator;
     this.activeRuleIndexer = activeRuleIndexer;
-    this.factory = factory;
-    this.builtInQProfileRepositories = builtInQProfileRepository;
-  }
-
-  @Override
-  public void resetLanguage(DbSession dbSession, OrganizationDto organization, String language) {
-    builtInQProfileRepositories.getQProfilesByLanguage()
-      .entrySet()
-      .stream()
-      .filter(entry -> entry.getKey().equals(language))
-      .map(Map.Entry::getValue)
-      .flatMap(List::stream)
-      .forEach(builtInQProfile -> resetProfile(dbSession, organization, builtInQProfile));
-  }
-
-  private void resetProfile(DbSession dbSession, OrganizationDto organization, BuiltInQProfile builtInQProfile) {
-    RulesProfileDto profile = factory.getOrCreateCustom(dbSession, organization, builtInQProfile.getQProfileName());
-
-    List<RuleActivation> activations = Lists.newArrayList();
-    builtInQProfile.getActiveRules().forEach(activeRule -> activations.add(getRuleActivation(dbSession, activeRule)));
-    reset(dbSession, profile, activations);
-  }
-
-  private RuleActivation getRuleActivation(DbSession dbSession, ActiveRule activeRule) {
-    RuleActivation activation = new RuleActivation(RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey()));
-    activation.setSeverity(activeRule.getSeverity().name());
-    if (!activeRule.getActiveRuleParams().isEmpty()) {
-      for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-        activation.setParameter(param.getParamKey(), param.getValue());
-      }
-    } else {
-      for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
-        activation.setParameter(param.getName(), param.getDefaultValue());
-      }
-    }
-    return activation;
   }
 
   @Override
   public BulkChangeResult reset(DbSession dbSession, RulesProfileDto profile, Collection<RuleActivation> activations) {
     requireNonNull(profile.getId(), "Quality profile must be persisted");
+    checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s'", profile.getKee());
     BulkChangeResult result = new BulkChangeResult();
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
     // Keep reference to all the activated rules before backup restore
