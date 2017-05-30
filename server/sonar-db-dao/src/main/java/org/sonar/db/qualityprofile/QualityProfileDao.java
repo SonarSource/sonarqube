@@ -96,7 +96,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public List<RulesProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, chunk -> mapper(session).selectDefaultProfiles(organization.getUuid(), chunk));
+    return mapper(session).selectDefaultProfiles(organization.getUuid(), languageKeys);
   }
 
   @CheckForNull
@@ -105,12 +105,12 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public RulesProfileDto selectByProjectAndLanguage(DbSession session, String projectKey, String language) {
-    return mapper(session).selectByProjectAndLanguage(projectKey, language);
+  public RulesProfileDto selectAssociatedToProjectAndLanguage(DbSession session, ComponentDto project, String language) {
+    return mapper(session).selectAssociatedToProjectUuidAndLanguage(project.getOrganizationUuid(), project.projectUuid(), language);
   }
 
-  public List<RulesProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, ComponentDto project, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), project.getKey(), input));
+  public List<RulesProfileDto> selectAssociatedToProjectUuidAndLanguages(DbSession session, ComponentDto project, Collection<String> languages) {
+    return mapper(session).selectAssociatedToProjectUuidAndLanguages(project.getOrganizationUuid(), project.uuid(), languages);
   }
 
   public List<RulesProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
@@ -139,23 +139,23 @@ public class QualityProfileDao implements Dao {
   }
 
   public List<RulesProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organization.getUuid(), name, input));
+    return mapper(session).selectByNameAndLanguages(organization.getUuid(), name, languageKeys);
   }
 
   public Map<String, Long> countProjectsByProfileKey(DbSession dbSession, OrganizationDto organization) {
     return KeyLongValue.toMap(mapper(dbSession).countProjectsByProfileKey(organization.getUuid()));
   }
 
-  public void insertProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    mapper(session).insertProjectProfileAssociation(projectUuid, profileKey);
+  public void insertProjectProfileAssociation(DbSession dbSession, ComponentDto project, RulesProfileDto profile) {
+    mapper(dbSession).insertProjectProfileAssociation(project.uuid(), profile.getKee());
   }
 
-  public void deleteProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    mapper(session).deleteProjectProfileAssociation(projectUuid, profileKey);
+  public void deleteProjectProfileAssociation(DbSession dbSession, ComponentDto project, RulesProfileDto profile) {
+    mapper(dbSession).deleteProjectProfileAssociation(project.uuid(), profile.getKee());
   }
 
-  public void updateProjectProfileAssociation(String projectUuid, String newProfileKey, String oldProfileKey, DbSession session) {
-    mapper(session).updateProjectProfileAssociation(projectUuid, newProfileKey, oldProfileKey);
+  public void updateProjectProfileAssociation(DbSession dbSession, ComponentDto project, String newProfileKey, String oldProfileKey) {
+    mapper(dbSession).updateProjectProfileAssociation(project.uuid(), newProfileKey, oldProfileKey);
   }
 
   public void deleteProjectAssociationsByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {

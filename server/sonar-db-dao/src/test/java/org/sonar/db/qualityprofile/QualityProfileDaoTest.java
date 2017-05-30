@@ -323,29 +323,58 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void select_by_project_key_and_language() {
-    dbTester.prepareDbUnit(getClass(), "projects.xml");
+  public void test_selectAssociatedToProjectAndLanguage() {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project1 = dbTester.components().insertPublicProject(org);
+    ComponentDto project2 = dbTester.components().insertPublicProject(org);
+    RulesProfileDto javaProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    RulesProfileDto jsProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, javaProfile, jsProfile);
 
-    RulesProfileDto dto = underTest.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "java");
-    assertThat(dto.getId()).isEqualTo(1);
-
-    assertThat(underTest.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "unkown")).isNull();
-    assertThat(underTest.selectByProjectAndLanguage(dbTester.getSession(), "unknown", "java")).isNull();
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbTester.getSession(), project1, "java").getKee())
+      .isEqualTo(javaProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbTester.getSession(), project1, "js").getKee())
+      .isEqualTo(jsProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbTester.getSession(), project1, "cobol"))
+      .isNull();
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbTester.getSession(), project2, "java"))
+      .isNull();
   }
 
   @Test
-  public void select_by_project_and_languages() {
-    dbTester.prepareDbUnit(getClass(), "projects.xml");
+  public void test_selectAssociatedToProjectUuidAndLanguages() {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project1 = dbTester.components().insertPublicProject(org);
+    ComponentDto project2 = dbTester.components().insertPublicProject(org);
+    RulesProfileDto javaProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    RulesProfileDto jsProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, javaProfile, jsProfile);
 
-    OrganizationDto organization = dbTester.organizations().insert(OrganizationTesting.newOrganizationDto().setUuid("org1"));
-    ComponentDto project = dbTester.getDbClient().componentDao().selectOrFailByKey(dbTester.getSession(), "org.codehaus.sonar:sonar");
-    ComponentDto unknownProject = dbTester.components().insertPrivateProject(organization, p -> p.setKey("unknown"));
-    List<RulesProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("java"));
-    assertThat(dto).extracting("id").containsOnly(1);
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbTester.getSession(), project1, singletonList("java")))
+      .extracting(RulesProfileDto::getKee).containsOnly(javaProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbTester.getSession(), project1, singletonList("unknown")))
+      .isEmpty();
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbTester.getSession(), project1, of("java", "unknown")))
+      .extracting(RulesProfileDto::getKee).containsExactly(javaProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbTester.getSession(), project1, of("java", "js")))
+      .extracting(RulesProfileDto::getKee).containsExactlyInAnyOrder(javaProfile.getKee(), jsProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbTester.getSession(), project2, singletonList("java")))
+      .isEmpty();
+  }
 
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("unkown"))).isEmpty();
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, of("java", "unkown"))).extracting("id").containsOnly(1);
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, unknownProject, singletonList("java"))).isEmpty();
+  @Test
+  public void test_updateProjectProfileAssociation() {
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(org);
+    RulesProfileDto javaProfile1 = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    RulesProfileDto jsProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    RulesProfileDto javaProfile2 = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    qualityProfileDb.associateProjectWithQualityProfile(project, javaProfile1, jsProfile);
+
+    underTest.updateProjectProfileAssociation(dbSession, project, javaProfile2.getKee(), javaProfile1.getKee());
+
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "java").getKee()).isEqualTo(javaProfile2.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "js").getKee()).isEqualTo(jsProfile.getKee());
   }
 
   @Test
@@ -442,20 +471,6 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void update_project_profile_association() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    RulesProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
-    RulesProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
-    RulesProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");
-    qualityProfileDb.associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
-
-    underTest.updateProjectProfileAssociation(project.uuid(), profile3Language1.getKee(), profile1Language1.getKee(), dbSession);
-
-    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo").getKee()).isEqualTo(profile3Language1.getKee());
-    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo2").getKee()).isEqualTo(profile2Language2.getKee());
-  }
-
-  @Test
   public void selectOutdatedProfiles_returns_the_custom_profiles_with_specified_name() {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
@@ -480,9 +495,9 @@ public class QualityProfileDaoTest {
   public void renameAndCommit_updates_name_of_specified_profiles() {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
-    RulesProfileDto fooInOrg1 = dbTester.qualityProfiles().insert(org1, p->p.setName("foo"));
-    RulesProfileDto fooInOrg2 = dbTester.qualityProfiles().insert(org2, p->p.setName("foo"));
-    RulesProfileDto bar = dbTester.qualityProfiles().insert(org1, p->p.setName("bar"));
+    RulesProfileDto fooInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setName("foo"));
+    RulesProfileDto fooInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setName("foo"));
+    RulesProfileDto bar = dbTester.qualityProfiles().insert(org1, p -> p.setName("bar"));
 
     underTest.renameAndCommit(dbSession, asList(fooInOrg1.getKee(), fooInOrg2.getKee()), "foo (copy)");
 

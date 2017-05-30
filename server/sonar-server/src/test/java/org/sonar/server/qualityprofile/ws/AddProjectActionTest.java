@@ -232,12 +232,12 @@ public class AddProjectActionTest {
   }
 
   private void assertProjectIsAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
-    RulesProfileDto loaded = dbClient.qualityProfileDao().selectByProjectAndLanguage(db.getSession(), project.getKey(), profile.getLanguage());
+    RulesProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
     assertThat(loaded.getKee()).isEqualTo(profile.getKee());
   }
 
   private void assertProjectIsNotAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
-    RulesProfileDto loaded = dbClient.qualityProfileDao().selectByProjectAndLanguage(db.getSession(), project.getKey(), profile.getLanguage());
+    RulesProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
     assertThat(loaded == null || !loaded.getKee().equals(profile.getKee())).isTrue();
   }
 
