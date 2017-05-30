@@ -163,26 +163,24 @@ class PurgeCommands {
     profiler.stop();
   }
 
+  void deleteByRootAndModulesOrSubviews(List<IdUuidPair> rootAndModulesOrSubviewsIds) {
+    List<List<Long>> idPartitions = Lists.partition(IdUuidPairs.ids(rootAndModulesOrSubviewsIds), MAX_RESOURCES_PER_QUERY);
+    List<List<String>> uuidsPartitions = Lists.partition(IdUuidPairs.uuids(rootAndModulesOrSubviewsIds), MAX_RESOURCES_PER_QUERY);
+
+    profiler.start("deleteByRootAndModulesOrSubviews (properties)");
+    idPartitions.forEach(purgeMapper::deleteComponentProperties);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteByRootAndModulesOrSubviews (manual_measures)");
+    uuidsPartitions.forEach(purgeMapper::deleteComponentManualMeasures);
+    session.commit();
+    profiler.stop();
+  }
+
   void deleteComponents(List<IdUuidPair> componentIdUuids) {
-    List<List<Long>> componentIdPartitions = Lists.partition(IdUuidPairs.ids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
     List<List<String>> componentUuidsPartitions = Lists.partition(IdUuidPairs.uuids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
-    // Note : do not merge the delete statements into a single loop of resource ids. It's
-    // voluntarily grouped by tables in order to benefit from JDBC batch mode.
-    // Batch requests can only relate to the same PreparedStatement.
-
-    // possible missing optimization: filter requests according to resource scope
-
-    profiler.start("deleteResourceProperties (properties)");
-    componentIdPartitions.forEach(purgeMapper::deleteComponentProperties);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteResourceManualMeasures (manual_measures)");
-    componentUuidsPartitions.forEach(purgeMapper::deleteComponentManualMeasures);
-    session.commit();
-    profiler.stop();
-
-    profiler.start("deleteResource (projects)");
+    profiler.start("deleteComponents (projects)");
     componentUuidsPartitions.forEach(purgeMapper::deleteComponents);
     session.commit();
     profiler.stop();

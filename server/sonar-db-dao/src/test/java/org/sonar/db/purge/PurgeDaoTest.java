@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -57,6 +58,8 @@ public class PurgeDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
@@ -186,18 +189,52 @@ public class PurgeDaoTest {
   }
 
   @Test
+  public void deleteProject_fails_with_IAE_if_specified_component_is_module() {
+    ComponentDto privateProject = dbTester.components().insertPrivateProject();
+    ComponentDto module = dbTester.components().insertComponent(ComponentTesting.newModuleDto(privateProject));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Couldn't find root component with uuid " + module.uuid());
+    
+    underTest.deleteProject(dbSession, module.uuid());
+  }
+
+  @Test
+  public void deleteProject_fails_with_IAE_if_specified_component_is_directory() {
+    ComponentDto privateProject = dbTester.components().insertPrivateProject();
+    ComponentDto directory = dbTester.components().insertComponent(ComponentTesting.newDirectory(privateProject, "A/B"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Couldn't find root component with uuid " + directory.uuid());
+
+    underTest.deleteProject(dbSession, directory.uuid());
+  }
+
+  @Test
+  public void deleteProject_fails_with_IAE_if_specified_component_is_file() {
+    ComponentDto privateProject = dbTester.components().insertPrivateProject();
+    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(privateProject));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Couldn't find root component with uuid " + file.uuid());
+
+    underTest.deleteProject(dbSession, file.uuid());
+  }
+
+  @Test
+  public void deleteProject_fails_with_IAE_if_specified_component_is_subview() {
+    ComponentDto view = dbTester.components().insertView();
+    ComponentDto subview = dbTester.components().insertComponent(ComponentTesting.newSubView(view));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Couldn't find root component with uuid " + subview.uuid());
+
+    underTest.deleteProject(dbSession, subview.uuid());
+  }
+
+  @Test
   public void delete_view_sub_view_and_tech_project() {
     dbTester.prepareDbUnit(getClass(), "view_sub_view_and_tech_project.xml");
-
-    // technical project
-    underTest.deleteProject(dbSession, "D");
-    dbSession.commit();
-    assertThat(dbTester.countSql("select count(1) from projects where uuid='D'")).isZero();
-
-    // sub view
-    underTest.deleteProject(dbSession, "B");
-    dbSession.commit();
-    assertThat(dbTester.countSql("select count(1) from projects where uuid='B'")).isZero();
 
     // view
     underTest.deleteProject(dbSession, "A");

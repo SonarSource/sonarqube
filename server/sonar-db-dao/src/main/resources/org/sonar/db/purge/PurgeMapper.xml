@@ -55,6 +55,22 @@
     select id, uuid from projects where project_uuid=#{uuid,jdbcType=VARCHAR} or uuid=#{uuid,jdbcType=VARCHAR}
   </select>
 
+  <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
+    select
+      p.id, p.uuid
+    from
+      projects p
+    where
+      (
+        p.project_uuid=#{rootUuid,jdbcType=VARCHAR}
+        and p.scope = 'PRJ' and p.qualifier in ('SVW','BRC')
+      )
+      or (
+        uuid=#{rootUuid,jdbcType=VARCHAR}
+        and p.scope = 'PRJ' and p.qualifier in ('VW','TRK')
+      )
+  </select>
+
   <delete id="deleteAnalysisMeasures" parameterType="map">
     delete from project_measures
     where

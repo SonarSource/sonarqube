@@ -32,6 +32,11 @@ public interface PurgeMapper {
    */
   List<IdUuidPair> selectComponentsByProjectUuid(String projectUuid);
 
+  /**
+   * Returns the list of modules/subviews and the view/project for the specified project_uuid.
+   */
+  List<IdUuidPair> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
+
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteAnalysisDuplications(@Param("analysisUuids") List<String> analysisUuids);
