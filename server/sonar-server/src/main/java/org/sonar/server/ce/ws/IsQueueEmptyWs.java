@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
@@ -69,10 +70,14 @@ public class IsQueueEmptyWs implements WebService {
 
     @Override
     public void handle(Request request, Response response) throws Exception {
+      boolean isQueueEmpty = false;
       try (DbSession dbSession = dbClient.openSession(false)) {
-        boolean isQueueEmpty = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).isEmpty();
-        IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output(), UTF_8);
+        isQueueEmpty = dbClient.ceQueueDao().selectAllInAscOrder(dbSession).isEmpty();
+      } catch (Exception e) {
+        // ignore this FP : https://gist.github.com/simonbrandhof/3d98f854d427519ef5b858a73b59585b
+        Loggers.get(getClass()).error("Cannot select rows from ce_queue", e);
       }
+      IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output(), UTF_8);
     }
   }
 }
