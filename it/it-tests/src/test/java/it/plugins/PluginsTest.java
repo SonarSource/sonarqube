@@ -91,7 +91,7 @@ public class PluginsTest {
     // FIXME JSON plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "JSON");;
     installPlugin(builder, "Sonargraph");
     installPlugin(builder, "abap");
-    installPlugin(builder, "aemrules");
+    // FIXME AEM Rules plugin is disabled because it is no more compatible with SonarQube 6.4 (ClassNotFoundException: com.google.common.base.Functions) installPlugin(builder, "aemrules");
     installPlugin(builder, "android");
     installPlugin(builder, "authbitbucket");
     installPlugin(builder, "authgithub");
