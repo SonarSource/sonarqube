@@ -19,14 +19,22 @@
  */
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.MsSql;
 import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
 import org.sonar.server.platform.db.migration.step.DdlChange;
+
+import static java.lang.String.format;
 
 public class DropIsDefaultColumnFromRulesProfiles extends DdlChange {
 
   private static final String TABLE_NAME = "rules_profiles";
+  private static final String COLUMN_NAME = "is_default";
 
   public DropIsDefaultColumnFromRulesProfiles(Database db) {
     super(db);
@@ -34,6 +42,32 @@ public class DropIsDefaultColumnFromRulesProfiles extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "is_default").build());
+    if (getDialect().getId().equals(MsSql.ID)) {
+      // this should be handled automatically by DropColumnsBuilder
+      dropMssqlConstraints();
+    }
+
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, COLUMN_NAME).build());
+  }
+
+  private void dropMssqlConstraints() throws SQLException {
+    try (Connection connection = getDatabase().getDataSource().getConnection();
+         PreparedStatement pstmt = connection
+           .prepareStatement(format("SELECT d.name " +
+             "FROM sys.default_constraints d " +
+             "INNER JOIN sys.columns AS c ON d.parent_column_id = c.column_id " +
+             "WHERE OBJECT_NAME(d.parent_object_id)='%s' AND c.name='%s'", TABLE_NAME, COLUMN_NAME));
+         ResultSet rs = pstmt.executeQuery()) {
+      while (rs.next()) {
+        String constraintName = rs.getString(1);
+        dropMssqlConstraint(connection, constraintName);
+      }
+    }
+  }
+
+  private void dropMssqlConstraint(Connection connection, String constraintName) throws SQLException {
+    try (Statement stmt = connection.createStatement()) {
+      stmt.executeUpdate(format("ALTER TABLE %s DROP CONSTRAINT %s", TABLE_NAME, constraintName));
+    }
   }
 }
