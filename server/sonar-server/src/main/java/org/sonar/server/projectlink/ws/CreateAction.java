@@ -129,7 +129,7 @@ public class CreateAction implements ProjectLinksWsAction {
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, CreateWsRequest request) {
-    return componentFinder.getByUuidOrKey(
+    return componentFinder.getRootComponentByUuidOrKey(
       dbSession,
       request.getProjectId(),
       request.getProjectKey(),

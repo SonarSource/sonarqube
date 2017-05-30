@@ -41,6 +41,8 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class ComponentFinder {
   private static final String MSG_COMPONENT_ID_OR_KEY_TEMPLATE = "Either '%s' or '%s' must be provided, not both";
   private static final String MSG_PARAMETER_MUST_NOT_BE_EMPTY = "The '%s' parameter must not be empty";
+  private static final String LABEL_PROJECT = "Project";
+  private static final String LABEL_COMPONENT = "Component";
 
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
@@ -51,38 +53,63 @@ public class ComponentFinder {
   }
 
   public ComponentDto getByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
-    checkArgument(componentUuid != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
+    checkByUuidOrKey(componentUuid, componentKey, parameterNames);
 
     if (componentUuid != null) {
-      checkArgument(!componentUuid.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, parameterNames.getUuidParam());
-      return getByUuid(dbSession, componentUuid);
+      return getByUuid(dbSession, checkParamNotEmpty(componentUuid, parameterNames.getUuidParam()));
     }
 
-    checkArgument(!componentKey.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, parameterNames.getKeyParam());
-    return getByKey(dbSession, componentKey);
+    return getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()));
+  }
+
+  public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
+    checkByUuidOrKey(componentUuid, componentKey, parameterNames);
+
+    if (componentUuid != null) {
+      return checkIsProject(getByUuid(dbSession, checkParamNotEmpty(componentUuid, parameterNames.getUuidParam()), LABEL_PROJECT));
+    }
+
+    return checkIsProject(getByKey(dbSession, checkParamNotEmpty(componentKey, parameterNames.getKeyParam()), LABEL_PROJECT));
+  }
+
+  private static String checkParamNotEmpty(String value, String param) {
+    checkArgument(!value.isEmpty(), MSG_PARAMETER_MUST_NOT_BE_EMPTY, param);
+    return value;
+  }
+
+  private static void checkByUuidOrKey(@Nullable String componentUuid, @Nullable String componentKey, ParamNames parameterNames) {
+    checkArgument(componentUuid != null ^ componentKey != null, MSG_COMPONENT_ID_OR_KEY_TEMPLATE, parameterNames.getUuidParam(), parameterNames.getKeyParam());
   }
 
   public ComponentDto getByKey(DbSession dbSession, String key) {
-    return checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, key), "Component key '%s' not found", key);
+    return getByKey(dbSession, key, LABEL_COMPONENT);
+  }
+
+  private ComponentDto getByKey(DbSession dbSession, String key, String label) {
+    return checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, key), "%s key '%s' not found", label, key);
   }
 
   public ComponentDto getByUuid(DbSession dbSession, String uuid) {
-    return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "Component id '%s' not found", uuid);
+    return getByUuid(dbSession, uuid, LABEL_COMPONENT);
+  }
+
+  private ComponentDto getByUuid(DbSession dbSession, String uuid, String label) {
+    return checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, uuid), "%s id '%s' not found", label, uuid);
   }
 
   public ComponentDto getRootComponentByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
     ComponentDto project;
     if (projectUuid != null) {
-      project = checkFoundWithOptional(dbClient.componentDao().selectByUuid(dbSession, projectUuid), "Project id '%s' not found", projectUuid);
+      project = getByUuid(dbSession, projectUuid, LABEL_PROJECT);
     } else {
-      project = checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, projectKey), "Project key '%s' not found", projectKey);
+      project = getByKey(dbSession, projectKey, LABEL_PROJECT);
     }
-    checkIsProject(project, resourceTypes);
+    checkIsProject(project);
 
     return project;
   }
 
-  private static void checkIsProject(ComponentDto component, ResourceTypes resourceTypes) {
+  private ComponentDto checkIsProject(ComponentDto component) {
     Set<String> rootQualifiers = getRootQualifiers(resourceTypes);
 
     checkRequest(component.scope().equals(Scopes.PROJECT) && rootQualifiers.contains(component.qualifier()),
@@ -90,6 +117,8 @@ public class ComponentFinder {
         "Component '%s' (id: %s) must be a project%s.",
         component.key(), component.uuid(),
         rootQualifiers.contains(Qualifiers.VIEW) ? " or a view" : ""));
+
+    return component;
   }
 
   private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
