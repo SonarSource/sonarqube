@@ -43,6 +43,15 @@
   padding: 0 24px;
 }
 
+.projects-topbar-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.projects-topbar-item.disabled * {
+  pointer-events: none !important;
+}
+
 .projects-topbar-button {
   box-sizing: border-box;
   float: right;

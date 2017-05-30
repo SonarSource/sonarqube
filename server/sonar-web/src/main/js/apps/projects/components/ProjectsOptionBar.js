@@ -21,14 +21,18 @@
 import React from 'react';
 import classNames from 'classnames';
 import CloseIcon from '../../../components/icons-components/CloseIcon';
+import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
+import { translate } from '../../../helpers/l10n';
 
 type Props = {
   onPerspectiveChange: ({ view: string, visualization?: string }) => void,
   onSortChange: (sort: string, desc: boolean) => void,
   onToggleOptionBar: boolean => void,
   open: boolean,
+  projects: Array<*>,
+  projectsAppState: { loading: boolean, total?: number },
   selectedSort: string,
   view: string,
   visualization?: string
@@ -42,6 +46,37 @@ export default class ProjectsOptionBar extends React.PureComponent {
     evt.preventDefault();
     this.props.onToggleOptionBar(false);
   };
+
+  renderSortingSelect() {
+    const { projectsAppState, projects, view } = this.props;
+    const limitReached =
+      projects != null &&
+      projectsAppState.total != null &&
+      projects.length < projectsAppState.total;
+
+    if (view === 'visualizations' && !limitReached) {
+      return (
+        <Tooltip overlay={translate('projects.sort.disabled')}>
+          <div>
+            <ProjectsSortingSelect
+              className="projects-topbar-item js-projects-sorting-select disabled"
+              onChange={this.props.onSortChange}
+              selectedSort={this.props.selectedSort}
+              view={this.props.view}
+            />
+          </div>
+        </Tooltip>
+      );
+    }
+    return (
+      <ProjectsSortingSelect
+        className="projects-topbar-item js-projects-sorting-select"
+        onChange={this.props.onSortChange}
+        selectedSort={this.props.selectedSort}
+        view={this.props.view}
+      />
+    );
+  }
 
   render() {
     const { open } = this.props;
@@ -58,12 +93,7 @@ export default class ProjectsOptionBar extends React.PureComponent {
               view={this.props.view}
               visualization={this.props.visualization}
             />
-            <ProjectsSortingSelect
-              className="projects-topbar-item js-projects-sorting-select"
-              onChange={this.props.onSortChange}
-              selectedSort={this.props.selectedSort}
-              view={this.props.view}
-            />
+            {this.renderSortingSelect()}
           </div>
         </div>
       </div>
