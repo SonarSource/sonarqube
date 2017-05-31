@@ -28,6 +28,8 @@ class OrganizationProjects extends React.PureComponent {
   props: {
     children?: React.Element<*>,
     location: Object,
+    optionBarOpen: boolean,
+    optionBarToggle: (open: boolean) => void,
     organization: {
       key: string
     }
@@ -53,6 +55,8 @@ class OrganizationProjects extends React.PureComponent {
         <AllProjectsContainer
           isFavorite={false}
           location={this.props.location}
+          optionBarOpen={this.props.optionBarOpen}
+          optionBarToggle={this.props.optionBarToggle}
           organization={this.props.organization}
         />
       </div>
