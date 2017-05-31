@@ -79,11 +79,18 @@ public abstract class CommonRule {
   }
 
   protected static double getMinDensityParam(ActiveRule activeRule, String paramKey) {
+    return getMinDensityParam(activeRule, paramKey, null);
+  }
+
+  protected static double getMinDensityParam(ActiveRule activeRule, String paramKey, Double baseValue) {
     String s = activeRule.getParams().get(paramKey);
     if (isNotBlank(s)) {
       double d = Double.parseDouble(s);
       if (d < 0.0 || d > 100.0) {
         throw new IllegalStateException(String.format("Minimum density of rule [%s] is incorrect. Got [%s] but must be between 0 and 100.", activeRule.getRuleKey(), s));
+      }
+      if (baseValue != null && d < 0.000001) {
+          d = baseValue;
       }
       return d;
     }
