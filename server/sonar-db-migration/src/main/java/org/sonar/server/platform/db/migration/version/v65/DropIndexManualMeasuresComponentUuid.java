@@ -17,24 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropIndexManualMeasuresComponentUuid extends DdlChange {
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
-
-  @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1700);
+  public DropIndexManualMeasuresComponentUuid(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 14);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropIndexBuilder(getDialect())
+      .setTable("manual_measures")
+      .setName("manual_measures_component_uuid")
+      .build());
   }
 }

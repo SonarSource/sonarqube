@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class RecreateIndexManualMeasuresComponentUuidTest {
+  private static final String TABLE_MANUAL_MEASURES = "manual_measures";
+  private static final String INDEX_MANUAL_MEASURES_COMPONENT_UUID = "manual_measures_component_uuid";
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(RecreateIndexManualMeasuresComponentUuidTest.class, "manual_measures.sql");
+
+  private RecreateIndexManualMeasuresComponentUuid underTest = new RecreateIndexManualMeasuresComponentUuid(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1700);
-  }
+  public void execute_adds_index_EVENTS_COMPONENT_UUID() throws SQLException {
+    db.assertIndexDoesNotExist(TABLE_MANUAL_MEASURES, INDEX_MANUAL_MEASURES_COMPONENT_UUID);
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 14);
+    underTest.execute();
+
+    db.assertIndex(TABLE_MANUAL_MEASURES, INDEX_MANUAL_MEASURES_COMPONENT_UUID, "component_uuid");
   }
 }

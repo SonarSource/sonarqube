@@ -37,6 +37,10 @@ public class DbVersion65 implements DbVersion {
       .add(1707, "Ensure ISSUE.PROJECT_UUID is consistent", EnsureIssueProjectUuidConsistencyOnIssues.class)
       .add(1708, "Clean orphans from PROJECT_LINKS", CleanOrphanRowsInProjectLinks.class)
       .add(1709, "Clean orphans from SETTINGS", CleanOrphanRowsInProperties.class)
-      .add(1710, "Clean orphans from MANUAL_MEASURES", CleanOrphanRowsInManualMeasures.class);
+      .add(1710, "Clean orphans from MANUAL_MEASURES", CleanOrphanRowsInManualMeasures.class)
+      .add(1711, "Drop index MANUAL_MEASURES.COMPONENT_UUID", DropIndexManualMeasuresComponentUuid.class)
+      .add(1712, "Make MANUAL_MEASURES.COMPONENT_UUID not nullable", MakeManualMeasuresComponentUuidNotNullable.class)
+      .add(1713, "Recreate index MANUAL_MEASURES.COMPONENT_UUID", RecreateIndexManualMeasuresComponentUuid.class)
+    ;
   }
 }
