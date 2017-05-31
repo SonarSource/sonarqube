@@ -41,8 +41,9 @@ export default BaseFacet.extend({
     const values = this.options.app.qualityProfiles
       .filter(profile => (lang != null ? profile.lang === lang : true))
       .map(profile => ({
-        label: profile.name,
         extra: that.options.app.languages[profile.lang],
+        isBuiltIn: profile.isBuiltIn,
+        label: profile.name,
         val: profile.key
       }));
     return sortBy(values, 'label');

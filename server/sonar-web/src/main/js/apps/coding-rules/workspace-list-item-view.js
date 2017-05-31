@@ -112,11 +112,18 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   },
 
   serializeData() {
+    const selectedProfileKey = this.options.app.state.get('query').qprofile;
+    const selectedProfile =
+      selectedProfileKey &&
+      this.options.app.qualityProfiles.find(profile => profile.key === selectedProfileKey);
+    const isSelectedProfileBuiltIn = selectedProfile != null && selectedProfile.isBuiltIn;
+
     return {
       ...WorkspaceListItemView.prototype.serializeData.apply(this, arguments),
       tags: union(this.model.get('sysTags'), this.model.get('tags')),
       canWrite: this.options.app.canWrite,
-      selectedProfile: this.options.app.state.get('query').qprofile
+      selectedProfile: selectedProfileKey,
+      isSelectedProfileBuiltIn
     };
   }
 });
