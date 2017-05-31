@@ -20,22 +20,26 @@
 // @flow
 import React from 'react';
 import ProfileLink from '../components/ProfileLink';
-import { translateWithParameters } from '../../../helpers/l10n';
+import BuiltInBadge from '../components/BuiltInBadge';
+import Tooltip from '../../../components/controls/Tooltip';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-type Props = {
+type Props = {|
   className?: string,
   depth: number,
   displayLink?: boolean,
+  extendsBuiltIn?: boolean,
   language: string,
   organization: ?string,
   profile: {
     activeRuleCount: number,
+    isBuiltIn: boolean,
     key: string,
     language: string,
     name: string,
     overridingRuleCount?: number
   }
-};
+|};
 
 export default class ProfileInheritanceBox extends React.PureComponent {
   props: Props;
@@ -45,7 +49,7 @@ export default class ProfileInheritanceBox extends React.PureComponent {
   };
 
   render() {
-    const { profile, className } = this.props;
+    const { profile, className, extendsBuiltIn } = this.props;
     const offset = 25 * this.props.depth;
 
     return (
@@ -60,6 +64,11 @@ export default class ProfileInheritanceBox extends React.PureComponent {
                   {profile.name}
                 </ProfileLink>
               : profile.name}
+            {profile.isBuiltIn && <BuiltInBadge className="spacer-left" />}
+            {extendsBuiltIn &&
+              <Tooltip overlay={translate('quality_profiles.extends_built_in')}>
+                <i className="icon-help spacer-left" />
+              </Tooltip>}
           </div>
         </td>
 
