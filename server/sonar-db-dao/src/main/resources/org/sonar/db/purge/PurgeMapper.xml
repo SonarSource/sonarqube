@@ -51,10 +51,6 @@
     select id from metrics where delete_historical_data=${_true}
   </select>
 
-  <select id="selectComponentsByProjectUuid" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
-    select id, uuid from projects where project_uuid=#{uuid,jdbcType=VARCHAR} or uuid=#{uuid,jdbcType=VARCHAR}
-  </select>
-
   <select id="selectRootAndModulesOrSubviewsByProjectUuid" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
     select
       p.id, p.uuid
@@ -185,10 +181,7 @@
   <delete id="deleteComponents" parameterType="map">
     delete from projects
     where
-      uuid in
-      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
-        #{componentUuid,jdbcType=VARCHAR}
-      </foreach>
+      project_uuid = #{rootUuid,jdbcType=VARCHAR}
   </delete>
 
   <delete id="deleteComponentGroupRoles" parameterType="map">

@@ -28,11 +28,6 @@ public interface PurgeMapper {
   List<IdUuidPair> selectAnalysisIdsAndUuids(PurgeSnapshotQuery query);
 
   /**
-   * Returns the list of components of a project from a project_uuid. The project itself is also returned.
-   */
-  List<IdUuidPair> selectComponentsByProjectUuid(String projectUuid);
-
-  /**
    * Returns the list of modules/subviews and the view/project for the specified project_uuid.
    */
   List<IdUuidPair> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
@@ -59,7 +54,7 @@ public interface PurgeMapper {
 
   void deleteComponentProperties(@Param("componentIds") List<Long> componentIds);
 
-  void deleteComponents(@Param("componentUuids") List<String> componentUuids);
+  void deleteComponents(@Param("rootUuid") String rootUuid);
 
   void deleteComponentGroupRoles(@Param("rootId") long rootId);
 

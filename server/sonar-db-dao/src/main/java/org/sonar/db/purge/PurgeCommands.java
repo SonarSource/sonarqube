@@ -178,10 +178,9 @@ class PurgeCommands {
     profiler.stop();
   }
 
-  void deleteComponents(List<IdUuidPair> componentIdUuids) {
-    List<List<String>> componentUuidsPartitions = Lists.partition(IdUuidPairs.uuids(componentIdUuids), MAX_RESOURCES_PER_QUERY);
+  void deleteComponents(String rootUuid) {
     profiler.start("deleteComponents (projects)");
-    componentUuidsPartitions.forEach(purgeMapper::deleteComponents);
+    purgeMapper.deleteComponents(rootUuid);
     session.commit();
     profiler.stop();
   }

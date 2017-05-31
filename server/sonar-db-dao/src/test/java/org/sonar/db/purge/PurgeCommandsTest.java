@@ -86,7 +86,7 @@ public class PurgeCommandsTest {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler);
-    purgeCommands.deleteComponents(newArrayList(new IdUuidPair(1L, "uuid_1")));
+    purgeCommands.deleteComponents("uuid_1");
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(1);
@@ -180,23 +180,6 @@ public class PurgeCommandsTest {
 
     assertThat(dbTester.countRowsOfTable("group_roles")).isEqualTo(root.isPrivate() ? 2 : 4);
     assertThat(dbTester.countRowsOfTable("user_roles")).isEqualTo(2);
-  }
-
-  /**
-   * Test that SQL queries execution do not fail with a huge number of parameter
-   */
-  @Test
-  public void should_not_fail_when_deleting_huge_number_of_resources() {
-    new PurgeCommands(dbTester.getSession(), profiler).deleteComponents(getHugeNumberOfIdUuids());
-    // The goal of this test is only to check that the query do no fail, not to check result
-  }
-
-  private List<IdUuidPair> getHugeNumberOfIdUuids() {
-    List<IdUuidPair> hugeNbOfSnapshotIds = newArrayList();
-    for (long i = 0; i < 4500; i++) {
-      hugeNbOfSnapshotIds.add(new IdUuidPair(i, String.valueOf(i)));
-    }
-    return hugeNbOfSnapshotIds;
   }
 
   private List<IdUuidPair> getHugeNumberOfIdUuidPairs() {

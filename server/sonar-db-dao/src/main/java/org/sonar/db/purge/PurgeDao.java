@@ -153,7 +153,6 @@ public class PurgeDao implements Dao {
   }
 
   private static void deleteProject(String rootUuid, PurgeMapper mapper, PurgeCommands commands) {
-    List<IdUuidPair> componentsIds = mapper.selectComponentsByProjectUuid(rootUuid);
     List<IdUuidPair> rootAndModulesOrSubviews = mapper.selectRootAndModulesOrSubviewsByProjectUuid(rootUuid);
     long rootId = rootAndModulesOrSubviews.stream()
       .filter(pair -> pair.getUuid().equals(rootUuid))
@@ -164,7 +163,7 @@ public class PurgeDao implements Dao {
     commands.deleteLinks(rootUuid);
     commands.deleteAnalyses(rootUuid);
     commands.deleteByRootAndModulesOrSubviews(rootAndModulesOrSubviews);
-    commands.deleteComponents(componentsIds);
+    commands.deleteComponents(rootUuid);
     commands.deleteIssues(rootUuid);
     commands.deleteFileSources(rootUuid);
     commands.deleteCeActivity(rootUuid);
