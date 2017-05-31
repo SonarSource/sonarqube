@@ -26,6 +26,7 @@ type Props = {
   isFavorite?: boolean,
   loading: boolean,
   onOpenOptionBar: () => void,
+  optionBarOpen?: boolean,
   organization?: { key: string },
   query: { [string]: string },
   total?: number
@@ -40,11 +41,13 @@ export default function PageHeader(props: Props) {
         query={props.query}
       />
       <div className="page-actions projects-page-actions text-right">
-        <div className="spacer-bottom">
-          <a className="button js-projects-topbar-open" href="#" onClick={props.onOpenOptionBar}>
+        {!props.optionBarOpen &&
+          <a
+            className="button js-projects-topbar-open spacer-right"
+            href="#"
+            onClick={props.onOpenOptionBar}>
             {translate('projects.view_settings')}
-          </a>
-        </div>
+          </a>}
 
         {!!props.loading && <i className="spinner spacer-right" />}
 
