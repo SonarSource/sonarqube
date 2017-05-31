@@ -284,7 +284,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // rule
       RuleIndexDefinition.class,
       RuleIndexer.class,
-      AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
       DeprecatedRulesDefinitionLoader.class,
