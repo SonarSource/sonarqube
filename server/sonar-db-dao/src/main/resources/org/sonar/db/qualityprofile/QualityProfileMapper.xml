@@ -18,9 +18,7 @@
 
   <insert id="insertRulesProfile" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
     insert into rules_profiles (
-      organization_uuid,
       kee,
-      parent_kee,
       name,
       language,
       created_at,
@@ -30,9 +28,7 @@
       user_updated_at,
       is_built_in
     ) values (
-      #{dto.organizationUuid, jdbcType=VARCHAR},
       #{dto.kee, jdbcType=VARCHAR},
-      #{dto.parentKee, jdbcType=VARCHAR},
       #{dto.name, jdbcType=VARCHAR},
       #{dto.language, jdbcType=VARCHAR},
       #{now, jdbcType=TIMESTAMP},

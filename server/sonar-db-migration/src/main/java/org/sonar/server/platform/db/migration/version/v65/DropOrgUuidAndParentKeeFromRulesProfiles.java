@@ -20,21 +20,22 @@
 
 package org.sonar.server.platform.db.migration.version.v65;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropOrgUuidAndParentKeeFromRulesProfiles extends DdlChange {
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+  private static final String TABLE_NAME = "rules_profiles";
 
-  @Test
-  public void migrationNumber_starts_at_1700() {
-    verifyMinimumMigrationNumber(underTest, 1700);
+  public DropOrgUuidAndParentKeeFromRulesProfiles(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 17);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "organization_uuid").build());
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "parent_kee").build());
   }
 }

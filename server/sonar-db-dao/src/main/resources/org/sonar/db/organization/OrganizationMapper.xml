@@ -135,7 +135,8 @@
     from organizations org
     where not exists (
       select 1 from rules_profiles p
-      where p.organization_uuid = org.uuid
+      inner join org_qprofiles oqp on oqp.rules_profile_uuid = p.kee
+      where oqp.organization_uuid = org.uuid
       and p.language = #{profileLanguage, jdbcType=VARCHAR}
       and p.name = #{profileName, jdbcType=VARCHAR}
     )

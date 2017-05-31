@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropOrgUuidAndParentKeeFromRulesProfilesTest {
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+  private static final String TABLE_NAME = "rules_profiles";
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropOrgUuidAndParentKeeFromRulesProfilesTest.class, "initial.sql");
+
+  private DropOrgUuidAndParentKeeFromRulesProfiles underTest = new DropOrgUuidAndParentKeeFromRulesProfiles(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1700() {
-    verifyMinimumMigrationNumber(underTest, 1700);
-  }
+  public void columns_are_dropped() throws SQLException {
+    underTest.execute();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 17);
+    db.assertColumnDoesNotExist(TABLE_NAME, "organization_uuid");
+    db.assertColumnDoesNotExist(TABLE_NAME, "parent_kee");
   }
 }
