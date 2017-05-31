@@ -83,7 +83,6 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
       name="projects.facets.tags"
     />
   }
-  highlightUnder={1}
   isFavorite={true}
   options={
     Array [
@@ -151,7 +150,6 @@ exports[`should render the tags facet with the selected tags 1`] = `
       name="projects.facets.tags"
     />
   }
-  highlightUnder={1}
   isFavorite={true}
   options={
     Array [
@@ -193,6 +191,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="lang"
+      onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -220,6 +219,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="sonar"
+      onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -247,6 +247,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key="csharp"
+      onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -331,7 +332,6 @@ exports[`should render the tags without the ones in the facet 1`] = `
       name="projects.facets.tags"
     />
   }
-  highlightUnder={1}
   options={
     Array [
       "lang",
@@ -399,7 +399,6 @@ exports[`should render the tags without the ones in the facet 2`] = `
       name="projects.facets.tags"
     />
   }
-  highlightUnder={1}
   options={
     Array [
       "lang",

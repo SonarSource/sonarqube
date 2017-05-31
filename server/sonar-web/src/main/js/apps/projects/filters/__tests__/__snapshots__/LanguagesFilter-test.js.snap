@@ -80,7 +80,6 @@ exports[`should render maximum 10 languages in the searchbox results 1`] = `
       name="projects.facets.languages"
     />
   }
-  highlightUnder={1}
   isFavorite={true}
   options={
     Array [
@@ -160,7 +159,6 @@ exports[`should render the languages facet with the selected languages 1`] = `
       name="projects.facets.languages"
     />
   }
-  highlightUnder={1}
   isFavorite={true}
   options={
     Array [
@@ -202,6 +200,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="java"
+      onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -235,6 +234,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="cs"
+      onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -268,6 +268,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key="js"
+      onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
       to={
@@ -382,7 +383,6 @@ exports[`should render the languages without the ones in the facet 1`] = `
       name="projects.facets.languages"
     />
   }
-  highlightUnder={1}
   options={
     Array [
       "java",

@@ -41,20 +41,23 @@ export default class DuplicationsFilter extends React.PureComponent {
   };
 
   getFacetValueForOption(facet, option) {
-    const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*'];
+    const map = ['*-3.0', '3.0-5.0', '5.0-10.0', '10.0-20.0', '20.0-*', 'NO_DATA'];
     return facet[map[option - 1]];
   }
 
   renderOption(option, selected) {
     return (
       <span>
-        <DuplicationsRating
-          value={getDuplicationsRatingAverageValue(option)}
-          size="small"
-          muted={!selected}
-        />
+        {option < 6 &&
+          <DuplicationsRating
+            value={getDuplicationsRatingAverageValue(option)}
+            size="small"
+            muted={!selected}
+          />}
         <span className="spacer-left">
-          {getDuplicationsRatingLabel(option)}
+          {option < 6
+            ? getDuplicationsRatingLabel(option)
+            : <span className="big-spacer-left">{translate('no_data')}</span>}
         </span>
       </span>
     );
@@ -65,13 +68,14 @@ export default class DuplicationsFilter extends React.PureComponent {
       <FilterContainer
         property={this.props.property}
         className={this.props.className}
-        options={[1, 2, 3, 4, 5]}
+        options={[1, 2, 3, 4, 5, 6]}
         query={this.props.query}
         renderOption={this.renderOption}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
+        highlightUnderMax={5}
         header={<FilterHeader name={translate('metric_domain.Duplications')} />}
       />
     );

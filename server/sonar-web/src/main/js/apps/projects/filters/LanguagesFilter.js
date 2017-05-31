@@ -81,7 +81,6 @@ export default class LanguagesFilter extends React.PureComponent {
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
-        highlightUnder={1}
         header={<FilterHeader name={translate('projects.facets.languages')} />}
         footer={
           <SearchableFilterFooter
