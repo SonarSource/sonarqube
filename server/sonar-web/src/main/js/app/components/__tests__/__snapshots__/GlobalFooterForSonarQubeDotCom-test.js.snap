@@ -6,7 +6,7 @@ exports[`should render correctly 1`] = `
   id="footer"
 >
   <div>
-    © 2008-2017, SonarQube.com by
+    © 2008-2017, SonarCloud.io by
      
     <a
       href="http://www.sonarsource.com"
@@ -18,13 +18,13 @@ exports[`should render correctly 1`] = `
   </div>
   <div>
     <a
-      href="https://about.sonarqube.com/news/"
+      href="https://about.sonarcloud.io/news/"
     >
       footer.news
     </a>
      - 
     <a
-      href="https://about.sonarqube.com/Terms_of_service.pdf"
+      href="https://about.sonarcloud.io/Terms_of_service.pdf"
     >
       footer.terms
     </a>
@@ -36,13 +36,13 @@ exports[`should render correctly 1`] = `
     </a>
      - 
     <a
-      href="https://about.sonarqube.com/get-started/"
+      href="https://about.sonarcloud.io/get-started/"
     >
       footer.get_started
     </a>
      - 
     <a
-      href="https://about.sonarqube.com/contact/"
+      href="https://about.sonarcloud.io/contact/"
     >
       footer.help
     </a>
