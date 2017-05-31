@@ -29,6 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
+import org.sonar.db.qualityprofile.QProfileChangeMapper;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -155,7 +156,7 @@ public class ChangelogLoaderTest {
       .setLogin(login)
       .setChangeType(type.name())
       .setData(data);
-    QualityProfileTesting.insert(dbTester, dto);
+    insert(dto);
   }
 
   private void insertRule(RuleKey key, String name) {
@@ -170,5 +171,14 @@ public class ChangelogLoaderTest {
       .setName(name);
     dbTester.getDbClient().userDao().insert(dbTester.getSession(), dto);
     dbTester.getSession().commit();
+  }
+
+  public void insert(QProfileChangeDto dto) {
+    // do not use QProfileChangeDao so that generated fields key and creation date
+    // can be defined by tests
+    DbSession dbSession = dbTester.getSession();
+    QProfileChangeMapper mapper = dbSession.getMapper(QProfileChangeMapper.class);
+    mapper.insert(dto);
+    dbSession.commit();
   }
 }

@@ -27,7 +27,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonarqube.ws.Rules;
 
@@ -43,7 +43,7 @@ public class ActiveRuleCompleterTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(dbTester.getDbClient(), new Languages());
     RuleDefinitionDto rule = dbTester.rules().insert();
-    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     ActiveRuleDto activeRule = dbTester.qualityProfiles().activateRule(qualityProfile, rule);
 
     List<Rules.Active> result = activeRuleCompleter.completeShow(dbTester.getSession(), organization, rule);

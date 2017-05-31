@@ -47,7 +47,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -82,13 +82,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public void backup(DbSession dbSession, RulesProfileDto profileDto, Writer writer) {
+  public void backup(DbSession dbSession, QProfileDto profileDto, Writer writer) {
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee());
     activeRules.sort(BackupActiveRuleComparator.INSTANCE);
     writeXml(dbSession, writer, profileDto, activeRules.iterator());
   }
 
-  private void writeXml(DbSession dbSession, Writer writer, RulesProfileDto profile, Iterator<ActiveRuleDto> activeRules) {
+  private void writeXml(DbSession dbSession, Writer writer, QProfileDto profile, Iterator<ActiveRuleDto> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
     xml.begin(ATTRIBUTE_PROFILE);
     xml.prop(ATTRIBUTE_NAME, profile.getName());
@@ -126,7 +126,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, RulesProfileDto profile) {
+  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile) {
     return restore(dbSession, backup, nameInBackup -> {
       checkArgument(profile.getLanguage().equals(nameInBackup.getLanguage()),
         "Can't restore %s backup on %s profile with key [%s]. Languages are different.", nameInBackup.getLanguage(), profile.getLanguage(), profile.getKee());
@@ -134,7 +134,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     });
   }
 
-  private QProfileRestoreSummary restore(DbSession dbSession, Reader backup, Function<QProfileName, RulesProfileDto> profileLoader) {
+  private QProfileRestoreSummary restore(DbSession dbSession, Reader backup, Function<QProfileName, QProfileDto> profileLoader) {
     try {
       String profileLang = null;
       String profileName = null;
@@ -161,7 +161,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       }
 
       QProfileName targetName = new QProfileName(profileLang, profileName);
-      RulesProfileDto targetProfile = profileLoader.apply(targetName);
+      QProfileDto targetProfile = profileLoader.apply(targetName);
       BulkChangeResult changes = profileReset.reset(dbSession, targetProfile, ruleActivations);
       return new QProfileRestoreSummary(targetProfile, changes);
     } catch (XMLStreamException e) {

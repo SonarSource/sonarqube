@@ -27,7 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -81,7 +81,7 @@ public class RenameActionTest {
 
     underTest.doHandle("the new name", qualityProfileKey);
 
-    RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), qualityProfileKey);
+    QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), qualityProfileKey);
     assertThat(reloaded.getName()).isEqualTo("the new name");
   }
 
@@ -89,18 +89,18 @@ public class RenameActionTest {
   public void fail_renaming_if_name_already_exists() {
     logInAsQProfileAdministrator();
 
-    RulesProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("xoo")
       .setName("Old, valid name");
-    db.qualityProfiles().insertQualityProfile(qualityProfile1);
+    db.qualityProfiles().insert(qualityProfile1);
     String qualityProfileKey1 = qualityProfile1.getKee();
 
-    RulesProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid())
       .setLanguage("xoo")
       .setName("Invalid, duplicated name");
-    db.qualityProfiles().insertQualityProfile(qualityProfile2);
+    db.qualityProfiles().insert(qualityProfile2);
     String qualityProfileKey2 = qualityProfile2.getKee();
 
     expectedException.expect(BadRequestException.class);
@@ -116,23 +116,23 @@ public class RenameActionTest {
     userSessionRule.logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES, organizationX);
 
-    RulesProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationX.getUuid())
       .setLanguage("xoo")
       .setName("Old, unique name");
-    db.qualityProfiles().insertQualityProfile(qualityProfile1);
+    db.qualityProfiles().insert(qualityProfile1);
     String qualityProfileKey1 = qualityProfile1.getKee();
 
-    RulesProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto qualityProfile2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationY.getUuid())
       .setLanguage("xoo")
       .setName("Duplicated name");
-    db.qualityProfiles().insertQualityProfile(qualityProfile2);
+    db.qualityProfiles().insert(qualityProfile2);
     String qualityProfileKey2 = qualityProfile2.getKee();
 
     underTest.doHandle("Duplicated name", qualityProfileKey1);
 
-    RulesProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), qualityProfileKey1);
+    QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), qualityProfileKey1);
     assertThat(reloaded.getName()).isEqualTo("Duplicated name");
   }
 
@@ -167,9 +167,9 @@ public class RenameActionTest {
     userSessionRule.logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES, organizationX);
 
-    RulesProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationY.getUuid());
-    db.qualityProfiles().insertQualityProfile(qualityProfile);
+    db.qualityProfiles().insert(qualityProfile);
     String qualityProfileKey = qualityProfile.getKee();
 
     expectedException.expect(ForbiddenException.class);
@@ -248,26 +248,26 @@ public class RenameActionTest {
   }
 
   private String createNewValidQualityProfileKey() {
-    RulesProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
-    db.qualityProfiles().insertQualityProfile(qualityProfile);
+    db.qualityProfiles().insert(qualityProfile);
     return qualityProfile.getKee();
   }
 
   private void createProfiles() {
     String orgUuid = organization.getUuid();
     dbClient.qualityProfileDao().insert(db.getSession(),
-      RulesProfileDto.createFor("sonar-way-xoo1-12345")
+      QProfileDto.createFor("sonar-way-xoo1-12345")
         .setOrganizationUuid(orgUuid)
         .setLanguage(xoo1Key)
         .setName("Sonar way"),
 
-      RulesProfileDto.createFor("sonar-way-xoo2-23456")
+      QProfileDto.createFor("sonar-way-xoo2-23456")
         .setOrganizationUuid(orgUuid)
         .setLanguage(xoo2Key)
         .setName("Sonar way"),
 
-      RulesProfileDto.createFor("my-sonar-way-xoo2-34567")
+      QProfileDto.createFor("my-sonar-way-xoo2-34567")
         .setOrganizationUuid(orgUuid)
         .setLanguage(xoo2Key)
         .setName("My Sonar way")

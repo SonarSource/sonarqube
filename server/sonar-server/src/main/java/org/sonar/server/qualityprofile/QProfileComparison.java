@@ -36,7 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 @ServerSide
 @ComputeEngineSide
@@ -48,7 +48,7 @@ public class QProfileComparison {
     this.dbClient = dbClient;
   }
 
-  public QProfileComparisonResult compare(DbSession dbSession, RulesProfileDto left, RulesProfileDto right) {
+  public QProfileComparisonResult compare(DbSession dbSession, QProfileDto left, QProfileDto right) {
     Map<RuleKey, ActiveRuleDto> leftActiveRulesByRuleKey = loadActiveRules(dbSession, left);
     Map<RuleKey, ActiveRuleDto> rightActiveRulesByRuleKey = loadActiveRules(dbSession, right);
 
@@ -86,29 +86,29 @@ public class QProfileComparison {
     }
   }
 
-  private Map<RuleKey, ActiveRuleDto> loadActiveRules(DbSession session, RulesProfileDto profile) {
+  private Map<RuleKey, ActiveRuleDto> loadActiveRules(DbSession session, QProfileDto profile) {
     return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfileKey(session, profile.getKee()), ActiveRuleToRuleKey.INSTANCE);
   }
 
   public static class QProfileComparisonResult {
 
-    private final RulesProfileDto left;
-    private final RulesProfileDto right;
+    private final QProfileDto left;
+    private final QProfileDto right;
     private final Map<RuleKey, ActiveRuleDto> inLeft = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDto> inRight = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDiff> modified = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDto> same = Maps.newHashMap();
 
-    public QProfileComparisonResult(RulesProfileDto left, RulesProfileDto right) {
+    public QProfileComparisonResult(QProfileDto left, QProfileDto right) {
       this.left = left;
       this.right = right;
     }
 
-    public RulesProfileDto left() {
+    public QProfileDto left() {
       return left;
     }
 
-    public RulesProfileDto right() {
+    public QProfileDto right() {
       return right;
     }
 

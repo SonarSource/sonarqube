@@ -40,7 +40,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -98,7 +98,7 @@ public class RuleActivatorMediumTest {
 
   ActiveRuleIndexer activeRuleIndexer;
 
-  RulesProfileDto profileDto;
+  QProfileDto profileDto;
   private OrganizationDto organization;
 
   @Before
@@ -964,7 +964,7 @@ public class RuleActivatorMediumTest {
     // set parent -> child profile inherits rule x1 and still has x2
     ruleActivator.setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
+    assertThat(db.qualityProfileDao().selectByUuid(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
 
     verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X1), MAJOR, INHERITED, ImmutableMap.of("max", "10"));
     verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, null, Collections.emptyMap());
@@ -973,7 +973,7 @@ public class RuleActivatorMediumTest {
     dbSession.clearCache();
     ruleActivator.setParent(dbSession, XOO_P2_KEY, null);
     assertThat(countActiveRules(XOO_P2_KEY)).isEqualTo(1);
-    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
+    assertThat(db.qualityProfileDao().selectByUuid(dbSession, XOO_P2_KEY).getParentKee()).isNull();
     verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, null, Collections.emptyMap());
   }
 
@@ -981,7 +981,7 @@ public class RuleActivatorMediumTest {
   public void unset_no_parent_does_not_fail() {
     // P1 has no parent !
     ruleActivator.setParent(dbSession, XOO_P1_KEY, null);
-    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P1_KEY).getParentKee()).isNull();
+    assertThat(db.qualityProfileDao().selectByUuid(dbSession, XOO_P1_KEY).getParentKee()).isNull();
   }
 
   @Test
@@ -1022,7 +1022,7 @@ public class RuleActivatorMediumTest {
     // unset parent -> keep x1
     ruleActivator.setParent(dbSession, XOO_P2_KEY, null);
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
+    assertThat(db.qualityProfileDao().selectByUuid(dbSession, XOO_P2_KEY).getParentKee()).isNull();
     verifyOneActiveRuleInDbAndIndex(XOO_P2_KEY, XOO_X1, BLOCKER, null, ImmutableMap.of("max", "333"));
   }
 
@@ -1048,7 +1048,7 @@ public class RuleActivatorMediumTest {
     ruleActivator.setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
     dbSession.clearCache();
 
-    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
+    assertThat(db.qualityProfileDao().selectByUuid(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
     assertThat(countActiveRules(XOO_P2_KEY)).isEqualTo(1);
     verifyHasActiveRuleInDbAndIndex(ActiveRuleKey.of(XOO_P2_KEY, XOO_X2), MAJOR, INHERITED, Collections.emptyMap());
   }
@@ -1197,13 +1197,13 @@ public class RuleActivatorMediumTest {
   }
 
   private void assertProfileHasBeenUpdatedManually(String profileKey) {
-    RulesProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    QProfileDto profile = db.qualityProfileDao().selectByUuid(dbSession, profileKey);
     assertThat(profile.getRulesUpdatedAt()).isNotEmpty();
     assertThat(profile.getUserUpdatedAt()).isNotNull();
   }
 
   private void assertProfileHasBeenUpdatedAutomatically(String profileKey) {
-    RulesProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    QProfileDto profile = db.qualityProfileDao().selectByUuid(dbSession, profileKey);
     assertThat(profile.getRulesUpdatedAt()).isNotEmpty();
     assertThat(profile.getUserUpdatedAt()).isNull();
   }

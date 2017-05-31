@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -134,9 +134,9 @@ public class DeleteAction implements OrganizationsWsAction {
   }
 
   private void deleteQualityProfiles(DbSession dbSession, OrganizationDto organization) {
-    List<RulesProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession, organization);
+    List<QProfileDto> profiles = dbClient.qualityProfileDao().selectAll(dbSession, organization);
     List<String> profileKeys = profiles.stream()
-      .map(RulesProfileDto::getKee)
+      .map(QProfileDto::getKee)
       .collect(MoreCollectors.toArrayList(profiles.size()));
     qProfileFactory.deleteByKeys(dbSession, profileKeys);
     dbSession.commit();

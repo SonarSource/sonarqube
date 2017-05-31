@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.tester.ServerTester;
 
@@ -42,15 +42,15 @@ public class QProfileTesting {
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static RulesProfileDto newQProfileDto(String organizationUuid, QProfileName name, String key) {
-    return RulesProfileDto.createFor(key).setOrganizationUuid(organizationUuid).setName(name.getName()).setLanguage(name.getLanguage());
+  public static QProfileDto newQProfileDto(String organizationUuid, QProfileName name, String key) {
+    return QProfileDto.createFor(key).setOrganizationUuid(organizationUuid).setName(name.getName()).setLanguage(name.getLanguage());
   }
 
   /**
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static RulesProfileDto newXooP1(String organizationUuid) {
+  public static QProfileDto newXooP1(String organizationUuid) {
     return newQProfileDto(organizationUuid, XOO_P1_NAME, XOO_P1_KEY);
   }
 
@@ -58,7 +58,7 @@ public class QProfileTesting {
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static RulesProfileDto newXooP2(String organizationUuid) {
+  public static QProfileDto newXooP2(String organizationUuid) {
     return newQProfileDto(organizationUuid, XOO_P2_NAME, XOO_P2_KEY);
   }
 
@@ -66,23 +66,23 @@ public class QProfileTesting {
    * @deprecated provide organization as dto
    */
   @Deprecated
-  public static RulesProfileDto newXooP3(String organizationUuid) {
+  public static QProfileDto newXooP3(String organizationUuid) {
     return newQProfileDto(organizationUuid, XOO_P3_NAME, XOO_P3_KEY);
   }
 
-  public static RulesProfileDto newQProfileDto(OrganizationDto organization, QProfileName name, String key) {
-    return RulesProfileDto.createFor(key).setOrganizationUuid(organization.getUuid()).setName(name.getName()).setLanguage(name.getLanguage());
+  public static QProfileDto newQProfileDto(OrganizationDto organization, QProfileName name, String key) {
+    return QProfileDto.createFor(key).setOrganizationUuid(organization.getUuid()).setName(name.getName()).setLanguage(name.getLanguage());
   }
 
-  public static RulesProfileDto newXooP1(OrganizationDto organization) {
+  public static QProfileDto newXooP1(OrganizationDto organization) {
     return newQProfileDto(organization, XOO_P1_NAME, XOO_P1_KEY);
   }
 
-  public static RulesProfileDto newXooP2(OrganizationDto organization) {
+  public static QProfileDto newXooP2(OrganizationDto organization) {
     return newQProfileDto(organization, XOO_P2_NAME, XOO_P2_KEY);
   }
 
-  public static RulesProfileDto newXooP3(OrganizationDto organization) {
+  public static QProfileDto newXooP3(OrganizationDto organization) {
     return newQProfileDto(organization, XOO_P3_NAME, XOO_P3_KEY);
   }
 

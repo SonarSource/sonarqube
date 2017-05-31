@@ -36,7 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -156,15 +156,15 @@ public class SearchAction implements QProfileWsAction {
         }
       }
 
-      List<RulesProfileDto> profiles = dataLoader.findProfiles(dbSession, request, organization, project);
-      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profiles.stream().map(RulesProfileDto::getKee).collect(MoreCollectors.toList()));
+      List<QProfileDto> profiles = dataLoader.findProfiles(dbSession, request, organization, project);
+      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList()));
 
       return new SearchData()
         .setOrganization(organization)
         .setProfiles(profiles)
         .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileKey(dbSession, organization))
         .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED))
-        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey(dbSession, organization))
+        .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileUuid(dbSession, organization))
         .setDefaultProfileKeys(defaultProfiles);
     }
   }
@@ -190,12 +190,12 @@ public class SearchAction implements QProfileWsAction {
   }
 
   private SearchWsResponse buildResponse(SearchData data) {
-    List<RulesProfileDto> profiles = data.getProfiles();
-    Map<String, RulesProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(RulesProfileDto::getKee, identity()));
+    List<QProfileDto> profiles = data.getProfiles();
+    Map<String, QProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfileDto::getKee, identity()));
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
 
-    for (RulesProfileDto profile : profiles) {
+    for (QProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
       String profileKey = profile.getKee();
@@ -222,7 +222,7 @@ public class SearchAction implements QProfileWsAction {
     return response.build();
   }
 
-  private void writeLanguageFields(QualityProfile.Builder profileBuilder, RulesProfileDto profile) {
+  private void writeLanguageFields(QualityProfile.Builder profileBuilder, QProfileDto profile) {
     String languageKey = profile.getLanguage();
     if (languageKey == null) {
       return;
@@ -235,14 +235,14 @@ public class SearchAction implements QProfileWsAction {
     }
   }
 
-  private static void writeParentFields(QualityProfile.Builder profileBuilder, RulesProfileDto profile, Map<String, RulesProfileDto> profilesByKey) {
+  private static void writeParentFields(QualityProfile.Builder profileBuilder, QProfileDto profile, Map<String, QProfileDto> profilesByKey) {
     String parentKey = profile.getParentKee();
     if (parentKey == null) {
       return;
     }
 
     profileBuilder.setParentKey(parentKey);
-    RulesProfileDto parent = profilesByKey.get(parentKey);
+    QProfileDto parent = profilesByKey.get(parentKey);
     if (parent != null && parent.getName() != null) {
       profileBuilder.setParentName(parent.getName());
     }

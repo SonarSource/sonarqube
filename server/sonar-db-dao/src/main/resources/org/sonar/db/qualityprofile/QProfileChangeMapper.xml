@@ -22,9 +22,9 @@
     )
   </insert>
 
-  <select id="countForProfileKey" resultType="int">
+  <select id="countForProfileUuid" resultType="int">
     select count(kee) from qprofile_changes
-    where qprofile_key = #{profileKey}
+    where qprofile_key = #{profileUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByQuery" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
@@ -61,7 +61,7 @@
   <sql id="sqlSelectByQuery">
     select <include refid="sqlColumns" />
     from qprofile_changes
-    where qprofile_key = #{query.profileKey}
+    where qprofile_key = #{query.profileUuid, jdbcType=VARCHAR}
     <if test="query.fromIncluded != null">
       and created_at &gt;= #{query.fromIncluded}
     </if>
@@ -71,11 +71,11 @@
     order by created_at desc
   </sql>
 
-  <delete id="deleteByProfileKeys" parameterType="String">
+  <delete id="deleteByProfileUuids" parameterType="String">
     delete from qprofile_changes
     where qprofile_key in
-    <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
-      #{profileKey, jdbcType=VARCHAR}
+    <foreach collection="profileUuids" open="(" close=")" item="profileUuid" separator=",">
+      #{profileUuid, jdbcType=VARCHAR}
     </foreach>
   </delete>
 </mapper>

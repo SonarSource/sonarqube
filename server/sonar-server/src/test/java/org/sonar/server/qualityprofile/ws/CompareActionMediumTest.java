@@ -34,7 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -99,7 +99,7 @@ public class CompareActionMediumTest {
      * - rule 4 active with different parameters => "modified"
      * - rule 5 active with different severity => "modified"
      */
-    RulesProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRule(rule1, profile1);
     createActiveRule(rule2, profile1);
     createActiveRuleWithParam(rule4, profile1, "polop");
@@ -112,7 +112,7 @@ public class CompareActionMediumTest {
      * - rule 3 active (only in this profile) => "inRight"
      * - rule 4 active with different parameters => "modified"
      */
-    RulesProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRule(rule1, profile2);
     createActiveRule(rule3, profile2);
     createActiveRuleWithParam(rule4, profile2, "palap");
@@ -129,9 +129,9 @@ public class CompareActionMediumTest {
   public void compare_param_on_left() throws Exception {
     RuleDefinitionDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
-    RulesProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRuleWithParam(rule1, profile1, "polop");
-    RulesProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRule(rule1, profile2);
     session.commit();
 
@@ -145,9 +145,9 @@ public class CompareActionMediumTest {
   public void compare_param_on_right() throws Exception {
     RuleDefinitionDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
-    RulesProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRule(rule1, profile1);
-    RulesProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRuleWithParam(rule1, profile2, "polop");
     session.commit();
 
@@ -189,8 +189,8 @@ public class CompareActionMediumTest {
       .execute();
   }
 
-  private RulesProfileDto createProfile(String lang, String name, String key) {
-    RulesProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, name), key);
+  private QProfileDto createProfile(String lang, String name, String key) {
+    QProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, name), key);
     db.qualityProfileDao().insert(session, profile);
     session.commit();
     return profile;
@@ -218,14 +218,14 @@ public class CompareActionMediumTest {
     return rule;
   }
 
-  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, RulesProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     db.activeRuleDao().insert(session, activeRule);
     return activeRule;
   }
 
-  private ActiveRuleDto createActiveRuleWithParam(RuleDefinitionDto rule, RulesProfileDto profile, String value) {
+  private ActiveRuleDto createActiveRuleWithParam(RuleDefinitionDto rule, QProfileDto profile, String value) {
     ActiveRuleDto activeRule = createActiveRule(rule, profile);
     RuleParamDto paramDto = db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey()).get(0);
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(paramDto).setValue(value);
@@ -233,7 +233,7 @@ public class CompareActionMediumTest {
     return activeRule;
   }
 
-  private ActiveRuleDto createActiveRuleWithSeverity(RuleDefinitionDto rule, RulesProfileDto profile, String severity) {
+  private ActiveRuleDto createActiveRuleWithSeverity(RuleDefinitionDto rule, QProfileDto profile, String severity) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(severity);
     db.activeRuleDao().insert(session, activeRule);

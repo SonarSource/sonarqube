@@ -104,12 +104,12 @@ public class RegisterQualityProfiles {
    * built-in profile "Sonar way", which has probably different configuration.
    */
   private void renameOutdatedProfiles(DbSession dbSession, BuiltInQProfile profile) {
-    Collection<String> profileKeys = dbClient.qualityProfileDao().selectOutdatedProfiles(dbSession, profile.getLanguage(), profile.getName());
-    if (profileKeys.isEmpty()) {
+    Collection<String> uuids = dbClient.qualityProfileDao().selectUuidsOfCustomRulesProfiles(dbSession, profile.getLanguage(), profile.getName());
+    if (uuids.isEmpty()) {
       return;
     }
     String newName = profile.getName() + " (outdated copy)";
-    LOGGER.info("Rename Quality profiles [{}/{}] to [{}] in {} organizations", profile.getLanguage(), profile.getName(), newName, profileKeys.size());
-    dbClient.qualityProfileDao().renameAndCommit(dbSession, profileKeys, newName);
+    LOGGER.info("Rename Quality profiles [{}/{}] to [{}] in {} organizations", profile.getLanguage(), profile.getName(), newName, uuids.size());
+    dbClient.qualityProfileDao().renameRulesProfilesAndCommit(dbSession, uuids, newName);
   }
 }

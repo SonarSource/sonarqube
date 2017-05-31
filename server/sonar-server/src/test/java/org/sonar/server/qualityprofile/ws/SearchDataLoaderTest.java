@@ -33,8 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileLookup;
@@ -87,8 +86,8 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findDefaults() throws Exception {
-    RulesProfileDto profile = insertQualityProfile(organization);
-    dbTester.qualityProfiles().markAsDefault(profile);
+    QProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().setAsDefault(profile);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
@@ -98,8 +97,8 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findForProject() throws Exception {
-    RulesProfileDto profile = insertQualityProfile(organization);
-    dbTester.qualityProfiles().markAsDefault(profile);
+    QProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().setAsDefault(profile);
     ComponentDto project1 = insertProject();
     assertThat(findProfiles(
       new SearchWsRequest()
@@ -109,8 +108,8 @@ public class SearchDataLoaderTest {
 
   @Test
   public void findAllForLanguage() throws Exception {
-    RulesProfileDto profile = insertQualityProfile(organization);
-    dbTester.qualityProfiles().markAsDefault(profile);
+    QProfileDto profile = insertQualityProfile(organization);
+    dbTester.qualityProfiles().setAsDefault(profile);
     assertThat(findProfiles(
       new SearchWsRequest()
         .setOrganizationKey(organization.getKey())
@@ -123,18 +122,14 @@ public class SearchDataLoaderTest {
       null)).hasSize(0);
   }
 
-  private List<RulesProfileDto> findProfiles(SearchWsRequest request, @Nullable ComponentDto project) {
+  private List<QProfileDto> findProfiles(SearchWsRequest request, @Nullable ComponentDto project) {
     return new SearchDataLoader(languages, profileLookup, dbTester.getDbClient())
       .findProfiles(dbTester.getSession(), request, organization, project);
   }
 
-  private RulesProfileDto insertQualityProfile(OrganizationDto organization) {
+  private QProfileDto insertQualityProfile(OrganizationDto organization) {
     Language language = insertLanguage();
-    RulesProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage(language.getKey());
-    dbTester.qualityProfiles().insertQualityProfile(qualityProfile);
-    return qualityProfile;
+    return dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(language.getKey()));
   }
 
   private Language insertLanguage() {

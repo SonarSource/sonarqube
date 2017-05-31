@@ -30,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
@@ -51,7 +51,7 @@ public class QProfileResetImpl implements QProfileReset {
   }
 
   @Override
-  public BulkChangeResult reset(DbSession dbSession, RulesProfileDto profile, Collection<RuleActivation> activations) {
+  public BulkChangeResult reset(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations) {
     requireNonNull(profile.getId(), "Quality profile must be persisted");
     checkArgument(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s'", profile.getKee());
     BulkChangeResult result = new BulkChangeResult();

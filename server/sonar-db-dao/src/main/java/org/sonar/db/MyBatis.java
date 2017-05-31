@@ -97,7 +97,6 @@ import org.sonar.db.qualityprofile.ActiveRuleMapper;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.DefaultQProfileMapper;
 import org.sonar.db.qualityprofile.QProfileChangeMapper;
-import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
@@ -166,7 +165,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
-    confBuilder.loadAlias("RulesProfile", RulesProfileDto.class);
     confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
     confBuilder.loadAlias("Resource", ResourceDto.class);
     confBuilder.loadAlias("RuleParam", RuleParamDto.class);

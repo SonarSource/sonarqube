@@ -33,7 +33,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -108,15 +108,15 @@ public class RegisterQualityProfilesTest {
     OrganizationDto org1 = dbTester.organizations().insert(org -> org.setKey("org1"));
     OrganizationDto org2 = dbTester.organizations().insert(org -> org.setKey("org2"));
 
-    RulesProfileDto outdatedProfileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
-    RulesProfileDto outdatedProfileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    QProfileDto outdatedProfileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    QProfileDto outdatedProfileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
     builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", false);
     builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg1.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
-    assertThat(dbTester.qualityProfiles().selectByKey(outdatedProfileInOrg2.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(dbTester.qualityProfiles().selectByUuid(outdatedProfileInOrg1.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(dbTester.qualityProfiles().selectByUuid(outdatedProfileInOrg2.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)] in 2 organizations");
   }
 

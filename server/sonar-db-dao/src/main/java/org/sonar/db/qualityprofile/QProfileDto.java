@@ -26,9 +26,9 @@ import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.organization.OrganizationDto;
 
 /**
- * Represents the table "rules_profiles"
+ * Represents the join of "org_qprofiles" and "rules_profiles"
  */
-public class RulesProfileDto {
+public class QProfileDto {
 
   private Integer id;
   /**
@@ -50,12 +50,12 @@ public class RulesProfileDto {
     return organizationUuid;
   }
 
-  public RulesProfileDto setOrganizationUuid(String organizationUuid) {
+  public QProfileDto setOrganizationUuid(String organizationUuid) {
     this.organizationUuid = organizationUuid;
     return this;
   }
 
-  public RulesProfileDto setKey(String s) {
+  public QProfileDto setKey(String s) {
     return setKee(s);
   }
 
@@ -63,7 +63,7 @@ public class RulesProfileDto {
     return kee;
   }
 
-  public RulesProfileDto setKee(String s) {
+  public QProfileDto setKee(String s) {
     this.kee = s;
     return this;
   }
@@ -72,7 +72,7 @@ public class RulesProfileDto {
     return id;
   }
 
-  public RulesProfileDto setId(Integer id) {
+  public QProfileDto setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -81,7 +81,7 @@ public class RulesProfileDto {
     return name;
   }
 
-  public RulesProfileDto setName(String name) {
+  public QProfileDto setName(String name) {
     this.name = name;
     return this;
   }
@@ -90,7 +90,7 @@ public class RulesProfileDto {
     return language;
   }
 
-  public RulesProfileDto setLanguage(String language) {
+  public QProfileDto setLanguage(String language) {
     this.language = language;
     return this;
   }
@@ -100,7 +100,7 @@ public class RulesProfileDto {
     return parentKee;
   }
 
-  public RulesProfileDto setParentKee(@Nullable String s) {
+  public QProfileDto setParentKee(@Nullable String s) {
     this.parentKee = s;
     return this;
   }
@@ -109,12 +109,12 @@ public class RulesProfileDto {
     return rulesUpdatedAt;
   }
 
-  public RulesProfileDto setRulesUpdatedAt(String s) {
+  public QProfileDto setRulesUpdatedAt(String s) {
     this.rulesUpdatedAt = s;
     return this;
   }
 
-  public RulesProfileDto setRulesUpdatedAtAsDate(Date d) {
+  public QProfileDto setRulesUpdatedAtAsDate(Date d) {
     this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
     return this;
   }
@@ -124,7 +124,7 @@ public class RulesProfileDto {
     return lastUsed;
   }
 
-  public RulesProfileDto setLastUsed(@Nullable Long lastUsed) {
+  public QProfileDto setLastUsed(@Nullable Long lastUsed) {
     this.lastUsed = lastUsed;
     return this;
   }
@@ -134,7 +134,7 @@ public class RulesProfileDto {
     return userUpdatedAt;
   }
 
-  public RulesProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
+  public QProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
     this.userUpdatedAt = userUpdatedAt;
     return this;
   }
@@ -143,12 +143,12 @@ public class RulesProfileDto {
     return isBuiltIn;
   }
 
-  public RulesProfileDto setIsBuiltIn(boolean b) {
+  public QProfileDto setIsBuiltIn(boolean b) {
     this.isBuiltIn = b;
     return this;
   }
 
-  public static RulesProfileDto createFor(String key) {
-    return new RulesProfileDto().setKee(key);
+  public static QProfileDto createFor(String key) {
+    return new QProfileDto().setKee(key);
   }
 }

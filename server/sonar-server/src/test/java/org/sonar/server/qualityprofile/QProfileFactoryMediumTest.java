@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -69,7 +69,7 @@ public class QProfileFactoryMediumTest {
   public void checkAndCreate() {
     String uuid = organization.getUuid();
 
-    RulesProfileDto writtenDto = factory.checkAndCreateCustom(dbSession, organization, new QProfileName("xoo", "P1"));
+    QProfileDto writtenDto = factory.checkAndCreateCustom(dbSession, organization, new QProfileName("xoo", "P1"));
     dbSession.commit();
     dbSession.clearCache();
     assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
@@ -80,7 +80,7 @@ public class QProfileFactoryMediumTest {
     assertThat(writtenDto.isBuiltIn()).isFalse();
 
     // reload the dto
-    RulesProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
+    QProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, "P1", "xoo");
     assertEqual(writtenDto, readDto);
 
     assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(1);
@@ -90,7 +90,7 @@ public class QProfileFactoryMediumTest {
   public void create() {
     String uuid = organization.getUuid();
 
-    RulesProfileDto writtenDto = factory.createBuiltIn(dbSession, organization, new QProfileName("xoo", "P1"), true);
+    QProfileDto writtenDto = factory.createBuiltIn(dbSession, organization, new QProfileName("xoo", "P1"), true);
     dbSession.commit();
     dbSession.clearCache();
     assertThat(writtenDto.getOrganizationUuid()).isEqualTo(uuid);
@@ -101,7 +101,7 @@ public class QProfileFactoryMediumTest {
     assertThat(writtenDto.getParentKee()).isNull();
 
     // reload the dto
-    RulesProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage(organization, "P1", "xoo", dbSession);
+    QProfileDto readDto = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, "P1", "xoo");
     assertEqual(writtenDto, readDto);
 
     assertThat(db.qualityProfileDao().selectAll(dbSession, organization)).hasSize(1);
@@ -170,7 +170,7 @@ public class QProfileFactoryMediumTest {
     thrown.expectMessage(message);
   }
 
-  private static void assertEqual(RulesProfileDto writtenDto, RulesProfileDto readDto) {
+  private static void assertEqual(QProfileDto writtenDto, QProfileDto readDto) {
     assertThat(readDto.getOrganizationUuid()).isEqualTo(writtenDto.getOrganizationUuid());
     assertThat(readDto.getName()).isEqualTo(writtenDto.getName());
     assertThat(readDto.getKee()).startsWith(writtenDto.getKee());

@@ -29,7 +29,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
@@ -219,8 +219,8 @@ public class AppActionTest {
   }
 
   private void insertQualityProfiles(OrganizationDto organization) {
-    RulesProfileDto profile1 = QProfileTesting.newXooP1(organization).setIsBuiltIn(true);
-    RulesProfileDto profile2 = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
+    QProfileDto profile1 = QProfileTesting.newXooP1(organization).setIsBuiltIn(true);
+    QProfileDto profile2 = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1);
     db.getDbClient().qualityProfileDao().insert(db.getSession(), profile2);
     db.commit();

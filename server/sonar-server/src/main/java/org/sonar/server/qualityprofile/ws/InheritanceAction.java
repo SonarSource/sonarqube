@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
 import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse.QualityProfile;
@@ -71,19 +71,19 @@ public class InheritanceAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     QProfileReference reference = QProfileReference.from(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RulesProfileDto profile = wsSupport.getProfile(dbSession, reference);
+      QProfileDto profile = wsSupport.getProfile(dbSession, reference);
       String organizationUuid = profile.getOrganizationUuid();
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' for quality profile '%s'", organizationUuid, profile.getKee())));
-      List<RulesProfileDto> ancestors = profileLookup.ancestors(profile, dbSession);
-      List<RulesProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKee());
+      List<QProfileDto> ancestors = profileLookup.ancestors(profile, dbSession);
+      List<QProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKee());
       Statistics statistics = new Statistics(dbSession, organization);
 
       writeProtobuf(buildResponse(profile, ancestors, children, statistics), request, response);
     }
   }
 
-  private static InheritanceWsResponse buildResponse(RulesProfileDto profile, List<RulesProfileDto> ancestors, List<RulesProfileDto> children, Statistics statistics) {
+  private static InheritanceWsResponse buildResponse(QProfileDto profile, List<QProfileDto> ancestors, List<QProfileDto> children, Statistics statistics) {
     return InheritanceWsResponse.newBuilder()
       .setProfile(buildProfile(profile, statistics))
       .addAllAncestors(buildAncestors(ancestors, statistics))
@@ -91,19 +91,19 @@ public class InheritanceAction implements QProfileWsAction {
       .build();
   }
 
-  private static Iterable<QualityProfile> buildAncestors(List<RulesProfileDto> ancestors, Statistics statistics) {
+  private static Iterable<QualityProfile> buildAncestors(List<QProfileDto> ancestors, Statistics statistics) {
     return ancestors.stream()
       .map(ancestor -> buildProfile(ancestor, statistics))
       .collect(Collectors.toList());
   }
 
-  private static Iterable<QualityProfile> buildChildren(List<RulesProfileDto> children, Statistics statistics) {
+  private static Iterable<QualityProfile> buildChildren(List<QProfileDto> children, Statistics statistics) {
     return children.stream()
       .map(child -> buildProfile(child, statistics))
       .collect(Collectors.toList());
   }
 
-  private static QualityProfile buildProfile(RulesProfileDto qualityProfile, Statistics statistics) {
+  private static QualityProfile buildProfile(QProfileDto qualityProfile, Statistics statistics) {
     String key = qualityProfile.getKee();
     QualityProfile.Builder builder = QualityProfile.newBuilder()
       .setKey(key)

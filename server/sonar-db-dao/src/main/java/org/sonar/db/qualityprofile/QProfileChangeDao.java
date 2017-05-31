@@ -40,9 +40,7 @@ public class QProfileChangeDao implements Dao {
   }
 
   public void insert(DbSession dbSession, QProfileChangeDto dto) {
-    checkState(dto.getKey() == null, "Key of QProfileChangeDto must be set by DAO only. Got %s.", dto.getKey());
     checkState(dto.getCreatedAt() == 0L, "Date of QProfileChangeDto must be set by DAO only. Got %s.", dto.getCreatedAt());
-
     dto.setKey(uuidFactory.create());
     dto.setCreatedAt(system2.now());
     mapper(dbSession).insert(dto);
@@ -52,13 +50,13 @@ public class QProfileChangeDao implements Dao {
     return mapper(dbSession).selectByQuery(query);
   }
 
-  public int countForProfileKey(DbSession dbSession, String profileKey) {
-    return mapper(dbSession).countForProfileKey(profileKey);
+  public int countForProfileUuid(DbSession dbSession, String profileUuid) {
+    return mapper(dbSession).countForProfileUuid(profileUuid);
   }
 
-  public void deleteByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+  public void deleteByProfileKeys(DbSession dbSession, Collection<String> profileUuids) {
     QProfileChangeMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByProfileKeys);
+    DatabaseUtils.executeLargeUpdates(profileUuids, mapper::deleteByProfileUuids);
   }
 
   private static QProfileChangeMapper mapper(DbSession dbSession) {

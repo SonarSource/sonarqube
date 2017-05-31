@@ -34,7 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -65,9 +65,9 @@ public class QProfileFactoryTest {
   @Test
   public void deleteByKeys_deletes_profiles_in_db_and_elasticsearch() {
     OrganizationDto org = db.organizations().insert();
-    RulesProfileDto profile1 = createRandomProfile(org);
-    RulesProfileDto profile2 = createRandomProfile(org);
-    RulesProfileDto profile3 = createRandomProfile(org);
+    QProfileDto profile1 = createRandomProfile(org);
+    QProfileDto profile2 = createRandomProfile(org);
+    QProfileDto profile3 = createRandomProfile(org);
 
     List<String> profileKeys = asList(profile1.getKee(), profile2.getKee(), "does_not_exist");
     underTest.deleteByKeys(db.getSession(), profileKeys);
@@ -81,7 +81,7 @@ public class QProfileFactoryTest {
   @Test
   public void deleteByKeys_accepts_empty_list_of_keys() {
     OrganizationDto org = db.organizations().insert();
-    RulesProfileDto profile1 = createRandomProfile(org);
+    QProfileDto profile1 = createRandomProfile(org);
 
     underTest.deleteByKeys(db.getSession(), Collections.emptyList());
 
@@ -89,10 +89,10 @@ public class QProfileFactoryTest {
     assertQualityProfileFromDb(profile1).isNotNull();
   }
 
-  private RulesProfileDto createRandomProfile(OrganizationDto org) {
-    RulesProfileDto profile = db.qualityProfiles().insert(org);
+  private QProfileDto createRandomProfile(OrganizationDto org) {
+    QProfileDto profile = db.qualityProfiles().insert(org);
     ComponentDto project = db.components().insertPrivateProject(org);
-    db.qualityProfiles().associateProjectWithQualityProfile(project, profile);
+    db.qualityProfiles().associateWithProject(project, profile);
     ActiveRuleDto activeRuleDto = new ActiveRuleDto()
       .setProfileId(profile.getId())
       .setRuleId(rule.getId())
@@ -107,7 +107,7 @@ public class QProfileFactoryTest {
     return profile;
   }
 
-  private AbstractObjectAssert<?, RulesProfileDto> assertQualityProfileFromDb(RulesProfileDto profile) {
-    return assertThat(db.getDbClient().qualityProfileDao().selectByKey(db.getSession(), profile.getKee()));
+  private AbstractObjectAssert<?, QProfileDto> assertQualityProfileFromDb(QProfileDto profile) {
+    return assertThat(db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), profile.getKee()));
   }
 }

@@ -89,14 +89,6 @@ public class QProfileChangeDaoTest {
   }
 
   @Test
-  public void insert_throws_ISE_if_key_is_already_set() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Key of QProfileChangeDto must be set by DAO only. Got C1.");
-
-    underTest.insert(dbSession, new QProfileChangeDto().setKey("C1"));
-  }
-
-  @Test
   public void insert_throws_ISE_if_date_is_already_set() {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Date of QProfileChangeDto must be set by DAO only. Got 123.");
@@ -211,8 +203,8 @@ public class QProfileChangeDaoTest {
     insertChange("P1", "ACTIVATED", null, null);// key: C1
     insertChange("P1", "ACTIVATED", null, null);// key: C2
 
-    assertThat(underTest.countForProfileKey(dbSession, "P1")).isEqualTo(2);
-    assertThat(underTest.countForProfileKey(dbSession, "P2")).isEqualTo(0);
+    assertThat(underTest.countForProfileUuid(dbSession, "P1")).isEqualTo(2);
+    assertThat(underTest.countForProfileUuid(dbSession, "P2")).isEqualTo(0);
   }
 
   @Test
@@ -224,8 +216,8 @@ public class QProfileChangeDaoTest {
 
     underTest.deleteByProfileKeys(dbSession, asList("P1"));
 
-    assertThat(underTest.countForProfileKey(dbSession, "P1")).isEqualTo(0);
-    assertThat(underTest.countForProfileKey(dbSession, "P2")).isEqualTo(1);
+    assertThat(underTest.countForProfileUuid(dbSession, "P1")).isEqualTo(0);
+    assertThat(underTest.countForProfileUuid(dbSession, "P2")).isEqualTo(1);
   }
 
   @Test
@@ -235,7 +227,7 @@ public class QProfileChangeDaoTest {
 
     underTest.deleteByProfileKeys(dbSession, asList("does_not_exist"));
 
-    assertThat(underTest.countForProfileKey(dbSession, "P1")).isEqualTo(1);
+    assertThat(underTest.countForProfileUuid(dbSession, "P1")).isEqualTo(1);
   }
 
   private void insertChange(String profileKey, String type, @Nullable String login, @Nullable String data) {

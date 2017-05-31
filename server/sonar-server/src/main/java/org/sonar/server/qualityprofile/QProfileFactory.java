@@ -30,7 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
@@ -61,9 +61,9 @@ public class QProfileFactory {
     return organization;
   }
 
-  RulesProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+  QProfileDto getOrCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
     requireNonNull(organization);
-    RulesProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
+    QProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name.getName(), name.getLanguage());
     if (profile == null) {
       profile = doCreate(dbSession, organization, name, false, false);
     } else {
@@ -78,9 +78,9 @@ public class QProfileFactory {
    *
    * @throws BadRequestException if a quality profile with the specified name already exists
    */
-  public RulesProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
+  public QProfileDto checkAndCreateCustom(DbSession dbSession, OrganizationDto organization, QProfileName name) {
     requireNonNull(organization);
-    RulesProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, name.getName(), name.getLanguage(), dbSession);
+    QProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name.getName(), name.getLanguage());
     checkRequest(dto == null, "Quality profile already exists: %s", name);
     return doCreate(dbSession, organization, name, false, false);
   }
@@ -90,16 +90,16 @@ public class QProfileFactory {
    *
    * A DB error will be thrown if the quality profile already exists.
    */
-  public RulesProfileDto createBuiltIn(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
+  public QProfileDto createBuiltIn(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
     return doCreate(dbSession, requireNonNull(organization), name, isDefault, true);
   }
 
-  private RulesProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {
+  private QProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
     Date now = new Date(system2.now());
-    RulesProfileDto dto = RulesProfileDto.createFor(uuidFactory.create())
+    QProfileDto dto = QProfileDto.createFor(uuidFactory.create())
       .setName(name.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
@@ -120,16 +120,16 @@ public class QProfileFactory {
    * are deleted too. Deleting a parent profile does not delete descendants
    * if their keys are not listed.
    */
-  public void deleteByKeys(DbSession dbSession, Collection<String> profileKeys) {
-    if (!profileKeys.isEmpty()) {
-      db.qualityProfileDao().deleteProjectAssociationsByProfileKeys(dbSession, profileKeys);
-      db.activeRuleDao().deleteParametersByProfileKeys(dbSession, profileKeys);
-      db.activeRuleDao().deleteByProfileKeys(dbSession, profileKeys);
-      db.qProfileChangeDao().deleteByProfileKeys(dbSession, profileKeys);
-      db.defaultQProfileDao().deleteByQProfileUuids(dbSession, profileKeys);
-      db.qualityProfileDao().deleteByKeys(dbSession, profileKeys);
+  public void deleteByKeys(DbSession dbSession, Collection<String> profileUuids) {
+    if (!profileUuids.isEmpty()) {
+      db.qualityProfileDao().deleteProjectAssociationsByProfileUuids(dbSession, profileUuids);
+      db.activeRuleDao().deleteParametersByProfileKeys(dbSession, profileUuids);
+      db.activeRuleDao().deleteByProfileKeys(dbSession, profileUuids);
+      db.qProfileChangeDao().deleteByProfileKeys(dbSession, profileUuids);
+      db.defaultQProfileDao().deleteByQProfileUuids(dbSession, profileUuids);
+      db.qualityProfileDao().deleteByUuids(dbSession, profileUuids);
       dbSession.commit();
-      activeRuleIndexer.deleteByProfileKeys(profileKeys);
+      activeRuleIndexer.deleteByProfileKeys(profileUuids);
     }
   }
 

@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -66,7 +66,7 @@ public class SetDefaultAction implements QProfileWsAction {
     userSession.checkLoggedIn();
     QProfileReference reference = QProfileReference.from(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RulesProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
+      QProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
       dbClient.organizationDao().selectByUuid(dbSession, qualityProfile.getOrganizationUuid())
         .orElseThrow(() -> new IllegalStateException(
           format("Cannot find organization '%s' for quality profile '%s'", qualityProfile.getOrganizationUuid(), qualityProfile.getKee())));
@@ -77,7 +77,7 @@ public class SetDefaultAction implements QProfileWsAction {
     response.noContent();
   }
 
-  public void setDefault(DbSession dbSession, RulesProfileDto profile) {
+  public void setDefault(DbSession dbSession, QProfileDto profile) {
     dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
   }
 }

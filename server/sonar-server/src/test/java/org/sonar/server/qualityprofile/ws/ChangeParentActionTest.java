@@ -40,8 +40,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
-import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
@@ -154,8 +154,8 @@ public class ChangeParentActionTest {
 
   @Test
   public void change_parent_with_no_parent_before() throws Exception {
-    RulesProfileDto parent1 = createProfile();
-    RulesProfileDto child = createProfile();
+    QProfileDto parent1 = createProfile();
+    QProfileDto child = createProfile();
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent1);
@@ -181,9 +181,9 @@ public class ChangeParentActionTest {
 
   @Test
   public void replace_existing_parent() throws Exception {
-    RulesProfileDto parent1 = createProfile();
-    RulesProfileDto parent2 = createProfile();
-    RulesProfileDto child = createProfile();
+    QProfileDto parent1 = createProfile();
+    QProfileDto parent2 = createProfile();
+    QProfileDto child = createProfile();
 
     RuleDefinitionDto rule1 = createRule();
     RuleDefinitionDto rule2 = createRule();
@@ -212,8 +212,8 @@ public class ChangeParentActionTest {
 
   @Test
   public void remove_parent() throws Exception {
-    RulesProfileDto parent = createProfile();
-    RulesProfileDto child = createProfile();
+    QProfileDto parent = createProfile();
+    QProfileDto child = createProfile();
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
@@ -238,9 +238,9 @@ public class ChangeParentActionTest {
 
   @Test
   public void change_parent_with_names() throws Exception {
-    RulesProfileDto parent1 = createProfile();
-    RulesProfileDto parent2 = createProfile();
-    RulesProfileDto child = createProfile();
+    QProfileDto parent1 = createProfile();
+    QProfileDto parent2 = createProfile();
+    QProfileDto child = createProfile();
 
     RuleDefinitionDto rule1 = createRule();
     RuleDefinitionDto rule2 = createRule();
@@ -300,8 +300,8 @@ public class ChangeParentActionTest {
 
   @Test
   public void remove_parent_with_empty_key() throws Exception {
-    RulesProfileDto parent = createProfile();
-    RulesProfileDto child = createProfile();
+    QProfileDto parent = createProfile();
+    QProfileDto child = createProfile();
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
@@ -328,7 +328,7 @@ public class ChangeParentActionTest {
 
   @Test
   public void fail_if_built_in_profile() {
-    RulesProfileDto child = dbTester.qualityProfiles().insert(organization, p -> p
+    QProfileDto child = dbTester.qualityProfiles().insert(organization, p -> p
       .setLanguage(language.getKey())
       .setIsBuiltIn(true));
 
@@ -347,7 +347,7 @@ public class ChangeParentActionTest {
 
   @Test
   public void fail_if_parent_key_and_name_both_set() throws Exception {
-    RulesProfileDto child = createProfile();
+    QProfileDto child = createProfile();
 
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
@@ -364,7 +364,7 @@ public class ChangeParentActionTest {
 
   @Test
   public void fail_if_profile_key_and_name_both_set() throws Exception {
-    RulesProfileDto child = createProfile();
+    QProfileDto child = createProfile();
 
     assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
@@ -384,7 +384,7 @@ public class ChangeParentActionTest {
   public void fail_if_missing_permission() throws Exception {
     userSessionRule.logIn();
 
-    RulesProfileDto child = createProfile();
+    QProfileDto child = createProfile();
 
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
@@ -400,7 +400,7 @@ public class ChangeParentActionTest {
     OrganizationDto organization2 = dbTester.organizations().insert();
     userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization2.getUuid());
 
-    RulesProfileDto child = createProfile();
+    QProfileDto child = createProfile();
 
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
@@ -411,8 +411,8 @@ public class ChangeParentActionTest {
     request.execute();
   }
 
-  private RulesProfileDto createProfile() {
-    RulesProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+  private QProfileDto createProfile() {
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(language.getKey());
     dbClient.qualityProfileDao().insert(dbSession, profile);
@@ -430,7 +430,7 @@ public class ChangeParentActionTest {
     return rule;
   }
 
-  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, RulesProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     dbClient.activeRuleDao().insert(dbSession, activeRule);

@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
@@ -81,13 +81,13 @@ public class AddProjectAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = loadProject(dbSession, request);
-      RulesProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
+      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
 
       if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
         throw new IllegalArgumentException("Project and Quality profile must have same organization");
       }
 
-      RulesProfileDto currentProfile = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage());
+      QProfileDto currentProfile = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(dbSession, project, profile.getLanguage());
       if (currentProfile == null) {
         // project uses the default profile
         dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);

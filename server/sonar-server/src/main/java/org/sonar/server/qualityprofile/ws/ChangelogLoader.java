@@ -58,7 +58,7 @@ public class ChangelogLoader {
       .collect(MoreCollectors.toList(dtos.size()));
     completeUserAndRuleNames(dbSession, changes);
 
-    int total = dbClient.qProfileChangeDao().countForProfileKey(dbSession, query.getProfileKey());
+    int total = dbClient.qProfileChangeDao().countForProfileUuid(dbSession, query.getProfileUuid());
     return new Changelog(total, changes);
   }
 

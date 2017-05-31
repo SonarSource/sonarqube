@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
@@ -60,7 +60,7 @@ public class QProfileWsSupport {
       .setExampleValue("my-org");
   }
 
-  public OrganizationDto getOrganization(DbSession dbSession, RulesProfileDto profile) {
+  public OrganizationDto getOrganization(DbSession dbSession, QProfileDto profile) {
     requireNonNull(profile);
     String organizationUuid = profile.getOrganizationUuid();
     return dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
@@ -80,26 +80,26 @@ public class QProfileWsSupport {
    *
    * @throws org.sonar.server.exceptions.NotFoundException if the specified organization or profile do not exist
    */
-  public RulesProfileDto getProfile(DbSession dbSession, QProfileReference ref) {
-    RulesProfileDto profile;
+  public QProfileDto getProfile(DbSession dbSession, QProfileReference ref) {
+    QProfileDto profile;
     if (ref.hasKey()) {
-      profile = dbClient.qualityProfileDao().selectByKey(dbSession, ref.getKey());
+      profile = dbClient.qualityProfileDao().selectByUuid(dbSession, ref.getKey());
       checkFound(profile, "Quality Profile with key '%s' does not exist", ref.getKey());
     } else {
       OrganizationDto org = getOrganizationByKey(dbSession, ref.getOrganizationKey().orElse(null));
-      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(org, ref.getName(), ref.getLanguage(), dbSession);
+      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, org, ref.getName(), ref.getLanguage());
       checkFound(profile, "Quality Profile for language '%s' and name '%s' does not exist%s", ref.getLanguage(), ref.getName(),
         ref.getOrganizationKey().map(o -> " in organization '" + o + "'").orElse(""));
     }
     return profile;
   }
 
-  public void checkPermission(DbSession dbSession, RulesProfileDto rulesProfile) {
+  public void checkPermission(DbSession dbSession, QProfileDto rulesProfile) {
     OrganizationDto organization = getOrganization(dbSession, rulesProfile);
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 
-  public void checkNotBuiltInt(RulesProfileDto profile) {
+  public void checkNotBuiltInt(QProfileDto profile) {
     checkRequest(!profile.isBuiltIn(), "Operation forbidden for built-in Quality Profile '%s' with language '%s'", profile.getName(), profile.getLanguage());
   }
 }
