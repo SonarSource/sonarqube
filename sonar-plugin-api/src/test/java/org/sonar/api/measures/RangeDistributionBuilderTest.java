@@ -30,7 +30,7 @@ public class RangeDistributionBuilderTest {
   @Test
   public void workOnAnLimitsArrayCopy() {
     Integer[] limits = new Integer[] {4, 2, 0};
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, limits);
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, limits);
     builder.add(3.2).add(2.0).add(6.2).build();
 
     assertThat(builder.getBottomLimits()).isNotSameAs(limits);
@@ -41,7 +41,7 @@ public class RangeDistributionBuilderTest {
 
   @Test
   public void buildIntegerDistribution() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     Measure measure = builder
       .add(3.2)
       .add(2.0)
@@ -53,7 +53,7 @@ public class RangeDistributionBuilderTest {
 
   @Test
   public void buildDoubleDistribution() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
     Measure measure = builder
       .add(3.2)
       .add(2.0)
@@ -65,7 +65,7 @@ public class RangeDistributionBuilderTest {
 
   @Test
   public void valueLesserThanMinimumIsIgnored() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     Measure measure = builder
       .add(3.2)
       .add(2.0)
@@ -80,7 +80,7 @@ public class RangeDistributionBuilderTest {
     Measure measureToAdd = mock(Measure.class);
     when(measureToAdd.getData()).thenReturn("0=3;2=5");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2});
     builder.clear();
     Measure measure = builder
       .add(1)
@@ -95,7 +95,7 @@ public class RangeDistributionBuilderTest {
     Measure measureToAdd = mock(Measure.class);
     when(measureToAdd.getData()).thenReturn("0=3;2=5");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     builder.clear();
     Measure measure = builder
       .add(1)
@@ -110,7 +110,7 @@ public class RangeDistributionBuilderTest {
     Measure measureToAdd = mock(Measure.class);
     when(measureToAdd.getData()).thenReturn("0.0=3;3.0=5;6.0=9");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
     builder.clear();
     Measure measure = builder
       .add(measureToAdd)
@@ -127,7 +127,7 @@ public class RangeDistributionBuilderTest {
     Measure m2 = mock(Measure.class);
     when(m2.getData()).thenReturn("0.5=0;3.5=2;6.5=1");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION);
     builder.clear();
     Measure measure = builder
       .add(m1)
@@ -145,7 +145,7 @@ public class RangeDistributionBuilderTest {
     Measure m2 = mock(Measure.class);
     when(m2.getData()).thenReturn("0=0;3=2;6=1");
 
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION);
     builder.clear();
     Measure measure = builder
       .add(m1)
@@ -157,7 +157,7 @@ public class RangeDistributionBuilderTest {
 
   @Test
   public void nullIfEmptyData() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
 
     assertThat(builder.isEmpty()).isTrue();
     Measure measure = builder.build(false);
@@ -169,8 +169,8 @@ public class RangeDistributionBuilderTest {
 
   @Test
   public void aggregateEmptyDistribution() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
-    builder.add(new Measure(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, (String) null));
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION);
+    builder.add(new Measure(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, (String) null));
     Measure distribution = builder.build();
     assertThat(distribution.getData()).isEmpty();
   }
