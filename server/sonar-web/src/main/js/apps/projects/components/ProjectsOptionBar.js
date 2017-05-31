@@ -20,7 +20,6 @@
 //@flow
 import React from 'react';
 import classNames from 'classnames';
-import CloseIcon from '../../../components/icons-components/CloseIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
@@ -83,17 +82,19 @@ export default class ProjectsOptionBar extends React.PureComponent {
     return (
       <div className="projects-topbar">
         <div className={classNames('projects-topbar-actions', { open })}>
-          <a className="projects-topbar-button button-icon" href="#" onClick={this.closeBar}>
-            <CloseIcon />
-          </a>
           <div className="projects-topbar-actions-inner">
-            <PerspectiveSelect
-              className="projects-topbar-item js-projects-perspective-select"
-              onChange={this.props.onPerspectiveChange}
-              view={this.props.view}
-              visualization={this.props.visualization}
-            />
-            {this.renderSortingSelect()}
+            <button className="projects-topbar-button" onClick={this.closeBar}>
+              {translate('close')}
+            </button>
+            <div className="projects-topbar-items">
+              <PerspectiveSelect
+                className="projects-topbar-item js-projects-perspective-select"
+                onChange={this.props.onPerspectiveChange}
+                view={this.props.view}
+                visualization={this.props.visualization}
+              />
+              {this.renderSortingSelect()}
+            </div>
           </div>
         </div>
       </div>

@@ -6,6 +6,10 @@
   transition: top 150ms ease-out;
 }
 
+.projects-page-content {
+  transition: padding-top 150ms ease-out;
+}
+
 .projects-topbar {
   position: fixed;
   width: 100%;
@@ -18,10 +22,9 @@
   left: 0;
   right: 0;
   top: -50px;
-  display: flex;
-  flex-direction: row-reverse;
   z-index: 50;
   flex-grow: 0.000001;
+  border-bottom: 1px solid #e6e6e6;
   background-color: #fff;
   transition: top 150ms ease-out;
 }
@@ -31,12 +34,20 @@
 }
 
 .projects-topbar-actions-inner {
+  position: relative;
+  margin: auto;
+  padding: 0 20px;
+  min-width: 1040px;
+  max-width: 1280px;
+}
+
+.projects-topbar-items {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
   flex-grow: 1;
-  border-bottom: 1px solid #e6e6e6;
+  height: 46px;
 }
 
 .projects-topbar-item {
@@ -53,18 +64,9 @@
 }
 
 .projects-topbar-button {
-  box-sizing: border-box;
-  float: right;
-  padding: 11px;
-  padding-top: 15px;
-  border: none;
-  border-left: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
-  width: 46px;
-  height: 46px;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 10px;
 }
 
 .projects-sidebar {

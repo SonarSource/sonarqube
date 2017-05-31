@@ -49,6 +49,6 @@ it('should render disabled sorting options for visualizations', () => {
 it('should call close method correctly', () => {
   const toggle = jest.fn();
   const wrapper = shallow(<ProjectsOptionBar open={true} view="leak" onToggleOptionBar={toggle} />);
-  click(wrapper.find('a.projects-topbar-button'));
+  click(wrapper.find('.projects-topbar-button'));
   expect(toggle.mock.calls).toMatchSnapshot();
 });

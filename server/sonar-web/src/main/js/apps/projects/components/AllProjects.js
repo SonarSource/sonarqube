@@ -119,7 +119,8 @@ export default class AllProjects extends React.PureComponent {
     const visualization = query.visualization || 'risk';
     const selectedSort = query.sort || 'name';
 
-    const top = (organization ? 95 : 30) + (optionBarOpen ? 45 : 0);
+    const sideBarTop = (organization ? 95 : 30) + (optionBarOpen ? 45 : 0);
+    const contentTop = optionBarOpen ? 65 : 20;
 
     return (
       <div>
@@ -137,7 +138,7 @@ export default class AllProjects extends React.PureComponent {
 
         <div className="layout-page projects-page">
           <div className="layout-page-side-outer">
-            <div className="layout-page-side projects-page-side" style={{ top }}>
+            <div className="layout-page-side projects-page-side" style={{ top: sideBarTop }}>
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
                   <PageSidebar
@@ -152,13 +153,16 @@ export default class AllProjects extends React.PureComponent {
             </div>
           </div>
 
-          <div className="layout-page-main">
+          <div
+            className="layout-page-main projects-page-content"
+            style={{ paddingTop: contentTop }}>
             <div className="layout-page-main-inner">
               <PageHeaderContainer
                 query={query}
                 isFavorite={isFavorite}
                 organization={organization}
                 onOpenOptionBar={this.openOptionBar}
+                optionBarOpen={optionBarOpen}
               />
               {view !== 'visualizations' &&
                 <ProjectsListContainer
