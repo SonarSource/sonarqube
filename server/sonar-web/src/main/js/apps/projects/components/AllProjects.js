@@ -35,21 +35,19 @@ type Props = {
   isFavorite: boolean,
   location: { pathname: string, query: { [string]: string } },
   fetchProjects: (query: string, isFavorite: boolean, organization?: {}) => Promise<*>,
+  optionBarOpen: boolean,
+  optionBarToggle: (open: boolean) => void,
   organization?: { key: string },
   router: { push: ({ pathname: string, query?: {} }) => void }
 };
 
 type State = {
-  query: { [string]: string },
-  optionBarOpen: boolean
+  query: { [string]: string }
 };
 
 export default class AllProjects extends React.PureComponent {
   props: Props;
-  state: State = {
-    query: {},
-    optionBarOpen: false
-  };
+  state: State = { query: {} };
 
   componentDidMount() {
     this.handleQueryChange();
@@ -71,10 +69,8 @@ export default class AllProjects extends React.PureComponent {
   openOptionBar = (evt: Event & { currentTarget: HTMLElement }) => {
     evt.currentTarget.blur();
     evt.preventDefault();
-    this.handleOptionBarToggle(true);
+    this.props.optionBarToggle(true);
   };
-
-  handleOptionBarToggle = (open: boolean) => this.setState({ optionBarOpen: open });
 
   handlePerspectiveChange = ({ view, visualization }: { view: string, visualization?: string }) => {
     const query: { view: ?string, visualization: ?string, sort?: ?string } = {
@@ -115,8 +111,8 @@ export default class AllProjects extends React.PureComponent {
   };
 
   render() {
-    const { isFavorite, organization } = this.props;
-    const { query, optionBarOpen } = this.state;
+    const { isFavorite, organization, optionBarOpen } = this.props;
+    const { query } = this.state;
     const isFiltered = Object.keys(query).some(key => query[key] != null);
 
     const view = query.view || 'overall';
@@ -132,7 +128,7 @@ export default class AllProjects extends React.PureComponent {
         <ProjectsOptionBarContainer
           onPerspectiveChange={this.handlePerspectiveChange}
           onSortChange={this.handleSortChange}
-          onToggleOptionBar={this.handleOptionBarToggle}
+          onToggleOptionBar={this.props.optionBarToggle}
           open={optionBarOpen}
           selectedSort={selectedSort}
           view={view}
