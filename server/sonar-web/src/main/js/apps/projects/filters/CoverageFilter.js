@@ -38,20 +38,23 @@ export default class CoverageFilter extends React.PureComponent {
   };
 
   getFacetValueForOption(facet, option) {
-    const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
+    const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0', 'NO_DATA'];
     return facet[map[option - 1]];
   }
 
   renderOption(option, selected) {
     return (
       <span>
-        <CoverageRating
-          value={getCoverageRatingAverageValue(option)}
-          size="small"
-          muted={!selected}
-        />
+        {option < 6 &&
+          <CoverageRating
+            value={getCoverageRatingAverageValue(option)}
+            size="small"
+            muted={!selected}
+          />}
         <span className="spacer-left">
-          {getCoverageRatingLabel(option)}
+          {option < 6
+            ? getCoverageRatingLabel(option)
+            : <span className="big-spacer-left">{translate('no_data')}</span>}
         </span>
       </span>
     );
@@ -62,13 +65,14 @@ export default class CoverageFilter extends React.PureComponent {
       <FilterContainer
         property={this.props.property}
         className={this.props.className}
-        options={[1, 2, 3, 4, 5]}
+        options={[1, 2, 3, 4, 5, 6]}
         query={this.props.query}
         renderOption={this.renderOption}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
+        highlightUnderMax={5}
         header={<FilterHeader name={translate('metric_domain.Coverage')} />}
       />
     );
