@@ -28,7 +28,10 @@ exports[`smoke test 2`] = `
       }
     }
   />
-  <div>
+  <div
+    optionBarOpen={false}
+    optionBarToggle={[Function]}
+  >
     hello
   </div>
 </div>
