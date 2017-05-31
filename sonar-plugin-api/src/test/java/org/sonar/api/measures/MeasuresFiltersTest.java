@@ -19,14 +19,14 @@
  */
 package org.sonar.api.measures;
 
-import org.junit.Test;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -58,8 +58,8 @@ public class MeasuresFiltersTest {
 
   @Test
   public void rule() {
-    Rule rule1 = new Rule("pmd", "key1");
-    Rule rule2 = new Rule("pmd", "key2");
+    RuleKey rule1 = RuleKey.of("pmd", "key1");
+    RuleKey rule2 = RuleKey.of("pmd", "key2");
     MeasuresFilter<RuleMeasure> filter = MeasuresFilters.rule(CoreMetrics.VIOLATIONS, rule1);
     List<Measure> measures = Arrays.asList(
       RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),
@@ -75,8 +75,8 @@ public class MeasuresFiltersTest {
 
   @Test
   public void rules() {
-    Rule rule1 = new Rule("pmd", "key1");
-    Rule rule2 = new Rule("pmd", "key2");
+    RuleKey rule1 = RuleKey.of("pmd", "key1");
+    RuleKey rule2 = RuleKey.of("pmd", "key2");
     MeasuresFilter<Collection<RuleMeasure>> filter = MeasuresFilters.rules(CoreMetrics.VIOLATIONS);
     List<Measure> measures = Arrays.asList(
       RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),

@@ -20,7 +20,7 @@
 package org.sonar.api.measures;
 
 import org.junit.Test;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 
 import static org.junit.Assert.assertEquals;
@@ -35,20 +35,20 @@ public class RuleMeasureTest {
         RuleMeasure.createForPriority(CoreMetrics.CLASSES, RulePriority.CRITICAL, 3.4));
 
     assertEquals(
-        RuleMeasure.createForRule(CoreMetrics.CLASSES, new Rule("pmd", "abc1"), 4.5),
-        RuleMeasure.createForRule(CoreMetrics.CLASSES, new Rule("pmd", "abc1"), 3.4));
+        RuleMeasure.createForRule(CoreMetrics.CLASSES, RuleKey.of("pmd", "abc1"), 4.5),
+        RuleMeasure.createForRule(CoreMetrics.CLASSES, RuleKey.of("pmd", "abc1"), 3.4));
 
   }
 
   @Test
   public void shouldNotEquals() {
     assertNotEquals(
-        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, new Rule("pmd", "abc1"), 4.5),
-        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, new Rule("pmd", "def2"), 3.4));
+        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, RuleKey.of("pmd", "abc1"), 4.5),
+        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, RuleKey.of("pmd", "def2"), 3.4));
 
     assertNotEquals(
-        RuleMeasure.createForRule(CoreMetrics.INFO_VIOLATIONS, new Rule("pmd", "abc1"), 4.5),
-        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, new Rule("pmd", "abc1"), 3.4));
+        RuleMeasure.createForRule(CoreMetrics.INFO_VIOLATIONS, RuleKey.of("pmd", "abc1"), 4.5),
+        RuleMeasure.createForRule(CoreMetrics.BLOCKER_VIOLATIONS, RuleKey.of("pmd", "abc1"), 3.4));
   }
 
   private void assertNotEquals(RuleMeasure rm1, RuleMeasure rm2) {
