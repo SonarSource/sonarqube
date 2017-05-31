@@ -30,7 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
@@ -56,8 +56,8 @@ public class QProfileComparisonMediumTest {
 
   RuleDto xooRule1;
   RuleDto xooRule2;
-  RulesProfileDto left;
-  RulesProfileDto right;
+  QProfileDto left;
+  QProfileDto right;
 
   @Before
   public void before() {

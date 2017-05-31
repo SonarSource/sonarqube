@@ -142,7 +142,7 @@ public class ActiveRuleDto {
     return this;
   }
 
-  public static ActiveRuleDto createFor(RulesProfileDto profileDto, RuleDefinitionDto ruleDto) {
+  public static ActiveRuleDto createFor(QProfileDto profileDto, RuleDefinitionDto ruleDto) {
     requireNonNull(profileDto.getId(), "Profile is not persisted");
     requireNonNull(ruleDto.getId(), "Rule is not persisted");
     ActiveRuleDto dto = new ActiveRuleDto();

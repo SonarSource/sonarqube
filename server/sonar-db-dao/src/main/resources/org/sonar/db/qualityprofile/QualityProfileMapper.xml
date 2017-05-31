@@ -3,201 +3,226 @@
 
 <mapper namespace="org.sonar.db.qualityprofile.QualityProfileMapper">
 
-  <sql id="profilesColumns">
-    p.id as id,
-    p.organization_uuid as organizationUuid,
-    p.kee as kee,
-    p.name as name,
-    p.language as language,
-    p.parent_kee as parentKee,
-    p.rules_updated_at as rulesUpdatedAt,
-    p.last_used as lastUsed,
-    p.user_updated_at as userUpdatedAt,
-    p.is_built_in as isBuiltIn
+  <sql id="qProfileColumns">
+    oqp.uuid as kee,
+    oqp.organization_uuid as organizationUuid,
+    oqp.parent_uuid as parentKee,
+    rp.id as id,
+    rp.name as name,
+    rp.language as language,
+    rp.rules_updated_at as rulesUpdatedAt,
+    rp.last_used as lastUsed,
+    rp.user_updated_at as userUpdatedAt,
+    rp.is_built_in as isBuiltIn
   </sql>
 
-  <insert id="insert" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
-    INSERT INTO rules_profiles (organization_uuid, kee, parent_kee, name, language, created_at, updated_at, rules_updated_at, last_used, user_updated_at, is_built_in)
-    VALUES (
-    #{dto.organizationUuid, jdbcType=VARCHAR},
-    #{dto.kee, jdbcType=VARCHAR},
-    #{dto.parentKee, jdbcType=VARCHAR},
-    #{dto.name, jdbcType=VARCHAR},
-    #{dto.language, jdbcType=VARCHAR},
-    #{now, jdbcType=TIMESTAMP},
-    #{now, jdbcType=TIMESTAMP},
-    #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
-    #{dto.lastUsed, jdbcType=BIGINT},
-    #{dto.userUpdatedAt, jdbcType=BIGINT},
-    #{dto.isBuiltIn, jdbcType=BOOLEAN}
+  <insert id="insertRulesProfile" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
+    insert into rules_profiles (
+      kee,
+      name,
+      language,
+      created_at,
+      updated_at,
+      rules_updated_at,
+      last_used,
+      user_updated_at,
+      is_built_in
+    ) values (
+      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.name, jdbcType=VARCHAR},
+      #{dto.language, jdbcType=VARCHAR},
+      #{now, jdbcType=TIMESTAMP},
+      #{now, jdbcType=TIMESTAMP},
+      #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
+      #{dto.lastUsed, jdbcType=BIGINT},
+      #{dto.userUpdatedAt, jdbcType=BIGINT},
+      #{dto.isBuiltIn, jdbcType=BOOLEAN}
     )
   </insert>
 
-  <update id="update" parameterType="map">
-    UPDATE rules_profiles SET
-    name=#{dto.name, jdbcType=VARCHAR},
-    language=#{dto.language, jdbcType=VARCHAR},
-    parent_kee=#{dto.parentKee, jdbcType=VARCHAR},
-    updated_at=#{now, jdbcType=TIMESTAMP},
-    rules_updated_at=#{dto.rulesUpdatedAt, jdbcType=VARCHAR},
-    last_used=#{dto.lastUsed, jdbcType=BIGINT},
-    user_updated_at=#{dto.userUpdatedAt, jdbcType=BIGINT},
-    is_built_in=#{dto.isBuiltIn, jdbcType=BOOLEAN}
-    WHERE id=#{dto.id}
+  <insert id="insertOrgQProfile" parameterType="map" useGeneratedKeys="false">
+    insert into org_qprofiles (
+      uuid,
+      organization_uuid,
+      rules_profile_uuid,
+      parent_uuid,
+      created_at,
+      updated_at
+    ) values (
+      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.organizationUuid, jdbcType=VARCHAR},
+      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.parentKee, jdbcType=VARCHAR},
+      #{now, jdbcType=BIGINT},
+      #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="updateRulesProfile" parameterType="map">
+    update rules_profiles
+    set
+      name = #{dto.name, jdbcType=VARCHAR},
+      language = #{dto.language, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=TIMESTAMP},
+      rules_updated_at = #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
+      last_used = #{dto.lastUsed, jdbcType=BIGINT},
+      user_updated_at = #{dto.userUpdatedAt, jdbcType=BIGINT},
+      is_built_in = #{dto.isBuiltIn, jdbcType=BOOLEAN}
+    where
+      kee = #{dto.kee, jdbcType=VARCHAR}
   </update>
 
-  <update id="deleteByKeys" parameterType="String">
+  <update id="updateOrgQProfile" parameterType="map">
+    update org_qprofiles
+    set
+      parent_uuid = #{dto.parentKee, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{dto.kee, jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteRulesProfilesByUuids" parameterType="String">
     delete from rules_profiles
     where kee in
-      <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
-  </update>
+      <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
+  </delete>
 
-  <select id="selectAll" parameterType="map" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
-    ORDER BY p.name, p.language
-  </select>
+  <delete id="deleteOrgQProfilesByUuids" parameterType="String">
+    delete from org_qprofiles
+    where uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
+  </delete>
 
-  <select id="selectByNameAndLanguage" parameterType="map" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.name=#{name, jdbcType=VARCHAR}
-    AND p.language=#{language, jdbcType=VARCHAR}
-    <if test="organizationUuid != null">
-      AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    </if>
-  </select>
-
-  <select id="selectByNameAndLanguages" parameterType="map" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.name=#{name, jdbcType=VARCHAR}
-    AND p.language IN <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
-    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectByKey" parameterType="string" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.kee=#{id}
-  </select>
-
-  <select id="selectByKeys" parameterType="string" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.kee in
-    <foreach collection="keys" open="(" close=")" item="key" separator=",">
-      #{key}
-    </foreach>
-  </select>
-
-  <select id="selectByLanguage" parameterType="String" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.language=#{language}
-    AND p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    ORDER BY p.name
-  </select>
-
-  <select id="selectChildren" parameterType="string" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    WHERE p.parent_kee=#{id}
-    ORDER BY p.name
-  </select>
-
-  <select id="selectDefaultProfile" parameterType="map" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    INNER JOIN default_qprofiles dp on p.kee=dp.qprofile_uuid
-    WHERE
-    dp.language=#{language, jdbcType=VARCHAR}
-    AND dp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectDefaultProfiles" parameterType="map" resultType="RulesProfile">
-    SELECT
-    <include refid="profilesColumns"/>
-    FROM rules_profiles p
-    INNER JOIN default_qprofiles dp on p.kee=dp.qprofile_uuid
-    WHERE
-    dp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
-    AND dp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectSelectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
-    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
-    FROM projects pj
-    JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
-    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
-      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    ORDER BY pj.name ASC
-  </select>
-
-  <select id="selectDeselectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
-    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
-    FROM projects pj
-    LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
-    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
-      AND pp.profile_key IS NULL
-      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    ORDER BY pj.name ASC
-  </select>
-
-  <select id="selectProjectAssociations" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
-    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
-    FROM projects pj
-    LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
-    AND pp.profile_key = #{profileKey, jdbcType=VARCHAR}
-    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
-      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
-      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    ORDER BY pj.name ASC
-  </select>
-
-  <select id="countProjectsByProfileKey" resultType="KeyLongValue" parameterType="map">
-    select pp.profile_key as "key", count(projects.id) as "value"
-    from projects projects
-    inner join project_qprofiles pp ON pp.project_uuid = projects.uuid
-    inner join rules_profiles prof ON pp.profile_key = prof.kee
-    where projects.enabled = ${_true}
-    and prof.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    group by pp.profile_key
-  </select>
-
-  <select id="selectAssociatedToProjectUuidAndLanguage" parameterType="map" resultType="RulesProfile">
+  <select id="selectAll" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
-    <include refid="profilesColumns"/>
-    from rules_profiles p
-    inner join project_qprofiles pp ON pp.profile_key = p.kee
-    where
-      p.language = #{language, jdbcType=VARCHAR}
-      and pp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
-      and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where 
+      oqp.organization_uuid = #{organizationUuid,jdbcType=VARCHAR}
+    order by rp.name, rp.language
   </select>
 
-  <select id="selectAssociatedToProjectUuidAndLanguages" parameterType="map" resultType="RulesProfile">
+  <select id="selectDefaultProfile" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
-    <include refid="profilesColumns"/>
-    from rules_profiles p
-    inner join project_qprofiles pq ON pq.profile_key = p.kee
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
     where
-      p.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
-      and pq.project_uuid = #{projectUuid, jdbcType=VARCHAR}
-      and p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      dp.language = #{language, jdbcType=VARCHAR}
+      and dp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      and rp.language = dp.language
+      and oqp.organization_uuid = dp.organization_uuid
+  </select>
+
+  <select id="selectDefaultProfiles" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
+    where
+      dp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      and dp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      and rp.language = dp.language
+      and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByNameAndLanguage" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where 
+      rp.name = #{name, jdbcType=VARCHAR}
+      and rp.language = #{language, jdbcType=VARCHAR}
+      and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+    
+  <select id="selectByNameAndLanguages" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where
+      rp.name = #{name, jdbcType=VARCHAR}
+      and rp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where
+      oqp.uuid = #{uuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByUuids" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where
+      oqp.uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid}</foreach>
+  </select>
+
+  <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where
+      rp.language = #{language, jdbcType=VARCHAR}
+      and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectChildren" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    where
+      oqp.parent_uuid = #{uuid, jdbcType=VARCHAR}
+    ORDER BY rp.name
+  </select>
+
+  <select id="countProjectsByProfileUuid" resultType="KeyLongValue" parameterType="map">
+    select pqp.profile_key as "key", count(pj.uuid) as "value"
+    from projects pj
+    inner join project_qprofiles pqp on pqp.project_uuid = pj.uuid
+    inner join org_qprofiles oqp on oqp.uuid = pqp.profile_key
+    where
+      pj.enabled = ${_true}
+      and pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      and oqp.organization_uuid = pj.organization_uuid
+    group by pqp.profile_key
+  </select>
+
+  <select id="selectAssociatedToProjectUuidAndLanguage" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join project_qprofiles pqp ON pqp.profile_key = oqp.uuid
+    where
+      rp.language = #{language, jdbcType=VARCHAR}
+      and pqp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+      and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectAssociatedToProjectUuidAndLanguages" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join project_qprofiles pqp ON pqp.profile_key = oqp.uuid
+    where
+      rp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
+      and pqp.project_uuid = #{projectUuid, jdbcType=VARCHAR}
+      and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <insert id="insertProjectProfileAssociation" useGeneratedKeys="false">
@@ -213,40 +238,86 @@
   <update id="updateProjectProfileAssociation">
     update project_qprofiles
     set
-      profile_key = #{profileUuid, jdbcType=VARCHAR}
+    profile_key = #{profileUuid, jdbcType=VARCHAR}
+    where
+    project_uuid = #{projectUuid, jdbcType=VARCHAR}
+    and profile_key = #{oldProfileUuid, jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteProjectProfileAssociation">
+    delete from project_qprofiles
     where
       project_uuid = #{projectUuid, jdbcType=VARCHAR}
-      and profile_key = #{oldProfileUuid, jdbcType=VARCHAR}
-  </update>
+      and profile_key=#{profileUuid, jdbcType=VARCHAR}
+  </delete>
 
-  <update id="deleteProjectProfileAssociation">
-    DELETE FROM project_qprofiles
-    WHERE project_uuid=#{projectUuid, jdbcType=VARCHAR} AND profile_key=#{profileKey, jdbcType=VARCHAR}
-  </update>
-
-  <update id="deleteProjectAssociationByProfileKeys" parameterType="String">
+  <delete id="deleteProjectAssociationByProfileUuids" parameterType="String">
     delete from project_qprofiles
     where profile_key in
-    <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
-      #{profileKey, jdbcType=VARCHAR}
+    <foreach collection="profileUuids" open="(" close=")" item="profileUuid" separator=",">
+      #{profileUuid, jdbcType=VARCHAR}
     </foreach>
-  </update>
+  </delete>
 
-  <select id="selectOutdatedProfiles" parameterType="map" resultType="string">
-    select rp.kee
-    from rules_profiles rp
-    inner join organizations o on o.uuid = rp.organization_uuid
-    where rp.language = #{language, jdbcType=VARCHAR}
+  <select id="selectSelectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
+    select
+      pp.id as id,
+      pj.id as projectId,
+      pj.uuid as projectUuid,
+      pj.kee as projectKey,
+      pj.name as projectName,
+      pp.profile_key as profileKey
+    from projects pj
+    inner join project_qprofiles pp ON pp.project_uuid = pj.uuid and pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
+    where
+      pj.scope = 'PRJ'
+      and pj.qualifier = 'TRK'
+      and upper(pj.name) like #{nameQuery, jdbcType=VARCHAR}
+      and pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    order by pj.name ASC
+  </select>
+
+  <select id="selectDeselectedProjects" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
+    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
+    FROM projects pj
+    LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
+    AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
+      AND pp.profile_key IS NULL
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    ORDER BY pj.name ASC
+  </select>
+
+  <select id="selectProjectAssociations" resultType="org.sonar.db.qualityprofile.ProjectQprofileAssociationDto">
+    SELECT pp.id as id, pj.id as projectId, pj.uuid as projectUuid, pj.kee as projectKey, pj.name as projectName, pp.profile_key as profileKey
+    FROM projects pj
+    LEFT JOIN project_qprofiles pp ON pp.project_uuid = pj.uuid
+    AND pp.profile_key = #{profileUuid, jdbcType=VARCHAR}
+    WHERE pj.scope='PRJ' AND pj.qualifier='TRK'
+      AND UPPER(pj.name) LIKE #{nameQuery, jdbcType=VARCHAR}
+      AND pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    ORDER BY pj.name ASC
+  </select>
+
+  <select id="selectUuidsOfCustomQProfiles" parameterType="map" resultType="string">
+    select oqp.uuid
+    from org_qprofiles oqp
+    inner join organizations o on o.uuid = oqp.organization_uuid
+    inner join rules_profiles rp on rp.kee = oqp.rules_profile_uuid
+    where
+      rp.language = #{language, jdbcType=VARCHAR}
       and rp.name = #{name, jdbcType=VARCHAR}
       and rp.is_built_in = ${_false}
   </select>
 
-  <update id="rename" parameterType="map">
+  <update id="renameRulesProfiles" parameterType="map">
     update rules_profiles
     set
       name = #{newName, jdbcType=VARCHAR},
       updated_at = #{updatedAt, jdbcType=TIMESTAMP}
-    where kee in <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
+    where
+      kee in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </update>
 </mapper>
 

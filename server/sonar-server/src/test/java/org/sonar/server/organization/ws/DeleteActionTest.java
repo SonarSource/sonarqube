@@ -37,7 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentCleanerService;
@@ -321,8 +321,8 @@ public class DeleteActionTest {
   public void request_also_deletes_quality_profiles_of_specified_organization() {
     OrganizationDto org = db.organizations().insert();
     OrganizationDto otherOrg = db.organizations().insert();
-    RulesProfileDto profileInOrg = db.qualityProfiles().insert(org);
-    RulesProfileDto profileInOtherOrg = db.qualityProfiles().insert(otherOrg);
+    QProfileDto profileInOrg = db.qualityProfiles().insert(org);
+    QProfileDto profileInOtherOrg = db.qualityProfiles().insert(otherOrg);
 
     logInAsAdministrator(org);
 

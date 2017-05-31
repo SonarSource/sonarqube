@@ -17,16 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.server.platform.db.migration.version.v65;
 
-import java.util.Collection;
-import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QProfileDto;
+import java.sql.SQLException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public interface QProfileReset {
+public class DropOrgUuidAndParentKeeFromRulesProfilesTest {
 
-  /**
-   * Reset the rules of the specified profile.
-   */
-  BulkChangeResult reset(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations);
+  private static final String TABLE_NAME = "rules_profiles";
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropOrgUuidAndParentKeeFromRulesProfilesTest.class, "initial.sql");
+
+  private DropOrgUuidAndParentKeeFromRulesProfiles underTest = new DropOrgUuidAndParentKeeFromRulesProfiles(db.database());
+
+  @Test
+  public void columns_are_dropped() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist(TABLE_NAME, "organization_uuid");
+    db.assertColumnDoesNotExist(TABLE_NAME, "parent_kee");
+  }
 }

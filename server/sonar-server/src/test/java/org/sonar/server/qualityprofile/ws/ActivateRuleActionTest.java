@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -102,7 +102,7 @@ public class ActivateRuleActionTest {
   @Test
   public void should_fail_if_not_organization_quality_profile_administrator() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
@@ -117,7 +117,7 @@ public class ActivateRuleActionTest {
   public void fail_activate_if_built_in_profile() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
 
-    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
@@ -132,7 +132,7 @@ public class ActivateRuleActionTest {
   @Test
   public void activate_rule_in_default_organization() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
@@ -156,7 +156,7 @@ public class ActivateRuleActionTest {
   @Test
   public void activate_rule_in_specific_organization() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-    RulesProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")

@@ -21,117 +21,92 @@ package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
-import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
 
 public class ActiveRuleResultSetIteratorTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private RuleDefinitionDto rule;
+  private OrganizationDto org;
+  private QProfileDto profile1;
+  private QProfileDto profile2;
+
+  @Before
+  public void before() {
+    rule = db.rules().insert();
+    org = db.organizations().insert();
+    profile1 = db.qualityProfiles().insert(org);
+    profile2 = db.qualityProfiles().insert(org);
+  }
   @Test
-  public void iterator_over_one_active_rule() {
-    dbTester.prepareDbUnit(getClass(), "one_active_rule.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+  public void iterate_over_one_active_rule() {
+    ActiveRuleDto dto = db.qualityProfiles().activateRule(profile1, rule, ar -> ar.setSeverity(CRITICAL).setInheritance(null));
+
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(db.getDbClient(), db.getSession(), 0L);
     Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
     it.close();
 
     assertThat(activeRulesByKey).hasSize(1);
 
-    ActiveRuleKey key = ActiveRuleKey.of("sonar-way", RuleKey.of("xoo", "S001"));
+    ActiveRuleKey key = ActiveRuleKey.of(profile1.getKee(), rule.getKey());
     ActiveRuleDoc activeRule = activeRulesByKey.get(key);
-    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
+    assertThat(activeRule.organizationUuid()).isEqualTo(org.getUuid());
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(1_500_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1_600_000_000_000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(dto.getUpdatedAt());
   }
 
   @Test
-  public void iterator_over_active_rules() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
-    Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
-    it.close();
+  public void iterate_over_multiple_active_rules() {
+    ActiveRuleDto dto1 = db.qualityProfiles().activateRule(profile1, rule);
+    ActiveRuleDto dto2 = db.qualityProfiles().activateRule(profile2, rule);
 
-    assertThat(activeRulesByKey).hasSize(3);
-
-    ActiveRuleKey key = ActiveRuleKey.of("sonar-way", RuleKey.of("xoo", "S002"));
-    ActiveRuleDoc activeRule = activeRulesByKey.get(key);
-    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
-    assertThat(activeRule.key()).isEqualTo(key);
-    assertThat(activeRule.severity()).isEqualTo(CRITICAL);
-    assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(2_000_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(2_100_000_000_000L);
-
-    key = ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001"));
-    activeRule = activeRulesByKey.get(key);
-    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
-    assertThat(activeRule.key()).isEqualTo(key);
-    assertThat(activeRule.severity()).isEqualTo(INFO);
-    assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.createdAt()).isEqualTo(1_700_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1_800_000_000_000L);
-
-    key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
-    activeRule = activeRulesByKey.get(key);
-    assertThat(activeRule.organizationUuid()).isEqualTo("org-123");
-    assertThat(activeRule.key()).isEqualTo(key);
-    assertThat(activeRule.severity()).isEqualTo(BLOCKER);
-    assertThat(activeRule.inheritance()).isEqualTo(INHERITED);
-    assertThat(activeRule.createdAt()).isEqualTo(1_500_000_000_000L);
-    assertThat(activeRule.updatedAt()).isEqualTo(1_600_000_000_000L);
-  }
-
-  @Test
-  public void active_rule_with_inherited_inheritance() {
-    dbTester.prepareDbUnit(getClass(), "active_rule_with_inherited_inheritance.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(db.getDbClient(), db.getSession(), 0L);
     Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
     it.close();
 
     assertThat(activeRulesByKey).hasSize(2);
-
-    ActiveRuleKey key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
-    ActiveRuleDoc activeRule = activeRulesByKey.get(key);
-    assertThat(activeRule.inheritance()).isEqualTo(INHERITED);
+    assertThat(activeRulesByKey.keySet()).containsExactlyInAnyOrder(dto1.getKey(), dto2.getKey());
   }
 
   @Test
-  public void active_rule_with_overrides_inheritance() {
-    dbTester.prepareDbUnit(getClass(), "active_rule_with_overrides_inheritance.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
+  public void iterate_inherited_active_rule() {
+    ActiveRuleDto dto = db.qualityProfiles().activateRule(profile1, rule, ar -> ar.setInheritance(INHERITED.name()));
+
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(db.getDbClient(), db.getSession(), 0L);
     Map<ActiveRuleKey, ActiveRuleDoc> activeRulesByKey = activeRulesByKey(it);
     it.close();
 
-    assertThat(activeRulesByKey).hasSize(2);
-
-    ActiveRuleKey key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
-    ActiveRuleDoc activeRule = activeRulesByKey.get(key);
-    assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.OVERRIDES);
+    assertThat(activeRulesByKey).hasSize(1);
+    assertThat(activeRulesByKey.get(dto.getKey()).inheritance()).isEqualTo(INHERITED);
   }
 
   @Test
   public void select_after_date() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_900_000_000_000L);
+    ActiveRuleDto dto1 = db.qualityProfiles().activateRule(profile1, rule, ar -> ar.setUpdatedAt(1_500L));
+    ActiveRuleDto dto2 = db.qualityProfiles().activateRule(profile2, rule, ar -> ar.setUpdatedAt(1_600L));
 
+    ActiveRuleResultSetIterator it = ActiveRuleResultSetIterator.create(db.getDbClient(), db.getSession(), 1_550L);
     assertThat(it.hasNext()).isTrue();
     ActiveRuleDoc doc = it.next();
-    assertThat(doc.key()).isEqualTo(ActiveRuleKey.of("sonar-way", RuleKey.of("xoo", "S002")));
+    assertThat(doc.key()).isEqualTo(dto2.getKey());
 
     assertThat(it.hasNext()).isFalse();
     it.close();

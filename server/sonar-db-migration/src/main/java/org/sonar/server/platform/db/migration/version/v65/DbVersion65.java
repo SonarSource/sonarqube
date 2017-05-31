@@ -49,6 +49,7 @@ public class DbVersion65 implements DbVersion {
       .add(1720, "Populate table default_qprofiles", PopulateTableDefaultQProfiles.class)
       .add(1721, "Drop rules_profiles.is_default", DropIsDefaultColumnFromRulesProfiles.class)
       .add(1722, "Create table qprofiles", CreateTableQProfiles.class)
-      .add(1723, "Populate table qprofiles", PopulateQProfiles.class);
+      .add(1723, "Populate table qprofiles", PopulateQProfiles.class)
+      .add(1724, "Drop columns organization_uuid and parent_kee from rules_profiles", DropOrgUuidAndParentKeeFromRulesProfiles.class);
   }
 }

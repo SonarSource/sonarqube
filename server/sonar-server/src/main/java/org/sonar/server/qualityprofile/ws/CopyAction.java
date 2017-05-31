@@ -29,7 +29,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
 
@@ -79,10 +79,10 @@ public class CopyAction implements QProfileWsAction {
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      RulesProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
+      QProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, sourceProfile.getOrganizationUuid());
 
-      RulesProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
+      QProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
       boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, copiedProfile.getOrganizationUuid(), copiedProfile.getKee());
 
       String languageKey = copiedProfile.getLanguage();

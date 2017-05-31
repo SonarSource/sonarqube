@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -62,11 +62,11 @@ public class SetDefaultActionTest {
   private SetDefaultAction underTest;
 
   /** Single, default quality profile for language xoo1 */
-  private RulesProfileDto xoo1Profile;
+  private QProfileDto xoo1Profile;
   /** Parent quality profile for language xoo2 (not a default) */
-  private RulesProfileDto xoo2Profile;
+  private QProfileDto xoo2Profile;
   /** Child quality profile for language xoo2, set as default */
-  private RulesProfileDto xoo2Profile2;
+  private QProfileDto xoo2Profile2;
 
   @Before
   public void setUp() {
@@ -90,7 +90,7 @@ public class SetDefaultActionTest {
       .setParentKee(xoo2Profile.getKee());
     dbClient.qualityProfileDao().insert(db.getSession(), xoo1Profile, xoo2Profile, xoo2Profile2);
     db.commit();
-    db.qualityProfiles().markAsDefault(xoo1Profile, xoo2Profile2);
+    db.qualityProfiles().setAsDefault(xoo1Profile, xoo2Profile2);
 
     tester = new WsActionTester(underTest);
   }
@@ -149,17 +149,17 @@ public class SetDefaultActionTest {
       .logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES, organization1.getUuid());
 
-    RulesProfileDto profileOrg1Old = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto profileOrg1Old = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization1.getUuid())
       .setLanguage(xoo1Key);
-    RulesProfileDto profileOrg1New = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto profileOrg1New = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization1.getUuid())
       .setLanguage(xoo1Key);
-    RulesProfileDto profileOrg2 = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto profileOrg2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization2.getUuid())
       .setLanguage(xoo1Key);
-    db.qualityProfiles().insertQualityProfiles(profileOrg1Old, profileOrg1New, profileOrg2);
-    db.qualityProfiles().markAsDefault(profileOrg1Old, profileOrg2);
+    db.qualityProfiles().insert(profileOrg1Old, profileOrg1New, profileOrg2);
+    db.qualityProfiles().setAsDefault(profileOrg1Old, profileOrg2);
 
     checkDefaultProfile(organization1, xoo1Key, profileOrg1Old.getKee());
     checkDefaultProfile(organization2, xoo1Key, profileOrg2.getKee());

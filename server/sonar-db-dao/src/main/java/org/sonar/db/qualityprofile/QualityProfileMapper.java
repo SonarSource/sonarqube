@@ -28,51 +28,62 @@ import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
 
-  void insert(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
+  void insertOrgQProfile(@Param("dto") QProfileDto dto, @Param("now") long now);
 
-  void update(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
+  void insertRulesProfile(@Param("dto") QProfileDto dto, @Param("now") Date now);
 
-  void deleteByKeys(@Param("profileKeys") Collection<String> profileKeys);
+  void updateRulesProfile(@Param("dto") QProfileDto dto, @Param("now") Date now);
 
-  List<RulesProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
+  void updateOrgQProfile(@Param("dto") QProfileDto dto, @Param("now") long now);
+
+  void deleteRulesProfilesByUuids(@Param("uuids") Collection<String> uuids);
+
+  void deleteOrgQProfilesByUuids(@Param("uuids") Collection<String> uuids);
+
+  List<QProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
-  RulesProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
+  QProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
 
-  List<RulesProfileDto> selectDefaultProfiles(
+  List<QProfileDto> selectDefaultProfiles(
     @Param("organizationUuid") String organizationUuid,
     @Param("languages") Collection<String> languages);
 
   @CheckForNull
-  RulesProfileDto selectByNameAndLanguage(@Param("organizationUuid") String organizationUuid, @Param("name") String name, @Param("language") String language);
+  QProfileDto selectByNameAndLanguage(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("name") String name,
+    @Param("language") String language);
 
-  List<RulesProfileDto> selectByNameAndLanguages(
+  List<QProfileDto> selectByNameAndLanguages(
     @Param("organizationUuid") String organizationUuid,
     @Param("name") String name,
     @Param("languages") Collection<String> languages);
 
   @CheckForNull
-  RulesProfileDto selectByKey(String key);
+  QProfileDto selectByUuid(String uuid);
 
-  List<RulesProfileDto> selectByLanguage(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
+  List<QProfileDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
-  List<RulesProfileDto> selectByKeys(@Param("keys") List<String> keys);
+  List<QProfileDto> selectByLanguage(
+    @Param("organizationUuid") String organizationUuid,
+    @Param("language") String language);
 
   // INHERITANCE
 
-  List<RulesProfileDto> selectChildren(String key);
+  List<QProfileDto> selectChildren(String uuid);
 
   // PROJECTS
 
-  List<KeyLongValue> countProjectsByProfileKey(@Param("organizationUuid") String organizationUuid);
+  List<KeyLongValue> countProjectsByProfileUuid(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
-  RulesProfileDto selectAssociatedToProjectUuidAndLanguage(
+  QProfileDto selectAssociatedToProjectUuidAndLanguage(
     @Param("organizationUuid") String organizationUuid,
     @Param("projectUuid") String projectUuid,
     @Param("language") String language);
 
-  List<RulesProfileDto> selectAssociatedToProjectUuidAndLanguages(
+  List<QProfileDto> selectAssociatedToProjectUuidAndLanguages(
     @Param("organizationUuid") String organizationUuid,
     @Param("projectUuid") String projectUuid,
     @Param("languages") Collection<String> languages);
@@ -86,26 +97,26 @@ public interface QualityProfileMapper {
     @Param("profileUuid") String profileUuid,
     @Param("oldProfileUuid") String oldProfileUuid);
 
-  void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
+  void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileUuid") String profileUuid);
 
-  void deleteProjectAssociationByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
+  void deleteProjectAssociationByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
 
   List<ProjectQprofileAssociationDto> selectSelectedProjects(
     @Param("organizationUuid") String organizationUuid,
-    @Param("profileKey") String profileKey,
+    @Param("profileUuid") String profileUuid,
     @Param("nameQuery") String nameQuery);
 
   List<ProjectQprofileAssociationDto> selectDeselectedProjects(
     @Param("organizationUuid") String organizationUuid,
-    @Param("profileKey") String profileKey,
+    @Param("profileUuid") String profileUuid,
     @Param("nameQuery") String nameQuery);
 
   List<ProjectQprofileAssociationDto> selectProjectAssociations(
     @Param("organizationUuid") String organizationUuid,
-    @Param("profileKey") String profileKey,
+    @Param("profileUuid") String profileUuid,
     @Param("nameQuery") String nameQuery);
 
-  List<String> selectOutdatedProfiles(@Param("language") String language, @Param("name") String name);
+  List<String> selectUuidsOfCustomQProfiles(@Param("language") String language, @Param("name") String name);
 
-  void rename(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("profileKeys") Collection<String> profileKeys);
+  void renameRulesProfiles(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("uuids") Collection<String> uuids);
 }

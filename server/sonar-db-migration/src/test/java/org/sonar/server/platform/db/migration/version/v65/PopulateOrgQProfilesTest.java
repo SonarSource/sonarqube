@@ -35,16 +35,16 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class PopulateQProfilesTest {
+public class PopulateOrgQProfilesTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(PopulateQProfilesTest.class, "initial.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(PopulateOrgQProfilesTest.class, "initial.sql");
 
   private System2 system2 = new AlwaysIncreasingSystem2();
-  private PopulateQProfiles underTest = new PopulateQProfiles(db.database(), system2);
+  private PopulateOrgQProfiles underTest = new PopulateOrgQProfiles(db.database(), system2);
 
   @Test
   public void migration_is_reentrant() throws SQLException {
@@ -52,13 +52,13 @@ public class PopulateQProfilesTest {
     insertRulesProfile("ORG_2", "js", "u2", "u1", true);
 
     // org1 is already processed
-    insertQProfile("u1", "ORG_1", "RPU1");
+    insertOrgQProfile("u1", "ORG_1", "RPU1");
 
     underTest.execute();
 
     assertThat(countRows()).isEqualTo(2);
-    Map<String, Object> qprofile1 = selectQProfile("u1", "ORG_1");
-    Map<String, Object> qprofile2 = selectQProfile("u2", "ORG_2");
+    Map<String, Object> qprofile1 = selectOrgQProfile("u1", "ORG_1");
+    Map<String, Object> qprofile2 = selectOrgQProfile("u2", "ORG_2");
 
     assertThat(qprofile1.get("UUID")).isEqualTo("u1");
     assertThat(qprofile1.get("ORGANIZATION_UUID")).isEqualTo("ORG_1");
@@ -86,7 +86,7 @@ public class PopulateQProfilesTest {
 
 
   private int countRows() {
-    return db.countRowsOfTable("qprofiles");
+    return db.countRowsOfTable("org_qprofiles");
   }
 
   private void insertRulesProfile(String orgUuid, String language, String uuid, String parentKee, boolean isDefault) {
@@ -100,8 +100,8 @@ public class PopulateQProfilesTest {
       "IS_BUILT_IN", true);
   }
 
-  private void insertQProfile(String uuid, String orgUuid, String rulesProfileUuid) {
-    db.executeInsert("QPROFILES",
+  private void insertOrgQProfile(String uuid, String orgUuid, String rulesProfileUuid) {
+    db.executeInsert("ORG_QPROFILES",
       "ORGANIZATION_UUID", orgUuid,
       "RULES_PROFILE_UUID", rulesProfileUuid,
       "UUID", uuid,
@@ -110,7 +110,7 @@ public class PopulateQProfilesTest {
       );
   }
 
-  private Map<String, Object> selectQProfile(String uuid, String orgUuid) {
-    return db.selectFirst(format("select * from qprofiles where uuid='%s' and organization_uuid='%s'", uuid, orgUuid));
+  private Map<String, Object> selectOrgQProfile(String uuid, String orgUuid) {
+    return db.selectFirst(format("select * from org_qprofiles where uuid='%s' and organization_uuid='%s'", uuid, orgUuid));
   }
 }

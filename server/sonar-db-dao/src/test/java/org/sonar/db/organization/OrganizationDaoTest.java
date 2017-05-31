@@ -41,7 +41,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
@@ -877,7 +877,7 @@ public class OrganizationDaoTest {
   public void selectWithoutQualityProfile_returns_() {
     OrganizationDto orgWithoutAnyProfiles = dbTester.organizations().insert();
     OrganizationDto orgWithProfiles = dbTester.organizations().insert();
-    RulesProfileDto profile = dbTester.qualityProfiles().insert(orgWithProfiles);
+    QProfileDto profile = dbTester.qualityProfiles().insert(orgWithProfiles);
 
     assertThat(underTest.selectWithoutQualityProfile(dbSession, "js", "foo"))
       .extracting(OrganizationDto::getUuid).containsExactlyInAnyOrder(orgWithoutAnyProfiles.getUuid(), orgWithProfiles.getUuid());

@@ -44,7 +44,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRule;
@@ -178,10 +178,10 @@ public class ActiveRuleCompleter {
   }
 
   private Rules.QProfiles.Builder buildQProfiles(DbSession dbSession, Collection<String> harvestedProfileKeys) {
-    Map<String, RulesProfileDto> qProfilesByKey = new HashMap<>();
+    Map<String, QProfileDto> qProfilesByKey = new HashMap<>();
     for (String qProfileKey : harvestedProfileKeys) {
       if (!qProfilesByKey.containsKey(qProfileKey)) {
-        RulesProfileDto profile = loadProfile(dbSession, qProfileKey);
+        QProfileDto profile = loadProfile(dbSession, qProfileKey);
         if (profile == null) {
           LOG.warn("Could not find quality profile with key " + qProfileKey);
           continue;
@@ -196,7 +196,7 @@ public class ActiveRuleCompleter {
 
     Rules.QProfiles.Builder qProfilesResponse = Rules.QProfiles.newBuilder();
     Map<String, Rules.QProfile> qProfilesMapResponse = qProfilesResponse.getMutableQProfiles();
-    for (RulesProfileDto profile : qProfilesByKey.values()) {
+    for (QProfileDto profile : qProfilesByKey.values()) {
       writeProfile(qProfilesMapResponse, profile);
     }
 
@@ -204,11 +204,11 @@ public class ActiveRuleCompleter {
   }
 
   @CheckForNull
-  private RulesProfileDto loadProfile(DbSession dbSession, String qProfileKey) {
-    return dbClient.qualityProfileDao().selectByKey(dbSession, qProfileKey);
+  private QProfileDto loadProfile(DbSession dbSession, String qProfileKey) {
+    return dbClient.qualityProfileDao().selectByUuid(dbSession, qProfileKey);
   }
 
-  private void writeProfile(Map<String, Rules.QProfile> profilesResponse, RulesProfileDto profile) {
+  private void writeProfile(Map<String, Rules.QProfile> profilesResponse, QProfileDto profile) {
     Rules.QProfile.Builder profileResponse = Rules.QProfile.newBuilder();
     setNullable(profile.getName(), profileResponse::setName);
 

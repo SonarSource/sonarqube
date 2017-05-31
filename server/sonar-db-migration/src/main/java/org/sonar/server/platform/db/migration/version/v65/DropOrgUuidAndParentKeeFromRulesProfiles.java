@@ -17,16 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
 
-import java.util.Collection;
-import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QProfileDto;
+package org.sonar.server.platform.db.migration.version.v65;
 
-public interface QProfileReset {
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-  /**
-   * Reset the rules of the specified profile.
-   */
-  BulkChangeResult reset(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations);
+public class DropOrgUuidAndParentKeeFromRulesProfiles extends DdlChange {
+
+  private static final String TABLE_NAME = "rules_profiles";
+
+  public DropOrgUuidAndParentKeeFromRulesProfiles(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "organization_uuid").build());
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "parent_kee").build());
+  }
 }

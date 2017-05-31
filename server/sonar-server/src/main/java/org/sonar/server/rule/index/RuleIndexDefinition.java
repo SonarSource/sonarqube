@@ -78,7 +78,6 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_ACTIVE_RULE_PROFILE_KEY = "profile";
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "severity";
   public static final String FIELD_ACTIVE_RULE_RULE_KEY = "ruleKey";
-  public static final String FIELD_ACTIVE_RULE_CREATED_AT = "createdAt";
   public static final String FIELD_ACTIVE_RULE_UPDATED_AT = "updatedAt";
 
   private final Settings settings;
@@ -106,8 +105,6 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_KEY).disableNorms().build();
     activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
     activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
-
-    activeRuleMapping.createLongField(FIELD_ACTIVE_RULE_CREATED_AT);
     activeRuleMapping.createLongField(FIELD_ACTIVE_RULE_UPDATED_AT);
 
     // Rule extension type

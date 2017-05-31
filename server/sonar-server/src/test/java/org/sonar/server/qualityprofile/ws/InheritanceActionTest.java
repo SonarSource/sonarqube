@@ -36,7 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsClient;
@@ -115,28 +115,28 @@ public class InheritanceActionTest {
     /*
      * sonar way (2) <- companyWide (2) <- buWide (2, 1 overriding) <- (forProject1 (2), forProject2 (2))
      */
-    RulesProfileDto sonarway = dbTester.qualityProfiles().insertQualityProfile(
-      newQProfileDto(organization, QProfileName.createFor("xoo", "Sonar way"), "xoo-sonar-way").setIsBuiltIn(true));
+    QProfileDto sonarway = dbTester.qualityProfiles().insert(organization, p ->
+      p.setKee("xoo-sonar-way").setLanguage("xoo").setName("Sonar way").setIsBuiltIn(true));
     createActiveRule(rule1, sonarway);
     createActiveRule(rule2, sonarway);
 
     dbSession.commit();
     activeRuleIndexer.index();
 
-    RulesProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
+    QProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
     setParent(sonarway, companyWide);
 
-    RulesProfileDto buWide = createProfile("xoo", "My BU Profile", "xoo-my-bu-profile-23456");
+    QProfileDto buWide = createProfile("xoo", "My BU Profile", "xoo-my-bu-profile-23456");
     setParent(companyWide, buWide);
     overrideActiveRuleSeverity(rule1, buWide, Severity.CRITICAL);
 
-    RulesProfileDto forProject1 = createProfile("xoo", "For Project One", "xoo-for-project-one-34567");
+    QProfileDto forProject1 = createProfile("xoo", "For Project One", "xoo-for-project-one-34567");
     setParent(buWide, forProject1);
     createActiveRule(rule3, forProject1);
     dbSession.commit();
     activeRuleIndexer.index();
 
-    RulesProfileDto forProject2 = createProfile("xoo", "For Project Two", "xoo-for-project-two-45678");
+    QProfileDto forProject2 = createProfile("xoo", "For Project Two", "xoo-for-project-two-45678");
     setParent(buWide, forProject2);
     overrideActiveRuleSeverity(rule2, forProject2, Severity.CRITICAL);
 
@@ -160,12 +160,12 @@ public class InheritanceActionTest {
     RuleDefinitionDto rule3 = dbTester.rules().insert();
     ruleIndexer.indexRuleDefinition(rule1.getKey());
 
-    RulesProfileDto parent = dbTester.qualityProfiles().insert(organization);
+    QProfileDto parent = dbTester.qualityProfiles().insert(organization);
     dbTester.qualityProfiles().activateRule(parent, rule1);
     dbTester.qualityProfiles().activateRule(parent, rule2);
     long parentRules = 2;
 
-    RulesProfileDto child = dbTester.qualityProfiles().insert(organization, q -> q.setParentKee(parent.getKee()));
+    QProfileDto child = dbTester.qualityProfiles().insert(organization, q -> q.setParentKee(parent.getKee()));
     dbTester.qualityProfiles().activateRule(child, rule3);
     long childRules = 1;
 
@@ -192,7 +192,7 @@ public class InheritanceActionTest {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
     ruleIndexer.indexRuleDefinition(rule.getKey());
 
-    RulesProfileDto profile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
     dbTester.qualityProfiles().activateRule(profile, rule);
     long activeRules = 0;
 
@@ -213,7 +213,7 @@ public class InheritanceActionTest {
   @Test
   public void inheritance_no_family() throws Exception {
     // Simple profile, no parent, no child
-    RulesProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
+    QProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
 
     String response = wsActionTester.newRequest()
       .setMethod("GET")
@@ -230,14 +230,14 @@ public class InheritanceActionTest {
       .setMethod("GET").setParam("profileKey", "polop").execute();
   }
 
-  private RulesProfileDto createProfile(String lang, String name, String key) {
-    RulesProfileDto profile = newQProfileDto(organization, new QProfileName(lang, name), key);
+  private QProfileDto createProfile(String lang, String name, String key) {
+    QProfileDto profile = newQProfileDto(organization, new QProfileName(lang, name), key);
     dbClient.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     return profile;
   }
 
-  private void setParent(RulesProfileDto profile, RulesProfileDto parent) {
+  private void setParent(QProfileDto profile, QProfileDto parent) {
     ruleActivator.setParent(dbSession, parent.getKee(), profile.getKee());
   }
 
@@ -255,7 +255,7 @@ public class InheritanceActionTest {
     return rule;
   }
 
-  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, RulesProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QProfileDto profile) {
     long now = new Date().getTime();
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString())
@@ -265,7 +265,7 @@ public class InheritanceActionTest {
     return activeRule;
   }
 
-  private void overrideActiveRuleSeverity(RuleDefinitionDto rule, RulesProfileDto profile, String severity) {
+  private void overrideActiveRuleSeverity(RuleDefinitionDto rule, QProfileDto profile, String severity) {
     ruleActivator.activate(dbSession, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKee());
     dbSession.commit();
     activeRuleIndexer.index();

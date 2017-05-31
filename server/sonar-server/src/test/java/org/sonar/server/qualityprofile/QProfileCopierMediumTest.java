@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -65,7 +65,7 @@ public class QProfileCopierMediumTest {
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
   private OrganizationDto organization;
-  private RulesProfileDto sourceProfile;
+  private QProfileDto sourceProfile;
 
   @Before
   public void before() {
@@ -169,7 +169,7 @@ public class QProfileCopierMediumTest {
     copier.copyToName(dbSession, sourceProfile, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    RulesProfileDto profile2Dto = db.qualityProfileDao().selectByKey(dbSession, QProfileTesting.XOO_P2_KEY);
+    QProfileDto profile2Dto = db.qualityProfileDao().selectByUuid(dbSession, QProfileTesting.XOO_P2_KEY);
     assertThat(profile2Dto.getParentKee()).isEqualTo(QProfileTesting.XOO_P1_KEY);
   }
 
@@ -193,7 +193,7 @@ public class QProfileCopierMediumTest {
 
   private void verifyOneActiveRule(QProfileName profileName, String expectedSeverity,
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
-    RulesProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(organization, profileName.getName(), profileName.getLanguage(), dbSession);
+    QProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, profileName.getName(), profileName.getLanguage());
     verifyOneActiveRule(dto.getKee(), expectedSeverity, expectedInheritance, expectedParams);
   }
 

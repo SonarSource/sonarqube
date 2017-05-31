@@ -17,8 +17,9 @@
   </sql>
 
   <sql id="activeRuleKeyJoin">
-    INNER JOIN rules_profiles qp ON qp.id=a.profile_id
-    INNER JOIN rules r ON r.id = a.rule_id
+    inner join rules_profiles qp on qp.id=a.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = qp.kee
+    inner join rules r on r.id = a.rule_id
   </sql>
 
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
@@ -88,7 +89,7 @@
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
     WHERE a.rule_id=#{ruleId, jdbcType=BIGINT}
-    AND qp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+    AND oqp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByRuleIdOfAllOrganizations" parameterType="Integer" resultType="ActiveRule">
@@ -109,7 +110,7 @@
     <foreach collection="ruleIds" item="ruleId" separator="," open="(" close=")">
       #{ruleId}
     </foreach>
-    AND qp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+    AND oqp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <!-- Parameters -->
@@ -191,34 +192,37 @@
   </select>
 
   <select id="countActiveRulesByProfileKey" resultType="KeyLongValue" parameterType="map">
-    select p.kee as "key", count(ar.id) as "value"
+    select rp.kee as "key", count(ar.id) as "value"
     from active_rules ar
-    inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules_profiles rp on rp.id = ar.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = ar.rule_id
-    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and r.status != 'REMOVED'
-    group by p.kee
+    group by rp.kee
   </select>
 
   <select id="countActiveRulesForRuleStatusByProfileKey" resultType="KeyLongValue" parameterType="map">
-    select p.kee as "key", count(ar.id) as "value"
+    select rp.kee as "key", count(ar.id) as "value"
     from active_rules ar
-    inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules_profiles rp on rp.id = ar.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = ar.rule_id
-    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and r.status = #{ruleStatus, jdbcType=VARCHAR}
-    group by p.kee
+    group by rp.kee
   </select>
 
   <select id="countActiveRulesForInheritanceByProfileKey" resultType="KeyLongValue" parameterType="map">
-    select p.kee as "key", count(ar.id) as "value"
+    select rp.kee as "key", count(ar.id) as "value"
     from active_rules ar
-    inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules_profiles rp on rp.id = ar.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = ar.rule_id
-    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and ar.inheritance = #{inheritance, jdbcType=VARCHAR}
     and r.status != 'REMOVED'
-    group by p.kee
+    group by rp.kee
   </select>
 </mapper>
 

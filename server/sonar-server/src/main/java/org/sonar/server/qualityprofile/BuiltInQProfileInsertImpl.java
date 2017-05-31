@@ -47,7 +47,7 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.util.TypeValidations;
@@ -75,7 +75,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     initRuleRepository(batchSession);
 
     Date now = new Date(system2.now());
-    RulesProfileDto profileDto = insertQualityProfile(session, builtInQProfile, organization, now);
+    QProfileDto profileDto = insertQualityProfile(session, builtInQProfile, organization, now);
 
     List<ActiveRuleChange> localChanges = builtInQProfile.getActiveRules()
       .stream()
@@ -91,8 +91,8 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     }
   }
 
-  private RulesProfileDto insertQualityProfile(DbSession dbSession, BuiltInQProfile builtInQProfile, OrganizationDto organization, Date now) {
-    RulesProfileDto profileDto = RulesProfileDto.createFor(uuidFactory.create())
+  private QProfileDto insertQualityProfile(DbSession dbSession, BuiltInQProfile builtInQProfile, OrganizationDto organization, Date now) {
+    QProfileDto profileDto = QProfileDto.createFor(uuidFactory.create())
       .setName(builtInQProfile.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(builtInQProfile.getLanguage())
@@ -105,7 +105,7 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return profileDto;
   }
 
-  private ActiveRuleChange insertActiveRule(DbSession session, RulesProfileDto profileDto, org.sonar.api.rules.ActiveRule activeRule, long now) {
+  private ActiveRuleChange insertActiveRule(DbSession session, QProfileDto profileDto, org.sonar.api.rules.ActiveRule activeRule, long now) {
     RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
     RuleDefinitionDto ruleDefinitionDto = ruleRepository.getDefinition(ruleKey)
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));

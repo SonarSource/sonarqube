@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 
@@ -46,13 +46,13 @@ public class RuleActivatorContextFactory {
 
   RuleActivatorContext create(String profileKey, RuleKey ruleKey, DbSession session) {
     RuleActivatorContext context = new RuleActivatorContext();
-    RulesProfileDto profile = getQualityProfileDto(session, profileKey);
+    QProfileDto profile = getQualityProfileDto(session, profileKey);
     checkRequest(profile != null, "Quality profile not found: %s", profileKey);
     context.setProfile(profile);
     return create(ruleKey, session, context);
   }
 
-  RuleActivatorContext create(RulesProfileDto profile, RuleKey ruleKey, DbSession session) {
+  RuleActivatorContext create(QProfileDto profile, RuleKey ruleKey, DbSession session) {
     return create(ruleKey, session, new RuleActivatorContext().setProfile(profile));
   }
 
@@ -91,8 +91,8 @@ public class RuleActivatorContextFactory {
     }
   }
 
-  RulesProfileDto getQualityProfileDto(DbSession session, String profileKey) {
-    return db.qualityProfileDao().selectByKey(session, profileKey);
+  QProfileDto getQualityProfileDto(DbSession session, String profileKey) {
+    return db.qualityProfileDao().selectByUuid(session, profileKey);
   }
 
   Optional<RuleDefinitionDto> getRule(DbSession dbSession, RuleKey ruleKey) {

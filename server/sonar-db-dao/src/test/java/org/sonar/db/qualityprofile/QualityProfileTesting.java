@@ -20,25 +20,32 @@
 package org.sonar.db.qualityprofile;
 
 import org.sonar.core.util.Uuids;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
 
-import static java.util.Arrays.stream;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class QualityProfileTesting {
 
-  public static RulesProfileDto newQualityProfileDto() {
+  private QualityProfileTesting() {
+    // prevent instantiation
+  }
+
+  /**
+   * Create an instance of {@link  QProfileDto} with random field values.
+   */
+  public static QProfileDto newQualityProfileDto() {
     String uuid = Uuids.createFast();
-    RulesProfileDto dto = RulesProfileDto.createFor(uuid)
+    return QProfileDto.createFor(uuid)
       .setOrganizationUuid(randomAlphanumeric(40))
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))
       .setLastUsed(nextLong());
-    return dto;
   }
 
+  /**
+   * Create an instance of {@link  QProfileChangeDto} with random field values,
+   * except changeType which is always {@code "ACTIVATED"}.
+   */
   public static QProfileChangeDto newQProfileChangeDto() {
     return new QProfileChangeDto()
       .setKey(randomAlphanumeric(40))
@@ -46,14 +53,5 @@ public class QualityProfileTesting {
       .setCreatedAt(nextLong())
       .setChangeType("ACTIVATED")
       .setLogin(randomAlphanumeric(10));
-  }
-
-  public static void insert(DbTester dbTester, QProfileChangeDto... dtos) {
-    // do not use QProfileChangeDao so that generated fields key and creation date
-    // can be defined by tests
-    DbSession dbSession = dbTester.getSession();
-    QProfileChangeMapper mapper = dbSession.getMapper(QProfileChangeMapper.class);
-    stream(dtos).forEach(mapper::insert);
-    dbSession.commit();
   }
 }

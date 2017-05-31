@@ -37,21 +37,21 @@ import org.sonar.server.qualityprofile.ActiveRule;
 public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc> {
 
   private static final String[] FIELDS = {
-    "a.failure_level",
-    "a.inheritance",
+    "ar.failure_level",
+    "ar.inheritance",
     "r.plugin_name",
     "r.plugin_rule_key",
-    "qp.organization_uuid",
-    "qp.kee",
-    "a.created_at",
-    "a.updated_at"
+    "oqp.organization_uuid",
+    "oqp.uuid",
+    "ar.updated_at"
   };
 
-  private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM active_rules a " +
-    "INNER JOIN rules_profiles qp ON qp.id=a.profile_id " +
-    "INNER JOIN rules r ON r.id = a.rule_id";
+  private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from active_rules ar " +
+    " inner join rules_profiles rp on rp.id = ar.profile_id " +
+    " inner join org_qprofiles oqp on oqp.uuid = rp.kee " +
+    " inner join rules r on r.id = ar.rule_id ";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE a.updated_at>?";
+  private static final String SQL_AFTER_DATE = SQL_ALL + " where ar.updated_at>?";
 
   private ActiveRuleResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
@@ -86,8 +86,7 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
 
     doc.setInheritance(inheritance == null ? ActiveRule.Inheritance.NONE.name() : inheritance);
 
-    doc.setCreatedAt(rs.getLong(7));
-    doc.setUpdatedAt(rs.getLong(8));
+    doc.setUpdatedAt(rs.getLong(7));
     return doc;
   }
 

@@ -32,7 +32,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.ws.WsUtils;
 
@@ -88,8 +88,8 @@ public class RuleQueryFactory {
       organizationUuid = wsSupport.getOrganizationByKey(dbSession, organizationKey).getUuid();
       languages = request.paramAsStrings(PARAM_LANGUAGES);
     } else {
-      RulesProfileDto qualityProfileOptional = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
-      RulesProfileDto qualityProfile = WsUtils.checkFound(qualityProfileOptional, "The specified qualityProfile '%s' does not exist", qualityProfileKey);
+      QProfileDto qualityProfileOptional = dbClient.qualityProfileDao().selectByUuid(dbSession, qualityProfileKey);
+      QProfileDto qualityProfile = WsUtils.checkFound(qualityProfileOptional, "The specified qualityProfile '%s' does not exist", qualityProfileKey);
       query.setQProfileKey(qualityProfileKey);
       languages = ImmutableList.of(qualityProfile.getLanguage());
       organizationUuid = qualityProfile.getOrganizationUuid();
@@ -121,8 +121,8 @@ public class RuleQueryFactory {
   }
 
   @CheckForNull
-  private RulesProfileDto getProfileByKey(DbSession dbSession, String key) {
-    return dbClient.qualityProfileDao().selectByKey(dbSession, key);
+  private QProfileDto getProfileByKey(DbSession dbSession, String key) {
+    return dbClient.qualityProfileDao().selectByUuid(dbSession, key);
   }
 
 }

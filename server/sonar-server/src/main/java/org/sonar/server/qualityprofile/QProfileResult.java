@@ -21,14 +21,14 @@ package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 public class QProfileResult {
 
   private List<String> warnings;
   private List<String> infos;
 
-  private RulesProfileDto profile;
+  private QProfileDto profile;
 
   private List<ActiveRuleChange> changes;
 
@@ -56,11 +56,11 @@ public class QProfileResult {
     return this;
   }
 
-  public RulesProfileDto profile() {
+  public QProfileDto profile() {
     return profile;
   }
 
-  public QProfileResult setProfile(RulesProfileDto profile) {
+  public QProfileResult setProfile(QProfileDto profile) {
     this.profile = profile;
     return this;
   }

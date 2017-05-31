@@ -31,7 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.qualityprofile.RulesProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -85,10 +85,10 @@ public class RemoveProjectActionTest {
     logInAsProfileAdmin();
 
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    RulesProfileDto profileLang1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
-    RulesProfileDto profileLang2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_2));
-    db.qualityProfiles().associateProjectWithQualityProfile(project, profileLang1);
-    db.qualityProfiles().associateProjectWithQualityProfile(project, profileLang2);
+    QProfileDto profileLang1 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_1));
+    QProfileDto profileLang2 = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(LANGUAGE_2));
+    db.qualityProfiles().associateWithProject(project, profileLang1);
+    db.qualityProfiles().associateWithProject(project, profileLang2);
 
     TestResponse response = call(project, profileLang1);
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
@@ -102,7 +102,7 @@ public class RemoveProjectActionTest {
     logInAsProfileAdmin();
 
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    RulesProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     TestResponse response = call(project, profile);
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
@@ -113,8 +113,8 @@ public class RemoveProjectActionTest {
   @Test
   public void project_administrator_can_remove_profile() throws Exception {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    RulesProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
-    db.qualityProfiles().associateProjectWithQualityProfile(project, profile);
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    db.qualityProfiles().associateWithProject(project, profile);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     call(project, profile);
@@ -126,7 +126,7 @@ public class RemoveProjectActionTest {
   public void throw_ForbiddenException_if_not_project_nor_organization_administrator() {
     userSession.logIn();
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    RulesProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
@@ -138,7 +138,7 @@ public class RemoveProjectActionTest {
   public void throw_UnauthorizedException_if_not_logged_in() {
     userSession.anonymous();
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
-    RulesProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
@@ -149,7 +149,7 @@ public class RemoveProjectActionTest {
   @Test
   public void throw_NotFoundException_if_project_does_not_exist() {
     logInAsProfileAdmin();
-    RulesProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component id 'unknown' not found");
@@ -174,13 +174,13 @@ public class RemoveProjectActionTest {
       .execute();
   }
 
-  private void assertProjectIsAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
-    RulesProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
+  private void assertProjectIsAssociatedToProfile(ComponentDto project, QProfileDto profile) {
+    QProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
     assertThat(loaded.getKee()).isEqualTo(profile.getKee());
   }
 
-  private void assertProjectIsNotAssociatedToProfile(ComponentDto project, RulesProfileDto profile) {
-    RulesProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
+  private void assertProjectIsNotAssociatedToProfile(ComponentDto project, QProfileDto profile) {
+    QProfileDto loaded = dbClient.qualityProfileDao().selectAssociatedToProjectAndLanguage(db.getSession(), project, profile.getLanguage());
     assertThat(loaded == null || !loaded.getKee().equals(profile.getKee())).isTrue();
   }
 
@@ -188,7 +188,7 @@ public class RemoveProjectActionTest {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
   }
 
-  private TestResponse call(ComponentDto project, RulesProfileDto qualityProfile) {
+  private TestResponse call(ComponentDto project, QProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
       .setParam("projectUuid", project.uuid())
       .setParam("profileKey", qualityProfile.getKee());
