@@ -47,21 +47,23 @@
 
     {{#any activation selectedProfile}}
       {{#if canWrite}}
-        <td class="coding-rule-table-meta-cell coding-rule-activation-actions">
-          <div class="button-group">
-            {{#if activation}}
-              {{#eq activation.inherit 'NONE'}}
-                <button class="coding-rules-detail-quality-profile-deactivate button-red">
-                  {{t 'coding_rules.deactivate'}}
-                </button>
-              {{/eq}}
-            {{else}}
-              {{#unless isTemplate}}
-                <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
-              {{/unless}}
-            {{/if}}
-          </div>
-        </td>
+        {{#unless isSelectedProfileBuiltIn}}
+          <td class="coding-rule-table-meta-cell coding-rule-activation-actions">
+            <div class="button-group">
+              {{#if activation}}
+                {{#eq activation.inherit 'NONE'}}
+                  <button class="coding-rules-detail-quality-profile-deactivate button-red">
+                    {{t 'coding_rules.deactivate'}}
+                  </button>
+                {{/eq}}
+              {{else}}
+                {{#unless isTemplate}}
+                  <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
+                {{/unless}}
+              {{/if}}
+            </div>
+          </td>
+        {{/unless}}
       {{/if}}
     {{/any}}
   </tr>
