@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,6 +42,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -559,6 +561,95 @@ public class SetActionTest {
   }
 
   @Test
+  public void fail_when_property_with_definition_when_component_qualifier_does_not_match() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    definitions.addComponent(PropertyDefinition
+      .builder("my.key")
+      .name("foo")
+      .description("desc")
+      .category("cat")
+      .subCategory("subCat")
+      .type(PropertyType.STRING)
+      .defaultValue("default")
+      .onQualifiers(Qualifiers.PROJECT)
+      .build());
+    i18n.put("qualifier." + file.qualifier(), "CptLabel");
+    logInAsProjectAdministrator(project);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'my.key' cannot be set on a CptLabel");
+
+    callForProjectSettingByKey("my.key", "My Value", file.key());
+  }
+
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_project_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    succeedForPropertyWithoutDefinitionAndValidComponent(project, project);
+  }
+
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_module_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
+    succeedForPropertyWithoutDefinitionAndValidComponent(project, module);
+  }
+
+  @Test
+  public void fail_for_property_without_definition_when_set_on_directory_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(project, directory);
+  }
+
+  @Test
+  public void fail_for_property_without_definition_when_set_on_file_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(project, file);
+  }
+
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_view_component() {
+    ComponentDto view = db.components().insertView();
+    succeedForPropertyWithoutDefinitionAndValidComponent(view, view);
+  }
+
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_subview_component() {
+    ComponentDto view = db.components().insertView();
+    ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
+    succeedForPropertyWithoutDefinitionAndValidComponent(view, subview);
+  }
+
+  @Test
+  public void fail_for_property_without_definition_when_set_on_projectCopy_component() {
+    ComponentDto view = db.components().insertView();
+    ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject(), view));
+
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
+  }
+
+  private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto project, ComponentDto module) {
+    logInAsProjectAdministrator(project);
+
+    callForProjectSettingByKey("my.key", "My Value", module.key());
+
+    assertComponentSetting("my.key", "My Value", module.getId());
+  }
+
+  private void failForPropertyWithoutDefinitionOnUnsupportedComponent(ComponentDto root, ComponentDto component) {
+    i18n.put("qualifier." + component.qualifier(), "QualifierLabel");
+    logInAsProjectAdministrator(root);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'my.key' cannot be set on a QualifierLabel");
+
+    callForProjectSettingByKey("my.key", "My Value", component.key());
+  }
+
+  @Test
   public void fail_when_single_and_multi_value_provided() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("One and only one of 'value', 'values', 'fieldValues' must be provided");
@@ -901,7 +992,12 @@ public class SetActionTest {
     }
 
   }
+
   private void logInAsProjectAdministrator(ComponentDto project) {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+  }
+
+  private ComponentDto randomPublicOrPrivateProject() {
+    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
   }
 }
