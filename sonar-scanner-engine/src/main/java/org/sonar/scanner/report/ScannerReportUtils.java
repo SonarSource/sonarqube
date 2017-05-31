@@ -35,8 +35,6 @@ public class ScannerReportUtils {
         return HighlightingType.COMMENT;
       case CONSTANT:
         return HighlightingType.CONSTANT;
-      case CPP_DOC:
-        return HighlightingType.CPP_DOC;
       case KEYWORD:
         return HighlightingType.KEYWORD;
       case KEYWORD_LIGHT:
@@ -60,8 +58,6 @@ public class ScannerReportUtils {
         return TypeOfText.COMMENT;
       case CONSTANT:
         return TypeOfText.CONSTANT;
-      case CPP_DOC:
-        return TypeOfText.CPP_DOC;
       case HIGHLIGHTING_STRING:
         return TypeOfText.STRING;
       case KEYWORD:

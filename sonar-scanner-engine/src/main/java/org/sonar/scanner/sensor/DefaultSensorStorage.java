@@ -67,7 +67,6 @@ import org.sonar.scanner.sensor.coverage.CoverageExclusions;
 
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE;
-import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE;
@@ -127,9 +126,7 @@ public class DefaultSensorStorage implements SensorStorage {
     FILE_EDGES_WEIGHT_KEY,
     FILE_FEEDBACK_EDGES_KEY,
     FILE_TANGLE_INDEX_KEY,
-    FILE_TANGLES_KEY,
-    // SONARPHP-621
-    COMMENTED_OUT_CODE_LINES_KEY);
+    FILE_TANGLES_KEY);
 
   // Some Sensors still save those metrics
   private static final List<String> PLATFORM_METRICS_KEYS = Arrays.asList(

@@ -100,11 +100,6 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   }
 
   @Override
-  public String saveResource(Resource resource) {
-    throw new UnsupportedOperationException("No longer possible to save resources");
-  }
-
-  @Override
   public Resource getResource(Resource resource) {
     return index.getResource(getComponentKey(resource));
   }

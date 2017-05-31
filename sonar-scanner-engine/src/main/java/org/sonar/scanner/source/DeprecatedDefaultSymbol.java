@@ -41,11 +41,6 @@ public class DeprecatedDefaultSymbol implements org.sonar.api.source.Symbol {
     throw new UnsupportedOperationException("getDeclarationEndOffset");
   }
 
-  @Override
-  public String getFullyQualifiedName() {
-    throw new UnsupportedOperationException("getFullyQualifiedName");
-  }
-
   public NewSymbol getWrapped() {
     return wrapped;
   }
