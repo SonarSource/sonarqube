@@ -26,8 +26,6 @@ import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.ce.CeModule;
 import org.sonar.ce.settings.ProjectSettingsFactory;
@@ -284,7 +282,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // rule
       RuleIndexDefinition.class,
       RuleIndexer.class,
-      XMLRuleParser.class,
       DefaultRuleFinder.class,
       DeprecatedRulesDefinitionLoader.class,
       RuleDefinitionsLoader.class,
