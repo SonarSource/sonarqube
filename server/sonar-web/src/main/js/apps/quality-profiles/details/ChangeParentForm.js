@@ -85,7 +85,12 @@ export default class ChangeParentForm extends React.PureComponent {
 
     const options = [
       { label: translate('none'), value: '' },
-      ...sortBy(profiles, 'name').map(profile => ({ label: profile.name, value: profile.key }))
+      ...sortBy(profiles, 'name').map(profile => ({
+        label: profile.isBuiltIn
+          ? `${profile.name} (${translate('quality_profiles.built_in')})`
+          : profile.name,
+        value: profile.key
+      }))
     ];
 
     const submitDisabled =
