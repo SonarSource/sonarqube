@@ -31,6 +31,8 @@ import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
 
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -74,7 +76,8 @@ public class ProjectsPageTest {
       .shouldHaveValue("2", "1")
       .shouldHaveValue("3", "1")
       .shouldHaveValue("4", "1")
-      .shouldHaveValue("5", "1");
+      .shouldHaveValue("5", "1")
+      .shouldHaveValue("6", "0");
   }
 
   @Test
@@ -90,8 +93,8 @@ public class ProjectsPageTest {
     // default page can be "All Projects" or "Favorite Projects" depending on your last choice
     ProjectsPage page = nav.openProjects();
 
-    // all projects for anonymous user
-    page.shouldHaveTotal(2).shouldDisplayAllProjects();
+    // all projects for anonymous user with default sorting to analysis date
+    page.shouldHaveTotal(2).shouldDisplayAllProjectsWidthSort("-analysis_date");
 
     // all projects by default for logged in user
     page = nav.logIn().asAdmin().openProjects();
@@ -141,6 +144,15 @@ public class ProjectsPageTest {
       .shouldHaveValue("ii", "1")
       .selectOptionItem("zz")
       .shouldHaveValue("zz", "1");
+  }
+
+  @Test
+  public void should_switch_between_perspectives() {
+    ProjectsPage page = nav.logIn().asAdmin().openProjects();
+    page.changePerspective("Risk");
+    assertThat(url()).endsWith("/projects?view=visualizations&visualization=risk");
+    page.changePerspective("Leak");
+    assertThat(url()).endsWith("/projects?view=leak");
   }
 
   @Test
