@@ -14,16 +14,12 @@ exports[`should render correctly 1`] = `
   <div
     className="page-actions projects-page-actions text-right"
   >
-    <div
-      className="spacer-bottom"
+    <a
+      className="button js-projects-topbar-open spacer-right"
+      href="#"
     >
-      <a
-        className="button js-projects-topbar-open"
-        href="#"
-      >
-        projects.view_settings
-      </a>
-    </div>
+      projects.view_settings
+    </a>
     <span>
       <strong
         id="projects-total"
@@ -52,16 +48,12 @@ exports[`should render correctly while loading 1`] = `
   <div
     className="page-actions projects-page-actions text-right"
   >
-    <div
-      className="spacer-bottom"
+    <a
+      className="button js-projects-topbar-open spacer-right"
+      href="#"
     >
-      <a
-        className="button js-projects-topbar-open"
-        href="#"
-      >
-        projects.view_settings
-      </a>
-    </div>
+      projects.view_settings
+    </a>
     <i
       className="spinner spacer-right"
     />
