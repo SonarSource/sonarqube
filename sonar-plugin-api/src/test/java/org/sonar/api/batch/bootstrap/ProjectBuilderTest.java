@@ -22,8 +22,8 @@ package org.sonar.api.batch.bootstrap;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -55,7 +55,9 @@ public class ProjectBuilderTest {
     }
 
     @Override
-    protected void build(ProjectReactor reactor) {
+    public void build(Context context) {
+      ProjectReactor reactor = context.projectReactor();
+
       // change name of root project
       ProjectDefinition root = reactor.getRoot();
       root.setName("Name changed by plugin");

@@ -54,7 +54,8 @@ public final class RenameProject extends ProjectBuilder {
   }
 
   @Override
-  protected void build(ProjectReactor reactor) {
+  public void build(Context context) {
+    ProjectReactor reactor = context.projectReactor();
     if (!settings.getBoolean("sonar.enableProjectBuilder")) {
       return;
     }
