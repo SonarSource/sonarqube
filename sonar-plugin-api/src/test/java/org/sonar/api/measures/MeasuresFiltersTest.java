@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
 import static org.hamcrest.core.Is.is;
@@ -96,7 +95,6 @@ public class MeasuresFiltersTest {
     List<Measure> measures = Arrays.asList(
       new Measure(CoreMetrics.COMMENT_LINES, 50.0),
       new Measure(CoreMetrics.VIOLATIONS, 10.0),
-      RuleMeasure.createForCategory(CoreMetrics.VIOLATIONS, 2, 12.0),
       new Measure(CoreMetrics.COVERAGE, 15.0));
 
     assertThat(filter.filter(measures).getValue(), is(10.0));
