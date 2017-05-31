@@ -63,6 +63,10 @@ public class Navigation extends ExternalResource {
     return open("/projects", ProjectsPage.class);
   }
 
+  public ProjectsPage openProjects(String organization) {
+    return open("/organizations/" + organization + "/projects", ProjectsPage.class);
+  }
+
   public IssuesPage openIssues() {
     return open("/issues", IssuesPage.class);
   }
