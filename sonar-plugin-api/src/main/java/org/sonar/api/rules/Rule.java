@@ -34,7 +34,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
-import org.sonar.check.Cardinality;
 
 public class Rule {
 
@@ -87,6 +86,12 @@ public class Rule {
   private Date updatedAt;
   private String tags;
   private String systemTags;
+
+  /**
+   * Use the factory method {@link #create()}
+   */
+  private Rule() {
+  }
 
   public Integer getId() {
     return id;
