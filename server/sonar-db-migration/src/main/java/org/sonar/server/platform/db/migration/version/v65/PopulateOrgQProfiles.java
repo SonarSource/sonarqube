@@ -26,11 +26,11 @@ import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-public class PopulateQProfiles  extends DataChange {
+public class PopulateOrgQProfiles extends DataChange {
 
   private final System2 system2;
 
-  public PopulateQProfiles(Database db, System2 system2) {
+  public PopulateOrgQProfiles(Database db, System2 system2) {
     super(db);
     this.system2 = system2;
   }
@@ -41,15 +41,19 @@ public class PopulateQProfiles  extends DataChange {
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select p.kee, p.organization_uuid, p.parent_kee from rules_profiles p " +
-      "where not exists ( select qp.uuid from qprofiles qp where qp.uuid = p.kee and qp.organization_uuid = p.organization_uuid )");
-    massUpdate.update("insert into qprofiles" +
+      "where not exists ( select qp.uuid from org_qprofiles qp where qp.uuid = p.kee and qp.organization_uuid = p.organization_uuid )");
+    massUpdate.update("insert into org_qprofiles" +
       " (uuid, organization_uuid, rules_profile_uuid, parent_uuid, created_at, updated_at) values (?, ?, ?, ?, ?, ?)");
-    massUpdate.rowPluralName("qprofiles");
+    massUpdate.rowPluralName("org_qprofiles");
     massUpdate.execute((row, update) -> {
-      update.setString(1, row.getString(1));
-      update.setString(2, row.getString(2));
-      update.setString(3, row.getString(1));
-      update.setString(4, row.getString(3));
+      String uuid = row.getString(1);
+      String organizationUuid = row.getString(2);
+      String parentUuid = row.getString(3);
+
+      update.setString(1, uuid);
+      update.setString(2, organizationUuid);
+      update.setString(3, uuid);
+      update.setString(4, parentUuid);
       update.setLong(5, now);
       update.setLong(6, now);
       return true;

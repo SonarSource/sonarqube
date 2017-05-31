@@ -29,16 +29,16 @@ import org.sonar.db.CoreDbTester;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class CreateTableQProfilesTest {
+public class CreateTableOrgQProfilesTest {
 
-  private static final String TABLE = "qprofiles";
+  private static final String TABLE = "org_qprofiles";
 
   @Rule
-  public final CoreDbTester db = CoreDbTester.createForSchema(CreateTableQProfilesTest.class, "empty.sql");
+  public final CoreDbTester db = CoreDbTester.createForSchema(CreateTableOrgQProfilesTest.class, "empty.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private CreateTableQProfiles underTest = new CreateTableQProfiles(db.database());
+  private CreateTableOrgQProfiles underTest = new CreateTableOrgQProfiles(db.database());
 
   @Test
   public void creates_table_on_empty_db() throws SQLException {
@@ -47,12 +47,13 @@ public class CreateTableQProfilesTest {
     assertThat(db.countRowsOfTable(TABLE)).isEqualTo(0);
 
     db.assertColumnDefinition(TABLE, "uuid", Types.VARCHAR, 40, false);
-    db.assertPrimaryKey(TABLE, "pk_qprofiles", "uuid");
+    db.assertPrimaryKey(TABLE, "pk_org_qprofiles", "uuid");
     db.assertColumnDefinition(TABLE, "organization_uuid", Types.VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE, "rules_profile_uuid", Types.VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
     db.assertColumnDefinition(TABLE, "updated_at", Types.BIGINT, null, false);
     db.assertIndex(TABLE, "qprofiles_org_uuid", "organization_uuid");
+    db.assertIndex(TABLE, "qprofiles_rp_uuid", "rules_profile_uuid");
   }
 
   @Test

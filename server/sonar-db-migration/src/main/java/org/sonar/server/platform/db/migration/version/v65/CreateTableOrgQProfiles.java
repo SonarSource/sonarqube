@@ -30,11 +30,11 @@ import static org.sonar.server.platform.db.migration.def.BigIntegerColumnDef.new
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class CreateTableQProfiles extends DdlChange {
+public class CreateTableOrgQProfiles extends DdlChange {
 
-  private static final String TABLE_NAME = "qprofiles";
+  private static final String TABLE_NAME = "org_qprofiles";
 
-  public CreateTableQProfiles(Database db) {
+  public CreateTableOrgQProfiles(Database db) {
     super(db);
   }
 
@@ -46,21 +46,21 @@ public class CreateTableQProfiles extends DdlChange {
       .setIsNullable(false)
       .setIgnoreOracleUnit(true)
       .build();
+    VarcharColumnDef rulesProfileUuid = newVarcharColumnDefBuilder()
+      .setColumnName("rules_profile_uuid")
+      .setLimit(UUID_SIZE)
+      .setIsNullable(false)
+      .setIgnoreOracleUnit(true)
+      .build();
     context.execute(
       new CreateTableBuilder(getDialect(), TABLE_NAME)
         .addPkColumn(newVarcharColumnDefBuilder()
           .setColumnName("uuid")
           .setLimit(UUID_SIZE)
           .setIsNullable(false)
-          .setIgnoreOracleUnit(true)
           .build())
         .addColumn(organizationColumn)
-        .addColumn(newVarcharColumnDefBuilder()
-          .setColumnName("rules_profile_uuid")
-          .setLimit(UUID_SIZE)
-          .setIsNullable(false)
-          .setIgnoreOracleUnit(true)
-          .build())
+        .addColumn(rulesProfileUuid)
         .addColumn(newVarcharColumnDefBuilder()
           .setColumnName("parent_uuid")
           .setLimit(UUID_SIZE)
@@ -82,6 +82,13 @@ public class CreateTableQProfiles extends DdlChange {
         .setTable(TABLE_NAME)
         .setName("qprofiles_org_uuid")
         .addColumn(organizationColumn)
+        .build());
+
+    context.execute(
+      new CreateIndexBuilder(getDialect())
+        .setTable(TABLE_NAME)
+        .setName("qprofiles_rp_uuid")
+        .addColumn(rulesProfileUuid)
         .build());
   }
 }
