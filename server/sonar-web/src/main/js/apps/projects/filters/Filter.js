@@ -43,6 +43,7 @@ export default class Filter extends React.PureComponent {
 
     halfWidth: React.PropTypes.bool,
     highlightUnder: React.PropTypes.number,
+    highlightUnderMax: React.PropTypes.number,
 
     header: React.PropTypes.object,
     footer: React.PropTypes.object
@@ -59,9 +60,14 @@ export default class Filter extends React.PureComponent {
 
   highlightUnder(option) {
     return (
-      this.props.highlightUnder != null && option !== null && option > this.props.highlightUnder
+      this.props.highlightUnder != null &&
+      option !== null &&
+      option > this.props.highlightUnder &&
+      (this.props.highlightUnderMax == null || option < this.props.highlightUnderMax)
     );
   }
+
+  blurOnClick = (evt: Event & { currentTarget: HTMLElement }) => evt.currentTarget.blur();
 
   getPath(option) {
     const { property, value } = this.props;
@@ -101,8 +107,7 @@ export default class Filter extends React.PureComponent {
       'projects-facet',
       {
         active: this.isSelected(option),
-        'search-navigator-facet-half': this.props.halfWidth,
-        'search-navigator-facet-highlight-under': this.highlightUnder(option)
+        'search-navigator-facet-half': this.props.halfWidth
       },
       this.props.optionClassName
     );
@@ -115,7 +120,12 @@ export default class Filter extends React.PureComponent {
     const isUnderSelectedOption = this.highlightUnder(value) && option > value;
 
     return (
-      <Link key={option} className={className} to={path} data-key={option}>
+      <Link
+        key={option}
+        className={className}
+        to={path}
+        data-key={option}
+        onClick={this.blurOnClick}>
         <span className="facet-name">
           {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
         </span>
@@ -129,13 +139,29 @@ export default class Filter extends React.PureComponent {
   }
 
   renderOptions() {
-    const { options } = this.props;
+    const { options, highlightUnder } = this.props;
     if (options && options.length > 0) {
-      return (
-        <div className="search-navigator-facet-list">
-          {options.map(option => this.renderOption(option))}
-        </div>
-      );
+      if (highlightUnder != null) {
+        const max = this.props.highlightUnderMax || options.length;
+        const beforeHighlight = options.slice(0, highlightUnder);
+        const insideHighlight = options.slice(highlightUnder, max);
+        const afterHighlight = options.slice(max);
+        return (
+          <div className="search-navigator-facet-list">
+            {beforeHighlight.map(option => this.renderOption(option))}
+            <div className="search-navigator-facet-highlight-under-container">
+              {insideHighlight.map(option => this.renderOption(option))}
+            </div>
+            {afterHighlight.map(option => this.renderOption(option))}
+          </div>
+        );
+      } else {
+        return (
+          <div className="search-navigator-facet-list">
+            {options.map(option => this.renderOption(option))}
+          </div>
+        );
+      }
     } else {
       return (
         <div className="search-navigator-facet-empty">

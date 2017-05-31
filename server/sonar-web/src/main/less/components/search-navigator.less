@@ -262,66 +262,70 @@
   }
 }
 
-.search-navigator-facet-highlight-under {
-  margin-bottom: 0;
+.search-navigator-facet-highlight-under-container {
+  margin-bottom: 1px;
 
-  &:hover, &.active {
-    border-bottom: none;
-    padding-bottom: 4px;
-    border-radius: 2px 2px 0 0;
+  .search-navigator-facet {
+    margin-bottom: 0;
 
-    & ~ .search-navigator-facet {
-      padding-left: 5px;
-      padding-right: 5px;
-      border-left: 1px solid @blue;
-      border-right: 1px solid @blue;
-      border-radius: 0;
+    &:hover, &.active {
+      border-bottom: none;
+      padding-bottom: 4px;
+      border-radius: 2px 2px 0 0;
 
-      .facet-stat {
-        right: -1px;
+      & ~ .search-navigator-facet {
+        padding-left: 5px;
+        padding-right: 5px;
+        border-left: 1px solid @blue;
+        border-right: 1px solid @blue;
+        border-radius: 0;
+
+        .facet-stat {
+          right: -1px;
+        }
+
+        &:last-of-type {
+          padding-bottom: 3px;
+          border-bottom: 1px solid @blue;
+          border-radius: 0 0 2px 2px;
+        }
       }
 
       &:last-of-type {
         padding-bottom: 3px;
         border-bottom: 1px solid @blue;
-        border-radius: 0 0 2px 2px;
+        border-radius: 2px;
       }
     }
 
-    &:last-of-type {
-      padding-bottom: 3px;
-      border-bottom: 1px solid @blue;
-      border-radius: 2px;
-    }
-  }
-
-  .selectFacet(@bgColor) {
-    background-color: @bgColor;
-    text-decoration: none;
-
-    .facet-name {
+    .selectFacet(@bgColor) {
       background-color: @bgColor;
-    }
+      text-decoration: none;
 
-    .facet-stat {
-      border-color: @blue;
-      background-color: @bgColor;
+      .facet-name {
+        background-color: @bgColor;
+      }
 
-      &:before {
-        background-image: linear-gradient(to right, fade(@bgColor, 0%), @bgColor 75%);
+      .facet-stat {
+        border-color: @blue;
+        background-color: @bgColor;
+
+        &:before {
+          background-image: linear-gradient(to right, fade(@bgColor, 0%), @bgColor 75%);
+        }
+      }
+
+      .facet-toggle {
+        display: inline;
       }
     }
 
-    .facet-toggle {
-      display: inline;
-    }
-  }
+    &.active ~ .search-navigator-facet {
+      .selectFacet(@lightBlue);
 
-  &.active ~ .search-navigator-facet {
-    .selectFacet(@lightBlue);
-
-    &:hover, &:hover ~ .search-navigator-facet {
-      .selectFacet(darken(@lightBlue, 10%));
+      &:hover, &:hover ~ .search-navigator-facet {
+        .selectFacet(darken(@lightBlue, 10%));
+      }
     }
   }
 }

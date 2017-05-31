@@ -24,7 +24,7 @@ const getAsNumericRating = value => {
     return null;
   }
   const num = Number(value);
-  return num > 0 && num < 6 ? num : null;
+  return num > 0 && num < 7 ? num : null;
 };
 
 const getAsLevel = value => {
@@ -142,6 +142,8 @@ const convertCoverage = (metric, coverage) => {
       return metric + ' < 50';
     case 5:
       return metric + ' < 30';
+    case 6:
+      return metric + '= NO_DATA';
     default:
       return '';
   }
@@ -159,6 +161,8 @@ const convertDuplications = (metric, duplications) => {
       return metric + ' >= 10';
     case 5:
       return metric + ' >= 20';
+    case 6:
+      return metric + '= NO_DATA';
     default:
       return '';
   }
