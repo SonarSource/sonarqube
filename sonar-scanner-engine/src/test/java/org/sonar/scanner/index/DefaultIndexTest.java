@@ -91,7 +91,6 @@ public class DefaultIndexTest {
 
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");
-    rule.setId(1);
     rulesProfile.activateRule(rule, null);
     index.setCurrentStorage(mock(DefaultSensorStorage.class));
   }
