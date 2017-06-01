@@ -81,8 +81,9 @@ public class ActivateRuleWsRequest {
     private Builder() {
     }
 
-    public void setOrganization(@Nullable String organization) {
+    public Builder setOrganization(@Nullable String organization) {
       this.organization = Optional.ofNullable(organization);
+      return this;
     }
 
     public Builder setParams(@Nullable String params) {

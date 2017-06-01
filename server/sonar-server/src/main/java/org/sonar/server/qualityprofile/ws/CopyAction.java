@@ -32,11 +32,16 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.QualityProfiles;
+
+import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_COPY;
 
 public class CopyAction implements QProfileWsAction {
 
-  private static final String PARAM_PROFILE_NAME = "toName";
-  private static final String PARAM_PROFILE_KEY = "fromKey";
+  private static final String PARAM_TO_NAME = "toName";
+  private static final String PARAM_FROM_KEY = "fromKey";
 
   private final DbClient dbClient;
   private final QProfileCopier profileCopier;
@@ -54,29 +59,29 @@ public class CopyAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction action = controller.createAction("copy")
-        .setSince("5.2")
-        .setDescription("Copy a quality profile. Require Administer Quality Profiles permission.")
-        .setPost(true)
-        .setHandler(this);
+    NewAction action = controller.createAction(ACTION_COPY)
+      .setSince("5.2")
+      .setDescription("Copy a quality profile. Require Administer Quality Profiles permission.")
+      .setPost(true)
+      .setHandler(this);
 
-    action.createParam(PARAM_PROFILE_NAME)
-        .setDescription("The name for the new quality profile.")
-        .setExampleValue("My Sonar way")
-        .setRequired(true);
+    action.createParam(PARAM_TO_NAME)
+      .setDescription("The name for the new quality profile.")
+      .setExampleValue("My Sonar way")
+      .setRequired(true);
 
-    action.createParam(PARAM_PROFILE_KEY)
-        .setDescription("The key of a quality profile.")
-        .setExampleValue(Uuids.UUID_EXAMPLE_01)
-        .setRequired(true);
+    action.createParam(PARAM_FROM_KEY)
+      .setDescription("The key of a quality profile.")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01)
+      .setRequired(true);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
 
-    String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
-    String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
+    String newName = request.mandatoryParam(PARAM_TO_NAME);
+    String profileKey = request.mandatoryParam(PARAM_FROM_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
@@ -88,16 +93,18 @@ public class CopyAction implements QProfileWsAction {
       String languageKey = copiedProfile.getLanguage();
       Language language = languages.get(copiedProfile.getLanguage());
       String parentKey = copiedProfile.getParentKee();
-      response.newJsonWriter()
-          .beginObject()
-          .prop("key", copiedProfile.getKee())
-          .prop("name", copiedProfile.getName())
-          .prop("language", languageKey)
-          .prop("languageName", language == null ? null : language.getName())
-          .prop("isDefault", isDefault)
-          .prop("isInherited", parentKey != null)
-          .prop("parentKey", parentKey)
-          .endObject().close();
+
+      QualityProfiles.CopyWsResponse.Builder wsResponse = QualityProfiles.CopyWsResponse.newBuilder();
+
+      wsResponse.setKey(copiedProfile.getKee());
+      wsResponse.setName(copiedProfile.getName());
+      wsResponse.setLanguage(languageKey);
+      setNullable(language, l -> wsResponse.setLanguageName(l.getName()));
+      wsResponse.setIsDefault(isDefault);
+      wsResponse.setIsInherited(parentKey != null);
+      setNullable(parentKey, wsResponse::setParentKey);
+
+      writeProtobuf(wsResponse.build(), request, response);
     }
   }
 }
