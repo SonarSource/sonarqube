@@ -65,6 +65,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.server.component.ws.SearchAction.PARAM_ALL_ORGANIZATIONS;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.WsComponents.Component;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
@@ -107,7 +108,8 @@ public class SearchActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
-    assertThat(action.params()).hasSize(6);
+    assertThat(action.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
+      "p", "q", "allOrganizations", "ps", "organization", "qualifiers", "language");
 
     WebService.Param qualifiers = action.param("qualifiers");
     assertThat(qualifiers.isRequired()).isTrue();
@@ -168,6 +170,55 @@ public class SearchActionTest {
     SearchWsResponse response = call(new SearchWsRequest().setOrganization(organizationDto.getKey()).setLanguage("java").setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("java-project");
+  }
+
+  @Test
+  public void should_only_return_components_of_specified_organization() throws IOException {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org1).setName("Project1");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org2).setName("Project2");
+    insertProjectsAuthorizedForUser(project1, project2);
+
+    SearchWsResponse response = call(new SearchWsRequest().setQuery("Project").setQualifiers(singletonList(PROJECT)).setOrganization(org1.getKey()));
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactly(project1.getKey());
+  }
+
+  @Test
+  public void should_only_return_components_of_default_organization_if_no_organization_is_specified() throws IOException {
+    OrganizationDto org1 = db.getDefaultOrganization();
+    OrganizationDto org2 = db.organizations().insert();
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org1).setName("Project1");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org2).setName("Project2");
+    insertProjectsAuthorizedForUser(project1, project2);
+
+    SearchWsResponse response = call(new SearchWsRequest().setQuery("Project").setQualifiers(singletonList(PROJECT)));
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactly(project1.getKey());
+  }
+
+  @Test
+  public void should_only_return_components_of_all_organizations_if_needed() throws IOException {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org1).setName("Project1");
+    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org2).setName("Project2");
+    insertProjectsAuthorizedForUser(project1, project2);
+
+    SearchWsResponse response = call(new SearchWsRequest().setQuery("Project").setQualifiers(singletonList(PROJECT)).setAllOrganizations(true));
+
+    assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(project1.getKey(), project2.getKey());
+  }
+
+  @Test
+  public void should_not_allow_to_specify_an_organization_if_all_organizations_are_requested() throws IOException {
+    SearchWsRequest request = new SearchWsRequest().setQualifiers(singletonList(PROJECT)).setAllOrganizations(true).setOrganization("something");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Parameter organization must not be set, if allOrganizations is set to true.");
+
+    call(request);
   }
 
   @Test
@@ -251,6 +302,7 @@ public class SearchActionTest {
   private SearchWsResponse call(SearchWsRequest wsRequest) {
     TestRequest request = ws.newRequest();
     setNullable(wsRequest.getOrganization(), p -> request.setParam(PARAM_ORGANIZATION, p));
+    setNullable(wsRequest.getAllOrganizations(), p -> request.setParam(PARAM_ALL_ORGANIZATIONS, String.valueOf(p)));
     setNullable(wsRequest.getLanguage(), p -> request.setParam(PARAM_LANGUAGE, p));
     setNullable(wsRequest.getQualifiers(), p -> request.setParam(PARAM_QUALIFIERS, Joiner.on(",").join(p)));
     setNullable(wsRequest.getQuery(), p -> request.setParam(TEXT_QUERY, p));

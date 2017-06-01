@@ -859,7 +859,7 @@ public class ComponentDaoTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("organizationUuid can't be null");
 
-    underTest.selectByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY, 1, 1);
+    underTest.selectByQuery(dbSession, (String) null, ALL_PROJECTS_COMPONENT_QUERY, 1, 1);
   }
 
   @Test
@@ -867,7 +867,7 @@ public class ComponentDaoTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("organizationUuid can't be null");
 
-    underTest.countByQuery(dbSession, null, ALL_PROJECTS_COMPONENT_QUERY);
+    underTest.countByQuery(dbSession, (String) null, ALL_PROJECTS_COMPONENT_QUERY);
   }
 
   @Test
