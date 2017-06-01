@@ -251,7 +251,7 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   }
 
   private IdAndUuid insertPermissionTemplate(String organizationUuid) {
-    String random = RandomStringUtils.random(20);
+    String random = RandomStringUtils.randomAscii(20);
     String uuid = "ptUuid" + random;
     db.executeInsert(
       "PERMISSION_TEMPLATES",
