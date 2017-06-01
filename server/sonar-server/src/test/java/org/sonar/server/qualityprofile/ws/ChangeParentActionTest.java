@@ -162,7 +162,7 @@ public class ChangeParentActionTest {
     ruleIndexer.indexRuleDefinition(rule1.getKey());
     activeRuleIndexer.index();
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     // Set parent
     wsActionTester.newRequest()
@@ -172,7 +172,7 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo(rule1.getRuleKey());
 
@@ -203,7 +203,7 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo(rule2.getRuleKey());
 
@@ -230,7 +230,7 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee());
     assertThat(activeRules).isEmpty();
 
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
@@ -249,7 +249,7 @@ public class ChangeParentActionTest {
     ruleIndexer.indexRuleDefinition(rule1.getKey());
     activeRuleIndexer.index();
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     System.out.println("org uuid: " + organization.getUuid());
     System.out.println("org key: " + organization.getKey());
@@ -264,7 +264,7 @@ public class ChangeParentActionTest {
       .execute();
 
     // 1. check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo(rule1.getRuleKey());
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).hasSize(1);
@@ -279,7 +279,7 @@ public class ChangeParentActionTest {
       .execute();
 
     // 2. check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo(rule2.getRuleKey());
 
@@ -293,7 +293,7 @@ public class ChangeParentActionTest {
       .execute();
 
     // 3. check no rule enabled
-    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee());
     assertThat(activeRules).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
   }
@@ -308,7 +308,7 @@ public class ChangeParentActionTest {
     ruleIndexer.indexRuleDefinition(rule1.getKey());
     activeRuleIndexer.index();
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     // Set parent
     ruleActivator.setParent(dbSession, child.getKee(), parent.getKee());
@@ -321,7 +321,7 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee());
     assertThat(activeRules).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
   }
@@ -332,7 +332,7 @@ public class ChangeParentActionTest {
       .setLanguage(language.getKey())
       .setIsBuiltIn(true));
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
 
     TestRequest request = wsActionTester.newRequest()
@@ -349,7 +349,7 @@ public class ChangeParentActionTest {
   public void fail_if_parent_key_and_name_both_set() throws Exception {
     QProfileDto child = createProfile();
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
 
     TestRequest request = wsActionTester.newRequest()
@@ -366,7 +366,7 @@ public class ChangeParentActionTest {
   public void fail_if_profile_key_and_name_both_set() throws Exception {
     QProfileDto child = createProfile();
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
 
     TestRequest request = wsActionTester.newRequest()

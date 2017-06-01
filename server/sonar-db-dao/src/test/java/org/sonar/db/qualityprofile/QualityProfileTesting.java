@@ -35,7 +35,9 @@ public class QualityProfileTesting {
    */
   public static QProfileDto newQualityProfileDto() {
     String uuid = Uuids.createFast();
-    return QProfileDto.createFor(uuid)
+    return new QProfileDto()
+      .setKee(uuid)
+      .setRulesProfileUuid(Uuids.createFast())
       .setOrganizationUuid(randomAlphanumeric(40))
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))

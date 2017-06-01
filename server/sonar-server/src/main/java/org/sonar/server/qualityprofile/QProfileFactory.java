@@ -99,7 +99,9 @@ public class QProfileFactory {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
     Date now = new Date(system2.now());
-    QProfileDto dto = QProfileDto.createFor(uuidFactory.create())
+    QProfileDto dto = new QProfileDto()
+      .setKee(uuidFactory.create())
+      .setRulesProfileUuid(uuidFactory.create())
       .setName(name.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
@@ -123,8 +125,8 @@ public class QProfileFactory {
   public void deleteByKeys(DbSession dbSession, Collection<String> profileUuids) {
     if (!profileUuids.isEmpty()) {
       db.qualityProfileDao().deleteProjectAssociationsByProfileUuids(dbSession, profileUuids);
-      db.activeRuleDao().deleteParametersByProfileKeys(dbSession, profileUuids);
-      db.activeRuleDao().deleteByProfileKeys(dbSession, profileUuids);
+      db.activeRuleDao().deleteParametersByProfileUuids(dbSession, profileUuids);
+      db.activeRuleDao().deleteByProfileUuids(dbSession, profileUuids);
       db.qProfileChangeDao().deleteByProfileKeys(dbSession, profileUuids);
       db.defaultQProfileDao().deleteByQProfileUuids(dbSession, profileUuids);
       db.qualityProfileDao().deleteByUuids(dbSession, profileUuids);

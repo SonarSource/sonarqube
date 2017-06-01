@@ -275,7 +275,9 @@ public class ShowActionMediumTest {
     RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, ruleDto, regexParam);
 
-    QProfileDto profile = QProfileDto.createFor("profile")
+    QProfileDto profile = new QProfileDto()
+      .setKee("profile")
+      .setRulesProfileUuid("rp-profile")
       .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setName("Profile")
       .setLanguage("xoo");

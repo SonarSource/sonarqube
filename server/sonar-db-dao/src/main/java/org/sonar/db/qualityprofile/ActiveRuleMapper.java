@@ -34,9 +34,9 @@ public interface ActiveRuleMapper {
 
   void delete(int activeRuleId);
 
-  void deleteByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
+  void deleteByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
 
-  ActiveRuleDto selectByKey(@Param("profileKey") String profileKey, @Param("repository") String repository, @Param("rule") String rule);
+  ActiveRuleDto selectByKey(@Param("profileUuid") String profileUuid, @Param("repository") String repository, @Param("rule") String rule);
 
   List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
 
@@ -46,7 +46,7 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByRuleIds(@Param("organizationUuid") String organizationUuid, @Param("ruleIds") List<Integer> partitionOfRuleIds);
 
-  List<ActiveRuleDto> selectByProfileKey(String key);
+  List<ActiveRuleDto> selectByProfileUuid(String uuid);
 
   void insertParameter(ActiveRuleParamDto dto);
 
@@ -54,7 +54,7 @@ public interface ActiveRuleMapper {
 
   void deleteParameters(int activeRuleId);
 
-  void deleteParametersByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
+  void deleteParametersByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
 
   void deleteParameter(int activeRuleParamId);
 
@@ -67,9 +67,9 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectAllParams();
 
-  List<KeyLongValue> countActiveRulesByProfileKey(@Param("organizationUuid") String organizationUuid);
+  List<KeyLongValue> countActiveRulesByProfileUuid(@Param("organizationUuid") String organizationUuid);
 
-  List<KeyLongValue> countActiveRulesForRuleStatusByProfileKey(@Param("organizationUuid") String organizationUuid, @Param("ruleStatus") RuleStatus ruleStatus);
+  List<KeyLongValue> countActiveRulesForRuleStatusByProfileUuid(@Param("organizationUuid") String organizationUuid, @Param("ruleStatus") RuleStatus ruleStatus);
 
-  List<KeyLongValue> countActiveRulesForInheritanceByProfileKey(@Param("organizationUuid") String organizationUuid, @Param("inheritance") String inheritance);
+  List<KeyLongValue> countActiveRulesForInheritanceByProfileUuid(@Param("organizationUuid") String organizationUuid, @Param("inheritance") String inheritance);
 }

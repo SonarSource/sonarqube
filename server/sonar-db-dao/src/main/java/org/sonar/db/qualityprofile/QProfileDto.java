@@ -45,13 +45,14 @@ public class QProfileDto {
   private Long lastUsed;
   private Long userUpdatedAt;
   private boolean isBuiltIn;
+  private String rulesProfileUuid;
 
   public String getOrganizationUuid() {
     return organizationUuid;
   }
 
-  public QProfileDto setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
+  public QProfileDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
     return this;
   }
 
@@ -65,6 +66,15 @@ public class QProfileDto {
 
   public QProfileDto setKee(String s) {
     this.kee = s;
+    return this;
+  }
+
+  public String getRulesProfileUuid() {
+    return rulesProfileUuid;
+  }
+
+  public QProfileDto setRulesProfileUuid(String s) {
+    this.rulesProfileUuid = s;
     return this;
   }
 
@@ -146,9 +156,5 @@ public class QProfileDto {
   public QProfileDto setIsBuiltIn(boolean b) {
     this.isBuiltIn = b;
     return this;
-  }
-
-  public static QProfileDto createFor(String key) {
-    return new QProfileDto().setKee(key);
   }
 }

@@ -53,6 +53,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
+import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 public class ActiveRuleDaoTest {
 
@@ -63,8 +64,8 @@ public class ActiveRuleDaoTest {
 
   private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
 
-  private QProfileDto profile1 = QProfileDto.createFor("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
-  private QProfileDto profile2 = QProfileDto.createFor("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
+  private QProfileDto profile1 = newQualityProfileDto().setKee("qp1").setOrganizationUuid(organization.getUuid()).setName("QProfile1");
+  private QProfileDto profile2 = newQualityProfileDto().setKee("qp2").setOrganizationUuid(organization.getUuid()).setName("QProfile2");
 
   private RuleDefinitionDto rule1 = RuleTesting.newRule(RuleTesting.XOO_X1);
   private RuleDefinitionDto rule2 = RuleTesting.newRule(RuleTesting.XOO_X2);
@@ -182,8 +183,8 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbTester.getSession(), activeRule2);
     dbSession.commit();
 
-    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKee())).hasSize(2);
-    assertThat(underTest.selectByProfileKey(dbSession, profile2.getKee())).isEmpty();
+    assertThat(underTest.selectByProfileUuid(dbSession, profile1.getKee())).hasSize(2);
+    assertThat(underTest.selectByProfileUuid(dbSession, profile2.getKee())).isEmpty();
   }
 
   @Test
@@ -192,7 +193,7 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();
 
-    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKee())).isEmpty();
+    assertThat(underTest.selectByProfileUuid(dbSession, profile1.getKee())).isEmpty();
   }
 
   @Test
@@ -319,7 +320,7 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, newRow(profile1, rule2));
     underTest.insert(dbSession, newRow(profile2, rule1));
 
-    underTest.deleteByProfileKeys(dbSession, asList(profile1.getKee()));
+    underTest.deleteByProfileUuids(dbSession, asList(profile1.getKee()));
 
     assertThat(dbTester.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
     assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile2.getKee(), rule1.getKey()))).isPresent();
@@ -329,7 +330,7 @@ public class ActiveRuleDaoTest {
   public void deleteByKeys_does_not_fail_when_profile_with_specified_key_does_not_exist() {
     underTest.insert(dbSession, newRow(profile1, rule1));
 
-    underTest.deleteByProfileKeys(dbSession, asList("does_not_exist"));
+    underTest.deleteByProfileUuids(dbSession, asList("does_not_exist"));
 
     assertThat(dbTester.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
   }
@@ -486,7 +487,7 @@ public class ActiveRuleDaoTest {
     ActiveRuleParamDto param2 = ActiveRuleParamDto.createFor(rule1Param1).setValue("bar");
     underTest.insertParam(dbSession, activeRuleInProfile2, param2);
 
-    underTest.deleteParametersByProfileKeys(dbSession, asList(profile1.getKee(), "does_not_exist"));
+    underTest.deleteParametersByProfileUuids(dbSession, asList(profile1.getKee(), "does_not_exist"));
 
     List<ActiveRuleParamDto> params = underTest.selectAllParams(dbSession);
     assertThat(params).hasSize(1);
@@ -500,7 +501,7 @@ public class ActiveRuleDaoTest {
     ActiveRuleParamDto param1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("foo");
     underTest.insertParam(dbSession, activeRuleInProfile1, param1);
 
-    underTest.deleteParametersByProfileKeys(dbSession, emptyList());
+    underTest.deleteParametersByProfileUuids(dbSession, emptyList());
 
     List<ActiveRuleParamDto> params = underTest.selectAllParams(dbSession);
     assertThat(params).hasSize(1);
@@ -581,7 +582,7 @@ public class ActiveRuleDaoTest {
     dbTester.qualityProfiles().activateRule(profile1, rule2);
     dbTester.qualityProfiles().activateRule(profile2, rule1);
 
-    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
+    Map<String, Long> counts = underTest.countActiveRulesByProfileUuid(dbSession, organization);
 
     assertThat(counts).containsOnly(
       entry(profile1.getKee(), 2L),
@@ -590,14 +591,14 @@ public class ActiveRuleDaoTest {
 
   @Test
   public void countActiveRulesByProfileKey_returns_empty_map_if_organization_does_not_exist() {
-    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, OrganizationTesting.newOrganizationDto());
+    Map<String, Long> counts = underTest.countActiveRulesByProfileUuid(dbSession, OrganizationTesting.newOrganizationDto());
 
     assertThat(counts).isEmpty();
   }
 
   @Test
   public void countActiveRulesByProfileKey_returns_empty_map_if_profile_does_not_have_active_rules() {
-    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
+    Map<String, Long> counts = underTest.countActiveRulesByProfileUuid(dbSession, organization);
 
     assertThat(counts).isEmpty();
   }
@@ -607,7 +608,7 @@ public class ActiveRuleDaoTest {
     dbTester.qualityProfiles().activateRule(profile1, rule1);
     dbTester.qualityProfiles().activateRule(profile1, removedRule);
 
-    Map<String, Long> counts = underTest.countActiveRulesByProfileKey(dbSession, organization);
+    Map<String, Long> counts = underTest.countActiveRulesByProfileUuid(dbSession, organization);
 
     assertThat(counts).containsExactly(entry(profile1.getKee(), 1L));
   }
@@ -620,21 +621,21 @@ public class ActiveRuleDaoTest {
     dbTester.qualityProfiles().activateRule(profile2, betaRule1);
     dbTester.qualityProfiles().activateRule(profile2, betaRule2);
 
-    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.BETA);
+    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileUuid(dbSession, organization, RuleStatus.BETA);
 
     assertThat(counts).containsOnly(entry(profile2.getKee(), 2L));
   }
 
   @Test
   public void countActiveRulesForRuleStatusByProfileKey_returns_empty_map_if_organization_does_not_exist() {
-    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileKey(dbSession, OrganizationTesting.newOrganizationDto(), RuleStatus.READY);
+    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileUuid(dbSession, OrganizationTesting.newOrganizationDto(), RuleStatus.READY);
 
     assertThat(counts).isEmpty();
   }
 
   @Test
   public void countActiveRulesForRuleStatusByProfileKey_returns_empty_map_if_profile_does_not_have_rules_with_specified_status() {
-    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED);
+    Map<String, Long> counts = underTest.countActiveRulesForRuleStatusByProfileUuid(dbSession, organization, RuleStatus.DEPRECATED);
 
     assertThat(counts).isEmpty();
   }
@@ -645,21 +646,21 @@ public class ActiveRuleDaoTest {
     dbTester.qualityProfiles().activateRule(profile2, rule1, ar -> ar.setInheritance(ActiveRuleDto.OVERRIDES));
     dbTester.qualityProfiles().activateRule(profile2, rule2, ar -> ar.setInheritance(ActiveRuleDto.INHERITED));
 
-    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileUuid(dbSession, organization, ActiveRuleDto.OVERRIDES);
 
     assertThat(counts).containsOnly(entry(profile2.getKee(), 1L));
   }
 
   @Test
   public void countActiveRulesForInheritanceByProfileKey_returns_empty_map_if_organization_does_not_exist() {
-    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, OrganizationTesting.newOrganizationDto(), ActiveRuleDto.OVERRIDES);
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileUuid(dbSession, OrganizationTesting.newOrganizationDto(), ActiveRuleDto.OVERRIDES);
 
     assertThat(counts).isEmpty();
   }
 
   @Test
   public void countActiveRulesForInheritanceByProfileKey_returns_empty_map_if_profile_does_not_have_rules_with_specified_status() {
-    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileUuid(dbSession, organization, ActiveRuleDto.OVERRIDES);
 
     assertThat(counts).isEmpty();
   }
@@ -669,7 +670,7 @@ public class ActiveRuleDaoTest {
     dbTester.qualityProfiles().activateRule(profile1, rule1, ar -> ar.setInheritance(ActiveRuleDto.OVERRIDES));
     dbTester.qualityProfiles().activateRule(profile1, removedRule, ar -> ar.setInheritance(ActiveRuleDto.OVERRIDES));
 
-    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+    Map<String, Long> counts = underTest.countActiveRulesForInheritanceByProfileUuid(dbSession, organization, ActiveRuleDto.OVERRIDES);
 
     assertThat(counts).containsOnly(entry(profile1.getKee(), 1L));
   }

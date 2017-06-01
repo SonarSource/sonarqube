@@ -139,7 +139,7 @@ public class CreateActionTest {
 
     QProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, "New Profile", XOO_LANGUAGE);
     assertThat(dto.getKee()).isNotNull();
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, dto.getKee())).hasSize(1);
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, dto.getKee())).hasSize(1);
     assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(dto.getKee()).setActivation(true))).hasSize(1);
   }
 

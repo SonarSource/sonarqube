@@ -116,7 +116,7 @@ public interface QualityProfileMapper {
     @Param("profileUuid") String profileUuid,
     @Param("nameQuery") String nameQuery);
 
-  List<String> selectUuidsOfCustomQProfiles(@Param("language") String language, @Param("name") String name);
+  List<String> selectUuidsOfCustomRulesProfiles(@Param("language") String language, @Param("name") String name);
 
   void renameRulesProfiles(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("uuids") Collection<String> uuids);
 }

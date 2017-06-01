@@ -159,7 +159,7 @@ public class QProfileBackuperMediumTest {
     QProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, "P1", "xoo");
     assertThat(profile).isNotNull();
 
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profile.getKee());
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee());
     assertThat(activeRules).hasSize(1);
     ActiveRuleDto activeRuleDoc = activeRules.get(0);
     assertThat(activeRuleDoc.getSeverityString()).isEqualTo("BLOCKER");
@@ -198,7 +198,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)), organization, null);
 
     // Check in db
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P1_KEY);
     assertThat(activeRules).hasSize(1);
     ActiveRuleDto activeRuleDoc = activeRules.get(0);
     assertThat(activeRuleDoc.getSeverityString()).isEqualTo("BLOCKER");
@@ -236,7 +236,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), StandardCharsets.UTF_8)), organization, null);
 
     // parent profile is unchanged
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P1_KEY);
     assertThat(activeRules).hasSize(1);
     ActiveRuleDto activeRuleDoc = activeRules.get(0);
     assertThat(activeRuleDoc.getSeverityString()).isEqualTo("INFO");
@@ -249,7 +249,7 @@ public class QProfileBackuperMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("10");
 
     // child profile overrides parent
-    activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P2_KEY);
+    activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P2_KEY);
     assertThat(activeRules).hasSize(1);
     activeRuleDoc = activeRules.get(0);
     assertThat(activeRuleDoc.getSeverityString()).isEqualTo("BLOCKER");
@@ -284,7 +284,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), StandardCharsets.UTF_8)), organization, null);
 
     // parent profile is updated
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P1_KEY);
     assertThat(activeRules).hasSize(1);
 
     ActiveRuleDto activeRuleDoc = activeRules.get(0);
@@ -298,7 +298,7 @@ public class QProfileBackuperMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("7");
 
     // child profile is inherited
-    activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P2_KEY);
+    activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P2_KEY);
     assertThat(activeRules).hasSize(1);
     activeRuleDoc = activeRules.get(0);
     assertThat(activeRuleDoc.getSeverityString()).isEqualTo("BLOCKER");
@@ -333,7 +333,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), StandardCharsets.UTF_8)), organization, XOO_P2_NAME.getName());
 
     // x1 and x2
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P2_KEY)).hasSize(2);
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P2_KEY)).hasSize(2);
   }
 
   @Test
@@ -376,12 +376,12 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
       organization, XOO_P3_NAME.getName());
 
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P1_KEY);
     assertThat(activeRules).hasSize(0);
 
     QProfileDto target = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, "P3", "xoo");
     assertThat(target).isNotNull();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, target.getKee())).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, target.getKee())).hasSize(1);
   }
 
   @Test

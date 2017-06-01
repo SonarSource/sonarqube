@@ -329,7 +329,7 @@ public class DeleteActionTest {
     sendRequest(org);
 
     verifyOrganizationDoesNotExist(org);
-    assertThat(db.select("select kee as \"profileKey\" from rules_profiles"))
+    assertThat(db.select("select uuid as \"profileKey\" from org_qprofiles"))
       .extracting(row -> (String) row.get("profileKey"))
       .containsOnly(profileInOtherOrg.getKee());
   }

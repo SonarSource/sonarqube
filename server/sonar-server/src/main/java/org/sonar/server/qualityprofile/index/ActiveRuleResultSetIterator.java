@@ -48,7 +48,7 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from active_rules ar " +
     " inner join rules_profiles rp on rp.id = ar.profile_id " +
-    " inner join org_qprofiles oqp on oqp.uuid = rp.kee " +
+    " inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee " +
     " inner join rules r on r.id = ar.rule_id ";
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " where ar.updated_at>?";
