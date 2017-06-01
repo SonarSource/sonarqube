@@ -20,15 +20,29 @@
 package org.sonar.server.user.ws;
 
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UsersWsModuleTest {
+public class SkipOnboardingTutorialActionTest {
+
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new UsersWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 12);
+  public void should_have_a_good_definition() {
+    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction());
+    WebService.Action def = ws.getDef();
+    assertThat(def.isPost()).isTrue();
+    assertThat(def.isInternal()).isTrue();
+    assertThat(def.since()).isEqualTo("6.5");
+    assertThat(def.params()).isEmpty();
+  }
+
+  @Test
+  public void should_return_silently() {
+    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction());
+    TestResponse response = ws.newRequest().setMethod("POST").execute();
+    assertThat(response.getStatus()).isEqualTo(204);
+    assertThat(response.getInput()).isEmpty();
   }
 }
