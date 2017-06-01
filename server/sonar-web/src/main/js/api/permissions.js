@@ -130,26 +130,22 @@ export function bulkApplyTemplate(data: Object) {
   return post(url, data);
 }
 
-export function grantTemplatePermissionToUser(
-  data: {
-    templateId: string,
-    login: string,
-    permission: string,
-    organization?: string
-  }
-) {
+export function grantTemplatePermissionToUser(data: {
+  templateId: string,
+  login: string,
+  permission: string,
+  organization?: string
+}) {
   const url = '/api/permissions/add_user_to_template';
   return post(url, data);
 }
 
-export function revokeTemplatePermissionFromUser(
-  data: {
-    templateId: string,
-    login: string,
-    permission: string,
-    organization?: string
-  }
-) {
+export function revokeTemplatePermissionFromUser(data: {
+  templateId: string,
+  login: string,
+  permission: string,
+  organization?: string
+}) {
   const url = '/api/permissions/remove_user_from_template';
   return post(url, data);
 }

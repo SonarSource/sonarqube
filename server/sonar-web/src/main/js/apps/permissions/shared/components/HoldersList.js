@@ -46,7 +46,7 @@ export default class HoldersList extends React.PureComponent {
   };
 
   renderTooltip = permission =>
-    (this.props.showPublicProjectsWarning &&
+    this.props.showPublicProjectsWarning &&
       (permission.key === 'user' || permission.key === 'codeviewer')
       ? <div>
           {permission.description}
@@ -54,7 +54,7 @@ export default class HoldersList extends React.PureComponent {
             {translate('projects_role.public_projects_warning')}
           </div>
         </div>
-      : permission.description);
+      : permission.description;
 
   renderTableHeader() {
     const { selectedPermission } = this.props;

@@ -84,7 +84,10 @@ export default class CreationDateFacet extends React.PureComponent {
   handleBarClick = ({
     createdAfter,
     createdBefore
-  }: { createdAfter: Object, createdBefore?: Object }) => {
+  }: {
+    createdAfter: Object,
+    createdBefore?: Object
+  }) => {
     this.resetTo({
       createdAfter: createdAfter.format(DATE_FORMAT),
       createdBefore: createdBefore && createdBefore.format(DATE_FORMAT)
