@@ -928,8 +928,8 @@ public class RuleActivatorMediumTest {
 
     // 2. assert that all activation has been commit to DB and ES
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
     assertThat(result.countSucceeded()).isEqualTo(bulkSize);
     assertThat(result.countFailed()).isEqualTo(0);
   }
@@ -942,7 +942,7 @@ public class RuleActivatorMediumTest {
     // 2. assert that all activations have been commit to DB and ES
     // -> xoo rules x1, x2 and custom1
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, XOO_P1_KEY)).hasSize(3);
     assertThat(result.countSucceeded()).isEqualTo(3);
     assertThat(result.countFailed()).isGreaterThan(0);
   }
@@ -1109,7 +1109,7 @@ public class RuleActivatorMediumTest {
   }
 
   private int countActiveRules(String profileKey) {
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, profileKey);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileUuid(dbSession, profileKey);
     return activeRuleDtos.size();
   }
 
@@ -1129,7 +1129,7 @@ public class RuleActivatorMediumTest {
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     // verify db
     boolean found = false;
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, activeRuleKey.qProfile());
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileUuid(dbSession, activeRuleKey.qProfile());
     for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
       if (activeRuleDto.getKey().equals(activeRuleKey)) {
         found = true;
@@ -1186,7 +1186,7 @@ public class RuleActivatorMediumTest {
   private void verifyZeroActiveRules(String key) {
     // verify db
     dbSession.clearCache();
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, key);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileUuid(dbSession, key);
     assertThat(activeRuleDtos).isEmpty();
 
     // verify es

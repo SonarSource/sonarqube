@@ -83,7 +83,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
 
   @Override
   public void backup(DbSession dbSession, QProfileDto profileDto, Writer writer) {
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee());
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, profileDto.getKee());
     activeRules.sort(BackupActiveRuleComparator.INSTANCE);
     writeXml(dbSession, writer, profileDto, activeRules.iterator());
   }

@@ -87,7 +87,7 @@ public class ActiveRuleCompleter {
     String profileKey = query.getQProfileKey();
     if (profileKey != null) {
       // Load details of active rules on the selected profile
-      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profileKey);
+      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileUuid(dbSession, profileKey);
       Map<RuleKey, ActiveRuleDto> activeRuleByRuleKey = activeRuleDtos.stream().collect(MoreCollectors.uniqueIndex(d -> d.getKey().ruleKey()));
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
 

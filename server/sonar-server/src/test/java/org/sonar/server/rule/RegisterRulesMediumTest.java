@@ -139,7 +139,7 @@ public class RegisterRulesMediumTest {
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X2.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).isEmpty();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
   }
 
   @Test
@@ -167,12 +167,12 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
 
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
 
     // Re-install
     register(rules);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
   }
 
   @Test

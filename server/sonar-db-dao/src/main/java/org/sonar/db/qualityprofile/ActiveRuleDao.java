@@ -74,8 +74,8 @@ public class ActiveRuleDao implements Dao {
   /**
    * Active rule on removed rule are NOT returned
    */
-  public List<ActiveRuleDto> selectByProfileKey(DbSession session, String profileKey) {
-    return mapper(session).selectByProfileKey(profileKey);
+  public List<ActiveRuleDto> selectByProfileUuid(DbSession session, String uuid) {
+    return mapper(session).selectByProfileUuid(uuid);
   }
 
   public ActiveRuleDto insert(DbSession session, ActiveRuleDto item) {
@@ -102,14 +102,14 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
-  public void deleteByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+  public void deleteByProfileUuids(DbSession dbSession, Collection<String> profileUuids) {
     ActiveRuleMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByProfileKeys);
+    DatabaseUtils.executeLargeUpdates(profileUuids, mapper::deleteByProfileUuids);
   }
 
-  public void deleteParametersByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+  public void deleteParametersByProfileUuids(DbSession dbSession, Collection<String> profileUuids) {
     ActiveRuleMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteParametersByProfileKeys);
+    DatabaseUtils.executeLargeUpdates(profileUuids, mapper::deleteParametersByProfileUuids);
   }
 
   /**
@@ -193,22 +193,22 @@ public class ActiveRuleDao implements Dao {
   /**
    * Active rule on removed rule are NOT taken into account
    */
-  public Map<String, Long> countActiveRulesByProfileKey(DbSession dbSession, OrganizationDto organization) {
+  public Map<String, Long> countActiveRulesByProfileUuid(DbSession dbSession, OrganizationDto organization) {
     return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesByProfileKey(organization.getUuid()));
+      mapper(dbSession).countActiveRulesByProfileUuid(organization.getUuid()));
   }
 
-  public Map<String, Long> countActiveRulesForRuleStatusByProfileKey(DbSession dbSession, OrganizationDto organization, RuleStatus ruleStatus) {
+  public Map<String, Long> countActiveRulesForRuleStatusByProfileUuid(DbSession dbSession, OrganizationDto organization, RuleStatus ruleStatus) {
     return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesForRuleStatusByProfileKey(organization.getUuid(), ruleStatus));
+      mapper(dbSession).countActiveRulesForRuleStatusByProfileUuid(organization.getUuid(), ruleStatus));
   }
 
   /**
    * Active rule on removed rule are NOT taken into account
    */
-  public Map<String, Long> countActiveRulesForInheritanceByProfileKey(DbSession dbSession, OrganizationDto organization, String inheritance) {
+  public Map<String, Long> countActiveRulesForInheritanceByProfileUuid(DbSession dbSession, OrganizationDto organization, String inheritance) {
     return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesForInheritanceByProfileKey(organization.getUuid(), inheritance));
+      mapper(dbSession).countActiveRulesForInheritanceByProfileUuid(organization.getUuid(), inheritance));
   }
 
   private static ActiveRuleMapper mapper(DbSession session) {

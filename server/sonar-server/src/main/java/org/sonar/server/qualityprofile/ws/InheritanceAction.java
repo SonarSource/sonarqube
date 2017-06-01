@@ -121,8 +121,8 @@ public class InheritanceAction implements QProfileWsAction {
 
     private Statistics(DbSession dbSession, OrganizationDto organization) {
       ActiveRuleDao dao = dbClient.activeRuleDao();
-      countRulesByProfileKey = dao.countActiveRulesByProfileKey(dbSession, organization);
-      countOverridingRulesByProfileKey = dao.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+      countRulesByProfileKey = dao.countActiveRulesByProfileUuid(dbSession, organization);
+      countOverridingRulesByProfileKey = dao.countActiveRulesForInheritanceByProfileUuid(dbSession, organization, ActiveRuleDto.OVERRIDES);
     }
   }
 }

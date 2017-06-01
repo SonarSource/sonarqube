@@ -182,7 +182,7 @@ public class QualityProfileDao implements Dao {
   }
 
   public Collection<String> selectUuidsOfCustomRulesProfiles(DbSession dbSession, String language, String name) {
-    return mapper(dbSession).selectUuidsOfCustomQProfiles(language, name);
+    return mapper(dbSession).selectUuidsOfCustomRulesProfiles(language, name);
   }
 
   public void renameRulesProfilesAndCommit(DbSession dbSession, Collection<String> rulesProfileUuids, String newName) {

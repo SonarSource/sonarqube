@@ -471,7 +471,7 @@ public class RuleActivator {
       // set new parent
       profile.setParentKee(parentKey);
       db.qualityProfileDao().update(dbSession, profile);
-      for (ActiveRuleDto parentActiveRule : db.activeRuleDao().selectByProfileKey(dbSession, parentKey)) {
+      for (ActiveRuleDto parentActiveRule : db.activeRuleDao().selectByProfileUuid(dbSession, parentKey)) {
         try {
           RuleActivation activation = new RuleActivation(parentActiveRule.getKey().ruleKey());
           changes.addAll(activate(dbSession, activation, profileKey));
@@ -494,7 +494,7 @@ public class RuleActivator {
       List<ActiveRuleChange> changes = new ArrayList<>();
       profileDto.setParentKee(null);
       db.qualityProfileDao().update(dbSession, profileDto);
-      for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee())) {
+      for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileUuid(dbSession, profileDto.getKee())) {
         if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
           changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
         } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {

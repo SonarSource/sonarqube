@@ -220,7 +220,9 @@ public class RestoreActionTest {
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
-      QProfileDto profile = QProfileDto.createFor("P1")
+      QProfileDto profile = new QProfileDto()
+        .setKee("P1")
+        .setRulesProfileUuid("rp-P1")
         .setLanguage("xoo")
         .setName(overriddenProfileName != null ? overriddenProfileName : "the-name-in-backup");
       restoredSummary = new QProfileRestoreSummary(profile, new BulkChangeResult());

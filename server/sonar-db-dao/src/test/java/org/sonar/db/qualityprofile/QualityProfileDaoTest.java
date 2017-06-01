@@ -73,7 +73,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void test_insert() {
-    QProfileDto dto = QProfileDto.createFor("theUuid")
+    QProfileDto dto = new QProfileDto()
+      .setKee("theUuid")
+      .setRulesProfileUuid("theRulesProfileUuid")
       .setOrganizationUuid(organization.getUuid())
       .setName("theName")
       .setLanguage("theLang")
@@ -87,6 +89,7 @@ public class QualityProfileDaoTest {
 
     QProfileDto reloaded = underTest.selectByUuid(dbSession, dto.getKee());
     assertThat(reloaded.getKee()).isEqualTo(dto.getKee());
+    assertThat(reloaded.getRulesProfileUuid()).isEqualTo(dto.getRulesProfileUuid());
     assertThat(reloaded.getId()).isNotNull().isNotZero();
     assertThat(reloaded.getLanguage()).isEqualTo(dto.getLanguage());
     assertThat(reloaded.getName()).isEqualTo(dto.getName());
@@ -99,7 +102,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void test_update() {
-    QProfileDto initial = QProfileDto.createFor("theUuid")
+    QProfileDto initial = new QProfileDto()
+      .setKee("theUuid")
+      .setRulesProfileUuid("theRulesProfileUuid")
       .setOrganizationUuid(organization.getUuid())
       .setName("theName")
       .setLanguage("theLang")
@@ -110,7 +115,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(true);
     underTest.insert(dbSession, initial);
 
-    QProfileDto update = QProfileDto.createFor(initial.getKee())
+    QProfileDto update = new QProfileDto()
+      .setKee(initial.getKee())
+      .setRulesProfileUuid(initial.getRulesProfileUuid())
       .setName("theNewName")
       .setLanguage("theNewLang")
       .setLastUsed(11_000L)
@@ -218,7 +225,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void find_all_is_sorted_by_profile_name() {
-    QProfileDto dto1 = QProfileDto.createFor("js_first")
+    QProfileDto dto1 = new QProfileDto()
+      .setKee("js_first")
+      .setRulesProfileUuid("rp-js_first")
       .setOrganizationUuid(organization.getUuid())
       .setName("First")
       .setLanguage("js")
@@ -228,7 +237,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, dto1);
 
-    QProfileDto dto2 = QProfileDto.createFor("js_second")
+    QProfileDto dto2 = new QProfileDto()
+      .setKee("js_second")
+      .setRulesProfileUuid("rp-js_second")
       .setOrganizationUuid(organization.getUuid())
       .setName("Second")
       .setLanguage("js")
@@ -238,7 +249,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, dto2);
 
-    QProfileDto dto3 = QProfileDto.createFor("js_third")
+    QProfileDto dto3 = new QProfileDto()
+      .setKee("js_third")
+      .setRulesProfileUuid("rp-js_third")
       .setOrganizationUuid(organization.getUuid())
       .setName("Third")
       .setLanguage("js")
@@ -351,7 +364,9 @@ public class QualityProfileDaoTest {
 
   @Test
   public void find_children() {
-    QProfileDto original1 = QProfileDto.createFor("java_child1")
+    QProfileDto original1 = new QProfileDto()
+      .setKee("java_child1")
+      .setRulesProfileUuid("rp-java_child1")
       .setOrganizationUuid(organization.getUuid())
       .setName("Child1")
       .setLanguage("java")
@@ -362,7 +377,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, original1);
 
-    QProfileDto original2 = QProfileDto.createFor("java_child2")
+    QProfileDto original2 = new QProfileDto()
+      .setKee("java_child2")
+      .setRulesProfileUuid("rp-java_child2")
       .setOrganizationUuid(organization.getUuid())
       .setName("Child2")
       .setLanguage("java")
@@ -373,7 +390,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, original2);
 
-    QProfileDto original3 = QProfileDto.createFor("java_parent")
+    QProfileDto original3 = new QProfileDto()
+      .setKee("java_parent")
+      .setRulesProfileUuid("rp-java_parent")
       .setOrganizationUuid(organization.getUuid())
       .setName("Parent")
       .setLanguage("java")
@@ -383,7 +402,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, original3);
 
-    QProfileDto original4 = QProfileDto.createFor("js_child1")
+    QProfileDto original4 = new QProfileDto()
+      .setKee("js_child1")
+      .setRulesProfileUuid("rp-js_child1")
       .setOrganizationUuid(organization.getUuid())
       .setName("Child1")
       .setLanguage("js")
@@ -394,7 +415,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, original4);
 
-    QProfileDto original5 = QProfileDto.createFor("js_child2")
+    QProfileDto original5 = new QProfileDto()
+      .setKee("js_child2")
+      .setRulesProfileUuid("rp-js_child2")
       .setOrganizationUuid(organization.getUuid())
       .setName("Child2")
       .setLanguage("js")
@@ -405,7 +428,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, original5);
 
-    QProfileDto original6 = QProfileDto.createFor("js_parent")
+    QProfileDto original6 = new QProfileDto()
+      .setKee("js_parent")
+      .setRulesProfileUuid("rp-js_parent")
       .setOrganizationUuid(organization.getUuid())
       .setName("Parent")
       .setLanguage("js")
@@ -602,7 +627,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void selectOutdatedProfiles_returns_the_custom_profiles_with_specified_name() {
+  public void selectUuidsOfCustomRulesProfiles_returns_the_custom_profiles_with_specified_name() {
     OrganizationDto org1 = dbTester.organizations().insert();
     OrganizationDto org2 = dbTester.organizations().insert();
     OrganizationDto org3 = dbTester.organizations().insert();
@@ -614,7 +639,7 @@ public class QualityProfileDaoTest {
 
     Collection<String> keys = underTest.selectUuidsOfCustomRulesProfiles(dbSession, "java", "foo");
 
-    assertThat(keys).containsExactlyInAnyOrder(outdatedProfile1.getKee(), outdatedProfile2.getKee());
+    assertThat(keys).containsExactlyInAnyOrder(outdatedProfile1.getRulesProfileUuid(), outdatedProfile2.getRulesProfileUuid());
   }
 
   @Test
@@ -630,7 +655,7 @@ public class QualityProfileDaoTest {
     QProfileDto fooInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setName("foo"));
     QProfileDto bar = dbTester.qualityProfiles().insert(org1, p -> p.setName("bar"));
 
-    underTest.renameRulesProfilesAndCommit(dbSession, asList(fooInOrg1.getKee(), fooInOrg2.getKee()), "foo (copy)");
+    underTest.renameRulesProfilesAndCommit(dbSession, asList(fooInOrg1.getRulesProfileUuid(), fooInOrg2.getRulesProfileUuid()), "foo (copy)");
 
     assertThat(underTest.selectOrFailByUuid(dbSession, fooInOrg1.getKee()).getName()).isEqualTo("foo (copy)");
     assertThat(underTest.selectOrFailByUuid(dbSession, fooInOrg2.getKee()).getName()).isEqualTo("foo (copy)");
@@ -648,7 +673,9 @@ public class QualityProfileDaoTest {
   }
 
   private List<QProfileDto> createSharedData() {
-    QProfileDto dto1 = QProfileDto.createFor("java_sonar_way")
+    QProfileDto dto1 = new QProfileDto()
+      .setKee("java_sonar_way")
+      .setRulesProfileUuid("rp-java_sonar_way")
       .setOrganizationUuid(organization.getUuid())
       .setName("Sonar Way")
       .setLanguage("java")
@@ -658,7 +685,9 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(true);
     underTest.insert(dbSession, dto1);
 
-    QProfileDto dto2 = QProfileDto.createFor("js_sonar_way")
+    QProfileDto dto2 = new QProfileDto()
+      .setKee("js_sonar_way")
+      .setRulesProfileUuid("rp-js_sonar_way")
       .setOrganizationUuid(organization.getUuid())
       .setName("Sonar Way")
       .setLanguage("js")

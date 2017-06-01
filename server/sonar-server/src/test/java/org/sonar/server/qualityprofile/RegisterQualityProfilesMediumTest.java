@@ -86,7 +86,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKee())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKee(), ruleKey);
@@ -139,7 +139,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKee())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
     ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile.getKee(), ruleKey)).get();

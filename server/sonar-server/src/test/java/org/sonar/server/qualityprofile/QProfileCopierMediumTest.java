@@ -200,7 +200,7 @@ public class QProfileCopierMediumTest {
   private void verifyOneActiveRule(String profileKey, String expectedSeverity, @Nullable String expectedInheritance, Map<String, String> expectedParams) {
 
     // check in db
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileKey);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileUuid(dbSession, profileKey);
     assertThat(activeRules).hasSize(1);
 
     ActiveRuleDto activeRule = activeRules.get(0);

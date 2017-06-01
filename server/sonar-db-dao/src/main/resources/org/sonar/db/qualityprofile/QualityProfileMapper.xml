@@ -8,6 +8,7 @@
     oqp.organization_uuid as organizationUuid,
     oqp.parent_uuid as parentKee,
     rp.id as id,
+    rp.kee as rulesProfileUuid,
     rp.name as name,
     rp.language as language,
     rp.rules_updated_at as rulesUpdatedAt,
@@ -28,7 +29,7 @@
       user_updated_at,
       is_built_in
     ) values (
-      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.rulesProfileUuid, jdbcType=VARCHAR},
       #{dto.name, jdbcType=VARCHAR},
       #{dto.language, jdbcType=VARCHAR},
       #{now, jdbcType=TIMESTAMP},
@@ -51,7 +52,7 @@
     ) values (
       #{dto.kee, jdbcType=VARCHAR},
       #{dto.organizationUuid, jdbcType=VARCHAR},
-      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.rulesProfileUuid, jdbcType=VARCHAR},
       #{dto.parentKee, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
@@ -69,7 +70,7 @@
       user_updated_at = #{dto.userUpdatedAt, jdbcType=BIGINT},
       is_built_in = #{dto.isBuiltIn, jdbcType=BOOLEAN}
     where
-      kee = #{dto.kee, jdbcType=VARCHAR}
+      kee = #{dto.rulesProfileUuid, jdbcType=VARCHAR}
   </update>
 
   <update id="updateOrgQProfile" parameterType="map">
@@ -300,8 +301,8 @@
     ORDER BY pj.name ASC
   </select>
 
-  <select id="selectUuidsOfCustomQProfiles" parameterType="map" resultType="string">
-    select oqp.uuid
+  <select id="selectUuidsOfCustomRulesProfiles" parameterType="map" resultType="string">
+    select oqp.rules_profile_uuid
     from org_qprofiles oqp
     inner join organizations o on o.uuid = oqp.organization_uuid
     inner join rules_profiles rp on rp.kee = oqp.rules_profile_uuid

@@ -43,7 +43,12 @@ public class QProfileTesting {
    */
   @Deprecated
   public static QProfileDto newQProfileDto(String organizationUuid, QProfileName name, String key) {
-    return QProfileDto.createFor(key).setOrganizationUuid(organizationUuid).setName(name.getName()).setLanguage(name.getLanguage());
+    return new QProfileDto()
+      .setKee(key)
+      .setRulesProfileUuid("rp-" + key)
+      .setOrganizationUuid(organizationUuid)
+      .setName(name.getName())
+      .setLanguage(name.getLanguage());
   }
 
   /**
@@ -70,8 +75,13 @@ public class QProfileTesting {
     return newQProfileDto(organizationUuid, XOO_P3_NAME, XOO_P3_KEY);
   }
 
-  public static QProfileDto newQProfileDto(OrganizationDto organization, QProfileName name, String key) {
-    return QProfileDto.createFor(key).setOrganizationUuid(organization.getUuid()).setName(name.getName()).setLanguage(name.getLanguage());
+  public static QProfileDto newQProfileDto(OrganizationDto organization, QProfileName name, String uuid) {
+    return new QProfileDto()
+      .setKee(uuid)
+      .setRulesProfileUuid("rp-" + uuid)
+      .setOrganizationUuid(organization.getUuid())
+      .setName(name.getName())
+      .setLanguage(name.getLanguage());
   }
 
   public static QProfileDto newXooP1(OrganizationDto organization) {

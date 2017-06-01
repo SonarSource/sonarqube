@@ -187,33 +187,23 @@ public class RuleQueryFactoryTest {
 
   @Test
   public void create_query_add_language_from_profile() throws Exception {
-    String profileKey = "sonar-way";
-    dbClient.qualityProfileDao().insert(dbSession, QProfileDto.createFor(profileKey)
-      .setOrganizationUuid(organization.getUuid())
-      .setName("Sonar Way")
-      .setLanguage("xoo"));
-    dbSession.commit();
+    QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
 
     RuleQuery result = execute(
-      PARAM_QPROFILE, profileKey,
+      PARAM_QPROFILE, profile.getKee(),
       PARAM_LANGUAGES, "java,js");
 
-    assertThat(result.getQProfileKey()).isEqualTo(profileKey);
+    assertThat(result.getQProfileKey()).isEqualTo(profile.getKee());
     assertThat(result.getLanguages()).containsOnly("xoo");
   }
 
   @Test
   public void filter_on_quality_profiles_organization_if_searching_for_actives_with_no_organization_specified() throws Exception {
-    String profileKey = "sonar-way";
-    dbClient.qualityProfileDao().insert(dbSession, QProfileDto.createFor(profileKey)
-      .setOrganizationUuid(organization.getUuid())
-      .setName("Sonar Way")
-      .setLanguage("xoo"));
-    dbSession.commit();
+    QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
 
     RuleQuery result = execute(
       PARAM_ACTIVATION, "true",
-      PARAM_QPROFILE, profileKey);
+      PARAM_QPROFILE, profile.getKee());
 
     assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
   }

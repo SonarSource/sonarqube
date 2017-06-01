@@ -92,7 +92,9 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   }
 
   private QProfileDto insertQualityProfile(DbSession dbSession, BuiltInQProfile builtInQProfile, OrganizationDto organization, Date now) {
-    QProfileDto profileDto = QProfileDto.createFor(uuidFactory.create())
+    QProfileDto profileDto = new QProfileDto()
+      .setKee(uuidFactory.create())
+      .setRulesProfileUuid(uuidFactory.create())
       .setName(builtInQProfile.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(builtInQProfile.getLanguage())

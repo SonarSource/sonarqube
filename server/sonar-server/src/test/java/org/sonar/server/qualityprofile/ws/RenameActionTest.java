@@ -255,24 +255,14 @@ public class RenameActionTest {
   }
 
   private void createProfiles() {
-    String orgUuid = organization.getUuid();
-    dbClient.qualityProfileDao().insert(db.getSession(),
-      QProfileDto.createFor("sonar-way-xoo1-12345")
-        .setOrganizationUuid(orgUuid)
-        .setLanguage(xoo1Key)
-        .setName("Sonar way"),
+    db.qualityProfiles().insert(organization, p ->
+      p.setKee("sonar-way-xoo1-12345").setLanguage(xoo1Key).setName("Sonar way"));
 
-      QProfileDto.createFor("sonar-way-xoo2-23456")
-        .setOrganizationUuid(orgUuid)
-        .setLanguage(xoo2Key)
-        .setName("Sonar way"),
+    QProfileDto parentXoo2 = db.qualityProfiles().insert(organization, p ->
+      p.setKee("sonar-way-xoo2-23456").setLanguage(xoo2Key).setName("Sonar way"));
 
-      QProfileDto.createFor("my-sonar-way-xoo2-34567")
-        .setOrganizationUuid(orgUuid)
-        .setLanguage(xoo2Key)
-        .setName("My Sonar way")
-        .setParentKee("sonar-way-xoo2-23456"));
-    db.commit();
+    db.qualityProfiles().insert(organization, p ->
+      p.setKee("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee(parentXoo2.getKee()));
   }
 
   private void logInAsQProfileAdministrator() {
