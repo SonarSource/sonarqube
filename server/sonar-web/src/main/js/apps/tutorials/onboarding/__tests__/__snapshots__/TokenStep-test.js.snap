@@ -1,0 +1,383 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generates token 1`] = `
+<TokenStep
+  onContinue={[Function]}
+  open={true}
+  stepNumber={1}
+>
+  <Step
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.token.header"
+  >
+    <div
+      className="boxed-group onboarding-step onboarding-step-open"
+    >
+      <div
+        className="onboarding-step-number"
+      >
+        1
+      </div>
+      <div
+        className="boxed-group-header"
+      >
+        <h2>
+          onboarding.token.header
+        </h2>
+      </div>
+      <div
+        className="boxed-group-inner"
+      >
+        <div
+          className="big-spacer-bottom width-50"
+        >
+          onboarding.token.text
+        </div>
+        <form
+          onSubmit={[Function]}
+        >
+          <input
+            autoFocus={true}
+            className="input-large spacer-right"
+            onChange={[Function]}
+            placeholder="onboarding.token.placeholder"
+            required={true}
+            type="text"
+            value=""
+          />
+          <button>
+            onboarding.token.generate
+          </button>
+        </form>
+      </div>
+    </div>
+  </Step>
+</TokenStep>
+`;
+
+exports[`generates token 2`] = `
+<TokenStep
+  onContinue={[Function]}
+  open={true}
+  stepNumber={1}
+>
+  <Step
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.token.header"
+  >
+    <div
+      className="boxed-group onboarding-step onboarding-step-open"
+    >
+      <div
+        className="onboarding-step-number"
+      >
+        1
+      </div>
+      <div
+        className="boxed-group-header"
+      >
+        <h2>
+          onboarding.token.header
+        </h2>
+      </div>
+      <div
+        className="boxed-group-inner"
+      >
+        <div
+          className="big-spacer-bottom width-50"
+        >
+          onboarding.token.text
+        </div>
+        <form
+          onSubmit={[Function]}
+        >
+          <input
+            autoFocus={true}
+            className="input-large spacer-right"
+            onChange={[Function]}
+            placeholder="onboarding.token.placeholder"
+            required={true}
+            type="text"
+            value="my token"
+          />
+          <i
+            className="spinner"
+          />
+        </form>
+      </div>
+    </div>
+  </Step>
+</TokenStep>
+`;
+
+exports[`generates token 3`] = `
+<TokenStep
+  onContinue={[Function]}
+  open={true}
+  stepNumber={1}
+>
+  <Step
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.token.header"
+  >
+    <div
+      className="boxed-group onboarding-step onboarding-step-open"
+    >
+      <div
+        className="onboarding-step-number"
+      >
+        1
+      </div>
+      <div
+        className="boxed-group-header"
+      >
+        <h2>
+          onboarding.token.header
+        </h2>
+      </div>
+      <div
+        className="boxed-group-inner"
+      >
+        <div
+          className="big-spacer-bottom width-50"
+        >
+          onboarding.token.text
+        </div>
+        <form
+          onSubmit={[Function]}
+        >
+          my token
+          : 
+          <span
+            className="monospaced spacer-right"
+          >
+            abcd1234
+          </span>
+          <button
+            className="button-clean"
+            onClick={[Function]}
+          >
+            <i
+              className="icon-delete"
+            />
+          </button>
+        </form>
+        <div
+          className="big-spacer-top"
+        >
+          <button
+            className="js-continue"
+            onClick={[Function]}
+          >
+            continue
+          </button>
+        </div>
+      </div>
+    </div>
+  </Step>
+</TokenStep>
+`;
+
+exports[`revokes token 1`] = `
+<TokenStep
+  onContinue={[Function]}
+  open={true}
+  stepNumber={1}
+>
+  <Step
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.token.header"
+  >
+    <div
+      className="boxed-group onboarding-step onboarding-step-open"
+    >
+      <div
+        className="onboarding-step-number"
+      >
+        1
+      </div>
+      <div
+        className="boxed-group-header"
+      >
+        <h2>
+          onboarding.token.header
+        </h2>
+      </div>
+      <div
+        className="boxed-group-inner"
+      >
+        <div
+          className="big-spacer-bottom width-50"
+        >
+          onboarding.token.text
+        </div>
+        <form
+          onSubmit={[Function]}
+        >
+          my token
+          : 
+          <span
+            className="monospaced spacer-right"
+          >
+            abcd1234
+          </span>
+          <button
+            className="button-clean"
+            onClick={[Function]}
+          >
+            <i
+              className="icon-delete"
+            />
+          </button>
+        </form>
+        <div
+          className="big-spacer-top"
+        >
+          <button
+            className="js-continue"
+            onClick={[Function]}
+          >
+            continue
+          </button>
+        </div>
+      </div>
+    </div>
+  </Step>
+</TokenStep>
+`;
+
+exports[`revokes token 2`] = `
+<TokenStep
+  onContinue={[Function]}
+  open={true}
+  stepNumber={1}
+>
+  <Step
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.token.header"
+  >
+    <div
+      className="boxed-group onboarding-step onboarding-step-open"
+    >
+      <div
+        className="onboarding-step-number"
+      >
+        1
+      </div>
+      <div
+        className="boxed-group-header"
+      >
+        <h2>
+          onboarding.token.header
+        </h2>
+      </div>
+      <div
+        className="boxed-group-inner"
+      >
+        <div
+          className="big-spacer-bottom width-50"
+        >
+          onboarding.token.text
+        </div>
+        <form
+          onSubmit={[Function]}
+        >
+          my token
+          : 
+          <span
+            className="monospaced spacer-right"
+          >
+            abcd1234
+          </span>
+          <i
+            className="spinner"
+          />
+        </form>
+        <div
+          className="big-spacer-top"
+        >
+          <button
+            className="js-continue"
+            onClick={[Function]}
+          >
+            continue
+          </button>
+        </div>
+      </div>
+    </div>
+  </Step>
+</TokenStep>
+`;
+
+exports[`revokes token 3`] = `
+<TokenStep
+  onContinue={[Function]}
+  open={true}
+  stepNumber={1}
+>
+  <Step
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.token.header"
+  >
+    <div
+      className="boxed-group onboarding-step onboarding-step-open"
+    >
+      <div
+        className="onboarding-step-number"
+      >
+        1
+      </div>
+      <div
+        className="boxed-group-header"
+      >
+        <h2>
+          onboarding.token.header
+        </h2>
+      </div>
+      <div
+        className="boxed-group-inner"
+      >
+        <div
+          className="big-spacer-bottom width-50"
+        >
+          onboarding.token.text
+        </div>
+        <form
+          onSubmit={[Function]}
+        >
+          <input
+            autoFocus={true}
+            className="input-large spacer-right"
+            onChange={[Function]}
+            placeholder="onboarding.token.placeholder"
+            required={true}
+            type="text"
+            value=""
+          />
+          <button>
+            onboarding.token.generate
+          </button>
+        </form>
+      </div>
+    </div>
+  </Step>
+</TokenStep>
+`;

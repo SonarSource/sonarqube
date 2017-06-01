@@ -19,16 +19,29 @@
  */
 // @flow
 import React from 'react';
-import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
+import classNames from 'classnames';
 
-type Props = { onClose: () => void };
+type Props = {
+  open: boolean,
+  renderForm: () => React.Element<*>,
+  renderResult: () => ?React.Element<*>,
+  stepNumber: number,
+  stepTitle: string
+};
 
-export default function TutorialsHelp({ onClose }: Props) {
+export default function Step(props: Props) {
+  const className = classNames('boxed-group', 'onboarding-step', {
+    'onboarding-step-open': props.open
+  });
+
   return (
-    <div>
-      <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
-      <Link to="/tutorials/onboarding" onClick={onClose}>Onboarding Tutorial</Link>
+    <div className={className}>
+      <div className="onboarding-step-number">{props.stepNumber}</div>
+      {!props.open && props.renderResult()}
+      <div className="boxed-group-header">
+        <h2>{props.stepTitle}</h2>
+      </div>
+      {props.open ? props.renderForm() : <div className="boxed-group-inner" />}
     </div>
   );
 }

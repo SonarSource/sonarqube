@@ -60,7 +60,7 @@ export default class GlobalHelp extends React.PureComponent {
           ? <LinksHelpSonarCloud onClose={this.props.onClose} />
           : <LinksHelp onClose={this.props.onClose} />;
       case 'tutorials':
-        return <TutorialsHelp />;
+        return <TutorialsHelp onClose={this.props.onClose} />;
       default:
         return null;
     }

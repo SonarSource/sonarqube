@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
+const routes = [
+  {
+    path: 'onboarding',
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./onboarding/OnboardingContainer').default);
+      });
+    }
+  }
+];
 
-type Props = { onClose: () => void };
-
-export default function TutorialsHelp({ onClose }: Props) {
-  return (
-    <div>
-      <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
-      <Link to="/tutorials/onboarding" onClick={onClose}>Onboarding Tutorial</Link>
-    </div>
-  );
-}
+export default routes;

@@ -18,17 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
-import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
+import { connect } from 'react-redux';
+import Onboarding from './Onboarding';
+import { getCurrentUser } from '../../../store/rootReducer';
 
-type Props = { onClose: () => void };
+const mapStateToProps = state => ({
+  currentUser: getCurrentUser(state)
+});
 
-export default function TutorialsHelp({ onClose }: Props) {
-  return (
-    <div>
-      <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
-      <Link to="/tutorials/onboarding" onClick={onClose}>Onboarding Tutorial</Link>
-    </div>
-  );
-}
+export default connect(mapStateToProps)(Onboarding);

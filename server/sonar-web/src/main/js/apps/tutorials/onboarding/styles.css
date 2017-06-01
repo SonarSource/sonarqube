@@ -1,0 +1,27 @@
+.onboarding-step {
+  position: relative;
+  padding-left: 34px;
+}
+
+.onboarding-step .boxed-group-actions {
+  height: 24px;
+  line-height: 24px;
+}
+
+.onboarding-step-number {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 24px;
+  background-color: #cdcdcd;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+}
+
+.onboarding-step-open .onboarding-step-number {
+  background-color: #236a97;
+}

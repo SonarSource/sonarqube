@@ -18,17 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
-import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
+import getStore from './getStore';
+import { onFail } from '../../store/rootActions';
 
-type Props = { onClose: () => void };
-
-export default function TutorialsHelp({ onClose }: Props) {
-  return (
-    <div>
-      <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
-      <Link to="/tutorials/onboarding" onClick={onClose}>Onboarding Tutorial</Link>
-    </div>
-  );
+export default function throwGlobalError(error: Object) {
+  const store = getStore();
+  onFail(store.dispatch)(error);
+  return Promise.reject();
 }

@@ -19,16 +19,20 @@
  */
 // @flow
 import React from 'react';
-import { Link } from 'react-router';
-import { translate } from '../../../helpers/l10n';
+import { shallow } from 'enzyme';
+import Step from '../Step';
 
-type Props = { onClose: () => void };
-
-export default function TutorialsHelp({ onClose }: Props) {
-  return (
-    <div>
-      <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
-      <Link to="/tutorials/onboarding" onClick={onClose}>Onboarding Tutorial</Link>
-    </div>
+it('renders', () => {
+  const wrapper = shallow(
+    <Step
+      open={true}
+      renderForm={() => <div>form</div>}
+      renderResult={() => <div>result</div>}
+      stepNumber={1}
+      stepTitle="First Step"
+    />
   );
-}
+  expect(wrapper).toMatchSnapshot();
+  wrapper.setProps({ open: false });
+  expect(wrapper).toMatchSnapshot();
+});
