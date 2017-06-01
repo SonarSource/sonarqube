@@ -21,37 +21,71 @@ package it.qualityProfile;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
+import java.util.function.Predicate;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
+import org.sonarqube.ws.client.qualityprofile.ActivateRuleWsRequest;
+import org.sonarqube.ws.client.qualityprofile.CopyRequest;
+import org.sonarqube.ws.client.qualityprofile.DeleteRequest;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+import org.sonarqube.ws.client.qualityprofile.SetDefaultRequest;
 
 import static it.Category6Suite.enableOrganizationsSupport;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static org.apache.commons.lang.RandomStringUtils.randomAscii;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.Assert.fail;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrganizationKey;
 
 public class QualityProfilesBuiltInTest {
 
-  private static final String ANOTHER_ORGANIZATION = newOrganizationKey();
+  private static final String ORGANIZATION = newOrganizationKey();
+  private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
+
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+
   private static WsClient adminWsClient;
 
   @BeforeClass
   public static void setUp() {
     enableOrganizationsSupport();
     adminWsClient = newAdminWsClient(orchestrator);
+    adminWsClient.organizations().create(new CreateWsRequest.Builder()
+      .setKey(ORGANIZATION)
+      .setName(ORGANIZATION).build());
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    adminWsClient.organizations().delete(ORGANIZATION);
   }
 
   @Test
-  public void xoo_profiles_provided() {
-    SearchWsResponse result = adminWsClient.qualityProfiles().search(new SearchWsRequest());
+  public void built_in_profiles_provided_copied_to_new_organization() {
+    SearchWsResponse result = adminWsClient.qualityProfiles().search(new SearchWsRequest().setOrganizationKey(ORGANIZATION));
+
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
+      .containsExactlyInAnyOrder(
+        tuple("Basic", "xoo", true, true),
+        tuple("empty", "xoo", true, false),
+        tuple("Basic", "xoo2", true, true));
+  }
+
+  @Test
+  public void built_in_profiles_provided_for_default_organization() {
+    SearchWsResponse result = adminWsClient.qualityProfiles().search(new SearchWsRequest().setOrganizationKey("default-organization"));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getOrganization, QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
@@ -62,18 +96,47 @@ public class QualityProfilesBuiltInTest {
   }
 
   @Test
-  public void xoo_profiles_provided_copied_to_new_organization() {
-    adminWsClient.organizations().create(new CreateWsRequest.Builder()
-      .setKey(ANOTHER_ORGANIZATION)
-      .setName(ANOTHER_ORGANIZATION).build());
-    SearchWsResponse result = adminWsClient.qualityProfiles().search(new SearchWsRequest()
-      .setOrganizationKey(ANOTHER_ORGANIZATION));
+  public void cannot_delete_built_in_profile_even_when_non_default() {
+    QualityProfile defaultBuiltInProfile = getProfile(p -> p.getIsBuiltIn() && p.getIsDefault() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
 
-    assertThat(result.getProfilesList())
-      .extracting(QualityProfile::getOrganization, QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
-      .containsExactlyInAnyOrder(
-        tuple(ANOTHER_ORGANIZATION, "Basic", "xoo", true, true),
-        tuple(ANOTHER_ORGANIZATION, "empty", "xoo", true, false),
-        tuple(ANOTHER_ORGANIZATION, "Basic", "xoo2", true, true));
+    QualityProfiles.CopyWsResponse copiedProfile = adminWsClient.qualityProfiles().copy(new CopyRequest(defaultBuiltInProfile.getKey(), randomAscii(20)));
+    adminWsClient.qualityProfiles().setDefault(new SetDefaultRequest(copiedProfile.getKey()));
+
+    try {
+      adminWsClient.qualityProfiles().delete(new DeleteRequest(defaultBuiltInProfile.getKey()));
+      fail();
+    } catch (HttpException e) {
+      assertThat(e.code()).isEqualTo(400);
+      assertThat(e.content()).contains("Operation forbidden for built-in Quality Profile 'Basic' with language 'xoo'");
+    } finally {
+      adminWsClient.qualityProfiles().setDefault(new SetDefaultRequest(defaultBuiltInProfile.getKey()));
+      adminWsClient.qualityProfiles().delete(new DeleteRequest(copiedProfile.getKey()));
+    }
+  }
+
+  @Test
+  public void fail_to_modify_built_in_quality_profile() {
+    QualityProfile profile = getProfile(p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
+    assertThat(profile.getIsBuiltIn()).isTrue();
+
+    try {
+      adminWsClient.qualityProfiles().activateRule(ActivateRuleWsRequest.builder()
+        .setOrganization(ORGANIZATION)
+        .setProfileKey(profile.getKey())
+        .setRuleKey(RULE_ONE_BUG_PER_LINE)
+        .build());
+      fail();
+    } catch (HttpException e) {
+      assertThat(e.code()).isEqualTo(HTTP_BAD_REQUEST);
+      assertThat(e.content()).contains("Operation forbidden for built-in Quality Profile 'Basic' with language 'xoo'");
+    }
+  }
+
+  private QualityProfile getProfile(Predicate<QualityProfile> filter) {
+    return adminWsClient.qualityProfiles().search(new SearchWsRequest()
+      .setOrganizationKey(ORGANIZATION)).getProfilesList()
+      .stream()
+      .filter(filter)
+      .findAny().orElseThrow(IllegalStateException::new);
   }
 }

@@ -42,6 +42,9 @@ public class QualityProfileWsParameters {
   public static final String ACTION_ADD_PROJECT = "add_project";
   public static final String ACTION_REMOVE_PROJECT = "remove_project";
   public static final String ACTION_CREATE = "create";
+  public static final String ACTION_COPY = "copy";
+  public static final String ACTION_SET_DEFAULT = "set_default";
+  public static final String ACTION_DELETE = "delete";
 
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_DEFAULTS = "defaults";
@@ -50,6 +53,8 @@ public class QualityProfileWsParameters {
   public static final String PARAM_PROFILE_KEY = "profileKey";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_PROJECT_UUID = "projectUuid";
+  public static final String PARAM_FROM_KEY = "fromKey";
+  public static final String PARAM_TO_NAME = "toName";
 
   private QualityProfileWsParameters() {
     // Only static stuff
