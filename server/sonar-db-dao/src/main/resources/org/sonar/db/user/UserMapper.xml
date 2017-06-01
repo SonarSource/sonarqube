@@ -155,6 +155,7 @@
       salt,
       crypted_password,
       is_root,
+      show_onboarding,
       created_at,
       updated_at
     )
@@ -170,6 +171,7 @@
       #{salt,jdbcType=VARCHAR},
       #{cryptedPassword,jdbcType=VARCHAR},
       #{root,jdbcType=BOOLEAN},
+      ${_true},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
