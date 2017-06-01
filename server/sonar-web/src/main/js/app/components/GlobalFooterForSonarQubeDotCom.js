@@ -43,7 +43,7 @@ export default function GlobalFooterForSonarQubeDotCom() {
         {' - '}
         <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
         {' - '}
-        {<Link to="/about">{translate('footer.about')}</Link>}
+        <Link to="/about">{translate('footer.about')}</Link>
       </div>
     </div>
   );
