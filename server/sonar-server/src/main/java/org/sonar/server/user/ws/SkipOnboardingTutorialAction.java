@@ -19,23 +19,25 @@
  */
 package org.sonar.server.user.ws;
 
-import org.sonar.core.platform.Module;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 
-public class UsersWsModule extends Module {
+public class SkipOnboardingTutorialAction implements UsersWsAction {
+
   @Override
-  protected void configureModule() {
-    add(
-      UsersWs.class,
-      CreateAction.class,
-      UpdateAction.class,
-      DeactivateAction.class,
-      ChangePasswordAction.class,
-      CurrentAction.class,
-      SearchAction.class,
-      GroupsAction.class,
-      IdentityProvidersAction.class,
-      UserPropertiesWs.class,
-      UserJsonWriter.class,
-      SkipOnboardingTutorialAction.class);
+  public void define(WebService.NewController context) {
+    context.createAction("skipOnboardingTutorial")
+      .setPost(true)
+      .setInternal(true)
+      .setDescription("Stores that the user has skipped the onboarding tutorial and does not want to see it after future logins." +
+        " Calling this webservice several times will silently ignore subsequent requests.")
+      .setSince("6.5")
+      .setHandler(this);
+  }
+
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    response.noContent();
   }
 }
