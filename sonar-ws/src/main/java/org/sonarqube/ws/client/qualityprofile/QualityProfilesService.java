@@ -20,6 +20,7 @@
 package org.sonarqube.ws.client.qualityprofile;
 
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
@@ -29,19 +30,24 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_COPY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DELETE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
 
 public class QualityProfilesService extends BaseService {
@@ -103,5 +109,27 @@ public class QualityProfilesService extends BaseService {
       .setParam(PARAM_LANGUAGE, request.getLanguage())
       .setParam(PARAM_PROFILE_NAME, request.getProfileName());
     return call(postRequest, CreateWsResponse.parser());
+  }
+
+  public CopyWsResponse copy(CopyRequest request) {
+    PostRequest postRequest = new PostRequest(path(ACTION_COPY))
+      .setParam(PARAM_FROM_KEY, request.getFromKey())
+      .setParam(PARAM_TO_NAME, request.getToName());
+
+    return call(postRequest, CopyWsResponse.parser());
+  }
+
+  public void setDefault(SetDefaultRequest request) {
+    PostRequest postRequest = new PostRequest(path(ACTION_SET_DEFAULT))
+      .setParam(PARAM_PROFILE_KEY, request.getProfileKey());
+
+    call(postRequest);
+  }
+
+  public void delete(DeleteRequest request) {
+    PostRequest postRequest = new PostRequest(path(ACTION_DELETE))
+      .setParam(PARAM_PROFILE_KEY, request.getProfileKey());
+
+    call(postRequest);
   }
 }

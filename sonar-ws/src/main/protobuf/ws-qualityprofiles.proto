@@ -88,3 +88,14 @@ message InheritanceWsResponse {
     optional bool isBuiltIn = 6;
   }
 }
+
+// WS api/qualityprofiles/copy
+message CopyWsResponse {
+  optional string key = 1;
+  optional string name = 2;
+  optional string language = 3;
+  optional string languageName = 4;
+  optional bool isDefault = 5;
+  optional bool isInherited = 6;
+  optional string parentKey = 7;
+}
