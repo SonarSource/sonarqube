@@ -35,7 +35,7 @@ export default function GlobalFooterForSonarQubeDotCom() {
       <div>
         <a href="https://about.sonarcloud.io/news/">{translate('footer.news')}</a>
         {' - '}
-        <a href="https://about.sonarcloud.io/Terms_of_service.pdf">{translate('footer.terms')}</a>
+        <a href="https://about.sonarcloud.io/terms.pdf">{translate('footer.terms')}</a>
         {' - '}
         <a href="https://twitter.com/sonarqube">{translate('footer.twitter')}</a>
         {' - '}

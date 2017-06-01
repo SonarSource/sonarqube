@@ -24,7 +24,7 @@ exports[`should render correctly 1`] = `
     </a>
      - 
     <a
-      href="https://about.sonarcloud.io/Terms_of_service.pdf"
+      href="https://about.sonarcloud.io/terms.pdf"
     >
       footer.terms
     </a>
