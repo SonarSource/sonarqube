@@ -59,7 +59,7 @@ export default function AboutAppForSonarQubeDotCom(props: Props) {
             </h1>
             <a
               className="button button-active"
-              href="https://about.sonarqube.com/get-started/"
+              href="https://about.sonarcloud.io/get-started/"
               target="_blank">
               Get Started
             </a>
