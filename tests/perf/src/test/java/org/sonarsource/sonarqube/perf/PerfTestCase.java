@@ -35,7 +35,7 @@ import org.junit.rules.TestName;
 import static org.fest.assertions.Assertions.assertThat;
 
 public abstract class PerfTestCase {
-  static final double ACCEPTED_DURATION_VARIATION_IN_PERCENTS = 8.0;
+  static final double ACCEPTED_DURATION_VARIATION_IN_PERCENTS = 10.0;
 
   @Rule
   public TestName testName = new TestName();
