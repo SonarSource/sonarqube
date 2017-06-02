@@ -40,6 +40,8 @@ public interface PurgeMapper {
 
   void deleteAnalysisMeasures(@Param("analysisUuids") List<String> analysisUuids);
 
+  void fullDeleteComponentMeasures(@Param("componentUuids") List<String> componentUuids);
+
   void deleteComponentMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("componentUuids") List<String> componentUuids);
 
   List<Long> selectMetricIdsWithoutHistoricalData();
@@ -56,6 +58,8 @@ public interface PurgeMapper {
 
   void deleteComponentsByProjectUuid(@Param("rootUuid") String rootUuid);
 
+  void deleteComponentsByUuids(@Param("componentUuids") List<String> componentUuids);
+
   void deleteGroupRolesByComponentId(@Param("rootId") long rootId);
 
   void deleteUserRolesByComponentId(@Param("rootId") long rootId);
@@ -71,6 +75,10 @@ public interface PurgeMapper {
   void deleteIssueChangesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteIssuesByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteIssueChangesByComponentUuids(@Param("componentUuids") List<String> componentUuids);
+
+  void deleteIssuesByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 

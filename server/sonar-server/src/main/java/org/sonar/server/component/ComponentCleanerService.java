@@ -57,7 +57,7 @@ public class ComponentCleanerService {
     if (hasNotProjectScope(project) || isNotDeletable(project)) {
       throw new IllegalArgumentException("Only projects can be deleted");
     }
-    dbClient.purgeDao().deleteProject(dbSession, project.uuid());
+    dbClient.purgeDao().deleteRootComponent(dbSession, project.uuid());
     dbSession.commit();
 
     deleteFromIndices(project.uuid());
