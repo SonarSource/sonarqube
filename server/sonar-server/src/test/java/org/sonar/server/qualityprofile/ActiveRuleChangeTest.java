@@ -23,22 +23,26 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 
 public class ActiveRuleChangeTest {
 
-  private static final String MY_LOGIN = "MY_LOGIN";
-
-  private ActiveRuleChange underTest = ActiveRuleChange.createFor(ACTIVATED, ActiveRuleKey.of("QP1", RuleKey.of("P1", "R1")));
+  private static final String A_LOGIN = "A_LOGIN";
 
   @Test
-  public void to_dto() {
-    QProfileChangeDto result = underTest.toDto(MY_LOGIN);
+  public void toDto() {
+    QProfileDto profile = newQualityProfileDto();
+    ActiveRuleKey key = ActiveRuleKey.of(profile, RuleKey.of("P1", "R1"));
+    ActiveRuleChange underTest = new ActiveRuleChange(ACTIVATED, key);
+
+    QProfileChangeDto result = underTest.toDto(A_LOGIN);
 
     assertThat(result.getChangeType()).isEqualTo(ACTIVATED.name());
-    assertThat(result.getProfileKey()).isEqualTo("QP1");
-    assertThat(result.getLogin()).isEqualTo(MY_LOGIN);
+    assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(result.getLogin()).isEqualTo(A_LOGIN);
   }
 }

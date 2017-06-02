@@ -25,6 +25,7 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.FromDataPoints;
@@ -42,6 +43,7 @@ import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
 
 @RunWith(Theories.class)
+@Ignore
 public class ClusterSettingsLoopbackTest {
 
   private TestAppSettings settings;

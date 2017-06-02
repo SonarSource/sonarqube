@@ -21,7 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,19 +34,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RegisterQualityProfilesTest {
-  private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
-  private static final Language BAR_LANGUAGE = LanguageTesting.newLanguage("bar", "bar", "bar");
+  private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo");
+  private static final Language BAR_LANGUAGE = LanguageTesting.newLanguage("bar");
 
   @Rule
-  public DbTester dbTester = DbTester.create(new AlwaysIncreasingSystem2());
+  public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
@@ -56,14 +55,12 @@ public class RegisterQualityProfilesTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private ActiveRuleIndexer mockedActiveRuleIndexer = mock(ActiveRuleIndexer.class);
-  private DummyBuiltInQProfileInsert builtInQProfileCreation = new DummyBuiltInQProfileInsert();
+  private DbClient dbClient = db.getDbClient();
+  private DummyBuiltInQProfileInsert insert = new DummyBuiltInQProfileInsert();
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(
     builtInQProfileRepositoryRule,
     dbClient,
-    builtInQProfileCreation,
-    mockedActiveRuleIndexer);
+    insert);
 
   @Test
   public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
@@ -74,102 +71,70 @@ public class RegisterQualityProfilesTest {
   }
 
   @Test
-  public void create_built_in_profile_on_organizations_that_dont_have_it() {
-    OrganizationDto organization1 = dbTester.organizations().insert();
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "foo1");
+  public void persist_built_in_profiles_that_are_not_persisted_yet() {
+    BuiltInQProfile builtInQProfile = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way");
     builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(builtInQProfileCreation.getCallLogs())
-      .containsExactly(
-        callLog(builtInQProfile, dbTester.getDefaultOrganization()),
-        callLog(builtInQProfile, organization1),
-        callLog(builtInQProfile, organization2));
+    assertThat(insert.callLogs)
+      .containsExactly(builtInQProfile);
   }
 
   @Test
-  public void start_creates_different_qps_and_their_loaded_templates_if_several_profile_has_same_name_for_different_languages() {
+  public void dont_persist_built_in_profiles_that_are_already_persisted() {
     String name = "doh";
 
-    BuiltInQProfile builtInQProfile1 = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, name, true);
-    BuiltInQProfile builtInQProfile2 = builtInQProfileRepositoryRule.add(BAR_LANGUAGE, name, true);
+    BuiltInQProfile persistedBuiltIn = builtInQProfileRepositoryRule.add(FOO_LANGUAGE, name, true);
+    BuiltInQProfile nonPersistedBuiltIn = builtInQProfileRepositoryRule.add(BAR_LANGUAGE, name, true);
     builtInQProfileRepositoryRule.initialize();
+    insertRulesProfile(persistedBuiltIn);
 
     underTest.start();
 
-    assertThat(builtInQProfileCreation.getCallLogs())
-      .containsExactly(callLog(builtInQProfile2, dbTester.getDefaultOrganization()), callLog(builtInQProfile1, dbTester.getDefaultOrganization()));
+    assertThat(insert.callLogs)
+      .containsExactly(nonPersistedBuiltIn);
   }
 
   @Test
-  public void rename_custom_outdated_profiles_if_same_name_than_builtin_profile() {
-    OrganizationDto org1 = dbTester.organizations().insert(org -> org.setKey("org1"));
-    OrganizationDto org2 = dbTester.organizations().insert(org -> org.setKey("org2"));
+  public void rename_custom_outdated_profiles_if_same_name_than_built_in_profile() {
+    OrganizationDto org1 = db.organizations().insert(org -> org.setKey("org1"));
+    OrganizationDto org2 = db.organizations().insert(org -> org.setKey("org2"));
 
-    QProfileDto outdatedProfileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
-    QProfileDto outdatedProfileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    QProfileDto outdatedProfileInOrg1 = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false)
+      .setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
+    QProfileDto outdatedProfileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false)
+      .setLanguage(FOO_LANGUAGE.getKey()).setName("Sonar way"));
     builtInQProfileRepositoryRule.add(FOO_LANGUAGE, "Sonar way", false);
     builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    assertThat(dbTester.qualityProfiles().selectByUuid(outdatedProfileInOrg1.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
-    assertThat(dbTester.qualityProfiles().selectByUuid(outdatedProfileInOrg2.getKee()).get().getName()).isEqualTo("Sonar way (outdated copy)");
+    assertThat(selectPersistedName(outdatedProfileInOrg1)).isEqualTo("Sonar way (outdated copy)");
+    assertThat(selectPersistedName(outdatedProfileInOrg2)).isEqualTo("Sonar way (outdated copy)");
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Rename Quality profiles [foo/Sonar way] to [Sonar way (outdated copy)] in 2 organizations");
   }
 
-  private class DummyBuiltInQProfileInsert implements BuiltInQProfileInsert {
-    private final List<CallLog> callLogs = new ArrayList<>();
-
-    @Override
-    public void create(DbSession session, DbSession batchSession, BuiltInQProfile qualityProfile, OrganizationDto organization) {
-      callLogs.add(callLog(qualityProfile, organization));
-    }
-
-    List<CallLog> getCallLogs() {
-      return callLogs;
-    }
+  private String selectPersistedName(QProfileDto profile) {
+    return db.qualityProfiles().selectByUuid(profile.getKee()).get().getName();
   }
 
-  private static final class CallLog {
-    private final BuiltInQProfile builtInQProfile;
-    private final OrganizationDto organization;
-
-    private CallLog(BuiltInQProfile builtInQProfile, OrganizationDto organization) {
-      this.builtInQProfile = builtInQProfile;
-      this.organization = organization;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      CallLog callLog = (CallLog) o;
-      return builtInQProfile == callLog.builtInQProfile &&
-        organization.getUuid().equals(callLog.organization.getUuid());
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(builtInQProfile, organization);
-    }
-
-    @Override
-    public String toString() {
-      return "CallLog{" +
-        "qp=" + builtInQProfile.getLanguage() + '-' + builtInQProfile.getName() + '-' + builtInQProfile.isDefault() +
-        ", org=" + organization.getKey() +
-        '}';
-    }
+  private void insertRulesProfile(BuiltInQProfile builtIn) {
+    RulesProfileDto dto = new RulesProfileDto()
+      .setIsBuiltIn(true)
+      .setKee(RandomStringUtils.randomAlphabetic(40))
+      .setLanguage(builtIn.getLanguage())
+      .setName(builtIn.getName());
+    dbClient.qualityProfileDao().insert(db.getSession(), dto);
+    db.commit();
   }
 
-  private static CallLog callLog(BuiltInQProfile builtInQProfile, OrganizationDto organizationDto) {
-    return new CallLog(builtInQProfile, organizationDto);
+  private static class DummyBuiltInQProfileInsert implements BuiltInQProfileInsert {
+    private final List<BuiltInQProfile> callLogs = new ArrayList<>();
+
+    @Override
+    public void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
+      callLogs.add(builtIn);
+    }
   }
 }

@@ -76,8 +76,7 @@ import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.es.EsUtils.scrollIds;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ORGANIZATION_UUID;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_EXTENSION_SCOPE;
@@ -251,11 +250,10 @@ public class RuleIndex {
 
     if (isNotEmpty(query.getTags())) {
       BoolQueryBuilder q = boolQuery();
-      String organizationUuid = query.getOrganizationUuid();
       query.getTags().stream()
         .map(tag -> boolQuery()
           .filter(QueryBuilders.termQuery(FIELD_RULE_EXTENSION_TAGS, tag))
-          .filter(termsQuery(FIELD_RULE_EXTENSION_SCOPE, RuleExtensionScope.system().getScope(), RuleExtensionScope.organization(organizationUuid).getScope())))
+          .filter(termsQuery(FIELD_RULE_EXTENSION_SCOPE, RuleExtensionScope.system().getScope(), RuleExtensionScope.organization(query.getOrganization()).getScope())))
         .map(childQuery -> QueryBuilders.hasChildQuery(INDEX_TYPE_RULE_EXTENSION.getType(), childQuery))
         .forEach(q::filter);
       filters.put(FIELD_RULE_EXTENSION_TAGS, q);
@@ -293,14 +291,13 @@ public class RuleIndex {
     }
 
     /* Implementation of activation query */
-    if (query.getActivation() != null) {
+    if (query.getActivation() != null && query.getQProfile() != null) {
 
       // ActiveRule Filter (profile and inheritance)
       BoolQueryBuilder childrenFilter = boolQuery();
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, query.getQProfile().getRulesProfileUuid());
       addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_ORGANIZATION_UUID, query.getOrganizationUuid());
 
       // ChildQuery
       QueryBuilder childQuery;
@@ -370,15 +367,14 @@ public class RuleIndex {
     }
     if (options.getFacets().contains(FACET_TAGS) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> tags = query.getTags();
-      String organizationUuid = query.getOrganizationUuid();
-      checkArgument(organizationUuid != null, "Cannot use tags facet, if no organization is specified.", query.getTags());
+      checkArgument(query.getOrganization() != null, "Cannot use tags facet, if no organization is specified.", query.getTags());
 
       Function<TermsBuilder, AggregationBuilder<?>> childFeature = termsAggregation -> {
 
         FilterAggregationBuilder scopeAggregation = AggregationBuilders.filter("scope_filter_for_" + FACET_TAGS).filter(
           termsQuery(FIELD_RULE_EXTENSION_SCOPE,
             RuleExtensionScope.system().getScope(),
-            RuleExtensionScope.organization(organizationUuid).getScope()))
+            RuleExtensionScope.organization(query.getOrganization()).getScope()))
           .subAggregation(termsAggregation);
 
         return AggregationBuilders.children("children_for_" + termsAggregation.getName())
@@ -433,7 +429,7 @@ public class RuleIndex {
 
       // Rebuilding the active rule filter without severities
       BoolQueryBuilder childrenFilter = boolQuery();
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, query.getQProfile().getRulesProfileUuid());
       RuleIndex.addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       QueryBuilder activeRuleFilter;
       if (childrenFilter.hasClauses()) {

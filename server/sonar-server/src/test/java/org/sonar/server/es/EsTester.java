@@ -124,14 +124,11 @@ public class EsTester extends ExternalResource {
    */
   public <E extends BaseDoc> List<E> getDocuments(IndexType indexType, final Class<E> docClass) {
     List<SearchHit> hits = getDocuments(indexType);
-    return newArrayList(Collections2.transform(hits, new Function<SearchHit, E>() {
-      @Override
-      public E apply(SearchHit input) {
-        try {
-          return (E) ConstructorUtils.invokeConstructor(docClass, input.getSource());
-        } catch (Exception e) {
-          throw Throwables.propagate(e);
-        }
+    return newArrayList(Collections2.transform(hits, input -> {
+      try {
+        return (E) ConstructorUtils.invokeConstructor(docClass, input.getSource());
+      } catch (Exception e) {
+        throw Throwables.propagate(e);
       }
     }));
   }

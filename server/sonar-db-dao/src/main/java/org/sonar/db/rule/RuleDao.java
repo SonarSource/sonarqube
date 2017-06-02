@@ -88,6 +88,11 @@ public class RuleDao implements Dao {
     return executeLargeInputs(ids, mapper(session)::selectDefinitionByIds);
   }
 
+  public List<RuleDto> selectByKeys(DbSession session, OrganizationDto organization, Collection<RuleKey> keys) {
+    return ensureOrganizationIsSet(organization.getUuid(),
+      executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(organization.getUuid(), chunk)));
+  }
+
   public List<RuleDto> selectByKeys(DbSession session, String organizationUuid, Collection<RuleKey> keys) {
     return ensureOrganizationIsSet(organizationUuid,
       executeLargeInputs(keys, chunk -> mapper(session).selectByKeys(organizationUuid, chunk)));

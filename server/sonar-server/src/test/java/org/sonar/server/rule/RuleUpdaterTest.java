@@ -482,7 +482,7 @@ public class RuleUpdaterTest {
     assertThat(paramsByKey.get("format").getDefaultValue()).isNull();
 
     // Verify that severity has not changed
-    ActiveRuleDto activeRuleReloaded = db.getDbClient().activeRuleDao().selectOrFailByKey(dbSession, ActiveRuleKey.of(profileDto.getKee(), customRule.getKey()));
+    ActiveRuleDto activeRuleReloaded = db.getDbClient().activeRuleDao().selectByKey(dbSession, ActiveRuleKey.of(profileDto, customRule.getKey())).get();
     assertThat(activeRuleReloaded.getSeverityString()).isEqualTo(Severity.BLOCKER);
 
     // Verify active rule parameters has been updated

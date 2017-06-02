@@ -222,6 +222,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   @Override
   protected void after() {
     if (session != null) {
+      session.rollback();
       session.close();
     }
     db.stop();

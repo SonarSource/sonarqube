@@ -50,8 +50,8 @@ public class QualityProfileTesting {
    */
   public static QProfileChangeDto newQProfileChangeDto() {
     return new QProfileChangeDto()
-      .setKey(randomAlphanumeric(40))
-      .setProfileKey(randomAlphanumeric(40))
+      .setUuid(randomAlphanumeric(40))
+      .setRulesProfileUuid(randomAlphanumeric(40))
       .setCreatedAt(nextLong())
       .setChangeType("ACTIVATED")
       .setLogin(randomAlphanumeric(10));

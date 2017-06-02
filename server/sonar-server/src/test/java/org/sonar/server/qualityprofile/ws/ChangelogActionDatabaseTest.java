@@ -66,12 +66,12 @@ public class ChangelogActionDatabaseTest {
   }
 
   @Test
-  public void find_changelog_by_profileKey() throws Exception {
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+  public void find_changelog_by_profile_key() throws Exception {
+    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
 
     String response = wsTester.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", qualityProfile.getKee())
+      .setParam("profileKey", profile.getKee())
       .execute()
       .getInput();
 
@@ -143,9 +143,9 @@ public class ChangelogActionDatabaseTest {
   public void changelog_not_empty() throws Exception {
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     QProfileChangeDto change = QualityProfileTesting.newQProfileChangeDto()
-      .setKey(null)
+      .setUuid(null)
       .setCreatedAt(0)
-      .setProfileKey(qualityProfile.getKee());
+      .setRulesProfileUuid(qualityProfile.getRulesProfileUuid());
     DbSession session = dbTester.getSession();
     dbTester.getDbClient().qProfileChangeDao().insert(session, change);
     session.commit();

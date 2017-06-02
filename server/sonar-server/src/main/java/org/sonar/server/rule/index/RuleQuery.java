@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 import static java.util.Arrays.asList;
 
@@ -40,7 +42,7 @@ public class RuleQuery {
   private Collection<String> tags;
   private Collection<RuleType> types;
   private Boolean activation;
-  private String qProfileKey;
+  private QProfileDto profile;
   private Collection<String> inheritance;
   private Collection<String> activeSeverities;
   private String templateKey;
@@ -50,15 +52,15 @@ public class RuleQuery {
   private boolean ascendingSort = true;
   private String internalKey;
   private String ruleKey;
-  private String organizationUuid;
+  private OrganizationDto organization;
 
   @CheckForNull
-  public String getQProfileKey() {
-    return qProfileKey;
+  public QProfileDto getQProfile() {
+    return profile;
   }
 
-  public RuleQuery setQProfileKey(@Nullable String s) {
-    this.qProfileKey = s;
+  public RuleQuery setQProfile(@Nullable QProfileDto p) {
+    this.profile = p;
     return this;
   }
 
@@ -247,6 +249,7 @@ public class RuleQuery {
     return this;
   }
 
+  @CheckForNull
   public String getInternalKey() {
     return internalKey;
   }
@@ -256,16 +259,17 @@ public class RuleQuery {
     return this;
   }
 
+  @CheckForNull
   public String getRuleKey() {
     return ruleKey;
   }
 
-  public String getOrganizationUuid() {
-    return organizationUuid;
+  public OrganizationDto getOrganization() {
+    return organization;
   }
 
-  public RuleQuery setOrganizationUuid(String organizationUuid) {
-    this.organizationUuid = organizationUuid;
+  public RuleQuery setOrganization(OrganizationDto o) {
+    this.organization = o;
     return this;
   }
 }

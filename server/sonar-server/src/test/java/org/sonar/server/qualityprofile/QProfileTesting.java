@@ -29,6 +29,7 @@ import org.sonar.server.tester.ServerTester;
 /**
  * Utility class for tests involving quality profiles
  */
+@Deprecated
 public class QProfileTesting {
 
   public static final QProfileName XOO_P1_NAME = new QProfileName("xoo", "P1");

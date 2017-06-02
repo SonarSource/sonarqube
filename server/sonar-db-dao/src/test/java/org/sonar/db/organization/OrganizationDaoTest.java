@@ -41,7 +41,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
-import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
@@ -871,19 +870,6 @@ public class OrganizationDaoTest {
     assertThat(underTest.selectByPermission(dbSession, otherUser.getId(), PERMISSION_2))
       .extracting(OrganizationDto::getUuid)
       .containsOnlyOnce(organization.getUuid());
-  }
-
-  @Test
-  public void selectWithoutQualityProfile_returns_() {
-    OrganizationDto orgWithoutAnyProfiles = dbTester.organizations().insert();
-    OrganizationDto orgWithProfiles = dbTester.organizations().insert();
-    QProfileDto profile = dbTester.qualityProfiles().insert(orgWithProfiles);
-
-    assertThat(underTest.selectWithoutQualityProfile(dbSession, "js", "foo"))
-      .extracting(OrganizationDto::getUuid).containsExactlyInAnyOrder(orgWithoutAnyProfiles.getUuid(), orgWithProfiles.getUuid());
-
-    assertThat(underTest.selectWithoutQualityProfile(dbSession, profile.getLanguage(), profile.getName()))
-      .extracting(OrganizationDto::getUuid).containsExactlyInAnyOrder(orgWithoutAnyProfiles.getUuid());
   }
 
   private void expectDtoCanNotBeNull() {

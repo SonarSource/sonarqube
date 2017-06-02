@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import static java.util.Objects.requireNonNull;
 
-public class QProfileChangeQuery {
+public final class QProfileChangeQuery {
 
   private final String profileUuid;
   private Long fromIncluded;

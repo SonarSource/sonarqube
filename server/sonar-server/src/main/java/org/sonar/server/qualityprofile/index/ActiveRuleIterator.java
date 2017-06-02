@@ -17,25 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.server.qualityprofile.index;
 
-import java.util.List;
+import java.util.Iterator;
 
-public interface BuiltInQProfileRepository {
-  /**
-   * Initializes the Repository.
-   *
-   * This method is intended to be called from a startup task
-   * (see {@link org.sonar.server.platform.platformlevel.PlatformLevelStartup}).
-   *
-   * @throws IllegalStateException if called more then once
-   */
-  void initialize();
+public interface ActiveRuleIterator extends Iterator<ActiveRuleDoc>, AutoCloseable {
 
-  /**
-   * @return an immutable list
-   *
-   * @throws IllegalStateException if {@link #initialize()} has not been called
-   */
-  List<BuiltInQProfile> get();
+  @Override
+  void close();
+
 }

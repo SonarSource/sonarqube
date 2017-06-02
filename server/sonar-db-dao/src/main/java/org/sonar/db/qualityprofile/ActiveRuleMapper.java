@@ -34,19 +34,20 @@ public interface ActiveRuleMapper {
 
   void delete(int activeRuleId);
 
-  void deleteByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
+  void deleteByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
-  ActiveRuleDto selectByKey(@Param("profileUuid") String profileUuid, @Param("repository") String repository, @Param("rule") String rule);
+  @CheckForNull
+  ActiveRuleDto selectByKey(@Param("ruleProfileUuid") String ruleProfileUuid, @Param("repository") String repository, @Param("rule") String rule);
 
   List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
 
-  List<ActiveRuleDto> selectByRuleId(@Param("organizationUuid") String organizationUuid, @Param("ruleId") int ruleId);
+  List<OrgActiveRuleDto> selectByRuleId(@Param("organizationUuid") String organizationUuid, @Param("ruleId") int ruleId);
 
   List<ActiveRuleDto> selectByRuleIdOfAllOrganizations(int ruleId);
 
-  List<ActiveRuleDto> selectByRuleIds(@Param("organizationUuid") String organizationUuid, @Param("ruleIds") List<Integer> partitionOfRuleIds);
+  List<OrgActiveRuleDto> selectByRuleIds(@Param("organizationUuid") String organizationUuid, @Param("ruleIds") List<Integer> partitionOfRuleIds);
 
-  List<ActiveRuleDto> selectByProfileUuid(String uuid);
+  List<OrgActiveRuleDto> selectByProfileUuid(String uuid);
 
   void insertParameter(ActiveRuleParamDto dto);
 
@@ -54,18 +55,13 @@ public interface ActiveRuleMapper {
 
   void deleteParameters(int activeRuleId);
 
-  void deleteParametersByProfileUuids(@Param("profileUuids") Collection<String> profileUuids);
+  void deleteParametersByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
   void deleteParameter(int activeRuleParamId);
-
-  @CheckForNull
-  ActiveRuleParamDto selectParamByActiveRuleAndKey(@Param("activeRuleId") int activeRuleId, @Param("key") String key);
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleIds(@Param("ids") List<Integer> ids);
-
-  List<ActiveRuleParamDto> selectAllParams();
 
   List<KeyLongValue> countActiveRulesByProfileUuid(@Param("organizationUuid") String organizationUuid);
 

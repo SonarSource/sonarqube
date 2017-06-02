@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+import org.apache.commons.lang.RandomStringUtils;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UtcDateUtils;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -54,16 +56,16 @@ public class QualityProfileDaoTest {
   private System2 system = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system);
+  public DbTester db = DbTester.create(system);
 
-  private DbSession dbSession = dbTester.getSession();
-  private QualityProfileDao underTest = dbTester.getDbClient().qualityProfileDao();
+  private DbSession dbSession = db.getSession();
+  private QualityProfileDao underTest = db.getDbClient().qualityProfileDao();
   private OrganizationDto organization;
 
   @Before
   public void before() {
     when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-01-20T12:00:00+0000").getTime());
-    organization = dbTester.organizations().insertForUuid("QualityProfileDaoTest-ORG");
+    organization = db.organizations().insertForUuid("QualityProfileDaoTest-ORG");
   }
 
   @After
@@ -144,41 +146,59 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void test_deleteByUuids() {
-    QProfileDto p1 = dbTester.qualityProfiles().insert(organization);
-    QProfileDto p2 = dbTester.qualityProfiles().insert(organization);
-    QProfileDto p3 = dbTester.qualityProfiles().insert(organization);
+  public void deleteRulesProfilesByUuids() {
+    RulesProfileDto rp1 = insertRulesProfile();
+    RulesProfileDto rp2 = insertRulesProfile();
 
-    underTest.deleteByUuids(dbSession, asList(p1.getKee(), p3.getKee(), "does_not_exist"));
+    underTest.deleteRulesProfilesByUuids(dbSession, asList(rp1.getKee()));
 
-    List<QProfileDto> profiles = underTest.selectAll(dbSession, organization);
-    assertThat(profiles).extracting(QProfileDto::getKee).containsExactly(p2.getKee());
+    List<Map<String, Object>> uuids = db.select(dbSession, "select kee as \"uuid\" from rules_profiles");
+    assertThat(uuids).hasSize(1);
+    assertThat(uuids.get(0).get("uuid")).isEqualTo(rp2.getKee());
   }
 
   @Test
-  public void deleteByUuids_does_nothing_if_empty_uuids() {
-    dbTester.qualityProfiles().insert(organization);
+  public void deleteRulesProfilesByUuids_does_nothing_if_empty_input() {
+    insertRulesProfile();
 
-    underTest.deleteByUuids(dbSession, Collections.emptyList());
+    underTest.deleteRulesProfilesByUuids(dbSession, emptyList());
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
-    assertThat(dbTester.countRowsOfTable(dbSession, "org_qprofiles")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteRulesProfilesByUuids_does_nothing_if_specified_uuid_does_not_exist() {
+    insertRulesProfile();
+
+    underTest.deleteRulesProfilesByUuids(dbSession, asList("does_not_exist"));
+
+    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
+  }
+
+  private RulesProfileDto insertRulesProfile() {
+    RulesProfileDto dto = new RulesProfileDto()
+      .setName(RandomStringUtils.random(10))
+      .setLanguage(RandomStringUtils.random(3))
+      .setKee(Uuids.createFast())
+      .setIsBuiltIn(false);
+    db.getDbClient().qualityProfileDao().insert(dbSession, dto);
+    return dto;
   }
 
   @Test
   public void test_deleteProjectAssociationsByProfileUuids() {
-    QProfileDto profile1 = dbTester.qualityProfiles().insert(organization);
-    QProfileDto profile2 = dbTester.qualityProfiles().insert(organization);
-    ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
-    ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
-    ComponentDto project3 = dbTester.components().insertPrivateProject(organization);
-    dbTester.qualityProfiles().associateWithProject(project1, profile1);
-    dbTester.qualityProfiles().associateWithProject(project2, profile1);
-    dbTester.qualityProfiles().associateWithProject(project3, profile2);
+    QProfileDto profile1 = db.qualityProfiles().insert(organization);
+    QProfileDto profile2 = db.qualityProfiles().insert(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project3 = db.components().insertPrivateProject(organization);
+    db.qualityProfiles().associateWithProject(project1, profile1);
+    db.qualityProfiles().associateWithProject(project2, profile1);
+    db.qualityProfiles().associateWithProject(project3, profile2);
 
     underTest.deleteProjectAssociationsByProfileUuids(dbSession, asList(profile1.getKee(), "does_not_exist"));
 
-    List<Map<String, Object>> rows = dbTester.select(dbSession, "select project_uuid as \"projectUuid\", profile_key as \"profileKey\" from project_qprofiles");
+    List<Map<String, Object>> rows = db.select(dbSession, "select project_uuid as \"projectUuid\", profile_key as \"profileKey\" from project_qprofiles");
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).get("projectUuid")).isEqualTo(project3.uuid());
     assertThat(rows.get(0).get("profileKey")).isEqualTo(profile2.getKee());
@@ -186,20 +206,20 @@ public class QualityProfileDaoTest {
 
   @Test
   public void deleteProjectAssociationsByProfileUuids_does_nothing_if_empty_uuids() {
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    dbTester.qualityProfiles().associateWithProject(project, profile);
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    ComponentDto project = db.components().insertPrivateProject();
+    db.qualityProfiles().associateWithProject(project, profile);
 
     underTest.deleteProjectAssociationsByProfileUuids(dbSession, Collections.emptyList());
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "project_qprofiles")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "project_qprofiles")).isEqualTo(1);
   }
 
   @Test
   public void test_selectAll() {
     List<QProfileDto> sharedData = createSharedData();
 
-    List<QProfileDto> reloadeds = underTest.selectAll(dbSession, organization);
+    List<QProfileDto> reloadeds = underTest.selectOrderedByOrganizationUuid(dbSession, organization);
 
     assertThat(reloadeds).hasSize(sharedData.size());
 
@@ -219,8 +239,7 @@ public class QualityProfileDaoTest {
           assertThat(reloaded.getLastUsed()).isEqualTo(original.getLastUsed());
           assertThat(reloaded.getUserUpdatedAt()).isEqualTo(original.getUserUpdatedAt());
           assertThat(reloaded.isBuiltIn()).isEqualTo(original.isBuiltIn());
-        }
-      );
+        });
   }
 
   @Test
@@ -261,30 +280,28 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, dto3);
 
-    List<QProfileDto> dtos = underTest.selectAll(dbSession, organization);
+    List<QProfileDto> dtos = underTest.selectOrderedByOrganizationUuid(dbSession, organization);
 
     assertThat(dtos).hasSize(3);
     assertThat(dtos.get(0).getName()).isEqualTo("First");
     assertThat(dtos.get(1).getName()).isEqualTo("Second");
     assertThat(dtos.get(2).getName()).isEqualTo("Third");
-
-    underTest.deleteByUuids(dbSession, Arrays.asList("js_first", "js_second", "js_third"));
   }
 
   @Test
-  public void get_default_profile() {
+  public void selectDefaultProfile() {
     List<QProfileDto> sharedData = createSharedData();
 
     QProfileDto java = underTest.selectDefaultProfile(dbSession, organization, "java");
     assertThat(java).isNotNull();
     assertThat(java.getKee()).isEqualTo("java_sonar_way");
 
-    assertThat(underTest.selectDefaultProfile(dbSession, dbTester.organizations().insert(), "java")).isNull();
+    assertThat(underTest.selectDefaultProfile(dbSession, db.organizations().insert(), "java")).isNull();
     assertThat(underTest.selectDefaultProfile(dbSession, organization, "js")).isNull();
   }
 
   @Test
-  public void get_default_profiles() {
+  public void selectDefaultProfiles() {
     List<QProfileDto> sharedData = createSharedData();
 
     List<QProfileDto> java = underTest.selectDefaultProfiles(dbSession, organization, singletonList("java"));
@@ -325,7 +342,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void should_find_by_language() {
+  public void selectByLanguage() {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
@@ -339,6 +356,7 @@ public class QualityProfileDaoTest {
     assertThat(result.getKee()).isEqualTo(profile.getKee());
     assertThat(result.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(result.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
+    assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
   }
 
   @Test
@@ -360,7 +378,6 @@ public class QualityProfileDaoTest {
     List<QProfileDto> results = underTest.selectByLanguage(dbSession, organization, "another language");
     assertThat(results).isEmpty();
   }
-
 
   @Test
   public void find_children() {
@@ -440,7 +457,7 @@ public class QualityProfileDaoTest {
       .setIsBuiltIn(false);
     underTest.insert(dbSession, original6);
 
-    List<QProfileDto> dtos = underTest.selectChildren(dbSession, "java_parent");
+    List<QProfileDto> dtos = underTest.selectChildren(dbSession, original3);
 
     assertThat(dtos).hasSize(2);
 
@@ -453,23 +470,21 @@ public class QualityProfileDaoTest {
     assertThat(dto2.getName()).isEqualTo("Child2");
     assertThat(dto2.getLanguage()).isEqualTo("java");
     assertThat(dto2.getParentKee()).isEqualTo("java_parent");
-
-    underTest.deleteByUuids(dbSession, Arrays.asList("java_parent", "java_child1", "java_child2", "js_parent", "js_child1", "js_child2"));
   }
 
   @Test
   public void countProjectsByProfileKey() {
-    QProfileDto profileWithoutProjects = dbTester.qualityProfiles().insert(organization);
-    QProfileDto profileWithProjects = dbTester.qualityProfiles().insert(organization);
-    ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
-    ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
-    dbTester.qualityProfiles().associateWithProject(project1, profileWithProjects);
-    dbTester.qualityProfiles().associateWithProject(project2, profileWithProjects);
+    QProfileDto profileWithoutProjects = db.qualityProfiles().insert(organization);
+    QProfileDto profileWithProjects = db.qualityProfiles().insert(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    db.qualityProfiles().associateWithProject(project1, profileWithProjects);
+    db.qualityProfiles().associateWithProject(project2, profileWithProjects);
 
-    OrganizationDto otherOrg = dbTester.organizations().insert();
-    QProfileDto profileInOtherOrg = dbTester.qualityProfiles().insert(otherOrg);
-    ComponentDto projectInOtherOrg = dbTester.components().insertPrivateProject(otherOrg);
-    dbTester.qualityProfiles().associateWithProject(projectInOtherOrg, profileInOtherOrg);
+    OrganizationDto otherOrg = db.organizations().insert();
+    QProfileDto profileInOtherOrg = db.qualityProfiles().insert(otherOrg);
+    ComponentDto projectInOtherOrg = db.components().insertPrivateProject(otherOrg);
+    db.qualityProfiles().associateWithProject(projectInOtherOrg, profileInOtherOrg);
 
     assertThat(underTest.countProjectsByProfileUuid(dbSession, organization)).containsOnly(
       MapEntry.entry(profileWithProjects.getKee(), 2L));
@@ -477,12 +492,12 @@ public class QualityProfileDaoTest {
 
   @Test
   public void test_selectAssociatedToProjectAndLanguage() {
-    OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project1 = dbTester.components().insertPublicProject(org);
-    ComponentDto project2 = dbTester.components().insertPublicProject(org);
-    QProfileDto javaProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
-    QProfileDto jsProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("js"));
-    dbTester.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(org);
+    ComponentDto project2 = db.components().insertPublicProject(org);
+    QProfileDto javaProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    QProfileDto jsProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
 
     assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "java").getKee())
       .isEqualTo(javaProfile.getKee());
@@ -496,12 +511,12 @@ public class QualityProfileDaoTest {
 
   @Test
   public void test_selectAssociatedToProjectUuidAndLanguages() {
-    OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project1 = dbTester.components().insertPublicProject(org);
-    ComponentDto project2 = dbTester.components().insertPublicProject(org);
-    QProfileDto javaProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
-    QProfileDto jsProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("js"));
-    dbTester.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(org);
+    ComponentDto project2 = db.components().insertPublicProject(org);
+    QProfileDto javaProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    QProfileDto jsProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
 
     assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, singletonList("java")))
       .extracting(QProfileDto::getKee).containsOnly(javaProfile.getKee());
@@ -517,12 +532,12 @@ public class QualityProfileDaoTest {
 
   @Test
   public void test_updateProjectProfileAssociation() {
-    OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(org);
-    QProfileDto javaProfile1 = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
-    QProfileDto jsProfile = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("js"));
-    QProfileDto javaProfile2 = dbTester.qualityProfiles().insert(org, p -> p.setLanguage("java"));
-    dbTester.qualityProfiles().associateWithProject(project, javaProfile1, jsProfile);
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(org);
+    QProfileDto javaProfile1 = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    QProfileDto jsProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    QProfileDto javaProfile2 = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    db.qualityProfiles().associateWithProject(project, javaProfile1, jsProfile);
 
     underTest.updateProjectProfileAssociation(dbSession, project, javaProfile2.getKee(), javaProfile1.getKee());
 
@@ -532,7 +547,7 @@ public class QualityProfileDaoTest {
 
   @Test
   public void selectByKeys() {
-    dbTester.qualityProfiles().insert(newQualityProfileDto().setKey("qp-key-1"), newQualityProfileDto().setKee("qp-key-2"), newQualityProfileDto().setKee("qp-key-3"));
+    db.qualityProfiles().insert(newQualityProfileDto().setKee("qp-key-1"), newQualityProfileDto().setKee("qp-key-2"), newQualityProfileDto().setKee("qp-key-3"));
 
     assertThat(underTest.selectOrFailByUuid(dbSession, "qp-key-1")).isNotNull();
     assertThat(underTest.selectByUuid(dbSession, "qp-key-1")).isNotNull();
@@ -545,20 +560,20 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_selected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QProfileDto profile1 = newQualityProfileDto();
-    dbTester.qualityProfiles().insert(profile1);
-    dbTester.qualityProfiles().associateWithProject(project1, profile1);
-    dbTester.qualityProfiles().associateWithProject(project2, profile1);
+    db.qualityProfiles().insert(profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
+    db.qualityProfiles().associateWithProject(project2, profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
-    dbTester.qualityProfiles().insert(profile2);
-    dbTester.qualityProfiles().associateWithProject(project3, profile2);
+    db.qualityProfiles().insert(profile2);
+    db.qualityProfiles().associateWithProject(project3, profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectSelectedProjects(dbSession, organization, profile1, null))
@@ -573,19 +588,19 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_deselected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QProfileDto profile1 = newQualityProfileDto();
-    dbTester.qualityProfiles().insert(profile1);
-    dbTester.qualityProfiles().associateWithProject(project1, profile1);
+    db.qualityProfiles().insert(profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
-    dbTester.qualityProfiles().insert(profile2);
-    dbTester.qualityProfiles().associateWithProject(project2, profile2);
+    db.qualityProfiles().insert(profile2);
+    db.qualityProfiles().associateWithProject(project2, profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectDeselectedProjects(dbSession, organization, profile1, null))
@@ -600,19 +615,19 @@ public class QualityProfileDaoTest {
 
   @Test
   public void select_project_associations() throws Exception {
-    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
     QProfileDto profile1 = newQualityProfileDto();
-    dbTester.qualityProfiles().insert(profile1);
-    dbTester.qualityProfiles().associateWithProject(project1, profile1);
+    db.qualityProfiles().insert(profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
 
     QProfileDto profile2 = newQualityProfileDto();
-    dbTester.qualityProfiles().insert(profile2);
-    dbTester.qualityProfiles().associateWithProject(project2, profile2);
+    db.qualityProfiles().insert(profile2);
+    db.qualityProfiles().associateWithProject(project2, profile2);
     QProfileDto profile3 = newQualityProfileDto();
 
     assertThat(underTest.selectProjectAssociations(dbSession, organization, profile1, null))
@@ -628,14 +643,14 @@ public class QualityProfileDaoTest {
 
   @Test
   public void selectUuidsOfCustomRulesProfiles_returns_the_custom_profiles_with_specified_name() {
-    OrganizationDto org1 = dbTester.organizations().insert();
-    OrganizationDto org2 = dbTester.organizations().insert();
-    OrganizationDto org3 = dbTester.organizations().insert();
-    QProfileDto outdatedProfile1 = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
-    QProfileDto outdatedProfile2 = dbTester.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
-    QProfileDto builtInProfile = dbTester.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
-    QProfileDto differentLanguage = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
-    QProfileDto differentName = dbTester.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    OrganizationDto org3 = db.organizations().insert();
+    QProfileDto outdatedProfile1 = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto outdatedProfile2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto builtInProfile = db.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
+    QProfileDto differentLanguage = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
+    QProfileDto differentName = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
 
     Collection<String> keys = underTest.selectUuidsOfCustomRulesProfiles(dbSession, "java", "foo");
 
@@ -649,11 +664,11 @@ public class QualityProfileDaoTest {
 
   @Test
   public void renameAndCommit_updates_name_of_specified_profiles() {
-    OrganizationDto org1 = dbTester.organizations().insert();
-    OrganizationDto org2 = dbTester.organizations().insert();
-    QProfileDto fooInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setName("foo"));
-    QProfileDto fooInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setName("foo"));
-    QProfileDto bar = dbTester.qualityProfiles().insert(org1, p -> p.setName("bar"));
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    QProfileDto fooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setName("foo"));
+    QProfileDto fooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setName("foo"));
+    QProfileDto bar = db.qualityProfiles().insert(org1, p -> p.setName("bar"));
 
     underTest.renameRulesProfilesAndCommit(dbSession, asList(fooInOrg1.getRulesProfileUuid(), fooInOrg2.getRulesProfileUuid()), "foo (copy)");
 
@@ -664,8 +679,8 @@ public class QualityProfileDaoTest {
 
   @Test
   public void renameAndCommit_does_nothing_if_empty_keys() {
-    OrganizationDto org = dbTester.organizations().insert();
-    QProfileDto profile = dbTester.qualityProfiles().insert(org, p -> p.setName("foo"));
+    OrganizationDto org = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(org, p -> p.setName("foo"));
 
     underTest.renameRulesProfilesAndCommit(dbSession, Collections.emptyList(), "foo (copy)");
 
@@ -701,7 +716,7 @@ public class QualityProfileDaoTest {
       .setQProfileUuid(dto1.getKee())
       .setLanguage(dto1.getLanguage())
       .setOrganizationUuid(organization.getUuid());
-    dbTester.getDbClient().defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(dto1));
+    db.getDbClient().defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(dto1));
 
     return Arrays.asList(dto1, dto2);
   }

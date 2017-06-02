@@ -29,21 +29,23 @@ import org.sonar.api.rule.RuleKey;
  */
 public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
 
-  private final String qualityProfileKey;
+  private final String ruleProfileUuid;
   private final RuleKey ruleKey;
 
-  protected ActiveRuleKey(String qualityProfileKey, RuleKey ruleKey) {
-    this.qualityProfileKey = qualityProfileKey;
+  protected ActiveRuleKey(String ruleProfileUuid, RuleKey ruleKey) {
+    this.ruleProfileUuid = ruleProfileUuid;
     this.ruleKey = ruleKey;
   }
 
   /**
    * Create a key. Parameters are NOT null.
    */
-  public static ActiveRuleKey of(String qualityProfileKey, RuleKey ruleKey) {
-    Preconditions.checkNotNull(qualityProfileKey, "QProfile is missing");
-    Preconditions.checkNotNull(ruleKey, "RuleKey is missing");
-    return new ActiveRuleKey(qualityProfileKey, ruleKey);
+  public static ActiveRuleKey of(QProfileDto profile, RuleKey ruleKey) {
+    return new ActiveRuleKey(profile.getRulesProfileUuid(), ruleKey);
+  }
+
+  public static ActiveRuleKey of(RulesProfileDto rulesProfile, RuleKey ruleKey) {
+    return new ActiveRuleKey(rulesProfile.getKee(), ruleKey);
   }
 
   /**
@@ -53,23 +55,23 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
   public static ActiveRuleKey parse(String s) {
     Preconditions.checkArgument(s.split(":").length >= 3, "Bad format of activeRule key: " + s);
     int semiColonPos = s.indexOf(':');
-    String key = s.substring(0, semiColonPos);
+    String ruleProfileUuid = s.substring(0, semiColonPos);
     String ruleKey = s.substring(semiColonPos + 1);
-    return ActiveRuleKey.of(key, RuleKey.parse(ruleKey));
+    return new ActiveRuleKey(ruleProfileUuid, RuleKey.parse(ruleKey));
   }
 
   /**
    * Never null
    */
-  public RuleKey ruleKey() {
+  public RuleKey getRuleKey() {
     return ruleKey;
   }
 
   /**
    * Never null
    */
-  public String qProfile() {
-    return qualityProfileKey;
+  public String getRuleProfileUuid() {
+    return ruleProfileUuid;
   }
 
   @Override
@@ -81,7 +83,7 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
       return false;
     }
     ActiveRuleKey activeRuleKey = (ActiveRuleKey) o;
-    if (!qualityProfileKey.equals(activeRuleKey.qualityProfileKey)) {
+    if (!ruleProfileUuid.equals(activeRuleKey.ruleProfileUuid)) {
       return false;
     }
     return ruleKey.equals(activeRuleKey.ruleKey);
@@ -89,7 +91,7 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
 
   @Override
   public int hashCode() {
-    int result = qualityProfileKey.hashCode();
+    int result = ruleProfileUuid.hashCode();
     result = 31 * result + ruleKey.hashCode();
     return result;
   }
@@ -99,12 +101,12 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
    */
   @Override
   public String toString() {
-    return String.format("%s:%s", qualityProfileKey, ruleKey.toString());
+    return String.format("%s:%s", ruleProfileUuid, ruleKey.toString());
   }
 
   @Override
   public int compareTo(ActiveRuleKey o) {
-    int compareQualityProfileKey = this.qualityProfileKey.compareTo(o.qualityProfileKey);
+    int compareQualityProfileKey = this.ruleProfileUuid.compareTo(o.ruleProfileUuid);
     if (compareQualityProfileKey == 0) {
       return this.ruleKey.compareTo(o.ruleKey);
     }

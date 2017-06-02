@@ -20,27 +20,23 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 import org.junit.rules.ExternalResource;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Language;
-import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class BuiltInQProfileRepositoryRule extends ExternalResource implements BuiltInQProfileRepository {
   private boolean initializeCalled = false;
-  private Map<String, List<BuiltInQProfile>> qProfilesbyLanguage = new HashMap<>();
+  private List<BuiltInQProfile> profiles = new ArrayList<>();
 
   @Override
   protected void before() throws Throwable {
     this.initializeCalled = false;
-    this.qProfilesbyLanguage.clear();
+    this.profiles.clear();
   }
 
   @Override
@@ -50,21 +46,14 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
   }
 
   @Override
-  public Map<String, List<BuiltInQProfile>> getQProfilesByLanguage() {
+  public List<BuiltInQProfile> get() {
     checkState(initializeCalled, "initialize must be called first");
 
-    return ImmutableMap.copyOf(qProfilesbyLanguage);
+    return ImmutableList.copyOf(profiles);
   }
 
   public boolean isInitialized() {
     return initializeCalled;
-  }
-
-  public BuiltInQProfileRepositoryRule set(String languageKey, BuiltInQProfile first, BuiltInQProfile... others) {
-    qProfilesbyLanguage.put(
-      languageKey,
-      Stream.concat(Stream.of(first), Arrays.stream(others)).collect(toList(1 + others.length)));
-    return this;
   }
 
   public BuiltInQProfile add(Language language, String profileName) {
@@ -72,15 +61,9 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
   }
 
   public BuiltInQProfile add(Language language, String profileName, boolean isDefault) {
-    BuiltInQProfile builtInQProfile = create(language, profileName, isDefault);
-    qProfilesbyLanguage.compute(language.getKey(),
-      (key, existing) -> {
-        if (existing == null) {
-          return ImmutableList.of(builtInQProfile);
-        }
-        return Stream.concat(existing.stream(), Stream.of(builtInQProfile)).collect(MoreCollectors.toList(existing.size() + 1));
-      });
-    return builtInQProfile;
+    BuiltInQProfile builtIn = create(language, profileName, isDefault);
+    profiles.add(builtIn);
+    return builtIn;
   }
 
   public BuiltInQProfile create(Language language, String profileName, boolean isDefault, org.sonar.api.rules.ActiveRule... rules) {
@@ -89,6 +72,15 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
       .setName(profileName)
       .setDeclaredDefault(isDefault)
       .addRules(Arrays.asList(rules))
+      .build();
+  }
+
+  public BuiltInQProfile create(RulesProfile api) {
+    return new BuiltInQProfile.Builder()
+      .setLanguage(api.getLanguage())
+      .setName(api.getName())
+      .setDeclaredDefault(api.getDefaultProfile())
+      .addRules(new ArrayList<>(api.getActiveRules()))
       .build();
   }
 }

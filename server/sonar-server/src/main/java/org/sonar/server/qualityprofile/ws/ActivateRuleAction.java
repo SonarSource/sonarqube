@@ -110,9 +110,9 @@ public class ActivateRuleAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
-      List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileKey);
+      List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profile);
       dbSession.commit();
-      activeRuleIndexer.index(changes);
+      activeRuleIndexer.indexChanges(dbSession, changes);
     }
     response.noContent();
   }

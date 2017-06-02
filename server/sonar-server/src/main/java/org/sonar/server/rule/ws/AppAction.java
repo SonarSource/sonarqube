@@ -87,7 +87,7 @@ public class AppAction implements RulesWsAction {
 
   private void addProfiles(DbSession dbSession, OrganizationDto organization, JsonWriter json) {
     json.name("qualityprofiles").beginArray();
-    for (QProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession, organization)) {
+    for (QProfileDto profile : dbClient.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization)) {
       if (languageIsSupported(profile)) {
         json
           .beginObject()

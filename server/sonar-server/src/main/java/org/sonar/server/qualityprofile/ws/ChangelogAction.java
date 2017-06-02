@@ -125,7 +125,7 @@ public class ChangelogAction implements QProfileWsAction {
     json.endObject().close();
   }
 
-  private void writeParameters(JsonWriter json, ChangelogLoader.Change change) {
+  private static void writeParameters(JsonWriter json, ChangelogLoader.Change change) {
     json.name("params").beginObject()
       .prop("severity", change.getSeverity());
     for (Map.Entry<String, String> param : change.getParams().entrySet()) {

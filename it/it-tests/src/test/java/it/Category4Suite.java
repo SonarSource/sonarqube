@@ -29,6 +29,7 @@ import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
 import it.duplication.NewDuplicationsTest;
+import it.organization.RootUserTest;
 import it.projectEvent.EventTest;
 import it.projectEvent.ProjectActivityPageTest;
 import it.projectSearch.SearchProjectsTest;
@@ -58,6 +59,8 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  // organization
+  RootUserTest.class,
   // server system
   ServerSystemTest.class,
   PingTest.class,
