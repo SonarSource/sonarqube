@@ -20,10 +20,20 @@
 // @flow
 import { connect } from 'react-redux';
 import Onboarding from './Onboarding';
-import { getCurrentUser } from '../../../store/rootReducer';
+import {
+  getCurrentUser,
+  areThereCustomOrganizations,
+  getSettingValue
+} from '../../../store/rootReducer';
 
-const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state)
-});
+const mapStateToProps = state => {
+  const sonarCloudSetting = getSettingValue(state, 'sonar.lf.sonarqube.com.enabled');
+
+  return {
+    currentUser: getCurrentUser(state),
+    organizationsEnabled: areThereCustomOrganizations(state),
+    sonarCloud: sonarCloudSetting != null && sonarCloudSetting.value === 'true'
+  };
+};
 
 export default connect(mapStateToProps)(Onboarding);
