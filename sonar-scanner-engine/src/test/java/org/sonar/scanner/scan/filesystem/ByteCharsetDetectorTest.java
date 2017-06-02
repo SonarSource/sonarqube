@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -131,5 +132,11 @@ public class ByteCharsetDetectorTest {
     // empty
     byte[] b3 = new byte[0];
     assertThat(charsets.detectBOM(b3)).isNull();
+  }
+
+  @Test
+  public void windows1252() throws IOException, URISyntaxException {
+    ByteCharsetDetector detector = new ByteCharsetDetector(new CharsetValidation(), StandardCharsets.UTF_8);
+    assertThat(detector.detect(readFile("windows-1252"))).isEqualTo(Charset.forName("Windows-1252"));
   }
 }
