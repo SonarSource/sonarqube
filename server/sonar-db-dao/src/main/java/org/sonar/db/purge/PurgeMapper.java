@@ -50,27 +50,27 @@ public interface PurgeMapper {
 
   void resolveComponentIssuesNotAlreadyResolved(@Param("componentUuids") List<String> componentUuids, @Param("dateAsLong") Long dateAsLong);
 
-  void deleteComponentLinks(@Param("rootUuid") String rootUuid);
+  void deleteProjectLinksByComponentUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteComponentProperties(@Param("componentIds") List<Long> componentIds);
+  void deletePropertiesByComponentIds(@Param("componentIds") List<Long> componentIds);
 
-  void deleteComponents(@Param("rootUuid") String rootUuid);
+  void deleteComponentsByProjectUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteComponentGroupRoles(@Param("rootId") long rootId);
+  void deleteGroupRolesByComponentId(@Param("rootId") long rootId);
 
-  void deleteComponentUserRoles(@Param("rootId") long rootId);
+  void deleteUserRolesByComponentId(@Param("rootId") long rootId);
 
-  void deleteComponentManualMeasures(@Param("componentUuids") List<String> componentUuids);
+  void deleteManualMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteComponentEvents(@Param("componentUuid") String componentUuid);
+  void deleteEventsByComponentUuid(@Param("componentUuid") String componentUuid);
 
   List<PurgeableAnalysisDto> selectPurgeableAnalysesWithEvents(@Param("componentUuid") String componentUuid);
 
   List<PurgeableAnalysisDto> selectPurgeableAnalysesWithoutEvents(@Param("componentUuid") String componentUuid);
 
-  void deleteComponentIssueChanges(@Param("rootUuid") String rootUuid);
+  void deleteIssueChangesByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteComponentIssues(@Param("rootUuid") String rootUuid);
+  void deleteIssuesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
@@ -80,7 +80,7 @@ public interface PurgeMapper {
 
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 
-  void deleteFileSourcesByUuid(@Param("fileUuids") List<String> fileUuids);
+  void deleteFileSourcesByFileUuid(@Param("fileUuids") List<String> fileUuids);
 
   void deleteCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
 

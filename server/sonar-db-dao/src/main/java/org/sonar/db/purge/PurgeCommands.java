@@ -58,7 +58,7 @@ class PurgeCommands {
 
   void deleteAnalyses(String rootUuid) {
     profiler.start("deleteAnalyses (events)");
-    purgeMapper.deleteComponentEvents(rootUuid);
+    purgeMapper.deleteEventsByComponentUuid(rootUuid);
     session.commit();
     profiler.stop();
 
@@ -134,31 +134,31 @@ class PurgeCommands {
 
   void deletePermissions(long rootId) {
     profiler.start("deletePermissions (group_roles)");
-    purgeMapper.deleteComponentGroupRoles(rootId);
+    purgeMapper.deleteGroupRolesByComponentId(rootId);
     session.commit();
     profiler.stop();
 
     profiler.start("deletePermissions (user_roles)");
-    purgeMapper.deleteComponentUserRoles(rootId);
+    purgeMapper.deleteUserRolesByComponentId(rootId);
     session.commit();
     profiler.stop();
   }
 
   void deleteIssues(String rootUuid) {
     profiler.start("deleteIssues (issue_changes)");
-    purgeMapper.deleteComponentIssueChanges(rootUuid);
+    purgeMapper.deleteIssueChangesByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
 
     profiler.start("deleteIssues (issues)");
-    purgeMapper.deleteComponentIssues(rootUuid);
+    purgeMapper.deleteIssuesByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
   }
 
   void deleteLinks(String rootUuid) {
     profiler.start("deleteLinks (project_links)");
-    purgeMapper.deleteComponentLinks(rootUuid);
+    purgeMapper.deleteProjectLinksByComponentUuid(rootUuid);
     session.commit();
     profiler.stop();
   }
@@ -168,19 +168,19 @@ class PurgeCommands {
     List<List<String>> uuidsPartitions = Lists.partition(IdUuidPairs.uuids(rootAndModulesOrSubviewsIds), MAX_RESOURCES_PER_QUERY);
 
     profiler.start("deleteByRootAndModulesOrSubviews (properties)");
-    idPartitions.forEach(purgeMapper::deleteComponentProperties);
+    idPartitions.forEach(purgeMapper::deletePropertiesByComponentIds);
     session.commit();
     profiler.stop();
 
     profiler.start("deleteByRootAndModulesOrSubviews (manual_measures)");
-    uuidsPartitions.forEach(purgeMapper::deleteComponentManualMeasures);
+    uuidsPartitions.forEach(purgeMapper::deleteManualMeasuresByComponentUuids);
     session.commit();
     profiler.stop();
   }
 
   void deleteComponents(String rootUuid) {
     profiler.start("deleteComponents (projects)");
-    purgeMapper.deleteComponents(rootUuid);
+    purgeMapper.deleteComponentsByProjectUuid(rootUuid);
     session.commit();
     profiler.stop();
   }
