@@ -19,107 +19,128 @@
  */
 package org.sonar.server.qualityprofile.index;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.server.es.BaseIndexer;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexType;
+import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
 
-public class ActiveRuleIndexer extends BaseIndexer {
+public class ActiveRuleIndexer implements StartupIndexer {
 
   private final DbClient dbClient;
+  private final EsClient esClient;
+  private final ActiveRuleIteratorFactory activeRuleIteratorFactory;
 
-  public ActiveRuleIndexer(System2 system2, DbClient dbClient, EsClient esClient) {
-    super(system2, esClient, 300, INDEX_TYPE_ACTIVE_RULE, FIELD_ACTIVE_RULE_UPDATED_AT);
+  public ActiveRuleIndexer(DbClient dbClient, EsClient esClient, ActiveRuleIteratorFactory activeRuleIteratorFactory) {
     this.dbClient = dbClient;
+    this.esClient = esClient;
+    this.activeRuleIteratorFactory = activeRuleIteratorFactory;
   }
 
   @Override
-  protected long doIndex(long lastUpdatedAt) {
-    return doIndex(createBulkIndexer(), lastUpdatedAt);
-  }
-
-  public void index(Iterator<ActiveRuleDoc> rules) {
-    doIndex(createBulkIndexer(), rules);
-  }
-
-  private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
-    long maxDate;
+  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ActiveRuleResultSetIterator rowIt = ActiveRuleResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
-      maxDate = doIndex(bulk, rowIt);
-      rowIt.close();
-      return maxDate;
+      ActiveRuleIterator dbCursor = activeRuleIteratorFactory.createForAll(dbSession);
+      scrollDbAndIndex(dbCursor, Size.LARGE);
     }
   }
 
-  private static long doIndex(BulkIndexer bulk, Iterator<ActiveRuleDoc> activeRules) {
-    bulk.start();
-    long maxDate = 0L;
-    while (activeRules.hasNext()) {
-      ActiveRuleDoc activeRule = activeRules.next();
-      bulk.add(newIndexRequest(activeRule));
+  @Override
+  public Set<IndexType> getIndexTypes() {
+    return ImmutableSet.of(RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE);
+  }
 
-      // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      maxDate = Math.max(maxDate, activeRule.updatedAt());
+  /**
+   * Important - the existing documents are not deleted, so this method
+   * does not guarantee consistency of index.
+   */
+  public void indexRuleProfile(DbSession dbSession, RulesProfileDto ruleProfile) {
+    try (ActiveRuleIterator dbCursor = activeRuleIteratorFactory.createForRuleProfile(dbSession, ruleProfile)) {
+      scrollDbAndIndex(dbCursor, Size.REGULAR);
+    }
+  }
+
+  public void indexChanges(DbSession dbSession, List<ActiveRuleChange> changes) {
+    BulkIndexer bulk = createBulkIndexer(Size.REGULAR);
+    bulk.start();
+    List<Integer> idsOfTouchedActiveRules = new ArrayList<>();
+    changes.stream()
+      .filter(c -> c.getActiveRule() != null)
+      .forEach(c -> {
+        if (c.getType().equals(ActiveRuleChange.Type.DEACTIVATED)) {
+          bulk.addDeletion(INDEX_TYPE_ACTIVE_RULE, String.valueOf(c.getActiveRule().getId()));
+        } else {
+          idsOfTouchedActiveRules.add(c.getActiveRule().getId());
+        }
+      });
+    try (ActiveRuleIterator dbCursor = activeRuleIteratorFactory.createForActiveRules(dbSession, idsOfTouchedActiveRules)) {
+      while (dbCursor.hasNext()) {
+        ActiveRuleDoc activeRule = dbCursor.next();
+        bulk.add(newIndexRequest(activeRule));
+      }
     }
     bulk.stop();
-    return maxDate;
   }
 
-  public void index(List<ActiveRuleChange> changes) {
-    deleteKeys(changes.stream()
-      .filter(c -> c.getType().equals(ActiveRuleChange.Type.DEACTIVATED))
-      .map(ActiveRuleChange::getKey)
-      .collect(MoreCollectors.toList(changes.size())));
-
-    index();
-  }
-
-  public void deleteByProfileKeys(Collection<String> profileKeys) {
-    BulkIndexer bulk = createBulkIndexer();
+  public void deleteByProfiles(Collection<QProfileDto> profiles) {
+    BulkIndexer bulk = createBulkIndexer(Size.REGULAR);
     bulk.start();
-    profileKeys.forEach(profileKey -> {
+    profiles.forEach(profile -> {
       SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
-        .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, profileKey)));
+        .setQuery(QueryBuilders.boolQuery().must(termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid())));
       bulk.addDeletion(search);
     });
     bulk.stop();
   }
 
-  private void deleteKeys(List<ActiveRuleKey> keys) {
-    BulkIndexer bulk = createBulkIndexer();
+  public void deleteByRuleKeys(Collection<RuleKey> ruleKeys) {
+    BulkIndexer bulk = createBulkIndexer(Size.REGULAR);
     bulk.start();
-    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
-      .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_KEY, keys)));
-    bulk.addDeletion(search);
+    ruleKeys.forEach(ruleKey -> {
+      SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ACTIVE_RULE)
+        .setQuery(QueryBuilders.boolQuery().must(termQuery(FIELD_ACTIVE_RULE_RULE_KEY, ruleKey.toString())));
+      bulk.addDeletion(search);
+    });
     bulk.stop();
   }
 
-  private BulkIndexer createBulkIndexer() {
-    return new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex(), Size.REGULAR);
+  private BulkIndexer createBulkIndexer(Size size) {
+    return new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex(), size);
   }
 
   private static IndexRequest newIndexRequest(ActiveRuleDoc doc) {
-    return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType(), doc.key().toString())
-      .parent(doc.key().ruleKey().toString())
+    return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType(), doc.getId())
+      .parent(doc.getRuleKey().toString())
       .source(doc.getFields());
+  }
+
+  private void scrollDbAndIndex(ActiveRuleIterator dbCursor, Size size) {
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ACTIVE_RULE.getIndex(), size);
+    bulk.start();
+    while (dbCursor.hasNext()) {
+      ActiveRuleDoc activeRule = dbCursor.next();
+      bulk.add(newIndexRequest(activeRule));
+    }
+    bulk.stop();
   }
 }

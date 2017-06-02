@@ -49,8 +49,8 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
 
   private static final String[] FIELDS = {
     // column 1
-    "r.plugin_rule_key",
     "r.plugin_name",
+    "r.plugin_rule_key",
     "r.name",
     "r.description",
     "r.description_format",
@@ -159,8 +159,8 @@ public class RuleIteratorForSingleChunk implements RuleIterator {
       RuleDoc doc = new RuleDoc();
       RuleExtensionDoc extensionDoc = new RuleExtensionDoc().setScope(RuleExtensionScope.system());
 
-      String ruleKey = rs.getString(1);
-      String repositoryKey = rs.getString(2);
+      String repositoryKey = rs.getString(1);
+      String ruleKey = rs.getString(2);
       RuleKey key = RuleKey.of(repositoryKey, ruleKey);
       extensionDoc.setRuleKey(key);
 

@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
@@ -79,8 +78,7 @@ public class DeactivateRuleAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
-      ActiveRuleKey activeRuleKey = ActiveRuleKey.of(qualityProfileKey, ruleKey);
-      ruleActivator.deactivateAndUpdateIndex(dbSession, activeRuleKey);
+      ruleActivator.deactivateAndUpdateIndex(dbSession, profile, ruleKey);
     }
     response.noContent();
   }

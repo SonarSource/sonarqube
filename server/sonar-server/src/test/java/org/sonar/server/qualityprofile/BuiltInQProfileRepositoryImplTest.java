@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +35,7 @@ import org.sonar.server.language.LanguageTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 public class BuiltInQProfileRepositoryImplTest {
   private static final Language FOO_LANGUAGE = LanguageTesting.newLanguage("foo", "foo", "foo");
@@ -45,13 +45,13 @@ public class BuiltInQProfileRepositoryImplTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void getQProfilesByLanguage_throws_ISE_if_called_before_initialize() {
+  public void get_throws_ISE_if_called_before_initialize() {
     BuiltInQProfileRepositoryImpl underTest = new BuiltInQProfileRepositoryImpl(new Languages());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("initialize must be called first");
 
-    underTest.getQProfilesByLanguage();
+    underTest.get();
   }
 
   @Test
@@ -66,21 +66,21 @@ public class BuiltInQProfileRepositoryImplTest {
   }
 
   @Test
-  public void initialize_creates_no_DefinedQProfile_when_there_is_no_definition() {
+  public void initialize_creates_no_BuiltInQProfile_when_there_is_no_definition() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE));
 
     underTest.initialize();
 
-    assertThat(underTest.getQProfilesByLanguage()).isEmpty();
+    assertThat(underTest.get()).isEmpty();
   }
 
   @Test
-  public void initialize_creates_no_DefinedQProfile_when_all_definitions_apply_to_non_defined_languages() {
+  public void initialize_creates_no_BuiltInQProfile_when_all_definitions_apply_to_non_defined_languages() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(), new DummyProfileDefinition("foo", "P1", false));
 
     underTest.initialize();
 
-    assertThat(underTest.getQProfilesByLanguage()).isEmpty();
+    assertThat(underTest.get()).isEmpty();
   }
 
   @Test
@@ -106,61 +106,45 @@ public class BuiltInQProfileRepositoryImplTest {
   }
 
   @Test
-  public void initialize_makes_single_qp_of_a_language_default_even_if_not_flagged_as_so() {
+  public void initialize_makes_single_profile_of_a_language_default_even_if_not_flagged_as_so() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", false));
 
     underTest.initialize();
 
-    Map<String, List<BuiltInQProfile>> qProfilesByLanguage = underTest.getQProfilesByLanguage();
-    assertThat(qProfilesByLanguage)
-      .hasSize(1)
-      .containsOnlyKeys(FOO_LANGUAGE.getKey());
-    assertThat(qProfilesByLanguage.get(FOO_LANGUAGE.getKey()))
-      .extracting(BuiltInQProfile::isDefault)
-      .containsExactly(true);
+    assertThat(underTest.get())
+      .extracting(BuiltInQProfile::getLanguage, BuiltInQProfile::isDefault)
+      .containsExactly(tuple(FOO_LANGUAGE.getKey(), true));
   }
 
   @Test
-  public void initialize_makes_single_qp_of_a_language_default_even_if_flagged_as_so() {
+  public void initialize_makes_single_profile_of_a_language_default_even_if_flagged_as_so() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE), new DummyProfileDefinition("foo", "foo1", true));
 
     underTest.initialize();
 
-    Map<String, List<BuiltInQProfile>> qProfilesByLanguage = underTest.getQProfilesByLanguage();
-    assertThat(qProfilesByLanguage)
-      .hasSize(1)
-      .containsOnlyKeys(FOO_LANGUAGE.getKey());
-    assertThat(qProfilesByLanguage.get(FOO_LANGUAGE.getKey()))
-      .extracting(BuiltInQProfile::isDefault)
-      .containsExactly(true);
+    assertThat(underTest.get())
+      .extracting(BuiltInQProfile::getLanguage, BuiltInQProfile::isDefault)
+      .containsExactly(tuple(FOO_LANGUAGE.getKey(), true));
   }
 
   @Test
-  public void initialize_makes_first_qp_of_a_language_default_when_none_flagged_as_so() {
+  public void initialize_makes_first_profile_of_a_language_default_when_none_flagged_as_so() {
     List<DummyProfileDefinition> definitions = new ArrayList<>(
       asList(new DummyProfileDefinition("foo", "foo1", false), new DummyProfileDefinition("foo", "foo2", false)));
     Collections.shuffle(definitions);
-    String firstQPName = definitions.get(0).getName();
-    String secondQPName = definitions.get(1).getName();
-    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE), definitions.stream().toArray(ProfileDefinition[]::new));
+    String firstName = definitions.get(0).getName();
+    String secondName = definitions.get(1).getName();
+    BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE), definitions.toArray(new ProfileDefinition[0]));
 
     underTest.initialize();
 
-    Map<String, List<BuiltInQProfile>> qProfilesByLanguage = underTest.getQProfilesByLanguage();
-    assertThat(qProfilesByLanguage)
-      .hasSize(1)
-      .containsOnlyKeys(FOO_LANGUAGE.getKey());
-    List<BuiltInQProfile> fooBuiltInQProfiles = qProfilesByLanguage.get(FOO_LANGUAGE.getKey());
-    assertThat(fooBuiltInQProfiles)
-      .extracting(BuiltInQProfile::getName)
-      .containsExactly(firstQPName, secondQPName);
-    assertThat(fooBuiltInQProfiles)
-      .extracting(BuiltInQProfile::isDefault)
-      .containsExactly(true, false);
+    assertThat(underTest.get())
+      .extracting(BuiltInQProfile::getName, BuiltInQProfile::isDefault)
+      .containsExactlyInAnyOrder(tuple(firstName, true), tuple(secondName, false));
   }
 
   @Test
-  public void initialize_fails_with_ISE_when_two_sq_with_different_name_are_default_for_the_same_language() {
+  public void initialize_fails_with_ISE_when_two_profiles_with_different_name_are_default_for_the_same_language() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "foo1", true), new DummyProfileDefinition("foo", "foo2", true));
 
@@ -171,7 +155,7 @@ public class BuiltInQProfileRepositoryImplTest {
   }
 
   @Test
-  public void initialize_create_qp_as_default_even_if_only_one_profile_with_given_name_has_default_flag_true() {
+  public void initialize_creates_profile_as_default_even_if_only_one_profile_with_given_name_has_default_flag_true() {
     String name = "doh";
     boolean flag = new Random().nextBoolean();
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE),
@@ -179,29 +163,25 @@ public class BuiltInQProfileRepositoryImplTest {
 
     underTest.initialize();
 
-    assertThat(underTest.getQProfilesByLanguage().get(FOO_LANGUAGE.getKey()))
-      .extracting(BuiltInQProfile::isDefault)
-      .containsExactly(true);
+    assertThat(underTest.get())
+      .extracting(BuiltInQProfile::getLanguage, BuiltInQProfile::isDefault)
+      .containsExactly(tuple("foo", true));
   }
 
   @Test
-  public void initialize_creates_single_qp_if_several_profile_have_the_same_name_for_a_given_language() {
+  public void initialize_creates_single_profile_if_several_profile_have_the_same_name_for_a_given_language() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(new Languages(FOO_LANGUAGE),
-      new DummyProfileDefinition("foo", "foo1", true), new DummyProfileDefinition("foo", "foo1", true));
+      new DummyProfileDefinition("foo", "aName", true), new DummyProfileDefinition("foo", "aName", true));
 
     underTest.initialize();
 
-    Map<String, List<BuiltInQProfile>> qProfilesByLanguage = underTest.getQProfilesByLanguage();
-    assertThat(qProfilesByLanguage)
-      .hasSize(1)
-      .containsOnlyKeys(FOO_LANGUAGE.getKey());
-    assertThat(qProfilesByLanguage.get(FOO_LANGUAGE.getKey()))
-      .extracting(BuiltInQProfile::getName)
-      .containsExactly("foo1");
+    assertThat(underTest.get())
+      .extracting(BuiltInQProfile::getLanguage, BuiltInQProfile::getName)
+      .containsExactlyInAnyOrder(tuple(FOO_LANGUAGE.getKey(), "aName"));
   }
 
   @Test
-  public void initialize_creates_qp_Sonar_Way_as_default_if_none_other_is_defined_default_for_a_given_language() {
+  public void initialize_creates_profile_Sonar_Way_as_default_if_none_other_is_defined_default_for_a_given_language() {
     BuiltInQProfileRepository underTest = new BuiltInQProfileRepositoryImpl(
       new Languages(FOO_LANGUAGE),
       new DummyProfileDefinition("foo", "doh", false), new DummyProfileDefinition("foo", "boo", false),
@@ -209,17 +189,11 @@ public class BuiltInQProfileRepositoryImplTest {
 
     underTest.initialize();
 
-    Map<String, List<BuiltInQProfile>> qProfilesByLanguage = underTest.getQProfilesByLanguage();
-    assertThat(qProfilesByLanguage)
-      .hasSize(1)
-      .containsOnlyKeys(FOO_LANGUAGE.getKey());
-    List<BuiltInQProfile> fooBuiltInQProfiles = qProfilesByLanguage.get(FOO_LANGUAGE.getKey());
-    assertThat(fooBuiltInQProfiles)
+    assertThat(underTest.get())
+      .filteredOn(b -> FOO_LANGUAGE.getKey().equals(b.getLanguage()))
+      .filteredOn(BuiltInQProfile::isDefault)
       .extracting(BuiltInQProfile::getName)
-      .containsExactly("doh", "boo", SONAR_WAY_QP_NAME, "goo");
-    assertThat(fooBuiltInQProfiles)
-      .extracting(BuiltInQProfile::isDefault)
-      .containsExactly(false, false, true, false);
+      .containsExactly(SONAR_WAY_QP_NAME);
   }
 
   @Test
@@ -230,13 +204,11 @@ public class BuiltInQProfileRepositoryImplTest {
 
     underTest.initialize();
 
-    List<BuiltInQProfile> fooBuiltInQProfiles = underTest.getQProfilesByLanguage().get(FOO_LANGUAGE.getKey());
-    assertThat(fooBuiltInQProfiles)
+    assertThat(underTest.get())
+      .filteredOn(b -> FOO_LANGUAGE.getKey().equals(b.getLanguage()))
+      .filteredOn(BuiltInQProfile::isDefault)
       .extracting(BuiltInQProfile::getName)
-      .containsExactly(SONAR_WAY_QP_NAME, "goo");
-    assertThat(fooBuiltInQProfiles)
-      .extracting(BuiltInQProfile::isDefault)
-      .containsExactly(false, true);
+      .containsExactly("goo");
   }
 
   @Test
@@ -248,13 +220,11 @@ public class BuiltInQProfileRepositoryImplTest {
 
     underTest.initialize();
 
-    List<BuiltInQProfile> fooBuiltInQProfiles = underTest.getQProfilesByLanguage().get(FOO_LANGUAGE.getKey());
-    assertThat(fooBuiltInQProfiles)
+    assertThat(underTest.get())
+      .filteredOn(b -> FOO_LANGUAGE.getKey().equals(b.getLanguage()))
+      .filteredOn(BuiltInQProfile::isDefault)
       .extracting(BuiltInQProfile::getName)
-      .containsExactly("goo", sonarWayInOtherCase);
-    assertThat(fooBuiltInQProfiles)
-      .extracting(BuiltInQProfile::isDefault)
-      .containsExactly(true, false);
+      .containsExactly("goo");
   }
 
   private static final class DummyProfileDefinition extends ProfileDefinition {

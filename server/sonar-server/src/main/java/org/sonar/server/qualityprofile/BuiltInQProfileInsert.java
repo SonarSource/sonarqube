@@ -20,8 +20,11 @@
 package org.sonar.server.qualityprofile;
 
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 
 public interface BuiltInQProfileInsert {
-  void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile, OrganizationDto organization);
+  /**
+   * Persist a built-in profile and associate it to all existing organizations.
+   * Db sessions are committed.
+   */
+  void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile);
 }

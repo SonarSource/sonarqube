@@ -44,24 +44,17 @@ public class RuleActivatorContextFactory {
     this.db = db;
   }
 
-  RuleActivatorContext create(String profileKey, RuleKey ruleKey, DbSession session) {
-    RuleActivatorContext context = new RuleActivatorContext();
-    QProfileDto profile = getQualityProfileDto(session, profileKey);
-    checkRequest(profile != null, "Quality profile not found: %s", profileKey);
-    context.setProfile(profile);
-    return create(ruleKey, session, context);
-  }
-
   RuleActivatorContext create(QProfileDto profile, RuleKey ruleKey, DbSession session) {
     return create(ruleKey, session, new RuleActivatorContext().setProfile(profile));
   }
 
-  private RuleActivatorContext create(RuleKey ruleKey, DbSession session, RuleActivatorContext context) {
-    initRule(ruleKey, context, session);
-    initActiveRules(context.profile().getKee(), ruleKey, context, session, false);
+  private RuleActivatorContext create(RuleKey ruleKey, DbSession dbSession, RuleActivatorContext context) {
+    initRule(ruleKey, context, dbSession);
+    initActiveRules(context.profile(), ruleKey, context, dbSession, false);
     String parentKee = context.profile().getParentKee();
     if (parentKee != null) {
-      initActiveRules(parentKee, ruleKey, context, session, true);
+      QProfileDto parent = getQualityProfileDto(dbSession, parentKee);
+      initActiveRules(parent, ruleKey, context, dbSession, true);
     }
     return context;
   }
@@ -75,8 +68,8 @@ public class RuleActivatorContextFactory {
     return ruleDefinitionDto;
   }
 
-  private void initActiveRules(String profileKey, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
-    ActiveRuleKey key = ActiveRuleKey.of(profileKey, ruleKey);
+  private void initActiveRules(QProfileDto profile, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
+    ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
     Optional<ActiveRuleDto> activeRule = getActiveRule(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule.isPresent()) {
@@ -103,11 +96,11 @@ public class RuleActivatorContextFactory {
     return db.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleDefinitionDto.getKey());
   }
 
-  Optional<ActiveRuleDto> getActiveRule(DbSession session, ActiveRuleKey key) {
-    return Optional.ofNullable(db.activeRuleDao().selectByKey(session, key).orNull());
+  Optional<ActiveRuleDto> getActiveRule(DbSession dbSession, ActiveRuleKey key) {
+    return db.activeRuleDao().selectByKey(dbSession, key);
   }
 
-  List<ActiveRuleParamDto> getActiveRuleParams(DbSession session, ActiveRuleDto activeRuleDto) {
-    return db.activeRuleDao().selectParamsByActiveRuleId(session, activeRuleDto.getId());
+  List<ActiveRuleParamDto> getActiveRuleParams(DbSession dbSession, ActiveRuleDto activeRuleDto) {
+    return db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
   }
 }

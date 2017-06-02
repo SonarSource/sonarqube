@@ -39,7 +39,7 @@ public class QProfileLookup {
   }
 
   public List<QProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
-    return db.qualityProfileDao().selectAll(dbSession, organization);
+    return db.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
   }
 
   public Collection<QProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {

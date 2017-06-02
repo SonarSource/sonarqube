@@ -23,54 +23,27 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.core.util.UtcDateUtils;
-import org.sonar.db.organization.OrganizationDto;
 
 /**
- * Represents the join of "org_qprofiles" and "rules_profiles"
+ * Represents the table "rules_profiles"
  */
-public class QProfileDto {
+public class RulesProfileDto {
 
   private Integer id;
-  /**
-   * The organization, that this quality profile belongs to.
-   * Must not be null, but can be the default organization's uuid.
-   * Refers to {@link OrganizationDto#getUuid()}.
-   */
-  private String organizationUuid;
   private String kee;
   private String name;
   private String language;
-  private String parentKee;
   private String rulesUpdatedAt;
   private Long lastUsed;
   private Long userUpdatedAt;
   private boolean isBuiltIn;
-  private String rulesProfileUuid;
-
-  public String getOrganizationUuid() {
-    return organizationUuid;
-  }
-
-  public QProfileDto setOrganizationUuid(String s) {
-    this.organizationUuid = s;
-    return this;
-  }
 
   public String getKee() {
     return kee;
   }
 
-  public QProfileDto setKee(String s) {
+  public RulesProfileDto setKee(String s) {
     this.kee = s;
-    return this;
-  }
-
-  public String getRulesProfileUuid() {
-    return rulesProfileUuid;
-  }
-
-  public QProfileDto setRulesProfileUuid(String s) {
-    this.rulesProfileUuid = s;
     return this;
   }
 
@@ -78,7 +51,7 @@ public class QProfileDto {
     return id;
   }
 
-  public QProfileDto setId(Integer id) {
+  public RulesProfileDto setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -87,7 +60,7 @@ public class QProfileDto {
     return name;
   }
 
-  public QProfileDto setName(String name) {
+  public RulesProfileDto setName(String name) {
     this.name = name;
     return this;
   }
@@ -96,18 +69,8 @@ public class QProfileDto {
     return language;
   }
 
-  public QProfileDto setLanguage(String language) {
+  public RulesProfileDto setLanguage(String language) {
     this.language = language;
-    return this;
-  }
-
-  @CheckForNull
-  public String getParentKee() {
-    return parentKee;
-  }
-
-  public QProfileDto setParentKee(@Nullable String s) {
-    this.parentKee = s;
     return this;
   }
 
@@ -115,12 +78,12 @@ public class QProfileDto {
     return rulesUpdatedAt;
   }
 
-  public QProfileDto setRulesUpdatedAt(String s) {
+  public RulesProfileDto setRulesUpdatedAt(String s) {
     this.rulesUpdatedAt = s;
     return this;
   }
 
-  public QProfileDto setRulesUpdatedAtAsDate(Date d) {
+  public RulesProfileDto setRulesUpdatedAtAsDate(Date d) {
     this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
     return this;
   }
@@ -130,7 +93,7 @@ public class QProfileDto {
     return lastUsed;
   }
 
-  public QProfileDto setLastUsed(@Nullable Long lastUsed) {
+  public RulesProfileDto setLastUsed(@Nullable Long lastUsed) {
     this.lastUsed = lastUsed;
     return this;
   }
@@ -140,7 +103,7 @@ public class QProfileDto {
     return userUpdatedAt;
   }
 
-  public QProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
+  public RulesProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
     this.userUpdatedAt = userUpdatedAt;
     return this;
   }
@@ -149,23 +112,20 @@ public class QProfileDto {
     return isBuiltIn;
   }
 
-  public QProfileDto setIsBuiltIn(boolean b) {
+  public RulesProfileDto setIsBuiltIn(boolean b) {
     this.isBuiltIn = b;
     return this;
   }
 
-  public static QProfileDto from(OrgQProfileDto org, RulesProfileDto rules) {
-    return new QProfileDto()
-      .setIsBuiltIn(rules.isBuiltIn())
-      .setKee(org.getUuid())
-      .setParentKee(org.getParentUuid())
-      .setOrganizationUuid(org.getOrganizationUuid())
-      .setId(rules.getId())
-      .setRulesProfileUuid(rules.getKee())
-      .setLanguage(rules.getLanguage())
-      .setName(rules.getName())
-      .setRulesUpdatedAt(rules.getRulesUpdatedAt())
-      .setLastUsed(rules.getLastUsed())
-      .setUserUpdatedAt(rules.getUserUpdatedAt());
+  public static RulesProfileDto from(QProfileDto qProfileDto) {
+    return new RulesProfileDto()
+      .setKee(qProfileDto.getRulesProfileUuid())
+      .setLanguage(qProfileDto.getLanguage())
+      .setName(qProfileDto.getName())
+      .setIsBuiltIn(qProfileDto.isBuiltIn())
+      .setId(qProfileDto.getId())
+      .setLastUsed(qProfileDto.getLastUsed())
+      .setRulesUpdatedAt(qProfileDto.getRulesUpdatedAt())
+      .setUserUpdatedAt(qProfileDto.getUserUpdatedAt());
   }
 }

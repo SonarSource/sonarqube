@@ -17,29 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.index;
+package org.sonar.server.qualityprofile.index;
 
 import java.util.Collection;
-import javax.annotation.Nullable;
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
-public class IssueIteratorFactory {
+@ServerSide
+public class ActiveRuleIteratorFactory {
 
   private final DbClient dbClient;
 
-  public IssueIteratorFactory(DbClient dbClient) {
+  public ActiveRuleIteratorFactory(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
-  public IssueIterator createForAll() {
-    return createForProject(null);
+  public ActiveRuleIterator createForAll(DbSession dbSession) {
+    return new ActiveRuleIteratorForSingleChunk(dbClient, dbSession);
   }
 
-  public IssueIterator createForProject(@Nullable String projectUuid) {
-    return new IssueIteratorForSingleChunk(dbClient, projectUuid, null);
+  public ActiveRuleIterator createForRuleProfile(DbSession dbSession, RulesProfileDto ruleProfile) {
+    return new ActiveRuleIteratorForSingleChunk(dbClient, dbSession, ruleProfile);
   }
 
-  public IssueIterator createForIssueKeys(Collection<String> issueKeys) {
-    return new IssueIteratorForMultipleChunks(dbClient, issueKeys);
+  public ActiveRuleIterator createForActiveRules(DbSession dbSession, Collection<Integer> activeRuleIds) {
+    return new ActiveRuleIteratorForMultipleChunks(dbClient, dbSession, activeRuleIds);
   }
 }

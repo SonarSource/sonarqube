@@ -51,7 +51,7 @@ class RuleActivatorContext {
   }
 
   ActiveRuleKey activeRuleKey() {
-    return ActiveRuleKey.of(profile.getKee(), rule.getKey());
+    return ActiveRuleKey.of(profile, rule.getKey());
   }
 
   RuleDefinitionDto rule() {

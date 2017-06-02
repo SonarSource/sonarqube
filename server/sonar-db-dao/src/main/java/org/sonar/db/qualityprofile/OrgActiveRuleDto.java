@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.index;
+package org.sonar.db.qualityprofile;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.sonar.api.rule.Severity;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.rule.RuleTesting;
+public class OrgActiveRuleDto extends ActiveRuleDto {
 
-public class ActiveRuleDocTesting {
+  private String organizationUuid;
+  private String profileUuid;
 
-  public static ActiveRuleDoc newDoc() {
-    return newDoc(ActiveRuleKey.of("sonar-way", RuleTesting.XOO_X1));
+  public String getOrganizationUuid() {
+    return organizationUuid;
   }
 
-  public static ActiveRuleDoc newDoc(ActiveRuleKey key) {
-    return new ActiveRuleDoc(key)
-      .setOrganizationUuid(RandomStringUtils.random(40))
-      .setSeverity(Severity.CRITICAL)
-      .setInheritance(null)
-      .setUpdatedAt(1_600_000_000L);
+  public OrgActiveRuleDto setOrganizationUuid(String s) {
+    this.organizationUuid = s;
+    return this;
+  }
+
+  public String getProfileUuid() {
+    return profileUuid;
+  }
+
+  public OrgActiveRuleDto setProfileUuid(String s) {
+    this.profileUuid = s;
+    return this;
   }
 }

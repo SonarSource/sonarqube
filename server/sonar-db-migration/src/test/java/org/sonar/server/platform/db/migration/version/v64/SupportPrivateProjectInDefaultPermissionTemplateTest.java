@@ -241,7 +241,7 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   }
 
   private int insertGroup(String organizationUuid) {
-    String name = "name" + RandomStringUtils.random(20);
+    String name = "name" + RandomStringUtils.randomAlphabetic(20);
     db.executeInsert(
       "GROUPS",
       "ORGANIZATION_UUID", organizationUuid,
@@ -251,7 +251,7 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   }
 
   private IdAndUuid insertPermissionTemplate(String organizationUuid) {
-    String random = RandomStringUtils.random(20);
+    String random = RandomStringUtils.randomAlphabetic(20);
     String uuid = "ptUuid" + random;
     db.executeInsert(
       "PERMISSION_TEMPLATES",

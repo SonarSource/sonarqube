@@ -33,7 +33,7 @@ import util.ItUtils;
 
 import static it.Category6Suite.enableOrganizationsSupport;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.deleteOrganizationsIfExists;
+import static util.ItUtils.deleteOrganizations;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newWsClient;
 
@@ -56,8 +56,7 @@ public class RulesPerOrganizationTest {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    deleteOrganizationsIfExists(orchestrator, ORGANIZATION_FOO);
-    deleteOrganizationsIfExists(orchestrator, ORGANIZATION_BAR);
+    deleteOrganizations(orchestrator);
   }
 
   private static void createOrganization(String organization) {

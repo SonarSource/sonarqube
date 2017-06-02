@@ -22,7 +22,6 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -31,7 +30,7 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueResultSetIteratorTest {
+public class IssueIteratorFactoryTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -181,12 +180,7 @@ public class IssueResultSetIteratorTest {
 
   private Map<String, IssueDoc> issuesByKey(Function<IssueIteratorFactory, IssueIterator> function) {
     try (IssueIterator it = function.apply(new IssueIteratorFactory(dbTester.getDbClient()))) {
-      return Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
-        @Override
-        public String apply(@Nonnull IssueDoc issue) {
-          return issue.key();
-        }
-      });
+      return Maps.uniqueIndex(it, IssueDoc::key);
     }
   }
 }

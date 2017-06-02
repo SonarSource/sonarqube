@@ -24,53 +24,36 @@ import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
 
 public class ActiveRuleKeyTest {
 
   @Test
   public void of() {
     RuleKey ruleKey = RuleKey.of("xoo", "R1");
-    ActiveRuleKey key = ActiveRuleKey.of("P1", ruleKey);
-    assertThat(key.qProfile()).isEqualTo("P1");
-    assertThat(key.ruleKey()).isSameAs(ruleKey);
-    assertThat(key.toString()).isEqualTo("P1:xoo:R1");
+    QProfileDto profile = newQualityProfileDto();
+    ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
+    assertThat(key.getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(key.getRuleKey()).isSameAs(ruleKey);
+    assertThat(key.toString()).isEqualTo(profile.getRulesProfileUuid() + ":xoo:R1");
   }
 
   @Test
   public void rule_key_can_contain_colons() {
     RuleKey ruleKey = RuleKey.of("squid", "Key:With:Some::Colons");
-    ActiveRuleKey key = ActiveRuleKey.of("P1", ruleKey);
-    assertThat(key.qProfile()).isEqualTo("P1");
-    assertThat(key.ruleKey()).isSameAs(ruleKey);
-    assertThat(key.toString()).isEqualTo("P1:squid:Key:With:Some::Colons");
-  }
-
-  @Test
-  public void profile_must_not_be_null() {
-    try {
-      ActiveRuleKey.of(null, RuleKey.of("xoo", "R1"));
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessage("QProfile is missing");
-    }
-  }
-
-  @Test
-  public void rule_key_must_not_be_null() {
-    try {
-      ActiveRuleKey.of("P1", null);
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessage("RuleKey is missing");
-    }
+    QProfileDto profile = newQualityProfileDto();
+    ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
+    assertThat(key.getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(key.getRuleKey()).isSameAs(ruleKey);
+    assertThat(key.toString()).isEqualTo(profile.getRulesProfileUuid() + ":squid:Key:With:Some::Colons");
   }
 
   @Test
   public void parse() {
     ActiveRuleKey key = ActiveRuleKey.parse("P1:xoo:R1");
-    assertThat(key.qProfile()).isEqualTo("P1");
-    assertThat(key.ruleKey().repository()).isEqualTo("xoo");
-    assertThat(key.ruleKey().rule()).isEqualTo("R1");
+    assertThat(key.getRuleProfileUuid()).isEqualTo("P1");
+    assertThat(key.getRuleKey().repository()).isEqualTo("xoo");
+    assertThat(key.getRuleKey().rule()).isEqualTo("R1");
   }
 
   @Test

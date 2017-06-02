@@ -129,18 +129,10 @@
       and gu.user_id = #{userId,jdbcType=INTEGER}
   </select>
 
-  <select id="selectWithoutQualityProfile" parameterType="map" resultType="Organization">
-    select
-    <include refid="selectColumns"/>
-    from organizations org
-    where not exists (
-      select 1 from rules_profiles p
-      inner join org_qprofiles oqp on oqp.rules_profile_uuid = p.kee
-      where oqp.organization_uuid = org.uuid
-      and p.language = #{profileLanguage, jdbcType=VARCHAR}
-      and p.name = #{profileName, jdbcType=VARCHAR}
-    )
+  <select id="selectAllUuids" resultType="String">
+    select uuid from organizations
   </select>
+
   <select id="selectDefaultGroupIdByUuid" resultType="Integer">
     select org.default_group_id
     from organizations org

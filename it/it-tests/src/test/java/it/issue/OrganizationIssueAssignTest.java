@@ -50,7 +50,7 @@ import static it.Category6Suite.enableOrganizationsSupport;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.deleteOrganizationsIfExists;
+import static util.ItUtils.deleteOrganizations;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrganizationKey;
 import static util.ItUtils.restoreProfile;
@@ -97,7 +97,7 @@ public class OrganizationIssueAssignTest {
   @After
   public void tearDown() throws Exception {
     userRule.deactivateUsers(ASSIGNEE_LOGIN, OTHER_LOGIN);
-    deleteOrganizationsIfExists(orchestrator, ORGANIZATION_KEY, OTHER_ORGANIZATION_KEY);
+    deleteOrganizations(orchestrator);
   }
 
   @Test

@@ -20,11 +20,10 @@
 package org.sonar.server.es;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Base implementation for business objects based on elasticsearch document
@@ -34,7 +33,7 @@ public abstract class BaseDoc {
   protected final Map<String, Object> fields;
 
   protected BaseDoc() {
-    this.fields = newHashMap();
+    this.fields = new HashMap<>();
   }
 
   protected BaseDoc(Map<String, Object> fields) {

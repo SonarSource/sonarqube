@@ -37,7 +37,7 @@ import pageobjects.Navigation;
 
 import static com.codeborne.selenide.Selenide.$;
 import static it.Category6Suite.enableOrganizationsSupport;
-import static util.ItUtils.deleteOrganizationsIfExists;
+import static util.ItUtils.deleteOrganizations;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
@@ -59,7 +59,7 @@ public class OrganizationQualityProfilesPageTest {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    deleteOrganizationsIfExists(orchestrator, ORGANIZATION);
+    deleteOrganizations(orchestrator);
   }
 
   @Before
