@@ -31,6 +31,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
@@ -94,19 +95,21 @@ public class SetTypeAction implements IssuesWsAction {
     String issueKey = request.mandatoryParam(PARAM_ISSUE);
     RuleType ruleType = RuleType.valueOf(request.mandatoryParam(PARAM_TYPE));
     try (DbSession session = dbClient.openSession(false)) {
-      setType(session, issueKey, ruleType);
+      SearchResponseData preloadedSearchResponseData = setType(session, issueKey, ruleType);
+      responseWriter.write(issueKey, preloadedSearchResponseData, request, response);
     }
-    responseWriter.write(issueKey, request, response);
   }
 
-  private void setType(DbSession session, String issueKey, RuleType ruleType) {
-    DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
+  private SearchResponseData setType(DbSession session, String issueKey, RuleType ruleType) {
+    IssueDto issueDto = issueFinder.getByKey(session, issueKey);
+    DefaultIssue issue = issueDto.toDefaultIssue();
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
-      issueUpdater.saveIssue(session, issue, context, null);
+      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
     }
+    return new SearchResponseData(issueDto);
   }
 
 }
