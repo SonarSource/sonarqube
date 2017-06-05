@@ -64,7 +64,7 @@ public class ChangePasswordActionTest {
     organizationFlags,
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationCreation.class),
-    new DefaultGroupFinder(db.getDbClient()));
+    new DefaultGroupFinder(db.getDbClient()), new MapSettings());
 
   private WsTester tester = new WsTester(new UsersWs(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule)));
 

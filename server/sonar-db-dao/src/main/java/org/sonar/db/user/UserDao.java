@@ -92,8 +92,16 @@ public class UserDao implements Dao {
     return mapper(dbSession).countRootUsersButLogin(login);
   }
 
+  /**
+   * @deprecated only used in tests
+   */
+  @Deprecated
   public UserDto insert(DbSession session, UserDto dto) {
-    mapper(session).insert(dto);
+    return insert(session, dto, false);
+  }
+
+  public UserDto insert(DbSession session, UserDto dto, boolean showOnboarding) {
+    mapper(session).insert(dto, showOnboarding);
     return dto;
   }
 
@@ -141,6 +149,14 @@ public class UserDao implements Dao {
 
   private static UserMapper mapper(DbSession session) {
     return session.getMapper(UserMapper.class);
+  }
+
+  public void setShowOnboarding(DbSession session, UserDto user, boolean showOnboarding) {
+    mapper(session).setShowOnboarding(user.getId(), showOnboarding, system2.now());
+  }
+
+  public boolean getShowOnboarding(DbSession dbSession, UserDto user) {
+    return mapper(dbSession).getShowOnboarding(user.getId());
   }
 
   private static class LoginToUser implements Function<String, UserDto> {

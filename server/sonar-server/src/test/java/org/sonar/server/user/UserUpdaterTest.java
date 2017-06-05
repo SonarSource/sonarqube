@@ -29,7 +29,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -90,8 +93,9 @@ public class UserUpdaterTest {
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private Settings settings = mock(Settings.class);
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, system2, organizationFlags, defaultOrganizationProvider, organizationCreation,
-    new DefaultGroupFinder(dbClient));
+    new DefaultGroupFinder(dbClient), settings);
 
   @Before
   public void setUp() {
@@ -243,6 +247,34 @@ public class UserUpdaterTest {
       .build());
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
+  }
+
+  @Test
+  public void should_create_user_with_onboarding_if_onboarding_is_not_globally_skipped() {
+    createDefaultGroup();
+
+    Mockito.doReturn(false).when(settings).getBoolean(eq(CoreProperties.SKIP_ONBOARDING_TUTORIAL));
+
+    UserDto user = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("us")
+      .setName("User")
+      .build());
+
+    assertThat(db.getDbClient().userDao().getShowOnboarding(db.getSession(), user)).isTrue();
+  }
+
+  @Test
+  public void should_create_user_without_onboarding_if_onboarding_is_globally_skipped() {
+    createDefaultGroup();
+
+    Mockito.doReturn(true).when(settings).getBoolean(eq(CoreProperties.SKIP_ONBOARDING_TUTORIAL));
+
+    UserDto user = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("us")
+      .setName("User")
+      .build());
+
+    assertThat(db.getDbClient().userDao().getShowOnboarding(db.getSession(), user)).isFalse();
   }
 
   @Test

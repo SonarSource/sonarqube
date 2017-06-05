@@ -21,8 +21,8 @@ package org.sonar.server.user.ws;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
@@ -63,49 +63,45 @@ public class CurrentAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Optional<UserDto> user;
+    UserDto user;
+    boolean showOnboarding;
     Collection<String> groups;
     if (userSession.isLoggedIn()) {
       try (DbSession dbSession = dbClient.openSession(false)) {
         user = selectCurrentUser(dbSession);
+        showOnboarding = dbClient.userDao().getShowOnboarding(dbSession, user);
         groups = selectGroups(dbSession);
       }
     } else {
-      user = Optional.empty();
+      user = null;
+      showOnboarding = false;
       groups = emptyList();
     }
-    writeProtobuf(toWsResponse(user, groups), request, response);
+    writeProtobuf(toWsResponse(user, showOnboarding, groups), request, response);
   }
 
-  private Optional<UserDto> selectCurrentUser(DbSession dbSession) {
-    if (!userSession.isLoggedIn()) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin()));
+  private UserDto selectCurrentUser(DbSession dbSession) {
+    return dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin());
   }
 
   private Collection<String> selectGroups(DbSession dbSession) {
-    if (!userSession.isLoggedIn()) {
-      return emptyList();
-    }
     return dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userSession.getLogin()))
       .get(userSession.getLogin());
   }
 
-  private CurrentWsResponse toWsResponse(Optional<UserDto> optionalUser, Collection<String> groups) {
+  private CurrentWsResponse toWsResponse(@Nullable UserDto user, boolean showOnboarding, Collection<String> groups) {
     CurrentWsResponse.Builder builder = CurrentWsResponse.newBuilder();
     builder.setIsLoggedIn(userSession.isLoggedIn());
     setNullable(userSession.getLogin(), builder::setLogin);
     setNullable(userSession.getName(), builder::setName);
-
-    optionalUser.ifPresent(user -> {
+    if (user != null) {
       setNullable(emptyToNull(user.getEmail()), builder::setEmail);
       builder.setLocal(user.isLocal());
       setNullable(user.getExternalIdentity(), builder::setExternalIdentity);
       setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
-    });
-
-    optionalUser.map(UserDto::getScmAccountsAsList).ifPresent(builder::addAllScmAccounts);
+      builder.addAllScmAccounts(user.getScmAccountsAsList());
+    }
+    builder.setShowOnboardingTutorial(showOnboarding);
     builder.addAllGroups(groups);
     builder.setPermissions(CurrentWsResponse.Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build());
     return builder.build();

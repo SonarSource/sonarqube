@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
@@ -85,7 +86,7 @@ public class UserIdentityAuthenticatorTest {
     organizationFlags,
     defaultOrganizationProvider,
     organizationCreation,
-    new DefaultGroupFinder(db.getDbClient()));
+    new DefaultGroupFinder(db.getDbClient()), new MapSettings());
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new DefaultGroupFinder(db.getDbClient()));
 

@@ -58,7 +58,7 @@ public interface UserMapper {
    */
   long countRootUsersButLogin(@Param("login") String login);
 
-  void insert(UserDto userDto);
+  void insert(@Param("user") UserDto userDto, @Param("showOnboarding") boolean showOnboarding);
 
   void update(UserDto userDto);
 
@@ -68,4 +68,7 @@ public interface UserMapper {
 
   void deactivateUser(@Param("id") int userId, @Param("now") long now);
 
+  void setShowOnboarding(@Param("id") int userId, @Param("showOnboarding") boolean showOnboarding, @Param("now") long now);
+
+  boolean getShowOnboarding(@Param("id") int userId);
 }

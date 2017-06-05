@@ -329,4 +329,9 @@ public class UserDbTester {
       .map(OrganizationPermission::fromKey)
       .collect(MoreCollectors.toList());
   }
+
+  public void setShowOnboardingTutorial(UserDto user, boolean showOnboardingTutorial) {
+    db.getDbClient().userDao().setShowOnboarding(db.getSession(), user, showOnboardingTutorial);
+    db.commit();
+  }
 }

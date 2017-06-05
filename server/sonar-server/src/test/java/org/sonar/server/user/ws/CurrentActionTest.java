@@ -32,13 +32,16 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.WsUsers.CurrentWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CurrentActionTest {
@@ -97,5 +100,35 @@ public class CurrentActionTest {
     String response = ws.newRequest().execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("CurrentActionTest/anonymous.json"));
+  }
+
+  @Test
+  public void should_return_showOnboardingTutorial_false_for_anonymous() {
+    userSessionRule.anonymous();
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+    assertThat(response.getShowOnboardingTutorial()).isFalse();
+  }
+
+  @Test
+  public void should_return_showOnboardingTutorial_true_for_not_yet_onboarded_user() {
+    String login = randomAlphanumeric(10);
+    userSessionRule.logIn(login);
+    UserDto user = db.users().insertUser(u -> u.setLogin(login));
+    db.users().setShowOnboardingTutorial(user, true);
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+    assertThat(response.getShowOnboardingTutorial()).isTrue();
+  }
+
+  @Test
+  public void should_return_showOnboardingTutorial_false_for_onboarded_user() {
+    String login = randomAlphanumeric(10);
+    userSessionRule.logIn(login);
+    UserDto user = db.users().insertUser(u -> u.setLogin(login));
+    db.users().setShowOnboardingTutorial(user, false);
+
+    CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+    assertThat(response.getShowOnboardingTutorial()).isFalse();
   }
 }

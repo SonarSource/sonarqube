@@ -557,6 +557,34 @@ public class UserDaoTest {
     assertThat(underTest.selectByLogin(session, inactiveRootUser.getLogin()).isRoot()).isTrue();
   }
 
+  @Test
+  public void getShowOnboarding_should_return_false_if_user_was_created_onboarded() {
+    UserDto user = newUserDto();
+    underTest.insert(db.getSession(), user, false);
+    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isFalse();
+  }
+
+  @Test
+  public void getShowOnboarding_should_return_true_if_user_was_created_not_onboarded() {
+    UserDto user = newUserDto();
+    underTest.insert(db.getSession(), user, true);
+    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isTrue();
+  }
+
+  @Test
+  public void getShowOnboarding_should_return_false_if_setShowOnboarding_was_set_to_false() {
+    UserDto user = insertUser(true);
+    underTest.setShowOnboarding(db.getSession(), user, false);
+    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isFalse();
+  }
+
+  @Test
+  public void getShowOnboarding_should_return_true_if_setShowOnboarding_was_set_to_true() {
+    UserDto user = insertUser(true);
+    underTest.setShowOnboarding(db.getSession(), user, true);
+    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isTrue();
+  }
+
   private void commit(Runnable runnable) {
     runnable.run();
     session.commit();
