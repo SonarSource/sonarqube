@@ -493,4 +493,8 @@ public interface CoreProperties {
    */
   String DEFAULT_ISSUE_ASSIGNEE = "sonar.issues.defaultAssigneeLogin";
 
+  /**
+   * @since 6.5
+   */
+  String SKIP_ONBOARDING_TUTORIAL = "sonar.onboardingTutorial.skip";
 }
