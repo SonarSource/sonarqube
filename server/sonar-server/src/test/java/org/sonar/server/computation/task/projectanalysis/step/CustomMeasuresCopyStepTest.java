@@ -55,44 +55,40 @@ import static org.sonar.server.computation.task.projectanalysis.step.CustomMeasu
 
 public class CustomMeasuresCopyStepTest {
 
-  static final int PROJECT_REF = 1;
-  static final int MODULE_REF = 11;
-  static final int SUB_MODULE_REF = 111;
-  static final int DIR_REF = 1111;
-  static final int FILE1_REF = 11111;
-  static final int FILE2_REF = 11112;
+  private static final int PROJECT_REF = 1;
+  private static final int MODULE_REF = 11;
+  private static final int SUB_MODULE_REF = 111;
+  private static final int DIR_REF = 1111;
+  private static final int FILE1_REF = 11111;
+  private static final int FILE2_REF = 11112;
 
-  static final String PROJECT_UUID = "PROJECT";
-  static final String MODULE_UUID = "MODULE";
-  static final String SUB_MODULE_UUID = "SUB_MODULE";
-  static final String DIR_UUID = "DIR";
-  static final String FILE1_UUID = "FILE1";
-  static final String FILE2_UUID = "FILE2";
+  private static final String PROJECT_UUID = "PROJECT";
+  private static final String MODULE_UUID = "MODULE";
+  private static final String SUB_MODULE_UUID = "SUB_MODULE";
+  private static final String DIR_UUID = "DIR";
+  private static final String FILE1_UUID = "FILE1";
+  private static final String FILE2_UUID = "FILE2";
 
-  static final String VIEW_UUID = "VIEW";
-  static final String SUBVIEW_UUID = "SUBVIEW";
+  private static final String VIEW_UUID = "VIEW";
+  private static final String SUBVIEW_UUID = "SUBVIEW";
 
-  static final int VIEW_REF = 10;
-  static final int SUBVIEW_REF = 101;
-  static final int PROJECT_VIEW_REF = 1011;
+  private static final int VIEW_REF = 10;
+  private static final int SUBVIEW_REF = 101;
+  private static final int PROJECT_VIEW_REF = 1011;
 
-  static final Metric FLOAT_METRIC = new MetricImpl(10, "float_metric", "Float Metric", Metric.MetricType.FLOAT);
-  static final Metric STRING_METRIC = new MetricImpl(11, "string_metric", "String Metric", Metric.MetricType.STRING);
+  private static final Metric FLOAT_METRIC = new MetricImpl(10, "float_metric", "Float Metric", Metric.MetricType.FLOAT);
+  private static final Metric STRING_METRIC = new MetricImpl(11, "string_metric", "String Metric", Metric.MetricType.STRING);
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(FLOAT_METRIC)
     .add(STRING_METRIC);
-
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -164,49 +160,76 @@ public class CustomMeasuresCopyStepTest {
   }
 
   @Test
-  public void test_float_value_type() throws Exception {
+  public void test_float_metric_type() throws Exception {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.FLOAT)).getDoubleValue()).isEqualTo(10.0);
   }
 
   @Test
-  public void test_int_value_type() throws Exception {
+  public void test_int_metric_type() throws Exception {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.INT)).getIntValue()).isEqualTo(10);
   }
 
   @Test
-  public void test_long_value_type() throws Exception {
+  public void test_long_metric_type() throws Exception {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.WORK_DUR)).getLongValue()).isEqualTo(10);
   }
 
   @Test
-  public void test_percent_value_type() throws Exception {
+  public void test_percent_metric_type() throws Exception {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setValue(10.0);
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.PERCENT)).getDoubleValue()).isEqualTo(10);
   }
 
   @Test
-  public void test_string_value_type() throws Exception {
+  public void test_string_metric_type() throws Exception {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setTextValue("foo");
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.STRING)).getStringValue()).isEqualTo("foo");
   }
 
   @Test
-  public void test_LEVEL_value_type() throws Exception {
+  public void test_string_metric_type_with_null_value() throws Exception {
+    CustomMeasureDto dto = new CustomMeasureDto();
+    dto.setTextValue(null);
+
+    Measure measure = dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.STRING));
+    assertThat(measure.getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
+  }
+
+  @Test
+  public void test_data_metric_type_with_null_value() throws Exception {
+    CustomMeasureDto dto = new CustomMeasureDto();
+    dto.setTextValue(null);
+
+    Measure measure = dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.DATA));
+    assertThat(measure.getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
+  }
+
+  @Test
+  public void test_ditrib_metric_type_with_null_value() throws Exception {
+    CustomMeasureDto dto = new CustomMeasureDto();
+    dto.setTextValue(null);
+
+    Measure measure = dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.DISTRIB));
+    assertThat(measure.getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
+  }
+
+  @Test
+  public void test_LEVEL_metric_type() throws Exception {
     CustomMeasureDto dto = new CustomMeasureDto();
     dto.setTextValue("OK");
     assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.LEVEL)).getLevelValue()).isEqualTo(Measure.Level.OK);
   }
 
   @Test
-  public void test_boolean_value_type() throws Exception {
+  public void test_boolean_metric_type() throws Exception {
     MetricImpl booleanMetric = new MetricImpl(1, "m", "M", Metric.MetricType.BOOL);
     CustomMeasureDto dto = new CustomMeasureDto();
     assertThat(dtoToMeasure(dto.setValue(1.0), booleanMetric).getBooleanValue()).isTrue();

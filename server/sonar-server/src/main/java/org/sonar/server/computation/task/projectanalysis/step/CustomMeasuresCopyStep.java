@@ -97,7 +97,11 @@ public class CustomMeasuresCopyStep implements ComputationStep {
       case STRING:
       case DISTRIB:
       case DATA:
-        return Measure.newMeasureBuilder().create(dto.getTextValue());
+        String textValue = dto.getTextValue();
+        if (textValue == null) {
+          return Measure.newMeasureBuilder().createNoValue();
+        }
+        return Measure.newMeasureBuilder().create(textValue);
       default:
         throw new IllegalArgumentException(String.format("Custom measures do not support the metric type [%s]", metric.getType()));
     }
