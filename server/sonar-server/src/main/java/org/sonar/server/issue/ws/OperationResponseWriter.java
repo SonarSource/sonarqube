@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Issues;
 
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ALL_ADDITIONAL_FIELDS;
 
 public class OperationResponseWriter {
@@ -38,9 +38,17 @@ public class OperationResponseWriter {
   }
 
   public void write(String issueKey, Request request, Response response) {
-    SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(
-      ALL_ADDITIONAL_FIELDS, singletonList(issueKey));
+    SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(ALL_ADDITIONAL_FIELDS, singleton(issueKey));
     SearchResponseData data = loader.load(collector, null);
+
+    Issues.Operation responseBody = format.formatOperation(data);
+
+    WsUtils.writeProtobuf(responseBody, request, response);
+  }
+
+  public void write(String issueKey, SearchResponseData preloadedResponseData, Request request, Response response) {
+    SearchResponseLoader.Collector collector = new SearchResponseLoader.Collector(ALL_ADDITIONAL_FIELDS, singleton(issueKey));
+    SearchResponseData data = loader.load(preloadedResponseData, collector, null);
 
     Issues.Operation responseBody = format.formatOperation(data);
 

@@ -54,7 +54,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 
 public class AssignAction implements IssuesWsAction {
-
   private static final String DEPRECATED_PARAM_ME = "me";
   private static final String ASSIGN_TO_ME_VALUE = "_me";
 
@@ -107,11 +106,11 @@ public class AssignAction implements IssuesWsAction {
     userSession.checkLoggedIn();
     String assignee = getAssignee(request);
     String key = request.mandatoryParam(PARAM_ISSUE);
-    assign(key, assignee);
-    responseWriter.write(key, request, response);
+    SearchResponseData preloadedResponseData = assign(key, assignee);
+    responseWriter.write(key, preloadedResponseData, request, response);
   }
 
-  private void assign(String issueKey, @Nullable String assignee) {
+  private SearchResponseData assign(String issueKey, @Nullable String assignee) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
       DefaultIssue issue = issueDto.toDefaultIssue();
@@ -121,8 +120,9 @@ public class AssignAction implements IssuesWsAction {
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       if (issueFieldsSetter.assign(issue, user, context)) {
-        issueUpdater.saveIssue(dbSession, issue, context, null);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, null);
       }
+      return new SearchResponseData(issueDto);
     }
   }
 

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
@@ -38,10 +39,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
+import org.sonar.db.issue.IssueDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.emptyList;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Save issues into database. It is executed :
@@ -72,17 +75,17 @@ public abstract class IssueStorage {
     save(newArrayList(issue));
   }
 
-  public void save(DbSession session, DefaultIssue issue) {
-    doSave(session, newArrayList(issue));
+  public IssueDto save(DbSession session, DefaultIssue issue) {
+    return doSave(session, newArrayList(issue)).iterator().next();
   }
 
-  public void save(Iterable<DefaultIssue> issues) {
+  public Collection<IssueDto> save(Iterable<DefaultIssue> issues) {
     try (DbSession session = dbClient.openSession(true)) {
-      doSave(session, issues);
+      return doSave(session, issues);
     }
   }
 
-  private void doSave(DbSession session, Iterable<DefaultIssue> issues) {
+  private Collection<IssueDto> doSave(DbSession session, Iterable<DefaultIssue> issues) {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
     long now = system2.now();
@@ -91,13 +94,15 @@ public abstract class IssueStorage {
     List<DefaultIssue> issuesToInsert = firstNonNull(issuesNewOrUpdated.get(true), emptyList());
     List<DefaultIssue> issuesToUpdate = firstNonNull(issuesNewOrUpdated.get(false), emptyList());
 
-    Collection<String> inserted = insert(session, issuesToInsert, now);
-    Collection<String> updated = update(issuesToUpdate, now);
+    Collection<IssueDto> inserted = insert(session, issuesToInsert, now);
+    Collection<IssueDto> updated = update(issuesToUpdate, now);
 
-    Collection<String> issuesInsertedOrUpdated = new ArrayList<>(issuesToInsert.size() + issuesToUpdate.size());
-    issuesInsertedOrUpdated.addAll(inserted);
-    issuesInsertedOrUpdated.addAll(updated);
-    doAfterSave(issuesInsertedOrUpdated);
+    doAfterSave(Stream.concat(inserted.stream(), updated.stream())
+      .map(IssueDto::getKey)
+      .collect(toSet(issuesToInsert.size() + issuesToUpdate.size())));
+
+    return Stream.concat(inserted.stream(), updated.stream())
+      .collect(toSet(issuesToInsert.size() + issuesToUpdate.size()));
   }
 
   protected void doAfterSave(Collection<String> issues) {
@@ -107,13 +112,13 @@ public abstract class IssueStorage {
   /**
    * @return the keys of the inserted issues
    */
-  private Collection<String> insert(DbSession session, Iterable<DefaultIssue> issuesToInsert, long now) {
-    List<String> inserted = newArrayList();
+  private Collection<IssueDto> insert(DbSession session, Iterable<DefaultIssue> issuesToInsert, long now) {
+    List<IssueDto> inserted = newArrayList();
     int count = 0;
     IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
     for (DefaultIssue issue : issuesToInsert) {
-      String key = doInsert(session, now, issue);
-      inserted.add(key);
+      IssueDto issueDto = doInsert(session, now, issue);
+      inserted.add(issueDto);
       insertChanges(issueChangeMapper, issue);
       if (count > BatchSession.MAX_BATCH_SIZE) {
         session.commit();
@@ -124,19 +129,19 @@ public abstract class IssueStorage {
     return inserted;
   }
 
-  protected abstract String doInsert(DbSession batchSession, long now, DefaultIssue issue);
+  protected abstract IssueDto doInsert(DbSession batchSession, long now, DefaultIssue issue);
 
   /**
    * @return the keys of the updated issues
    */
-  private Collection<String> update(List<DefaultIssue> issuesToUpdate, long now) {
-    Collection<String> updated = new ArrayList<>();
+  private Collection<IssueDto> update(List<DefaultIssue> issuesToUpdate, long now) {
+    Collection<IssueDto> updated = new ArrayList<>();
     if (!issuesToUpdate.isEmpty()) {
       try (DbSession dbSession = dbClient.openSession(false)) {
         IssueChangeMapper issueChangeMapper = dbSession.getMapper(IssueChangeMapper.class);
         for (DefaultIssue issue : issuesToUpdate) {
-          String key = doUpdate(dbSession, now, issue);
-          updated.add(key);
+          IssueDto issueDto = doUpdate(dbSession, now, issue);
+          updated.add(issueDto);
           insertChanges(issueChangeMapper, issue);
         }
         dbSession.commit();
@@ -145,7 +150,7 @@ public abstract class IssueStorage {
     return updated;
   }
 
-  protected abstract String doUpdate(DbSession batchSession, long now, DefaultIssue issue);
+  protected abstract IssueDto doUpdate(DbSession batchSession, long now, DefaultIssue issue);
 
   private void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
     for (IssueComment comment : issue.comments()) {

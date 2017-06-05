@@ -69,6 +69,8 @@ public class IssuePermissionTest {
     SonarScanner publicProject = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "publicProject")
       .setProperty("sonar.projectName", "PublicProject");
+
+
     orchestrator.executeBuild(publicProject);
   }
 

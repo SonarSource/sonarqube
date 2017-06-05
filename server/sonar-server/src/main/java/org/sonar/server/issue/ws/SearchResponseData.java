@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,6 +56,11 @@ public class SearchResponseData {
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, Transition> transitionsByIssueKey = ArrayListMultimap.create();
   private final Set<String> updatableComments = new HashSet<>();
+
+  public SearchResponseData(IssueDto issue) {
+    checkNotNull(issue);
+    this.issues = ImmutableList.of(issue);
+  }
 
   public SearchResponseData(List<IssueDto> issues) {
     checkNotNull(issues);
