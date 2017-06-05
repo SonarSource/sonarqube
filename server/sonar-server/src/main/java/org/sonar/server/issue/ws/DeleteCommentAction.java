@@ -89,7 +89,7 @@ public class DeleteCommentAction implements IssuesWsAction {
         .peek(deleteComment(dbSession))
         .collect(MoreCollectors.toOneElement())
         .getIssueDto();
-      responseWriter.write(issueDto.getKey(), request, response);
+      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
     }
   }
 
