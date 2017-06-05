@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -85,6 +86,7 @@ public class SetTagsActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
+  private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private WsActionTester ws = new WsActionTester(new SetTagsAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
@@ -98,7 +100,8 @@ public class SetTagsActionTest {
 
     call(issueDto.getKey(), "bug", "todo");
 
-    verify(responseWriter).write(eq(issueDto.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getTags()).containsOnly("bug", "todo");
   }
@@ -244,6 +247,19 @@ public class SetTagsActionTest {
 
   private void logInAndAddProjectPermission(IssueDto issueDto, String permission) {
     userSession.logIn("john").addProjectPermission(permission, dbClient.componentDao().selectByUuid(db.getSession(), issueDto.getProjectUuid()).get());
+  }
+
+  private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {
+    SearchResponseData preloadedSearchResponseData = preloadedSearchResponseDataCaptor.getValue();
+    assertThat(preloadedSearchResponseData.getIssues())
+      .extracting(IssueDto::getKey)
+      .containsOnly(issue.getKey());
+    assertThat(preloadedSearchResponseData.getRules())
+      .extracting(RuleDefinitionDto::getKey)
+      .containsOnly(issue.getRuleKey());
+    assertThat(preloadedSearchResponseData.getComponents())
+      .extracting(ComponentDto::uuid)
+      .containsOnly(issue.getComponentUuid(), issue.getProjectUuid());
   }
 
 }

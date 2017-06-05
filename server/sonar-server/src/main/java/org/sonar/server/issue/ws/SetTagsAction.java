@@ -34,6 +34,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
@@ -93,18 +94,20 @@ public class SetTagsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam(PARAM_ISSUE);
     List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings(PARAM_TAGS), Collections.<String>emptyList());
-    setTags(key, tags);
-    responseWriter.write(key, request, response);
+    SearchResponseData preloadedSearchResponseData = setTags(key, tags);
+    responseWriter.write(key, preloadedSearchResponseData, request, response);
   }
 
-  private void setTags(String issueKey, List<String> tags) {
+  private SearchResponseData setTags(String issueKey, List<String> tags) {
     userSession.checkLoggedIn();
     try (DbSession session = dbClient.openSession(false)) {
-      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
+      IssueDto issueDto = issueFinder.getByKey(session, issueKey);
+      DefaultIssue issue = issueDto.toDefaultIssue();
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueFieldsSetter.setTags(issue, tags, context)) {
-        issueUpdater.saveIssue(session, issue, context, null);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
       }
+      return new SearchResponseData(issueDto);
     }
   }
 
