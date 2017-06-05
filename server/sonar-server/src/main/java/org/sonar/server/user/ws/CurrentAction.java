@@ -20,23 +20,25 @@
 package org.sonar.server.user.ws;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsUsers.CurrentWsResponse;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_IDENTITY;
-import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_PROVIDER;
+import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
@@ -61,87 +63,59 @@ public class CurrentAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<UserDto> user = Optional.empty();
-      Collection<String> groups = emptyList();
-      if (userSession.isLoggedIn()) {
+    Optional<UserDto> user;
+    Collection<String> groups;
+    if (userSession.isLoggedIn()) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
         user = selectCurrentUser(dbSession);
         groups = selectGroups(dbSession);
       }
-      writeResponse(response, user, groups);
+    } else {
+      user = Optional.empty();
+      groups = emptyList();
     }
+    writeProtobuf(toWsResponse(user, groups), request, response);
   }
 
   private Optional<UserDto> selectCurrentUser(DbSession dbSession) {
+    if (!userSession.isLoggedIn()) {
+      return Optional.empty();
+    }
     return Optional.ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin()));
   }
 
   private Collection<String> selectGroups(DbSession dbSession) {
+    if (!userSession.isLoggedIn()) {
+      return emptyList();
+    }
     return dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userSession.getLogin()))
       .get(userSession.getLogin());
   }
 
-  private void writeResponse(Response response, Optional<UserDto> user, Collection<String> groups) {
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeUserDetails(json, user, groups);
-    json.endObject().close();
+  private CurrentWsResponse toWsResponse(Optional<UserDto> optionalUser, Collection<String> groups) {
+    CurrentWsResponse.Builder builder = CurrentWsResponse.newBuilder();
+    builder.setIsLoggedIn(userSession.isLoggedIn());
+    setNullable(userSession.getLogin(), builder::setLogin);
+    setNullable(userSession.getName(), builder::setName);
+
+    optionalUser.ifPresent(user -> {
+      setNullable(emptyToNull(user.getEmail()), builder::setEmail);
+      builder.setLocal(user.isLocal());
+      setNullable(user.getExternalIdentity(), builder::setExternalIdentity);
+      setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
+    });
+
+    optionalUser.map(UserDto::getScmAccountsAsList).ifPresent(builder::addAllScmAccounts);
+    builder.addAllGroups(groups);
+    builder.setPermissions(CurrentWsResponse.Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build());
+    return builder.build();
   }
 
-  private void writeUserDetails(JsonWriter json, Optional<UserDto> optionalUser, Collection<String> groups) {
-    json
-      .prop("isLoggedIn", userSession.isLoggedIn())
-      .prop("login", userSession.getLogin())
-      .prop("name", userSession.getName());
-    if (optionalUser.isPresent()) {
-      UserDto user = optionalUser.get();
-      if (!isNullOrEmpty(user.getEmail())) {
-        json.prop("email", user.getEmail());
-      }
-      json.prop("local", user.isLocal());
-      json.prop(FIELD_EXTERNAL_IDENTITY, user.getExternalIdentity());
-      json.prop(FIELD_EXTERNAL_PROVIDER, user.getExternalIdentityProvider());
-    }
-
-    writeScmAccounts(json, optionalUser);
-    writeGroups(json, groups);
-    writePermissions(json);
-  }
-
-  private static void writeScmAccounts(JsonWriter json, Optional<UserDto> optionalUser) {
-    json.name("scmAccounts");
-    json.beginArray();
-    if (optionalUser.isPresent()) {
-      for (String scmAccount : optionalUser.get().getScmAccountsAsList()) {
-        json.value(scmAccount);
-      }
-    }
-    json.endArray();
-  }
-
-  private static void writeGroups(JsonWriter json, Collection<String> groups) {
-    json.name("groups");
-    json.beginArray();
-    for (String group : groups) {
-      json.value(group);
-    }
-    json.endArray();
-  }
-
-  private void writePermissions(JsonWriter json) {
-    json.name("permissions").beginObject();
-    writeGlobalPermissions(json);
-    json.endObject();
-  }
-
-  private void writeGlobalPermissions(JsonWriter json) {
-    json.name("global").beginArray();
-
+  private List<String> getGlobalPermissions() {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    OrganizationPermission.all()
+    return OrganizationPermission.all()
       .filter(permission -> userSession.hasPermission(permission, defaultOrganizationUuid))
-      .forEach(permission -> json.value(permission.getKey()));
-
-    json.endArray();
+      .map(OrganizationPermission::getKey)
+      .collect(Collectors.toList());
   }
-
 }
