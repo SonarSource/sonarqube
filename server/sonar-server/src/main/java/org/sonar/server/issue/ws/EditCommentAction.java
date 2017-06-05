@@ -100,7 +100,7 @@ public class EditCommentAction implements IssuesWsAction {
         .peek(updateComment(dbSession))
         .collect(MoreCollectors.toOneElement())
         .getIssueDto();
-      responseWriter.write(issueDto.getKey(), request, response);
+      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
     }
   }
 

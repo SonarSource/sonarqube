@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -58,20 +59,16 @@ public class EditCommentActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private System2 system2 = mock(System2.class);
-
   private DbClient dbClient = dbTester.getDbClient();
-
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
-
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
+  private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private WsActionTester tester = new WsActionTester(
     new EditCommentAction(system2, userSession, dbClient, new IssueFinder(dbClient, userSession), responseWriter));
@@ -89,7 +86,9 @@ public class EditCommentActionTest {
 
     call(commentDto.getKey(), "please have a look");
 
-    verify(responseWriter).write(eq(issueDto.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+
+    verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueChangeDto issueComment = dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey()).get();
     assertThat(issueComment.getChangeData()).isEqualTo("please have a look");
     assertThat(issueComment.getUpdatedAt()).isEqualTo(NOW);
@@ -103,7 +102,9 @@ public class EditCommentActionTest {
 
     tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
 
-    verify(responseWriter).write(eq(issueDto.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+
+    verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueChangeDto issueComment = dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey()).get();
     assertThat(issueComment.getChangeData()).isEqualTo("please have a look");
     assertThat(issueComment.getUpdatedAt()).isEqualTo(NOW);
@@ -200,7 +201,16 @@ public class EditCommentActionTest {
 
   private void loginWithBrowsePermission(String login, String permission, IssueDto issueDto) {
     userSession.logIn(login).addProjectPermission(permission,
-        dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
-        dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
+      dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getProjectUuid()).get(),
+      dbClient.componentDao().selectByUuid(dbTester.getSession(), issueDto.getComponentUuid()).get());
+  }
+
+  private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {
+    SearchResponseData preloadedSearchResponseData = preloadedSearchResponseDataCaptor.getValue();
+    assertThat(preloadedSearchResponseData.getIssues())
+      .extracting(IssueDto::getKey)
+      .containsOnly(issue.getKey());
+    assertThat(preloadedSearchResponseData.getRules()).isNullOrEmpty();
+    assertThat(preloadedSearchResponseData.getComponents()).isNullOrEmpty();
   }
 }
