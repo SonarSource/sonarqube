@@ -120,6 +120,14 @@ public class CorePropertyDefinitions {
         .multiValues(true)
         .defaultValue(CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE)
         .build(),
+      PropertyDefinition.builder(CoreProperties.SKIP_ONBOARDING_TUTORIAL)
+        .name("Skip the onboarding tutorial")
+        .type(PropertyType.BOOLEAN)
+        .description("By default, each new user is lead through a tutorial, that explains how to analyze a first project, after logging in for the fist time. " +
+          "By enabling this setting, the tutorial will not be shown automatically, but only be visible in the help.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .defaultValue(String.valueOf(false))
+        .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_REALM)
         .name("Security Realm")
         .hidden()
