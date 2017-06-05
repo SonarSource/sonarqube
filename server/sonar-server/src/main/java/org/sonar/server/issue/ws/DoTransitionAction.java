@@ -89,16 +89,18 @@ public class DoTransitionAction implements IssuesWsAction {
     String issue = request.mandatoryParam(PARAM_ISSUE);
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issue);
-      doTransition(dbSession, issueDto.toDefaultIssue(), request.mandatoryParam(PARAM_TRANSITION));
-      responseWriter.write(issue, request, response);
+      SearchResponseData preloadedSearchResponseData = doTransition(dbSession, issueDto, request.mandatoryParam(PARAM_TRANSITION));
+      responseWriter.write(issue, preloadedSearchResponseData, request, response);
     }
   }
 
-  private void doTransition(DbSession session, DefaultIssue defaultIssue, String transitionKey) {
+  private SearchResponseData doTransition(DbSession session, IssueDto issueDto, String transitionKey) {
+    DefaultIssue defaultIssue = issueDto.toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
-      issueUpdater.saveIssue(session, defaultIssue, context, null);
+      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null);
     }
+    return new SearchResponseData(issueDto);
   }
 }
