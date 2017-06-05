@@ -31,6 +31,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
@@ -94,18 +95,20 @@ public class SetSeverityAction implements IssuesWsAction {
     String issueKey = request.mandatoryParam(PARAM_ISSUE);
     String severity = request.mandatoryParam(PARAM_SEVERITY);
     try (DbSession session = dbClient.openSession(false)) {
-      setType(session, issueKey, severity);
+      SearchResponseData preloadedSearchResponseData = setType(session, issueKey, severity);
+      responseWriter.write(issueKey, preloadedSearchResponseData, request, response);
     }
-    responseWriter.write(issueKey, request, response);
   }
 
-  private void setType(DbSession session, String issueKey, String severity) {
-    DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
+  private SearchResponseData setType(DbSession session, String issueKey, String severity) {
+    IssueDto issueDto = issueFinder.getByKey(session, issueKey);
+    DefaultIssue issue = issueDto.toDefaultIssue();
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
     if (issueFieldsSetter.setManualSeverity(issue, severity, context)) {
-      issueUpdater.saveIssue(session, issue, context, null);
+      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
     }
+    return new SearchResponseData(issueDto);
   }
 }
