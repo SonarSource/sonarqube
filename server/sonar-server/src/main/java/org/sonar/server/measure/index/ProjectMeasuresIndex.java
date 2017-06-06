@@ -47,8 +47,6 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
-import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
@@ -279,12 +277,7 @@ public class ProjectMeasuresIndex {
     if (!queryText.isPresent()) {
       return Optional.empty();
     }
-    ComponentTextSearchQueryFactory.ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQueryFactory.ComponentTextSearchQuery.builder()
-      .setQueryText(queryText.get())
-      .setFieldKey(FIELD_KEY)
-      .setFieldName(FIELD_NAME)
-      .build();
-    return Optional.of(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, ComponentTextSearchFeatureRepertoire.values()));
+    return Optional.of(ProjectsTextSearchQueryFactory.createQuery(queryText.get()));
   }
 
   private static QueryBuilder toValueQuery(MetricCriterion criterion) {
