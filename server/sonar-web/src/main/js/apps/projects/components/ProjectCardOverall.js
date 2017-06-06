@@ -23,7 +23,6 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { Link } from 'react-router';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
-import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
 import ProjectCardOverallMeasures from './ProjectCardOverallMeasures';
 import FavoriteContainer from '../../../components/controls/FavoriteContainer';
 import Organization from '../../../components/shared/Organization';
@@ -37,38 +36,28 @@ type Props = {
   project?: {
     analysisDate?: string,
     key: string,
-    leakPeriodDate?: string,
     name: string,
     tags: Array<string>,
     isFavorite?: boolean,
     organization?: string,
     visibility?: boolean
-  },
-  type?: string
+  }
 };
 
-export default function ProjectCard({ measures, organization, project, type }: Props) {
+export default function ProjectCardOverall({ measures, organization, project }: Props) {
   if (project == null) {
     return null;
   }
 
   const isProjectAnalyzed = project.analysisDate != null;
   const isPrivate = project.visibility === 'private';
-  const hasLeakPeriodStart = project.leakPeriodDate != null;
   const hasTags = project.tags.length > 0;
-  const isLeakView = type === 'leak';
+  const showOrganization = organization == null && project.organization != null;
 
-  let areProjectMeasuresLoaded;
   // check for particular measures because only some measures can be loaded
   // if coming from visualizations tab
-  if (isLeakView) {
-    areProjectMeasuresLoaded = measures != null && measures['new_bugs'];
-  } else {
-    areProjectMeasuresLoaded =
-      measures != null &&
-      measures['reliability_rating'] != null &&
-      measures['sqale_rating'] != null;
-  }
+  const areProjectMeasuresLoaded =
+    measures != null && measures['reliability_rating'] != null && measures['sqale_rating'] != null;
 
   const displayQualityGate = areProjectMeasuresLoaded && isProjectAnalyzed;
   const className = classNames('boxed-group', 'project-card', {
@@ -81,8 +70,7 @@ export default function ProjectCard({ measures, organization, project, type }: P
         {project.isFavorite != null &&
           <FavoriteContainer className="spacer-right" componentKey={project.key} />}
         <h2 className="project-card-name">
-          {organization == null &&
-            project.organization != null &&
+          {showOrganization &&
             <span className="text-normal">
               <Organization organizationKey={project.organization} />
             </span>}
@@ -95,30 +83,18 @@ export default function ProjectCard({ measures, organization, project, type }: P
         </div>
         {isProjectAnalyzed &&
           <div className="project-card-dates note text-right pull-right">
-            {isLeakView &&
-              hasLeakPeriodStart &&
-              <span>
-                {translateWithParameters(
-                  'projects.leak_period_x',
-                  moment(project.leakPeriodDate).fromNow()
-                )}
-              </span>}
-            {isProjectAnalyzed &&
-              <span className="big-spacer-left">
-                {translateWithParameters(
-                  'projects.last_analysis_on_x',
-                  moment(project.analysisDate).format('LLL')
-                )}
-              </span>}
+            <span className="big-spacer-left">
+              {translateWithParameters(
+                'projects.last_analysis_on_x',
+                moment(project.analysisDate).format('LLL')
+              )}
+            </span>
           </div>}
       </div>
 
       {isProjectAnalyzed
         ? <div className="boxed-group-inner">
-            {areProjectMeasuresLoaded &&
-              (isLeakView
-                ? <ProjectCardLeakMeasures measures={measures} />
-                : <ProjectCardOverallMeasures measures={measures} />)}
+            {areProjectMeasuresLoaded && <ProjectCardOverallMeasures measures={measures} />}
           </div>
         : <div className="boxed-group-inner">
             <div className="note project-card-not-analyzed">

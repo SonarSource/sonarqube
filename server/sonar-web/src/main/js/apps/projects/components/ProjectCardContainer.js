@@ -17,9 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import React from 'react';
 import { connect } from 'react-redux';
-import ProjectCard from './ProjectCard';
+import ProjectCardLeak from './ProjectCardLeak';
+import ProjectCardOverall from './ProjectCardOverall';
 import { getComponent, getComponentMeasures } from '../../../store/rootReducer';
+
+function ProjectCard(props: { type?: string }) {
+  if (props.type === 'leak') {
+    return <ProjectCardLeak {...props} />;
+  }
+  return <ProjectCardOverall {...props} />;
+}
 
 export default connect((state, ownProps) => ({
   project: getComponent(state, ownProps.projectKey),
