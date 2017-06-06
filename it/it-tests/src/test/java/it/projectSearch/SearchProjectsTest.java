@@ -20,17 +20,20 @@
 package it.projectSearch;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.ws.Common.FacetValue;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
+import static com.sonar.orchestrator.build.SonarScanner.create;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -52,7 +55,7 @@ public class SearchProjectsTest {
 
   @Test
   public void filter_projects_by_measure_values() throws Exception {
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+    orchestrator.executeBuild(create(projectDir("shared/xoo-sample")));
 
     verifyFilterMatches("ncloc > 1");
     verifyFilterMatches("ncloc > 1 and comment_lines < 10000");
@@ -68,6 +71,35 @@ public class SearchProjectsTest {
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(PROJECT_KEY);
   }
 
+  @Test
+  public void filter_by_text_query() throws IOException {
+    orchestrator.executeBuild(create(projectDir("shared/xoo-sample"), "sonar.projectKey", "project1", "sonar.projectName", "apachee"));
+    orchestrator.executeBuild(create(projectDir("shared/xoo-sample"), "sonar.projectKey", "project2", "sonar.projectName", "Apache"));
+    orchestrator.executeBuild(create(projectDir("shared/xoo-multi-modules-sample"), "sonar.projectKey", "project3", "sonar.projectName", "Apache Foundation"));
+    orchestrator.executeBuild(create(projectDir("shared/xoo-multi-modules-sample"), "sonar.projectKey", "project4", "sonar.projectName", "Windows"));
+
+    // Search only by text query
+    assertThat(searchProjects("query = \"apache\"").getComponentsList()).extracting(Component::getKey).containsExactly("project2", "project3", "project1");
+    assertThat(searchProjects("query = \"pAch\"").getComponentsList()).extracting(Component::getKey).containsExactly("project2", "project3", "project1");
+    assertThat(searchProjects("query = \"hee\"").getComponentsList()).extracting(Component::getKey).containsExactly("project1");
+    assertThat(searchProjects("query = \"project1\"").getComponentsList()).extracting(Component::getKey).containsExactly("project1");
+    assertThat(searchProjects("query = \"unknown\"").getComponentsList()).isEmpty();
+
+    // Search by metric criteria and text query
+    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"pAch\" AND ncloc > 50").build()).getComponentsList())
+      .extracting(Component::getKey).containsExactly("project3");
+    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"nd\" AND ncloc > 50").build()).getComponentsList())
+      .extracting(Component::getKey).containsExactly("project3", "project4");
+    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"unknown\" AND ncloc > 50").build()).getComponentsList()).isEmpty();;
+
+    // Check facets
+    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"apache\"").setFacets(singletonList("ncloc")).build()).getFacets().getFacets(0).getValuesList())
+      .extracting(FacetValue::getVal, FacetValue::getCount)
+      .containsOnly(tuple("*-1000.0", 3L), tuple("1000.0-10000.0", 0L), tuple("10000.0-100000.0", 0L), tuple("100000.0-500000.0", 0L), tuple("500000.0-*", 0L));
+    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"unknown\"").setFacets(singletonList("ncloc")).build()).getFacets().getFacets(0)
+      .getValuesList()).extracting(FacetValue::getVal, FacetValue::getCount)
+      .containsOnly(tuple("*-1000.0", 0L), tuple("1000.0-10000.0", 0L), tuple("10000.0-100000.0", 0L), tuple("100000.0-500000.0", 0L), tuple("500000.0-*", 0L));
+  }
 
   private SearchProjectsWsResponse searchProjects(String filter) throws IOException {
     return searchProjects(SearchProjectsRequest.builder().setFilter(filter).build());
