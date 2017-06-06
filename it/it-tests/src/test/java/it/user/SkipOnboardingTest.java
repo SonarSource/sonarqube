@@ -28,6 +28,8 @@ import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.setting.ResetRequest;
+import org.sonarqube.ws.client.setting.SetRequest;
 import util.ItUtils;
 import util.user.UserRule;
 
@@ -57,6 +59,7 @@ public class SkipOnboardingTest {
 
   @Test
   public void default_usecase() {
+    ItUtils.newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys("sonar.onboardingTutorial.skip").build());
 
     // Step 1 create user
     String login = randomAlphabetic(10).toLowerCase();
@@ -82,6 +85,32 @@ public class SkipOnboardingTest {
       assertThat(response2.hasContent()).isFalse();
 
       // the user should not see the onboarding tutorial anymore
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+    } finally {
+      userRule.deactivateUsers(login);
+    }
+  }
+
+  @Test
+  public void do_not_show_tutorial_if_the_administrators_decided_to_skip_it() {
+    ItUtils.newAdminWsClient(orchestrator).settingsService().set(SetRequest.builder().setKey("sonar.onboardingTutorial.skip").setValue("true").build());
+
+    // Step 1 create user
+    String login = randomAlphabetic(10).toLowerCase();
+    String password = randomAlphabetic(10).toLowerCase();
+    userRule.createUser(login, password);
+    WsClient wsClient = ItUtils.newUserWsClient(orchestrator, login, password);
+    try {
+
+      // the user should not see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+
+      // Step 2 let the user skip the tutorial
+      WsResponse response = wsClient.users().skipOnboardingTutorial();
+      assertThat(response.code()).isEqualTo(204);
+      assertThat(response.hasContent()).isFalse();
+
+      // the user should not see the onboarding tutorial
       assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
     } finally {
       userRule.deactivateUsers(login);
