@@ -250,7 +250,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void should_create_user_with_onboarding_if_onboarding_is_not_globally_skipped() {
+  public void should_create_not_onboarded_user_if_onboarding_is_not_globally_skipped() {
     createDefaultGroup();
 
     Mockito.doReturn(false).when(settings).getBoolean(eq(CoreProperties.SKIP_ONBOARDING_TUTORIAL));
@@ -260,11 +260,11 @@ public class UserUpdaterTest {
       .setName("User")
       .build());
 
-    assertThat(db.getDbClient().userDao().getShowOnboarding(db.getSession(), user)).isTrue();
+    assertThat(db.getDbClient().userDao().selectOnboarded(db.getSession(), user)).isFalse();
   }
 
   @Test
-  public void should_create_user_without_onboarding_if_onboarding_is_globally_skipped() {
+  public void should_create_onboarded_user_if_onboarding_is_globally_skipped() {
     createDefaultGroup();
 
     Mockito.doReturn(true).when(settings).getBoolean(eq(CoreProperties.SKIP_ONBOARDING_TUTORIAL));
@@ -274,7 +274,7 @@ public class UserUpdaterTest {
       .setName("User")
       .build());
 
-    assertThat(db.getDbClient().userDao().getShowOnboarding(db.getSession(), user)).isFalse();
+    assertThat(db.getDbClient().userDao().selectOnboarded(db.getSession(), user)).isTrue();
   }
 
   @Test

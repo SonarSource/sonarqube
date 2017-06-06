@@ -20,24 +20,27 @@
 package org.sonar.server.platform.db.migration.version.v65;
 
 import java.sql.SQLException;
-import java.sql.Types;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AddUsersShowOnboardingTest {
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(AddUsersShowOnboardingTest.class, "users_without_showOnboarding_column.sql");
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
-  private AddUsersShowOnboarding underTest = new AddUsersShowOnboarding(db.database());
+public class MakeUsersOnboardedNotNullable extends DdlChange {
 
-  @Test
-  public void execute_adds_nullable_boolean_column_private_to_table_PROJECTS() throws SQLException {
-    underTest.execute();
+  public MakeUsersOnboardedNotNullable(Database db) {
+    super(db);
+  }
 
-    db.assertColumnDefinition("users", "show_onboarding", Types.BOOLEAN, null, true);
+  @Override
+  public void execute(Context context) throws SQLException {
+    BooleanColumnDef column = newBooleanColumnDefBuilder()
+      .setColumnName("onboarded")
+      .setIsNullable(false)
+      .build();
+    context.execute(new AlterColumnsBuilder(getDialect(), "users")
+      .updateColumn(column)
+      .build());
   }
 }

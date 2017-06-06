@@ -100,8 +100,8 @@ public class UserDao implements Dao {
     return insert(session, dto, false);
   }
 
-  public UserDto insert(DbSession session, UserDto dto, boolean showOnboarding) {
-    mapper(session).insert(dto, showOnboarding);
+  public UserDto insert(DbSession session, UserDto dto, boolean onboarded) {
+    mapper(session).insert(dto, onboarded);
     return dto;
   }
 
@@ -151,12 +151,12 @@ public class UserDao implements Dao {
     return session.getMapper(UserMapper.class);
   }
 
-  public void setShowOnboarding(DbSession session, UserDto user, boolean showOnboarding) {
-    mapper(session).setShowOnboarding(user.getId(), showOnboarding, system2.now());
+  public void updateOnboaded(DbSession session, UserDto user, boolean onboarded) {
+    mapper(session).updateOnboarded(user.getId(), onboarded, system2.now());
   }
 
-  public boolean getShowOnboarding(DbSession dbSession, UserDto user) {
-    return mapper(dbSession).getShowOnboarding(user.getId());
+  public boolean selectOnboarded(DbSession dbSession, UserDto user) {
+    return mapper(dbSession).selectOnboarded(user.getId());
   }
 
   private static class LoginToUser implements Function<String, UserDto> {

@@ -9,6 +9,6 @@
          created_at="1500000000000"
          updated_at="1500000000000"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
 
 </dataset>

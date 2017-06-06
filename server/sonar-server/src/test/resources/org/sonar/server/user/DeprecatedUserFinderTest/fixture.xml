@@ -5,12 +5,12 @@
          name="Simon Brandhof"
          email="simon.brandhof@sonarsource.com"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
   <users id="2"
          login="godin"
          name="Evgeny Mandrikov"
          email="evgeny.mandrikov@sonarsource.com"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
 
 </dataset>

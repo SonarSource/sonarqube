@@ -155,7 +155,7 @@
       salt,
       crypted_password,
       is_root,
-      show_onboarding,
+      onboarded,
       created_at,
       updated_at
     )
@@ -171,7 +171,7 @@
       #{user.salt,jdbcType=VARCHAR},
       #{user.cryptedPassword,jdbcType=VARCHAR},
       #{user.root,jdbcType=BOOLEAN},
-      #{showOnboarding,jdbcType=BOOLEAN},
+      #{onboarded,jdbcType=BOOLEAN},
       #{user.createdAt,jdbcType=BIGINT},
       #{user.updatedAt,jdbcType=BIGINT}
     )
@@ -193,17 +193,17 @@
       login = #{login,jdbcType=VARCHAR}
   </insert>
 
-  <update id="setShowOnboarding" parameterType="map">
+  <update id="updateOnboarded">
     UPDATE users
     SET
-      show_onboarding = #{showOnboarding,jdbcType=BOOLEAN},
+      onboarded = #{onboarded,jdbcType=BOOLEAN},
       updated_at=#{now,jdbcType=BIGINT}
     WHERE
       id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="getShowOnboarding" parameterType="map" resultType="boolean">
-    SELECT show_onboarding
+  <select id="selectOnboarded" resultType="boolean">
+    SELECT onboarded
     FROM users
     WHERE id = #{id,jdbcType=INTEGER}
   </select>

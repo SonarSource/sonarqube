@@ -558,31 +558,31 @@ public class UserDaoTest {
   }
 
   @Test
-  public void getShowOnboarding_should_return_false_if_user_was_created_onboarded() {
+  public void selectOnboarded_should_return_true_if_user_was_created_onboarded() {
     UserDto user = newUserDto();
     underTest.insert(db.getSession(), user, false);
-    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isFalse();
+    assertThat(underTest.selectOnboarded(db.getSession(), user)).isFalse();
   }
 
   @Test
-  public void getShowOnboarding_should_return_true_if_user_was_created_not_onboarded() {
+  public void selectOnboarded_should_return_true_if_user_was_created_not_onboarded() {
     UserDto user = newUserDto();
     underTest.insert(db.getSession(), user, true);
-    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isTrue();
+    assertThat(underTest.selectOnboarded(db.getSession(), user)).isTrue();
   }
 
   @Test
-  public void getShowOnboarding_should_return_false_if_setShowOnboarding_was_set_to_false() {
+  public void selectOnboarded_should_return_false_if_updateOnboarded_was_set_to_false() {
     UserDto user = insertUser(true);
-    underTest.setShowOnboarding(db.getSession(), user, false);
-    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isFalse();
+    underTest.updateOnboaded(db.getSession(), user, false);
+    assertThat(underTest.selectOnboarded(db.getSession(), user)).isFalse();
   }
 
   @Test
-  public void getShowOnboarding_should_return_true_if_setShowOnboarding_was_set_to_true() {
+  public void selectOnboarded_should_return_true_if_updateOnboarded_was_set_to_true() {
     UserDto user = insertUser(true);
-    underTest.setShowOnboarding(db.getSession(), user, true);
-    assertThat(underTest.getShowOnboarding(db.getSession(), user)).isTrue();
+    underTest.updateOnboaded(db.getSession(), user, true);
+    assertThat(underTest.selectOnboarded(db.getSession(), user)).isTrue();
   }
 
   private void commit(Runnable runnable) {

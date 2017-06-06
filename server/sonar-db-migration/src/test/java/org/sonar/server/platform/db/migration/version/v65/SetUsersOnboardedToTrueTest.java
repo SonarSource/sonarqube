@@ -25,23 +25,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-public class SetUsersShowOnboardingToFalseTest {
+public class SetUsersOnboardedToTrueTest {
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(SetUsersShowOnboardingToFalseTest.class, "users_with_showOnboarding_column.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(SetUsersOnboardedToTrueTest.class, "users_with_onboarded_column.sql");
 
-  public SetUsersShowOnboardingToFalse underTest = new SetUsersShowOnboardingToFalse(db.database());
+  public SetUsersOnboardedToTrue underTest = new SetUsersOnboardedToTrue(db.database());
 
   @Test
   public void should_set_field() throws SQLException {
     db.executeInsert("USERS",
-      "SHOW_ONBOARDING", true,
+      "ONBOARDED", false,
       "IS_ROOT", true);
 
-    Assertions.assertThat(db.selectFirst("SELECT SHOW_ONBOARDING FROM USERS")).containsValue(true);
+    Assertions.assertThat(db.selectFirst("SELECT ONBOARDED FROM USERS").values()).containsExactly(false);
 
     underTest.execute();
 
-    Assertions.assertThat(db.selectFirst("SELECT SHOW_ONBOARDING FROM USERS")).containsValue(false);
+    Assertions.assertThat(db.selectFirst("SELECT ONBOARDED FROM USERS").values()).containsExactly(true);
   }
 }

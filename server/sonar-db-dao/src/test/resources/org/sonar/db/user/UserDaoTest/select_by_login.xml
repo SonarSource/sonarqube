@@ -11,7 +11,7 @@
          salt="79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365"
          crypted_password="650d2261c98361e2f67f90ce5c65a95e7d8ea2fg"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
   <users id="102"
          login="sbrandhof"
          name="Simon Brandhof"
@@ -23,6 +23,6 @@
          salt="79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8366"
          crypted_password="650d2261c98361e2f67f90ce5c65a95e7d8ea2fh"
          is_root="[true]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
 
 </dataset>

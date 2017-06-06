@@ -21,26 +21,18 @@ package org.sonar.server.platform.db.migration.version.v65;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
-import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.sonar.server.platform.db.migration.step.DataChange;
 
-import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
-
-public class MakeUsersShowOnboardingNotNullable extends DdlChange {
-
-  public MakeUsersShowOnboardingNotNullable(Database db) {
+public class SetUsersOnboardedToTrue extends DataChange {
+  public SetUsersOnboardedToTrue(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    BooleanColumnDef column = newBooleanColumnDefBuilder()
-      .setColumnName("show_onboarding")
-      .setIsNullable(false)
-      .build();
-    context.execute(new AlterColumnsBuilder(getDialect(), "users")
-      .updateColumn(column)
-      .build());
+    context.prepareUpsert("update users set onboarded=?")
+      .setBoolean(1, true)
+      .execute()
+      .commit();
   }
 }

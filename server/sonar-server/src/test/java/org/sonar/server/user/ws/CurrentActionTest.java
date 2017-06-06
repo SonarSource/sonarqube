@@ -86,6 +86,7 @@ public class CurrentActionTest {
     dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
       .setUserId(obiwan.getId())
       .setGroupId(rebel.getId()));
+    db.users().setOnboarded(obiwan, true);
     db.commit();
 
     String response = ws.newRequest().execute().getInput();
@@ -115,7 +116,7 @@ public class CurrentActionTest {
     String login = randomAlphanumeric(10);
     userSessionRule.logIn(login);
     UserDto user = db.users().insertUser(u -> u.setLogin(login));
-    db.users().setShowOnboardingTutorial(user, true);
+    db.users().setOnboarded(user, false);
 
     CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
     assertThat(response.getShowOnboardingTutorial()).isTrue();
@@ -126,7 +127,7 @@ public class CurrentActionTest {
     String login = randomAlphanumeric(10);
     userSessionRule.logIn(login);
     UserDto user = db.users().insertUser(u -> u.setLogin(login));
-    db.users().setShowOnboardingTutorial(user, false);
+    db.users().setOnboarded(user, true);
 
     CurrentWsResponse response = ws.newRequest().executeProtobuf(CurrentWsResponse.class);
     assertThat(response.getShowOnboardingTutorial()).isFalse();

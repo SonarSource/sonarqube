@@ -26,13 +26,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
 
-public class MakeUsersShowOnboardingNotNullableTest {
+public class MakeUsersOnboardedNotNullableTest {
 
   @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(MakeUsersShowOnboardingNotNullableTest.class, "users_with_nullable_showOnboarding_column.sql");
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeUsersOnboardedNotNullableTest.class, "users_with_nullable_onboarded_column.sql");
 
   private final Random random = new Random();
-  private MakeUsersShowOnboardingNotNullable underTest = new MakeUsersShowOnboardingNotNullable(db.database());
+  private MakeUsersOnboardedNotNullable underTest = new MakeUsersOnboardedNotNullable(db.database());
 
   @Test
   public void execute_makes_column_component_uuid_not_nullable_on_empty_table() throws SQLException {
@@ -53,13 +53,13 @@ public class MakeUsersShowOnboardingNotNullableTest {
   }
 
   private void verifyColumn() {
-    db.assertColumnDefinition("users", "show_onboarding", Types.BOOLEAN, null, false);
+    db.assertColumnDefinition("users", "onboarded", Types.BOOLEAN, null, false);
   }
 
   private void insertEvent() {
     db.executeInsert(
       "users",
-      "SHOW_ONBOARDING", true,
+      "ONBOARDED", true,
       "IS_ROOT", true);
   }
 }

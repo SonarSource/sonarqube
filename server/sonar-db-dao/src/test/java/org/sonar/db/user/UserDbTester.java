@@ -330,8 +330,8 @@ public class UserDbTester {
       .collect(MoreCollectors.toList());
   }
 
-  public void setShowOnboardingTutorial(UserDto user, boolean showOnboardingTutorial) {
-    db.getDbClient().userDao().setShowOnboarding(db.getSession(), user, showOnboardingTutorial);
+  public void setOnboarded(UserDto user, boolean onboarded) {
+    db.getDbClient().userDao().updateOnboaded(db.getSession(), user, onboarded);
     db.commit();
   }
 }

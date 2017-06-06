@@ -8,7 +8,7 @@
          updated_at="1418215735485"
          active="[false]"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
 
   <!-- active -->
   <users id="101"
@@ -19,7 +19,7 @@
          updated_at="1418215735485"
          active="[true]"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
 
   <users id="102"
          login="jcdus"
@@ -29,7 +29,7 @@
          updated_at="1418215735485"
          active="[true]"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
 
 
 </dataset>

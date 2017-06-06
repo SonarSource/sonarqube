@@ -69,7 +69,7 @@ public class CurrentAction implements UsersWsAction {
     if (userSession.isLoggedIn()) {
       try (DbSession dbSession = dbClient.openSession(false)) {
         user = selectCurrentUser(dbSession);
-        showOnboarding = dbClient.userDao().getShowOnboarding(dbSession, user);
+        showOnboarding = !dbClient.userDao().selectOnboarded(dbSession, user);
         groups = selectGroups(dbSession);
       }
     } else {

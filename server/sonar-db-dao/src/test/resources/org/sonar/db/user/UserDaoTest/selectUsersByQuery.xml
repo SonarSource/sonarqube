@@ -7,7 +7,7 @@
          updated_at="1418215735485"
          active="[false]"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
   <users id="101"
          login="marius"
          name="Marius"
@@ -16,6 +16,6 @@
          updated_at="1418215735485"
          active="[true]"
          is_root="[false]"
-         show_onboarding="[false]"/>
+         onboarded="[true]"/>
 
 </dataset>

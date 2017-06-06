@@ -351,7 +351,7 @@ public class UserUpdater {
     long now = system2.now();
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
     boolean skipOnboarding = settings.getBoolean(CoreProperties.SKIP_ONBOARDING_TUTORIAL);
-    UserDto res = dbClient.userDao().insert(dbSession, userDto, !skipOnboarding);
+    UserDto res = dbClient.userDao().insert(dbSession, userDto, skipOnboarding);
     addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
     organizationCreation.createForUser(dbSession, userDto);
     dbSession.commit();
