@@ -33,7 +33,7 @@ exports[`should display the overall measures and quality gate 1`] = `
       className="pull-right text-right"
     />
     <div
-      className="project-card-dates note text-right pull-right"
+      className="project-card-dates note text-right"
     >
       <span
         className="big-spacer-left"

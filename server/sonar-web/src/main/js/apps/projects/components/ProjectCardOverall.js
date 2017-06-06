@@ -82,7 +82,7 @@ export default function ProjectCardOverall({ measures, organization, project }: 
           {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
         {isProjectAnalyzed &&
-          <div className="project-card-dates note text-right pull-right">
+          <div className="project-card-dates note text-right">
             <span className="big-spacer-left">
               {translateWithParameters(
                 'projects.last_analysis_on_x',

@@ -86,14 +86,14 @@ export default function ProjectCardLeak({ measures, organization, project }: Pro
           hasLeakPeriodStart &&
           <div className="project-card-dates note text-right pull-right">
             {hasLeakPeriodStart &&
-              <span>
+              <span className="project-card-leak-date pull-right">
                 {translateWithParameters(
                   'projects.leak_period_x',
                   moment(project.leakPeriodDate).fromNow()
                 )}
               </span>}
             {isProjectAnalyzed &&
-              <span className="big-spacer-left">
+              <span>
                 {translateWithParameters(
                   'projects.last_analysis_on_x',
                   moment(project.analysisDate).format('LLL')

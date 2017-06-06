@@ -49,7 +49,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
           </div>
           <div className="project-card-measure-label-with-icon">
             <BugIcon className="little-spacer-right vertical-bottom" />
-            {translate('metric.new_bugs.name')}
+            {translate('metric.bugs.name')}
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
           </div>
           <div className="project-card-measure-label-with-icon">
             <VulnerabilityIcon className="little-spacer-right vertical-bottom" />
-            {translate('metric.new_vulnerabilities.name')}
+            {translate('metric.vulnerabilities.name')}
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
           </div>
           <div className="project-card-measure-label-with-icon">
             <CodeSmellIcon className="little-spacer-right vertical-bottom" />
-            {translate('metric.new_code_smells.name')}
+            {translate('metric.code_smells.name')}
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
             />
           </div>
           <div className="project-card-measure-label">
-            {translate('metric.new_coverage.name')}
+            {translate('metric.coverage.name')}
           </div>
         </div>
       </div>
@@ -111,7 +111,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
             />
           </div>
           <div className="project-card-measure-label">
-            {translate('metric.new_duplicated_lines_density.short_name')}
+            {translate('metric.duplicated_lines_density.short_name')}
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
               />
             </div>
             <div className="project-card-measure-label">
-              {translate('metric.new_lines.short_name')}
+              {translate('metric.lines.name')}
             </div>
           </div>
         </div>}
