@@ -19,10 +19,8 @@
  */
 package org.sonar.server.rule;
 
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
@@ -34,7 +32,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultRuleFinderTest {
@@ -100,9 +97,6 @@ public class DefaultRuleFinderTest {
     // should_not_find_disabled_rule_by_id
     assertThat(underTest.findById(rule2.getId())).isNull();
 
-    // should_find_by_ids
-    assertThat(underTest.findByIds(newArrayList(rule2.getId(), rule3.getId()))).hasSize(2);
-
     // should_find_by_key
     Rule rule = underTest.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
     assertThat(rule).isNotNull();
@@ -125,22 +119,6 @@ public class DefaultRuleFinderTest {
 
     // do_not_find_unknown_rules
     assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey("unknown_repository"))).isEmpty();
-  }
-
-  @Test
-  public void find_ids_including_removed_rule() {
-    // find rule with id 2 is REMOVED
-    assertThat(underTest.findByIds(newArrayList(rule2.getId()))).hasSize(1);
-  }
-
-  @Test
-  public void find_keys_including_removed_rule() {
-    assertThat(underTest.findByKeys(newArrayList(RuleKey.of("checkstyle", "DisabledCheck")))).hasSize(1);
-
-    // find rule with id 2 is REMOVED
-    assertThat(underTest.findByKeys(newArrayList(RuleKey.of("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck")))).hasSize(1);
-
-    assertThat(underTest.findByKeys(Collections.<RuleKey>emptyList())).isEmpty();
   }
 
   @Test

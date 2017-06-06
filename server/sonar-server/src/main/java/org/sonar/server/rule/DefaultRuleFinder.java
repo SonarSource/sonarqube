@@ -72,30 +72,6 @@ public class DefaultRuleFinder implements RuleFinder {
     }
   }
 
-  public Collection<org.sonar.api.rules.Rule> findByIds(Collection<Integer> ruleIds) {
-    List<org.sonar.api.rules.Rule> rules = newArrayList();
-    if (ruleIds.isEmpty()) {
-      return rules;
-    }
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> ruleDtos = ruleDao.selectByIds(dbSession, defaultOrganizationProvider.get().getUuid(), new ArrayList<>(ruleIds));
-      return convertToRuleApi(dbSession, ruleDtos);
-    }
-  }
-
-  public Collection<org.sonar.api.rules.Rule> findByKeys(Collection<RuleKey> ruleKeys) {
-    List<org.sonar.api.rules.Rule> rules = newArrayList();
-    if (ruleKeys.isEmpty()) {
-      return rules;
-    }
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, defaultOrganizationProvider.get().getUuid(), new ArrayList<>(ruleKeys));
-      return convertToRuleApi(dbSession, ruleDtos);
-    }
-  }
-
   @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
