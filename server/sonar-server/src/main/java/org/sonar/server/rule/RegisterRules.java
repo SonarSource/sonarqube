@@ -77,9 +77,11 @@ public class RegisterRules implements Startable {
   private final Languages languages;
   private final System2 system2;
   private final OrganizationFlags organizationFlags;
+  private final WebServerRuleFinder webServerRuleFinder;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
-    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, OrganizationFlags organizationFlags) {
+    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2, OrganizationFlags organizationFlags,
+    WebServerRuleFinder webServerRuleFinder) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
@@ -88,6 +90,7 @@ public class RegisterRules implements Startable {
     this.languages = languages;
     this.system2 = system2;
     this.organizationFlags = organizationFlags;
+    this.webServerRuleFinder = webServerRuleFinder;
   }
 
   @Override
@@ -105,7 +108,7 @@ public class RegisterRules implements Startable {
             RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
             if (ruleDef.template() && orgsEnabled) {
               RuleDefinitionDto ruleDefinition = allRules.get(ruleKey);
-              if (ruleDefinition != null && ruleDefinition.getStatus() == RuleStatus.REMOVED)  {
+              if (ruleDefinition != null && ruleDefinition.getStatus() == RuleStatus.REMOVED) {
                 LOG.debug("Template rule {} kept removed, because organizations are enabled.", ruleKey);
                 allRules.remove(ruleKey);
               } else {
@@ -130,6 +133,8 @@ public class RegisterRules implements Startable {
       ruleIndexer.indexRuleDefinitions(keysToIndex);
       activeRuleIndexer.index(changes);
       profiler.stopDebug();
+
+      webServerRuleFinder.startCaching();
     }
   }
 

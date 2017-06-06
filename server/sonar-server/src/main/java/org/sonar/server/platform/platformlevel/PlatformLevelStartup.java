@@ -32,6 +32,7 @@ import org.sonar.server.qualityprofile.DefinedQProfileLoader;
 import org.sonar.server.qualityprofile.MassRegisterQualityProfiles;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
+import org.sonar.server.rule.WebServerRuleFinder;
 import org.sonar.server.startup.DeleteOldAnalysisReportsFromFs;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.GeneratePluginIndex;
@@ -83,6 +84,7 @@ public class PlatformLevelStartup extends PlatformLevel {
         getOptional(IndexerStartupTask.class).ifPresent(IndexerStartupTask::execute);
         get(ServerLifecycleNotifier.class).notifyStart();
         get(ProcessCommandWrapper.class).notifyOperational();
+        get(WebServerRuleFinder.class).stopCaching();
       }
     });
 

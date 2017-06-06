@@ -46,7 +46,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Will be removed in the future. Please use {@link org.sonar.server.rule.RuleService}
+ * Will be removed in the future.
  */
 public class DefaultRuleFinder implements RuleFinder {
 

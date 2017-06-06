@@ -160,11 +160,11 @@ import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
 import org.sonar.server.qualityprofile.ws.SearchDataLoader;
 import org.sonar.server.root.ws.RootWsModule;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
-import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleUpdater;
+import org.sonar.server.rule.WebServerRuleFinderImpl;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.ws.ActiveRuleCompleter;
@@ -286,7 +286,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RuleIndexer.class,
       AnnotationRuleParser.class,
       XMLRuleParser.class,
-      DefaultRuleFinder.class,
+      WebServerRuleFinderImpl.class,
       DeprecatedRulesDefinitionLoader.class,
       RuleDefinitionsLoader.class,
       CommonRuleDefinitionsImpl.class,
