@@ -48,7 +48,7 @@ export default PopupView.extend({
     return {
       qualityProfile: profileKey,
       qualityProfileName: profile != null ? profile.name : null,
-      allowActivateOnProfile: profileKey != null && activation === 'false',
+      allowActivateOnProfile: profile != null && activation === 'false' && !profile.isBuiltIn,
       allowDeactivateOnProfile: profileKey != null && activation === 'true'
     };
   }

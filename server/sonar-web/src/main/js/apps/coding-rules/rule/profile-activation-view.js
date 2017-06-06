@@ -129,7 +129,9 @@ export default ModalForm.extend({
     const inactiveProfiles = this.options.app.qualityProfiles.filter(
       profile => !activeQualityProfiles.findWhere({ key: profile.key })
     );
-    return inactiveProfiles.filter(profile => profile.lang === lang);
+    return inactiveProfiles
+      .filter(profile => profile.lang === lang)
+      .filter(profile => !profile.isBuiltIn);
   },
 
   serializeData() {
@@ -164,8 +166,8 @@ export default ModalForm.extend({
       qualityProfiles: profilesWithDepth,
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
       saveEnabled: availableProfiles.length > 0 || (this.model && this.model.get('qProfile')),
-      isCustomRule: (this.model && this.model.has('templateKey')) ||
-        this.options.rule.has('templateKey')
+      isCustomRule:
+        (this.model && this.model.has('templateKey')) || this.options.rule.has('templateKey')
     };
   }
 });

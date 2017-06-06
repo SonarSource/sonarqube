@@ -109,7 +109,7 @@ export default ModalFormView.extend({
     if (languages.length > 0) {
       profiles = profiles.filter(profile => languages.indexOf(profile.lang) !== -1);
     }
-    return profiles;
+    return profiles.filter(profile => !profile.isBuiltIn);
   },
 
   serializeData() {
