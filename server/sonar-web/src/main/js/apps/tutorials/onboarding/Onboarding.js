@@ -21,6 +21,7 @@
 import React from 'react';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
+import AnalysisStep from './AnalysisStep';
 import { translate } from '../../../helpers/l10n';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import './styles.css';
@@ -32,7 +33,9 @@ type Props = {
 };
 
 type State = {
-  step: string
+  organization?: string,
+  step: string,
+  token?: string
 };
 
 export default class Onboarding extends React.PureComponent {
@@ -50,12 +53,12 @@ export default class Onboarding extends React.PureComponent {
     }
   }
 
-  handleTokenDone = (/* token: string */) => {
-    this.setState({ step: '' });
+  handleTokenDone = (token: string) => {
+    this.setState({ step: 'analysis', token });
   };
 
-  handleOrganizationDone = () => {
-    this.setState({ step: 'token' });
+  handleOrganizationDone = (organization: string) => {
+    this.setState({ organization, step: 'token' });
   };
 
   render() {
@@ -64,7 +67,9 @@ export default class Onboarding extends React.PureComponent {
     }
 
     const { organizationsEnabled, sonarCloud } = this.props;
-    const { step } = this.state;
+    const { step, token } = this.state;
+
+    let stepNumber = 1;
 
     return (
       <div className="page page-limited">
@@ -82,13 +87,21 @@ export default class Onboarding extends React.PureComponent {
             currentUser={this.props.currentUser}
             onContinue={this.handleOrganizationDone}
             open={step === 'organization'}
-            stepNumber={1}
+            stepNumber={stepNumber++}
           />}
 
         <TokenStep
           onContinue={this.handleTokenDone}
           open={step === 'token'}
-          stepNumber={organizationsEnabled ? 2 : 1}
+          stepNumber={stepNumber++}
+        />
+
+        <AnalysisStep
+          organization={this.state.organization}
+          open={step === 'analysis'}
+          sonarCloud={sonarCloud}
+          stepNumber={stepNumber}
+          token={token}
         />
       </div>
     );
