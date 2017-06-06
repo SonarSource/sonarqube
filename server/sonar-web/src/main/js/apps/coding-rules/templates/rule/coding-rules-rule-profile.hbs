@@ -2,7 +2,12 @@
   <a href="{{profilePath}}">
     {{name}}
   </a>
-  {{#if isBuiltIn}}<span class="built-in-badge spacer-left">{{t 'quality_profiles.built_in'}}</span>{{/if}}
+  {{#if isBuiltIn}}
+    <span class="built-in-badge spacer-left" data-toggle="tooltip"  data-placement="bottom"
+          title="{{t 'quality_profiles.built_in.description.1'}} {{t 'quality_profiles.built_in.description.2'}}">
+      {{t 'quality_profiles.built_in'}}
+    </span>
+  {{/if}}
   {{#if parent}}
     <div class="coding-rules-detail-quality-profile-inheritance">
       {{#eq inherit 'OVERRIDES'}}
