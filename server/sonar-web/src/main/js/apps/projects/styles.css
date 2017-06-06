@@ -89,8 +89,15 @@
 
 .project-card-dates {
   width: 100%;
-  margin-top: 4px;
-  margin-bottom: -16px;
+  margin-top: 10px;
+  margin-bottom: -10px;
+}
+
+.project-card-leak-date {
+  padding: 4px 8px;
+  margin: -5px -4px -5px 24px;
+  background-color: #fbf3d5;
+  border: 1px solid #eae3c7;
 }
 
 .project-card-measures {
@@ -108,28 +115,14 @@
 
 .project-card-measures .project-card-measure {
   width: 120px;
-  box-sizing: border-box;
-  padding: 0 15px;
 }
 
 .project-card-leak-measures .project-card-measure {
-  width: 144px;
-  box-sizing: border-box;
-  padding: 0 5px;
+  width: 130px;
 }
 
 .project-card-measure.smaller-card {
   width: 90px;
-}
-
-@media (max-width: 1150px) {
-  .project-card-leak-measures .project-card-measure {
-    width: 136px;
-    padding: 0 2px;
-  }
-  .project-card-measure.smaller-card {
-    width: 80px;
-  }
 }
 
 .project-card-measure {
@@ -137,6 +130,8 @@
   display: inline-block;
   vertical-align: top;
   text-align: center;
+  box-sizing: border-box;
+  padding: 0 15px;
 }
 
 .project-card-measure + .project-card-measure:before {

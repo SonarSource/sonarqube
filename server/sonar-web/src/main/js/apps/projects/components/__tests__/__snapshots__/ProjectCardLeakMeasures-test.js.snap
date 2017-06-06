@@ -28,7 +28,7 @@ exports[`should not render new coverage 1`] = `
     <div
       className="project-card-measure-label"
     >
-      metric.new_coverage.name
+      metric.coverage.name
     </div>
   </div>
 </div>
@@ -62,7 +62,7 @@ exports[`should not render new duplications 1`] = `
     <div
       className="project-card-measure-label"
     >
-      metric.new_duplicated_lines_density.short_name
+      metric.duplicated_lines_density.short_name
     </div>
   </div>
 </div>
@@ -110,7 +110,7 @@ exports[`should render correctly with all data 1`] = `
         <BugIcon
           className="little-spacer-right vertical-bottom"
         />
-        metric.new_bugs.name
+        metric.bugs.name
       </div>
     </div>
   </div>
@@ -150,7 +150,7 @@ exports[`should render correctly with all data 1`] = `
         <VulnerabilityIcon
           className="little-spacer-right vertical-bottom"
         />
-        metric.new_vulnerabilities.name
+        metric.vulnerabilities.name
       </div>
     </div>
   </div>
@@ -190,7 +190,7 @@ exports[`should render correctly with all data 1`] = `
         <CodeSmellIcon
           className="little-spacer-right vertical-bottom"
         />
-        metric.new_code_smells.name
+        metric.code_smells.name
       </div>
     </div>
   </div>
@@ -221,7 +221,7 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-label"
       >
-        metric.new_coverage.name
+        metric.coverage.name
       </div>
     </div>
   </div>
@@ -252,7 +252,7 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-label"
       >
-        metric.new_duplicated_lines_density.short_name
+        metric.duplicated_lines_density.short_name
       </div>
     </div>
   </div>
@@ -283,7 +283,7 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-label"
       >
-        metric.new_lines.short_name
+        metric.lines.name
       </div>
     </div>
   </div>
