@@ -126,8 +126,10 @@ public class PluginsTest {
     installPlugin(builder, "lua");
     installPlugin(builder, "php");
     installPlugin(builder, "pitest");
-    installPlugin(builder, "pli");
-    installPlugin(builder, "plsql");
+    // SONAR-7618 SonarPLI 1.5.0.702 not compatible with CE not loading @ServerSide
+//    installPlugin(builder, "pli");
+    // SONAR-7618 SonarPLSQL 2.9.0.901 not compatible with CE not loading @ServerSide
+//    installPlugin(builder, "plsql");
     installPlugin(builder, "pmd");
     // FIXME puppet plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     installPlugin(builder, "python");
@@ -145,7 +147,8 @@ public class PluginsTest {
     installPlugin(builder, "sonargraphintegration");
     installPlugin(builder, "status");
     installPlugin(builder, "swift");
-    installPlugin(builder, "vb");
+    // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
+//    installPlugin(builder, "vb");
     installPlugin(builder, "vbnet");
     installPlugin(builder, "web");
     installPlugin(builder, "xanitizer");
