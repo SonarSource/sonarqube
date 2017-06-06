@@ -95,13 +95,13 @@ public class ChangeParentAction implements QProfileWsAction {
       String parentKey = request.param(PARAM_PARENT_KEY);
       String parentName = request.param(PARAM_PARENT_NAME);
       if (isEmpty(parentKey) && isEmpty(parentName)) {
-        ruleActivator.setParent(dbSession, profile.getKee(), null);
+        ruleActivator.setParent(dbSession, profile, null);
       } else {
         String parentOrganizationKey = parentKey == null ? organization.getKey() : null;
         String parentLanguage = parentKey == null ? request.param(PARAM_LANGUAGE) : null;
         QProfileReference parentRef = QProfileReference.from(parentKey, parentOrganizationKey, parentLanguage, parentName);
         QProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
-        ruleActivator.setParent(dbSession, profile.getKee(), parent.getKee());
+        ruleActivator.setParent(dbSession, profile, parent);
       }
       response.noContent();
     }

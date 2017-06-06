@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,14 +43,15 @@ import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
-import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.OrgQProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -61,64 +63,98 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
   private final System2 system2;
   private final UuidFactory uuidFactory;
   private final TypeValidations typeValidations;
+  private final ActiveRuleIndexer activeRuleIndexer;
   private RuleRepository ruleRepository;
 
-  public BuiltInQProfileInsertImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory, TypeValidations typeValidations) {
+  public BuiltInQProfileInsertImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory, TypeValidations typeValidations, ActiveRuleIndexer activeRuleIndexer) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
     this.typeValidations = typeValidations;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   @Override
-  public void create(DbSession session, DbSession batchSession, BuiltInQProfile builtInQProfile, OrganizationDto organization) {
-    initRuleRepository(batchSession);
+  public void create(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtInQProfile) {
+    initRuleRepository(batchDbSession);
 
     Date now = new Date(system2.now());
-    QProfileDto profileDto = insertQualityProfile(session, builtInQProfile, organization, now);
+    RulesProfileDto ruleProfile = insertRulesProfile(dbSession, builtInQProfile, now);
 
     List<ActiveRuleChange> localChanges = builtInQProfile.getActiveRules()
       .stream()
-      .map(activeRule -> insertActiveRule(session, profileDto, activeRule, now.getTime()))
+      .map(activeRule -> insertActiveRule(dbSession, ruleProfile, activeRule, now.getTime()))
       .collect(MoreCollectors.toList());
 
-    localChanges.forEach(change -> dbClient.qProfileChangeDao().insert(batchSession, change.toDto(null)));
+    localChanges.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
+
+    associateToOrganizations(dbSession, batchDbSession, builtInQProfile, ruleProfile);
+
+    dbSession.commit();
+    batchDbSession.commit();
+
+    activeRuleIndexer.indexRuleProfile(dbSession, ruleProfile);
   }
 
-  private void initRuleRepository(DbSession session) {
+  private void associateToOrganizations(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtInQProfile, RulesProfileDto rulesProfileDto) {
+    List<String> orgUuids = dbClient.organizationDao().selectAllUuids(dbSession);
+
+    List<DefaultQProfileDto> defaults = new ArrayList<>();
+    orgUuids.forEach(orgUuid -> {
+      OrgQProfileDto dto = new OrgQProfileDto()
+        .setOrganizationUuid(orgUuid)
+        .setRulesProfileUuid(rulesProfileDto.getKee())
+        .setUuid(uuidFactory.create());
+
+      if (builtInQProfile.isDefault()) {
+        // rows of table default_qprofiles must be inserted after
+        // in order to benefit from batch SQL inserts
+        defaults.add(new DefaultQProfileDto()
+          .setQProfileUuid(dto.getUuid())
+          .setOrganizationUuid(orgUuid)
+          .setLanguage(builtInQProfile.getLanguage()));
+      }
+
+      dbClient.qualityProfileDao().insert(batchDbSession, dto);
+    });
+
+    defaults.forEach(defaultQProfileDto -> dbClient.defaultQProfileDao().insertOrUpdate(dbSession, defaultQProfileDto));
+  }
+
+  private void initRuleRepository(DbSession dbSession) {
     if (ruleRepository == null) {
-      ruleRepository = new RuleRepository(dbClient, session);
+      ruleRepository = new RuleRepository(dbClient, dbSession);
     }
   }
 
-  private QProfileDto insertQualityProfile(DbSession dbSession, BuiltInQProfile builtInQProfile, OrganizationDto organization, Date now) {
-    QProfileDto profileDto = QProfileDto.createFor(uuidFactory.create())
-      .setName(builtInQProfile.getName())
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage(builtInQProfile.getLanguage())
+  private RulesProfileDto insertRulesProfile(DbSession dbSession, BuiltInQProfile builtIn, Date now) {
+    RulesProfileDto dto = new RulesProfileDto()
+      .setKee(uuidFactory.create())
+      .setName(builtIn.getName())
+      .setLanguage(builtIn.getLanguage())
       .setIsBuiltIn(true)
       .setRulesUpdatedAtAsDate(now);
-    dbClient.qualityProfileDao().insert(dbSession, profileDto);
-    if (builtInQProfile.isDefault()) {
-      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profileDto));
-    }
-    return profileDto;
+    dbClient.qualityProfileDao().insert(dbSession, dto);
+    return dto;
   }
 
-  private ActiveRuleChange insertActiveRule(DbSession session, QProfileDto profileDto, org.sonar.api.rules.ActiveRule activeRule, long now) {
+  private ActiveRuleChange insertActiveRule(DbSession dbSession, RulesProfileDto rulesProfileDto, org.sonar.api.rules.ActiveRule activeRule, long now) {
     RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
     RuleDefinitionDto ruleDefinitionDto = ruleRepository.getDefinition(ruleKey)
       .orElseThrow(() -> new IllegalStateException("RuleDefinition not found for key " + ruleKey));
 
-    ActiveRuleDto dto = ActiveRuleDto.createFor(profileDto, ruleDefinitionDto);
+    ActiveRuleDto dto = new ActiveRuleDto();
+    dto.setProfileId(rulesProfileDto.getId());
+    dto.setRuleId(ruleDefinitionDto.getId());
+    dto.setKey(ActiveRuleKey.of(rulesProfileDto, ruleDefinitionDto.getKey()));
     dto.setSeverity(firstNonNull(activeRule.getSeverity().name(), ruleDefinitionDto.getSeverityString()));
     dto.setUpdatedAt(now);
     dto.setCreatedAt(now);
-    dbClient.activeRuleDao().insert(session, dto);
+    dbClient.activeRuleDao().insert(dbSession, dto);
 
-    List<ActiveRuleParamDto> paramDtos = insertActiveRuleParams(session, activeRule, ruleKey, dto);
+    List<ActiveRuleParamDto> paramDtos = insertActiveRuleParams(dbSession, activeRule, ruleKey, dto);
 
-    ActiveRuleChange change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(profileDto.getKee(), ruleKey));
+    ActiveRuleChange change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, dto);
     change.setSeverity(dto.getSeverityString());
     paramDtos.forEach(paramDto -> change.setParameter(paramDto.getKey(), paramDto.getValue()));
     return change;
@@ -161,20 +197,20 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     return value;
   }
 
-  public static class RuleRepository {
-    private final Map<RuleKey, RuleDefinitionDto> ruleDefinitions;
-    private final Map<RuleKey, Set<RuleParamDto>> ruleParams;
+  private static class RuleRepository {
+    private final Map<RuleKey, RuleDefinitionDto> definitions;
+    private final Map<RuleKey, Set<RuleParamDto>> params;
 
     private RuleRepository(DbClient dbClient, DbSession session) {
-      this.ruleDefinitions = dbClient.ruleDao().selectAllDefinitions(session)
+      this.definitions = dbClient.ruleDao().selectAllDefinitions(session)
         .stream()
         .collect(Collectors.toMap(RuleDefinitionDto::getKey, Function.identity()));
-      Map<Integer, RuleKey> ruleIdsByKey = ruleDefinitions.values()
+      Map<Integer, RuleKey> ruleIdsByKey = definitions.values()
         .stream()
         .collect(MoreCollectors.uniqueIndex(RuleDefinitionDto::getId, RuleDefinitionDto::getKey));
-      this.ruleParams = new HashMap<>(ruleIdsByKey.size());
-      dbClient.ruleDao().selectRuleParamsByRuleKeys(session, ruleDefinitions.keySet())
-        .forEach(ruleParam -> ruleParams.compute(
+      this.params = new HashMap<>(ruleIdsByKey.size());
+      dbClient.ruleDao().selectRuleParamsByRuleKeys(session, definitions.keySet())
+        .forEach(ruleParam -> params.compute(
           ruleIdsByKey.get(ruleParam.getRuleId()),
           (key, value) -> {
             if (value == null) {
@@ -184,12 +220,12 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
           }));
     }
 
-    Optional<RuleDefinitionDto> getDefinition(RuleKey ruleKey) {
-      return Optional.ofNullable(ruleDefinitions.get(requireNonNull(ruleKey, "RuleKey can't be null")));
+    private Optional<RuleDefinitionDto> getDefinition(RuleKey ruleKey) {
+      return Optional.ofNullable(definitions.get(requireNonNull(ruleKey, "RuleKey can't be null")));
     }
 
-    Set<RuleParamDto> getRuleParams(RuleKey ruleKey) {
-      Set<RuleParamDto> res = ruleParams.get(requireNonNull(ruleKey, "RuleKey can't be null"));
+    private Set<RuleParamDto> getRuleParams(RuleKey ruleKey) {
+      Set<RuleParamDto> res = params.get(requireNonNull(ruleKey, "RuleKey can't be null"));
       return res == null ? Collections.emptySet() : res;
     }
   }

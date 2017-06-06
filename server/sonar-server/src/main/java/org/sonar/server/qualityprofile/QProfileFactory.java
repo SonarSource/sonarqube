@@ -19,9 +19,13 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
@@ -85,21 +89,14 @@ public class QProfileFactory {
     return doCreate(dbSession, organization, name, false, false);
   }
 
-  /**
-   * Create the quality profile in DB with the specified name.
-   *
-   * A DB error will be thrown if the quality profile already exists.
-   */
-  public QProfileDto createBuiltIn(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault) {
-    return doCreate(dbSession, requireNonNull(organization), name, isDefault, true);
-  }
-
   private QProfileDto doCreate(DbSession dbSession, OrganizationDto organization, QProfileName name, boolean isDefault, boolean isBuiltIn) {
     if (StringUtils.isEmpty(name.getName())) {
       throw BadRequestException.create("quality_profiles.profile_name_cant_be_blank");
     }
     Date now = new Date(system2.now());
-    QProfileDto dto = QProfileDto.createFor(uuidFactory.create())
+    QProfileDto dto = new QProfileDto()
+      .setKee(uuidFactory.create())
+      .setRulesProfileUuid(uuidFactory.create())
       .setName(name.getName())
       .setOrganizationUuid(organization.getUuid())
       .setLanguage(name.getLanguage())
@@ -113,24 +110,44 @@ public class QProfileFactory {
   }
 
   // ------------- DELETION
-
   /**
-   * Deletes the profiles with specified keys from database and Elasticsearch.
-   * All related information are deleted. The profiles marked as "default"
-   * are deleted too. Deleting a parent profile does not delete descendants
-   * if their keys are not listed.
+   * Deletes the specified profiles from database and Elasticsearch.
+   * All information related to custom profiles are deleted. Only association
+   * with built-in profiles are deleted.
+   * The profiles marked as "default" are deleted too. Deleting a parent profile
+   * does not delete descendants if the latter are not listed.
    */
-  public void deleteByKeys(DbSession dbSession, Collection<String> profileUuids) {
-    if (!profileUuids.isEmpty()) {
-      db.qualityProfileDao().deleteProjectAssociationsByProfileUuids(dbSession, profileUuids);
-      db.activeRuleDao().deleteParametersByProfileKeys(dbSession, profileUuids);
-      db.activeRuleDao().deleteByProfileKeys(dbSession, profileUuids);
-      db.qProfileChangeDao().deleteByProfileKeys(dbSession, profileUuids);
-      db.defaultQProfileDao().deleteByQProfileUuids(dbSession, profileUuids);
-      db.qualityProfileDao().deleteByUuids(dbSession, profileUuids);
-      dbSession.commit();
-      activeRuleIndexer.deleteByProfileKeys(profileUuids);
+  public void delete(DbSession dbSession, Collection<QProfileDto> profiles) {
+    if (profiles.isEmpty()) {
+      return;
     }
-  }
 
+    Set<String> uuids = new HashSet<>();
+    List<QProfileDto> customProfiles = new ArrayList<>();
+    Set<String> rulesProfileUuidsOfCustomProfiles = new HashSet<>();
+    profiles.forEach(p -> {
+      uuids.add(p.getKee());
+      if (!p.isBuiltIn()) {
+        customProfiles.add(p);
+        rulesProfileUuidsOfCustomProfiles.add(p.getRulesProfileUuid());
+      }
+    });
+
+    // tables org_qprofiles, default_qprofiles and project_qprofiles
+    // are deleted whatever custom or built-in
+    db.qualityProfileDao().deleteProjectAssociationsByProfileUuids(dbSession, uuids);
+    db.defaultQProfileDao().deleteByQProfileUuids(dbSession, uuids);
+    db.qualityProfileDao().deleteOrgQProfilesByUuids(dbSession, uuids);
+
+    // tables related to rules_profiles and active_rules are deleted
+    // only for custom profiles
+    if (!rulesProfileUuidsOfCustomProfiles.isEmpty()) {
+      db.activeRuleDao().deleteParametersByRuleProfileUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
+      db.activeRuleDao().deleteByRuleProfileUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
+      db.qProfileChangeDao().deleteByRulesProfileUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
+      db.qualityProfileDao().deleteRulesProfilesByUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
+    }
+    dbSession.commit();
+    activeRuleIndexer.deleteByProfiles(customProfiles);
+  }
 }

@@ -58,7 +58,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.deleteOrganizationsIfExists;
+import static util.ItUtils.deleteOrganizations;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.newWsClient;
@@ -95,13 +95,13 @@ public class OrganizationTest {
   @Before
   public void setUp() throws Exception {
     resetSettings(orchestrator, null, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS);
-    deleteOrganizationsIfExists(orchestrator, KEY, "an-org");
+    deleteOrganizations(orchestrator);
     userRule.deactivateUsers(USER_LOGIN);
   }
 
   @After
   public void tearDown() throws Exception {
-    deleteOrganizationsIfExists(orchestrator, KEY, "an-org");
+    deleteOrganizations(orchestrator);
   }
 
   @Test
@@ -275,6 +275,7 @@ public class OrganizationTest {
 
   @Test
   public void an_organization_member_can_analyze_project() {
+
     assertThatOrganizationDoesNotExit(KEY);
 
     Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
@@ -459,13 +460,14 @@ public class OrganizationTest {
     for (QualityProfiles.SearchWsResponse.QualityProfile profile : response.getProfilesList()) {
       assertThat(profile.getIsInherited()).isFalse();
       assertThat(profile.getProjectCount()).isEqualTo(0);
+      assertThat(profile.getIsBuiltIn()).isTrue();
       if (profile.getName().toLowerCase(Locale.ENGLISH).contains("empty")) {
         assertThat(profile.getActiveRuleCount()).isEqualTo(0);
       } else {
         assertThat(profile.getActiveRuleCount()).isGreaterThan(0);
         // that allows to check the Elasticsearch index of active rules
         Rules.SearchResponse activeRulesResponse = adminClient.rules().search(new org.sonarqube.ws.client.rule.SearchWsRequest().setActivation(true).setQProfile(profile.getKey()));
-        assertThat(activeRulesResponse.getTotal()).isEqualTo(profile.getActiveRuleCount());
+        assertThat(activeRulesResponse.getTotal()).as("profile " + profile.getName()).isEqualTo(profile.getActiveRuleCount());
         assertThat(activeRulesResponse.getRulesCount()).isEqualTo((int)profile.getActiveRuleCount());
       }
     }

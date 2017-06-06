@@ -41,12 +41,12 @@ public class ActiveRuleCompleterTest {
   @Test
   public void test_completeShow() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(dbTester.getDbClient(), new Languages());
+    ActiveRuleCompleter underTest = new ActiveRuleCompleter(dbTester.getDbClient(), new Languages());
     RuleDefinitionDto rule = dbTester.rules().insert();
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     ActiveRuleDto activeRule = dbTester.qualityProfiles().activateRule(qualityProfile, rule);
 
-    List<Rules.Active> result = activeRuleCompleter.completeShow(dbTester.getSession(), organization, rule);
+    List<Rules.Active> result = underTest.completeShow(dbTester.getSession(), organization, rule);
 
     assertThat(result).extracting(Rules.Active::getQProfile).containsExactlyInAnyOrder(qualityProfile.getKee());
     assertThat(result).extracting(Rules.Active::getSeverity).containsExactlyInAnyOrder(activeRule.getSeverityString());

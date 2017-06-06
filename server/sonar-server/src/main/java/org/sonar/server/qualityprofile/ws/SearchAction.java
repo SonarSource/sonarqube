@@ -162,8 +162,8 @@ public class SearchAction implements QProfileWsAction {
       return new SearchData()
         .setOrganization(organization)
         .setProfiles(profiles)
-        .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileKey(dbSession, organization))
-        .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileKey(dbSession, organization, RuleStatus.DEPRECATED))
+        .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileUuid(dbSession, organization))
+        .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileUuid(dbSession, organization, RuleStatus.DEPRECATED))
         .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileUuid(dbSession, organization))
         .setDefaultProfileKeys(defaultProfiles);
     }

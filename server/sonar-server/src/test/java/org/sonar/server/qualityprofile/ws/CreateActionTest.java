@@ -51,6 +51,7 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -92,7 +93,7 @@ public class CreateActionTest {
   private RuleIndex ruleIndex = new RuleIndex(esTester.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
   private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(system2, dbClient, esTester.client());
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client(), new ActiveRuleIteratorFactory(dbClient));
   private ProfileImporter[] profileImporters = createImporters();
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
     new RuleActivator(mock(System2.class), dbClient, ruleIndex, new RuleActivatorContextFactory(dbClient), null, activeRuleIndexer, userSession),
@@ -139,8 +140,8 @@ public class CreateActionTest {
 
     QProfileDto dto = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, "New Profile", XOO_LANGUAGE);
     assertThat(dto.getKee()).isNotNull();
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, dto.getKee())).hasSize(1);
-    assertThat(ruleIndex.searchAll(new RuleQuery().setQProfileKey(dto.getKee()).setActivation(true))).hasSize(1);
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, dto.getKee())).hasSize(1);
+    assertThat(ruleIndex.searchAll(new RuleQuery().setQProfile(dto).setActivation(true))).hasSize(1);
   }
 
   @Test

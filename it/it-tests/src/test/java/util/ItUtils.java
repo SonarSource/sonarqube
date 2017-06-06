@@ -372,10 +372,12 @@ public class ItUtils {
     return "key-" + randomAlphabetic(100);
   }
 
-  public static void deleteOrganizationsIfExists(Orchestrator orchestrator, String... organizationKeys) {
-    OrganizationService adminOrganizationService = newAdminWsClient(orchestrator).organizations();
-    adminOrganizationService.search(SearchWsRequest.builder().setOrganizations(organizationKeys).build()).getOrganizationsList()
-      .forEach(organization -> adminOrganizationService.delete(organization.getKey()));
+  public static void deleteOrganizations(Orchestrator orchestrator) {
+    OrganizationService service = newAdminWsClient(orchestrator).organizations();
+    service.search(SearchWsRequest.builder().build()).getOrganizationsList()
+      .stream()
+      .filter(o -> !o.getGuarded())
+      .forEach(organization -> service.delete(organization.getKey()));
   }
 
   public static class ComponentNavigation {

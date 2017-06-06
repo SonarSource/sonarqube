@@ -49,6 +49,7 @@ import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -98,7 +99,7 @@ public class RegisterRulesTest {
     when(system.now()).thenReturn(DATE1.getTime());
     ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
     ruleIndex = new RuleIndex(esTester.client());
-    activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client(), new ActiveRuleIteratorFactory(dbClient));
     defaultOrganization = dbTester.getDefaultOrganization();
   }
 

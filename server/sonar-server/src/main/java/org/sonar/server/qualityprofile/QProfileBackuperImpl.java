@@ -47,6 +47,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -82,13 +83,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public void backup(DbSession dbSession, QProfileDto profileDto, Writer writer) {
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKee());
+  public void backup(DbSession dbSession, QProfileDto profile, Writer writer) {
+    List<OrgActiveRuleDto> activeRules = db.activeRuleDao().selectByProfile(dbSession, profile);
     activeRules.sort(BackupActiveRuleComparator.INSTANCE);
-    writeXml(dbSession, writer, profileDto, activeRules.iterator());
+    writeXml(dbSession, writer, profile, activeRules.iterator());
   }
 
-  private void writeXml(DbSession dbSession, Writer writer, QProfileDto profile, Iterator<ActiveRuleDto> activeRules) {
+  private void writeXml(DbSession dbSession, Writer writer, QProfileDto profile, Iterator<OrgActiveRuleDto> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
     xml.begin(ATTRIBUTE_PROFILE);
     xml.prop(ATTRIBUTE_NAME, profile.getName());
@@ -97,8 +98,8 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     while (activeRules.hasNext()) {
       ActiveRuleDto activeRule = activeRules.next();
       xml.begin(ATTRIBUTE_RULE);
-      xml.prop(ATTRIBUTE_REPOSITORY_KEY, activeRule.getKey().ruleKey().repository());
-      xml.prop(ATTRIBUTE_KEY, activeRule.getKey().ruleKey().rule());
+      xml.prop(ATTRIBUTE_REPOSITORY_KEY, activeRule.getRuleKey().repository());
+      xml.prop(ATTRIBUTE_KEY, activeRule.getRuleKey().rule());
       xml.prop(ATTRIBUTE_PRIORITY, activeRule.getSeverityString());
       xml.begin(ATTRIBUTE_PARAMETERS);
       for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
@@ -247,8 +248,8 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     @Override
     public int compare(ActiveRuleDto o1, ActiveRuleDto o2) {
       return new CompareToBuilder()
-        .append(o1.getKey().ruleKey().repository(), o2.getKey().ruleKey().repository())
-        .append(o1.getKey().ruleKey().rule(), o2.getKey().ruleKey().rule())
+        .append(o1.getRuleKey().repository(), o2.getRuleKey().repository())
+        .append(o1.getRuleKey().rule(), o2.getRuleKey().rule())
         .toComparison();
     }
   }

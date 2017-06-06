@@ -40,8 +40,8 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;;
 
 public class RuleIndexDefinitionTest {
 
-  Settings settings = new MapSettings();
-  RuleIndexDefinition underTest = new RuleIndexDefinition(settings);
+  private Settings settings = new MapSettings();
+  private RuleIndexDefinition underTest = new RuleIndexDefinition(settings);
 
   @Rule
   public EsTester tester = new EsTester(underTest);

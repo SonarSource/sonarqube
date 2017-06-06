@@ -42,8 +42,7 @@ public interface OrganizationMapper {
 
   List<OrganizationDto> selectByPermission(@Param("userId") Integer userId, @Param("permission") String permission);
 
-  List<OrganizationDto> selectWithoutQualityProfile(@Param("profileLanguage") String profileLanguage,
-    @Param("profileName") String profileName);
+  List<String> selectAllUuids();
 
   DefaultTemplates selectDefaultTemplatesByUuid(@Param("uuid") String uuid);
 

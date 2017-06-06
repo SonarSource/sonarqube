@@ -52,7 +52,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
 
   private final Languages languages;
   private final List<ProfileDefinition> definitions;
-  private Map<String, List<BuiltInQProfile>> qProfilesByLanguage;
+  private List<BuiltInQProfile> qProfiles;
 
   /**
    * Requires for pico container when no {@link ProfileDefinition} is defined at all
@@ -68,20 +68,20 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
 
   @Override
   public void initialize() {
-    checkState(qProfilesByLanguage == null, "initialize must be called only once");
+    checkState(qProfiles == null, "initialize must be called only once");
 
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Load quality profiles");
     ListMultimap<String, RulesProfile> rulesProfilesByLanguage = buildRulesProfilesByLanguage();
     validateAndClean(rulesProfilesByLanguage);
-    this.qProfilesByLanguage = toQualityProfilesByLanguage(rulesProfilesByLanguage);
+    this.qProfiles = toFlatList(rulesProfilesByLanguage);
     profiler.stopDebug();
   }
 
   @Override
-  public Map<String, List<BuiltInQProfile>> getQProfilesByLanguage() {
-    checkState(qProfilesByLanguage != null, "initialize must be called first");
+  public List<BuiltInQProfile> get() {
+    checkState(qProfiles != null, "initialize must be called first");
 
-    return qProfilesByLanguage;
+    return qProfiles;
   }
 
   /**
@@ -125,7 +125,7 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       });
   }
 
-  private static Map<String, List<BuiltInQProfile>> toQualityProfilesByLanguage(ListMultimap<String, RulesProfile> rulesProfilesByLanguage) {
+  private static List<BuiltInQProfile> toFlatList(ListMultimap<String, RulesProfile> rulesProfilesByLanguage) {
     Map<String, List<BuiltInQProfile.Builder>> buildersByLanguage = Multimaps.asMap(rulesProfilesByLanguage)
       .entrySet()
       .stream()
@@ -134,7 +134,9 @@ public class BuiltInQProfileRepositoryImpl implements BuiltInQProfileRepository 
       .entrySet()
       .stream()
       .filter(BuiltInQProfileRepositoryImpl::ensureAtMostOneDeclaredDefault)
-      .collect(MoreCollectors.uniqueIndex(Map.Entry::getKey, entry -> toQualityProfiles(entry.getValue()), buildersByLanguage.size()));
+      .map(entry -> toQualityProfiles(entry.getValue()))
+      .flatMap(Collection::stream)
+      .collect(MoreCollectors.toList());
   }
 
   /**

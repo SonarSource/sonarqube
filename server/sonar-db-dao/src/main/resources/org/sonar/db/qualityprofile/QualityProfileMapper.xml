@@ -8,6 +8,7 @@
     oqp.organization_uuid as organizationUuid,
     oqp.parent_uuid as parentKee,
     rp.id as id,
+    rp.kee as rulesProfileUuid,
     rp.name as name,
     rp.language as language,
     rp.rules_updated_at as rulesUpdatedAt,
@@ -16,7 +17,18 @@
     rp.is_built_in as isBuiltIn
   </sql>
 
-  <insert id="insertRulesProfile" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
+  <sql id="ruleProfileColumns">
+    rp.id as id,
+    rp.kee as kee,
+    rp.name as name,
+    rp.language as language,
+    rp.rules_updated_at as rulesUpdatedAt,
+    rp.last_used as lastUsed,
+    rp.user_updated_at as userUpdatedAt,
+    rp.is_built_in as isBuiltIn
+  </sql>
+
+  <insert id="insertRuleProfile" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="dto.id">
     insert into rules_profiles (
       kee,
       name,
@@ -49,16 +61,16 @@
       created_at,
       updated_at
     ) values (
-      #{dto.kee, jdbcType=VARCHAR},
+      #{dto.uuid, jdbcType=VARCHAR},
       #{dto.organizationUuid, jdbcType=VARCHAR},
-      #{dto.kee, jdbcType=VARCHAR},
-      #{dto.parentKee, jdbcType=VARCHAR},
+      #{dto.rulesProfileUuid, jdbcType=VARCHAR},
+      #{dto.parentUuid, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
   </insert>
 
-  <update id="updateRulesProfile" parameterType="map">
+  <update id="updateRuleProfile" parameterType="map">
     update rules_profiles
     set
       name = #{dto.name, jdbcType=VARCHAR},
@@ -69,7 +81,7 @@
       user_updated_at = #{dto.userUpdatedAt, jdbcType=BIGINT},
       is_built_in = #{dto.isBuiltIn, jdbcType=BOOLEAN}
     where
-      kee = #{dto.kee, jdbcType=VARCHAR}
+      kee = #{dto.rulesProfileUuid, jdbcType=VARCHAR}
   </update>
 
   <update id="updateOrgQProfile" parameterType="map">
@@ -81,7 +93,7 @@
       uuid = #{dto.kee, jdbcType=VARCHAR}
   </update>
 
-  <delete id="deleteRulesProfilesByUuids" parameterType="String">
+  <delete id="deleteRuleProfilesByUuids" parameterType="String">
     delete from rules_profiles
     where kee in
       <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
@@ -93,7 +105,13 @@
     <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </delete>
 
-  <select id="selectAll" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
+  <select id="selectBuiltInRuleProfiles" resultType="org.sonar.db.qualityprofile.RulesProfileDto">
+    select <include refid="ruleProfileColumns"/>
+    from rules_profiles rp
+    where rp.is_built_in = ${_true}
+  </select>
+
+  <select id="selectOrderedByOrganizationUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>
     from org_qprofiles oqp
@@ -124,7 +142,7 @@
     inner join default_qprofiles dp on dp.qprofile_uuid = oqp.uuid
     where
       dp.language in <foreach collection="languages" open="(" close=")" item="language" separator=",">#{language, jdbcType=VARCHAR}</foreach>
-      and dp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      and dp.organization_uuid = oqp.organization_uuid
       and rp.language = dp.language
       and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
@@ -166,7 +184,7 @@
     from org_qprofiles oqp
     inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
     where
-      oqp.uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid}</foreach>
+      oqp.uuid in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </select>
 
   <select id="selectByLanguage" parameterType="String" resultType="org.sonar.db.qualityprofile.QProfileDto">
@@ -300,8 +318,8 @@
     ORDER BY pj.name ASC
   </select>
 
-  <select id="selectUuidsOfCustomQProfiles" parameterType="map" resultType="string">
-    select oqp.uuid
+  <select id="selectUuidsOfCustomRuleProfiles" parameterType="map" resultType="string">
+    select oqp.rules_profile_uuid
     from org_qprofiles oqp
     inner join organizations o on o.uuid = oqp.organization_uuid
     inner join rules_profiles rp on rp.kee = oqp.rules_profile_uuid
@@ -311,7 +329,7 @@
       and rp.is_built_in = ${_false}
   </select>
 
-  <update id="renameRulesProfiles" parameterType="map">
+  <update id="renameRuleProfiles" parameterType="map">
     update rules_profiles
     set
       name = #{newName, jdbcType=VARCHAR},

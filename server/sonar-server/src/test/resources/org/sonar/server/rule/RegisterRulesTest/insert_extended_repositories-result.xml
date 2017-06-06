@@ -1,9 +1,0 @@
-<dataset>
-
-  <rules tags="[null]" system_tags="[null]" id="1" plugin_rule_key="rule1" plugin_name="findbugs" plugin_config_key="[null]" name="Rule One" description="Description of Rule One"
-     status="READY" priority="2" is_template="[false]" template_id="[null]" language="java"/>
-
-    <rules tags="[null]" system_tags="[null]" id="2" plugin_rule_key="rule2" plugin_name="findbugs" plugin_config_key="[null]" name="Rule Two" description="Description of Rule Two"
-         status="READY" priority="2" is_template="[false]" template_id="[null]" language="java"/>
-
-</dataset>

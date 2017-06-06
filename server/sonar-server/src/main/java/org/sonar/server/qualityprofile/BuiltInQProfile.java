@@ -35,7 +35,7 @@ public final class BuiltInQProfile {
   private final List<org.sonar.api.rules.ActiveRule> activeRules;
 
   private BuiltInQProfile(Builder builder) {
-    this.qProfileName = new QProfileName(builder.language, builder.getName());
+    this.qProfileName = new QProfileName(builder.language, builder.name);
     this.isDefault = builder.declaredDefault || builder.computedDefault;
     this.activeRules = ImmutableList.copyOf(builder.activeRules);
   }

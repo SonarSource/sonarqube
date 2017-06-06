@@ -40,8 +40,8 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.DefaultQProfileDto;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.index.RuleIndex;
@@ -50,7 +50,6 @@ import org.sonar.server.tester.ServerTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 
 // TODO replace this MediumTest by DbTester and EsTester
@@ -79,21 +78,21 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
+    assertThat(qualityProfileDao.selectOrderedByOrganizationUuid(dbSession, organization)).hasSize(1);
     QProfileDto profile = qualityProfileDao.selectByNameAndLanguage(dbSession, organization, "Basic", "xoo");
     assertThat(profile).isNotNull();
     assertThat(profile.isBuiltIn()).isTrue();
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKee())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKee(), ruleKey);
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile, ruleKey);
     assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
 
     // Check in ES
-    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
+    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true).setQProfile(profile), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
 
     tester.get(Platform.class).restart();
 
@@ -102,12 +101,12 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules
     ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, activeRuleKey).get();
-    assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKee());
-    assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
+    assertThat(activeRule.getKey().getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(activeRule.getKey().getRuleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check in ES
-    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
+    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true).setQProfile(profile), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
 
     // TODO
     // Check ActiveRuleParameters in DB
@@ -129,7 +128,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
+    assertThat(qualityProfileDao.selectOrderedByOrganizationUuid(dbSession, organization)).hasSize(1);
     QProfileDto profile = qualityProfileDao.selectByNameAndLanguage(dbSession, organization, "Basic", "xoo");
     assertThat(profile).isNotNull();
     assertThat(profile.isBuiltIn()).isTrue();
@@ -139,12 +138,12 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKee())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
-    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile.getKee(), ruleKey)).get();
-    assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKee());
-    assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
+    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile, ruleKey)).get();
+    assertThat(activeRule.getKey().getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(activeRule.getKey().getRuleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check ActiveRuleParameters in DB
@@ -167,7 +166,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(0);
+    assertThat(qualityProfileDao.selectOrderedByOrganizationUuid(dbSession, organization)).hasSize(0);
   }
 
   @Test

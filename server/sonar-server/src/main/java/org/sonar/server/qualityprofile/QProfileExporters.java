@@ -44,6 +44,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -103,29 +104,27 @@ public class QProfileExporters {
     return exporter.getMimeType();
   }
 
-  public void export(QProfileDto profile, String exporterKey, Writer writer) {
+  public void export(DbSession dbSession, QProfileDto profile, String exporterKey, Writer writer) {
     ProfileExporter exporter = findExporter(exporterKey);
-    exporter.exportProfile(wrap(profile), writer);
+    exporter.exportProfile(wrap(dbSession, profile), writer);
   }
 
-  private RulesProfile wrap(QProfileDto profile) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
-      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKee());
-      List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDto::getId));
-      ListMultimap<Integer, ActiveRuleParamDto> activeRuleParamsByActiveRuleId = FluentIterable.from(activeRuleParamDtos).index(ActiveRuleParamDto::getActiveRuleId);
+  private RulesProfile wrap(DbSession dbSession, QProfileDto profile) {
+    RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
+    List<OrgActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfile(dbSession, profile);
+    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDto::getId));
+    ListMultimap<Integer, ActiveRuleParamDto> activeRuleParamsByActiveRuleId = FluentIterable.from(activeRuleParamDtos).index(ActiveRuleParamDto::getActiveRuleId);
 
-      for (ActiveRuleDto activeRule : activeRuleDtos) {
-        // TODO all rules should be loaded by using one query with all active rule keys as parameter
-        Rule rule = ruleFinder.findByKey(activeRule.getKey().ruleKey());
-        org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.getSeverityString()));
-        List<ActiveRuleParamDto> paramDtos = activeRuleParamsByActiveRuleId.get(activeRule.getId());
-        for (ActiveRuleParamDto activeRuleParamDto : paramDtos) {
-          wrappedActiveRule.setParameter(activeRuleParamDto.getKey(), activeRuleParamDto.getValue());
-        }
+    for (ActiveRuleDto activeRule : activeRuleDtos) {
+      // TODO all rules should be loaded by using one query with all active rule keys as parameter
+      Rule rule = ruleFinder.findByKey(activeRule.getRuleKey());
+      org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.getSeverityString()));
+      List<ActiveRuleParamDto> paramDtos = activeRuleParamsByActiveRuleId.get(activeRule.getId());
+      for (ActiveRuleParamDto activeRuleParamDto : paramDtos) {
+        wrappedActiveRule.setParameter(activeRuleParamDto.getKey(), activeRuleParamDto.getValue());
       }
-      return target;
     }
+    return target;
   }
 
   private ProfileExporter findExporter(String exporterKey) {

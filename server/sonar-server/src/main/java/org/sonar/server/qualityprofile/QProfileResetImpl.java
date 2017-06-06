@@ -29,7 +29,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -57,16 +56,16 @@ public class QProfileResetImpl implements QProfileReset {
     BulkChangeResult result = new BulkChangeResult();
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
     // Keep reference to all the activated rules before backup restore
-    for (ActiveRuleDto activeRuleDto : db.activeRuleDao().selectByProfileKey(dbSession, profile.getKee())) {
+    for (ActiveRuleDto activeRuleDto : db.activeRuleDao().selectByProfile(dbSession, profile)) {
       if (activeRuleDto.getInheritance() == null) {
         // inherited rules can't be deactivated
-        ruleToBeDeactivated.add(activeRuleDto.getKey().ruleKey());
+        ruleToBeDeactivated.add(activeRuleDto.getRuleKey());
       }
     }
 
     for (RuleActivation activation : activations) {
       try {
-        List<ActiveRuleChange> changes = activator.activate(dbSession, activation, profile.getKee());
+        List<ActiveRuleChange> changes = activator.activate(dbSession, activation, profile);
         ruleToBeDeactivated.remove(activation.getRuleKey());
         result.incrementSucceeded();
         result.addChanges(changes);
@@ -80,13 +79,13 @@ public class QProfileResetImpl implements QProfileReset {
     changes.addAll(result.getChanges());
     for (RuleKey ruleKey : ruleToBeDeactivated) {
       try {
-        changes.addAll(activator.deactivate(dbSession, ActiveRuleKey.of(profile.getKee(), ruleKey)));
+        changes.addAll(activator.deactivate(dbSession, profile, ruleKey));
       } catch (BadRequestException e) {
         // ignore, probably a rule inherited from parent that can't be deactivated
       }
     }
     dbSession.commit();
-    activeRuleIndexer.index(changes);
+    activeRuleIndexer.indexChanges(dbSession, changes);
     return result;
   }
 

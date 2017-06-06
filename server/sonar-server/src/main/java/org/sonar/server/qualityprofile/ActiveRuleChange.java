@@ -20,16 +20,18 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 
 public class ActiveRuleChange {
+
+  private ActiveRuleDto activeRule;
 
   public enum Type {
     ACTIVATED, DEACTIVATED, UPDATED
@@ -39,9 +41,15 @@ public class ActiveRuleChange {
   private final ActiveRuleKey key;
   private String severity = null;
   private ActiveRule.Inheritance inheritance = null;
-  private Map<String, String> parameters = Maps.newHashMap();
+  private final Map<String, String> parameters = new HashMap<>();
 
-  private ActiveRuleChange(Type type, ActiveRuleKey key) {
+  public ActiveRuleChange(Type type, ActiveRuleDto activeRule) {
+    this.type = type;
+    this.key = activeRule.getKey();
+    this.activeRule = activeRule;
+  }
+
+  public ActiveRuleChange(Type type, ActiveRuleKey key) {
     this.type = type;
     this.key = key;
   }
@@ -89,14 +97,23 @@ public class ActiveRuleChange {
     return this;
   }
 
+  @CheckForNull
+  public ActiveRuleDto getActiveRule() {
+    return activeRule;
+  }
+
+  public ActiveRuleChange setActiveRule(@Nullable ActiveRuleDto activeRule) {
+    this.activeRule = activeRule;
+    return this;
+  }
+
   public QProfileChangeDto toDto(@Nullable String login) {
     QProfileChangeDto dto = new QProfileChangeDto();
     dto.setChangeType(type.name());
-    dto.setProfileKey(getKey().qProfile());
+    dto.setRulesProfileUuid(getKey().getRuleProfileUuid());
     dto.setLogin(login);
     Map<String, String> data = new HashMap<>();
-    data.put("key", getKey().toString());
-    data.put("ruleKey", getKey().ruleKey().toString());
+    data.put("ruleKey", getKey().getRuleKey().toString());
 
     parameters.entrySet().stream()
       .filter(param -> !param.getKey().isEmpty())
@@ -110,10 +127,6 @@ public class ActiveRuleChange {
     }
     dto.setData(data);
     return dto;
-  }
-
-  public static ActiveRuleChange createFor(Type type, ActiveRuleKey key) {
-    return new ActiveRuleChange(type, key);
   }
 
   @Override

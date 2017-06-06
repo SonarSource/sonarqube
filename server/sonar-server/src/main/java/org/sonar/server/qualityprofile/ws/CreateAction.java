@@ -134,7 +134,7 @@ public class CreateAction implements QProfileWsAction {
       }
     }
     dbSession.commit();
-    activeRuleIndexer.index(result.getChanges());
+    activeRuleIndexer.indexChanges(dbSession, result.getChanges());
     return buildResponse(result, organization);
   }
 

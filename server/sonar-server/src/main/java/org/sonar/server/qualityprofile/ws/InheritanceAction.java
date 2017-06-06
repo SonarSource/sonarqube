@@ -76,7 +76,7 @@ public class InheritanceAction implements QProfileWsAction {
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' for quality profile '%s'", organizationUuid, profile.getKee())));
       List<QProfileDto> ancestors = profileLookup.ancestors(profile, dbSession);
-      List<QProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile.getKee());
+      List<QProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile);
       Statistics statistics = new Statistics(dbSession, organization);
 
       writeProtobuf(buildResponse(profile, ancestors, children, statistics), request, response);
@@ -121,8 +121,8 @@ public class InheritanceAction implements QProfileWsAction {
 
     private Statistics(DbSession dbSession, OrganizationDto organization) {
       ActiveRuleDao dao = dbClient.activeRuleDao();
-      countRulesByProfileKey = dao.countActiveRulesByProfileKey(dbSession, organization);
-      countOverridingRulesByProfileKey = dao.countActiveRulesForInheritanceByProfileKey(dbSession, organization, ActiveRuleDto.OVERRIDES);
+      countRulesByProfileKey = dao.countActiveRulesByProfileUuid(dbSession, organization);
+      countOverridingRulesByProfileKey = dao.countActiveRulesForInheritanceByProfileUuid(dbSession, organization, ActiveRuleDto.OVERRIDES);
     }
   }
 }

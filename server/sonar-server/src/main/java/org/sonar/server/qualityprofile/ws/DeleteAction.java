@@ -79,14 +79,14 @@ public class DeleteAction implements QProfileWsAction {
       List<QProfileDto> descendants = selectDescendants(dbSession, profile);
       ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);
 
-      profileFactory.deleteByKeys(dbSession, toKeys(profile, descendants));
+      profileFactory.delete(dbSession, merge(profile, descendants));
       dbSession.commit();
     }
     response.noContent();
   }
 
   private List<QProfileDto> selectDescendants(DbSession dbSession, QProfileDto profile) {
-    return dbClient.qualityProfileDao().selectDescendants(dbSession, profile.getKee());
+    return dbClient.qualityProfileDao().selectDescendants(dbSession, profile);
   }
 
   private void ensureNoneIsMarkedAsDefault(DbSession dbSession, QProfileDto profile, List<QProfileDto> descendants) {
@@ -105,9 +105,8 @@ public class DeleteAction implements QProfileWsAction {
       });
   }
 
-  private static List<String> toKeys(QProfileDto profile, List<QProfileDto> descendants) {
+  private static List<QProfileDto> merge(QProfileDto profile, List<QProfileDto> descendants) {
     return Stream.concat(Stream.of(profile), descendants.stream())
-      .map(QProfileDto::getKee)
       .collect(MoreCollectors.toList(descendants.size() + 1));
   }
 }

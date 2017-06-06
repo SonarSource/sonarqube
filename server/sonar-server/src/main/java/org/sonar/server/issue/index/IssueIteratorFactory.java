@@ -32,7 +32,7 @@ public class IssueIteratorFactory {
   }
 
   public IssueIterator createForAll() {
-    return createForProject((String) null);
+    return createForProject(null);
   }
 
   public IssueIterator createForProject(@Nullable String projectUuid) {

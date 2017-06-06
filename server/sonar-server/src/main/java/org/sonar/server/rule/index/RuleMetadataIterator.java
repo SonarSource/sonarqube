@@ -109,8 +109,8 @@ public class RuleMetadataIterator implements Iterator<RuleExtensionDoc>, AutoClo
     protected RuleExtensionDoc read(ResultSet rs) throws SQLException {
       RuleExtensionDoc doc = new RuleExtensionDoc();
 
-      String ruleKey = rs.getString(1);
-      String repositoryKey = rs.getString(2);
+      String repositoryKey = rs.getString(1);
+      String ruleKey = rs.getString(2);
       RuleKey key = RuleKey.of(repositoryKey, ruleKey);
       doc.setRuleKey(key);
       doc.setScope(RuleExtensionScope.organization(rs.getString(3)));

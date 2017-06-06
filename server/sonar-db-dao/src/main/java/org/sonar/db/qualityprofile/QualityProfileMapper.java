@@ -28,19 +28,21 @@ import org.sonar.db.KeyLongValue;
 
 public interface QualityProfileMapper {
 
-  void insertOrgQProfile(@Param("dto") QProfileDto dto, @Param("now") long now);
+  void insertOrgQProfile(@Param("dto") OrgQProfileDto dto, @Param("now") long now);
 
-  void insertRulesProfile(@Param("dto") QProfileDto dto, @Param("now") Date now);
+  void insertRuleProfile(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
 
-  void updateRulesProfile(@Param("dto") QProfileDto dto, @Param("now") Date now);
+  void updateRuleProfile(@Param("dto") QProfileDto dto, @Param("now") Date now);
 
   void updateOrgQProfile(@Param("dto") QProfileDto dto, @Param("now") long now);
 
-  void deleteRulesProfilesByUuids(@Param("uuids") Collection<String> uuids);
+  void deleteRuleProfilesByUuids(@Param("uuids") Collection<String> uuids);
 
   void deleteOrgQProfilesByUuids(@Param("uuids") Collection<String> uuids);
 
-  List<QProfileDto> selectAll(@Param("organizationUuid") String organizationUuid);
+  List<RulesProfileDto> selectBuiltInRuleProfiles();
+
+  List<QProfileDto> selectOrderedByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull
   QProfileDto selectDefaultProfile(@Param("organizationUuid") String organizationUuid, @Param("language") String language);
@@ -116,7 +118,7 @@ public interface QualityProfileMapper {
     @Param("profileUuid") String profileUuid,
     @Param("nameQuery") String nameQuery);
 
-  List<String> selectUuidsOfCustomQProfiles(@Param("language") String language, @Param("name") String name);
+  List<String> selectUuidsOfCustomRuleProfiles(@Param("language") String language, @Param("name") String name);
 
-  void renameRulesProfiles(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("uuids") Collection<String> uuids);
+  void renameRuleProfiles(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("uuids") Collection<String> uuids);
 }

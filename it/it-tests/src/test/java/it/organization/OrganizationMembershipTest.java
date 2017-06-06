@@ -44,7 +44,7 @@ import util.user.UserRule;
 import static it.Category6Suite.enableOrganizationsSupport;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.deleteOrganizationsIfExists;
+import static util.ItUtils.deleteOrganizations;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrganizationKey;
 import static util.ItUtils.newUserWsClient;
@@ -73,12 +73,12 @@ public class OrganizationMembershipTest {
     adminClient = newAdminWsClient(orchestrator);
     enableOrganizationsSupport();
     setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
-    deleteOrganizationsIfExists(orchestrator, KEY);
+    deleteOrganizations(orchestrator);
   }
 
   @After
   public void tearDown() throws Exception {
-    deleteOrganizationsIfExists(orchestrator, KEY);
+    deleteOrganizations(orchestrator);
   }
 
   @Test

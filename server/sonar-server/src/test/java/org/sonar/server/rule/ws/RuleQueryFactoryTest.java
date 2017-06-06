@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -75,14 +74,12 @@ public class RuleQueryFactoryTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = dbTester.getDbClient();
 
-  DbSession dbSession = dbTester.getSession();
+  private RuleQueryFactory underTest = new RuleQueryFactory(dbClient, new RuleWsSupport(dbClient, null, TestDefaultOrganizationProvider.from(dbTester)));
 
-  RuleQueryFactory underTest = new RuleQueryFactory(dbClient, new RuleWsSupport(dbClient, null, TestDefaultOrganizationProvider.from(dbTester)));
-
-  FakeAction fakeAction = new FakeAction(underTest);
-  OrganizationDto organization;
+  private FakeAction fakeAction = new FakeAction(underTest);
+  private OrganizationDto organization;
 
   @Before
   public void before() {
@@ -103,7 +100,7 @@ public class RuleQueryFactoryTest {
     assertThat(result.isTemplate()).isNull();
     assertThat(result.getLanguages()).isNull();
     assertThat(result.getQueryText()).isNull();
-    assertThat(result.getQProfileKey()).isNull();
+    assertThat(result.getQProfile()).isNull();
     assertThat(result.getRepositories()).isNull();
     assertThat(result.getRuleKey()).isNull();
     assertThat(result.getSeverities()).isNull();
@@ -151,8 +148,8 @@ public class RuleQueryFactoryTest {
     assertThat(result.isTemplate()).isTrue();
     assertThat(result.getLanguages()).containsOnly(qualityProfile.getLanguage());
     assertThat(result.getQueryText()).isEqualTo("S001");
-    assertThat(result.getQProfileKey()).isEqualTo(qualityProfile.getKee());
-    assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(result.getQProfile().getKee()).isEqualTo(qualityProfile.getKee());
+    assertThat(result.getOrganization().getUuid()).isEqualTo(organization.getUuid());
     assertThat(result.getRepositories()).containsOnly("pmd", "checkstyle");
     assertThat(result.getRuleKey()).isNull();
     assertThat(result.getSeverities()).containsOnly(MINOR, CRITICAL);
@@ -187,35 +184,25 @@ public class RuleQueryFactoryTest {
 
   @Test
   public void create_query_add_language_from_profile() throws Exception {
-    String profileKey = "sonar-way";
-    dbClient.qualityProfileDao().insert(dbSession, QProfileDto.createFor(profileKey)
-      .setOrganizationUuid(organization.getUuid())
-      .setName("Sonar Way")
-      .setLanguage("xoo"));
-    dbSession.commit();
+    QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
 
     RuleQuery result = execute(
-      PARAM_QPROFILE, profileKey,
+      PARAM_QPROFILE, profile.getKee(),
       PARAM_LANGUAGES, "java,js");
 
-    assertThat(result.getQProfileKey()).isEqualTo(profileKey);
+    assertThat(result.getQProfile().getKee()).isEqualTo(profile.getKee());
     assertThat(result.getLanguages()).containsOnly("xoo");
   }
 
   @Test
   public void filter_on_quality_profiles_organization_if_searching_for_actives_with_no_organization_specified() throws Exception {
-    String profileKey = "sonar-way";
-    dbClient.qualityProfileDao().insert(dbSession, QProfileDto.createFor(profileKey)
-      .setOrganizationUuid(organization.getUuid())
-      .setName("Sonar Way")
-      .setLanguage("xoo"));
-    dbSession.commit();
+    QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setName("Sonar way").setLanguage("xoo").setKee("sonar-way"));
 
     RuleQuery result = execute(
       PARAM_ACTIVATION, "true",
-      PARAM_QPROFILE, profileKey);
+      PARAM_QPROFILE, profile.getKee());
 
-    assertThat(result.getOrganizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(result.getOrganization().getUuid()).isEqualTo(organization.getUuid());
   }
 
   @Test
@@ -231,7 +218,7 @@ public class RuleQueryFactoryTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("The specified quality profile '" + qualityProfileKey + "' is not part of the specified organization '" + organization2Key + "'");
 
-    RuleQuery result = execute(PARAM_QPROFILE, qualityProfileKey,
+    execute(PARAM_QPROFILE, qualityProfileKey,
       PARAM_ORGANIZATION, organization2Key);
   }
 

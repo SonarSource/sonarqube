@@ -302,8 +302,8 @@ public class RuleTesting {
     return rule -> rule.setSystemTags(copyOf(tags));
   }
 
-  public static Consumer<RuleMetadataDto> setOrganizationUuid(String organizationUuid) {
-    return rule -> rule.setOrganizationUuid(organizationUuid);
+  public static Consumer<RuleMetadataDto> setOrganization(OrganizationDto organization) {
+    return rule -> rule.setOrganizationUuid(organization.getUuid());
   }
 
   public static Consumer<RuleMetadataDto> setTags(String... tags) {

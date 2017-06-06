@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.OrgActiveRuleDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -54,6 +55,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -65,6 +67,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
+import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
@@ -102,14 +105,11 @@ public class ChangeParentActionTest {
     dbSession = dbTester.getSession();
     EsClient esClient = esTester.client();
     ruleIndex = new RuleIndex(esClient);
-    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     ruleIndexer = new RuleIndexer(
       esClient,
       dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(
-      System2.INSTANCE,
-      dbClient,
-      esClient);
+      dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
     RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
     ruleActivator = new RuleActivator(
@@ -160,9 +160,9 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent1);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(emptySet());
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     // Set parent
     wsActionTester.newRequest()
@@ -172,11 +172,11 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<OrgActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules1).hasSize(1);
-    assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo(rule1.getRuleKey());
+    assertThat(activeRules1.get(0).getKey().getRuleKey().rule()).isEqualTo(rule1.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).hasSize(1);
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
   }
 
   @Test
@@ -190,10 +190,10 @@ public class ChangeParentActionTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.indexRuleDefinitions(Stream.of(rule1, rule2).map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList()));
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent 1
-    ruleActivator.setParent(dbSession, child.getKee(), parent1.getKee());
+    ruleActivator.setParent(dbSession, child, parent1);
 
     // Set parent 2 through WS
     wsActionTester.newRequest()
@@ -203,11 +203,11 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<OrgActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules2).hasSize(1);
-    assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo(rule2.getRuleKey());
+    assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).hasSize(1);
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
   }
 
   @Test
@@ -218,10 +218,10 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent
-    ruleActivator.setParent(dbSession, child.getKee(), parent.getKee());
+    ruleActivator.setParent(dbSession, child, parent);
 
     // Remove parent through WS
     wsActionTester.newRequest()
@@ -230,10 +230,9 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
-    assertThat(activeRules).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfile(dbSession, child)).isEmpty();
 
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
   }
 
   @Test
@@ -247,9 +246,9 @@ public class ChangeParentActionTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(emptySet());
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     System.out.println("org uuid: " + organization.getUuid());
     System.out.println("org key: " + organization.getKey());
@@ -264,10 +263,10 @@ public class ChangeParentActionTest {
       .execute();
 
     // 1. check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<OrgActiveRuleDto> activeRules1 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules1).hasSize(1);
-    assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo(rule1.getRuleKey());
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).hasSize(1);
+    assertThat(activeRules1.get(0).getKey().getRuleKey().rule()).isEqualTo(rule1.getRuleKey());
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
 
     // 2. Set parent 2
     wsActionTester.newRequest()
@@ -279,9 +278,9 @@ public class ChangeParentActionTest {
       .execute();
 
     // 2. check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<OrgActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules2).hasSize(1);
-    assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo(rule2.getRuleKey());
+    assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
 
     // 3. Remove parent
     wsActionTester.newRequest()
@@ -293,9 +292,9 @@ public class ChangeParentActionTest {
       .execute();
 
     // 3. check no rule enabled
-    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
+    List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfile(dbSession, child);
     assertThat(activeRules).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
   }
 
   @Test
@@ -306,12 +305,12 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
     ruleIndexer.indexRuleDefinition(rule1.getKey());
-    activeRuleIndexer.index();
+    activeRuleIndexer.indexOnStartup(emptySet());
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     // Set parent
-    ruleActivator.setParent(dbSession, child.getKee(), parent.getKee());
+    ruleActivator.setParent(dbSession, child, parent);
 
     // Remove parent
     wsActionTester.newRequest()
@@ -321,9 +320,8 @@ public class ChangeParentActionTest {
       .execute();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee());
-    assertThat(activeRules).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfile(dbSession, child)).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
   }
 
   @Test
@@ -332,8 +330,8 @@ public class ChangeParentActionTest {
       .setLanguage(language.getKey())
       .setIsBuiltIn(true));
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
 
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
@@ -349,8 +347,8 @@ public class ChangeParentActionTest {
   public void fail_if_parent_key_and_name_both_set() throws Exception {
     QProfileDto child = createProfile();
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
 
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
@@ -366,8 +364,8 @@ public class ChangeParentActionTest {
   public void fail_if_profile_key_and_name_both_set() throws Exception {
     QProfileDto child = createProfile();
 
-    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, child.getKee())).isEmpty();
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKee()), new SearchOptions()).getIds()).isEmpty();
+    assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
 
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")

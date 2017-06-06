@@ -126,7 +126,7 @@ public class ExportAction implements QProfileWsAction {
         backuper.backup(dbSession, profile, writer);
       } else {
         stream.setMediaType(exporters.mimeType(exporterKey));
-        exporters.export(profile, exporterKey, writer);
+        exporters.export(dbSession, profile, exporterKey, writer);
       }
     }
   }

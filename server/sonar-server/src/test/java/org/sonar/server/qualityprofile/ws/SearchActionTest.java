@@ -140,28 +140,14 @@ public class SearchActionTest {
   public void ws_returns_the_profiles_of_default_organization() throws Exception {
     OrganizationDto organization = getDefaultOrganization();
 
-    QProfileDto defaultProfile = QProfileDto.createFor("sonar-way-xoo1-12345")
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage(xoo1.getKey())
-      .setName("Sonar way")
-      .setIsBuiltIn(false);
-    QProfileDto parentProfile = QProfileDto
-      .createFor("sonar-way-xoo2-23456")
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setName("Sonar way")
-      .setIsBuiltIn(true);
-    QProfileDto childProfile = QProfileDto
-      .createFor("my-sonar-way-xoo2-34567")
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage(xoo2.getKey())
-      .setName("My Sonar way")
-      .setParentKee(parentProfile.getKee());
-    QProfileDto profileOnUnknownLang = QProfileDto.createFor("sonar-way-other-666")
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage("other")
-      .setName("Sonar way");
-    qualityProfileDao.insert(dbSession, defaultProfile, parentProfile, childProfile, profileOnUnknownLang);
+    QProfileDto defaultProfile = db.qualityProfiles().insert(organization, p ->
+      p.setLanguage(xoo1.getKey()).setName("Sonar way").setKee("sonar-way-xoo1-12345").setIsBuiltIn(false));
+    QProfileDto parentProfile = db.qualityProfiles().insert(organization, p ->
+      p.setLanguage(xoo2.getKey()).setName("Sonar way").setKee("sonar-way-xoo2-23456").setIsBuiltIn(true));
+    QProfileDto childProfile = db.qualityProfiles().insert(organization, p ->
+      p.setLanguage(xoo2.getKey()).setName("My Sonar way").setKee("my-sonar-way-xoo2-34567").setIsBuiltIn(false).setParentKee(parentProfile.getKee()));
+    QProfileDto profileOnUnknownLang = db.qualityProfiles().insert(organization, p ->
+      p.setLanguage("other").setName("Sonar way").setKee("sonar-way-other-666"));
     db.qualityProfiles().setAsDefault(defaultProfile, profileOnUnknownLang);
 
     ComponentDto project1 = db.components().insertPrivateProject(organization);
@@ -228,7 +214,9 @@ public class SearchActionTest {
   @Test
   public void search_for_language() throws Exception {
     qualityProfileDb.insert(
-      QProfileDto.createFor("sonar-way-xoo1-12345")
+      new QProfileDto()
+        .setKee("sonar-way-xoo1-12345")
+        .setRulesProfileUuid("rp-sonar-way-xoo1-12345")
         .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
         .setLanguage(xoo1.getKey())
         .setName("Sonar way"));
@@ -278,15 +266,21 @@ public class SearchActionTest {
   @Test
   public void search_for_default_qp_with_profile_name() {
     String orgUuid = defaultOrganizationProvider.get().getUuid();
-    QProfileDto qualityProfileOnXoo1 = QProfileDto.createFor("sonar-way-xoo1-12345")
+    QProfileDto qualityProfileOnXoo1 = new QProfileDto()
+      .setKee("sonar-way-xoo1-12345")
+      .setRulesProfileUuid("rp-sonar-way-xoo1-12345")
       .setOrganizationUuid(orgUuid)
       .setLanguage(xoo1.getKey())
       .setName("Sonar way");
-    QProfileDto qualityProfileOnXoo2 = QProfileDto.createFor("sonar-way-xoo2-12345")
+    QProfileDto qualityProfileOnXoo2 = new QProfileDto()
+      .setKee("sonar-way-xoo2-12345")
+      .setRulesProfileUuid("rp-sonar-way-xoo2-12345")
       .setOrganizationUuid(orgUuid)
       .setLanguage(xoo2.getKey())
       .setName("Sonar way");
-    QProfileDto anotherQualityProfileOnXoo1 = QProfileDto.createFor("sonar-way-xoo1-45678")
+    QProfileDto anotherQualityProfileOnXoo1 = new QProfileDto()
+      .setKee("sonar-way-xoo1-45678")
+      .setRulesProfileUuid("rp-sonar-way-xoo1-45678")
       .setOrganizationUuid(orgUuid)
       .setLanguage(xoo1.getKey())
       .setName("Another way");
@@ -432,7 +426,9 @@ public class SearchActionTest {
   }
 
   private QProfileDto createProfile(String keySuffix, Language language, OrganizationDto org, String name) {
-    return QProfileDto.createFor(org.getKey() + "-" + keySuffix)
+    return new QProfileDto()
+      .setKee(org.getKey() + "-" + keySuffix)
+      .setRulesProfileUuid("rp-" + org.getKey() + "-" + keySuffix)
       .setOrganizationUuid(org.getUuid())
       .setLanguage(language.getKey())
       .setName(name);

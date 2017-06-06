@@ -140,7 +140,7 @@ public class BulkIndexer implements Startable {
   }
 
   public void addDeletion(IndexType indexType, String id) {
-    add(client.prepareDelete(indexType, id).request());
+    add(client.prepareDelete(indexType, id).setRouting(id).request());
   }
 
   public void addDeletion(IndexType indexType, String id, String routing) {

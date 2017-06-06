@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.List;
-import java.util.Map;
 
 public interface BuiltInQProfileRepository {
   /**
@@ -34,9 +33,9 @@ public interface BuiltInQProfileRepository {
   void initialize();
 
   /**
-   * @return an immutable map containing immutable lists.
+   * @return an immutable list
    *
    * @throws IllegalStateException if {@link #initialize()} has not been called
    */
-  Map<String, List<BuiltInQProfile>> getQProfilesByLanguage();
+  List<BuiltInQProfile> get();
 }
