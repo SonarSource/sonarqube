@@ -32,7 +32,7 @@ export function sortProfiles(profiles: Array<Profile>) {
     );
   }
 
-  function putProfile(profile = null, depth = 0) {
+  function putProfile(profile = null, depth = 1) {
     const children = retrieveChildren(profile);
 
     if (profile != null) {
@@ -42,7 +42,11 @@ export function sortProfiles(profiles: Array<Profile>) {
     children.forEach(child => putProfile(child, depth + 1));
   }
 
-  putProfile();
+  sorted
+    .filter(
+      profile => profile.parentKey == null || sorted.find(p => p.key === profile.parentKey) == null
+    )
+    .forEach(profile => putProfile(profile));
 
   return result;
 }
