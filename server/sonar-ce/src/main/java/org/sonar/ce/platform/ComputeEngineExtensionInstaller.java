@@ -21,12 +21,12 @@ package org.sonar.ce.platform;
 
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 
 public class ComputeEngineExtensionInstaller extends ServerExtensionInstaller {
   public ComputeEngineExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository) {
-    super(sonarRuntime, pluginRepository, ServerSide.class, ComputeEngineSide.class);
+    super(sonarRuntime, pluginRepository, ComputeEngineSide.class);
   }
+
 }

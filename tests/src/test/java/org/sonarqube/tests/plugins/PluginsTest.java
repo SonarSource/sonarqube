@@ -24,6 +24,14 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.sonarqube.tests.plugins.checks.AbapCheck;
 import org.sonarqube.tests.plugins.checks.CCheck;
 import org.sonarqube.tests.plugins.checks.Check;
@@ -34,21 +42,11 @@ import org.sonarqube.tests.plugins.checks.GroovyCheck;
 import org.sonarqube.tests.plugins.checks.JavaCheck;
 import org.sonarqube.tests.plugins.checks.JavascriptCheck;
 import org.sonarqube.tests.plugins.checks.PhpCheck;
-import org.sonarqube.tests.plugins.checks.PliCheck;
 import org.sonarqube.tests.plugins.checks.PythonCheck;
 import org.sonarqube.tests.plugins.checks.RpgCheck;
 import org.sonarqube.tests.plugins.checks.SwiftCheck;
 import org.sonarqube.tests.plugins.checks.Validation;
-import org.sonarqube.tests.plugins.checks.VbCheck;
 import org.sonarqube.tests.plugins.checks.WebCheck;
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ErrorCollector;
 
 import static com.sonar.orchestrator.locator.FileLocation.byWildcardMavenFilename;
 import static org.assertj.core.api.Assertions.fail;
@@ -74,11 +72,13 @@ public class PluginsTest {
     new JavaCheck(),
     new JavascriptCheck(),
     new PhpCheck(),
-    new PliCheck(),
+    // SONAR-7618 SonarPLI 1.5.0.702 not compatible with CE not loading @ServerSide
+    // new PliCheck(),
     new PythonCheck(),
     new RpgCheck(),
     new SwiftCheck(),
-    new VbCheck(),
+    // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
+    // new VbCheck(),
     new WebCheck());
 
   private static Orchestrator ORCHESTRATOR;
@@ -126,8 +126,10 @@ public class PluginsTest {
     installPlugin(builder, "lua");
     installPlugin(builder, "php");
     installPlugin(builder, "pitest");
-    installPlugin(builder, "pli");
-    installPlugin(builder, "plsql");
+    // SONAR-7618 SonarPLI 1.5.0.702 not compatible with CE not loading @ServerSide
+    // installPlugin(builder, "pli");
+    // SONAR-7618 SonarPLSQL 2.9.0.901 not compatible with CE not loading @ServerSide
+    // installPlugin(builder, "plsql");
     installPlugin(builder, "pmd");
     // FIXME puppet plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     installPlugin(builder, "python");
@@ -145,7 +147,8 @@ public class PluginsTest {
     installPlugin(builder, "sonargraphintegration");
     installPlugin(builder, "status");
     installPlugin(builder, "swift");
-    installPlugin(builder, "vb");
+    // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
+    // installPlugin(builder, "vb");
     installPlugin(builder, "vbnet");
     installPlugin(builder, "web");
     installPlugin(builder, "xanitizer");
@@ -193,7 +196,7 @@ public class PluginsTest {
   private static void activateLicenses(OrchestratorBuilder builder) {
     LICENSED_PLUGINS.forEach(builder::activateLicense);
   }
-  
+
   private static void installPlugin(OrchestratorBuilder builder, String pluginKey) {
     builder.setOrchestratorProperty(pluginKey + "Version", "LATEST_RELEASE");
     builder.addPlugin(pluginKey);

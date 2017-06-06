@@ -20,9 +20,13 @@
 package org.sonar.server.plugins;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarRuntime;
@@ -31,6 +35,7 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -40,14 +45,24 @@ public abstract class ServerExtensionInstaller {
 
   private final SonarRuntime sonarRuntime;
   private final PluginRepository pluginRepository;
-  private final Class<? extends Annotation>[] supportedAnnotationTypes;
+  private final Set<Class<? extends Annotation>> supportedAnnotationTypes;
+
+  protected ServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository,
+    @Nullable Collection<Class<? extends Annotation>> supportedAnnotationTypes) {
+    checkArgument(supportedAnnotationTypes != null && !supportedAnnotationTypes.isEmpty(),
+      "At least one supported annotation type must be specified");
+    this.sonarRuntime = sonarRuntime;
+    this.pluginRepository = pluginRepository;
+    this.supportedAnnotationTypes = ImmutableSet.copyOf(supportedAnnotationTypes);
+
+  }
 
   protected ServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository,
     Class<? extends Annotation>... supportedAnnotationTypes) {
     requireNonNull(supportedAnnotationTypes, "At least one supported annotation type must be specified");
     this.sonarRuntime = sonarRuntime;
     this.pluginRepository = pluginRepository;
-    this.supportedAnnotationTypes = supportedAnnotationTypes;
+    this.supportedAnnotationTypes = ImmutableSet.copyOf(supportedAnnotationTypes);
   }
 
   public void installExtensions(ComponentContainer container) {
