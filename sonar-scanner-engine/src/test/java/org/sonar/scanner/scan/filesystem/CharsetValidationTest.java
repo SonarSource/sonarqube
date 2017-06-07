@@ -150,6 +150,17 @@ public class CharsetValidationTest {
   }
 
   @Test
+  public void windows_1252() {
+    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 129}).valid()).isEqualTo(Validation.NO);
+    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 141}).valid()).isEqualTo(Validation.NO);
+    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 143}).valid()).isEqualTo(Validation.NO);
+    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 144}).valid()).isEqualTo(Validation.NO);
+    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 157}).valid()).isEqualTo(Validation.NO);
+    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 189}).valid()).isEqualTo(Validation.MAYBE);
+    assertThat(charsets.isUTF8(new byte[]{(byte) 189}, true).valid()).isEqualTo(Validation.NO);
+  }
+
+  @Test
   public void dontFailIfNotEnoughBytes() {
     byte[] b1 = hexToByte("D800");
     assertThat(charsets.isValidUTF16(b1)).isTrue();
