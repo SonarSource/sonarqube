@@ -61,12 +61,12 @@ export const SORTING_METRICS = [
 export const SORTING_LEAK_METRICS = [
   { value: 'name' },
   { value: 'analysis_date' },
-  { value: 'new_reliability', complement: 'on_new_code' },
-  { value: 'new_security', complement: 'on_new_code' },
-  { value: 'new_maintainability', complement: 'on_new_code' },
-  { value: 'new_coverage', complement: 'on_new_code' },
-  { value: 'new_duplications', complement: 'on_new_lines' },
-  { value: 'new_lines' }
+  { value: 'new_reliability', class: 'projects-leak-sorting-option' },
+  { value: 'new_security', class: 'projects-leak-sorting-option' },
+  { value: 'new_maintainability', class: 'projects-leak-sorting-option' },
+  { value: 'new_coverage', class: 'projects-leak-sorting-option' },
+  { value: 'new_duplications', class: 'projects-leak-sorting-option' },
+  { value: 'new_lines', class: 'projects-leak-sorting-option' }
 ];
 
 export const SORTING_SWITCH = {
