@@ -19,6 +19,7 @@
  */
 //@flow
 import React from 'react';
+import classNames from 'classnames';
 import type { Option } from './ProjectsSortingSelect';
 
 type Props = {
@@ -54,16 +55,12 @@ export default class ProjectsSortingSelectOption extends React.PureComponent {
     const { option } = this.props;
     return (
       <div
-        className={this.props.className}
+        className={classNames(this.props.className, option.class)}
         onMouseDown={this.handleMouseDown}
         onMouseEnter={this.handleMouseEnter}
         onMouseMove={this.handleMouseMove}
         title={option.label}>
         {option.short ? option.short : this.props.children}
-        {option.complement &&
-          <div className="pull-right text-muted-2">
-            {option.complement}
-          </div>}
       </div>
     );
   }

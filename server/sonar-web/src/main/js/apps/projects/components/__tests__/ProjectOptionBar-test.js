@@ -35,6 +35,7 @@ it('should render option bar open', () => {
         visualization="risk"
         projects={[1, 2, 3]}
         projectsAppState={{ total: 3 }}
+        user={{ isLoggedIn: true }}
       />
     )
   ).toMatchSnapshot();
@@ -51,4 +52,27 @@ it('should call close method correctly', () => {
   const wrapper = shallow(<ProjectsOptionBar open={true} view="leak" onToggleOptionBar={toggle} />);
   click(wrapper.find('.projects-topbar-button'));
   expect(toggle.mock.calls).toMatchSnapshot();
+});
+
+it('should render switch the default sorting option for anonymous users', () => {
+  expect(
+    shallow(
+      <ProjectsOptionBar
+        open={true}
+        view="overall"
+        visualization="risk"
+        user={{ isLoggedIn: true }}
+      />
+    ).find('ProjectsSortingSelect')
+  ).toMatchSnapshot();
+  expect(
+    shallow(
+      <ProjectsOptionBar
+        open={true}
+        view="leak"
+        visualization="risk"
+        user={{ isLoggedIn: false }}
+      />
+    ).find('ProjectsSortingSelect')
+  ).toMatchSnapshot();
 });

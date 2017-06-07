@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { sortBy } from 'lodash';
 import Select from 'react-select';
 import ProjectsSortingSelectOption from './ProjectsSortingSelectOption';
 import SortAscIcon from '../../../components/icons-components/SortAscIcon';
@@ -27,13 +28,14 @@ import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { SORTING_METRICS, SORTING_LEAK_METRICS, parseSorting } from '../utils';
 
-export type Option = { label: string, value: string, complement?: string, short?: string };
+export type Option = { label: string, value: string, class?: string, short?: string };
 
 type Props = {
   className?: string,
   onChange: (sort: string, desc: boolean) => void,
   selectedSort: string,
-  view: string
+  view: string,
+  defaultOption: string
 };
 
 type State = {
@@ -58,11 +60,16 @@ export default class ProjectsSortingSelect extends React.PureComponent {
 
   getOptions = () => {
     const sortMetrics = this.props.view === 'leak' ? SORTING_LEAK_METRICS : SORTING_METRICS;
-    return sortMetrics.map((opt: { value: string, complement?: string }) => ({
+    return sortBy(
+      sortMetrics,
+      opt => (opt.value === this.props.defaultOption ? 0 : 1)
+    ).map((opt: { value: string, class?: string }) => ({
       value: opt.value,
-      label: translate('projects.sorting', opt.value),
-      complement: opt.complement && translate('projects.sorting', opt.complement),
-      short: opt.complement && translate('projects.sorting', opt.value, 'short')
+      label: translate('projects.sorting', opt.value) +
+        (opt.value === this.props.defaultOption
+          ? ` (${translate('projects.sorting.default')})`
+          : ''),
+      class: opt.class
     }));
   };
 
@@ -84,8 +91,8 @@ export default class ProjectsSortingSelect extends React.PureComponent {
           className="little-spacer-left input-large"
           clearable={false}
           onChange={this.handleSortChange}
-          options={this.getOptions()}
           optionComponent={ProjectsSortingSelectOption}
+          options={this.getOptions()}
           searchable={false}
           value={this.state.sortValue}
         />

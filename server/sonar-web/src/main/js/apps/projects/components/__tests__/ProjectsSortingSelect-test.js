@@ -22,17 +22,27 @@ import { shallow } from 'enzyme';
 import ProjectsSortingSelect from '../ProjectsSortingSelect';
 
 it('should render correctly for overall view', () => {
-  expect(shallow(<ProjectsSortingSelect selectedSort="name" view="overall" />)).toMatchSnapshot();
+  expect(
+    shallow(<ProjectsSortingSelect selectedSort="name" view="overall" defaultOption="name" />)
+  ).toMatchSnapshot();
 });
 
 it('should render correctly for leak view', () => {
   expect(
-    shallow(<ProjectsSortingSelect selectedSort="new_coverage" view="leak" />)
+    shallow(
+      <ProjectsSortingSelect
+        selectedSort="new_coverage"
+        view="leak"
+        defaultOption="analysis_date"
+      />
+    )
   ).toMatchSnapshot();
 });
 
 it('should handle the descending sort direction', () => {
   expect(
-    shallow(<ProjectsSortingSelect selectedSort="-vulnerability" view="overall" />)
+    shallow(
+      <ProjectsSortingSelect selectedSort="-vulnerability" view="overall" defaultOption="name" />
+    )
   ).toMatchSnapshot();
 });

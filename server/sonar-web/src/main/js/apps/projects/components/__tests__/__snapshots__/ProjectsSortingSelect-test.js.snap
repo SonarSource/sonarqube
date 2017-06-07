@@ -40,51 +40,43 @@ exports[`should handle the descending sort direction 1`] = `
     options={
       Array [
         Object {
-          "complement": undefined,
-          "label": "projects.sorting.name",
-          "short": undefined,
+          "class": undefined,
+          "label": "projects.sorting.name (projects.sorting.default)",
           "value": "name",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.analysis_date",
-          "short": undefined,
           "value": "analysis_date",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.reliability",
-          "short": undefined,
           "value": "reliability",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.security",
-          "short": undefined,
           "value": "security",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.maintainability",
-          "short": undefined,
           "value": "maintainability",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.coverage",
-          "short": undefined,
           "value": "coverage",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.duplications",
-          "short": undefined,
           "value": "duplications",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.size",
-          "short": undefined,
           "value": "size",
         },
       ]
@@ -157,51 +149,43 @@ exports[`should render correctly for leak view 1`] = `
     options={
       Array [
         Object {
-          "complement": undefined,
-          "label": "projects.sorting.name",
-          "short": undefined,
-          "value": "name",
-        },
-        Object {
-          "complement": undefined,
-          "label": "projects.sorting.analysis_date",
-          "short": undefined,
+          "class": undefined,
+          "label": "projects.sorting.analysis_date (projects.sorting.default)",
           "value": "analysis_date",
         },
         Object {
-          "complement": "projects.sorting.on_new_code",
+          "class": undefined,
+          "label": "projects.sorting.name",
+          "value": "name",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
           "label": "projects.sorting.new_reliability",
-          "short": "projects.sorting.new_reliability.short",
           "value": "new_reliability",
         },
         Object {
-          "complement": "projects.sorting.on_new_code",
+          "class": "projects-leak-sorting-option",
           "label": "projects.sorting.new_security",
-          "short": "projects.sorting.new_security.short",
           "value": "new_security",
         },
         Object {
-          "complement": "projects.sorting.on_new_code",
+          "class": "projects-leak-sorting-option",
           "label": "projects.sorting.new_maintainability",
-          "short": "projects.sorting.new_maintainability.short",
           "value": "new_maintainability",
         },
         Object {
-          "complement": "projects.sorting.on_new_code",
+          "class": "projects-leak-sorting-option",
           "label": "projects.sorting.new_coverage",
-          "short": "projects.sorting.new_coverage.short",
           "value": "new_coverage",
         },
         Object {
-          "complement": "projects.sorting.on_new_lines",
+          "class": "projects-leak-sorting-option",
           "label": "projects.sorting.new_duplications",
-          "short": "projects.sorting.new_duplications.short",
           "value": "new_duplications",
         },
         Object {
-          "complement": undefined,
+          "class": "projects-leak-sorting-option",
           "label": "projects.sorting.new_lines",
-          "short": undefined,
           "value": "new_lines",
         },
       ]
@@ -274,51 +258,43 @@ exports[`should render correctly for overall view 1`] = `
     options={
       Array [
         Object {
-          "complement": undefined,
-          "label": "projects.sorting.name",
-          "short": undefined,
+          "class": undefined,
+          "label": "projects.sorting.name (projects.sorting.default)",
           "value": "name",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.analysis_date",
-          "short": undefined,
           "value": "analysis_date",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.reliability",
-          "short": undefined,
           "value": "reliability",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.security",
-          "short": undefined,
           "value": "security",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.maintainability",
-          "short": undefined,
           "value": "maintainability",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.coverage",
-          "short": undefined,
           "value": "coverage",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.duplications",
-          "short": undefined,
           "value": "duplications",
         },
         Object {
-          "complement": undefined,
+          "class": undefined,
           "label": "projects.sorting.size",
-          "short": undefined,
           "value": "size",
         },
       ]
