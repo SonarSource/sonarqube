@@ -39,6 +39,7 @@ exports[`should render disabled sorting options for visualizations 1`] = `
           <div>
             <ProjectsSortingSelect
               className="projects-topbar-item js-projects-sorting-select disabled"
+              defaultOption="analysis_date"
               view="visualizations"
             />
           </div>
@@ -74,6 +75,7 @@ exports[`should render option bar closed 1`] = `
         />
         <ProjectsSortingSelect
           className="projects-topbar-item js-projects-sorting-select"
+          defaultOption="analysis_date"
           view="overall"
         />
       </div>
@@ -108,10 +110,27 @@ exports[`should render option bar open 1`] = `
         />
         <ProjectsSortingSelect
           className="projects-topbar-item js-projects-sorting-select"
+          defaultOption="name"
           view="leak"
         />
       </div>
     </div>
   </div>
 </div>
+`;
+
+exports[`should render switch the default sorting option for anonymous users 1`] = `
+<ProjectsSortingSelect
+  className="projects-topbar-item js-projects-sorting-select"
+  defaultOption="name"
+  view="overall"
+/>
+`;
+
+exports[`should render switch the default sorting option for anonymous users 2`] = `
+<ProjectsSortingSelect
+  className="projects-topbar-item js-projects-sorting-select"
+  defaultOption="analysis_date"
+  view="leak"
+/>
 `;

@@ -33,6 +33,7 @@ type Props = {
   projects: Array<*>,
   projectsAppState: { loading: boolean, total?: number },
   selectedSort: string,
+  user?: { isLoggedIn: boolean },
   view: string,
   visualization?: string
 };
@@ -47,18 +48,19 @@ export default class ProjectsOptionBar extends React.PureComponent {
   };
 
   renderSortingSelect() {
-    const { projectsAppState, projects, view } = this.props;
+    const { projectsAppState, projects, user, view } = this.props;
     const limitReached =
       projects != null &&
       projectsAppState.total != null &&
       projects.length < projectsAppState.total;
-
+    const defaultOption = user && user.isLoggedIn ? 'name' : 'analysis_date';
     if (view === 'visualizations' && !limitReached) {
       return (
         <Tooltip overlay={translate('projects.sort.disabled')}>
           <div>
             <ProjectsSortingSelect
               className="projects-topbar-item js-projects-sorting-select disabled"
+              defaultOption={defaultOption}
               onChange={this.props.onSortChange}
               selectedSort={this.props.selectedSort}
               view={this.props.view}
@@ -70,6 +72,7 @@ export default class ProjectsOptionBar extends React.PureComponent {
     return (
       <ProjectsSortingSelect
         className="projects-topbar-item js-projects-sorting-select"
+        defaultOption={defaultOption}
         onChange={this.props.onSortChange}
         selectedSort={this.props.selectedSort}
         view={this.props.view}

@@ -38,7 +38,8 @@ type Props = {
   optionBarOpen: boolean,
   optionBarToggle: (open: boolean) => void,
   organization?: { key: string },
-  router: { push: ({ pathname: string, query?: {} }) => void }
+  router: { push: ({ pathname: string, query?: {} }) => void },
+  user?: { isLoggedIn: boolean }
 };
 
 type State = {
@@ -132,6 +133,7 @@ export default class AllProjects extends React.PureComponent {
           onToggleOptionBar={this.props.optionBarToggle}
           open={optionBarOpen}
           selectedSort={selectedSort}
+          user={this.props.user}
           view={view}
           visualization={visualization}
         />
