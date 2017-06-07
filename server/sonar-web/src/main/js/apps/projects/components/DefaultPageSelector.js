@@ -109,7 +109,7 @@ class DefaultPageSelector extends React.PureComponent {
           location={this.props.location}
           optionBarOpen={this.props.optionBarOpen}
           optionBarToggle={this.props.optionBarToggle}
-          user={this.props.currentUser}
+          currentUser={this.props.currentUser}
         />
       );
     }

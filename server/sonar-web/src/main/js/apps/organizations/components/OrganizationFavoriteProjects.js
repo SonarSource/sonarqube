@@ -19,14 +19,12 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
 import FavoriteProjectsContainer from '../../projects/components/FavoriteProjectsContainer';
-import { getOrganizationByKey } from '../../../store/rootReducer';
-import { updateOrganization } from '../actions';
 
-class OrganizationFavoriteProjects extends React.PureComponent {
+export default class OrganizationFavoriteProjects extends React.PureComponent {
   props: {
     children?: React.Element<*>,
+    currentUser: { isLoggedIn: boolean },
     location: Object,
     optionBarOpen: boolean,
     optionBarToggle: (open: boolean) => void,
@@ -53,6 +51,7 @@ class OrganizationFavoriteProjects extends React.PureComponent {
     return (
       <div id="projects-page">
         <FavoriteProjectsContainer
+          currentUser={this.props.currentUser}
           location={this.props.location}
           optionBarOpen={this.props.optionBarOpen}
           optionBarToggle={this.props.optionBarToggle}
@@ -62,11 +61,3 @@ class OrganizationFavoriteProjects extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
-});
-
-const mapDispatchToProps = { updateOrganization };
-
-export default connect(mapStateToProps, mapDispatchToProps)(OrganizationFavoriteProjects);
