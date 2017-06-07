@@ -276,7 +276,7 @@ public class CharsetValidation {
   public Result isValidWindows1252(byte[] buf) {
     for (byte b : buf) {
       if (!VALID_WINDOWS_1252[b + 128]) {
-          return Result.INVALID;
+        return Result.INVALID;
       }
     }
 
