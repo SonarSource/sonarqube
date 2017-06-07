@@ -84,11 +84,10 @@ public class SkipOnboardingTutorialActionTest {
     userSession.logIn(user);
     WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, dbTester.getDbClient()));
     TestRequest request = ws.newRequest().setMethod("POST");
-    dbTester.users().setOnboarded(user, true);
-    assertThat(dbTester.getDbClient().userDao().selectOnboarded(dbTester.getSession(), user)).isTrue();
-
-    TestResponse response = request.execute();
-
     assertThat(dbTester.getDbClient().userDao().selectOnboarded(dbTester.getSession(), user)).isFalse();
+
+    request.execute();
+
+    assertThat(dbTester.getDbClient().userDao().selectOnboarded(dbTester.getSession(), user)).isTrue();
   }
 }

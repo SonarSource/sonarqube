@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
@@ -44,11 +46,13 @@ public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final Settings settings;
 
-  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, Settings settings) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.settings = settings;
   }
 
   @Override
@@ -69,7 +73,7 @@ public class CurrentAction implements UsersWsAction {
     if (userSession.isLoggedIn()) {
       try (DbSession dbSession = dbClient.openSession(false)) {
         user = selectCurrentUser(dbSession);
-        showOnboarding = !dbClient.userDao().selectOnboarded(dbSession, user);
+        showOnboarding = showOnboarding(user, dbSession);
         groups = selectGroups(dbSession);
       }
     } else {
@@ -78,6 +82,16 @@ public class CurrentAction implements UsersWsAction {
       groups = emptyList();
     }
     writeProtobuf(toWsResponse(user, showOnboarding, groups), request, response);
+  }
+
+  private boolean showOnboarding(UserDto user, DbSession dbSession) {
+    if (settings.getBoolean(CoreProperties.SKIP_ONBOARDING_TUTORIAL)) {
+      return false;
+    }
+    if (dbClient.userDao().selectOnboarded(dbSession, user)) {
+      return false;
+    }
+    return true;
   }
 
   private UserDto selectCurrentUser(DbSession dbSession) {

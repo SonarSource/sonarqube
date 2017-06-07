@@ -22,6 +22,7 @@ package org.sonar.server.user.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.server.issue.ws.AvatarResolver;
@@ -45,7 +46,7 @@ public class UsersWsTest {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
-      new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class)),
+      new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class), new MapSettings()),
       new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new SearchAction(userSessionRule, mock(UserIndex.class), mock(DbClient.class), mock(AvatarResolver.class))));
     controller = tester.controller("api/users");

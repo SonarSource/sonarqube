@@ -53,7 +53,7 @@ public class SkipOnboardingTutorialAction implements UsersWsAction {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto userDto = dbClient.userDao().selectUserById(dbSession, userSession.getUserId());
-      dbClient.userDao().updateOnboaded(dbSession, userDto, false);
+      dbClient.userDao().updateOnboaded(dbSession, userDto, true);
       dbSession.commit();
     }
     response.noContent();
