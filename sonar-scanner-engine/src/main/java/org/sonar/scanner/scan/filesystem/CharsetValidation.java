@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -271,7 +272,11 @@ public class CharsetValidation {
           return Result.INVALID;
       }
     }
-    return new Result(Validation.MAYBE, Charset.forName("Windows-1252"));
+    try {
+      return new Result(Validation.MAYBE, Charset.forName("Windows-1252"));
+    } catch (UnsupportedCharsetException e) {
+      return Result.INVALID;
+    }
   }
 
   public enum Validation {
