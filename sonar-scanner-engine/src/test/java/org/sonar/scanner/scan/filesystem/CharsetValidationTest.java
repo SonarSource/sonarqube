@@ -156,7 +156,7 @@ public class CharsetValidationTest {
     assertThat(charsets.isValidWindows1252(new byte[]{(byte) 143}).valid()).isEqualTo(Validation.NO);
     assertThat(charsets.isValidWindows1252(new byte[]{(byte) 144}).valid()).isEqualTo(Validation.NO);
     assertThat(charsets.isValidWindows1252(new byte[]{(byte) 157}).valid()).isEqualTo(Validation.NO);
-    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 189}).valid()).isEqualTo(Validation.YES);
+    assertThat(charsets.isValidWindows1252(new byte[]{(byte) 189}).valid()).isEqualTo(Validation.MAYBE);
     assertThat(charsets.isUTF8(new byte[]{(byte) 189}, true).valid()).isEqualTo(Validation.NO);
   }
 

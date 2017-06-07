@@ -70,7 +70,7 @@ public class ByteCharsetDetector {
     }
 
     Result windows1252 = validator.isValidWindows1252(buf);
-    if (windows1252.valid() == Validation.YES) {
+    if (windows1252.valid() == Validation.MAYBE) {
       return windows1252.charset();
     }
 
