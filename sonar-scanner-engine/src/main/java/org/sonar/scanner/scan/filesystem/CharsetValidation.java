@@ -256,7 +256,7 @@ public class CharsetValidation {
   /**
    * Verify that the buffer doesn't contain bytes that are not supposed to be used by Windows-1252.
    *
-   * @return Result object with Validation.YES and Windows-1252 if no unknown characters are used,
+   * @return Result object with Validation.MAYBE and Windows-1252 if no unknown characters are used,
    * otherwise Result.INVALID
    * @param buf byte buffer to validate
    */
@@ -271,7 +271,7 @@ public class CharsetValidation {
           return Result.INVALID;
       }
     }
-    return new Result(Validation.YES, Charset.forName("Windows-1252"));
+    return new Result(Validation.MAYBE, Charset.forName("Windows-1252"));
   }
 
   public enum Validation {
