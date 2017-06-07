@@ -47,6 +47,7 @@ public class SkipOnboardingTest {
 
   @Test
   public void onboarding_tutorial_for_anonymous() {
+    skipOnboardingGlobally(false);
     WsClient wsClient = ItUtils.newUserWsClient(orchestrator, null, null);
 
     // anonymous should not see the onboarding tutorial
@@ -71,7 +72,14 @@ public class SkipOnboardingTest {
       // the user should now see the onboarding tutorial
       assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isTrue();
 
-      // Step 2 let the user skip the tutorial
+      // Step 2 let the admin toggle forth and back the switch for global skipping
+      skipOnboardingGlobally(true);
+      skipOnboardingGlobally(false);
+
+      // the user should not be affected
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isTrue();
+
+      // Step 3 let the user skip the tutorial
       WsResponse response = wsClient.users().skipOnboardingTutorial();
       assertThat(response.code()).isEqualTo(204);
       assertThat(response.hasContent()).isFalse();
@@ -79,7 +87,7 @@ public class SkipOnboardingTest {
       // the user should not see the onboarding tutorial anymore
       assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
 
-      // Step 3 let the user skip the tutorial again
+      // Step 4 let the user skip the tutorial again
       WsResponse response2 = wsClient.users().skipOnboardingTutorial();
       assertThat(response2.code()).isEqualTo(204);
       assertThat(response2.hasContent()).isFalse();
@@ -136,11 +144,7 @@ public class SkipOnboardingTest {
 
       // the user should not see the onboarding tutorial
       assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
-
-      // but the user would see the tutorial, if it was not globally skipped
-      skipOnboardingGlobally(false);
-      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isTrue();
-      skipOnboardingGlobally(true);
+      // !!! Be aware: the user is "auto-skipped" and marked as "onboarded" from now on !!!
 
       // Step 3 let the user skip the tutorial (although he does not see it)
       // side note: this is a valid case, because the tutorial will still be available form the help popup

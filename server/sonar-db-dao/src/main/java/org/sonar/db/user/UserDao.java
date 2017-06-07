@@ -92,16 +92,8 @@ public class UserDao implements Dao {
     return mapper(dbSession).countRootUsersButLogin(login);
   }
 
-  /**
-   * @deprecated only used in tests
-   */
-  @Deprecated
   public UserDto insert(DbSession session, UserDto dto) {
-    return insert(session, dto, false);
-  }
-
-  public UserDto insert(DbSession session, UserDto dto, boolean onboarded) {
-    mapper(session).insert(dto, onboarded);
+    mapper(session).insert(dto);
     return dto;
   }
 

@@ -58,7 +58,7 @@ public interface UserMapper {
    */
   long countRootUsersButLogin(@Param("login") String login);
 
-  void insert(@Param("user") UserDto userDto, @Param("onboarded") boolean onboarded);
+  void insert(UserDto userDto);
 
   void update(UserDto userDto);
 

@@ -558,17 +558,10 @@ public class UserDaoTest {
   }
 
   @Test
-  public void selectOnboarded_should_return_true_if_user_was_created_onboarded() {
+  public void selectOnboarded_should_return_false_for_new_users() {
     UserDto user = newUserDto();
-    underTest.insert(db.getSession(), user, false);
+    underTest.insert(db.getSession(), user);
     assertThat(underTest.selectOnboarded(db.getSession(), user)).isFalse();
-  }
-
-  @Test
-  public void selectOnboarded_should_return_true_if_user_was_created_not_onboarded() {
-    UserDto user = newUserDto();
-    underTest.insert(db.getSession(), user, true);
-    assertThat(underTest.selectOnboarded(db.getSession(), user)).isTrue();
   }
 
   @Test

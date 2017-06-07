@@ -85,13 +85,7 @@ public class CurrentAction implements UsersWsAction {
   }
 
   private boolean showOnboarding(UserDto user, DbSession dbSession) {
-    if (settings.getBoolean(CoreProperties.SKIP_ONBOARDING_TUTORIAL)) {
-      return false;
-    }
-    if (dbClient.userDao().selectOnboarded(dbSession, user)) {
-      return false;
-    }
-    return true;
+    return !settings.getBoolean(CoreProperties.SKIP_ONBOARDING_TUTORIAL) && !dbClient.userDao().selectOnboarded(dbSession, user);
   }
 
   private UserDto selectCurrentUser(DbSession dbSession) {

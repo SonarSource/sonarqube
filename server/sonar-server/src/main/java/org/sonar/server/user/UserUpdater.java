@@ -28,8 +28,6 @@ import java.util.Objects;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -78,10 +76,9 @@ public class UserUpdater {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationCreation organizationCreation;
   private final DefaultGroupFinder defaultGroupFinder;
-  private final Settings settings;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Settings settings) {
+                     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
@@ -90,7 +87,6 @@ public class UserUpdater {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationCreation = organizationCreation;
     this.defaultGroupFinder = defaultGroupFinder;
-    this.settings = settings;
   }
 
   public UserDto create(DbSession dbSession, NewUser newUser) {
@@ -350,8 +346,7 @@ public class UserUpdater {
   private UserDto saveUser(DbSession dbSession, UserDto userDto) {
     long now = system2.now();
     userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
-    boolean skipOnboarding = settings.getBoolean(CoreProperties.SKIP_ONBOARDING_TUTORIAL);
-    UserDto res = dbClient.userDao().insert(dbSession, userDto, skipOnboarding);
+    UserDto res = dbClient.userDao().insert(dbSession, userDto);
     addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
     organizationCreation.createForUser(dbSession, userDto);
     dbSession.commit();

@@ -142,7 +142,7 @@
       and active = ${_true}
   </update>
 
-  <insert id="insert" keyColumn="id" useGeneratedKeys="true" keyProperty="user.id">
+  <insert id="insert" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO users (
       login,
       name,
@@ -160,20 +160,20 @@
       updated_at
     )
     VALUES (
-      #{user.login,jdbcType=VARCHAR},
-      #{user.name,jdbcType=VARCHAR},
-      #{user.email,jdbcType=VARCHAR},
-      #{user.active,jdbcType=BOOLEAN},
-      #{user.scmAccounts,jdbcType=VARCHAR},
-      #{user.externalIdentity,jdbcType=VARCHAR},
-      #{user.externalIdentityProvider,jdbcType=VARCHAR},
-      #{user.local,jdbcType=BOOLEAN},
-      #{user.salt,jdbcType=VARCHAR},
-      #{user.cryptedPassword,jdbcType=VARCHAR},
-      #{user.root,jdbcType=BOOLEAN},
-      #{onboarded,jdbcType=BOOLEAN},
-      #{user.createdAt,jdbcType=BIGINT},
-      #{user.updatedAt,jdbcType=BIGINT}
+      #{login,jdbcType=VARCHAR},
+      #{name,jdbcType=VARCHAR},
+      #{email,jdbcType=VARCHAR},
+      #{active,jdbcType=BOOLEAN},
+      #{scmAccounts,jdbcType=VARCHAR},
+      #{externalIdentity,jdbcType=VARCHAR},
+      #{externalIdentityProvider,jdbcType=VARCHAR},
+      #{local,jdbcType=BOOLEAN},
+      #{salt,jdbcType=VARCHAR},
+      #{cryptedPassword,jdbcType=VARCHAR},
+      #{root,jdbcType=BOOLEAN},
+      ${_false},
+      #{createdAt,jdbcType=BIGINT},
+      #{updatedAt,jdbcType=BIGINT}
     )
   </insert>
 
