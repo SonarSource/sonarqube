@@ -26,6 +26,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -33,6 +34,17 @@ public class CharsetValidation {
 
   private static final double UTF_16_NULL_PASS_THRESHOLD = 0.7;
   private static final double UTF_16_NULL_FAIL_THRESHOLD = 0.1;
+
+  private static final boolean[] VALID_WINDOWS_1252 = new boolean[256];
+  static {
+    Arrays.fill(VALID_WINDOWS_1252, true);
+    // See the Undefined cells in the charset table on https://en.wikipedia.org/wiki/Windows-1252
+    VALID_WINDOWS_1252[129 - 128] = false;
+    VALID_WINDOWS_1252[141 - 128] = false;
+    VALID_WINDOWS_1252[143 - 128] = false;
+    VALID_WINDOWS_1252[144 - 128] = false;
+    VALID_WINDOWS_1252[157 - 128] = false;
+  }
 
   /**
    * Checks if an array of bytes looks UTF-16 encoded.
@@ -263,15 +275,11 @@ public class CharsetValidation {
    */
   public Result isValidWindows1252(byte[] buf) {
     for (byte b : buf) {
-      switch (b) {
-        case (byte) 129:
-        case (byte) 141:
-        case (byte) 143:
-        case (byte) 144:
-        case (byte) 157:
+      if (!VALID_WINDOWS_1252[b + 128]) {
           return Result.INVALID;
       }
     }
+
     try {
       return new Result(Validation.MAYBE, Charset.forName("Windows-1252"));
     } catch (UnsupportedCharsetException e) {
