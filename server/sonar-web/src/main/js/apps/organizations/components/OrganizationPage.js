@@ -40,14 +40,13 @@ type Props = {
 };
 
 type State = {
-  loading: boolean,
-  optionBarOpen: boolean
+  loading: boolean
 };
 
 class OrganizationPage extends React.PureComponent {
   mounted: boolean;
   props: Props;
-  state: State = { loading: true, optionBarOpen: false };
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -75,8 +74,6 @@ class OrganizationPage extends React.PureComponent {
     });
   };
 
-  handleOptionBarToggle = (open: boolean) => this.setState({ optionBarOpen: open });
-
   render() {
     const { organization } = this.props;
 
@@ -92,11 +89,7 @@ class OrganizationPage extends React.PureComponent {
       <div>
         <Helmet defaultTitle={organization.name} titleTemplate={'%s - ' + organization.name} />
         <OrganizationNavigation organization={organization} location={this.props.location} />
-        {this.props.children &&
-          React.cloneElement(this.props.children, {
-            optionBarOpen: this.state.optionBarOpen,
-            optionBarToggle: this.handleOptionBarToggle
-          })}
+        {this.props.children}
       </div>
     );
   }

@@ -20,12 +20,12 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import AllProjects from './AllProjects';
-import { fetchProjects } from '../store/actions';
 import { getCurrentUser } from '../../../store/rootReducer';
+import { fetchProjects } from '../store/actions';
 
 const mapStateToProps = state => ({
-  user: getCurrentUser(state),
-  isFavorite: true
+  isFavorite: true,
+  currentUser: getCurrentUser(state)
 });
 
 export default connect(mapStateToProps, { fetchProjects })(withRouter(AllProjects));

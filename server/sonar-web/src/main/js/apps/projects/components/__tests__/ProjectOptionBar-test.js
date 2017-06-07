@@ -35,7 +35,7 @@ it('should render option bar open', () => {
         visualization="risk"
         projects={[1, 2, 3]}
         projectsAppState={{ total: 3 }}
-        user={{ isLoggedIn: true }}
+        currentUser={{ isLoggedIn: true }}
       />
     )
   ).toMatchSnapshot();
@@ -61,7 +61,7 @@ it('should render switch the default sorting option for anonymous users', () => 
         open={true}
         view="overall"
         visualization="risk"
-        user={{ isLoggedIn: true }}
+        currentUser={{ isLoggedIn: true }}
       />
     ).find('ProjectsSortingSelect')
   ).toMatchSnapshot();
@@ -71,7 +71,7 @@ it('should render switch the default sorting option for anonymous users', () => 
         open={true}
         view="leak"
         visualization="risk"
-        user={{ isLoggedIn: false }}
+        currentUser={{ isLoggedIn: false }}
       />
     ).find('ProjectsSortingSelect')
   ).toMatchSnapshot();
