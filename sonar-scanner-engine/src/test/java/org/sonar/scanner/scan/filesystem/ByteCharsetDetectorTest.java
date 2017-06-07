@@ -86,6 +86,7 @@ public class ByteCharsetDetectorTest {
   public void failAll() {
     when(validation.isUTF8(any(byte[].class), anyBoolean())).thenReturn(Result.INVALID);
     when(validation.isUTF16(any(byte[].class), anyBoolean())).thenReturn(new Result(Validation.MAYBE, null));
+    when(validation.isValidWindows1252(any(byte[].class))).thenReturn(Result.INVALID);
 
     assertThat(charsets.detect(new byte[1])).isEqualTo(null);
   }
