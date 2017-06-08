@@ -31,6 +31,8 @@ public class OrgQProfileDto {
   private String organizationUuid;
   private String rulesProfileUuid;
   private String parentUuid;
+  private Long lastUsed;
+  private Long userUpdatedAt;
 
   public String getOrganizationUuid() {
     return organizationUuid;
@@ -69,11 +71,33 @@ public class OrgQProfileDto {
     return this;
   }
 
+  @CheckForNull
+  public Long getLastUsed() {
+    return lastUsed;
+  }
+
+  public OrgQProfileDto setLastUsed(@Nullable Long lastUsed) {
+    this.lastUsed = lastUsed;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getUserUpdatedAt() {
+    return userUpdatedAt;
+  }
+
+  public OrgQProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
+    this.userUpdatedAt = userUpdatedAt;
+    return this;
+  }
+
   public static OrgQProfileDto from(QProfileDto qProfileDto) {
     return new OrgQProfileDto()
       .setUuid(qProfileDto.getKee())
       .setOrganizationUuid(qProfileDto.getOrganizationUuid())
       .setRulesProfileUuid(qProfileDto.getRulesProfileUuid())
-      .setParentUuid(qProfileDto.getParentKee());
+      .setParentUuid(qProfileDto.getParentKee())
+      .setLastUsed(qProfileDto.getLastUsed())
+      .setUserUpdatedAt(qProfileDto.getUserUpdatedAt());
   }
 }

@@ -50,6 +50,8 @@ public class CreateTableOrgQProfilesTest {
     db.assertPrimaryKey(TABLE, "pk_org_qprofiles", "uuid");
     db.assertColumnDefinition(TABLE, "organization_uuid", Types.VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE, "rules_profile_uuid", Types.VARCHAR, 40, false);
+    db.assertColumnDefinition(TABLE, "last_used", Types.BIGINT, null, true);
+    db.assertColumnDefinition(TABLE, "user_updated_at", Types.BIGINT, null, true);
     db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
     db.assertColumnDefinition(TABLE, "updated_at", Types.BIGINT, null, false);
     db.assertIndex(TABLE, "qprofiles_org_uuid", "organization_uuid");

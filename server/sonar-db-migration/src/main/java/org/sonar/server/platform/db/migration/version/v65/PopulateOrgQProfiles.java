@@ -40,22 +40,26 @@ public class PopulateOrgQProfiles extends DataChange {
     long now = system2.now();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select p.kee, p.organization_uuid, p.parent_kee from rules_profiles p " +
+    massUpdate.select("select p.kee, p.organization_uuid, p.parent_kee, p.last_used, p.user_updated_at from rules_profiles p " +
       "where not exists ( select qp.uuid from org_qprofiles qp where qp.uuid = p.kee and qp.organization_uuid = p.organization_uuid )");
     massUpdate.update("insert into org_qprofiles" +
-      " (uuid, organization_uuid, rules_profile_uuid, parent_uuid, created_at, updated_at) values (?, ?, ?, ?, ?, ?)");
+      " (uuid, organization_uuid, rules_profile_uuid, parent_uuid, last_used, user_updated_at, created_at, updated_at) values (?, ?, ?, ?, ?, ?, ?, ?)");
     massUpdate.rowPluralName("org_qprofiles");
     massUpdate.execute((row, update) -> {
       String uuid = row.getString(1);
       String organizationUuid = row.getString(2);
       String parentUuid = row.getString(3);
+      Long lastUsed = row.getNullableLong(4);
+      Long userUpdatedAt = row.getNullableLong(5);
 
       update.setString(1, uuid);
       update.setString(2, organizationUuid);
       update.setString(3, uuid);
       update.setString(4, parentUuid);
-      update.setLong(5, now);
-      update.setLong(6, now);
+      update.setLong(5, lastUsed);
+      update.setLong(6, userUpdatedAt);
+      update.setLong(7, now);
+      update.setLong(8, now);
       return true;
     });
   }

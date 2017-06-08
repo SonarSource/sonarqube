@@ -54,7 +54,7 @@ public class UpdateOrgQProfilesToPointToBuiltInProfiles extends DataChange {
       " inner join rules_profiles rp on rp.kee = oqp.rules_profile_uuid " +
       " where oqp.organization_uuid <> ? " +
       "   and rp.is_built_in = ? " +
-      "   and rp.user_updated_at is null")
+      "   and oqp.user_updated_at is null")
       .setString(1, defaultOrganizationUuid)
       .setBoolean(2, false);
 

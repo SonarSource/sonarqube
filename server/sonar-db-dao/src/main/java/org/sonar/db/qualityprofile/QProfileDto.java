@@ -165,7 +165,7 @@ public class QProfileDto {
       .setLanguage(rules.getLanguage())
       .setName(rules.getName())
       .setRulesUpdatedAt(rules.getRulesUpdatedAt())
-      .setLastUsed(rules.getLastUsed())
-      .setUserUpdatedAt(rules.getUserUpdatedAt());
+      .setLastUsed(org.getLastUsed())
+      .setUserUpdatedAt(org.getUserUpdatedAt());
   }
 }

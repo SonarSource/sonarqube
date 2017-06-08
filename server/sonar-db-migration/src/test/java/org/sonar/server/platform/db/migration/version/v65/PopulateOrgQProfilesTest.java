@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,7 +34,6 @@ import org.sonar.db.CoreDbTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class PopulateOrgQProfilesTest {
 
@@ -48,8 +48,8 @@ public class PopulateOrgQProfilesTest {
 
   @Test
   public void migration_is_reentrant() throws SQLException {
-    insertRulesProfile("ORG_1", "java", "u1", null,true);
-    insertRulesProfile("ORG_2", "js", "u2", "u1", true);
+    insertRulesProfile("ORG_1", "java", "u1", null, true, 1_000L, 1_100L);
+    insertRulesProfile("ORG_2", "js", "u2", "u1", true, 1_000L, 1_100L);
 
     // org1 is already processed
     insertOrgQProfile("u1", "ORG_1", "RPU1");
@@ -69,6 +69,8 @@ public class PopulateOrgQProfilesTest {
     assertThat(qprofile2.get("ORGANIZATION_UUID")).isEqualTo("ORG_2");
     assertThat(qprofile2.get("RULES_PROFILE_UUID")).isEqualTo("u2");
     assertThat(qprofile2.get("PARENT_UUID")).isEqualTo("u1");
+    assertThat(qprofile2.get("LAST_USED")).isEqualTo(1_000L);
+    assertThat(qprofile2.get("USER_UPDATED_AT")).isEqualTo(1_100L);
   }
 
   @Test
@@ -76,20 +78,18 @@ public class PopulateOrgQProfilesTest {
     Random random = new Random();
     int nbRulesProfile = 100 + random.nextInt(100);
     IntStream.range(0, nbRulesProfile).forEach(
-      i -> insertRulesProfile("ORG_" + i, "java", "uuid" + i, random.nextBoolean() ? "ORG_" + random.nextInt(i + 1) : null,random.nextBoolean())
-    );
+      i -> insertRulesProfile("ORG_" + i, "java", "uuid" + i, random.nextBoolean() ? "ORG_" + random.nextInt(i + 1) : null, random.nextBoolean(), null, null));
 
     underTest.execute();
 
     assertThat(countRows()).isEqualTo(nbRulesProfile);
   }
 
-
   private int countRows() {
     return db.countRowsOfTable("org_qprofiles");
   }
 
-  private void insertRulesProfile(String orgUuid, String language, String uuid, String parentKee, boolean isDefault) {
+  private void insertRulesProfile(String orgUuid, String language, String uuid, String parentKee, boolean isDefault, @Nullable Long lastUsed, @Nullable Long userUpdatedAt) {
     db.executeInsert("RULES_PROFILES",
       "NAME", "name_" + uuid,
       "KEE", uuid,
@@ -97,7 +97,9 @@ public class PopulateOrgQProfilesTest {
       "PARENT_KEE", parentKee,
       "LANGUAGE", language,
       "IS_DEFAULT", isDefault,
-      "IS_BUILT_IN", true);
+      "IS_BUILT_IN", true,
+      "LAST_USED", lastUsed,
+      "USER_UPDATED_AT", userUpdatedAt);
   }
 
   private void insertOrgQProfile(String uuid, String orgUuid, String rulesProfileUuid) {
@@ -106,8 +108,7 @@ public class PopulateOrgQProfilesTest {
       "RULES_PROFILE_UUID", rulesProfileUuid,
       "UUID", uuid,
       "CREATED_AT", system2.now(),
-      "UPDATED_AT", system2.now()
-      );
+      "UPDATED_AT", system2.now());
   }
 
   private Map<String, Object> selectOrgQProfile(String uuid, String orgUuid) {

@@ -17,25 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
 import java.sql.SQLException;
-import org.sonar.db.Database;
-import org.sonar.server.platform.db.migration.sql.DropColumnsBuilder;
-import org.sonar.server.platform.db.migration.step.DdlChange;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-public class DropOrgUuidAndParentKeeFromRulesProfiles extends DdlChange {
+public class DropOrgColumnsFromRulesProfilesTest {
 
   private static final String TABLE_NAME = "rules_profiles";
 
-  public DropOrgUuidAndParentKeeFromRulesProfiles(Database db) {
-    super(db);
-  }
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropOrgColumnsFromRulesProfilesTest.class, "initial.sql");
 
-  @Override
-  public void execute(Context context) throws SQLException {
-    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "organization_uuid").build());
-    context.execute(new DropColumnsBuilder(getDialect(), TABLE_NAME, "parent_kee").build());
+  private DropOrgColumnsFromRulesProfiles underTest = new DropOrgColumnsFromRulesProfiles(db.database());
+
+  @Test
+  public void columns_are_dropped() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDoesNotExist(TABLE_NAME, "organization_uuid");
+    db.assertColumnDoesNotExist(TABLE_NAME, "parent_kee");
+    db.assertColumnDoesNotExist(TABLE_NAME, "last_used");
+    db.assertColumnDoesNotExist(TABLE_NAME, "user_updated_at");
   }
 }

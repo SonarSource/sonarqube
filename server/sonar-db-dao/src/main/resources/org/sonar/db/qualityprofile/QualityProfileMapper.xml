@@ -7,13 +7,13 @@
     oqp.uuid as kee,
     oqp.organization_uuid as organizationUuid,
     oqp.parent_uuid as parentKee,
+    oqp.last_used as lastUsed,
+    oqp.user_updated_at as userUpdatedAt,
     rp.id as id,
     rp.kee as rulesProfileUuid,
     rp.name as name,
     rp.language as language,
     rp.rules_updated_at as rulesUpdatedAt,
-    rp.last_used as lastUsed,
-    rp.user_updated_at as userUpdatedAt,
     rp.is_built_in as isBuiltIn
   </sql>
 
@@ -23,8 +23,6 @@
     rp.name as name,
     rp.language as language,
     rp.rules_updated_at as rulesUpdatedAt,
-    rp.last_used as lastUsed,
-    rp.user_updated_at as userUpdatedAt,
     rp.is_built_in as isBuiltIn
   </sql>
 
@@ -36,8 +34,6 @@
       created_at,
       updated_at,
       rules_updated_at,
-      last_used,
-      user_updated_at,
       is_built_in
     ) values (
       #{dto.kee, jdbcType=VARCHAR},
@@ -46,8 +42,6 @@
       #{now, jdbcType=TIMESTAMP},
       #{now, jdbcType=TIMESTAMP},
       #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
-      #{dto.lastUsed, jdbcType=BIGINT},
-      #{dto.userUpdatedAt, jdbcType=BIGINT},
       #{dto.isBuiltIn, jdbcType=BOOLEAN}
     )
   </insert>
@@ -58,6 +52,8 @@
       organization_uuid,
       rules_profile_uuid,
       parent_uuid,
+      last_used,
+      user_updated_at,
       created_at,
       updated_at
     ) values (
@@ -65,6 +61,8 @@
       #{dto.organizationUuid, jdbcType=VARCHAR},
       #{dto.rulesProfileUuid, jdbcType=VARCHAR},
       #{dto.parentUuid, jdbcType=VARCHAR},
+      #{dto.lastUsed, jdbcType=BIGINT},
+      #{dto.userUpdatedAt, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT},
       #{now, jdbcType=BIGINT}
     )
@@ -77,8 +75,6 @@
       language = #{dto.language, jdbcType=VARCHAR},
       updated_at = #{now, jdbcType=TIMESTAMP},
       rules_updated_at = #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
-      last_used = #{dto.lastUsed, jdbcType=BIGINT},
-      user_updated_at = #{dto.userUpdatedAt, jdbcType=BIGINT},
       is_built_in = #{dto.isBuiltIn, jdbcType=BOOLEAN}
     where
       kee = #{dto.rulesProfileUuid, jdbcType=VARCHAR}
@@ -88,6 +84,8 @@
     update org_qprofiles
     set
       parent_uuid = #{dto.parentKee, jdbcType=VARCHAR},
+      last_used = #{dto.lastUsed, jdbcType=BIGINT},
+      user_updated_at = #{dto.userUpdatedAt, jdbcType=BIGINT},
       updated_at = #{now, jdbcType=BIGINT}
     where
       uuid = #{dto.kee, jdbcType=VARCHAR}

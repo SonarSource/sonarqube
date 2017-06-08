@@ -181,13 +181,13 @@ public class UpdateOrgQProfilesToPointToBuiltInProfilesTest {
       "UUID", orgQProfileUuid,
       "RULES_PROFILE_UUID", rulesProfileUuid,
       "CREATED_AT", 1_000L,
-      "UPDATED_AT", 2_000L);
+      "UPDATED_AT", 2_000L,
+      "USER_UPDATED_AT", userUpdatedAt);
     db.executeInsert("RULES_PROFILES",
       "NAME", name,
       "KEE", rulesProfileUuid,
       "LANGUAGE", language,
-      "IS_BUILT_IN", isBuiltIn,
-      "USER_UPDATED_AT", userUpdatedAt);
+      "IS_BUILT_IN", isBuiltIn);
   }
 
   private void insertOrgQProfile(String orgUuid, String orgQProfileUuid, String rulesProfileUuid) {

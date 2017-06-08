@@ -20,8 +20,6 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Date;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.core.util.UtcDateUtils;
 
 /**
@@ -34,8 +32,6 @@ public class RulesProfileDto {
   private String name;
   private String language;
   private String rulesUpdatedAt;
-  private Long lastUsed;
-  private Long userUpdatedAt;
   private boolean isBuiltIn;
 
   public String getKee() {
@@ -88,26 +84,6 @@ public class RulesProfileDto {
     return this;
   }
 
-  @CheckForNull
-  public Long getLastUsed() {
-    return lastUsed;
-  }
-
-  public RulesProfileDto setLastUsed(@Nullable Long lastUsed) {
-    this.lastUsed = lastUsed;
-    return this;
-  }
-
-  @CheckForNull
-  public Long getUserUpdatedAt() {
-    return userUpdatedAt;
-  }
-
-  public RulesProfileDto setUserUpdatedAt(@Nullable Long userUpdatedAt) {
-    this.userUpdatedAt = userUpdatedAt;
-    return this;
-  }
-
   public boolean isBuiltIn() {
     return isBuiltIn;
   }
@@ -124,8 +100,6 @@ public class RulesProfileDto {
       .setName(qProfileDto.getName())
       .setIsBuiltIn(qProfileDto.isBuiltIn())
       .setId(qProfileDto.getId())
-      .setLastUsed(qProfileDto.getLastUsed())
-      .setRulesUpdatedAt(qProfileDto.getRulesUpdatedAt())
-      .setUserUpdatedAt(qProfileDto.getUserUpdatedAt());
+      .setRulesUpdatedAt(qProfileDto.getRulesUpdatedAt());
   }
 }
