@@ -116,20 +116,19 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
         </div>
       </div>
 
-      {measures['new_lines'] != null &&
-        <div className="project-card-measure smaller-card pull-right" data-key="new_lines">
-          <div className="project-card-measure-inner">
-            <div className="project-card-measure-number">
-              <Measure
-                measure={{ leak: measures['new_lines'] }}
-                metric={{ key: 'new_lines', type: 'SHORT_INT' }}
-              />
-            </div>
-            <div className="project-card-measure-label">
-              {translate('metric.lines.name')}
-            </div>
+      <div className="project-card-measure smaller-card pull-right" data-key="new_lines">
+        <div className="project-card-measure-inner">
+          <div className="project-card-measure-number">
+            <Measure
+              measure={{ leak: measures['new_lines'] }}
+              metric={{ key: 'new_lines', type: 'SHORT_INT' }}
+            />
           </div>
-        </div>}
+          <div className="project-card-measure-label">
+            {translate('metric.lines.name')}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
