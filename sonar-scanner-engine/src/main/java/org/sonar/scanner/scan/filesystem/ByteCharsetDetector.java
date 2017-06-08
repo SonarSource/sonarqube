@@ -38,8 +38,8 @@ public class ByteCharsetDetector {
   private static final ByteOrderMark[] boms = {ByteOrderMark.UTF_8, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE,
     ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE};
 
-  private Charset userConfiguration;
-  private CharsetValidation validator;
+  private final Charset userConfiguration;
+  private final CharsetValidation validator;
 
   public ByteCharsetDetector(CharsetValidation validator, Charset userConfiguration) {
     this.validator = validator;
@@ -67,6 +67,11 @@ public class ByteCharsetDetector {
     Charset c = userConfiguration;
     if (!UTF_8.equals(c) && (!isUtf16(c) || utf16.valid() == Validation.MAYBE) && validator.tryDecode(buf, c)) {
       return c;
+    }
+
+    Result windows1252 = validator.isValidWindows1252(buf);
+    if (windows1252.valid() == Validation.MAYBE) {
+      return windows1252.charset();
     }
 
     return null;

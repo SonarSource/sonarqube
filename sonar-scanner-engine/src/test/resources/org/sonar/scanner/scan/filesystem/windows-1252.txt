@@ -1,0 +1,30 @@
+using System.Collections.Generic;
+
+namespace SonarQube.Encoding.Tests
+{
+  public enum Western_European_aka_Windows_1252_no_encoding_detected_by_Roslyn
+  {
+  }
+
+  public class KeySuggestion
+  {
+
+  Dictionary<string, string> specialCharSequences = new Dictionary<string, string>
+                                                        {
+                                                          { "_dots_", "..." },
+                                                          { "_colon_", ":" },
+                                                          { "_slash_", "/" },
+                                                          { "_backslash_", "\\" },
+                                                          { "_percentage_", "%" },
+                                                          { "_dash_", "-" },
+                                                          { "_half_", "½" },
+                                                          { "_plus_", "+" },
+                                                          { "_amp_", "&" },
+                                                          { "_pow_", "^" },
+                                                          { "_currency_", "¤" },
+                                                          { "_degrees_", "°" },
+                                                          { "_equals_", "=" },
+                                                          { "_hash_", "#" }
+                                                        };
+  }
+}

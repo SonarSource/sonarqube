@@ -112,7 +112,8 @@ public class MetadataGeneratorTest {
   @Test
   public void use_default_charset_if_detection_fails() throws IOException {
     Path tempFile = temp.newFile().toPath();
-    byte[] b = {(byte) 0xDF, (byte) 0xFF, (byte) 0xFF};
+    byte invalidWindows1252 = (byte) 129;
+    byte[] b = {(byte) 0xDF, (byte) 0xFF, (byte) 0xFF, invalidWindows1252};
     FileUtils.writeByteArrayToFile(tempFile.toFile(), b);
     DefaultInputFile inputFile = createInputFileWithMetadata(tempFile);
     assertThat(inputFile.charset()).isEqualTo(StandardCharsets.US_ASCII);
