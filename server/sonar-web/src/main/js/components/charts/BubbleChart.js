@@ -38,7 +38,7 @@ export class Bubble extends React.PureComponent {
   props: {
     color?: string,
     link?: string,
-    onClick: ?string => void,
+    onClick: (?string) => void,
     r: number,
     tooltip?: string,
     x: number,
@@ -101,7 +101,7 @@ export default class BubbleChart extends React.PureComponent {
     padding: [number, number, number, number],
     formatXTick: number => string,
     formatYTick: number => string,
-    onBubbleClick?: ?string => void,
+    onBubbleClick?: (?string) => void,
     xDomain?: [number, number],
     yDomain?: [number, number]
   |};

@@ -169,33 +169,33 @@ export default class App extends React.PureComponent {
   addPermissionToGroup = (group: string, permission: string) =>
     this.state.groups.map(
       candidate =>
-        (candidate.name === group
+        candidate.name === group
           ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate)
+          : candidate
     );
 
   addPermissionToUser = (user: string, permission: string) =>
     this.state.users.map(
       candidate =>
-        (candidate.login === user
+        candidate.login === user
           ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate)
+          : candidate
     );
 
   removePermissionFromGroup = (group: string, permission: string) =>
     this.state.groups.map(
       candidate =>
-        (candidate.name === group
+        candidate.name === group
           ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate)
+          : candidate
     );
 
   removePermissionFromUser = (user: string, permission: string) =>
     this.state.users.map(
       candidate =>
-        (candidate.login === user
+        candidate.login === user
           ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate)
+          : candidate
     );
 
   grantPermissionToGroup = (group: string, permission: string) => {

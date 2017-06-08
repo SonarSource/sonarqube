@@ -57,14 +57,14 @@ export type Paging = {
 };
 
 const parseAsBoolean = (value: ?string, defaultValue: boolean = true): boolean =>
-  (value === 'false' ? false : value === 'true' ? true : defaultValue);
+  value === 'false' ? false : value === 'true' ? true : defaultValue;
 
 const parseAsString = (value: ?string): string => value || '';
 
 const parseAsStringArray = (value: ?string): Array<string> => (value ? value.split(',') : []);
 
 const parseAsFacetMode = (facetMode: string) =>
-  (facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count');
+  facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count';
 
 // allow sorting by CREATION_DATE only
 const parseAsSort = (sort: string): string => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
@@ -157,9 +157,9 @@ export const areQueriesEqual = (a: RawQuery, b: RawQuery) => {
 
   return keysA.every(
     key =>
-      (Array.isArray(parsedA[key]) && Array.isArray(parsedB[key])
+      Array.isArray(parsedA[key]) && Array.isArray(parsedB[key])
         ? areArraysEqual(parsedA[key], parsedB[key])
-        : parsedA[key] === parsedB[key])
+        : parsedA[key] === parsedB[key]
   );
 };
 

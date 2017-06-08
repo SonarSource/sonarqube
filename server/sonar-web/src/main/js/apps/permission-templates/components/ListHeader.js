@@ -28,14 +28,14 @@ export default class ListHeader extends React.PureComponent {
   };
 
   renderTooltip = permission =>
-    (permission.key === 'user' || permission.key === 'codeviewer'
+    permission.key === 'user' || permission.key === 'codeviewer'
       ? <div>
           {permission.description}
           <div className="alert alert-warning spacer-top">
             {translate('projects_role.public_projects_warning')}
           </div>
         </div>
-      : permission.description);
+      : permission.description;
 
   render() {
     const cells = this.props.permissions.map(permission => (
