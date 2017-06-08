@@ -31,6 +31,7 @@ import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.version.v63.DefaultOrganizationUuidProviderImpl;
 
 import static java.lang.String.valueOf;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -241,7 +242,7 @@ public class SupportPrivateProjectInDefaultPermissionTemplateTest {
   }
 
   private int insertGroup(String organizationUuid) {
-    String name = "name" + RandomStringUtils.random(20);
+    String name = "name" + randomAlphabetic(20);
     db.executeInsert(
       "GROUPS",
       "ORGANIZATION_UUID", organizationUuid,

@@ -62,7 +62,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 import static java.util.stream.Stream.of;
-import static org.apache.commons.lang.RandomStringUtils.random;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.doReturn;
@@ -570,7 +570,7 @@ public class SuggestionsActionTest {
 
   @Test
   public void should_only_provide_project_for_certain_qualifiers() throws Exception {
-    String query = random(10);
+    String query = randomAlphabetic(10);
 
     ComponentDto view = db.components().insertView(organization, v -> v.setName(query));
     ComponentDto subView = db.components().insertComponent(ComponentTesting.newSubView(view).setName(query));
