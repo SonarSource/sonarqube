@@ -39,23 +39,16 @@ it('should render correctly with all data', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should not render new coverage', () => {
+it('should render no data style new coverage, new duplications and new lines', () => {
   const wrapper = shallow(
-    <ProjectCardLeakMeasures measures={{ ...measures, new_coverage: undefined }} />
+    <ProjectCardLeakMeasures
+      measures={{
+        ...measures,
+        new_coverage: undefined,
+        new_duplicated_lines_density: undefined,
+        new_lines: undefined
+      }}
+    />
   );
-  expect(wrapper.find('[data-key="new_coverage"]')).toMatchSnapshot();
-});
-
-it('should not render new duplications', () => {
-  const wrapper = shallow(
-    <ProjectCardLeakMeasures measures={{ ...measures, new_duplicated_lines_density: undefined }} />
-  );
-  expect(wrapper.find('[data-key="new_duplicated_lines_density"]')).toMatchSnapshot();
-});
-
-it('should not render new lines', () => {
-  const wrapper = shallow(
-    <ProjectCardLeakMeasures measures={{ ...measures, new_lines: undefined }} />
-  );
-  expect(wrapper.find('[data-key="new_lines"]')).toMatchSnapshot();
+  expect(wrapper).toMatchSnapshot();
 });
