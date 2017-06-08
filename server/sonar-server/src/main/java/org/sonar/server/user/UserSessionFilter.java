@@ -30,12 +30,16 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.db.DBSessions;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.organization.DefaultOrganizationCache;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.setting.ThreadLocalSettings;
 
 public class UserSessionFilter implements Filter {
+  private static final Logger LOG = Loggers.get(UserSessionFilter.class);
   private final Platform platform;
 
   public UserSessionFilter() {
@@ -52,20 +56,27 @@ public class UserSessionFilter implements Filter {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
+    DBSessions dbSessions = platform.getContainer().getComponentByType(DBSessions.class);
     ThreadLocalSettings settings = platform.getContainer().getComponentByType(ThreadLocalSettings.class);
     DefaultOrganizationCache defaultOrganizationCache = platform.getContainer().getComponentByType(DefaultOrganizationCache.class);
     UserSessionInitializer userSessionInitializer = platform.getContainer().getComponentByType(UserSessionInitializer.class);
 
-    defaultOrganizationCache.load();
+    LOG.trace("{} serves {}", Thread.currentThread(), request.getRequestURI());
+    dbSessions.enableCaching();
     try {
-      settings.load();
+      defaultOrganizationCache.load();
       try {
-        doFilter(request, response, chain, userSessionInitializer);
+        settings.load();
+        try {
+          doFilter(request, response, chain, userSessionInitializer);
+        } finally {
+          settings.unload();
+        }
       } finally {
-        settings.unload();
+        defaultOrganizationCache.unload();
       }
     } finally {
-      defaultOrganizationCache.unload();
+      dbSessions.disableCaching();
     }
   }
 

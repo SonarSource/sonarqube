@@ -27,157 +27,168 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.DbSession;
 
-public class DbSessionImpl implements DbSession {
+/**
+ * A wrapper of a {@link DbSession} instance which does not call the wrapped {@link DbSession}'s
+ * {@link DbSession#close() close} method but throws a {@link UnsupportedOperationException} instead.
+ */
+abstract class DelegatingDbSession implements DbSession {
+  private final DbSession delegate;
 
-  private SqlSession session;
-
-  public DbSessionImpl(SqlSession session) {
-    this.session = session;
+  DelegatingDbSession(DbSession delegate) {
+    this.delegate = delegate;
   }
 
+  public DbSession getDelegate() {
+    return delegate;
+  }
+
+  ///////////////////////
+  // overridden with change of behavior
+  ///////////////////////
   @Override
-  public void commit() {
-    session.commit();
+  public void close() {
+    doClose();
   }
 
-  @Override
-  public void commit(boolean force) {
-    session.commit(force);
-  }
+  protected abstract void doClose();
 
-  /**
-   * We only care about the the commit section.
-   * The rest is simply passed to its parent.
-   */
-
+  ///////////////////////
+  // overridden with NO change of behavior
+  ///////////////////////
   @Override
   public <T> T selectOne(String statement) {
-    return session.selectOne(statement);
+    return delegate.selectOne(statement);
   }
 
   @Override
   public <T> T selectOne(String statement, Object parameter) {
-    return session.selectOne(statement, parameter);
+    return delegate.selectOne(statement, parameter);
   }
 
   @Override
   public <E> List<E> selectList(String statement) {
-    return session.selectList(statement);
+    return delegate.selectList(statement);
   }
 
   @Override
   public <E> List<E> selectList(String statement, Object parameter) {
-    return session.selectList(statement, parameter);
+    return delegate.selectList(statement, parameter);
   }
 
   @Override
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
-    return session.selectList(statement, parameter, rowBounds);
+    return delegate.selectList(statement, parameter, rowBounds);
   }
 
   @Override
   public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
-    return session.selectMap(statement, mapKey);
+    return delegate.selectMap(statement, mapKey);
   }
 
   @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
-    return session.selectMap(statement, parameter, mapKey);
+    return delegate.selectMap(statement, parameter, mapKey);
   }
 
   @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
-    return session.selectMap(statement, parameter, mapKey, rowBounds);
+    return delegate.selectMap(statement, parameter, mapKey, rowBounds);
   }
 
   @Override
   public void select(String statement, Object parameter, ResultHandler handler) {
-    session.select(statement, parameter, handler);
+    delegate.select(statement, parameter, handler);
   }
 
   @Override
   public void select(String statement, ResultHandler handler) {
-    session.select(statement, handler);
+    delegate.select(statement, handler);
   }
 
   @Override
   public void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
-    session.select(statement, parameter, rowBounds, handler);
+    delegate.select(statement, parameter, rowBounds, handler);
   }
 
   @Override
   public int insert(String statement) {
-    return session.insert(statement);
+    return delegate.insert(statement);
   }
 
   @Override
   public int insert(String statement, Object parameter) {
-    return session.insert(statement, parameter);
+    return delegate.insert(statement, parameter);
   }
 
   @Override
   public int update(String statement) {
-    return session.update(statement);
+    return delegate.update(statement);
   }
 
   @Override
   public int update(String statement, Object parameter) {
-    return session.update(statement, parameter);
+    return delegate.update(statement, parameter);
   }
 
   @Override
   public int delete(String statement) {
-    return session.delete(statement);
+    return delegate.delete(statement);
   }
 
   @Override
   public int delete(String statement, Object parameter) {
-    return session.delete(statement, parameter);
+    return delegate.delete(statement, parameter);
+  }
+
+  @Override
+  public void commit() {
+    delegate.commit();
+  }
+
+  @Override
+  public void commit(boolean force) {
+    delegate.commit(force);
   }
 
   @Override
   public void rollback() {
-    session.rollback();
+    delegate.rollback();
   }
 
   @Override
   public void rollback(boolean force) {
-    session.rollback(force);
+    delegate.rollback(force);
   }
 
   @Override
   public List<BatchResult> flushStatements() {
-    return session.flushStatements();
-  }
-
-  @Override
-  public void close() {
-    session.close();
+    return delegate.flushStatements();
   }
 
   @Override
   public void clearCache() {
-    session.clearCache();
+    delegate.clearCache();
   }
 
   @Override
   public Configuration getConfiguration() {
-    return session.getConfiguration();
+    return delegate.getConfiguration();
   }
 
   @Override
   public <T> T getMapper(Class<T> type) {
-    return session.getMapper(type);
+    return delegate.getMapper(type);
   }
 
   @Override
   public Connection getConnection() {
-    return session.getConnection();
+    return delegate.getConnection();
   }
 
   @Override
   public SqlSession getSqlSession() {
-    return session;
+    return delegate.getSqlSession();
   }
 }

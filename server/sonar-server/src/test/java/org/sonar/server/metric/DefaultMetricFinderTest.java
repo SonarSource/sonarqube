@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.TestDBSessions;
 import org.sonar.db.metric.MetricDao;
 
 import static org.hamcrest.core.Is.is;
@@ -43,7 +44,7 @@ public class DefaultMetricFinderTest {
   @Before
   public void setUp() {
     dbTester.prepareDbUnit(DefaultMetricFinderTest.class, "shared.xml");
-    finder = new DefaultMetricFinder(new DbClient(dbTester.database(), dbTester.myBatis(), new MetricDao()));
+    finder = new DefaultMetricFinder(new DbClient(dbTester.database(), dbTester.myBatis(), new TestDBSessions(dbTester.myBatis()), new MetricDao()));
   }
 
   @Test

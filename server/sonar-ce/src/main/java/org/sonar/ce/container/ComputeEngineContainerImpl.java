@@ -22,6 +22,7 @@ package org.sonar.ce.container;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.db.DBSessionsImpl;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.config.EmailSettings;
@@ -247,6 +248,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // DB
       DaoModule.class,
       ReadOnlyPropertiesDao.class,
+      DBSessionsImpl.class,
       DbClient.class,
 
       // Elasticsearch

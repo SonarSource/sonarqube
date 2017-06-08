@@ -121,7 +121,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
       ioc.addComponent(daoClass);
     }
     List<Dao> daos = ioc.getComponents(Dao.class);
-    client = new DbClient(db.getDatabase(), db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
+    client = new DbClient(db.getDatabase(), db.getMyBatis(), new TestDBSessions(db.getMyBatis()), daos.toArray(new Dao[daos.size()]));
   }
 
   public DbTester setDisableDefaultOrganization(boolean b) {

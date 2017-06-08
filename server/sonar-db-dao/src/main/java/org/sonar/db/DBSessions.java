@@ -19,8 +19,10 @@
  */
 package org.sonar.db;
 
-import org.apache.ibatis.session.SqlSession;
+public interface DBSessions {
+  DbSession openSession(boolean batch);
 
-public interface DbSession extends SqlSession {
-  SqlSession getSqlSession();
+  void enableCaching();
+
+  void disableCaching();
 }

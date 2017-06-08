@@ -21,6 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Properties;
 import javax.annotation.Nullable;
+import org.sonar.db.DBSessionsImpl;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.internal.ApiVersion;
@@ -102,6 +103,7 @@ public class PlatformLevel1 extends PlatformLevel {
       ThreadLocalUserSession.class,
 
       // DB
+      DBSessionsImpl.class,
       DbClient.class,
       DaoModule.class,
 

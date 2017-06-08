@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.TestDBSessions;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.ws.WsTester;
@@ -45,7 +46,7 @@ public class DomainsActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao());
+    dbClient = new DbClient(db.database(), db.myBatis(), new TestDBSessions(db.myBatis()), new MetricDao());
     dbSession = dbClient.openSession(false);
     ws = new WsTester(new MetricsWs(new DomainsAction(dbClient)));
   }

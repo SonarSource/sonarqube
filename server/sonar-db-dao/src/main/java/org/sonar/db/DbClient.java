@@ -73,6 +73,7 @@ public class DbClient {
 
   private final Database database;
   private final MyBatis myBatis;
+  private final DBSessions dbSessions;
   private final SchemaMigrationDao schemaMigrationDao;
   private final AuthorizationDao authorizationDao;
   private final OrganizationDao organizationDao;
@@ -121,9 +122,10 @@ public class DbClient {
   private final DefaultQProfileDao defaultQProfileDao;
   private final EsQueueDao esQueueDao;
 
-  public DbClient(Database database, MyBatis myBatis, Dao... daos) {
+  public DbClient(Database database, MyBatis myBatis, DBSessions dbSessions, Dao... daos) {
     this.database = database;
     this.myBatis = myBatis;
+    this.dbSessions = dbSessions;
 
     Map<Class, Dao> map = new IdentityHashMap<>();
     for (Dao dao : daos) {
@@ -179,7 +181,7 @@ public class DbClient {
   }
 
   public DbSession openSession(boolean batch) {
-    return myBatis.openSession(batch);
+    return dbSessions.openSession(batch);
   }
 
   public Database getDatabase() {

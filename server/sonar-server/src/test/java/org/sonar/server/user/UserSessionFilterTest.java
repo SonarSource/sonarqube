@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.organization.DefaultOrganizationCache;
 import org.sonar.server.platform.Platform;
@@ -51,12 +52,14 @@ public class UserSessionFilterTest {
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private FilterChain chain = mock(FilterChain.class);
+  private DBSessions dbSessions = mock(DBSessions.class);
   private ThreadLocalSettings settings = mock(ThreadLocalSettings.class);
   private DefaultOrganizationCache defaultOrganizationCache = mock(DefaultOrganizationCache.class);
   private UserSessionFilter underTest = new UserSessionFilter(platform);
 
   @Before
   public void setUp() {
+    when(platform.getContainer().getComponentByType(DBSessions.class)).thenReturn(dbSessions);
     when(platform.getContainer().getComponentByType(ThreadLocalSettings.class)).thenReturn(settings);
     when(platform.getContainer().getComponentByType(DefaultOrganizationCache.class)).thenReturn(defaultOrganizationCache);
   }
@@ -114,6 +117,32 @@ public class UserSessionFilterTest {
     } catch (RuntimeException e) {
       assertThat(e).isSameAs(thrown);
       verify(settings).unload();
+    }
+  }
+
+  @Test
+  public void doFilter_enables_and_disables_caching_in_DbSessions() throws Exception {
+    mockNoUserSessionInitializer();
+
+    underTest.doFilter(request, response, chain);
+
+    InOrder inOrder = inOrder(dbSessions);
+    inOrder.verify(dbSessions).enableCaching();
+    inOrder.verify(dbSessions).disableCaching();
+    inOrder.verifyNoMoreInteractions();
+  }
+
+  @Test
+  public void doFilter_disables_caching_in_DbSessions_even_if_chain_throws_exception() throws Exception {
+    mockNoUserSessionInitializer();
+    RuntimeException thrown = mockChainDoFilterError();
+
+    try {
+      underTest.doFilter(request, response, chain);
+      fail("A RuntimeException should have been thrown");
+    } catch (RuntimeException e) {
+      assertThat(e).isSameAs(thrown);
+      verify(dbSessions).disableCaching();
     }
   }
 
