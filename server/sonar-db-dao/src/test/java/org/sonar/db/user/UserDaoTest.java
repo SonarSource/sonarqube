@@ -307,6 +307,7 @@ public class UserDaoTest {
       .setEmail("jo@hn.com")
       .setScmAccounts(",jo.hn,john2,")
       .setActive(true)
+      .setOnboarded(true)
       .setSalt("1234")
       .setCryptedPassword("abcd")
       .setExternalIdentity("johngithub")
@@ -324,6 +325,7 @@ public class UserDaoTest {
     assertThat(user.getName()).isEqualTo("John");
     assertThat(user.getEmail()).isEqualTo("jo@hn.com");
     assertThat(user.isActive()).isTrue();
+    assertThat(user.isOnboarded()).isTrue();
     assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,");
     assertThat(user.getSalt()).isEqualTo("1234");
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
@@ -344,7 +346,8 @@ public class UserDaoTest {
       .setCreatedAt(1418215735482L)
       .setUpdatedAt(1418215735482L)
       .setActive(true)
-      .setLocal(true);
+      .setLocal(true)
+      .setOnboarded(false);
     db.getDbClient().userDao().insert(db.getSession(), existingUser);
     db.getSession().commit();
 
@@ -355,6 +358,7 @@ public class UserDaoTest {
       .setEmail("jodoo@hn.com")
       .setScmAccounts(",jo.hn,john2,johndoo,")
       .setActive(false)
+      .setOnboarded(true)
       .setSalt("12345")
       .setCryptedPassword("abcde")
       .setExternalIdentity("johngithub")
@@ -371,6 +375,7 @@ public class UserDaoTest {
     assertThat(user.getName()).isEqualTo("John Doo");
     assertThat(user.getEmail()).isEqualTo("jodoo@hn.com");
     assertThat(user.isActive()).isFalse();
+    assertThat(user.isOnboarded()).isTrue();
     assertThat(user.getScmAccounts()).isEqualTo(",jo.hn,john2,johndoo,");
     assertThat(user.getSalt()).isEqualTo("12345");
     assertThat(user.getCryptedPassword()).isEqualTo("abcde");

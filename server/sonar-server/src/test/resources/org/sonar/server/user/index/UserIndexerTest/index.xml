@@ -8,6 +8,7 @@
          scm_accounts="&#10;user_1&#10;u1&#10;"
          created_at="1500000000000"
          updated_at="1500000000000"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
 
 </dataset>
