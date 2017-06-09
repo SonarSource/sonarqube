@@ -1,5 +1,5 @@
-// flow-typed signature: ee6e939898c254f6578ac3485db3e223
-// flow-typed version: 651c6d20b9/backbone_v1.x.x/flow_>=v0.25.x
+// flow-typed signature: 86547335f85946dbef9c3913c3b16416
+// flow-typed version: c80fa24011/backbone_v1.x.x/flow_>=v0.25.x
 
 declare module 'backbone' {
   declare var $: any; // @TODO this is no correct, but it is difficult to require another definition from here.
@@ -16,11 +16,13 @@ declare module 'backbone' {
   declare class Events {
     // Not sure the best way of adding these to the declaration files
     on(event: string, callback: eventCallback, context?: Object): void;
+    once(event: string, callback: eventCallback, context?: Object): void;
     bind(event: string, callback: eventCallback, context?: Object): void;
     off(event: ?string, callback?: ?eventCallback, context?: Object): void;
     unbind(event: ?string, callback?: ?eventCallback, context?: Object): void;
     trigger(event: string, ...args?: Array<mixed>): void;
     listenTo(other: Events, event: string, callback: eventCallback): void;
+    listenToOnce(other: Events, event: string, callback: eventCallback): void;
     stopListening(other: Events, callback?: ?eventCallback, context?: Object): void;
     static on(event: string, callback: eventCallback, context?: Object): void;
     static bind(event: string, callback: eventCallback, context?: Object): void;
@@ -44,26 +46,43 @@ declare module 'backbone' {
     static extend<P, CP>(instanceProperies: P, classProperties?: CP): Class<Model & P> & CP;
     constructor(attributes?: Attrs, options?: ModelOpts): void;
     static initialize(attributes?: Attrs, options?: ModelOpts): void;
-    idAttribute: string;
-    id: string | number;
-    attributes: Attrs;
-    cid: string;
-    cidPrefix: string;
-    chagned: ?Object,
-    validationError: ?Object;
     initialize(): void;
-    toJSON(): Attrs;
-    sync: sync;
+    get(attr: string): any;
     set(attrs: Attrs, options?: Object): this;
     set(attr: string, value: mixed, options?: Object): this;
+    escape(attr: string): mixed;
     has(attr: string): boolean;
     unset(attr: string, options?: { unset?: boolean }): this;
     clear(options?: Object): this;
-    escape(attr: string): mixed;
-    previous(attr: string): mixed;
-    previousAttributes(): Attrs;
-    // @TODO should return a jQuery XHR, but I cannot define this without the dependency on jquery lib def.
+    id: string | number;
+    idAttribute: string;
+    cid: string;
+    cidPrefix: string;
+    attributes: Attrs;
+    changed: ?Object;
+    defaults(attr: Object): void;
+    defaults(attr: () => void): void;
+    toJSON(): Attrs;
+    sync: sync;
+    //Start jQuery XHR
+    // @TODO should return a jQuery XHR, but I cannot define this without the dependency on jquery lib def
     fetch(options?: Object): any;
+    save(attrs: Attrs, options?: Object): any;
+    save(attr: string, value: mixed, options?: Object): any;
+    destroy(options?: Object): any;
+    // End jQuery XHR
+    validate(attrs: Attrs, options?: Object): boolean;
+    validationError: ?Object;
+    isValid(): boolean;
+    url(): string;
+    urlRoot: string | () => string;
+    parse(response: Object, options?: Object): any;
+    clone: this;
+    isNew: boolean;
+    hasChanged(attribute?: string): boolean;
+    chagnedAttributes(attributes?: {[attr: string]: mixed}): boolean;
+    previous(attribute: string): mixed;
+    previousAttirbutes(): Attrs;
     // Start Underscore methods
     // @TODO Underscore Methods should be defined by the library definition
     keys(): string[];
@@ -75,15 +94,6 @@ declare module 'backbone' {
     chain(): Function;
     isEmpty(): boolean;
     // End underscore methods
-    isValid(): boolean;
-    url(): string;
-    urlRoot: string | () => string,
-    clone: this;
-    isNew: boolean;
-    hasChanged(attribute?: string): boolean;
-    chagnedAttributes(attributes?: {[attr: string]: mixed}): boolean;
-    previous(attribute: string): mixed;
-    previousAttirbutes(): Attrs;
   }
 
   /**
@@ -144,10 +154,10 @@ declare module 'backbone' {
     push(model: TModel, options?: Object): void;
     pop(otions?: Object): void;
     unshift(model: TModel, options?: Object): void;
-    unshift(model: TModel, options?: Object): void;
     shift(options?: Object): TModel;
     slice(begin: number, end: number): Array<TModel>;
     length: number;
+    comparator: string | (attr: string) => any | (attrA: TModel, attrB: TModel) => number;
     sort(options?: Object): Array<TModel>;
     pluck(attribute: string): Array<TModel>;
     where(attributes: {[attributeName: string]: mixed}): Array<TModel>;
@@ -184,6 +194,12 @@ declare module 'backbone' {
     constructor(options?: Object): this;
     initialize(options?: Object): this;
     start(options?: { pushState?: boolean, hashChange?: boolean, root?: string}): this;
+    navigate(fragment: string, options?: { trigger?: boolean, replace?:  boolean}): boolean | void;
+    loadUrl(fragment: string): boolean;
+    route(route: string, callback: Function): void;
+    decodeFragment(fragment: string): string;
+    getFragment(): string;
+    fragment: string;
   }
   declare var history: History;
 
