@@ -27,7 +27,7 @@ import type { Event } from '../../../../store/projectActivity/duck';
 type Props = {
   analysis: string,
   event: Event,
-  deleteEvent: (string, string) => Promise<*>,
+  deleteEvent: (analysis: string, event: string) => Promise<*>,
   onClose: () => void
 };
 

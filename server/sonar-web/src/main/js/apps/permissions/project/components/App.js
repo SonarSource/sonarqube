@@ -43,7 +43,7 @@ export type Props = {|
     qualifier: string,
     visibility: string
   },
-  onComponentChange: () => void,
+  onComponentChange: (changes: {}) => void,
   onRequestFail: Object => void
 |};
 

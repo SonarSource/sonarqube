@@ -46,7 +46,6 @@ type State = {
 const LIST_SIZE = 10;
 
 export default class TagsFilter extends React.PureComponent {
-  getSearchOptions: () => [{ label: string, value: string }];
   props: Props;
   state: State;
   property: string;
@@ -62,7 +61,7 @@ export default class TagsFilter extends React.PureComponent {
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  getSearchOptions(facet: {}, tags: Array<string>) {
+  getSearchOptions(facet?: {}, tags: Array<string>): Array<{ label: string, value: string }> {
     let tagsCopy = [...tags];
     if (facet) {
       tagsCopy = difference(tagsCopy, Object.keys(facet));

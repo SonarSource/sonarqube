@@ -28,7 +28,7 @@ type Props = {
   isOpen: boolean,
   issue: Issue,
   creationDate: string,
-  togglePopup: string => void,
+  togglePopup: (string, boolean | void) => void,
   onFail: Error => void
 };
 

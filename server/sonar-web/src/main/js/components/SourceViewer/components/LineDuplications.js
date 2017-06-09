@@ -26,7 +26,7 @@ import type { SourceLine } from '../types';
 
 type Props = {
   line: SourceLine,
-  onClick: (SourceLine, HTMLElement) => void
+  onClick: SourceLine => void
 };
 
 export default class LineDuplications extends React.PureComponent {
@@ -34,7 +34,7 @@ export default class LineDuplications extends React.PureComponent {
 
   handleClick = (e: SyntheticInputEvent) => {
     e.preventDefault();
-    this.props.onClick(this.props.line, e.target);
+    this.props.onClick(this.props.line);
   };
 
   render() {
