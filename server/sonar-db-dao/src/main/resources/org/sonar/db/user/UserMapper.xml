@@ -16,6 +16,7 @@
     u.external_identity_provider as "externalIdentityProvider",
     u.user_local as "local",
     u.is_root as "root",
+    u.onboarded as "onboarded",
     u.created_at as "createdAt",
     u.updated_at as "updatedAt"
   </sql>
@@ -155,6 +156,7 @@
       salt,
       crypted_password,
       is_root,
+      onboarded,
       created_at,
       updated_at
     )
@@ -170,6 +172,7 @@
       #{salt,jdbcType=VARCHAR},
       #{cryptedPassword,jdbcType=VARCHAR},
       #{root,jdbcType=BOOLEAN},
+      #{onboarded,jdbcType=BOOLEAN},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -184,6 +187,7 @@
       external_identity=#{externalIdentity,jdbcType=VARCHAR},
       external_identity_provider=#{externalIdentityProvider,jdbcType=VARCHAR},
       user_local=#{local,jdbcType=BOOLEAN},
+      onboarded=#{onboarded,jdbcType=BOOLEAN},
       salt=#{salt,jdbcType=VARCHAR},
       crypted_password=#{cryptedPassword,jdbcType=BIGINT},
       updated_at=#{updatedAt,jdbcType=BIGINT}

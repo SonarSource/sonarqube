@@ -222,10 +222,11 @@ public class UpdateActionTest {
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setActive(true);
-    dbClient.userDao().insert(session, userDto)
+      .setActive(true)
+      .setLocal(true)
       .setExternalIdentity("jo")
       .setExternalIdentityProvider("sonarqube");
+    dbClient.userDao().insert(session, userDto);
     session.commit();
     userIndexer.index(userDto.getLogin());
   }
