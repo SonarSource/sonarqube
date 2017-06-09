@@ -59,14 +59,5 @@ public abstract class ProjectBuilder {
    * @since 3.7
    */
   public void build(Context context) {
-    // Call deprecated method for backward compatibility
-    build(context.projectReactor());
-  }
-
-  /**
-   * @deprecated since 3.7 override {@link #build(Context)} instead
-   */
-  @Deprecated
-  protected void build(ProjectReactor reactor) {
   }
 }

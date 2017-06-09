@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -163,7 +163,7 @@ public class MeasureTest {
   @Test
   public void notEqualRuleMeasures() {
     Measure measure = new Measure(CoreMetrics.VIOLATIONS, 30.0);
-    RuleMeasure ruleMeasure = new RuleMeasure(CoreMetrics.VIOLATIONS, new Rule("foo", "bar"), RulePriority.CRITICAL, 3);
+    RuleMeasure ruleMeasure = new RuleMeasure(CoreMetrics.VIOLATIONS, RuleKey.of("foo", "bar"), RulePriority.CRITICAL, 3);
     assertThat(measure.equals(ruleMeasure)).isFalse();
     assertThat(ruleMeasure.equals(measure)).isFalse();
   }

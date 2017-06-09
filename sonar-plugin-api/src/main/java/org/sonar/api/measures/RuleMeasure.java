@@ -41,15 +41,6 @@ public class RuleMeasure extends Measure {
 
   /**
    * This constructor is for internal use only. Please use static methods createForXXX().
-   * @deprecated since 4.4 use {@link #RuleMeasure(Metric, RuleKey, RulePriority, Integer)}
-   */
-  @Deprecated
-  public RuleMeasure(Metric metric, @Nullable Rule rule, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
-    this(metric, rule != null ? rule.ruleKey() : null, rulePriority, ruleCategory);
-  }
-
-  /**
-   * This constructor is for internal use only. Please use static methods createForXXX().
    */
   public RuleMeasure(Metric metric, @Nullable RuleKey ruleKey, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
     super(metric);
@@ -68,46 +59,11 @@ public class RuleMeasure extends Measure {
   }
 
   /**
-   * @deprecated since 4.4 use {@link #ruleKey()}
-   */
-  @Deprecated
-  public Rule getRule() {
-    return Rule.create(ruleKey.repository(), ruleKey.rule());
-  }
-
-  /**
-   * @deprecated since 4.4 use {@link #setRuleKey(org.sonar.api.rule.RuleKey)}
-   */
-  @Deprecated
-  public RuleMeasure setRule(Rule rule) {
-    this.ruleKey = rule.ruleKey();
-    return this;
-  }
-
-  /**
-   * @deprecated since 2.14 use {@link #getSeverity()} instead. See SONAR-1829.
-   */
-  @Deprecated
-  @CheckForNull
-  public RulePriority getRulePriority() {
-    return rulePriority;
-  }
-
-  /**
    * @since 2.14
    */
   @CheckForNull
   public RulePriority getSeverity() {
     return rulePriority;
-  }
-
-  /**
-   * @deprecated since 2.14 use {@link #setSeverity(org.sonar.api.rules.RulePriority)} instead. See SONAR-1829.
-   */
-  @Deprecated
-  public RuleMeasure setRulePriority(RulePriority rulePriority) {
-    this.rulePriority = rulePriority;
-    return this;
   }
 
   /**
@@ -167,27 +123,11 @@ public class RuleMeasure extends Measure {
       .toString();
   }
 
-  /**
-   * @deprecated since 4.4 use {@link #createForRule(Metric, RuleKey, Double)}
-   */
-  @Deprecated
-  public static RuleMeasure createForRule(Metric metric, Rule rule, @Nullable Double value) {
-    return new RuleMeasure(metric, rule, null, null).setValue(value);
-  }
-
   public static RuleMeasure createForRule(Metric metric, RuleKey ruleKey, @Nullable Double value) {
     return new RuleMeasure(metric, ruleKey, null, null).setValue(value);
   }
 
   public static RuleMeasure createForPriority(Metric metric, RulePriority priority, @Nullable Double value) {
     return new RuleMeasure(metric, (RuleKey) null, priority, null).setValue(value);
-  }
-
-  /**
-   * @deprecated since 2.5. See SONAR-2007.
-   */
-  @Deprecated
-  public static RuleMeasure createForCategory(Metric metric, Integer category, @Nullable Double value) {
-    return new RuleMeasure(metric, (RuleKey) null, null, category).setValue(value);
   }
 }

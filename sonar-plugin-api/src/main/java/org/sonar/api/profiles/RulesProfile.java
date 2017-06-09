@@ -40,58 +40,11 @@ import org.sonar.api.utils.MessageException;
  */
 public class RulesProfile implements Cloneable {
 
-  /**
-   * Name of the default profile "Sonar Way"
-   * @deprecated in 4.2. Use your own constant.
-   */
-  @Deprecated
-  public static final String SONAR_WAY_NAME = "Sonar way";
-
-  /**
-   * Name of the default java profile "Sonar way with Findbugs"
-   * @deprecated in 4.2. Use your own constant.
-   */
-  @Deprecated
-  public static final String SONAR_WAY_FINDBUGS_NAME = "Sonar way with Findbugs";
-
-  /**
-   * Name of the default java profile "Sun checks"
-   * @deprecated in 4.2. Use your own constant.
-   */
-  @Deprecated
-  public static final String SUN_CONVENTIONS_NAME = "Sun checks";
-
   private String name;
   private Boolean defaultProfile = Boolean.FALSE;
   private String language;
   private String parentName;
   private List<ActiveRule> activeRules = new ArrayList<>();
-
-  /**
-   * @deprecated use the factory method create()
-   */
-  @Deprecated
-  public RulesProfile() {
-  }
-
-  /**
-   * @deprecated since 2.3. Use the factory method create()
-   */
-  @Deprecated
-  public RulesProfile(String name, String language) {
-    this.name = name;
-    this.language = language;
-    this.activeRules = new ArrayList<>();
-  }
-
-  /**
-   * @deprecated since 2.3. Use the factory method create()
-   */
-  @Deprecated
-  public RulesProfile(String name, String language, boolean defaultProfile, /* kept for backward-compatibility */boolean provided) {
-    this(name, language);
-    this.defaultProfile = defaultProfile;
-  }
 
   public Integer getId() {
     return null;
@@ -113,39 +66,6 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
-   */
-  @Deprecated
-  public int getVersion() {
-    return -1;
-  }
-
-  /**
-   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
-   */
-  @Deprecated
-  public RulesProfile setVersion(int version) {
-    // ignore
-    return this;
-  }
-
-  /**
-   * @deprecated profile versioning is dropped in 4.4. Always returns null.
-   */
-  @CheckForNull
-  @Deprecated
-  public Boolean getUsed() {
-    return null;
-  }
-
-  /**
-   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
-   */
-  @Deprecated
-  public RulesProfile setUsed(Boolean used) {
-    return this;
-  }
-
   /**
    * @return the list of active rules
    */

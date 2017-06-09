@@ -19,9 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import java.util.List;
-import org.sonar.api.resources.Resource;
-
 /**
  * A pre-implementation of the CpdMapping extension point
  *
@@ -30,12 +27,4 @@ import org.sonar.api.resources.Resource;
  */
 @Deprecated
 public abstract class AbstractCpdMapping implements CpdMapping {
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Resource createResource(java.io.File file, List<java.io.File> sourceDirs) {
-    throw new UnsupportedOperationException("Deprecated since 4.2");
-  }
 }

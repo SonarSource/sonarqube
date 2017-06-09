@@ -328,26 +328,6 @@ public final class CoreMetrics {
     .setHidden(true)
     .create();
 
-  /**
-   * @deprecated since 4.2 - see SONAR-4990
-   */
-  @Deprecated
-  public static final String COMMENTED_OUT_CODE_LINES_KEY = "commented_out_code_lines";
-
-  /**
-   * @deprecated since 4.2 - see SONAR-4990
-   */
-  @Deprecated
-  public static final Metric<Integer> COMMENTED_OUT_CODE_LINES = new Metric.Builder(COMMENTED_OUT_CODE_LINES_KEY, "Commented-Out LOC", Metric.ValueType.INT)
-    .setDescription("Commented lines of code")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setDomain(DOMAIN_DOCUMENTATION)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setHidden(true)
-    .create();
-
   // --------------------------------------------------------------------------------------------------------------------
   //
   // COMPLEXITY
@@ -431,25 +411,6 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
     .create();
-
-  /**
-   * @deprecated in 3.0 - see SONAR-3289
-   */
-  @Deprecated
-  public static final String CLASS_COMPLEXITY_DISTRIBUTION_KEY = "class_complexity_distribution";
-
-  /**
-   * @deprecated in 3.0 - see SONAR-3289
-   */
-  @Deprecated
-  public static final Metric<String> CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Class Distribution / Complexity",
-    Metric.ValueType.DISTRIB)
-      .setDescription("Classes distribution /complexity")
-      .setDirection(Metric.DIRECTION_NONE)
-      .setQualitative(true)
-      .setDomain(DOMAIN_COMPLEXITY)
-      .setHidden(true)
-      .create();
 
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
   public static final Metric<String> FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Function Distribution / Complexity",
@@ -1589,41 +1550,6 @@ public final class CoreMetrics {
       .setBestValue(0.0)
       .setDeleteHistoricalData(true)
       .create();
-
-  /**
-   * @deprecated since 4.5. Internal storage of duplication is not an API.
-   */
-  @Deprecated
-  public static final String DUPLICATIONS_DATA_KEY = "duplications_data";
-
-  /**
-   * Information about duplications, which is represented as an XML string.
-   * <p>
-   * Here is the format (since Sonar 2.12):
-   * <pre>
-   * {@literal
-   * <duplications>
-   *   <!-- Multiple groups: -->
-   *   <g>
-   *     <!-- Multiple blocks: -->
-   *     <b r="[resource key]" s="[first line]" l="[number of lines]" />
-   *     ...
-   *   </g>
-   *   ...
-   * </duplications>
-   * }
-   * </pre>
-   *
-   * @deprecated since 4.5. Internal storage of duplication is not an API.
-   */
-  @Deprecated
-  public static final Metric<String> DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplication Details", Metric.ValueType.DATA)
-    .setDescription("Duplications details")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DUPLICATIONS)
-    .setDeleteHistoricalData(true)
-    .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //

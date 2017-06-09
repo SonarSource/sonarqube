@@ -91,15 +91,6 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
   <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric);
 
   /**
-   * Key is updated when saving the resource.
-   *
-   * @return the key as saved in database. Null if the resource is set as excluded.
-   * @deprecated use the methods index()
-   */
-  @Deprecated
-  String saveResource(Resource resource);
-
-  /**
    * @deprecated since 5.1 Sensors should not read but only save data
    */
   @Deprecated

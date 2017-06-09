@@ -34,8 +34,8 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
-import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CPP_DOC;
 import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRUCTURED_COMMENT;
 
 public class DefaultHighlightingTest {
 
@@ -59,7 +59,7 @@ public class DefaultHighlightingTest {
       .highlight(1, 10, 1, 12, KEYWORD)
       .highlight(24, 38, KEYWORD)
       .highlight(42, 50, KEYWORD)
-      .highlight(24, 65, CPP_DOC)
+      .highlight(24, 65, STRUCTURED_COMMENT)
       .highlight(12, 20, COMMENT);
 
     highlightingDataBuilder.save();
@@ -85,7 +85,7 @@ public class DefaultHighlightingTest {
       rangeOf(1, 24, 2, 15),
       rangeOf(1, 24, 1, 38),
       rangeOf(1, 42, 2, 0));
-    assertThat(highlightingRules).extracting("textType").containsExactly(COMMENT, KEYWORD, COMMENT, CPP_DOC, KEYWORD, KEYWORD);
+    assertThat(highlightingRules).extracting("textType").containsExactly(COMMENT, KEYWORD, COMMENT, STRUCTURED_COMMENT, KEYWORD, KEYWORD);
   }
 
   @Test
@@ -93,7 +93,7 @@ public class DefaultHighlightingTest {
     new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(0, 15, KEYWORD)
-      .highlight(8, 12, CPP_DOC)
+      .highlight(8, 12, STRUCTURED_COMMENT)
       .save();
   }
 

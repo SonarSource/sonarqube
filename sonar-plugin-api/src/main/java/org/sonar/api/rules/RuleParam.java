@@ -31,24 +31,6 @@ public class RuleParam {
   private String type = "STRING";
   private String defaultValue;
 
-  /**
-   * @deprecated since 2.3 use the factory method Rule.setParameter()
-   */
-  @Deprecated
-  public RuleParam() {
-  }
-
-  /**
-   * @deprecated since 2.3 use the factory method setParameter()
-   */
-  @Deprecated
-  public RuleParam(Rule rule, String key, String description, String type) {
-    this.rule = rule;
-    this.key = key;
-    this.description = description;
-    this.type = type;
-  }
-
   public Integer getId() {
     return id;
   }

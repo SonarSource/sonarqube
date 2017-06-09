@@ -51,21 +51,7 @@ public final class Scopes {
    */
   public static final String FILE = "FIL";
 
-  /**
-   * Types like Java classes/interfaces. Not persisted in database.
-   * @deprecated since 4.3 resources under FILE level are no more be supported since 4.2.
-   */
-  @Deprecated
-  public static final String PROGRAM_UNIT = "PGU";
-
-  /**
-   * Block units like methods, functions or Cobol paragraphs.
-   * @deprecated since 4.3 resources under FILE level are no more be supported since 4.2.
-   */
-  @Deprecated
-  public static final String BLOCK_UNIT = "BLU";
-
-  public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE, PROGRAM_UNIT, BLOCK_UNIT};
+  public static final String[] SORTED_SCOPES = {PROJECT, DIRECTORY, FILE};
 
   private Scopes() {
     // only static methods
@@ -84,23 +70,6 @@ public final class Scopes {
    */
   public static boolean isFile(final Resource resource) {
     return StringUtils.equals(FILE, resource.getScope());
-  }
-
-  /**
-   * A program unit can be a Java class.
-   * @deprecated since 4.3 resources under FILE level are no more be supported since 4.2.
-   */
-  @Deprecated
-  public static boolean isProgramUnit(final Resource resource) {
-    return StringUtils.equals(PROGRAM_UNIT, resource.getScope());
-  }
-
-  /**
-   * @deprecated since 4.3 resources under FILE level are no more be supported since 4.2.
-   */
-  @Deprecated
-  public static boolean isBlockUnit(final Resource resource) {
-    return StringUtils.equals(BLOCK_UNIT, resource.getScope());
   }
 
   public static boolean isHigherThan(final Resource resource, final String than) {

@@ -66,24 +66,6 @@ public final class Batch {
   }
 
   /**
-   * @deprecated since 4.4 use {@link #start()}, {@link #executeTask(Map)} and then {@link #stop()}
-   */
-  @Deprecated
-  public synchronized Batch execute() {
-    configureLogging();
-    start();
-    boolean threw = true;
-    try {
-      executeTask(bootstrapProperties);
-      threw = false;
-    } finally {
-      doStop(threw);
-    }
-
-    return this;
-  }
-
-  /**
    * @since 4.4
    */
   public synchronized Batch start() {
@@ -223,15 +205,6 @@ public final class Batch {
 
     public Builder setLogOutput(@Nullable LogOutput logOutput) {
       this.logOutput = logOutput;
-      return this;
-    }
-
-    /**
-     * @deprecated since 3.7 use {@link #setBootstrapProperties(Map)}
-     */
-    @Deprecated
-    public Builder setGlobalProperties(Map<String, String> globalProperties) {
-      this.bootstrapProperties = globalProperties;
       return this;
     }
 

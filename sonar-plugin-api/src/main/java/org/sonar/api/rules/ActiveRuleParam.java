@@ -27,18 +27,10 @@ public class ActiveRuleParam implements Cloneable {
   private String paramKey;
   private String value;
 
-  /**
-   * @deprecated visibility should be decreased to protected or package
-   */
-  @Deprecated
-  public ActiveRuleParam() {
+  ActiveRuleParam() {
   }
 
-  /**
-   * @deprecated visibility should be decreased to protected or package
-   */
-  @Deprecated
-  public ActiveRuleParam(ActiveRule activeRule, RuleParam ruleParam, String value) {
+  ActiveRuleParam(ActiveRule activeRule, RuleParam ruleParam, String value) {
     this.activeRule = activeRule;
     this.ruleParam = ruleParam;
     this.value = value;
@@ -49,10 +41,6 @@ public class ActiveRuleParam implements Cloneable {
     return id;
   }
 
-  /**
-   * @deprecated visibility should be decreased to protected or package
-   */
-  @Deprecated
   void setId(Integer id) {
     this.id = id;
   }
@@ -61,11 +49,7 @@ public class ActiveRuleParam implements Cloneable {
     return activeRule;
   }
 
-  /**
-   * @deprecated visibility should be decreased to protected or package
-   */
-  @Deprecated
-  public void setActiveRule(ActiveRule activeRule) {
+  void setActiveRule(ActiveRule activeRule) {
     this.activeRule = activeRule;
   }
 
@@ -73,11 +57,7 @@ public class ActiveRuleParam implements Cloneable {
     return ruleParam;
   }
 
-  /**
-   * @deprecated visibility should be decreased to protected or package
-   */
-  @Deprecated
-  public void setRuleParam(RuleParam ruleParam) {
+  void setRuleParam(RuleParam ruleParam) {
     this.ruleParam = ruleParam;
   }
 

@@ -80,11 +80,6 @@ public class DefaultSymbolizable implements Symbolizable {
 
   private static final class NoOpSymbol implements Symbol {
     @Override
-    public String getFullyQualifiedName() {
-      return null;
-    }
-
-    @Override
     public int getDeclarationStartOffset() {
       return 0;
     }

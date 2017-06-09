@@ -164,46 +164,9 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     this.decimalScale = builder.decimalScale;
   }
 
-  /**
-   * Creates an empty metric
-   *
-   * @deprecated in 1.12. Use the {@link Builder} factory.
-   */
-  @Deprecated
-  public Metric() {
-  }
 
-  /**
-   * Creates a metric based on its key. Shortcut to Metric(key, ValueType.INT)
-   *
-   * @param key the metric key
-   * @deprecated since 2.7 use the {@link Builder} factory.
-   */
-  @Deprecated
-  public Metric(String key) {
-    this(key, ValueType.INT);
-  }
 
-  /**
-   * Creates a metric based on a key and a type. Shortcut to
-   * Metric(key, key, key, type, -1, Boolean.FALSE, null, false)
-   *
-   * @param key  the key
-   * @param type the type
-   * @deprecated since 2.7 use the {@link Builder} factory.
-   */
-  @Deprecated
-  public Metric(String key, ValueType type) {
-    this(key, key, key, type, -1, Boolean.FALSE, null, false);
-  }
 
-  /**
-   * @deprecated since 2.7 use the {@link Builder} factory.
-   */
-  @Deprecated
-  public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, String domain) {
-    this(key, name, description, type, direction, qualitative, domain, false);
-  }
 
   /**
    * Creates a fully qualified metric.
