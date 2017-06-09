@@ -6,5 +6,6 @@
          created_at="1418215735482"
          updated_at="1418215735482"
          active="[true]"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
 </dataset>

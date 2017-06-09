@@ -23,70 +23,60 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class UserTesting {
 
   public static UserDto newUserDto() {
-    return newUserDto(randomAlphanumeric(30), randomAlphanumeric(30), randomAlphanumeric(30));
+    return new UserDto()
+      .setId(nextInt())
+      .setActive(true)
+      .setLocal(nextBoolean())
+      .setLogin(randomAlphanumeric(30))
+      .setName(randomAlphanumeric(30))
+      .setEmail(randomAlphanumeric(30))
+      .setOnboarded(nextBoolean())
+      .setScmAccounts(singletonList(randomAlphanumeric(40)))
+      .setExternalIdentity(randomAlphanumeric(40))
+      .setExternalIdentityProvider(randomAlphanumeric(40))
+      .setSalt(randomAlphanumeric(40))
+      .setCryptedPassword(randomAlphanumeric(40))
+      .setCreatedAt(nextLong())
+      .setUpdatedAt(nextLong());
   }
 
   public static UserDto newUserDto(String login, String name, @Nullable String email) {
-    return new UserDto()
-      .setId(nextInt())
-      .setActive(true)
-      .setLocal(true)
+    return newUserDto()
       .setName(name)
       .setEmail(email)
-      .setLogin(login)
-      .setScmAccounts(singletonList(randomAlphanumeric(40)))
-      .setExternalIdentity(login)
-      .setExternalIdentityProvider("sonarqube")
-      .setSalt(randomAlphanumeric(40))
-      .setCryptedPassword(randomAlphanumeric(40))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setLogin(login);
   }
 
   public static UserDto newLocalUser(String login, String name, @Nullable String email) {
-    return new UserDto()
-      .setId(nextInt())
-      .setActive(true)
+    return newUserDto()
       .setLocal(true)
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setScmAccounts(singletonList(randomAlphanumeric(40)))
       .setExternalIdentity(login)
-      .setExternalIdentityProvider("sonarqube")
-      .setSalt(randomAlphanumeric(40))
-      .setCryptedPassword(randomAlphanumeric(40))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setExternalIdentityProvider("sonarqube");
   }
 
   public static UserDto newExternalUser(String login, String name, @Nullable String email) {
-    return new UserDto()
-      .setId(nextInt())
-      .setActive(true)
+    return newUserDto()
       .setLocal(false)
       .setName(name)
       .setEmail(email)
       .setLogin(login)
-      .setScmAccounts(singletonList(randomAlphanumeric(40)))
       .setExternalIdentity(randomAlphanumeric(40))
-      .setExternalIdentityProvider(randomAlphanumeric(40))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setExternalIdentityProvider(randomAlphanumeric(40));
   }
 
   public static UserDto newDisabledUser(String login) {
-    return new UserDto()
-      .setId(nextInt())
+    return newUserDto()
       .setLogin(login)
-      .setActive(false)
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong());
+      .setActive(false);
   }
 }
