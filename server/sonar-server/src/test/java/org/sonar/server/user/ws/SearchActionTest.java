@@ -37,7 +37,6 @@ import org.sonar.db.user.UserTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -72,11 +71,13 @@ public class SearchActionTest {
   private WsTester ws = new WsTester(new UsersWs(new SearchAction(userSession, index, dbClient, new AvatarResolverImpl())));
 
   @Test
-  public void search_json_example() throws Exception {
+  public void test_json_example() throws Exception {
     UserDto fmallet = db.users().insertUser(newUserDto("fmallet", "Freddy Mallet", "f@m.com")
       .setActive(true)
       .setLocal(true)
-      .setScmAccounts(emptyList()));
+      .setScmAccounts(emptyList())
+      .setExternalIdentity("fmallet")
+      .setExternalIdentityProvider("sonarqube"));
     UserDto simon = db.users().insertUser(newUserDto("sbrandhof", "Simon", "s.brandhof@company.tld")
       .setActive(true)
       .setLocal(false)
@@ -127,16 +128,13 @@ public class SearchActionTest {
   public void search_with_query() throws Exception {
     loginAsSimpleUser();
     injectUsers(5);
-    UserDto user = db.users().insertUser(newUserDto("user-%_%-login", "user-name", "user@mail.com").setScmAccounts(singletonList("user1")));
-    esTester.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(),
-      new UserDoc()
-        .setActive(true)
-        .setEmail(user.getEmail())
-        .setLogin(user.getLogin())
-        .setName(user.getName())
-        .setCreatedAt(user.getCreatedAt())
-        .setUpdatedAt(user.getUpdatedAt())
-        .setScmAccounts(user.getScmAccountsAsList()));
+    UserDto user = db.users().insertUser(u -> u
+      .setLogin("user-%_%-login")
+      .setName("user-name")
+      .setEmail("user@mail.com")
+      .setLocal(true)
+      .setScmAccounts(singletonList("user1")));
+    userIndexer.indexOnStartup(null);
 
     ws.newGetRequest("api/users", "search").setParam("q", "user-%_%-").execute().assertJson(getClass(), "user_one.json");
     ws.newGetRequest("api/users", "search").setParam("q", "user@MAIL.com").execute().assertJson(getClass(), "user_one.json");

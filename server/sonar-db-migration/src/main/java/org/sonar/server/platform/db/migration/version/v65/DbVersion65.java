@@ -41,6 +41,10 @@ public class DbVersion65 implements DbVersion {
       .add(1711, "Drop index MANUAL_MEASURES.COMPONENT_UUID", DropIndexManualMeasuresComponentUuid.class)
       .add(1712, "Make MANUAL_MEASURES.COMPONENT_UUID not nullable", MakeManualMeasuresComponentUuidNotNullable.class)
       .add(1713, "Recreate index MANUAL_MEASURES.COMPONENT_UUID", RecreateIndexManualMeasuresComponentUuid.class)
-      .add(1714, "Purge developer data", PurgeDeveloperData.class);
+      .add(1714, "Purge developer data", PurgeDeveloperData.class)
+      .add(1715, "Add USERS.ONBOARDED", AddUsersOnboarded.class)
+      .add(1716, "Populate USERS.ONBOARDED", PopulateUsersOnboarded.class)
+      .add(1717, "Make USERS.ONBOARDED not nullable", MakeUsersOnboardedNotNullable.class)
+    ;
   }
 }
