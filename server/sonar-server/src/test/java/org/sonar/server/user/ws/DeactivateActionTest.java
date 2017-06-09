@@ -320,6 +320,7 @@ public class DeactivateActionTest {
       .setLogin("ada.lovelace")
       .setEmail("ada.lovelace@noteg.com")
       .setName("Ada Lovelace")
+      .setLocal(true)
       .setScmAccounts(singletonList("al")));
     logInAsSystemAdministrator();
 

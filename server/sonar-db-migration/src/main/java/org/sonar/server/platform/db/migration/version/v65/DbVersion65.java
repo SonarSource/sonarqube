@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.db.migration.version.v65;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
@@ -55,6 +56,10 @@ public class DbVersion65 implements DbVersion {
       .add(1726, "Update org_qprofiles to reference built-in profiles", UpdateOrgQProfilesToPointToBuiltInProfiles.class)
       .add(1727, "Delete rules_profiles orphans", DeleteOrphansFromRulesProfiles.class)
       .add(1728, "Rename column qprofile_changes.qprofile_key to qprofile_changes.rules_profile_uuid", RenameQProfileKeyToRulesProfileUuidOnQProfileChanges.class)
-      .add(1729, "Add index on qprofile_changes.rules_profile_uuid", AddIndexRulesProfileUuidOnQProfileChanges.class);
+      .add(1729, "Add index on qprofile_changes.rules_profile_uuid", AddIndexRulesProfileUuidOnQProfileChanges.class)
+      .add(1730, "Add USERS.ONBOARDED", AddUsersOnboarded.class)
+      .add(1731, "Populate USERS.ONBOARDED", PopulateUsersOnboarded.class)
+      .add(1732, "Make USERS.ONBOARDED not nullable", MakeUsersOnboardedNotNullable.class)
+    ;
   }
 }
