@@ -47,7 +47,7 @@ public class CreateTableDefaultQProfilesTest {
 
     db.assertColumnDefinition(TABLE, "organization_uuid", Types.VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE, "language", Types.VARCHAR, 20, false);
-    db.assertColumnDefinition(TABLE, "qprofile_uuid", Types.VARCHAR, 40, false);
+    db.assertColumnDefinition(TABLE, "qprofile_uuid", Types.VARCHAR, 255, false);
     db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
     db.assertColumnDefinition(TABLE, "updated_at", Types.BIGINT, null, false);
     db.assertPrimaryKey(TABLE, "pk_" + TABLE, "organization_uuid", "language");

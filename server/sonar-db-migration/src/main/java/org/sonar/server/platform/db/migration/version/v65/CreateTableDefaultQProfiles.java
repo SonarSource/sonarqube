@@ -31,6 +31,8 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_S
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class CreateTableDefaultQProfiles extends DdlChange {
+  private static final int QUALITY_PROFILE_UUID_SIZE = 255;
+
   public CreateTableDefaultQProfiles(Database db) {
     super(db);
   }
@@ -39,7 +41,7 @@ public class CreateTableDefaultQProfiles extends DdlChange {
   public void execute(Context context) throws SQLException {
     VarcharColumnDef profileUuidColumn = newVarcharColumnDefBuilder()
       .setColumnName("qprofile_uuid")
-      .setLimit(UUID_SIZE)
+      .setLimit(QUALITY_PROFILE_UUID_SIZE)
       .setIsNullable(false)
       .setIgnoreOracleUnit(true)
       .build();

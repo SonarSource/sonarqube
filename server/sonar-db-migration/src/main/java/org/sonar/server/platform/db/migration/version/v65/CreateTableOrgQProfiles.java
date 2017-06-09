@@ -33,6 +33,7 @@ import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVar
 public class CreateTableOrgQProfiles extends DdlChange {
 
   private static final String TABLE_NAME = "org_qprofiles";
+  private static final int QUALITY_PROFILE_UUID_SIZE = 255;
 
   public CreateTableOrgQProfiles(Database db) {
     super(db);
@@ -48,7 +49,7 @@ public class CreateTableOrgQProfiles extends DdlChange {
       .build();
     VarcharColumnDef rulesProfileUuid = newVarcharColumnDefBuilder()
       .setColumnName("rules_profile_uuid")
-      .setLimit(UUID_SIZE)
+      .setLimit(QUALITY_PROFILE_UUID_SIZE)
       .setIsNullable(false)
       .setIgnoreOracleUnit(true)
       .build();
@@ -56,14 +57,14 @@ public class CreateTableOrgQProfiles extends DdlChange {
       new CreateTableBuilder(getDialect(), TABLE_NAME)
         .addPkColumn(newVarcharColumnDefBuilder()
           .setColumnName("uuid")
-          .setLimit(UUID_SIZE)
+          .setLimit(QUALITY_PROFILE_UUID_SIZE)
           .setIsNullable(false)
           .build())
         .addColumn(organizationColumn)
         .addColumn(rulesProfileUuid)
         .addColumn(newVarcharColumnDefBuilder()
           .setColumnName("parent_uuid")
-          .setLimit(UUID_SIZE)
+          .setLimit(QUALITY_PROFILE_UUID_SIZE)
           .setIsNullable(true)
           .setIgnoreOracleUnit(true)
           .build())
