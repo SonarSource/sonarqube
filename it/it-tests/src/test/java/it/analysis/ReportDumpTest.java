@@ -21,13 +21,13 @@ package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import com.sonar.orchestrator.http.HttpResponse;
 import it.Category3Suite;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -64,9 +64,9 @@ public class ReportDumpTest {
   }
 
   private void verifyUrl(String url) throws IOException {
-    Response response = ItUtils.call(url);
+    HttpResponse response = orchestrator.getServer().newHttpCall(url).execute();
     assertThat(response.isSuccessful()).as(url).isTrue();
-    assertThat(response.body().string()).as(url).isNotEmpty();
+    assertThat(response.getBodyAsString()).as(url).isNotEmpty();
   }
 
 }

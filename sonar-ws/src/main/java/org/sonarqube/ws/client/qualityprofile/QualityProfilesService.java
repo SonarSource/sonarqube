@@ -30,8 +30,10 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CHANGE_PARENT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_COPY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DELETE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
@@ -43,6 +45,8 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
@@ -64,6 +68,13 @@ public class QualityProfilesService extends BaseService {
     httpRequest.setParam(ActivateActionParameters.PARAM_RESET, request.getReset().orElse(null));
     httpRequest.setParam(ActivateActionParameters.PARAM_RULE_KEY, request.getRuleKey());
     httpRequest.setParam(ActivateActionParameters.PARAM_SEVERITY, request.getSeverity().map(Enum::name).orElse(null));
+    call(httpRequest);
+  }
+
+  public void deactivateRule(String profileKey, String ruleKey) {
+    PostRequest httpRequest = new PostRequest(path(ACTION_DEACTIVATE_RULE));
+    httpRequest.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profileKey);
+    httpRequest.setParam(ActivateActionParameters.PARAM_RULE_KEY, ruleKey);
     call(httpRequest);
   }
 
@@ -106,6 +117,7 @@ public class QualityProfilesService extends BaseService {
 
   public CreateWsResponse create(CreateRequest request) {
     PostRequest postRequest = new PostRequest(path(ACTION_CREATE))
+      .setParam(PARAM_ORGANIZATION, request.getOrganizationKey())
       .setParam(PARAM_LANGUAGE, request.getLanguage())
       .setParam(PARAM_PROFILE_NAME, request.getProfileName());
     return call(postRequest, CreateWsResponse.parser());
@@ -117,6 +129,15 @@ public class QualityProfilesService extends BaseService {
       .setParam(PARAM_TO_NAME, request.getToName());
 
     return call(postRequest, CopyWsResponse.parser());
+  }
+
+  public void changeParent(ChangeParentRequest request) {
+    call(new PostRequest(path(ACTION_CHANGE_PARENT))
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_PARENT_KEY, request.getParentKey())
+      .setParam(PARAM_PARENT_NAME, request.getParentName())
+      .setParam(PARAM_PROFILE_KEY, request.getProfileKey())
+      .setParam(PARAM_PROFILE_NAME, request.getProfileName()));
   }
 
   public void setDefault(SetDefaultRequest request) {

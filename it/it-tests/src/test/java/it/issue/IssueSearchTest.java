@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
 import org.assertj.core.api.Fail;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,13 +41,11 @@ import util.ItUtils;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.sonarqube.ws.Issues.SearchWsResponse;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 import static util.ItUtils.toDate;
-import static util.ItUtils.verifyHttpException;
 
 public class IssueSearchTest extends AbstractIssueTest {
 
@@ -143,10 +142,10 @@ public class IssueSearchTest extends AbstractIssueTest {
     assertThat(search(IssueQuery.create().rules("xoo:OneIssuePerFile")).list()).hasSize(8);
 
     try {
-      assertThat(search(IssueQuery.create().rules("unknown")).list()).isEmpty();
-      fail();
-    } catch (Exception e) {
-      verifyHttpException(e, 400);
+      search(IssueQuery.create().rules("unknown"));
+      Assert.fail();
+    } catch (org.sonar.wsclient.base.HttpException e) {
+      assertThat(e.status()).isEqualTo(400);
     }
   }
 

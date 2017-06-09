@@ -32,8 +32,7 @@ import it.duplication.NewDuplicationsTest;
 import it.organization.RootUserTest;
 import it.projectEvent.EventTest;
 import it.projectEvent.ProjectActivityPageTest;
-import it.qualityProfile.QualityProfilesPageTest;
-import it.qualityProfile.QualityProfilesRestoreAndSearchTest;
+import it.qualityProfile.QualityProfilesUiTest;
 import it.serverSystem.HttpHeadersTest;
 import it.serverSystem.LogsTest;
 import it.serverSystem.PingTest;
@@ -97,8 +96,7 @@ import static util.ItUtils.xooPlugin;
   WsLocalCallTest.class,
   WsTest.class,
   // quality profiles
-  QualityProfilesRestoreAndSearchTest.class,
-  QualityProfilesPageTest.class,
+  QualityProfilesUiTest.class,
   LogsTest.class
 })
 public class Category4Suite {

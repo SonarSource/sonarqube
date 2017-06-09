@@ -17,26 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.serverSystem;
+package util;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.http.HttpResponse;
-import it.Category4Suite;
-import org.junit.ClassRule;
-import org.junit.Test;
+import java.util.function.Consumer;
+import org.sonarqube.ws.Organizations.Organization;
+import org.sonarqube.ws.client.organization.CreateWsRequest;
+import org.sonarqube.ws.client.organization.OrganizationService;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface OrganizationSupport {
 
-public class PingTest {
+  OrganizationService getWsService();
 
-  @ClassRule
-  public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  /**
+   * Create organization with randomly generated key and name
+   */
+  Organization create(Consumer<CreateWsRequest.Builder>... populators);
 
-  @Test
-  public void ping_answers_pong() throws Exception {
-    HttpResponse response = orchestrator.getServer().newHttpCall("/api/system/ping").execute();
+  OrganizationSupport delete(Organization organization);
 
-    assertThat(response.getBodyAsString()).isEqualTo("pong");
-    assertThat(response.getHeader("Content-Type")).isEqualTo("text/plain");
-  }
 }

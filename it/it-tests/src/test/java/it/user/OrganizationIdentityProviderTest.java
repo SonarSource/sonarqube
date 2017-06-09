@@ -27,40 +27,36 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
+import util.OrganizationRule;
 import util.user.UserRule;
 
-import static it.Category6Suite.enableOrganizationsSupport;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
 public class OrganizationIdentityProviderTest {
 
-  @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category6Suite.ORCHESTRATOR;
+  private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  private static OrganizationRule organizations = new OrganizationRule(orchestrator);
+  private static UserRule users = new UserRule(orchestrator);
 
   @ClassRule
-  public static UserRule userRule = UserRule.from(ORCHESTRATOR);
+  public static TestRule chain = RuleChain.outerRule(orchestrator)
+    .around(users)
+    .around(organizations);
 
   private static String USER_LOGIN = "john";
-
   private static String GROUP = "group";
-
   private static WsClient adminWsClient;
 
   @BeforeClass
-  public static void enableOrganizations() {
-    enableOrganizationsSupport();
-    adminWsClient = newAdminWsClient(ORCHESTRATOR);
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
-  }
-
-  private static void purgeSettings(){
-    resetSettings(ORCHESTRATOR, null, "sonar.auth.fake-base-id-provider.enabled", "sonar.auth.fake-base-id-provider.user",
-      "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "sonar.auth.fake-base-id-provider.enabledGroupsSync", "sonar.auth.fake-base-id-provider.groups",
-      "sonar.auth.fake-base-id-provider.allowsUsersToSignUp");
+  public static void before() {
+    adminWsClient = newAdminWsClient(orchestrator);
+    setServerProperty(orchestrator, "sonar.auth.fake-base-id-provider.enabled", "true");
   }
 
   @AfterClass
@@ -70,46 +66,52 @@ public class OrganizationIdentityProviderTest {
 
   @Before
   public void setUp() throws Exception {
-    userRule.deactivateUsers(USER_LOGIN);
-    userRule.removeGroups(GROUP);
+    users.deactivateUsers(USER_LOGIN);
+    users.removeGroups(GROUP);
     purgeSettings();
+  }
+
+  private static void purgeSettings() {
+    resetSettings(orchestrator, null, "sonar.auth.fake-base-id-provider.enabled", "sonar.auth.fake-base-id-provider.user",
+      "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "sonar.auth.fake-base-id-provider.enabledGroupsSync", "sonar.auth.fake-base-id-provider.groups",
+      "sonar.auth.fake-base-id-provider.allowsUsersToSignUp");
   }
 
   @Test
   public void default_group_is_not_added_for_new_user_when_organizations_are_enabled() throws Exception {
     enablePlugin();
-    userRule.createGroup(GROUP);
+    users.createGroup(GROUP);
     enableUserCreationByAuthPlugin();
     setGroupsReturnedByAuthPlugin(GROUP);
 
     authenticateWithFakeAuthProvider();
 
     // No default group membership
-    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP);
+    users.verifyUserGroupMembership(USER_LOGIN, GROUP);
   }
 
   @Test
   public void default_group_is_not_sync_for_existing_user_when_organizations_are_enabled() throws Exception {
     enablePlugin();
-    userRule.createGroup(GROUP);
-    userRule.createUser(USER_LOGIN, "password");
+    users.createGroup(GROUP);
+    users.createUser(USER_LOGIN, "password");
     enableUserCreationByAuthPlugin();
     setGroupsReturnedByAuthPlugin(GROUP);
 
     authenticateWithFakeAuthProvider();
 
     // No default group membership
-    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP);
+    users.verifyUserGroupMembership(USER_LOGIN, GROUP);
   }
 
   @Test
   public void remove_default_group_when_organizations_are_enabled() throws Exception {
     enablePlugin();
-    userRule.createGroup(GROUP);
-    userRule.createUser(USER_LOGIN, "password");
+    users.createGroup(GROUP);
+    users.createUser(USER_LOGIN, "password");
     // Add user as member of default organization
     adminWsClient.organizations().addMember("default-organization", USER_LOGIN);
-    userRule.verifyUserGroupMembership(USER_LOGIN, "Members");
+    users.verifyUserGroupMembership(USER_LOGIN, "Members");
     enableUserCreationByAuthPlugin();
     // No group is returned by the plugin
     setGroupsReturnedByAuthPlugin();
@@ -117,21 +119,21 @@ public class OrganizationIdentityProviderTest {
     authenticateWithFakeAuthProvider();
 
     // No default group membership
-    userRule.verifyUserGroupMembership(USER_LOGIN);
+    users.verifyUserGroupMembership(USER_LOGIN);
   }
 
   private static void enablePlugin() {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
+    setServerProperty(orchestrator, "sonar.auth.fake-base-id-provider.enabled", "true");
   }
 
   private static void enableUserCreationByAuthPlugin() {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", USER_LOGIN + ",fake-john,John,john@email.com");
+    setServerProperty(orchestrator, "sonar.auth.fake-base-id-provider.user", USER_LOGIN + ",fake-john,John,john@email.com");
   }
 
   private static void setGroupsReturnedByAuthPlugin(String... groups) {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabledGroupsSync", "true");
+    setServerProperty(orchestrator, "sonar.auth.fake-base-id-provider.enabledGroupsSync", "true");
     if (groups.length > 0) {
-      setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.groups", Joiner.on(",").join(groups));
+      setServerProperty(orchestrator, "sonar.auth.fake-base-id-provider.groups", Joiner.on(",").join(groups));
     }
   }
 

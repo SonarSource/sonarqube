@@ -20,20 +20,21 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.http.HttpMethod;
 import it.issue.IssueTagsTest;
 import it.issue.OrganizationIssueAssignTest;
 import it.organization.BillingTest;
 import it.organization.OrganizationMembershipTest;
+import it.organization.OrganizationMembershipUiTest;
 import it.organization.OrganizationTest;
+import it.organization.PersonalOrganizationTest;
+import it.organization.RootUserOnOrganizationTest;
 import it.projectSearch.LeakProjectsPageTest;
 import it.projectSearch.SearchProjectsTest;
-import it.organization.RootUserOnOrganizationTest;
-import it.qualityProfile.OrganizationQualityProfilesPageTest;
-import it.qualityProfile.QualityProfilesBuiltInTest;
+import it.qualityProfile.BuiltInQualityProfilesTest;
+import it.qualityProfile.CustomQualityProfilesTest;
+import it.qualityProfile.OrganizationQualityProfilesUiTest;
 import it.uiExtension.OrganizationUiExtensionsTest;
 import it.user.OrganizationIdentityProviderTest;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -49,11 +50,14 @@ import static util.ItUtils.xooPlugin;
   OrganizationIdentityProviderTest.class,
   OrganizationIssueAssignTest.class,
   OrganizationMembershipTest.class,
-  OrganizationQualityProfilesPageTest.class,
+  OrganizationMembershipUiTest.class,
+  OrganizationQualityProfilesUiTest.class,
   OrganizationTest.class,
   RootUserOnOrganizationTest.class,
   OrganizationUiExtensionsTest.class,
-  QualityProfilesBuiltInTest.class,
+  PersonalOrganizationTest.class,
+  BuiltInQualityProfilesTest.class,
+  CustomQualityProfilesTest.class,
   BillingTest.class,
   IssueTagsTest.class,
   LeakProjectsPageTest.class,
@@ -68,17 +72,4 @@ public class Category6Suite {
     .addPlugin(pluginArtifact("fake-billing-plugin"))
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
     .build();
-
-  @BeforeClass
-  public static void enableOrganizations() {
-    enableOrganizationsSupport();
-  }
-
-  public static void enableOrganizationsSupport() {
-    ORCHESTRATOR.getServer()
-      .newHttpCall("api/organizations/enable_support")
-      .setMethod(HttpMethod.POST)
-      .setAdminCredentials()
-      .execute();
-  }
 }

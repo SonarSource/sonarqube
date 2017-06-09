@@ -23,10 +23,8 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.client.HttpException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static util.ItUtils.expectForbiddenError;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newWsClient;
 
@@ -36,20 +34,11 @@ public class RootUserTest {
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Test
-  public void nobody_is_root_by_default() {
+  public void nobody_is_root_by_default_when_organizations_are_disabled() {
     // anonymous
-    verifyHttpError(() -> newWsClient(orchestrator).rootService().search(), 403);
+    expectForbiddenError(() -> newWsClient(orchestrator).rootService().search());
 
     // admin
-    verifyHttpError(() -> newAdminWsClient(orchestrator).rootService().search(), 403);
-  }
-
-  private static void verifyHttpError(Runnable runnable, int expectedErrorCode) {
-    try {
-      runnable.run();
-      fail("Ws Call should have failed with http code " + expectedErrorCode);
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(expectedErrorCode);
-    }
+    expectForbiddenError(() -> newAdminWsClient(orchestrator).rootService().search());
   }
 }

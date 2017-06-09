@@ -26,17 +26,17 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
-import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import util.ItUtils;
+import util.OrganizationRule;
 import util.user.UserRule;
 
-import static it.Category6Suite.enableOrganizationsSupport;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,33 +53,26 @@ public class IssueTagsTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public UserRule userRule = new UserRule(orchestrator);
+  @Rule
+  public OrganizationRule organizationRule = new OrganizationRule(orchestrator);
 
-  private String organizationKey;
-
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-    enableOrganizationsSupport();
-  }
+  private Organizations.Organization organization;
 
   @Before
-  public void setUp() throws Exception {
-    organizationKey = ItUtils.newOrganizationKey();
-    newAdminWsClient(orchestrator).organizations().create(CreateWsRequest.builder()
-      .setKey(organizationKey)
-      .setName(organizationKey)
-      .build());
+  public void setUp() {
+    organization = organizationRule.create();
   }
 
   @Test
-  public void getTags() throws Exception {
-    restoreProfile(orchestrator, IssueTagsTest.class.getResource("/issue/one-issue-per-line-profile.xml"), organizationKey);
+  public void getTags()  {
+    restoreProfile(orchestrator, IssueTagsTest.class.getResource("/issue/one-issue-per-line-profile.xml"), organization.getKey());
     String projectKey = newProjectKey();
     ItUtils.newAdminWsClient(orchestrator).projects().create(
       CreateRequest.builder()
         .setKey(projectKey)
-        .setOrganization(organizationKey)
+        .setOrganization(organization.getKey())
         .setName(randomAlphabetic(10))
         .setVisibility("private")
         .build());
@@ -96,7 +89,7 @@ public class IssueTagsTest {
     {
       String anonymous = null;
       String anonymousPassword = null;
-      assertTags(anonymous, anonymousPassword, organizationKey, publicTags);
+      assertTags(anonymous, anonymousPassword, organization.getKey(), publicTags);
       assertTags(anonymous, anonymousPassword, defaultOrganization, publicTags);
     }
 
@@ -105,7 +98,7 @@ public class IssueTagsTest {
       String stranger = randomAlphabetic(10).toLowerCase();
       String strangerPassword = randomAlphabetic(8);
       userRule.createUser(stranger, strangerPassword);
-      assertTags(stranger, strangerPassword, organizationKey, publicTags);
+      assertTags(stranger, strangerPassword, organization.getKey(), publicTags);
       assertTags(stranger, strangerPassword, defaultOrganization, publicTags);
     }
 
@@ -116,13 +109,13 @@ public class IssueTagsTest {
       userRule.createUser(member, memberPassword);
       addMember(member);
       grantUserPermission(projectKey, member);
-      assertTags(member, memberPassword, organizationKey, privateTags);
+      assertTags(member, memberPassword, organization.getKey(), privateTags);
       assertTags(member, memberPassword, defaultOrganization, publicTags);
     }
   }
 
   private void addMember(String member) {
-    newAdminWsClient(orchestrator).organizations().addMember(organizationKey, member);
+    newAdminWsClient(orchestrator).organizations().addMember(organization.getKey(), member);
   }
 
   private void grantUserPermission(String projectKey, String member) {
@@ -147,7 +140,7 @@ public class IssueTagsTest {
   private void analyzeProject(String projectKey) {
     List<String> keyValueProperties = new ArrayList<>(asList(
       "sonar.projectKey", projectKey,
-      "sonar.organization", organizationKey,
+      "sonar.organization", organization.getKey(),
       "sonar.profile", "one-issue-per-line-profile",
       "sonar.login", "admin", "sonar.password", "admin",
       "sonar.scm.disabled", "false"));

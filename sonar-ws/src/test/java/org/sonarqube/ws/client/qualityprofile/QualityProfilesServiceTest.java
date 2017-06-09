@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -136,6 +137,18 @@ public class QualityProfilesServiceTest {
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasPath("delete")
       .hasParam(PARAM_PROFILE_KEY, "sample")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void deactivate_rule() {
+    underTest.deactivateRule("P1", "R1");
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("deactivate_rule")
+      .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY, "P1")
+      .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY, "R1")
       .andNoOtherParam();
   }
 }

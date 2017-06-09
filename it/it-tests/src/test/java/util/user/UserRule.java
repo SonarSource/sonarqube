@@ -24,17 +24,25 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.user.CreateRequest;
+import org.sonarqube.ws.client.user.SearchRequest;
+import org.sonarqube.ws.client.user.UsersService;
+import util.selenium.Consumer;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -43,18 +51,25 @@ import static util.ItUtils.newAdminWsClient;
 public class UserRule extends ExternalResource implements GroupManagement {
 
   public static final String ADMIN_LOGIN = "admin";
+  private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
   private final Orchestrator orchestrator;
 
   private WsClient adminWsClient;
   private final GroupManagement defaultOrganizationGroupManagement;
 
-  private UserRule(Orchestrator orchestrator) {
+  public UserRule(Orchestrator orchestrator) {
     this.orchestrator = orchestrator;
     this.defaultOrganizationGroupManagement = new GroupManagementImpl(null);
   }
 
   public static UserRule from(Orchestrator orchestrator) {
     return new UserRule(requireNonNull(orchestrator, "Orchestrator instance cannot be null"));
+  }
+
+  @Override
+  protected void after() {
+    deactivateAllUsers();
+    // TODO delete groups
   }
 
   // *****************
@@ -88,18 +103,38 @@ public class UserRule extends ExternalResource implements GroupManagement {
     assertThat(getUserByLogin(login)).as("Unexpected user with login '%s' has been found", login).isAbsent();
   }
 
-  public void createUser(String login, String name, @Nullable String email, String password) {
-    adminWsClient().wsConnector().call(
-      new PostRequest("api/users/create")
-        .setParam("login", login)
-        .setParam("name", name)
-        .setParam("email", email)
-        .setParam("password", password))
-      .failIfNotSuccessful();
+  public WsUsers.CreateWsResponse.User createUser(String login, String name, @Nullable String email, String password) {
+    CreateRequest.Builder request = CreateRequest.builder()
+      .setLogin(login)
+      .setName(name)
+      .setEmail(email)
+      .setPassword(password);
+    return adminWsClient().users().create(request.build()).getUser();
+  }
+
+  /**
+   * Create user with randomly generated values
+   */
+  public WsUsers.CreateWsResponse.User createUser(Consumer<CreateRequest.Builder>... populators) {
+    int id = ID_GENERATOR.getAndIncrement();
+    CreateRequest.Builder request = CreateRequest.builder()
+      .setLogin("login" + id)
+      .setName("name" + id)
+      .setEmail(id + "@test.com")
+      .setPassword("password" + id);
+    stream(populators).forEach(p -> p.accept(request));
+    return adminWsClient().users().create(request.build()).getUser();
   }
 
   public void createUser(String login, String password) {
     createUser(login, login, null, password);
+  }
+
+  public WsUsers.CreateWsResponse.User createAdministrator(Organizations.Organization organization, String password) {
+    WsUsers.CreateWsResponse.User user = createUser(p -> p.setPassword(password));
+    adminWsClient.organizations().addMember(organization.getKey(), user.getLogin());
+    forOrganization(organization.getKey()).associateGroupsToUser(user.getLogin(), "Owners");
+    return user;
   }
 
   public void setRoot(String login) {
@@ -133,6 +168,16 @@ public class UserRule extends ExternalResource implements GroupManagement {
     deactivateUsers(asList(userLogins));
   }
 
+  public void deactivateAllUsers() {
+    UsersService service = newAdminWsClient(orchestrator).users();
+    List<String> logins = service.search(SearchRequest.builder().build()).getUsersList()
+      .stream()
+      .filter(u -> !u.getLogin().equals("admin"))
+      .map(u -> u.getLogin())
+      .collect(Collectors.toList());
+    deactivateUsers(logins);
+  }
+
   // *****************
   // User groups
   // *****************
@@ -164,15 +209,11 @@ public class UserRule extends ExternalResource implements GroupManagement {
     }
 
     private void addOrganizationParam(PostRequest request) {
-      if (organizationKey != null) {
-        request.setParam("organization", organizationKey);
-      }
+      request.setParam("organization", organizationKey);
     }
 
     private void addOrganizationParam(GetRequest request) {
-      if (organizationKey != null) {
-        request.setParam("organization", organizationKey);
-      }
+      request.setParam("organization", organizationKey);
     }
 
     @Override

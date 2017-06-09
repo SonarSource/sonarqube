@@ -57,7 +57,7 @@ import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.sonar.wsclient.base.HttpException;
+import org.junit.Assert;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
@@ -70,8 +70,6 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
-import org.sonarqube.ws.client.organization.OrganizationService;
-import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
@@ -372,14 +370,6 @@ public class ItUtils {
     return "key-" + randomAlphabetic(100);
   }
 
-  public static void deleteOrganizations(Orchestrator orchestrator) {
-    OrganizationService service = newAdminWsClient(orchestrator).organizations();
-    service.search(SearchWsRequest.builder().build()).getOrganizationsList()
-      .stream()
-      .filter(o -> !o.getGuarded())
-      .forEach(organization -> service.delete(organization.getKey()));
-  }
-
   public static class ComponentNavigation {
     private String version;
     private String analysisDate;
@@ -416,12 +406,6 @@ public class ItUtils {
       .toArray(String[]::new);
   }
 
-  public static void verifyHttpException(Exception e, int expectedCode) {
-    assertThat(e).isInstanceOf(HttpException.class);
-    HttpException exception = (HttpException) e;
-    assertThat(exception.status()).isEqualTo(expectedCode);
-  }
-
   public static Date toDate(String sDate) {
     try {
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -451,7 +435,7 @@ public class ItUtils {
     return taskIds.iterator().next();
   }
 
-  public static List<String> extractCeTaskIds(BuildResult buildResult) {
+  private static List<String> extractCeTaskIds(BuildResult buildResult) {
     String logs = buildResult.getLogs();
     return StreamSupport.stream(LINE_SPLITTER.split(logs).spliterator(), false)
       .filter(s -> s.contains("More about the report processing at"))
@@ -466,6 +450,10 @@ public class ItUtils {
     return gson.fromJson(json, type);
   }
 
+  /**
+   * @deprecated replaced by {@code orchestrator.getServer().newHttpCall()}
+   */
+  @Deprecated
   public static Response call(String url, String... headers) {
     Request.Builder requestBuilder = new Request.Builder().get().url(url);
     for (int i = 0; i < headers.length; i += 2) {
@@ -484,6 +472,40 @@ public class ItUtils {
         .execute();
     } catch (IOException e) {
       throw Throwables.propagate(e);
+    }
+  }
+
+  public static void expectBadRequestError(Runnable runnable) {
+    expectHttpError(runnable, 400);
+  }
+
+  public static void expectMissingError(Runnable runnable) {
+    expectHttpError(runnable, 404);
+  }
+  /**
+   * Missing permissions
+   */
+  public static void expectForbiddenError(Runnable runnable) {
+    expectHttpError(runnable, 403);
+  }
+
+  /**
+   * Not authenticated
+   */
+  public static void expectUnauthorizedError(Runnable runnable) {
+    expectHttpError(runnable, 401);
+  }
+
+  public static void expectNotFoundError(Runnable runnable) {
+    expectHttpError(runnable, 404);
+  }
+
+  private static void expectHttpError(Runnable runnable, int expectedCode) {
+    try {
+      runnable.run();
+      Assert.fail("Ws call should have failed");
+    } catch (org.sonarqube.ws.client.HttpException e) {
+      assertThat(e.code()).isEqualTo(expectedCode);
     }
   }
 }

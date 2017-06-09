@@ -26,26 +26,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.assertj.core.groups.Tuple;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
-import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
-import util.ItUtils;
+import util.OrganizationRule;
 
-import static it.Category6Suite.enableOrganizationsSupport;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.concat;
-import static util.ItUtils.deleteOrganizationsIfExists;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
@@ -61,26 +58,15 @@ public class SearchProjectsTest {
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
-  private String organizationKey;
+  @Rule
+  public OrganizationRule organizations = new OrganizationRule(orchestrator);
 
-  @BeforeClass
-  public static void beforeClass() throws Exception {
-    enableOrganizationsSupport();
-  }
+  private Organization organization;
 
   @Before
-  public void setUp() throws Exception {
-    organizationKey = ItUtils.newOrganizationKey();
-    newAdminWsClient(orchestrator).organizations().create(CreateWsRequest.builder()
-      .setKey(organizationKey)
-      .setName(organizationKey)
-      .build());
-    restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organizationKey);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    deleteOrganizationsIfExists(orchestrator, organizationKey);
+  public void setUp() {
+    organization = organizations.create();
+    restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
   }
 
   @Test
@@ -105,9 +91,9 @@ public class SearchProjectsTest {
   @Test
   public void provisioned_projects_should_be_included_to_results() throws Exception {
     String projectKey = newProjectKey();
-    newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organizationKey).build());
+    newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).build());
 
-    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).build());
+    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).build());
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(projectKey);
   }
@@ -124,10 +110,10 @@ public class SearchProjectsTest {
     analyzeProject(projectKey2, "shared/xoo-sample");
     // This project is provisioned, so has no leak period
     String projectKey3 = newProjectKey();
-    newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey3).setName(projectKey3).setOrganization(organizationKey).build());
+    newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey3).setName(projectKey3).setOrganization(organization.getKey()).build());
 
     SearchProjectsWsResponse response = searchProjects(
-      SearchProjectsRequest.builder().setAdditionalFields(singletonList("leakPeriodDate")).setOrganization(organizationKey).build());
+      SearchProjectsRequest.builder().setAdditionalFields(singletonList("leakPeriodDate")).setOrganization(organization.getKey()).build());
 
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::hasLeakPeriodDate)
       .containsOnly(
@@ -175,7 +161,7 @@ public class SearchProjectsTest {
     analyzeProject(newProjectKey(), "shared/xoo-sample");
     analyzeProject(newProjectKey(), "shared/xoo-multi-modules-sample");
 
-    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).setFacets(asList(
+    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).setFacets(asList(
       "alert_status",
       "coverage",
       "duplicated_lines_density",
@@ -245,7 +231,7 @@ public class SearchProjectsTest {
     analyzeProject(projectKey2, "projectSearch/xoo-history-v1", "sonar.projectDate", "2016-12-31");
     analyzeProject(projectKey2, "projectSearch/xoo-history-v2");
 
-    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).setFacets(asList(
+    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).setFacets(asList(
       "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines")).build());
 
     checkFacet(response, "new_reliability_rating",
@@ -296,7 +282,7 @@ public class SearchProjectsTest {
   private void analyzeProject(String projectKey, String relativePath, String... properties) {
     List<String> keyValueProperties = new ArrayList<>(asList(
       "sonar.projectKey", projectKey,
-      "sonar.organization", organizationKey,
+      "sonar.organization", organization.getKey(),
       "sonar.profile", "with-many-rules",
       "sonar.login", "admin", "sonar.password", "admin",
       "sonar.scm.disabled", "false"));
@@ -304,7 +290,7 @@ public class SearchProjectsTest {
   }
 
   private SearchProjectsWsResponse searchProjects(String filter) throws IOException {
-    return searchProjects(SearchProjectsRequest.builder().setOrganization(organizationKey).setFilter(filter).build());
+    return searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).setFilter(filter).build());
   }
 
   private SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) throws IOException {

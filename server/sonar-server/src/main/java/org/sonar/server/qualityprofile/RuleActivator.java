@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -83,7 +82,7 @@ public class RuleActivator {
 
   private List<ActiveRuleChange> doActivate(DbSession dbSession, RuleActivation activation, RuleActivatorContext context) {
     context.verifyForActivation();
-    List<ActiveRuleChange> changes = Lists.newArrayList();
+    List<ActiveRuleChange> changes = new ArrayList<>();
     ActiveRuleChange change;
     boolean stopPropagation = false;
 
@@ -433,6 +432,11 @@ public class RuleActivator {
   }
 
   public List<ActiveRuleChange> setParent(DbSession dbSession, QProfileDto profile, @Nullable QProfileDto parent) {
+    checkRequest(
+      parent == null || profile.getLanguage().equals(parent.getLanguage()),
+      "Cannot set the profile '%s' as the parent of profile '%s' since their languages differ ('%s' != '%s')",
+      parent != null ? parent.getKee() : "", profile.getKee(), parent != null ? parent.getLanguage() : "", profile.getLanguage());
+
     List<ActiveRuleChange> changes = new ArrayList<>();
     if (parent == null) {
       // unset if parent is defined, else nothing to do

@@ -25,25 +25,23 @@ import it.Category6Suite;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.organization.CreateWsRequest;
+import org.sonarqube.ws.Organizations.Organization;
 import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
-import util.ItUtils;
+import util.OrganizationRule;
 
 import static com.codeborne.selenide.WebDriverRunner.url;
-import static it.Category6Suite.enableOrganizationsSupport;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.resetSettings;
 import static util.ItUtils.restoreProfile;
 import static util.ItUtils.setServerProperty;
 
@@ -53,32 +51,26 @@ public class LeakProjectsPageTest {
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
+  public OrganizationRule organizationRule = new OrganizationRule(orchestrator);
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
-  private static WsClient wsClient;
-
-  private String organizationKey;
+  private Organization organization;
 
   @BeforeClass
-  public static void beforeClass() throws Exception {
-    enableOrganizationsSupport();
+  public static void beforeClass() {
     setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
-    wsClient = newAdminWsClient(orchestrator);
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    resetSettings(orchestrator, null, "sonar.leak.period");
   }
 
   @Before
-  public void setUp() throws Exception {
-    organizationKey = ItUtils.newOrganizationKey();
-    wsClient.organizations().create(CreateWsRequest.builder()
-      .setKey(organizationKey)
-      .setName(organizationKey)
-      .build());
-    restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organizationKey);
-  }
-
-  @After
-  public void tearDown() {
-    wsClient.organizations().delete(organizationKey);
+  public void setUp() {
+    organization = organizationRule.create();
+    restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
   }
 
   @Test
@@ -94,7 +86,7 @@ public class LeakProjectsPageTest {
     analyzeProject(projectKey1, "shared/xoo-sample", null);
 
     // Check the facets and project cards
-    ProjectsPage page = nav.logIn().asAdmin().openProjects(organizationKey);
+    ProjectsPage page = nav.logIn().asAdmin().openProjects(organization.getKey());
     page.changePerspective("Leak");
     assertThat(url()).endsWith("/projects?view=leak");
     page.shouldHaveTotal(2);
@@ -117,7 +109,7 @@ public class LeakProjectsPageTest {
   private void analyzeProject(String projectKey, String relativePath, @Nullable String analysisDate) {
     List<String> keyValueProperties = new ArrayList<>(asList(
       "sonar.projectKey", projectKey,
-      "sonar.organization", organizationKey,
+      "sonar.organization", organization.getKey(),
       "sonar.profile", "with-many-rules",
       "sonar.login", "admin", "sonar.password", "admin",
       "sonar.scm.disabled", "false"));
