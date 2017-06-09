@@ -1,5 +1,5 @@
-// flow-typed signature: 473141b7c854ed9ae66b92c537f09107
-// flow-typed version: f09afd9fb1/enzyme_v2.3.x/flow_>=v0.28.x
+// flow-typed signature: a66d63ce84b8c546ae8bc484f7b4c4bc
+// flow-typed version: 778b20e026/enzyme_v2.3.x/flow_>=v0.28.x
 
 declare module 'enzyme' {
   declare type PredicateFunction<T: Wrapper> = (wrapper: T) => boolean;
@@ -36,6 +36,8 @@ declare module 'enzyme' {
     text(): string;
     html(): string;
     get(index: number): React$Element<any>;
+    getNode(): React$Element<any>;
+    getNodes(): Array<React$Element<any>>;
     at(index: number): this;
     first(): this;
     last(): this;
@@ -45,7 +47,7 @@ declare module 'enzyme' {
     prop(key: string): any;
     key(): string;
     simulate(event: string, ...args: Array<any>): this;
-    setState(state: Object): this;
+    setState(state: Object, callback?: Function): this,
     setProps(props: Object): this;
     setContext(context: Object): this;
     instance(): React$Component<any, any, any>;
