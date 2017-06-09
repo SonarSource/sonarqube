@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.index;
 
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserIndexerTest {
@@ -52,7 +52,14 @@ public class UserIndexerTest {
 
   @Test
   public void index_everything_on_startup() {
-    db.prepareDbUnit(getClass(), "index.xml");
+    db.users().insertUser(user -> user
+      .setLogin("user1")
+      .setName("User1")
+      .setEmail("user1@mail.com")
+      .setActive(true)
+      .setScmAccounts(asList("user_1", "u1"))
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(1500000000000L));
 
     underTest.indexOnStartup(null);
 
@@ -98,7 +105,7 @@ public class UserIndexerTest {
     UserDto user = db.users().insertUser();
     UserDto anotherUser = db.users().insertUser();
 
-    underTest.index(Arrays.asList(user.getLogin(), anotherUser.getLogin()));
+    underTest.index(asList(user.getLogin(), anotherUser.getLogin()));
 
     List<UserDoc> docs = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER, UserDoc.class);
     assertThat(docs).hasSize(2);
