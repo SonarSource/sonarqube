@@ -22,9 +22,7 @@ import React from 'react';
 import GlobalFooter from '../GlobalFooter';
 
 it('should render the only logged in information', () => {
-  expect(
-    shallow(<GlobalFooter productionDatabase={true} sonarqubeDotCom={false} />)
-  ).toMatchSnapshot();
+  expect(shallow(<GlobalFooter productionDatabase={true} />)).toMatchSnapshot();
 });
 
 it('should not render the only logged in information', () => {
@@ -33,7 +31,7 @@ it('should not render the only logged in information', () => {
       <GlobalFooter
         hideLoggedInInfo={true}
         productionDatabase={true}
-        sonarqubeDotCom={false}
+        sonarqubeDotCom={{ value: 'false' }}
         sonarqubeVersion="6.4-SNAPSHOT"
       />
     )
@@ -41,25 +39,17 @@ it('should not render the only logged in information', () => {
 });
 
 it('should show the db warning message', () => {
-  expect(
-    shallow(<GlobalFooter productionDatabase={false} sonarqubeDotCom={false} />).find('.alert')
-  ).toMatchSnapshot();
+  expect(shallow(<GlobalFooter productionDatabase={false} />).find('.alert')).toMatchSnapshot();
 });
 
 it('should display the sq version', () => {
   expect(
-    shallow(
-      <GlobalFooter
-        productionDatabase={true}
-        sonarqubeDotCom={false}
-        sonarqubeVersion="6.4-SNAPSHOT"
-      />
-    )
+    shallow(<GlobalFooter productionDatabase={true} sonarqubeVersion="6.4-SNAPSHOT" />)
   ).toMatchSnapshot();
 });
 
 it('should render SonarqubeDotCom footer', () => {
   expect(
-    shallow(<GlobalFooter productionDatabase={true} sonarqubeDotCom={true} />)
+    shallow(<GlobalFooter productionDatabase={true} sonarqubeDotCom={{ value: 'true' }} />)
   ).toMatchSnapshot();
 });

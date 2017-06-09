@@ -18,13 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { getSettingValue } from '../../store/rootReducer';
 
-export default function DefaultHelmetContainer({ children }) {
+function DefaultHelmetContainer({ children, sonarqubeDotCom }) {
   return (
     <div>
-      <Helmet defaultTitle="SonarQube" />
+      <Helmet
+        defaultTitle={
+          sonarqubeDotCom && sonarqubeDotCom.value === 'true' ? 'SonarCloud' : 'SonarQube'
+        }
+      />
       {children}
     </div>
   );
 }
+
+const mapStateToProps = state => ({
+  sonarqubeDotCom: getSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+});
+
+export default connect(mapStateToProps)(DefaultHelmetContainer);
