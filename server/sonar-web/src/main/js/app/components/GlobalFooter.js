@@ -27,7 +27,7 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 type Props = {
   hideLoggedInInfo?: boolean,
   productionDatabase: boolean,
-  sonarqubeDotCom: boolean,
+  sonarqubeDotCom?: { value: string },
   sonarqubeVersion?: string
 };
 
@@ -37,7 +37,7 @@ export default function GlobalFooter({
   sonarqubeDotCom,
   sonarqubeVersion
 }: Props) {
-  if (sonarqubeDotCom) {
+  if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
     return <GlobalFooterForSonarQubeDotCom hideLoggedInInfo={hideLoggedInInfo} />;
   }
 
