@@ -25,7 +25,7 @@ import AddEventForm from './AddEventForm';
 import type { Analysis } from '../../../../store/projectActivity/duck';
 
 type Props = {
-  addEvent: () => Promise<*>,
+  addEvent: (analysis: string, version: string) => Promise<*>,
   analysis: Analysis
 };
 

@@ -24,7 +24,7 @@ import type { Analysis } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
 
 type Props = {
-  addEvent: () => Promise<*>,
+  addEvent: (analysis: string, name: string, category?: string) => Promise<*>,
   analysis: Analysis,
   addEventButtonText: string
 };

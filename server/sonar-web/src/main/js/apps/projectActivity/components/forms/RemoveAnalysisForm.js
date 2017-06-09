@@ -27,7 +27,7 @@ import { deleteAnalysis } from '../../actions';
 
 type Props = {
   analysis: Analysis,
-  deleteAnalysis: () => Promise<*>,
+  deleteAnalysis: (project: string, analysis: string) => Promise<*>,
   project: string
 };
 

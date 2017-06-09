@@ -31,7 +31,7 @@ type Props = {
   canAssign: boolean,
   onAssign: string => void,
   onFail: Error => void,
-  togglePopup: string => void
+  togglePopup: (string, boolean | void) => void
 };
 
 export default class IssueAssign extends React.PureComponent {

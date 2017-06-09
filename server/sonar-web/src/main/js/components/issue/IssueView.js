@@ -38,7 +38,7 @@ type Props = {|
   onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
   selected: boolean,
-  togglePopup: string => void
+  togglePopup: (string, boolean | void) => void
 |};
 
 export default class IssueView extends React.PureComponent {

@@ -51,7 +51,7 @@ export default class SourceViewerCode extends React.PureComponent {
     issues: Array<Issue>,
     issuesByLine: { [number]: Array<Issue> },
     issueLocationsByLine: { [number]: Array<LinearIssueLocation> },
-    loadDuplications: (SourceLine, HTMLElement) => void,
+    loadDuplications: SourceLine => void,
     loadSourcesAfter: () => void,
     loadSourcesBefore: () => void,
     loadingSourcesAfter: boolean,

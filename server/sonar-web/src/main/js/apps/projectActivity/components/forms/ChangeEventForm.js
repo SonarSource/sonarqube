@@ -24,7 +24,7 @@ import type { Event } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
 
 type Props = {
-  changeEvent: () => Promise<*>,
+  changeEvent: (event: string, name: string) => Promise<*>,
   changeEventButtonText: string,
   event: Event,
   onClose: () => void

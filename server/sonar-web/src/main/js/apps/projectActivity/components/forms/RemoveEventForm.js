@@ -25,7 +25,7 @@ import { translate } from '../../../../helpers/l10n';
 
 type Props = {
   analysis: string,
-  deleteEvent: (string, string) => Promise<*>,
+  deleteEvent: (analysis: string, event: string) => Promise<*>,
   event: Event,
   removeEventButtonText: string,
   removeEventQuestion: string,

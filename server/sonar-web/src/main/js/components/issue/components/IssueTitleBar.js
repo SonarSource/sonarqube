@@ -35,7 +35,7 @@ type Props = {|
   currentPopup: string,
   onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
-  togglePopup: string => void
+  togglePopup: (string, boolean | void) => void
 |};
 
 const stopPropagation = (event: Event) => event.stopPropagation();

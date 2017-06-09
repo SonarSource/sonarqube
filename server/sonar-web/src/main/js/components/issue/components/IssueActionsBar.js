@@ -35,7 +35,7 @@ type Props = {
   onAssign: string => void,
   onChange: Issue => void,
   onFail: Error => void,
-  togglePopup: string => void
+  togglePopup: (string, boolean | void) => void
 };
 
 type State = {

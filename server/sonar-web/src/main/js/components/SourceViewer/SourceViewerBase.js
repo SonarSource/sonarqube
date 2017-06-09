@@ -397,7 +397,7 @@ export default class SourceViewerBase extends React.PureComponent {
     });
   };
 
-  loadDuplications = (line: SourceLine, element: HTMLElement) => {
+  loadDuplications = (line: SourceLine) => {
     getDuplications(this.props.component).then(r => {
       if (this.mounted) {
         this.setState(
@@ -410,7 +410,7 @@ export default class SourceViewerBase extends React.PureComponent {
           () => {
             // immediately show dropdown popup if there is only one duplicated block
             if (r.duplications.length === 1) {
-              this.handleDuplicationClick(0, line.line, element);
+              this.handleDuplicationClick(0, line.line);
             }
           }
         );

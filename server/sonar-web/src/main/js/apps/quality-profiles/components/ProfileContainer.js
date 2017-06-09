@@ -34,7 +34,7 @@ type Props = {
   onRequestFail: Object => void,
   organization: ?string,
   profiles: Array<Profile>,
-  router: { replace: () => void },
+  router: { replace: ({}) => void },
   updateProfiles: () => Promise<*>
 };
 

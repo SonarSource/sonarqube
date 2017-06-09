@@ -26,7 +26,7 @@ import { translate } from '../../../helpers/l10n';
 type Props = {
   property: string,
   query: {},
-  options: [{ label: string, value: string }],
+  options: Array<{ label: string, value: string }>,
   router: { push: ({ pathname: string, query?: {} }) => void },
   onInputChange?: string => void,
   onOpen?: void => void,
