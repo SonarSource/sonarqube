@@ -105,6 +105,7 @@ message CurrentWsResponse {
   repeated string scmAccounts = 8;
   repeated string groups = 9;
   optional Permissions permissions = 10;
+  optional bool showOnboardingTutorial = 11;
 
   message Permissions {
     repeated string global = 1;

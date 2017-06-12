@@ -22,6 +22,7 @@ package org.sonar.server.user.ws;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
@@ -59,7 +60,8 @@ public class CurrentAction implements UsersWsAction {
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("current-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+    .setChangelog(new Change("6.5", "showOnboardingTutorial is now returned in the response"));
   }
 
   @Override
@@ -89,7 +91,8 @@ public class CurrentAction implements UsersWsAction {
       .setLocal(user.isLocal())
       .addAllGroups(groups)
       .addAllScmAccounts(user.getScmAccountsAsList())
-      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build());
+      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+      .setShowOnboardingTutorial(!user.isOnboarded());
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
     setNullable(user.getExternalIdentity(), builder::setExternalIdentity);
     setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
