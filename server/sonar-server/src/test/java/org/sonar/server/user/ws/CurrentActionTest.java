@@ -63,16 +63,17 @@ public class CurrentActionTest {
       .setLocal(true)
       .setExternalIdentity("obiwan")
       .setExternalIdentityProvider("sonarqube")
-      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
+      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
+      .setOnboarded(false));
     userSessionRule.logIn("obiwan.kenobi");
 
     CurrentWsResponse response = call();
 
     assertThat(response)
       .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getLocal,
-        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList)
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", true, "obiwan", "sonarqube",
-        newArrayList("obiwan:github", "obiwan:bitbucket"));
+        newArrayList("obiwan:github", "obiwan:bitbucket"), true);
   }
 
   @Test
@@ -182,7 +183,8 @@ public class CurrentActionTest {
       .setLocal(true)
       .setExternalIdentity("obiwan.kenobi")
       .setExternalIdentityProvider("sonarqube")
-      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
+      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
+      .setOnboarded(true));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 
@@ -201,7 +203,7 @@ public class CurrentActionTest {
     assertThat(definition.isInternal()).isTrue();
     assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.params()).isEmpty();
-    assertThat(definition.changelog()).isEmpty();
+    assertThat(definition.changelog()).hasSize(1);
   }
 
   private CurrentWsResponse call() {
