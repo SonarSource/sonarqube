@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
@@ -45,6 +46,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
@@ -76,6 +78,7 @@ public class UserIdentityAuthenticatorTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private MapSettings settings = new MapSettings();
 
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
@@ -85,7 +88,8 @@ public class UserIdentityAuthenticatorTest {
     organizationFlags,
     defaultOrganizationProvider,
     organizationCreation,
-    new DefaultGroupFinder(db.getDbClient()));
+    new DefaultGroupFinder(db.getDbClient()),
+    settings);
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new DefaultGroupFinder(db.getDbClient()));
 
@@ -144,6 +148,26 @@ public class UserIdentityAuthenticatorTest {
     authenticate(user.getLogin(), "group1");
 
     checkGroupMembership(user, group1);
+  }
+
+  @Test
+  public void authenticate_new_user_sets_onboarded_flag_to_false_when_onboarding_setting_is_set_to_true() {
+    organizationFlags.setEnabled(true);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
+
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
+
+    assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isFalse();
+  }
+
+  @Test
+  public void authenticate_new_user_sets_onboarded_flag_to_true_when_onboarding_setting_is_set_to_false() {
+    organizationFlags.setEnabled(true);
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
+
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
+
+    assertThat(db.users().selectUserByLogin(USER_LOGIN).get().isOnboarded()).isTrue();
   }
 
   @Test
