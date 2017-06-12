@@ -19,8 +19,15 @@
  */
 package org.sonar.server.user.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -28,21 +35,100 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SkipOnboardingTutorialActionTest {
 
+  private final static long PAST = 100_000_000_000L;
+  private final static long NOW = 500_000_000_000L;
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public DbTester db = DbTester.create();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
+
+  private WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, db.getDbClient(), system2));
+
   @Test
-  public void should_have_a_good_definition() {
-    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction());
+  public void mark_user_as_onboarded() {
+    UserDto user = db.users().insertUser(u -> u
+      .setOnboarded(false)
+      .setUpdatedAt(PAST));
+    userSession.logIn(user);
+
+    call();
+
+    UserDto userDto = selectUser(user.getLogin());
+    assertThat(userDto.isOnboarded()).isEqualTo(true);
+    assertThat(userDto.getUpdatedAt()).isEqualTo(NOW);
+  }
+
+  @Test
+  public void does_nothing_if_user_already_onboarded() {
+    UserDto user = db.users().insertUser(u -> u
+      .setOnboarded(true)
+      .setUpdatedAt(PAST));
+    userSession.logIn(user);
+
+    call();
+
+    UserDto userDto = selectUser(user.getLogin());
+    assertThat(userDto.isOnboarded()).isEqualTo(true);
+    assertThat(userDto.getUpdatedAt()).isEqualTo(PAST);
+  }
+
+  @Test
+  public void fail_for_anonymous() {
+    userSession.anonymous();
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    call();
+  }
+
+  @Test
+  public void fail_with_ISE_when_user_login_in_db_does_not_exist() {
+    db.users().insertUser(usert -> usert.setLogin("another"));
+    userSession.logIn("obiwan.kenobi");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("User login 'obiwan.kenobi' cannot be found");
+
+    call();
+  }
+
+  @Test
+  public void response_has_no_content() {
+    UserDto user = db.users().insertUser(u -> u.setOnboarded(false));
+    userSession.logIn(user);
+
+    TestResponse response = call();
+
+    assertThat(response.getStatus()).isEqualTo(204);
+    assertThat(response.getInput()).isEmpty();
+  }
+
+  @Test
+  public void test_definition() {
+    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, db.getDbClient(), system2));
     WebService.Action def = ws.getDef();
     assertThat(def.isPost()).isTrue();
     assertThat(def.isInternal()).isTrue();
     assertThat(def.since()).isEqualTo("6.5");
     assertThat(def.params()).isEmpty();
+    assertThat(def.changelog()).isEmpty();
   }
 
-  @Test
-  public void should_return_silently() {
-    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction());
-    TestResponse response = ws.newRequest().setMethod("POST").execute();
-    assertThat(response.getStatus()).isEqualTo(204);
-    assertThat(response.getInput()).isEmpty();
+  private TestResponse call() {
+    return ws.newRequest().setMethod("POST").execute();
   }
+
+  private UserDto selectUser(String userLogin) {
+    UserDto userDto = db.getDbClient().userDao().selectByLogin(db.getSession(), userLogin);
+    assertThat(userDto).isNotNull();
+    return userDto;
+  }
+
 }
