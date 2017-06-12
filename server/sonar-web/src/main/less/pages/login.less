@@ -70,9 +70,6 @@
 }
 
 .oauth-providers {
-  margin-bottom: 30px;
-  border-bottom: 1px solid @barBorderColor;
-
   & > ul {
     display: flex;
     justify-content: space-around;
@@ -105,4 +102,9 @@
       }
     }
   }
+}
+
+.oauth-providers + form {
+  padding-top: 30px;
+  border-top: 1px solid @barBorderColor;
 }
