@@ -22,22 +22,52 @@ package org.sonar.server.user.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkState;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_SKIP_ONBOARDING_TUTORIAL;
 
 public class SkipOnboardingTutorialAction implements UsersWsAction {
 
+  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final System2 system2;
+
+  public SkipOnboardingTutorialAction(UserSession userSession, DbClient dbClient, System2 system2) {
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+    this.system2 = system2;
+  }
+
   @Override
   public void define(WebService.NewController context) {
-    context.createAction("skipOnboardingTutorial")
+    context.createAction(ACTION_SKIP_ONBOARDING_TUTORIAL)
       .setPost(true)
       .setInternal(true)
-      .setDescription("Stores that the user has skipped the onboarding tutorial and does not want to see it after future logins." +
-        " Calling this webservice several times will silently ignore subsequent requests.")
+      .setDescription("Stores that the user has skipped the onboarding tutorial and does not want to see it after future logins.<br/>" +
+        "Requires authentication.")
       .setSince("6.5")
       .setHandler(this);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      String userLogin = userSession.getLogin();
+      UserDto userDto = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
+      checkState(userDto != null, "User login '%s' cannot be found", userLogin);
+      if (!userDto.isOnboarded()) {
+        userDto.setOnboarded(true);
+        userDto.setUpdatedAt(system2.now());
+        dbClient.userDao().update(dbSession, userDto);
+        dbSession.commit();
+      }
+    }
     response.noContent();
   }
 }

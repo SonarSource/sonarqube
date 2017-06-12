@@ -45,6 +45,7 @@ public class UserDao implements Dao {
     this.system2 = system2;
   }
 
+  @CheckForNull
   public UserDto selectUserById(DbSession session, int userId) {
     return mapper(session).selectUser(userId);
   }
