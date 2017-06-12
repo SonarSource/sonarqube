@@ -24,7 +24,13 @@ import GlobalHelp from '../GlobalHelp';
 import { click } from '../../../../helpers/testUtils';
 
 it('switches between tabs', () => {
-  const wrapper = shallow(<GlobalHelp onClose={jest.fn()} />);
+  const wrapper = shallow(
+    <GlobalHelp
+      currentUser={{ isLoggedIn: true }}
+      onClose={jest.fn()}
+      onTutorialSelect={jest.fn()}
+    />
+  );
   expect(wrapper.find('ShortcutsHelp')).toHaveLength(1);
   clickOnSection(wrapper, 'links');
   expect(wrapper.find('LinksHelp')).toHaveLength(1);
@@ -32,6 +38,18 @@ it('switches between tabs', () => {
   expect(wrapper.find('TutorialsHelp')).toHaveLength(1);
   clickOnSection(wrapper, 'shortcuts');
   expect(wrapper.find('ShortcutsHelp')).toHaveLength(1);
+});
+
+it('does not show tutorials for anonymous', () => {
+  expect(
+    shallow(
+      <GlobalHelp
+        currentUser={{ isLoggedIn: false }}
+        onClose={jest.fn()}
+        onTutorialSelect={jest.fn()}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
 function clickOnSection(wrapper: Object, section: string) {
