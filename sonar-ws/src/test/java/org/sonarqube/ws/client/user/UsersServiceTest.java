@@ -129,4 +129,10 @@ public class UsersServiceTest {
       .andNoOtherParam();
   }
 
+  @Test
+  public void current() {
+    underTest.current();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(WsUsers.CurrentWsResponse.parser());
+  }
 }
