@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -49,6 +50,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserDto.encryptPassword;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -76,9 +78,10 @@ public class UserUpdater {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationCreation organizationCreation;
   private final DefaultGroupFinder defaultGroupFinder;
+  private final Settings settings;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder) {
+    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Settings settings) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
@@ -87,6 +90,7 @@ public class UserUpdater {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationCreation = organizationCreation;
     this.defaultGroupFinder = defaultGroupFinder;
+    this.settings = settings;
   }
 
   public UserDto create(DbSession dbSession, NewUser newUser) {
@@ -115,6 +119,7 @@ public class UserUpdater {
     }
     // Hack to allow to change the password of the user
     existingUser.setLocal(true);
+    setOnboarded(existingUser);
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
     addUserToDefaultOrganizationAndDefaultGroup(dbSession, existingUser);
@@ -162,6 +167,7 @@ public class UserUpdater {
     }
 
     setExternalIdentity(userDto, newUser.externalIdentity());
+    setOnboarded(userDto);
 
     checkRequest(messages.isEmpty(), messages);
     return userDto;
@@ -251,6 +257,11 @@ public class UserUpdater {
       dto.setExternalIdentityProvider(externalIdentity.getProvider());
       dto.setLocal(false);
     }
+  }
+
+  private void setOnboarded(UserDto userDto) {
+    boolean showOnboarding = settings.getBoolean(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS);
+    userDto.setOnboarded(!showOnboarding);
   }
 
   private static boolean checkNotEmptyParam(@Nullable String value, String param, List<String> messages) {
