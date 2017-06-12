@@ -1,0 +1,59 @@
+.onboarding-step {
+  position: relative;
+  padding-left: 34px;
+}
+
+.onboarding-step .boxed-group-actions {
+  height: 24px;
+  line-height: 24px;
+}
+
+.onboarding-step-number {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 24px;
+  background-color: #cdcdcd;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+}
+
+.onboarding-step-open .onboarding-step-number {
+  background-color: #236a97;
+}
+
+.onboarding-command {
+  position: relative;
+  margin: 8px 0;
+}
+
+.onboarding-command pre {
+  padding: 15px;
+  border-radius: 2px;
+  background: #404040;
+  color: #f0f0f0;
+  overflow: auto;
+}
+
+.onboarding-command button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  height: 20px;
+  line-height: 18px;
+  border: 1px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: normal;
+}
+
+.onboarding-command button:hover,
+.onboarding-command button:focus,
+.onboarding-command button:active {
+  background-color: #fff;
+  color: #404040;
+}

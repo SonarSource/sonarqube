@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div
+  className="onboarding-command"
+>
+  <pre>
+    foo
+    bar
+  </pre>
+  <button
+    data-clipboard-text="foo
+  bar"
+  >
+    copy
+  </button>
+</div>
+`;

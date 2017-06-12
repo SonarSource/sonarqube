@@ -23,8 +23,8 @@ import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
-import ShortcutsHelp from './ShortcutsHelp';
-import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
+import GlobalHelp from '../../help/GlobalHelp';
+import { getCurrentUser, getAppState, getSettingValue } from '../../../../store/rootReducer';
 
 class GlobalNav extends React.PureComponent {
   state = { helpOpen: false };
@@ -84,15 +84,21 @@ class GlobalNav extends React.PureComponent {
           </ul>
         </div>
 
-        {this.state.helpOpen && <ShortcutsHelp onClose={this.closeHelp} />}
+        {this.state.helpOpen &&
+          <GlobalHelp onClose={this.closeHelp} sonarCloud={this.props.sonarCloud} />}
       </nav>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state),
-  appState: getAppState(state)
-});
+const mapStateToProps = state => {
+  const sonarCloudSetting = getSettingValue(state, 'sonar.lf.sonarqube.com.enabled');
+
+  return {
+    currentUser: getCurrentUser(state),
+    appState: getAppState(state),
+    sonarCloud: sonarCloudSetting != null && sonarCloudSetting.value === 'true'
+  };
+};
 
 export default connect(mapStateToProps)(GlobalNav);

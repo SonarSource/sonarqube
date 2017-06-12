@@ -20,6 +20,7 @@
 // @flow
 import { getJSON, post, postJSON } from '../helpers/request';
 import type { Organization } from '../store/organizations/duck';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export const getOrganizations = (organizations?: Array<string>) => {
   const data = {};
@@ -44,7 +45,9 @@ type GetOrganizationNavigation = {
 };
 
 export const getOrganization = (key: string): Promise<GetOrganizationType> => {
-  return getOrganizations([key]).then(r => r.organizations.find(o => o.key === key));
+  return getOrganizations([key])
+    .then(r => r.organizations.find(o => o.key === key))
+    .catch(throwGlobalError);
 };
 
 export const getOrganizationNavigation = (key: string): Promise<GetOrganizationNavigation> => {
@@ -52,12 +55,13 @@ export const getOrganizationNavigation = (key: string): Promise<GetOrganizationN
 };
 
 export const createOrganization = (fields: {}): Promise<Organization> =>
-  postJSON('/api/organizations/create', fields).then(r => r.organization);
+  postJSON('/api/organizations/create', fields).then(r => r.organization, throwGlobalError);
 
 export const updateOrganization = (key: string, changes: {}) =>
   post('/api/organizations/update', { key, ...changes });
 
-export const deleteOrganization = (key: string) => post('/api/organizations/delete', { key });
+export const deleteOrganization = (key: string) =>
+  post('/api/organizations/delete', { key }).catch(throwGlobalError);
 
 export const searchMembers = (
   data: { organization?: string, p?: number, ps?: number, q?: string, selected?: string }
