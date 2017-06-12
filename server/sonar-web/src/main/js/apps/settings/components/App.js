@@ -83,15 +83,15 @@ class App extends React.PureComponent {
         <Helmet title={translate('settings.page')} />
 
         <PageHeader component={this.props.component} />
-        <div className="settings-layout">
-          <div className="settings-side">
+        <div className="side-tabs-layout settings-layout">
+          <div className="side-tabs-side">
             <AllCategoriesList
               component={this.props.component}
               selectedCategory={selectedCategory}
               defaultCategory={this.props.defaultCategory}
             />
           </div>
-          <div className="settings-main">
+          <div className="side-tabs-main">
             <CategoryDefinitionsList component={this.props.component} category={selectedCategory} />
 
             {selectedCategory === 'exclusions' && <WildcardsHelp />}

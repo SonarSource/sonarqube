@@ -103,10 +103,9 @@ export default class CreateProjectForm extends React.PureComponent {
           this.props.onProjectCreated();
         }
       },
-      error => {
+      () => {
         if (this.mounted) {
           this.setState({ loading: false });
-          this.props.onRequestFail(error);
         }
       }
     );

@@ -1,58 +1,5 @@
 .settings-layout {
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
   margin-bottom: 60px;
-}
-
-.settings-main {
-  position: relative;
-  z-index: 2;
-  flex-grow: 1;
-  padding: 15px 20px;
-  border: 1px solid #e6e6e6;
-  box-sizing: border-box;
-  background-color: #fff;
-}
-
-.settings-side {
-  position: relative;
-  z-index: 3;
-  width: 160px;
-  flex-shrink: 0;
-  padding: 10px 0;
-  box-sizing: border-box;
-  transform: translateX(1px);
-}
-
-.settings-menu {}
-
-.settings-menu > li {
-  margin-bottom: 4px;
-}
-
-.settings-menu > li > a {
-  display: block;
-  padding: 10px 10px;
-  line-height: 1.5;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-  border: 1px solid #e6e6e6;
-  border-right: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-.settings-menu > li > a:hover,
-.settings-menu > li > a:focus,
-.settings-menu > li > a.active {
-  background-color: #fff;
-}
-
-.settings-menu > li > a.active {
-  color: #444;
-  cursor: default;
 }
 
 .settings-definitions-list > li + li {

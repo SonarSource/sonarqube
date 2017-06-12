@@ -1,0 +1,86 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+@import (reference) "../mixins";
+@import (reference) "../variables";
+
+.side-tabs-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+
+  .modal & {
+    padding-left: 10px;
+    background-color: @barBackgroundColor;
+  }
+}
+
+.side-tabs-main {
+  position: relative;
+  z-index: 2;
+  flex-grow: 1;
+  padding: 15px 20px;
+  border: 1px solid @barBorderColor;
+  box-sizing: border-box;
+  background-color: #fff;
+
+  .modal & {
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
+  }
+}
+
+.side-tabs-side {
+  position: relative;
+  z-index: 3;
+  width: 160px;
+  flex-shrink: 0;
+  padding: 10px 0;
+  box-sizing: border-box;
+  transform: translateX(1px);
+}
+
+.side-tabs-menu > li {
+  margin-bottom: 4px;
+}
+
+.side-tabs-menu > li > a {
+  display: block;
+  padding: 10px 10px;
+  line-height: 1.5;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border: 1px solid @barBorderColor;
+  border-right: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.side-tabs-menu > li > a:hover,
+.side-tabs-menu > li > a:focus,
+.side-tabs-menu > li > a.active {
+  background-color: #fff;
+}
+
+.side-tabs-menu > li > a.active {
+  color: #444;
+  cursor: default;
+}
