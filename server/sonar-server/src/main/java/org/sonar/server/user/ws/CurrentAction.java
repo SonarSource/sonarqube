@@ -41,6 +41,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsUsers.CurrentWsResponse.Permissions;
 import static org.sonarqube.ws.WsUsers.CurrentWsResponse.newBuilder;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
@@ -55,13 +56,13 @@ public class CurrentAction implements UsersWsAction {
 
   @Override
   public void define(NewController context) {
-    context.createAction("current")
+    context.createAction(ACTION_CURRENT)
       .setDescription("Get the details of the current authenticated user.")
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("current-example.json"))
       .setSince("5.2")
-    .setChangelog(new Change("6.5", "showOnboardingTutorial is now returned in the response"));
+      .setChangelog(new Change("6.5", "showOnboardingTutorial is now returned in the response"));
   }
 
   @Override
