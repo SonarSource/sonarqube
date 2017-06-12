@@ -19,8 +19,15 @@
  */
 package org.sonar.server.user.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
@@ -28,9 +35,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SkipOnboardingTutorialActionTest {
 
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public DbTester dbTester = DbTester.create();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void should_have_a_good_definition() {
-    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction());
+    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, dbTester.getDbClient()));
     WebService.Action def = ws.getDef();
     assertThat(def.isPost()).isTrue();
     assertThat(def.isInternal()).isTrue();
@@ -39,10 +55,39 @@ public class SkipOnboardingTutorialActionTest {
   }
 
   @Test
-  public void should_return_silently() {
-    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction());
-    TestResponse response = ws.newRequest().setMethod("POST").execute();
+  public void should_fail_for_anonymous() {
+    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, dbTester.getDbClient()));
+    TestRequest request = ws.newRequest().setMethod("POST");
+
+    thrown.expect(UnauthorizedException.class);
+    thrown.expectMessage("Authentication is required");
+
+    request.execute();
+  }
+
+  @Test
+  public void should_return_silently_if_user_is_logged_in() {
+    UserDto user = dbTester.users().insertUser();
+    userSession.logIn(user);
+    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, dbTester.getDbClient()));
+    TestRequest request = ws.newRequest().setMethod("POST");
+
+    TestResponse response = request.execute();
+
     assertThat(response.getStatus()).isEqualTo(204);
     assertThat(response.getInput()).isEmpty();
+  }
+
+  @Test
+  public void should_mark_user_as_onboarded() {
+    UserDto user = dbTester.users().insertUser();
+    userSession.logIn(user);
+    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, dbTester.getDbClient()));
+    TestRequest request = ws.newRequest().setMethod("POST");
+    assertThat(dbTester.getDbClient().userDao().selectOnboarded(dbTester.getSession(), user)).isFalse();
+
+    request.execute();
+
+    assertThat(dbTester.getDbClient().userDao().selectOnboarded(dbTester.getSession(), user)).isTrue();
   }
 }

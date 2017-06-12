@@ -97,4 +97,8 @@ public class UsersService extends BaseService {
   public WsResponse skipOnboardingTutorial() {
     return call(new PostRequest(path(ACTION_SKIP_ONBOARDING_TUTORIAL)));
   }
+
+  public WsResponse current() {
+    return call(new PostRequest(path("current")));
+  }
 }

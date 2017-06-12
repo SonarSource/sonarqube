@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddUsersOnboardedTest {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(AddUsersOnboardedTest.class, "users_without_onboarded_column.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+  private AddUsersOnboarded underTest = new AddUsersOnboarded(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1600() {
-    verifyMinimumMigrationNumber(underTest, 1700);
-  }
+  public void execute_adds_nullable_boolean_column_private_to_table_PROJECTS() throws SQLException {
+    underTest.execute();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 17);
+    db.assertColumnDefinition("users", "onboarded", Types.BOOLEAN, null, true);
   }
 }

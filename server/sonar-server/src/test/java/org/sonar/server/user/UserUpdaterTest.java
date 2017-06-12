@@ -246,6 +246,18 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void should_create_not_onboarded_user() {
+    createDefaultGroup();
+
+    UserDto user = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("us")
+      .setName("User")
+      .build());
+
+    assertThat(db.getDbClient().userDao().selectOnboarded(db.getSession(), user)).isFalse();
+  }
+
+  @Test
   public void fail_to_create_user_with_missing_login() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login can't be empty");

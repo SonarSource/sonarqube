@@ -22,8 +22,20 @@ package org.sonar.server.user.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.user.UserSession;
 
 public class SkipOnboardingTutorialAction implements UsersWsAction {
+
+  private final UserSession userSession;
+  private final DbClient dbClient;
+
+  public SkipOnboardingTutorialAction(UserSession userSession, DbClient dbClient) {
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+  }
 
   @Override
   public void define(WebService.NewController context) {
@@ -38,6 +50,12 @@ public class SkipOnboardingTutorialAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      UserDto userDto = dbClient.userDao().selectUserById(dbSession, userSession.getUserId());
+      dbClient.userDao().updateOnboaded(dbSession, userDto, true);
+      dbSession.commit();
+    }
     response.noContent();
   }
 }

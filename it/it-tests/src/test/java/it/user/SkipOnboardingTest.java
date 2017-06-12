@@ -22,8 +22,14 @@ package it.user;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.setting.ResetRequest;
+import org.sonarqube.ws.client.setting.SetRequest;
 import util.ItUtils;
 import util.user.UserRule;
 
@@ -36,22 +42,131 @@ public class SkipOnboardingTest {
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
   @ClassRule
   public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void should_operate_silently() {
+  public void onboarding_tutorial_for_anonymous() {
+    skipOnboardingGlobally(false);
+    WsClient wsClient = ItUtils.newUserWsClient(orchestrator, null, null);
+
+    // anonymous should not see the onboarding tutorial
+    assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+
+    // anonymous should not be able to skip the tutorial
+    thrown.expect(HttpException.class);
+    wsClient.users().skipOnboardingTutorial();
+  }
+
+  @Test
+  public void default_usecase() {
+    ItUtils.newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys("sonar.onboardingTutorial.skip").build());
+
+    // Step 1 create user
     String login = randomAlphabetic(10).toLowerCase();
     String password = randomAlphabetic(10).toLowerCase();
     userRule.createUser(login, password);
-    WsResponse response;
+    WsClient wsClient = ItUtils.newUserWsClient(orchestrator, login, password);
     try {
 
-      response = ItUtils.newUserWsClient(orchestrator, null, null).users().skipOnboardingTutorial();
+      // the user should now see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isTrue();
 
+      // Step 2 let the admin toggle forth and back the switch for global skipping
+      skipOnboardingGlobally(true);
+      skipOnboardingGlobally(false);
+
+      // the user should not be affected
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isTrue();
+
+      // Step 3 let the user skip the tutorial
+      WsResponse response = wsClient.users().skipOnboardingTutorial();
+      assertThat(response.code()).isEqualTo(204);
+      assertThat(response.hasContent()).isFalse();
+
+      // the user should not see the onboarding tutorial anymore
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+
+      // Step 4 let the user skip the tutorial again
+      WsResponse response2 = wsClient.users().skipOnboardingTutorial();
+      assertThat(response2.code()).isEqualTo(204);
+      assertThat(response2.hasContent()).isFalse();
+
+      // the user should not see the onboarding tutorial anymore
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
     } finally {
       userRule.deactivateUsers(login);
     }
+  }
 
-    assertThat(response.code()).isEqualTo(204);
-    assertThat(response.hasContent()).isFalse();
+  @Test
+  public void do_not_show_tutorial_if_the_administrators_decided_to_skip_it() {
+    skipOnboardingGlobally(true);
+
+    // Step 1 create user
+    String login = randomAlphabetic(10).toLowerCase();
+    String password = randomAlphabetic(10).toLowerCase();
+    userRule.createUser(login, password);
+    WsClient wsClient = ItUtils.newUserWsClient(orchestrator, login, password);
+    try {
+
+      // the user should not see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+
+      // Step 2 let the user skip the tutorial
+      WsResponse response = wsClient.users().skipOnboardingTutorial();
+      assertThat(response.code()).isEqualTo(204);
+      assertThat(response.hasContent()).isFalse();
+
+      // the user should not see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+    } finally {
+      userRule.deactivateUsers(login);
+    }
+  }
+
+  @Test
+  public void if_user_gets_created_before_setting_skip_onboarding_to_true_he_should_not_see_onboarding_tutorial() {
+    skipOnboardingGlobally(false);
+
+    // Step 1 create user
+    String login = randomAlphabetic(10).toLowerCase();
+    String password = randomAlphabetic(10).toLowerCase();
+    userRule.createUser(login, password);
+    WsClient wsClient = ItUtils.newUserWsClient(orchestrator, login, password);
+    try {
+
+      // the user should see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isTrue();
+
+      // Step 2 skip onboarding tutorial globally
+      skipOnboardingGlobally(true);
+
+      // the user should not see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+      // !!! Be aware: the user is "auto-skipped" and marked as "onboarded" from now on !!!
+
+      // Step 3 let the user skip the tutorial (although he does not see it)
+      // side note: this is a valid case, because the tutorial will still be available form the help popup
+      WsResponse response = wsClient.users().skipOnboardingTutorial();
+      assertThat(response.code()).isEqualTo(204);
+      assertThat(response.hasContent()).isFalse();
+
+      // the user should not see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+
+      // Step 4 do not skip onboarding tutorial globally anymore
+      skipOnboardingGlobally(false);
+
+      // the user should not see the onboarding tutorial
+      assertThat((boolean) ItUtils.jsonToMap(wsClient.users().current().content()).get("showOnboardingTutorial")).isFalse();
+    } finally {
+      userRule.deactivateUsers(login);
+    }
+  }
+
+  private void skipOnboardingGlobally(boolean skipOnboardingTutorial) {
+    ItUtils.newAdminWsClient(orchestrator).settingsService()
+      .set(SetRequest.builder().setKey("sonar.onboardingTutorial.skip").setValue(String.valueOf(skipOnboardingTutorial)).build());
   }
 }

@@ -68,4 +68,7 @@ public interface UserMapper {
 
   void deactivateUser(@Param("id") int userId, @Param("now") long now);
 
+  void updateOnboarded(@Param("id") int userId, @Param("onboarded") boolean onboarded, @Param("now") long now);
+
+  boolean selectOnboarded(@Param("id") int userId);
 }

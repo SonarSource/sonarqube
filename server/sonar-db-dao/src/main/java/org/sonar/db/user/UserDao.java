@@ -143,6 +143,14 @@ public class UserDao implements Dao {
     return session.getMapper(UserMapper.class);
   }
 
+  public void updateOnboaded(DbSession session, UserDto user, boolean onboarded) {
+    mapper(session).updateOnboarded(user.getId(), onboarded, system2.now());
+  }
+
+  public boolean selectOnboarded(DbSession dbSession, UserDto user) {
+    return mapper(dbSession).selectOnboarded(user.getId());
+  }
+
   private static class LoginToUser implements Function<String, UserDto> {
     private final Map<String, UserDto> map = new HashMap<>();
 

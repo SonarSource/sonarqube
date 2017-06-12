@@ -4,22 +4,26 @@
          login="user1"
          name="User1"
          active="[true]"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
   <users id="201"
          login="user2"
          name="User2"
          active="[true]"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
   <users id="202"
          login="user3"
          name="User3"
          active="[true]"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
   <users id="999"
          login="disabledUser"
          name="disabledUser"
          active="[false]"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
 
   <organization_members
       user_id="200"

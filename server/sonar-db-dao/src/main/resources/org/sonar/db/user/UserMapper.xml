@@ -142,7 +142,7 @@
       and active = ${_true}
   </update>
 
-  <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO users (
       login,
       name,
@@ -155,6 +155,7 @@
       salt,
       crypted_password,
       is_root,
+      onboarded,
       created_at,
       updated_at
     )
@@ -170,6 +171,7 @@
       #{salt,jdbcType=VARCHAR},
       #{cryptedPassword,jdbcType=VARCHAR},
       #{root,jdbcType=BOOLEAN},
+      ${_false},
       #{createdAt,jdbcType=BIGINT},
       #{updatedAt,jdbcType=BIGINT}
     )
@@ -191,4 +193,18 @@
       login = #{login,jdbcType=VARCHAR}
   </insert>
 
+  <update id="updateOnboarded">
+    UPDATE users
+    SET
+      onboarded = #{onboarded,jdbcType=BOOLEAN},
+      updated_at=#{now,jdbcType=BIGINT}
+    WHERE
+      id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectOnboarded" resultType="boolean">
+    SELECT onboarded
+    FROM users
+    WHERE id = #{id,jdbcType=INTEGER}
+  </select>
 </mapper>
