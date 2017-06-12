@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.List;
+import java.util.Map;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
@@ -86,7 +87,7 @@ public class ActivateRuleAction implements QProfileWsAction {
 
     activate.createParam(PARAM_PARAMS)
       .setDescription(format("Parameters as semi-colon list of <key>=<value>. Ignored if parameter %s is true.", PARAM_RESET))
-    .setExampleValue("params=key1=v1;key2=v2");
+      .setExampleValue("params=key1=v1;key2=v2");
 
     activate.createParam(PARAM_RESET)
       .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile " +
@@ -96,20 +97,13 @@ public class ActivateRuleAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    RuleKey ruleKey = readRuleKey(request);
-    RuleActivation activation = new RuleActivation(ruleKey);
-    activation.setSeverity(request.param(PARAM_SEVERITY));
-    String params = request.param(PARAM_PARAMS);
-    if (params != null) {
-      activation.setParameters(KeyValueFormat.parse(params));
-    }
-    activation.setReset(Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET)));
-    String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
+      String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
+      RuleActivation activation = readActivation(request);
       List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profile);
       dbSession.commit();
       activeRuleIndexer.indexChanges(dbSession, changes);
@@ -117,7 +111,19 @@ public class ActivateRuleAction implements QProfileWsAction {
     response.noContent();
   }
 
-  private static RuleKey readRuleKey(Request request) {
-    return RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
+  private RuleActivation readActivation(Request request) {
+    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
+    boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
+    if (reset) {
+      return RuleActivation.createReset(ruleKey);
+    }
+    String severity = request.param(PARAM_SEVERITY);
+    Map<String, String> params = null;
+    String paramsAsString = request.param(PARAM_PARAMS);
+    if (paramsAsString != null) {
+      params = KeyValueFormat.parse(paramsAsString);
+    }
+    return RuleActivation.create(ruleKey, severity, params);
   }
+
 }

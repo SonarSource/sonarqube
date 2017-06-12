@@ -109,9 +109,15 @@ public class QualityProfileDao implements Dao {
     }
   }
 
+  public void update(DbSession dbSession, RulesProfileDto rulesProfile) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    long now = system.now();
+    mapper.updateRuleProfile(rulesProfile, new Date(now));
+  }
+
   private void doUpdate(QualityProfileMapper mapper, QProfileDto profile, long now) {
-    mapper.updateRuleProfile(profile, new Date(now));
-    mapper.updateOrgQProfile(profile, now);
+    mapper.updateRuleProfile(RulesProfileDto.from(profile), new Date(now));
+    mapper.updateOrgQProfile(OrgQProfileDto.from(profile), now);
   }
 
   public List<QProfileDto> selectDefaultProfiles(DbSession dbSession, OrganizationDto organization, Collection<String> languages) {
@@ -218,6 +224,10 @@ public class QualityProfileDao implements Dao {
   public void deleteRulesProfilesByUuids(DbSession dbSession, Collection<String> rulesProfileUuids) {
     QualityProfileMapper mapper = mapper(dbSession);
     DatabaseUtils.executeLargeUpdates(rulesProfileUuids, mapper::deleteRuleProfilesByUuids);
+  }
+
+  public List<QProfileDto> selectChildrenOfBuiltInRulesProfile(DbSession dbSession, RulesProfileDto rulesProfile) {
+    return mapper(dbSession).selectChildrenOfBuiltInRulesProfile(rulesProfile.getKee());
   }
 
   private static String sqlQueryString(@Nullable String query) {

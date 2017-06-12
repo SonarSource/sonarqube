@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.MapDifference.ValueDifference;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
@@ -102,10 +103,8 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_same() {
-    RuleActivation commonActivation = new RuleActivation(xooRule1.getKey())
-      .setSeverity(Severity.CRITICAL)
-      .setParameter("min", "7")
-      .setParameter("max", "42");
+    RuleActivation commonActivation = RuleActivation.create(xooRule1.getKey(), Severity.CRITICAL,
+      ImmutableMap.of("min", "7", "max", "42"));
     ruleActivator.activate(dbSession, commonActivation, left);
     ruleActivator.activate(dbSession, commonActivation, right);
     dbSession.commit();
@@ -122,7 +121,8 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_only_left() {
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), left);
+    RuleActivation activation = RuleActivation.create(xooRule1.getKey());
+    ruleActivator.activate(dbSession, activation, left);
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
@@ -137,7 +137,7 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_only_right() {
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), right);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey()), right);
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
@@ -152,8 +152,8 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_disjoint() {
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), left);
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule2.getKey()), right);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey()), left);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule2.getKey()), right);
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
@@ -168,8 +168,8 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_modified_severity() {
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setSeverity(Severity.CRITICAL), left);
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setSeverity(Severity.BLOCKER), right);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey(), Severity.CRITICAL, null), left);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey(), Severity.BLOCKER, null), right);
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
@@ -189,8 +189,8 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_modified_param() {
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("max", "20"), left);
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("max", "30"), right);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("max", "20")), left);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("max", "30")), right);
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);
@@ -213,8 +213,8 @@ public class QProfileComparisonMediumTest {
 
   @Test
   public void compare_different_params() {
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("max", "20"), left);
-    ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("min", "5"), right);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("max", "20")), left);
+    ruleActivator.activate(dbSession, RuleActivation.create(xooRule1.getKey(), null, ImmutableMap.of("min", "5")), right);
     dbSession.commit();
 
     QProfileComparisonResult result = comparison.compare(dbSession, left, right);

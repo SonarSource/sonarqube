@@ -419,7 +419,7 @@ public class RuleIndex {
 
   private static void addActiveSeverityFacetIfNeeded(RuleQuery query, SearchOptions options, Map<String, AbstractAggregationBuilder> aggregations,
     StickyFacetBuilder stickyFacetBuilder) {
-    if (options.getFacets().contains(FACET_ACTIVE_SEVERITIES)) {
+    if (options.getFacets().contains(FACET_ACTIVE_SEVERITIES) && query.getQProfile() != null) {
       // We are building a children aggregation on active rules
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
@@ -431,12 +431,7 @@ public class RuleIndex {
       BoolQueryBuilder childrenFilter = boolQuery();
       addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, query.getQProfile().getRulesProfileUuid());
       RuleIndex.addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
-      QueryBuilder activeRuleFilter;
-      if (childrenFilter.hasClauses()) {
-        activeRuleFilter = childrenFilter.must(ruleFilter);
-      } else {
-        activeRuleFilter = ruleFilter;
-      }
+      QueryBuilder activeRuleFilter = childrenFilter.must(ruleFilter);
 
       AbstractAggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
         .childType(INDEX_TYPE_ACTIVE_RULE.getType())

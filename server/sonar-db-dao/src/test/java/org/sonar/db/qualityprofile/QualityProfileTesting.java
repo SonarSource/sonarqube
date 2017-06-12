@@ -19,8 +19,11 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.function.Consumer;
 import org.sonar.core.util.Uuids;
 
+import static java.util.Arrays.stream;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
@@ -55,5 +58,18 @@ public class QualityProfileTesting {
       .setCreatedAt(nextLong())
       .setChangeType("ACTIVATED")
       .setLogin(randomAlphanumeric(10));
+  }
+
+  /**
+   * Create an instance of {@link  RulesProfileDto} with most of random field values.
+   */
+  public static RulesProfileDto newRuleProfileDto(Consumer<RulesProfileDto>... populators) {
+    RulesProfileDto dto = new RulesProfileDto()
+      .setKee("uuid" + randomAlphabetic(10))
+      .setName("name" + randomAlphabetic(10))
+      .setLanguage("lang" + randomAlphabetic(5))
+      .setIsBuiltIn(false);
+    stream(populators).forEach(p -> p.accept(dto));
+    return dto;
   }
 }

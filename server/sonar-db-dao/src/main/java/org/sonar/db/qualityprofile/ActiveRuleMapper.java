@@ -36,6 +36,8 @@ public interface ActiveRuleMapper {
 
   void deleteByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
+  void deleteByIds(@Param("ids") Collection<Integer> ids);
+
   @CheckForNull
   ActiveRuleDto selectByKey(@Param("ruleProfileUuid") String ruleProfileUuid, @Param("repository") String repository, @Param("rule") String rule);
 
@@ -49,6 +51,8 @@ public interface ActiveRuleMapper {
 
   List<OrgActiveRuleDto> selectByProfileUuid(String uuid);
 
+  List<ActiveRuleDto> selectByRuleProfileUuid(@Param("ruleProfileUuid") String uuid);
+
   void insertParameter(ActiveRuleParamDto dto);
 
   void updateParameter(ActiveRuleParamDto dto);
@@ -58,6 +62,8 @@ public interface ActiveRuleMapper {
   void deleteParametersByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
   void deleteParameter(int activeRuleParamId);
+
+  void deleteParamsByActiveRuleIds(@Param("activeRuleIds") Collection<Integer> activeRuleIds);
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 

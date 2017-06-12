@@ -17,24 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.qualityprofile;
 
-package org.sonar.server.platform.db.migration.version.v65;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
-import org.junit.Test;
-
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
-
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
-
-  @Test
-  public void migrationNumber_starts_at_1700() {
-    verifyMinimumMigrationNumber(underTest, 1700);
-  }
-
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 27);
-  }
+public interface BuiltInQProfileUpdate {
+  /**
+   * Persist a built-in profile and associate it to all existing organizations.
+   * Db sessions are committed.
+   */
+  void update(DbSession dbSession, BuiltInQProfile builtInQProfile, RulesProfileDto ruleProfile);
 }

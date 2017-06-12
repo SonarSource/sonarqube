@@ -81,6 +81,13 @@
       )
   </delete>
 
+  <delete id="deleteByIds" parameterType="Integer">
+    delete from active_rules
+    where
+      id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">#{id, jdbcType=INTEGER}</foreach>
+  </delete>
+
   <select id="selectByKey" parameterType="map" resultType="ActiveRule">
     select
     <include refid="activeRuleColumns"/>
@@ -114,6 +121,15 @@
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
     where oqp.uuid = #{id, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByRuleProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.ActiveRuleDto">
+    select
+    <include refid="activeRuleColumns"/>
+    from active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    where
+      rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByRuleId" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
@@ -201,6 +217,13 @@
 
   <delete id="deleteParameter" parameterType="int">
     DELETE FROM active_rule_parameters WHERE id=#{id, jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteParamsByActiveRuleIds" parameterType="Integer">
+    delete from active_rule_parameters
+    where
+      active_rule_id in
+    <foreach collection="activeRuleIds" open="(" close=")" item="activeRuleId" separator=",">#{activeRuleId, jdbcType=INTEGER}</foreach>
   </delete>
 
   <select id="selectParamsByActiveRuleId" parameterType="Integer" resultType="ActiveRuleParam">

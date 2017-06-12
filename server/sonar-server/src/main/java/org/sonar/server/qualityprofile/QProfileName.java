@@ -66,6 +66,6 @@ public class QProfileName {
 
   @Override
   public String toString() {
-    return String.format("{lang=%s, name=%s}", lang, name);
+    return String.format("%s/%s", lang, name);
   }
 }

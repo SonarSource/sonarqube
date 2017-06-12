@@ -46,6 +46,7 @@ import util.QualityProfileRule;
 import util.QualityProfileSupport;
 import util.user.UserRule;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.expectForbiddenError;
 import static util.ItUtils.expectMissingError;
@@ -254,14 +255,15 @@ public class CustomQualityProfilesTest {
 
     QualityProfileSupport adminProfiles = profiles.as(user.getLogin(), A_PASSWORD);
 
-    String projectKey = "test-project";
+    String projectKey = randomAlphanumeric(10);
+    String projectName = randomAlphanumeric(10);
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"),
         "sonar.login", user.getLogin(),
         "sonar.password", A_PASSWORD,
         "sonar.organization", org.getKey())
         .setProjectKey(projectKey)
-        .setProjectName("my-project")
+        .setProjectName(projectName)
     );
 
     QualityProfiles.SearchWsResponse.QualityProfile defaultProfile = getProfile(org, p -> "xoo".equals(p.getLanguage()) && p.getIsDefault());
@@ -276,7 +278,7 @@ public class CustomQualityProfilesTest {
         "sonar.password", A_PASSWORD,
         "sonar.organization", org.getKey())
         .setProjectKey(projectKey)
-        .setProjectName("my-project")
+        .setProjectName(projectName)
     );
 
     assertThatQualityProfileIsUsedFor(projectKey, newXooProfile.getKey());
@@ -286,8 +288,8 @@ public class CustomQualityProfilesTest {
   public void analysis_must_use_associated_profile() {
     Organization org = organizations.create();
     User user = users.createAdministrator(org, A_PASSWORD);
-    String projectKey = "test-project";
-    String projectName = "my-project";
+    String projectKey = randomAlphanumeric(10);
+    String projectName = randomAlphanumeric(10);
     QualityProfileSupport adminProfiles = profiles.as(user.getLogin(), A_PASSWORD);
     QualityProfile newXooProfile = adminProfiles.createXooProfile(org);
 

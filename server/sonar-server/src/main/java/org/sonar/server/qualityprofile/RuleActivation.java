@@ -20,57 +20,46 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Map;
-
+@Immutable
 public class RuleActivation {
 
   private final RuleKey ruleKey;
-  private final Map<String, String> parameters;
-  private String severity = null;
-  private boolean cascade = false;
-  private boolean reset = false;
+  private final boolean reset;
+  private final String severity;
+  private final Map<String, String> parameters = new HashMap<>();
 
-  public RuleActivation(RuleKey ruleKey) {
+  private RuleActivation(RuleKey ruleKey, boolean reset, @Nullable String severity, @Nullable Map<String, String> parameters) {
     this.ruleKey = ruleKey;
-    this.parameters = Maps.newHashMap();
-  }
-
-  public RuleActivation(RuleActivation other) {
-    this.ruleKey = other.ruleKey;
-    this.parameters = Maps.newHashMap(other.parameters);
-    this.severity = other.severity;
-    this.reset = other.reset;
-    this.cascade = other.cascade;
-  }
-
-  /**
-   * For internal use
-   */
-  boolean isCascade() {
-    return this.cascade;
-  }
-
-  /**
-   * For internal use
-   */
-  RuleActivation setCascade(boolean b) {
-    this.cascade = b;
-    return this;
-  }
-
-  public RuleActivation setSeverity(@Nullable String s) {
-    if (s != null && !Severity.ALL.contains(s)) {
-      throw new IllegalArgumentException("Unknown severity: " + s);
+    this.reset = reset;
+    this.severity = severity;
+    if (severity != null && !Severity.ALL.contains(severity)) {
+      throw new IllegalArgumentException("Unknown severity: " + severity);
     }
-    this.severity = s;
-    return this;
+    if (parameters != null) {
+      for (Map.Entry<String, String> entry : parameters.entrySet()) {
+        this.parameters.put(entry.getKey(), Strings.emptyToNull(entry.getValue()));
+      }
+    }
+  }
+
+  public static RuleActivation createReset(RuleKey ruleKey) {
+    return new RuleActivation(ruleKey, true, null, null);
+  }
+
+  public static RuleActivation create(RuleKey ruleKey, @Nullable String severity, @Nullable Map<String, String> parameters) {
+    return new RuleActivation(ruleKey, false, severity, parameters);
+  }
+
+  public static RuleActivation create(RuleKey ruleKey) {
+    return create(ruleKey, null, null);
   }
 
   /**
@@ -81,34 +70,20 @@ public class RuleActivation {
     return severity;
   }
 
-  public RuleActivation setParameter(String key, @Nullable String value) {
-    String sanitizedValue = Strings.emptyToNull(value);
-    parameters.put(key, sanitizedValue);
-    return this;
-  }
-
-  public RuleActivation setParameters(Map<String, String> m) {
-    parameters.clear();
-    for (Map.Entry<String, String> entry : m.entrySet()) {
-      setParameter(entry.getKey(), entry.getValue());
-    }
-    return this;
-  }
-
   public RuleKey getRuleKey() {
     return ruleKey;
   }
 
-  public Map<String, String> getParameters() {
-    return parameters;
+  @CheckForNull
+  public String getParameter(String key) {
+    return parameters.get(key);
+  }
+
+  public boolean hasParameter(String key) {
+    return parameters.containsKey(key);
   }
 
   public boolean isReset() {
     return reset;
-  }
-
-  public RuleActivation setReset(boolean b) {
-    this.reset = b;
-    return this;
   }
 }

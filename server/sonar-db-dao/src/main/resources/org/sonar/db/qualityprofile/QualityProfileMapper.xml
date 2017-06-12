@@ -77,18 +77,18 @@
       rules_updated_at = #{dto.rulesUpdatedAt, jdbcType=VARCHAR},
       is_built_in = #{dto.isBuiltIn, jdbcType=BOOLEAN}
     where
-      kee = #{dto.rulesProfileUuid, jdbcType=VARCHAR}
+      kee = #{dto.kee, jdbcType=VARCHAR}
   </update>
 
   <update id="updateOrgQProfile" parameterType="map">
     update org_qprofiles
     set
-      parent_uuid = #{dto.parentKee, jdbcType=VARCHAR},
+      parent_uuid = #{dto.parentUuid, jdbcType=VARCHAR},
       last_used = #{dto.lastUsed, jdbcType=BIGINT},
       user_updated_at = #{dto.userUpdatedAt, jdbcType=BIGINT},
       updated_at = #{now, jdbcType=BIGINT}
     where
-      uuid = #{dto.kee, jdbcType=VARCHAR}
+      uuid = #{dto.uuid, jdbcType=VARCHAR}
   </update>
 
   <delete id="deleteRuleProfilesByUuids" parameterType="String">
@@ -335,5 +335,18 @@
     where
       kee in <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </update>
+
+  <select id="selectChildrenOfBuiltInRulesProfile" parameterType="string" resultType="org.sonar.db.qualityprofile.QProfileDto">
+    select
+    <include refid="qProfileColumns"/>
+    from org_qprofiles oqp
+    inner join rules_profiles rp on oqp.rules_profile_uuid = rp.kee
+    inner join org_qprofiles parentoqp on parentoqp.uuid = oqp.parent_uuid
+    inner join rules_profiles parentrp on parentoqp.rules_profile_uuid = parentrp.kee
+    where
+      parentrp.kee = #{rulesProfileUuid, jdbcType=VARCHAR}
+      and parentrp.is_built_in = ${_true}
+      and oqp.parent_uuid is not null
+  </select>
 </mapper>
 

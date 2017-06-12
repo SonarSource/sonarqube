@@ -49,7 +49,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
+import static org.sonar.db.qualityprofile.RulesProfileDto.from;
 
 public class QualityProfileDaoTest {
 
@@ -721,4 +723,35 @@ public class QualityProfileDaoTest {
     return Arrays.asList(dto1, dto2);
   }
 
+  @Test
+  public void selectChildrenOfBuiltInRulesProfile_must_return_only_inherited_profiles() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    OrganizationDto org3 = db.organizations().insert();
+
+    QProfileDto builtInProfile = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
+    QProfileDto javaProfileOrg2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto inheritedJavaProfileOrg2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo").setParentKee(builtInProfile.getKee()));
+    QProfileDto differentLanguage = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
+    QProfileDto differentName = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
+    QProfileDto javaProfileOrg3 = db.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto inheritedJavaProfileOrg3 = db.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo").setParentKee(builtInProfile.getKee()));
+
+    List<QProfileDto> children = db.getDbClient().qualityProfileDao().selectChildrenOfBuiltInRulesProfile(db.getSession(), from(builtInProfile));
+
+    assertThat(children.stream().map(qp -> qp.getId()).collect(toList())).containsExactlyInAnyOrder(
+      inheritedJavaProfileOrg2.getId(), inheritedJavaProfileOrg3.getId());
+  }
+
+  @Test
+  public void selectChildrenOfBuiltInRulesProfile_must_return_empty_list_if_not_built_in() {
+    OrganizationDto org = db.organizations().insert();
+
+    QProfileDto notBuiltInProfile = db.qualityProfiles().insert(org, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto inheritedProfile = db.qualityProfiles().insert(org, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo").setParentKee(notBuiltInProfile.getKee()));
+
+    List<QProfileDto> children = db.getDbClient().qualityProfileDao().selectChildrenOfBuiltInRulesProfile(db.getSession(), from(notBuiltInProfile));
+
+    assertThat(children).isEmpty();
+  }
 }

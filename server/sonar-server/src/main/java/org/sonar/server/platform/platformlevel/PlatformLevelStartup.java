@@ -27,6 +27,7 @@ import org.sonar.server.platform.web.RegisterServletFilters;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.BuiltInQProfileInsertImpl;
 import org.sonar.server.qualityprofile.BuiltInQProfileLoader;
+import org.sonar.server.qualityprofile.BuiltInQProfileUpdateImpl;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.rule.WebServerRuleFinder;
@@ -58,6 +59,7 @@ public class PlatformLevelStartup extends PlatformLevel {
     add(BuiltInQProfileLoader.class);
     addIfStartupLeader(
       BuiltInQProfileInsertImpl.class,
+      BuiltInQProfileUpdateImpl.class,
       RegisterQualityProfiles.class,
       RegisterPermissionTemplates.class,
       RenameDeprecatedPropertyKeys.class,

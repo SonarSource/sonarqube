@@ -29,17 +29,20 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -175,12 +178,11 @@ public class QProfileExporters {
   }
 
   private static RuleActivation toRuleActivation(org.sonar.api.rules.ActiveRule activeRule) {
-    RuleActivation ruleActivation = new RuleActivation(activeRule.getRule().ruleKey());
-    ruleActivation.setSeverity(activeRule.getSeverity().name());
-    for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {
-      ruleActivation.setParameter(activeRuleParam.getKey(), activeRuleParam.getValue());
-    }
-    return ruleActivation;
+    RuleKey ruleKey = activeRule.getRule().ruleKey();
+    String severity = activeRule.getSeverity().name();
+    Map<String, String> params = activeRule.getActiveRuleParams().stream()
+      .collect(MoreCollectors.uniqueIndex(ActiveRuleParam::getKey, ActiveRuleParam::getValue));
+    return RuleActivation.create(ruleKey, severity, params);
   }
 
 }

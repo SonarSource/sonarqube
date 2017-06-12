@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Language;
@@ -189,7 +190,7 @@ public class ActiveRuleCompleter {
     // load profiles
     Map<String, QProfileDto> profilesByUuid = dbClient.qualityProfileDao().selectByUuids(dbSession, new ArrayList<>(profileUuids))
       .stream()
-      .collect(uniqueIndex(QProfileDto::getKee));
+      .collect(Collectors.toMap(QProfileDto::getKee, Function.identity()));
 
     // load associated parents
     List<String> parentUuids = profilesByUuid.values().stream()

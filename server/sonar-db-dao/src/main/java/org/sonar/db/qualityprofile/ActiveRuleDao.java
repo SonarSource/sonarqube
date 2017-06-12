@@ -71,6 +71,10 @@ public class ActiveRuleDao implements Dao {
     return selectByProfileUuid(dbSession, profile.getKee());
   }
 
+  public List<ActiveRuleDto> selectByRuleProfile(DbSession dbSession, RulesProfileDto ruleProfileDto) {
+    return mapper(dbSession).selectByRuleProfileUuid(ruleProfileDto.getKee());
+  }
+
   public ActiveRuleDto insert(DbSession dbSession, ActiveRuleDto item) {
     Preconditions.checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
     Preconditions.checkArgument(item.getRuleId() != null, RULE_IS_NOT_PERSISTED);
@@ -99,6 +103,11 @@ public class ActiveRuleDao implements Dao {
   public void deleteByRuleProfileUuids(DbSession dbSession, Collection<String> rulesProfileUuids) {
     ActiveRuleMapper mapper = mapper(dbSession);
     DatabaseUtils.executeLargeUpdates(rulesProfileUuids, mapper::deleteByRuleProfileUuids);
+  }
+
+  public void deleteByIds(DbSession dbSession, List<Integer> activeRuleIds) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(activeRuleIds, mapper::deleteByIds);
   }
 
   public void deleteParametersByRuleProfileUuids(DbSession dbSession, Collection<String> rulesProfileUuids) {
@@ -152,6 +161,11 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
+  public void deleteParamsByActiveRuleIds(DbSession dbSession, List<Integer> activeRuleIds) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(activeRuleIds, mapper::deleteParamsByActiveRuleIds);
+  }
+
   /**
    * Active rule on removed rule are NOT taken into account
    */
@@ -176,5 +190,4 @@ public class ActiveRuleDao implements Dao {
   private static ActiveRuleMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(ActiveRuleMapper.class);
   }
-
 }

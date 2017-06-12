@@ -201,10 +201,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
         duplicatedKeys.add(ruleKey);
       }
       activatedKeys.add(ruleKey);
-      RuleActivation activation = new RuleActivation(ruleKey);
-      activation.setSeverity(severity);
-      activation.setParameters(parameters);
-      activations.add(activation);
+      activations.add(RuleActivation.create(ruleKey, severity, parameters));
     }
     if (!duplicatedKeys.isEmpty()) {
       throw new IllegalArgumentException("The quality profile cannot be restored as it contains duplicates for the following rules: " +

@@ -151,11 +151,27 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
-  public void selectByProfileUuid_ignores_removed_rules() throws Exception {
+  public void selectByProfileUuid_ignores_removed_rules() {
     ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbSession, activeRule);
 
     assertThat(underTest.selectByProfile(dbSession, profile1)).isEmpty();
+  }
+
+  @Test
+  public void selectByRuleProfileUuid() {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(MAJOR);
+    underTest.insert(dbSession, activeRule1);
+    underTest.insert(dbSession, activeRule2);
+
+    List<ActiveRuleDto> result = underTest.selectByRuleProfile(dbSession, RulesProfileDto.from(profile1));
+    assertThat(result)
+      .hasSize(2)
+      .extracting(ActiveRuleDto::getProfileId, ActiveRuleDto::getRuleKey, ActiveRuleDto::getSeverityString)
+      .containsOnly(tuple(profile1.getId(), rule1.getKey(), BLOCKER), tuple(profile1.getId(), rule2.getKey(), MAJOR));
+
+    assertThat(underTest.selectByProfile(dbSession, profile2)).isEmpty();
   }
 
   @Test
@@ -293,6 +309,29 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbSession, newRow(profile1, rule1));
 
     underTest.deleteByRuleProfileUuids(dbSession, asList("does_not_exist"));
+
+    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
+  }
+
+  @Test
+  public void deleteByIds() {
+    ActiveRuleDto ar1 = underTest.insert(dbSession, newRow(profile1, rule1));
+    ActiveRuleDto ar2 = underTest.insert(dbSession, newRow(profile1, rule2));
+    ActiveRuleDto ar3 = underTest.insert(dbSession, newRow(profile2, rule1));
+
+    underTest.deleteByIds(dbSession, asList(ar1.getId(), ar3.getId()));
+
+    assertThat(db.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
+    assertThat(underTest.selectByProfile(dbSession, profile1))
+      .extracting(ActiveRuleDto::getId)
+      .containsExactly(ar2.getId());
+  }
+
+  @Test
+  public void deleteByIds_does_nothing_if_empty_list_of_ids() {
+    underTest.insert(dbSession, newRow(profile1, rule1));
+
+    underTest.deleteByIds(dbSession, emptyList());
 
     assertThat(db.countRowsOfTable(dbSession, "active_rules")).isEqualTo(1);
   }
@@ -458,6 +497,22 @@ public class ActiveRuleDaoTest {
     underTest.deleteParamsByRuleParamOfAllOrganizations(dbSession, rule1Param1);
 
     assertThat(underTest.selectParamsByActiveRuleIds(dbSession, activeRuleIds)).isEmpty();
+  }
+
+  @Test
+  public void deleteParamsByActiveRuleIds() {
+    ActiveRuleDto ar1 = underTest.insert(dbSession, newRow(profile1, rule1));
+    ActiveRuleParamDto param = ActiveRuleParamDto.createFor(rule1Param1).setValue("foo");
+    underTest.insertParam(dbSession, ar1, param);
+
+    ActiveRuleDto ar2 = underTest.insert(dbSession, newRow(profile1, rule2));
+    ActiveRuleParamDto param2 = ActiveRuleParamDto.createFor(rule2Param1).setValue("bar");
+    underTest.insertParam(dbSession, ar2, param2);
+
+    underTest.deleteParamsByActiveRuleIds(dbSession, asList(ar1.getId()));
+
+    assertThat(underTest.selectParamsByActiveRuleId(dbSession, ar1.getId())).hasSize(0);
+    assertThat(underTest.selectParamsByActiveRuleId(dbSession, ar2.getId())).hasSize(1);
   }
 
   @Test

@@ -502,10 +502,6 @@ public class RuleIndexTest {
     return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage("java"));
   }
 
-  private QProfileDto createProfile(OrganizationDto organization) {
-    return db.qualityProfiles().insert(organization);
-  }
-
   @Test
   public void search_by_activation_and_inheritance() {
     RuleDefinitionDto rule1 = createJavaRule();
@@ -563,10 +559,26 @@ public class RuleIndexTest {
     verifyFacet(query, RuleIndex.FACET_ACTIVE_SEVERITIES, entry(BLOCKER, 1L), entry(CRITICAL, 1L));
   }
 
+  @Test
+  public void facet_by_activation_severity_is_ignored_when_profile_is_not_specified() {
+    RuleDefinitionDto rule = createJavaRule();
+    QProfileDto profile = createJavaProfile();
+    db.qualityProfiles().activateRule(profile, rule);
+    index();
+
+    RuleQuery query = newRuleQuery();
+    verifyNoFacet(query, RuleIndex.FACET_ACTIVE_SEVERITIES);
+  }
+
   private void verifyFacet(RuleQuery query, String facet, Map.Entry<String, Long>... expectedBuckets) {
     SearchIdResult<RuleKey> result = underTest.search(query, new SearchOptions().addFacets(facet));
     assertThat(result.getFacets().get(facet))
       .containsOnly(expectedBuckets);
+  }
+
+  private void verifyNoFacet(RuleQuery query, String facet) {
+    SearchIdResult<RuleKey> result = underTest.search(query, new SearchOptions().addFacets(facet));
+    assertThat(result.getFacets().get(facet)).isNull();
   }
 
   @Test

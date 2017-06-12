@@ -32,9 +32,9 @@ public interface QualityProfileMapper {
 
   void insertRuleProfile(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
 
-  void updateRuleProfile(@Param("dto") QProfileDto dto, @Param("now") Date now);
+  void updateRuleProfile(@Param("dto") RulesProfileDto dto, @Param("now") Date now);
 
-  void updateOrgQProfile(@Param("dto") QProfileDto dto, @Param("now") long now);
+  void updateOrgQProfile(@Param("dto") OrgQProfileDto dto, @Param("now") long now);
 
   void deleteRuleProfilesByUuids(@Param("uuids") Collection<String> uuids);
 
@@ -121,4 +121,6 @@ public interface QualityProfileMapper {
   List<String> selectUuidsOfCustomRuleProfiles(@Param("language") String language, @Param("name") String name);
 
   void renameRuleProfiles(@Param("newName") String newName, @Param("updatedAt") Date updatedAt, @Param("uuids") Collection<String> uuids);
+
+  List<QProfileDto> selectChildrenOfBuiltInRulesProfile(@Param("rulesProfileUuid") String rulesProfileUuid);
 }

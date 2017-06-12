@@ -120,7 +120,7 @@ public class QProfileFactoryTest {
     underTest.checkAndCreateCustom(dbSession, organization, name);
     dbSession.commit();
 
-    expectBadRequestException("Quality profile already exists: {lang=xoo, name=P1}");
+    expectBadRequestException("Quality profile already exists: xoo/P1");
 
     underTest.checkAndCreateCustom(dbSession, organization, name);
   }

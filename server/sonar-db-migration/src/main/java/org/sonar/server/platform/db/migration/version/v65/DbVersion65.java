@@ -52,7 +52,6 @@ public class DbVersion65 implements DbVersion {
       .add(1723, "Populate table qprofiles", PopulateOrgQProfiles.class)
       .add(1724, "Drop columns organization_uuid and parent_kee from rules_profiles", DropOrgColumnsFromRulesProfiles.class)
       .add(1725, "Mark rules_profiles.is_built_in to true for default organization", SetRulesProfilesIsBuiltInToTrueForDefaultOrganization.class)
-      .add(1726, "Update OrgQProfiles to point to built-in profiles", UpdateOrgQProfilesToPointToBuiltInProfiles.class)
-      .add(1727, "Delete orphans rules_profiles table and associated tables", DeleteOrphansFromRulesProfiles.class);
+      .add(1726, "Update OrgQProfiles to point to built-in profiles", UpdateOrgQProfilesToPointToBuiltInProfiles.class);
   }
 }

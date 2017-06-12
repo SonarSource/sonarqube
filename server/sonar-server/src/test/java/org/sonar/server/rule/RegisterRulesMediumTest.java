@@ -128,7 +128,7 @@ public class RegisterRulesMediumTest {
     db.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     dbSession.clearCache();
-    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
+    RuleActivation activation = RuleActivation.create(RuleTesting.XOO_X1, null, null);
     TESTER.get(RuleActivator.class).activate(dbSession, activation, profile);
 
     // Restart, repo xoo still exists -> deactivate x1
@@ -160,7 +160,7 @@ public class RegisterRulesMediumTest {
     db.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     dbSession.clearCache();
-    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
+    RuleActivation activation = RuleActivation.create(RuleTesting.XOO_X1, null, null);
     TESTER.get(RuleActivator.class).activate(dbSession, activation, profile);
     dbSession.commit();
 
@@ -197,8 +197,7 @@ public class RegisterRulesMediumTest {
     db.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     dbSession.clearCache();
-    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    activation.setParameter("format", "txt");
+    RuleActivation activation = RuleActivation.create(RuleTesting.XOO_X1, null, ImmutableMap.of("format", "txt"));
     TESTER.get(RuleActivator.class).activate(dbSession, activation, profile);
     dbSession.commit();
 
