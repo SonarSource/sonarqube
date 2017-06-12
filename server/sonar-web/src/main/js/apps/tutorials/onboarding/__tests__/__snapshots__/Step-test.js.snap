@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="boxed-group onboarding-step onboarding-step-open"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    1
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      First Step
+    </h2>
+  </div>
+  <div>
+    form
+  </div>
+</div>
+`;
+
+exports[`renders 2`] = `
+<div
+  className="boxed-group onboarding-step"
+>
+  <div
+    className="onboarding-step-number"
+  >
+    1
+  </div>
+  <div>
+    result
+  </div>
+  <div
+    className="boxed-group-header"
+  >
+    <h2>
+      First Step
+    </h2>
+  </div>
+  <div
+    className="boxed-group-inner"
+  />
+</div>
+`;

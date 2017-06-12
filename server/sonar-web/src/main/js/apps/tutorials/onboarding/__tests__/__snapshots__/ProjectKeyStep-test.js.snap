@@ -1,0 +1,219 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`creates new project 1`] = `
+<ProjectKeyStep
+  onDelete={[Function]}
+  onDone={[Function]}
+>
+  <div
+    className="big-spacer-top"
+  >
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.language.project_key
+    </h4>
+    <form
+      onSubmit={[Function]}
+    >
+      <input
+        autoFocus={true}
+        className="input-large spacer-right text-middle"
+        maxLength={400}
+        minLength={1}
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value=""
+      />
+      <button
+        className="text-middle"
+        disabled={true}
+      >
+        Done
+      </button>
+      <div
+        className="note spacer-top abs-width-300"
+      >
+        onboarding.project_key_requirement
+      </div>
+    </form>
+  </div>
+</ProjectKeyStep>
+`;
+
+exports[`creates new project 2`] = `
+<ProjectKeyStep
+  onDelete={[Function]}
+  onDone={[Function]}
+>
+  <div
+    className="big-spacer-top"
+  >
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.language.project_key
+    </h4>
+    <form
+      onSubmit={[Function]}
+    >
+      <input
+        autoFocus={true}
+        className="input-large spacer-right text-middle"
+        maxLength={400}
+        minLength={1}
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value="foo"
+      />
+      <i
+        className="spinner"
+      />
+      <div
+        className="note spacer-top abs-width-300"
+      >
+        onboarding.project_key_requirement
+      </div>
+    </form>
+  </div>
+</ProjectKeyStep>
+`;
+
+exports[`creates new project 3`] = `
+<ProjectKeyStep
+  onDelete={[Function]}
+  onDone={[Function]}
+>
+  <div
+    className="big-spacer-top"
+  >
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.language.project_key
+    </h4>
+    <form
+      onSubmit={[Function]}
+    >
+      <span
+        className="spacer-right text-middle"
+      >
+        foo
+      </span>
+      <button
+        className="button-clean"
+      >
+        <i
+          className="icon-delete"
+        />
+      </button>
+    </form>
+  </div>
+</ProjectKeyStep>
+`;
+
+exports[`deletes project 1`] = `
+<ProjectKeyStep
+  onDelete={[Function]}
+  onDone={[Function]}
+>
+  <div
+    className="big-spacer-top"
+  >
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.language.project_key
+    </h4>
+    <form
+      onSubmit={[Function]}
+    >
+      <span
+        className="spacer-right text-middle"
+      >
+        foo
+      </span>
+      <button
+        className="button-clean"
+      >
+        <i
+          className="icon-delete"
+        />
+      </button>
+    </form>
+  </div>
+</ProjectKeyStep>
+`;
+
+exports[`deletes project 2`] = `
+<ProjectKeyStep
+  onDelete={[Function]}
+  onDone={[Function]}
+>
+  <div
+    className="big-spacer-top"
+  >
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.language.project_key
+    </h4>
+    <form
+      onSubmit={[Function]}
+    >
+      <span
+        className="spacer-right text-middle"
+      >
+        foo
+      </span>
+      <i
+        className="spinner"
+      />
+    </form>
+  </div>
+</ProjectKeyStep>
+`;
+
+exports[`deletes project 3`] = `
+<ProjectKeyStep
+  onDelete={[Function]}
+  onDone={[Function]}
+>
+  <div
+    className="big-spacer-top"
+  >
+    <h4
+      className="spacer-bottom"
+    >
+      onboarding.language.project_key
+    </h4>
+    <form
+      onSubmit={[Function]}
+    >
+      <input
+        autoFocus={true}
+        className="input-large spacer-right text-middle"
+        maxLength={400}
+        minLength={1}
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value=""
+      />
+      <button
+        className="text-middle"
+        disabled={true}
+      >
+        Done
+      </button>
+      <div
+        className="note spacer-top abs-width-300"
+      >
+        onboarding.project_key_requirement
+      </div>
+    </form>
+  </div>
+</ProjectKeyStep>
+`;
