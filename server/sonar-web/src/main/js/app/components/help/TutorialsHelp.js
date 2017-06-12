@@ -19,16 +19,20 @@
  */
 // @flow
 import React from 'react';
-import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
-type Props = { onClose: () => void };
+type Props = { onTutorialSelect: () => void };
 
-export default function TutorialsHelp({ onClose }: Props) {
+export default function TutorialsHelp({ onTutorialSelect }: Props) {
+  const handleClick = (event: Event) => {
+    event.preventDefault();
+    onTutorialSelect();
+  };
+
   return (
     <div>
       <h2 className="spacer-top spacer-bottom">{translate('help.section.tutorials')}</h2>
-      <Link to="/tutorials/onboarding" onClick={onClose}>Onboarding Tutorial</Link>
+      <a href="#" onClick={handleClick}>{translate('tutorials.onboarding')}</a>
     </div>
   );
 }

@@ -63,7 +63,6 @@ import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
 import sessionsRoutes from '../../apps/sessions/routes';
 import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
-import tutorialRoutes from '../../apps/tutorials/routes';
 import updateCenterRoutes from '../../apps/update-center/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
@@ -161,7 +160,6 @@ const startReactApp = () => {
                   <Route path="quality_gates" childRoutes={qualityGatesRoutes} />
                   <Route path="portfolios" component={PortfoliosPage} />
                   <Route path="profiles" childRoutes={qualityProfilesRoutes} />
-                  <Route path="tutorials" childRoutes={tutorialRoutes} />
                   <Route path="web_api" childRoutes={webAPIRoutes} />
 
                   <Route component={ProjectContainer}>

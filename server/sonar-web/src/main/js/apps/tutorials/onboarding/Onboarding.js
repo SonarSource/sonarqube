@@ -22,35 +22,49 @@ import React from 'react';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
+import { skipOnboarding } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import './styles.css';
 
 type Props = {
   currentUser: { login: string, isLoggedIn: boolean },
+  onSkip: () => void,
   organizationsEnabled: boolean,
   sonarCloud: boolean
 };
 
 type State = {
+  finished: boolean,
   organization?: string,
+  skipping: boolean,
   step: string,
   token?: string
 };
 
 export default class Onboarding extends React.PureComponent {
+  mounted: boolean;
   props: Props;
   state: State;
 
   constructor(props: Props) {
     super(props);
-    this.state = { step: props.organizationsEnabled ? 'organization' : 'token' };
+    this.state = {
+      finished: false,
+      skipping: false,
+      step: props.organizationsEnabled ? 'organization' : 'token'
+    };
   }
 
   componentDidMount() {
+    this.mounted = true;
     if (!this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();
     }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   handleTokenDone = (token: string) => {
@@ -60,6 +74,27 @@ export default class Onboarding extends React.PureComponent {
   handleOrganizationDone = (organization: string) => {
     this.setState({ organization, step: 'token' });
   };
+
+  handleSkipClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ skipping: true });
+    skipOnboarding().then(
+      () => {
+        if (this.mounted) {
+          this.props.onSkip();
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ skipping: false });
+        }
+      }
+    );
+  };
+
+  handleFinish = () => this.setState({ finished: true });
+
+  handleReset = () => this.setState({ finished: false });
 
   render() {
     if (!this.props.currentUser.isLoggedIn) {
@@ -77,6 +112,13 @@ export default class Onboarding extends React.PureComponent {
           <h1 className="page-title">
             {translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header')}
           </h1>
+          <div className="page-actions">
+            {this.state.skipping
+              ? <i className="spinner" />
+              : <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
+                  {translate('tutorials.skip')}
+                </a>}
+          </div>
           <div className="page-description">
             {translate('onboarding.header.description')}
           </div>
@@ -97,12 +139,22 @@ export default class Onboarding extends React.PureComponent {
         />
 
         <AnalysisStep
+          onFinish={this.handleFinish}
+          onReset={this.handleReset}
           organization={this.state.organization}
           open={step === 'analysis'}
           sonarCloud={sonarCloud}
           stepNumber={stepNumber}
           token={token}
         />
+
+        {this.state.finished &&
+          !this.state.skipping &&
+          <footer className="text-right">
+            <a className="button" href="#" onClick={this.handleSkipClick}>
+              {translate('tutorials.finish')}
+            </a>
+          </footer>}
       </div>
     );
   }

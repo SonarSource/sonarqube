@@ -56,3 +56,7 @@ export function searchUsers(query: string, pageSize?: number) {
   }
   return getJSON(url, data);
 }
+
+export function skipOnboarding(): Promise<void> {
+  return post('/api/users/skip_onboarding_tutorial');
+}
