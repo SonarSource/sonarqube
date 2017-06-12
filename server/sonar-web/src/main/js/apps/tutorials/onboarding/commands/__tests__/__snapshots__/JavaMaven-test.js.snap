@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.maven.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+  >
+    onboarding.analysis.java.maven.text
+  </p>
+  <Command
+    command={
+      Array [
+        "mvn sonar:sonar",
+        undefined,
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.maven.docs",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders correctly 2`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.maven.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+  >
+    onboarding.analysis.java.maven.text
+  </p>
+  <Command
+    command={
+      Array [
+        "mvn sonar:sonar",
+        "-Dsonar.organization=organization",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.maven.docs",
+      }
+    }
+  />
+</div>
+`;
