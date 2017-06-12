@@ -54,17 +54,13 @@ export default Modal.extend({
     this.errors = [];
     this.newToken = null;
     const tokenName = this.$('.js-generate-token-form input').val();
-    generateToken(this.model.id, tokenName)
-      .then(response => {
+    generateToken(tokenName, this.model.id).then(
+      response => {
         this.newToken = response;
         this.requestTokens();
-      })
-      .catch(error => {
-        error.response.json().then(response => {
-          this.errors = response.errors;
-          this.render();
-        });
-      });
+      },
+      () => {}
+    );
   },
 
   onRevokeTokenFormSubmit(e) {
@@ -73,7 +69,7 @@ export default Modal.extend({
     const token = this.tokens.find(t => t.name === `${tokenName}`);
     if (token) {
       if (token.deleting) {
-        revokeToken(this.model.id, tokenName).then(this.requestTokens.bind(this));
+        revokeToken(tokenName, this.model.id).then(this.requestTokens.bind(this), () => {});
       } else {
         token.deleting = true;
         this.render();

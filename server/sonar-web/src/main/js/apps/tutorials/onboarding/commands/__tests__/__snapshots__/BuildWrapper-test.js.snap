@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.build_wrapper.header.win
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.build_wrapper.text.win",
+      }
+    }
+  />
+  <p>
+    <a
+      className="button"
+      download="build-wrapper-linux-x86.zip"
+      href="/static/cpp/build-wrapper-linux-x86.zip"
+      target="_blank"
+    >
+      download_verb
+    </a>
+  </p>
+</div>
+`;
+
+exports[`renders correctly 2`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.build_wrapper.header.linux
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.build_wrapper.text.linux",
+      }
+    }
+  />
+  <p>
+    <a
+      className="button"
+      download="build-wrapper-win-x86.zip"
+      href="/static/cpp/build-wrapper-win-x86.zip"
+      target="_blank"
+    >
+      download_verb
+    </a>
+  </p>
+</div>
+`;
+
+exports[`renders correctly 3`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.build_wrapper.header.mac
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.build_wrapper.text.mac",
+      }
+    }
+  />
+  <p>
+    <a
+      className="button"
+      download="build-wrapper-macosx-x86.zip"
+      href="/static/cpp/build-wrapper-macosx-x86.zip"
+      target="_blank"
+    >
+      download_verb
+    </a>
+  </p>
+</div>
+`;

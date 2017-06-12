@@ -54,3 +54,11 @@ export const elementKeydown = (element, keyCode) => {
     preventDefault() {}
   });
 };
+
+export const doAsync = fn =>
+  new Promise(resolve => {
+    setTimeout(() => {
+      fn();
+      resolve();
+    }, 0);
+  });
