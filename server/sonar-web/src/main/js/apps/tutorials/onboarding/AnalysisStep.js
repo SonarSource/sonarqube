@@ -31,6 +31,8 @@ import Other from './commands/Other';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {|
+  onFinish: () => void,
+  onReset: () => void,
   open: boolean,
   organization?: string,
   sonarCloud: boolean,
@@ -48,10 +50,12 @@ export default class AnalysisStep extends React.PureComponent {
 
   handleLanguageSelect = (result?: Result) => {
     this.setState({ result });
+    this.props.onFinish();
   };
 
   handleLanguageReset = () => {
     this.setState({ result: undefined });
+    this.props.onReset();
   };
 
   getHost = () => window.location.origin + window.baseUrl;

@@ -28,7 +28,9 @@ import TutorialsHelp from './TutorialsHelp';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
+  currentUser: { isLoggedIn: boolean },
   onClose: () => void,
+  onTutorialSelect: () => void,
   sonarCloud?: boolean
 };
 
@@ -60,7 +62,7 @@ export default class GlobalHelp extends React.PureComponent {
           ? <LinksHelpSonarCloud onClose={this.props.onClose} />
           : <LinksHelp onClose={this.props.onClose} />;
       case 'tutorials':
-        return <TutorialsHelp onClose={this.props.onClose} />;
+        return <TutorialsHelp onTutorialSelect={this.props.onTutorialSelect} />;
       default:
         return null;
     }
@@ -80,7 +82,9 @@ export default class GlobalHelp extends React.PureComponent {
 
   renderMenu = () => (
     <ul className="side-tabs-menu">
-      {['shortcuts', 'tutorials', 'links'].map(this.renderMenuItem)}
+      {(this.props.currentUser.isLoggedIn
+        ? ['shortcuts', 'tutorials', 'links']
+        : ['shortcuts', 'links']).map(this.renderMenuItem)}
     </ul>
   );
 
