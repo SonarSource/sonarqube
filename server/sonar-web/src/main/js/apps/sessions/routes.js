@@ -17,15 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { Route, Redirect } from 'react-router';
-import LoginFormContainer from './components/LoginFormContainer';
-import Logout from './components/Logout';
-import Unauthorized from './components/Unauthorized';
-
-export default [
-  <Redirect key="login" from="/sessions/login" to="/sessions/new" />,
-  <Route key="new" path="new" component={LoginFormContainer} />,
-  <Route key="logout" path="logout" component={Logout} />,
-  <Route key="unauthorized" path="unauthorized" component={Unauthorized} />
+const routes = [
+  {
+    path: 'new',
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./components/LoginFormContainer').default);
+      });
+    }
+  },
+  {
+    path: 'logout',
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./components/Logout').default);
+      });
+    }
+  },
+  {
+    path: 'unauthorized',
+    getComponent(_, callback) {
+      require.ensure([], require => {
+        callback(null, require('./components/Unauthorized').default);
+      });
+    }
+  }
 ];
+
+export default routes;
