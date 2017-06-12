@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`does not show tutorials for anonymous 1`] = `
+<Modal
+  ariaHideApp={true}
+  className="modal modal-medium"
+  closeTimeoutMS={0}
+  contentLabel="help"
+  isOpen={true}
+  onRequestClose={[Function]}
+  overlayClassName="modal-overlay"
+  parentSelector={[Function]}
+  portalClassName="ReactModalPortal"
+  shouldCloseOnOverlayClick={true}
+>
+  <div
+    className="modal-head"
+  >
+    <h2>
+      help
+    </h2>
+  </div>
+  <div
+    className="side-tabs-layout"
+  >
+    <div
+      className="side-tabs-side"
+    >
+      <ul
+        className="side-tabs-menu"
+      >
+        <li>
+          <a
+            className="active"
+            data-section="shortcuts"
+            href="#"
+            onClick={[Function]}
+          >
+            help.section.shortcuts
+          </a>
+        </li>
+        <li>
+          <a
+            className=""
+            data-section="links"
+            href="#"
+            onClick={[Function]}
+          >
+            help.section.links
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div
+      className="side-tabs-main"
+    >
+      <ShortcutsHelp />
+    </div>
+  </div>
+  <div
+    className="modal-foot"
+  >
+    <a
+      className="js-modal-close"
+      href="#"
+      onClick={[Function]}
+    >
+      close
+    </a>
+  </div>
+</Modal>
+`;

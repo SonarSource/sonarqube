@@ -1,0 +1,258 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`guides for on-premise 1`] = `
+<div
+  className="page page-limited"
+>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.header
+    </h1>
+    <div
+      className="page-actions"
+    >
+      <a
+        className="js-skip text-muted"
+        href="#"
+        onClick={[Function]}
+      >
+        tutorials.skip
+      </a>
+    </div>
+    <div
+      className="page-description"
+    >
+      onboarding.header.description
+    </div>
+  </header>
+  <TokenStep
+    onContinue={[Function]}
+    open={true}
+    stepNumber={1}
+  />
+  <AnalysisStep
+    onFinish={[Function]}
+    onReset={[Function]}
+    open={false}
+    sonarCloud={false}
+    stepNumber={2}
+  />
+</div>
+`;
+
+exports[`guides for on-premise 2`] = `
+<div
+  className="page page-limited"
+>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.header
+    </h1>
+    <div
+      className="page-actions"
+    >
+      <a
+        className="js-skip text-muted"
+        href="#"
+        onClick={[Function]}
+      >
+        tutorials.skip
+      </a>
+    </div>
+    <div
+      className="page-description"
+    >
+      onboarding.header.description
+    </div>
+  </header>
+  <TokenStep
+    onContinue={[Function]}
+    open={false}
+    stepNumber={1}
+  />
+  <AnalysisStep
+    onFinish={[Function]}
+    onReset={[Function]}
+    open={true}
+    sonarCloud={false}
+    stepNumber={2}
+    token="abcd1234"
+  />
+</div>
+`;
+
+exports[`guides for sonarcloud 1`] = `
+<div
+  className="page page-limited"
+>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.header.sonarcloud
+    </h1>
+    <div
+      className="page-actions"
+    >
+      <a
+        className="js-skip text-muted"
+        href="#"
+        onClick={[Function]}
+      >
+        tutorials.skip
+      </a>
+    </div>
+    <div
+      className="page-description"
+    >
+      onboarding.header.description
+    </div>
+  </header>
+  <OrganizationStep
+    currentUser={
+      Object {
+        "isLoggedIn": true,
+        "login": "admin",
+      }
+    }
+    onContinue={[Function]}
+    open={true}
+    stepNumber={1}
+  />
+  <TokenStep
+    onContinue={[Function]}
+    open={false}
+    stepNumber={2}
+  />
+  <AnalysisStep
+    onFinish={[Function]}
+    onReset={[Function]}
+    open={false}
+    sonarCloud={true}
+    stepNumber={3}
+  />
+</div>
+`;
+
+exports[`guides for sonarcloud 2`] = `
+<div
+  className="page page-limited"
+>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.header.sonarcloud
+    </h1>
+    <div
+      className="page-actions"
+    >
+      <a
+        className="js-skip text-muted"
+        href="#"
+        onClick={[Function]}
+      >
+        tutorials.skip
+      </a>
+    </div>
+    <div
+      className="page-description"
+    >
+      onboarding.header.description
+    </div>
+  </header>
+  <OrganizationStep
+    currentUser={
+      Object {
+        "isLoggedIn": true,
+        "login": "admin",
+      }
+    }
+    onContinue={[Function]}
+    open={false}
+    stepNumber={1}
+  />
+  <TokenStep
+    onContinue={[Function]}
+    open={true}
+    stepNumber={2}
+  />
+  <AnalysisStep
+    onFinish={[Function]}
+    onReset={[Function]}
+    open={false}
+    organization="my-org"
+    sonarCloud={true}
+    stepNumber={3}
+  />
+</div>
+`;
+
+exports[`guides for sonarcloud 3`] = `
+<div
+  className="page page-limited"
+>
+  <header
+    className="page-header"
+  >
+    <h1
+      className="page-title"
+    >
+      onboarding.header.sonarcloud
+    </h1>
+    <div
+      className="page-actions"
+    >
+      <a
+        className="js-skip text-muted"
+        href="#"
+        onClick={[Function]}
+      >
+        tutorials.skip
+      </a>
+    </div>
+    <div
+      className="page-description"
+    >
+      onboarding.header.description
+    </div>
+  </header>
+  <OrganizationStep
+    currentUser={
+      Object {
+        "isLoggedIn": true,
+        "login": "admin",
+      }
+    }
+    onContinue={[Function]}
+    open={false}
+    stepNumber={1}
+  />
+  <TokenStep
+    onContinue={[Function]}
+    open={false}
+    stepNumber={2}
+  />
+  <AnalysisStep
+    onFinish={[Function]}
+    onReset={[Function]}
+    open={true}
+    organization="my-org"
+    sonarCloud={true}
+    stepNumber={3}
+    token="abcd1234"
+  />
+</div>
+`;
