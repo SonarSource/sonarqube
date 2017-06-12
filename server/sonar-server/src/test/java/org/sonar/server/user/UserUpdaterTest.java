@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -59,7 +59,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
 import static org.sonar.db.user.UserTesting.newDisabledUser;
 import static org.sonar.db.user.UserTesting.newLocalUser;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -71,7 +71,7 @@ public class UserUpdaterTest {
   private static final long PAST = 1000000000000L;
   private static final String DEFAULT_LOGIN = "marius";
 
-  private System2 system2 = mock(System2.class);
+  private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -90,13 +90,9 @@ public class UserUpdaterTest {
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+  private MapSettings settings = new MapSettings();
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, system2, organizationFlags, defaultOrganizationProvider, organizationCreation,
-    new DefaultGroupFinder(dbClient));
-
-  @Before
-  public void setUp() {
-    when(system2.now()).thenReturn(NOW);
-  }
+    new DefaultGroupFinder(dbClient), settings);
 
   @Test
   public void create_user() {
@@ -131,6 +127,24 @@ public class UserUpdaterTest {
         entry("login", "user"),
         entry("name", "User"),
         entry("email", "user@mail.com"));
+  }
+
+  @Test
+  public void create_user_with_minimum_fields() {
+    createDefaultGroup();
+
+    underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("us")
+      .setName("User")
+      .build());
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, "us");
+    assertThat(dto.getId()).isNotNull();
+    assertThat(dto.getLogin()).isEqualTo("us");
+    assertThat(dto.getName()).isEqualTo("User");
+    assertThat(dto.getEmail()).isNull();
+    assertThat(dto.getScmAccounts()).isNull();
+    assertThat(dto.isActive()).isTrue();
   }
 
   @Test
@@ -186,24 +200,6 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void create_user_with_minimum_fields() {
-    createDefaultGroup();
-
-    underTest.create(db.getSession(), NewUser.builder()
-      .setLogin("us")
-      .setName("User")
-      .build());
-
-    UserDto dto = dbClient.userDao().selectByLogin(session, "us");
-    assertThat(dto.getId()).isNotNull();
-    assertThat(dto.getLogin()).isEqualTo("us");
-    assertThat(dto.getName()).isEqualTo("User");
-    assertThat(dto.getEmail()).isNull();
-    assertThat(dto.getScmAccounts()).isNull();
-    assertThat(dto.isActive()).isTrue();
-  }
-
-  @Test
   public void create_user_with_scm_accounts_containing_blank_or_null_entries() {
     createDefaultGroup();
 
@@ -243,6 +239,32 @@ public class UserUpdaterTest {
       .build());
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
+  }
+
+  @Test
+  public void create_not_onboarded_user_if_onboarding_setting_is_set_to_false() {
+    createDefaultGroup();
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
+
+    underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .build());
+
+    assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isTrue();
+  }
+
+  @Test
+  public void create_onboarded_user_if_onboarding_setting_is_set_to_true() {
+    createDefaultGroup();
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
+
+    UserDto user = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin("user")
+      .setName("User")
+      .build());
+
+    assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isFalse();
   }
 
   @Test
@@ -699,6 +721,38 @@ public class UserUpdaterTest {
     session.commit();
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
+  }
+
+  @Test
+  public void reactivate_not_onboarded_user_if_onboarding_setting_is_set_to_false() {
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
+    UserDto user = db.users().insertUser(u -> u
+      .setActive(false)
+      .setOnboarded(false));
+    createDefaultGroup();
+
+    underTest.create(db.getSession(), NewUser.builder()
+      .setLogin(user.getLogin())
+      .setName("name")
+      .build());
+
+    assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isTrue();
+  }
+
+  @Test
+  public void reactivate_onboarded_user_if_onboarding_setting_is_set_to_true() {
+    settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
+    UserDto user = db.users().insertUser(u -> u
+      .setActive(false)
+      .setOnboarded(true));
+    createDefaultGroup();
+
+    underTest.create(db.getSession(), NewUser.builder()
+      .setLogin(user.getLogin())
+      .setName("name")
+      .build());
+
+    assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isFalse();
   }
 
   @Test
