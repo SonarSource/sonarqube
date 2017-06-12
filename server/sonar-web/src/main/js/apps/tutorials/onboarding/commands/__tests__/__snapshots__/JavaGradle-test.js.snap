@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.gradle.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.gradle.text.1",
+      }
+    }
+  />
+  <Command
+    command="plugins {
+    id \\"org.sonarqube\\" version \\"2.2\\"
+  }"
+  />
+  <p
+    className="spacer-top spacer-bottom markdown"
+  >
+    onboarding.analysis.java.gradle.text.2
+  </p>
+  <Command
+    command={
+      Array [
+        "./gradlew sonarqube",
+        undefined,
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.gradle.docs",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders correctly 2`] = `
+<div>
+  <h4
+    className="spacer-bottom"
+  >
+    onboarding.analysis.java.gradle.header
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.gradle.text.1",
+      }
+    }
+  />
+  <Command
+    command="plugins {
+    id \\"org.sonarqube\\" version \\"2.2\\"
+  }"
+  />
+  <p
+    className="spacer-top spacer-bottom markdown"
+  >
+    onboarding.analysis.java.gradle.text.2
+  </p>
+  <Command
+    command={
+      Array [
+        "./gradlew sonarqube",
+        "-Dsonar.organization=organization",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.java.gradle.docs",
+      }
+    }
+  />
+</div>
+`;

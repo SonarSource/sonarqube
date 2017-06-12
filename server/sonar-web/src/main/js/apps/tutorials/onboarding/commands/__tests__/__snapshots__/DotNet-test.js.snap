@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <MSBuildScanner />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.msbuild.execute
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.msbuild.execute.text",
+      }
+    }
+  />
+  <Command
+    command={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe begin",
+        "/k:\\"projectKey\\"",
+        undefined,
+        "/d:\\"sonar.host.url=host",
+        "/d:\\"sonar.login=token\\"",
+      ]
+    }
+  />
+  <Command
+    command="MsBuild.exe /t:Rebuild"
+  />
+  <Command
+    command={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe end",
+        "/d:\\"sonar.login=token\\"",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.msbuild.docs",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders correctly 2`] = `
+<div>
+  <MSBuildScanner />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.msbuild.execute
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.msbuild.execute.text",
+      }
+    }
+  />
+  <Command
+    command={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe begin",
+        "/k:\\"projectKey\\"",
+        "/d:\\"sonar.organization=organization\\"",
+        "/d:\\"sonar.host.url=host",
+        "/d:\\"sonar.login=token\\"",
+      ]
+    }
+  />
+  <Command
+    command="MsBuild.exe /t:Rebuild"
+  />
+  <Command
+    command={
+      Array [
+        "SonarQube.Scanner.MSBuild.exe end",
+        "/d:\\"sonar.login=token\\"",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.msbuild.docs",
+      }
+    }
+  />
+</div>
+`;
