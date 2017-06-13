@@ -31,7 +31,7 @@ import Other from './commands/Other';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {|
-  onFinish: () => void,
+  onFinish: (projectKey?: string) => void,
   onReset: () => void,
   open: boolean,
   organization?: string,
@@ -50,7 +50,7 @@ export default class AnalysisStep extends React.PureComponent {
 
   handleLanguageSelect = (result?: Result) => {
     this.setState({ result });
-    this.props.onFinish();
+    this.props.onFinish(result && result.projectKey);
   };
 
   handleLanguageReset = () => {
