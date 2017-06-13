@@ -71,7 +71,6 @@ public class SearchResponseData {
     return issues;
   }
 
-  @CheckForNull
   public Collection<ComponentDto> getComponents() {
     return componentsByUuid.values();
   }
