@@ -22,7 +22,6 @@ package pageobjects;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -48,7 +47,7 @@ public class Navigation extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
-    WebDriverRunner.getWebDriver().manage().deleteAllCookies();
+    SelenideConfig.getWebDriver().manage().deleteAllCookies();
     openHomepage();
   }
 

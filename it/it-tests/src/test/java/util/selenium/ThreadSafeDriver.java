@@ -29,12 +29,12 @@ import java.util.Set;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.UnreachableBrowserException;
 
-class ThreadSafeDriver {
+public class ThreadSafeDriver {
   private ThreadSafeDriver() {
     // Static class
   }
 
-  static SeleniumDriver makeThreadSafe(final RemoteWebDriver driver) {
+  public static SeleniumDriver makeThreadSafe(final RemoteWebDriver driver) {
     Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
       @Override
       public void run() {
