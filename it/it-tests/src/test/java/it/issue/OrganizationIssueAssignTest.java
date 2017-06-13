@@ -66,22 +66,23 @@ public class OrganizationIssueAssignTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-
   @Rule
   public OrganizationRule organizations = new OrganizationRule(orchestrator);
   @Rule
-  public UserRule userRule = new UserRule(orchestrator);
-  @Rule
-  public IssueRule issueRule = IssueRule.from(orchestrator);
+  public UserRule userRule = UserRule.from(orchestrator);
+  @ClassRule
+  public static IssueRule issueRule = IssueRule.from(orchestrator);
   @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
   private WsClient adminClient = newAdminWsClient(orchestrator);
+  private String adminUser;
 
   @Before
   public void setUp() throws Exception {
     createOrganization(ORGANIZATION_KEY);
     restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), ORGANIZATION_KEY);
+    adminUser = userRule.createRootUser();
   }
 
   @Test
@@ -160,7 +161,7 @@ public class OrganizationIssueAssignTest {
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
     userRule.createUser(OTHER_LOGIN, "pwd");
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
-    IssuesPage page = nav.logIn().asAdmin().openIssues();
+    IssuesPage page = nav.logIn().submitCredentials(adminUser).openIssues();
     page.getFirstIssue()
       .shouldAllowAssign()
       .assigneeSearchResultCount(OTHER_LOGIN, 0)
@@ -174,7 +175,7 @@ public class OrganizationIssueAssignTest {
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
     userRule.createUser(OTHER_LOGIN, "pwd");
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
-    IssuesPage page = nav.logIn().asAdmin().openComponentIssues(SAMPLE_PROJECT_KEY);
+    IssuesPage page = nav.logIn().submitCredentials(adminUser).openComponentIssues(SAMPLE_PROJECT_KEY);
     page
       .bulkChangeOpen()
       .bulkChangeAssigneeSearchCount(ASSIGNEE_LOGIN, 1)
@@ -188,7 +189,7 @@ public class OrganizationIssueAssignTest {
     adminClient.organizations().addMember(ORGANIZATION_KEY, ASSIGNEE_LOGIN);
     userRule.createUser(OTHER_LOGIN, "pwd");
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, ORGANIZATION_KEY);
-    IssuesPage page = nav.logIn().asAdmin().openIssues();
+    IssuesPage page = nav.logIn().submitCredentials(adminUser).openIssues();
     page
       .bulkChangeOpen()
       .bulkChangeAssigneeSearchCount(ASSIGNEE_LOGIN, 1)

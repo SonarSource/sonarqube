@@ -22,6 +22,7 @@ package it.uiExtension;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import org.openqa.selenium.By;
 import org.sonarqube.ws.Organizations.Organization;
 import pageobjects.Navigation;
 import util.OrganizationRule;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -41,13 +43,22 @@ public class OrganizationUiExtensionsTest {
 
   private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
   private static OrganizationRule organizations = new OrganizationRule(orchestrator);
+  private static UserRule userRule = UserRule.from(orchestrator);
 
   @ClassRule
   public static TestRule chain = RuleChain.outerRule(orchestrator)
-    .around(organizations);
+    .around(organizations)
+    .around(userRule);
 
   @Rule
   public Navigation nav = Navigation.get(orchestrator);
+
+  private String adminUser;
+
+  @Before
+  public void before() {
+    adminUser = userRule.createRootUser();
+  }
 
   @Test
   public void organization_page() {
@@ -64,7 +75,7 @@ public class OrganizationUiExtensionsTest {
   @Test
   public void organization_admin_page() {
     Organization organization = organizations.create();
-    nav.logIn().asAdmin().open("/organizations/" + organization.getKey() + "/projects");
+    nav.logIn().submitCredentials(adminUser).open("/organizations/" + organization.getKey() + "/projects");
 
     $("#context-navigation a.navbar-admin-link").click();
     $(By.linkText("Organization Admin Page")).shouldBe(Condition.visible).click();

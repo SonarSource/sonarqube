@@ -22,6 +22,7 @@ package it.projectSearch;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -30,10 +31,11 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 
 public class ProjectsPageTest {
@@ -42,17 +44,26 @@ public class ProjectsPageTest {
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
 
   @Rule
+  public UserRule userRule = UserRule.from(ORCHESTRATOR);
+
+  @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
 
-  private static WsClient wsClient;
   private static final String PROJECT_KEY = "key-foo";
+  private WsClient userAdminWsClient;
+  private String adminUser;
 
   @BeforeClass
   public static void setUp() {
-    wsClient = newAdminWsClient(ORCHESTRATOR);
     ORCHESTRATOR.resetData();
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProjectKey(PROJECT_KEY));
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("duplications/file-duplications")).setProjectKey("key-bar"));
+  }
+
+  @Before
+  public void before() {
+    adminUser = userRule.createAdminUser();
+    userAdminWsClient = newUserWsClient(ORCHESTRATOR, adminUser, adminUser);
   }
 
   @Test
@@ -97,16 +108,16 @@ public class ProjectsPageTest {
     page.shouldHaveTotal(2).shouldDisplayAllProjectsWidthSort("-analysis_date");
 
     // all projects by default for logged in user
-    page = nav.logIn().asAdmin().openProjects();
+    page = nav.logIn().submitCredentials(adminUser).openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
     // favorite one project
-    wsClient.favorites().add(PROJECT_KEY);
+    userAdminWsClient.favorites().add(PROJECT_KEY);
     page = nav.openProjects();
     page.shouldHaveTotal(1).shouldDisplayFavoriteProjects();
 
     // un-favorite this project
-    wsClient.favorites().remove(PROJECT_KEY);
+    userAdminWsClient.favorites().remove(PROJECT_KEY);
     page = nav.openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
@@ -132,11 +143,10 @@ public class ProjectsPageTest {
   @Test
   public void should_add_tag_to_facet() {
     // Add some tags to this project
-    wsClient.wsConnector().call(
+    userAdminWsClient.wsConnector().call(
       new PostRequest("api/project_tags/set")
         .setParam("project", PROJECT_KEY)
-        .setParam("tags", "aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,zz")
-    );
+        .setParam("tags", "aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,zz"));
 
     ProjectsPage page = nav.openProjects();
     page.getFacetByProperty("tags")
@@ -148,7 +158,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_switch_between_perspectives() {
-    ProjectsPage page = nav.logIn().asAdmin().openProjects();
+    ProjectsPage page = nav.logIn().submitCredentials(adminUser).openProjects();
     page.changePerspective("Risk");
     assertThat(url()).endsWith("/projects?view=visualizations&visualization=risk");
     page.changePerspective("Leak");

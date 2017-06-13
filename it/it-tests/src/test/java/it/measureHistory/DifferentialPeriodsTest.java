@@ -26,10 +26,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import util.ItUtils;
+import util.user.UserRule;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +53,11 @@ public class DifferentialPeriodsTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  private String adminUser;
+
   @BeforeClass
   public static void createWsClient() throws Exception {
     CLIENT = newAdminWsClient(orchestrator);
@@ -59,6 +66,7 @@ public class DifferentialPeriodsTest {
   @Before
   public void cleanUpAnalysisData() {
     orchestrator.resetData();
+    adminUser = userRule.createAdminUser();
   }
 
   @After
@@ -93,7 +101,7 @@ public class DifferentialPeriodsTest {
     assertThat(getLeakPeriodValue(orchestrator, PROJECT_KEY, "violations")).isEqualTo(17);
 
     // Check on ui that it's possible to define leak period on project
-    Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings("sample")
+    Navigation.get(orchestrator).openHomepage().logIn().submitCredentials(adminUser).openSettings("sample")
       .assertSettingDisplayed("sonar.leak.period");
   }
 

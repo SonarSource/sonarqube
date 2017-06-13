@@ -22,6 +22,8 @@ package it.projectAdministration;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -29,6 +31,7 @@ import org.junit.Test;
 import pageobjects.BackgroundTaskItem;
 import pageobjects.BackgroundTasksPage;
 import pageobjects.Navigation;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
 import static util.ItUtils.projectDir;
@@ -36,8 +39,13 @@ import static util.selenium.Selenese.runSelenese;
 
 public class BackgroundTasksTest {
 
+  private static final String ADMIN_USER_LOGIN = "admin-user";
+
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+
+  @Rule
+  public UserRule userRule = UserRule.from(ORCHESTRATOR);
 
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
@@ -48,15 +56,24 @@ public class BackgroundTasksTest {
     executeBuild("test-project-2", "Another Test Project");
   }
 
+  @Before
+  public void before() {
+    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
+  }
+
+  @After
+  public void deleteAdminUser() {
+    userRule.resetUsers();
+  }
+
   @Test
   public void should_not_display_failing_and_search_and_filter_elements_on_project_level_page() throws Exception {
-    runSelenese(ORCHESTRATOR,
-      "/projectAdministration/BackgroundTasksTest/should_not_display_failing_and_search_and_filter_elements_on_project_level_page.html");
+    runSelenese(ORCHESTRATOR, "/projectAdministration/BackgroundTasksTest/should_not_display_failing_and_search_and_filter_elements_on_project_level_page.html");
   }
 
   @Test
   public void display_scanner_context() {
-    nav.logIn().submitCredentials("admin", "admin");
+    nav.logIn().submitCredentials(ADMIN_USER_LOGIN);
     BackgroundTasksPage page = nav.openBackgroundTasksPage();
 
     page.getTasks().shouldHave(sizeGreaterThan(0));
@@ -71,7 +88,7 @@ public class BackgroundTasksTest {
   public void display_error_stacktrace() {
     executeBuild("test-project", "Test Project", "2010-01-01");
 
-    nav.logIn().submitCredentials("admin", "admin");
+    nav.logIn().submitCredentials(ADMIN_USER_LOGIN);
     BackgroundTasksPage page = nav.openBackgroundTasksPage();
 
     page.getTasks().shouldHave(sizeGreaterThan(0));
