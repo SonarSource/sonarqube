@@ -40,7 +40,8 @@ type Props = {
   fetchMyOrganizations: () => Promise<*>,
   location: Object,
   organizations: Array<{ key: string, name: string }>,
-  router: { push: string => void }
+  router: { push: string => void },
+  sonarCloud: boolean
 };
 
 type State = {
@@ -156,11 +157,24 @@ export default class GlobalNavUser extends React.PureComponent {
   }
 
   renderAnonymous() {
-    return (
-      <li>
-        <a onClick={this.handleLogin} href="#">{translate('layout.login')}</a>
-      </li>
-    );
+    return this.props.sonarCloud
+      ? <li>
+          <a href="/sessions/init/github">
+            <img
+              alt="GitHub"
+              className="navbar-global-login-github"
+              width="14"
+              height="14"
+              src="/static/authgithub/github.svg"
+            />
+            {translate('layout.login')}
+          </a>
+        </li>
+      : <li>
+          <a onClick={this.handleLogin} href="#">
+            {translate('layout.login')}
+          </a>
+        </li>;
   }
 
   render() {
