@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import { Link } from 'react-router';
 import AboutProjects from './AboutProjects';
 import EntryIssueTypesForSonarQubeDotCom from './EntryIssueTypesForSonarQubeDotCom';
 import AboutRulesForSonarQubeDotCom from './AboutRulesForSonarQubeDotCom';
@@ -29,7 +28,6 @@ import AboutQualityGates from './AboutQualityGates';
 import AboutLeakPeriod from './AboutLeakPeriod';
 import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
-import { translate } from '../../../helpers/l10n';
 import '../sonarqube-dot-com-styles.css';
 
 type Props = {
@@ -57,16 +55,11 @@ export default function AboutAppForSonarQubeDotCom(props: Props) {
             <h1 className="big-spacer-bottom">
               Continuous Code Quality<br />as a Service
             </h1>
-            <a
-              className="button button-active"
-              href="https://about.sonarcloud.io/get-started/"
-              target="_blank">
-              Get Started
-            </a>
             {!props.currentUser.isLoggedIn &&
-              <Link to="/sessions/new" className="button big-spacer-left">
-                {translate('layout.login')}
-              </Link>}
+              <a className="sonarcloud-about-github-button" href="/sessions/init/github">
+                <img alt="GitHub" width="20" height="20" src="/static/authgithub/github.svg" />
+                Connect With GitHub to Get Started
+              </a>}
           </div>
 
           <div className="sqcom-about-page-instance">
