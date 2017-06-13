@@ -25,6 +25,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
 import { translate } from '../../../helpers/l10n';
+import type { RawQuery } from '../../../helpers/query';
 
 type Props = {|
   currentUser?: { isLoggedIn: boolean },
@@ -33,7 +34,7 @@ type Props = {|
   organization?: { key: string },
   projects: Array<*>,
   projectsAppState: { loading: boolean, total?: number },
-  query: { [string]: string },
+  query: RawQuery,
   onSortChange: (sort: string, desc: boolean) => void,
   selectedSort: string,
   view: string,

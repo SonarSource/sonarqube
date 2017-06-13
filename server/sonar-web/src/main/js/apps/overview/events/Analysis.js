@@ -22,7 +22,7 @@ import Events from '../../projectActivity/components/Events';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis as AnalysisType } from '../../../store/projectActivity/duck';
+import type { Analysis as AnalysisType } from '../../projectActivity/types';
 
 export default function Analysis(props: { analysis: AnalysisType }) {
   const { analysis } = props;

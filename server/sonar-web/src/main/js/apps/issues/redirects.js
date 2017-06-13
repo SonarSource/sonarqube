@@ -19,7 +19,7 @@
  */
 // @flow
 import { parseQuery, areMyIssuesSelected, serializeQuery } from './utils';
-import type { RawQuery } from './utils';
+import type { RawQuery } from '../../helpers/query';
 
 const parseHash = (hash: string): RawQuery => {
   const query: RawQuery = {};

@@ -18,31 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
-import { connect } from 'react-redux';
-import RemoveEventForm from './RemoveEventForm';
-import { deleteEvent } from '../../actions';
-import type { Event } from '../../../../store/projectActivity/duck';
 
-type Props = {
-  analysis: string,
-  event: Event,
-  deleteEvent: (analysis: string, event: string) => Promise<*>,
-  onClose: () => void
+export type Event = {
+  key: string,
+  name: string,
+  category: string,
+  description?: string
 };
 
-function RemoveVersionForm(props: Props) {
-  return (
-    <RemoveEventForm
-      {...props}
-      removeEventButtonText="project_activity.remove_version"
-      removeEventQuestion="project_activity.remove_version.question"
-    />
-  );
-}
+export type Analysis = {
+  key: string,
+  date: string,
+  events: Array<Event>
+};
 
-const mapStateToProps = null;
+export type Paging = {
+  pageIndex: number,
+  pageSize: number,
+  total: number
+};
 
-const mapDispatchToProps = { deleteEvent };
-
-export default connect(mapStateToProps, mapDispatchToProps)(RemoveVersionForm);
+export type Query = {
+  project: string,
+  category: string
+};
