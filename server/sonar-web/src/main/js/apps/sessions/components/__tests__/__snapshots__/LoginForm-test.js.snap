@@ -1,0 +1,285 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`expands more options 1`] = `
+<div
+  id="login_form"
+>
+  <h1
+    className="maintenance-title text-center"
+  >
+    login.login_to_sonarqube
+  </h1>
+  <section
+    className="oauth-providers"
+  >
+    <ul>
+      <li>
+        <a
+          href="/sessions/init/foo"
+          style={
+            Object {
+              "backgroundColor": "#000",
+            }
+          }
+          title="Log in with foo"
+        >
+          <img
+            alt="foo"
+            height="20"
+            src="/some/path"
+            width="20"
+          />
+          <span>
+            Log in with 
+            foo
+          </span>
+        </a>
+      </li>
+    </ul>
+  </section>
+  <div
+    className="text-center"
+  >
+    <a
+      className="small text-muted js-more-options"
+      href="#"
+      onClick={[Function]}
+    >
+      login.more_options
+    </a>
+  </div>
+</div>
+`;
+
+exports[`expands more options 2`] = `
+<div
+  id="login_form"
+>
+  <h1
+    className="maintenance-title text-center"
+  >
+    login.login_to_sonarqube
+  </h1>
+  <section
+    className="oauth-providers"
+  >
+    <ul>
+      <li>
+        <a
+          href="/sessions/init/foo"
+          style={
+            Object {
+              "backgroundColor": "#000",
+            }
+          }
+          title="Log in with foo"
+        >
+          <img
+            alt="foo"
+            height="20"
+            src="/some/path"
+            width="20"
+          />
+          <span>
+            Log in with 
+            foo
+          </span>
+        </a>
+      </li>
+    </ul>
+  </section>
+  <form
+    onSubmit={[Function]}
+  >
+    <Connect(GlobalMessages) />
+    <div
+      className="big-spacer-bottom"
+    >
+      <label
+        className="login-label"
+        htmlFor="login"
+      >
+        login
+      </label>
+      <input
+        autoFocus={true}
+        className="login-input"
+        id="login"
+        maxLength="255"
+        name="login"
+        onChange={[Function]}
+        placeholder="login"
+        required={true}
+        type="text"
+        value=""
+      />
+    </div>
+    <div
+      className="big-spacer-bottom"
+    >
+      <label
+        className="login-label"
+        htmlFor="password"
+      >
+        password
+      </label>
+      <input
+        className="login-input"
+        id="password"
+        name="password"
+        onChange={[Function]}
+        placeholder="password"
+        required={true}
+        type="password"
+        value=""
+      />
+    </div>
+    <div>
+      <div
+        className="text-right overflow-hidden"
+      >
+        <button
+          name="commit"
+          type="submit"
+        >
+          sessions.log_in
+        </button>
+        <a
+          className="spacer-left"
+          href="/"
+        >
+          cancel
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+`;
+
+exports[`logs in with identity provider 1`] = `
+<div
+  id="login_form"
+>
+  <h1
+    className="maintenance-title text-center"
+  >
+    login.login_to_sonarqube
+  </h1>
+  <section
+    className="oauth-providers"
+  >
+    <ul>
+      <li>
+        <a
+          href="/sessions/init/foo"
+          style={
+            Object {
+              "backgroundColor": "#000",
+            }
+          }
+          title="Log in with foo"
+        >
+          <img
+            alt="foo"
+            height="20"
+            src="/some/path"
+            width="20"
+          />
+          <span>
+            Log in with 
+            foo
+          </span>
+        </a>
+      </li>
+    </ul>
+  </section>
+  <div
+    className="text-center"
+  >
+    <a
+      className="small text-muted js-more-options"
+      href="#"
+      onClick={[Function]}
+    >
+      login.more_options
+    </a>
+  </div>
+</div>
+`;
+
+exports[`logs in with simple credentials 1`] = `
+<div
+  id="login_form"
+>
+  <h1
+    className="maintenance-title text-center"
+  >
+    login.login_to_sonarqube
+  </h1>
+  <form
+    onSubmit={[Function]}
+  >
+    <Connect(GlobalMessages) />
+    <div
+      className="big-spacer-bottom"
+    >
+      <label
+        className="login-label"
+        htmlFor="login"
+      >
+        login
+      </label>
+      <input
+        autoFocus={true}
+        className="login-input"
+        id="login"
+        maxLength="255"
+        name="login"
+        onChange={[Function]}
+        placeholder="login"
+        required={true}
+        type="text"
+        value=""
+      />
+    </div>
+    <div
+      className="big-spacer-bottom"
+    >
+      <label
+        className="login-label"
+        htmlFor="password"
+      >
+        password
+      </label>
+      <input
+        className="login-input"
+        id="password"
+        name="password"
+        onChange={[Function]}
+        placeholder="password"
+        required={true}
+        type="password"
+        value=""
+      />
+    </div>
+    <div>
+      <div
+        className="text-right overflow-hidden"
+      >
+        <button
+          name="commit"
+          type="submit"
+        >
+          sessions.log_in
+        </button>
+        <a
+          className="spacer-left"
+          href="/"
+        >
+          cancel
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+`;
