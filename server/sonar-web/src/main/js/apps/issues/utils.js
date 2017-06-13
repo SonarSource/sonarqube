@@ -18,11 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { isNil, omitBy } from 'lodash';
 import { searchMembers } from '../../api/organizations';
 import { searchUsers } from '../../api/users';
-
-export type RawQuery = { [string]: string };
+import {
+  queriesEqual,
+  cleanQuery,
+  parseAsBoolean,
+  parseAsFacetMode,
+  parseAsArray,
+  parseAsString,
+  serializeString,
+  serializeStringArray
+} from '../../helpers/query';
+import type { RawQuery } from '../../helpers/query';
 
 export type Query = {|
   assigned: boolean,
@@ -56,112 +64,70 @@ export type Paging = {
   total: number
 };
 
-const parseAsBoolean = (value: ?string, defaultValue: boolean = true): boolean =>
-  (value === 'false' ? false : value === 'true' ? true : defaultValue);
-
-const parseAsString = (value: ?string): string => value || '';
-
-const parseAsStringArray = (value: ?string): Array<string> => (value ? value.split(',') : []);
-
-const parseAsFacetMode = (facetMode: string) =>
-  (facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count');
-
 // allow sorting by CREATION_DATE only
 const parseAsSort = (sort: string): string => (sort === 'CREATION_DATE' ? 'CREATION_DATE' : '');
 
 export const parseQuery = (query: RawQuery): Query => ({
   assigned: parseAsBoolean(query.assigned),
-  assignees: parseAsStringArray(query.assignees),
-  authors: parseAsStringArray(query.authors),
+  assignees: parseAsArray(query.assignees, parseAsString),
+  authors: parseAsArray(query.authors, parseAsString),
   createdAfter: parseAsString(query.createdAfter),
   createdAt: parseAsString(query.createdAt),
   createdBefore: parseAsString(query.createdBefore),
   createdInLast: parseAsString(query.createdInLast),
-  directories: parseAsStringArray(query.directories),
+  directories: parseAsArray(query.directories, parseAsString),
   facetMode: parseAsFacetMode(query.facetMode),
-  files: parseAsStringArray(query.fileUuids),
-  issues: parseAsStringArray(query.issues),
-  languages: parseAsStringArray(query.languages),
-  modules: parseAsStringArray(query.moduleUuids),
-  projects: parseAsStringArray(query.projectUuids),
+  files: parseAsArray(query.fileUuids, parseAsString),
+  issues: parseAsArray(query.issues, parseAsString),
+  languages: parseAsArray(query.languages, parseAsString),
+  modules: parseAsArray(query.moduleUuids, parseAsString),
+  projects: parseAsArray(query.projectUuids, parseAsString),
   resolved: parseAsBoolean(query.resolved),
-  resolutions: parseAsStringArray(query.resolutions),
-  rules: parseAsStringArray(query.rules),
+  resolutions: parseAsArray(query.resolutions, parseAsString),
+  rules: parseAsArray(query.rules, parseAsString),
   sort: parseAsSort(query.s),
-  severities: parseAsStringArray(query.severities),
+  severities: parseAsArray(query.severities, parseAsString),
   sinceLeakPeriod: parseAsBoolean(query.sinceLeakPeriod, false),
-  statuses: parseAsStringArray(query.statuses),
-  tags: parseAsStringArray(query.tags),
-  types: parseAsStringArray(query.types)
+  statuses: parseAsArray(query.statuses, parseAsString),
+  tags: parseAsArray(query.tags, parseAsString),
+  types: parseAsArray(query.types, parseAsString)
 });
 
 export const getOpen = (query: RawQuery) => query.open;
 
 export const areMyIssuesSelected = (query: RawQuery): boolean => query.myIssues === 'true';
 
-const serializeString = (value: string): ?string => value || undefined;
-
-const serializeValue = (value: Array<string>): ?string => (value.length ? value.join() : undefined);
-
 export const serializeQuery = (query: Query): RawQuery => {
   const filter = {
     assigned: query.assigned ? undefined : 'false',
-    assignees: serializeValue(query.assignees),
-    authors: serializeValue(query.authors),
+    assignees: serializeStringArray(query.assignees),
+    authors: serializeStringArray(query.authors),
     createdAfter: serializeString(query.createdAfter),
     createdAt: serializeString(query.createdAt),
     createdBefore: serializeString(query.createdBefore),
     createdInLast: serializeString(query.createdInLast),
-    directories: serializeValue(query.directories),
+    directories: serializeStringArray(query.directories),
     facetMode: query.facetMode === 'effort' ? serializeString(query.facetMode) : undefined,
-    fileUuids: serializeValue(query.files),
-    issues: serializeValue(query.issues),
-    languages: serializeValue(query.languages),
-    moduleUuids: serializeValue(query.modules),
-    projectUuids: serializeValue(query.projects),
+    fileUuids: serializeStringArray(query.files),
+    issues: serializeStringArray(query.issues),
+    languages: serializeStringArray(query.languages),
+    moduleUuids: serializeStringArray(query.modules),
+    projectUuids: serializeStringArray(query.projects),
     resolved: query.resolved ? undefined : 'false',
-    resolutions: serializeValue(query.resolutions),
+    resolutions: serializeStringArray(query.resolutions),
     s: serializeString(query.sort),
-    severities: serializeValue(query.severities),
+    severities: serializeStringArray(query.severities),
     sinceLeakPeriod: query.sinceLeakPeriod ? 'true' : undefined,
-    statuses: serializeValue(query.statuses),
-    rules: serializeValue(query.rules),
-    tags: serializeValue(query.tags),
-    types: serializeValue(query.types)
+    statuses: serializeStringArray(query.statuses),
+    rules: serializeStringArray(query.rules),
+    tags: serializeStringArray(query.tags),
+    types: serializeStringArray(query.types)
   };
-  return omitBy(filter, isNil);
+  return cleanQuery(filter);
 };
 
-const areArraysEqual = (a: Array<string>, b: Array<string>) => {
-  if (a.length !== b.length) {
-    return false;
-  }
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
-  }
-  return true;
-};
-
-export const areQueriesEqual = (a: RawQuery, b: RawQuery) => {
-  const parsedA: Query = parseQuery(a);
-  const parsedB: Query = parseQuery(b);
-
-  const keysA = Object.keys(parsedA);
-  const keysB = Object.keys(parsedB);
-
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  return keysA.every(
-    key =>
-      (Array.isArray(parsedA[key]) && Array.isArray(parsedB[key])
-        ? areArraysEqual(parsedA[key], parsedB[key])
-        : parsedA[key] === parsedB[key])
-  );
-};
+export const areQueriesEqual = (a: RawQuery, b: RawQuery) =>
+  queriesEqual(parseQuery(a), parseQuery(b));
 
 type RawFacet = {
   property: string,

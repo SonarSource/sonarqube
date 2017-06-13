@@ -20,8 +20,8 @@
 // @flow
 import React from 'react';
 import Modal from 'react-modal';
-import type { Event } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
+import type { Event } from '../../types';
 
 type Props = {
   analysis: string,
@@ -39,7 +39,6 @@ type State = {
 export default class RemoveEventForm extends React.PureComponent {
   mounted: boolean;
   props: Props;
-
   state: State = {
     processing: false
   };
@@ -108,7 +107,6 @@ export default class RemoveEventForm extends React.PureComponent {
                 </div>}
           </footer>
         </form>
-
       </Modal>
     );
   }

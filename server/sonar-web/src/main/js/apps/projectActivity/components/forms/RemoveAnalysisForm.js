@@ -19,16 +19,13 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
 import Modal from 'react-modal';
-import type { Analysis } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
-import { deleteAnalysis } from '../../actions';
+import type { Analysis } from '../../types';
 
 type Props = {
   analysis: Analysis,
-  deleteAnalysis: (project: string, analysis: string) => Promise<*>,
-  project: string
+  deleteAnalysis: (analysis: string) => Promise<*>
 };
 
 type State = {
@@ -36,10 +33,9 @@ type State = {
   processing: boolean
 };
 
-class RemoveAnalysisForm extends React.PureComponent {
+export default class RemoveAnalysisForm extends React.PureComponent {
   mounted: boolean;
   props: Props;
-
   state: State = {
     open: false,
     processing: false
@@ -81,7 +77,7 @@ class RemoveAnalysisForm extends React.PureComponent {
     e.preventDefault();
     this.setState({ processing: true });
     this.props
-      .deleteAnalysis(this.props.project, this.props.analysis.key)
+      .deleteAnalysis(this.props.analysis.key)
       .then(this.stopProcessingAndClose, this.stopProcessing);
   };
 
@@ -128,9 +124,3 @@ class RemoveAnalysisForm extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = null;
-
-const mapDispatchToProps = { deleteAnalysis };
-
-export default connect(mapStateToProps, mapDispatchToProps)(RemoveAnalysisForm);

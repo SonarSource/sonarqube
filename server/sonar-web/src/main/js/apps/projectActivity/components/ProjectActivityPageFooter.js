@@ -19,43 +19,18 @@
  */
 // @flow
 import React from 'react';
-import { connect } from 'react-redux';
 import ListFooter from '../../../components/controls/ListFooter';
-import { getProjectActivity } from '../../../store/rootReducer';
-import { getAnalyses, getPaging } from '../../../store/projectActivity/duck';
-import { fetchMoreProjectActivity } from '../actions';
-import type { Paging } from '../../../store/projectActivity/duck';
+import type { Paging } from '../types';
 
-class ProjectActivityPageFooter extends React.PureComponent {
-  props: {
-    analyses: Array<*>,
-    paging: ?Paging,
-    project: string,
-    fetchMoreProjectActivity: (project: string) => void
-  };
+type Props = {
+  analyses: Array<*>,
+  fetchMoreActivity: () => void,
+  paging?: Paging
+};
 
-  handleLoadMore = () => {
-    this.props.fetchMoreProjectActivity(this.props.project);
-  };
-
-  render() {
-    const { analyses, paging } = this.props;
-
-    if (!paging || analyses.length === 0) {
-      return null;
-    }
-
-    return (
-      <ListFooter count={analyses.length} total={paging.total} loadMore={this.handleLoadMore} />
-    );
+export default function ProjectActivityPageFooter({ analyses, fetchMoreActivity, paging }: Props) {
+  if (!paging || analyses.length === 0) {
+    return null;
   }
+  return <ListFooter count={analyses.length} total={paging.total} loadMore={fetchMoreActivity} />;
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  analyses: getAnalyses(getProjectActivity(state), ownProps.project),
-  paging: getPaging(getProjectActivity(state), ownProps.project)
-});
-
-const mapDispatchToProps = { fetchMoreProjectActivity };
-
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectActivityPageFooter);
