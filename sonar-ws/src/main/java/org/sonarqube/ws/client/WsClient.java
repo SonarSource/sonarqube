@@ -36,6 +36,7 @@ import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.user.UsersService;
+import org.sonarqube.ws.client.usergroup.UserGroupsService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 import org.sonarqube.ws.client.webhook.WebhooksService;
 
@@ -71,6 +72,8 @@ public interface WsClient {
   QualityProfilesService qualityProfiles();
 
   UsersService users();
+
+  UserGroupsService userGroups();
 
   UserTokensService userTokens();
 
