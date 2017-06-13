@@ -20,17 +20,20 @@
 // @flow
 import React from 'react';
 import Events from './Events';
-import AddVersionForm from './forms/AddVersionForm';
-import AddCustomEventForm from './forms/AddCustomEventForm';
+import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 import FormattedDate from '../../../components/ui/FormattedDate';
-import type { Analysis } from '../../../store/projectActivity/duck';
 import { translate } from '../../../helpers/l10n';
+import type { Analysis } from '../types';
 
 type Props = {
+  addCustomEvent: (analysis: string, name: string, category?: string) => Promise<*>,
+  addVersion: (analysis: string, version: string) => Promise<*>,
   analysis: Analysis,
+  changeEvent: (event: string, name: string) => Promise<*>,
+  deleteAnalysis: (analysis: string) => Promise<*>,
+  deleteEvent: (analysis: string, event: string) => Promise<*>,
   isFirst: boolean,
-  project: string,
   canAdmin: boolean
 };
 
@@ -51,17 +54,25 @@ export default function ProjectActivityAnalysis(props: Props) {
             <ul className="dropdown-menu dropdown-menu-right">
               {version == null &&
                 <li>
-                  <AddVersionForm analysis={props.analysis} />
+                  <AddEventForm
+                    addEvent={props.addVersion}
+                    analysis={props.analysis}
+                    addEventButtonText="project_activity.add_version"
+                  />
                 </li>}
               <li>
-                <AddCustomEventForm analysis={props.analysis} />
+                <AddEventForm
+                  addEvent={props.addCustomEvent}
+                  analysis={props.analysis}
+                  addEventButtonText="project_activity.add_custom_event"
+                />
               </li>
             </ul>
           </div>
 
           {!isFirst &&
             <div className="display-inline-block little-spacer-left">
-              <RemoveAnalysisForm analysis={props.analysis} project={props.project} />
+              <RemoveAnalysisForm analysis={props.analysis} deleteAnalysis={props.deleteAnalysis} />
             </div>}
         </div>}
 
@@ -72,9 +83,11 @@ export default function ProjectActivityAnalysis(props: Props) {
       {events.length > 0 &&
         <Events
           analysis={props.analysis.key}
+          canAdmin={canAdmin}
+          changeEvent={props.changeEvent}
+          deleteEvent={props.deleteEvent}
           events={events}
           isFirst={props.isFirst}
-          canAdmin={canAdmin}
         />}
     </li>
   );

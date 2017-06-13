@@ -28,11 +28,12 @@ import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
 import * as utils from '../utils';
+import type { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
 type Props = {|
   isFavorite: boolean,
-  location: { pathname: string, query: { [string]: string } },
+  location: { pathname: string, query: RawQuery },
   fetchProjects: (query: string, isFavorite: boolean, organization?: {}) => Promise<*>,
   organization?: { key: string },
   router: {
@@ -43,7 +44,7 @@ type Props = {|
 |};
 
 type State = {
-  query: { [string]: string }
+  query: RawQuery
 };
 
 export default class AllProjects extends React.PureComponent {

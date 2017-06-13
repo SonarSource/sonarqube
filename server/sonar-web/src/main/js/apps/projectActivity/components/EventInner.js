@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-import type { Event as EventType } from '../../../store/projectActivity/duck';
+import type { Event as EventType } from '../types';
 import { translate } from '../../../helpers/l10n';
 import './Event.css';
 

@@ -21,13 +21,15 @@
 import React from 'react';
 import { sortBy } from 'lodash';
 import Event from './Event';
-import type { Event as EventType } from '../../../store/projectActivity/duck';
+import type { Event as EventType } from '../types';
 
 type Props = {
   analysis: string,
+  canAdmin: boolean,
+  changeEvent: (event: string, name: string) => Promise<*>,
+  deleteEvent: (analysis: string, event: string) => Promise<*>,
   events: Array<EventType>,
-  isFirst: boolean,
-  canAdmin: boolean
+  isFirst: boolean
 };
 
 export default function Events(props: Props) {
@@ -43,11 +45,13 @@ export default function Events(props: Props) {
     <div className="project-activity-events">
       {sortedEvents.map(event => (
         <Event
-          key={event.key}
           analysis={props.analysis}
+          canAdmin={props.canAdmin}
+          changeEvent={props.changeEvent}
+          deleteEvent={props.deleteEvent}
           event={event}
           isFirst={props.isFirst}
-          canAdmin={props.canAdmin}
+          key={event.key}
         />
       ))}
     </div>
