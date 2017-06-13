@@ -70,14 +70,9 @@ public class OAuth2IdentityProviderTest {
   String fakeServerAuthProviderUrl;
 
   @BeforeClass
-  public static void resetData() {
+  public static void initData() {
     ORCHESTRATOR.resetData();
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
-  }
-
-  @After
-  public void resetUsers() throws Exception {
-    userRule.resetUsers();
   }
 
   @Before
@@ -85,17 +80,23 @@ public class OAuth2IdentityProviderTest {
     fakeServerAuthProvider = new MockWebServer();
     fakeServerAuthProvider.start();
     fakeServerAuthProviderUrl = fakeServerAuthProvider.url("").url().toString();
-    userRule.resetUsers();
-    resetSettings(ORCHESTRATOR, null, "sonar.auth.fake-oauth2-id-provider.enabled",
-      "sonar.auth.fake-oauth2-id-provider.url",
-      "sonar.auth.fake-oauth2-id-provider.user",
-      "sonar.auth.fake-oauth2-id-provider.throwUnauthorizedMessage",
-      "sonar.auth.fake-oauth2-id-provider.allowsUsersToSignUp");
+    resetData();
   }
 
   @After
   public void tearDown() throws Exception {
+    resetData();
     fakeServerAuthProvider.shutdown();
+  }
+
+  private void resetData(){
+    userRule.resetUsers();
+    resetSettings(ORCHESTRATOR, null,
+      "sonar.auth.fake-oauth2-id-provider.enabled",
+      "sonar.auth.fake-oauth2-id-provider.url",
+      "sonar.auth.fake-oauth2-id-provider.user",
+      "sonar.auth.fake-oauth2-id-provider.throwUnauthorizedMessage",
+      "sonar.auth.fake-oauth2-id-provider.allowsUsersToSignUp");
   }
 
   @Test

@@ -26,6 +26,7 @@ import it.Category4Suite;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -77,12 +78,17 @@ public class BaseIdentityProviderTest {
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
   }
 
+  @Before
   @After
-  public void cleanUpUsersAndGroupsAndProperties() throws Exception {
+  public void resetData() throws Exception {
     userRule.resetUsers();
     userRule.removeGroups(GROUP1, GROUP2, GROUP3);
-    resetSettings(ORCHESTRATOR, null, "sonar.auth.fake-base-id-provider.enabled", "sonar.auth.fake-base-id-provider.user",
-      "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "sonar.auth.fake-base-id-provider.enabledGroupsSync", "sonar.auth.fake-base-id-provider.groups",
+    resetSettings(ORCHESTRATOR, null,
+      "sonar.auth.fake-base-id-provider.enabled",
+      "sonar.auth.fake-base-id-provider.user",
+      "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage",
+      "sonar.auth.fake-base-id-provider.enabledGroupsSync",
+      "sonar.auth.fake-base-id-provider.groups",
       "sonar.auth.fake-base-id-provider.allowsUsersToSignUp");
   }
 
