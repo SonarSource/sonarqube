@@ -40,7 +40,7 @@ export default class ComponentNav extends React.PureComponent {
   }
 
   loadStatus = () => {
-    getTasksForComponent(this.props.component.id).then(r => {
+    getTasksForComponent(this.props.component.key).then(r => {
       if (this.mounted) {
         this.setState({
           isPending: r.queue.some(task => task.status === STATUSES.PENDING),
