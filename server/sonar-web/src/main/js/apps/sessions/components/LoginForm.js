@@ -63,7 +63,7 @@ export default class LoginForm extends React.PureComponent {
 
   render() {
     return (
-      <div>
+      <div id="login_form">
         <h1 className="maintenance-title text-center">{translate('login.login_to_sonarqube')}</h1>
 
         {this.props.identityProviders.length > 0 &&
@@ -97,7 +97,7 @@ export default class LoginForm extends React.PureComponent {
                 {translate('login.more_options')}
               </a>
             </div>
-          : <form id="login_form" onSubmit={this.handleSubmit}>
+          : <form onSubmit={this.handleSubmit}>
               <GlobalMessagesContainer />
 
               <div className="big-spacer-bottom">
