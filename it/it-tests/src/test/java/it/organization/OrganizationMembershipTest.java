@@ -86,6 +86,7 @@ public class OrganizationMembershipTest {
   @After
   public void tearDown() throws Exception {
     deleteOrganizationsIfExists(orchestrator, KEY);
+    userRule.resetUsers();
   }
 
   @Test
@@ -146,13 +147,12 @@ public class OrganizationMembershipTest {
 
   @Test
   public void user_creating_an_organization_becomes_member_of_this_organization() throws Exception {
-    String keyAndName = newOrganizationKey();
     String login = createUser();
 
     newUserWsClient(orchestrator, login, login).organizations().create(
-      new CreateWsRequest.Builder().setKey(keyAndName).setName(keyAndName).build()).getOrganization();
+      new CreateWsRequest.Builder().setKey(KEY).setName(KEY).build()).getOrganization();
 
-    verifyMembership(login, keyAndName, true);
+    verifyMembership(login, KEY, true);
   }
 
   @Test
