@@ -22,14 +22,14 @@ package it.ui;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
-import it.user.ForceAuthenticationTest;
 import java.util.Map;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.setting.SetRequest;
 import pageobjects.Navigation;
 import util.ItUtils;
 
@@ -40,6 +40,7 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
 public class UiTest {
@@ -49,6 +50,12 @@ public class UiTest {
 
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
+
+  @Before
+  @After
+  public void resetData() throws Exception {
+    resetSettings(ORCHESTRATOR, null, "sonar.forceAuthentication");
+  }
 
   @Test
   public void footer_contains_information() {
@@ -81,7 +88,6 @@ public class UiTest {
     nav.getFooter()
       .shouldNot(hasText("About"))
       .shouldNot(hasText("Web API"));
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", null);
   }
 
   @Test
