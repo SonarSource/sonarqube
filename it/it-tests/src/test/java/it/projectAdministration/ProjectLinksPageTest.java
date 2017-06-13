@@ -37,6 +37,7 @@ import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
 import pageobjects.Navigation;
 import pageobjects.ProjectLinkItem;
 import pageobjects.ProjectLinksPage;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
@@ -51,8 +52,12 @@ public class ProjectLinksPageTest {
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
 
+  @Rule
+  public UserRule userRule = UserRule.from(ORCHESTRATOR);
+
   private static WsClient wsClient;
   private long customLinkId;
+  private String adminUser;
 
   @BeforeClass
   public static void setUp() {
@@ -67,6 +72,7 @@ public class ProjectLinksPageTest {
   @Before
   public void prepare() {
     customLinkId = Long.parseLong(createCustomLink().getLink().getId());
+    adminUser = userRule.createAdminUser();
   }
 
   @After
@@ -147,7 +153,7 @@ public class ProjectLinksPageTest {
   }
 
   private ProjectLinksPage openPage() {
-    nav.logIn().submitCredentials("admin", "admin");
+    nav.logIn().submitCredentials(adminUser, adminUser);
     return nav.openProjectLinks("sample");
   }
 }

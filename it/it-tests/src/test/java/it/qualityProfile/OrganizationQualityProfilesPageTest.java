@@ -29,11 +29,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import pageobjects.Navigation;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Selenide.$;
 import static it.Category6Suite.enableOrganizationsSupport;
@@ -44,11 +46,16 @@ import static util.selenium.Selenese.runSelenese;
 
 public class OrganizationQualityProfilesPageTest {
 
+  private final static String ROOT_USER = "root-user";
+
   private static WsClient adminWsClient;
   private static final String ORGANIZATION = "test-org";
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   @BeforeClass
   public static void setUp() {
@@ -60,6 +67,16 @@ public class OrganizationQualityProfilesPageTest {
   @AfterClass
   public static void tearDown() throws Exception {
     deleteOrganizationsIfExists(orchestrator, ORGANIZATION);
+  }
+
+  @Before
+  public void initAdminUser() throws Exception {
+    userRule.createRootUser(ROOT_USER, ROOT_USER);
+  }
+
+  @After
+  public void deleteAdminUser() {
+    userRule.resetUsers();
   }
 
   @Before

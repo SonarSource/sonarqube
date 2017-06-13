@@ -21,6 +21,7 @@ package it.settings;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import org.sonarqube.ws.client.setting.ValuesRequest;
 import pageobjects.Navigation;
 import pageobjects.licenses.LicenseItem;
 import pageobjects.licenses.LicensesPage;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.text;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +43,11 @@ public class LicensesPageTest {
   private static WsClient wsClient;
 
   @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
+  private String adminUser;
 
   @BeforeClass
   public static void start() {
@@ -60,9 +66,14 @@ public class LicensesPageTest {
     }
   }
 
+  @Before
+  public void before() {
+    adminUser = userRule.createAdminUser();
+  }
+
   @Test
   public void display_licenses() {
-    LicensesPage page = nav.logIn().asAdmin().openLicenses();
+    LicensesPage page = nav.logIn().submitCredentials(adminUser).openLicenses();
 
     page.getLicenses().shouldHaveSize(2);
     page.getLicensesAsItems().get(0).getName().shouldHave(text("Typed property"));
@@ -73,7 +84,7 @@ public class LicensesPageTest {
   public void change_licenses() {
     String EXAMPLE_LICENSE = "TmFtZTogRGV2ZWxvcHBlcnMKUGx1Z2luOiBhdXRvY29udHJvbApFeHBpcmVzOiAyMDEyLTA0LTAxCktleTogNjI5N2MxMzEwYzg2NDZiZTE5MDU1MWE4ZmZmYzk1OTBmYzEyYTIyMgo=";
 
-    LicensesPage page = nav.logIn().asAdmin().openLicenses();
+    LicensesPage page = nav.logIn().submitCredentials(adminUser).openLicenses();
     LicenseItem licenseItem = page.getLicenseByKey("typed.license.secured");
     licenseItem.setLicense(EXAMPLE_LICENSE);
 

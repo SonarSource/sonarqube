@@ -22,6 +22,7 @@ package it.uiExtension;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -30,6 +31,7 @@ import org.openqa.selenium.By;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import pageobjects.Navigation;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -45,14 +47,23 @@ public class OrganizationUiExtensionsTest {
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient adminClient;
+  private String adminUser;
 
   @BeforeClass
   public static void setUp() throws Exception {
     adminClient = newAdminWsClient(orchestrator);
     enableOrganizationsSupport();
+  }
+
+  @Before
+  public void before() {
+    adminUser = userRule.createRootUser();
   }
 
   @Test
@@ -70,7 +81,7 @@ public class OrganizationUiExtensionsTest {
   @Test
   public void organization_admin_page() {
     String orgKey = createOrganization();
-    nav.logIn().asAdmin().open("/organizations/" + orgKey + "/projects");
+    nav.logIn().submitCredentials(adminUser).open("/organizations/" + orgKey + "/projects");
 
     $("#context-navigation a.navbar-admin-link").click();
     $(By.linkText("Organization Admin Page")).shouldBe(Condition.visible).click();
