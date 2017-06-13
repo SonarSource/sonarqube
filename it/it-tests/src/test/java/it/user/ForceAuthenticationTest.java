@@ -22,7 +22,7 @@ package it.user;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +39,7 @@ import static org.sonarqube.ws.client.WsRequest.Method.GET;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newWsClient;
+import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
 public class ForceAuthenticationTest {
@@ -48,17 +49,17 @@ public class ForceAuthenticationTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
-  static WsClient anonymousClient;
-  static WsClient adminWsClient;
+  private static WsClient anonymousClient;
+  private static WsClient adminWsClient;
 
-  @BeforeClass
-  public static void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     userRule.resetUsers();
     userRule.createUser(LOGIN, LOGIN);
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
@@ -68,7 +69,7 @@ public class ForceAuthenticationTest {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    setServerProperty(orchestrator, "sonar.forceAuthentication", null);
+    resetSettings(orchestrator, null, "sonar.forceAuthentication");
   }
 
   @Test
@@ -111,9 +112,10 @@ public class ForceAuthenticationTest {
 
   @Test
   public void redirect_to_login_page() {
+    String userAdmin = userRule.createAdminUser();
     Navigation page = nav.openHomepage();
     page.shouldBeRedirectToLogin();
-    page.openLogin().submitCredentials("admin", "admin").shouldBeLoggedIn();
+    page.openLogin().submitCredentials(userAdmin, userAdmin).shouldBeLoggedIn();
     page.logOut().shouldBeRedirectToLogin();
   }
 

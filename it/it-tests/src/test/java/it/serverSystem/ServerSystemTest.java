@@ -29,7 +29,10 @@ import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONValue;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ServerId.ShowWsResponse;
@@ -39,6 +42,7 @@ import org.sonarqube.ws.client.WsResponse;
 import pageobjects.Navigation;
 import pageobjects.ServerIdPage;
 import util.ItUtils;
+import util.user.UserRule;
 
 import static org.apache.commons.lang.StringUtils.startsWithAny;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +54,23 @@ import static util.selenium.Selenese.runSelenese;
 
 public class ServerSystemTest {
 
+  private static final String ADMIN_USER_LOGIN = "admin-user";
+
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Before
+  public void initAdminUser() {
+    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
+  }
+
+  @After
+  public void deleteAdminUser() {
+    userRule.resetUsers();
+  }
 
   @Test
   public void get_sonarqube_version() {
@@ -71,7 +90,7 @@ public class ServerSystemTest {
 
   @Test
   public void generate_server_id() throws IOException {
-    Navigation nav = Navigation.get(orchestrator).openHomepage().logIn().asAdmin();
+    Navigation nav = Navigation.get(orchestrator).openHomepage().logIn().submitCredentials(ADMIN_USER_LOGIN);
     String validIpAddress = getValidIpAddress();
 
     nav.openServerId()

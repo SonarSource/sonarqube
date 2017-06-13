@@ -35,6 +35,7 @@ import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import pageobjects.Navigation;
 import util.OrganizationRule;
 import util.user.UserRule;
 
@@ -46,20 +47,22 @@ public class OrganizationMembershipTest {
   private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
   private static OrganizationRule organizations = new OrganizationRule(orchestrator);
   private static UserRule users = new UserRule(orchestrator);
+  private static Navigation nav = Navigation.get(orchestrator);
 
   @ClassRule
   public static TestRule chain = RuleChain.outerRule(orchestrator)
     .around(users)
-    .around(organizations);
+    .around(organizations)
+    .around(nav);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private static WsClient rootWsClient;
+  private static WsClient adminClient;
 
   @BeforeClass
   public static void setUp() {
-    rootWsClient = newAdminWsClient(orchestrator);
+    adminClient = newAdminWsClient(orchestrator);
     setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
   }
 
@@ -92,7 +95,7 @@ public class OrganizationMembershipTest {
     User user = users.createUser();
     addMembership(organization, user);
 
-    rootWsClient.permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    adminClient.permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
     organizations.assertThatMemberOf(organization, user);
 
     removeMembership(organization, user);
@@ -105,10 +108,10 @@ public class OrganizationMembershipTest {
     User user = users.createUser();
     addMembership(organization, user);
 
-    rootWsClient.permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    adminClient.permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
     organizations.assertThatMemberOf(organization, user);
     // Admin is the creator of the organization so he was granted with admin permission
-    rootWsClient.organizations().removeMember(organization.getKey(), "admin");
+    adminClient.organizations().removeMember(organization.getKey(), "admin");
 
     expectedException.expect(HttpException.class);
     expectedException.expectMessage("The last administrator member cannot be removed");
@@ -136,10 +139,10 @@ public class OrganizationMembershipTest {
   }
 
   private void addMembership(Organization organization, User user) {
-    rootWsClient.organizations().addMember(organization.getKey(), user.getLogin());
+    adminClient.organizations().addMember(organization.getKey(), user.getLogin());
   }
 
   private void removeMembership(Organization organization, User user) {
-    rootWsClient.organizations().removeMember(organization.getKey(), user.getLogin());
+    adminClient.organizations().removeMember(organization.getKey(), user.getLogin());
   }
 }

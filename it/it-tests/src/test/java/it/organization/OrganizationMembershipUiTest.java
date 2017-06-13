@@ -22,7 +22,9 @@ package it.organization;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -55,6 +57,7 @@ public class OrganizationMembershipUiTest {
   public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient rootWsClient;
+  private String adminUser;
 
   @BeforeClass
   public static void setUp() {
@@ -67,6 +70,17 @@ public class OrganizationMembershipUiTest {
     setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", null);
   }
 
+  @Before
+  public void createRootUser() {
+    adminUser = users.createRootUser();
+  }
+
+  @After
+  public void purgeData() throws Exception {
+    organizations.deleteOrganizations();
+    users.deactivateAllUsers();
+  }
+
   @Test
   public void should_display_members_page() {
     Organization organization = organizations.create();
@@ -74,7 +88,7 @@ public class OrganizationMembershipUiTest {
     addMembership(organization, member1);
     User member2 = users.createUser(p -> p.setName("bar"));
     addMembership(organization, member2);
-    User nonMember = users.createUser();
+    users.createUser();
 
     MembersPage page = nav.openOrganizationMembers(organization.getKey());
     page
@@ -91,53 +105,55 @@ public class OrganizationMembershipUiTest {
   @Test
   public void search_for_members() {
     Organization organization = organizations.create();
-    User member1 = users.createUser(p -> p.setName("foo"));
-    addMembership(organization, member1);
-    User member2 = users.createUser(p -> p.setName("barGuy"));
-    addMembership(organization, member2);
+
+    User user1 = users.createUser();
+    rootWsClient.organizations().addMember(organization.getKey(), user1.getLogin());
+
+    User user2 = users.createUser(p -> p.setLogin("sameprefixuser1"));
+    rootWsClient.organizations().addMember(organization.getKey(), user2.getLogin());
+
     // Created to verify that only the user part of the org is returned
-    User userWithSameNamePrefix = users.createUser(p -> p.setName(member2.getName() + "barOtherGuy"));
+    users.createUser(p -> p.setLogin("sameprefixuser2"));
 
     MembersPage page = nav.openOrganizationMembers(organization.getKey());
     page
-      .searchForMember("bar")
+      .searchForMember("sameprefixuser")
       .shouldHaveTotal(1);
-    page.getMembersByIdx(0)
-      .shouldBeNamed(member2.getLogin(), member2.getName());
+    page.getMembersByIdx(0).shouldBeNamed(user2.getLogin(), user2.getName());
     page
-      .searchForMember(member1.getName())
+      .searchForMember(user1.getLogin())
       .shouldHaveTotal(1);
-    page.getMembersByIdx(0)
-      .shouldBeNamed(member1.getLogin(), member1.getName());
+    page.getMembersByIdx(0).shouldBeNamed(user1.getLogin(), user1.getName());
   }
 
   @Test
   public void admin_can_add_members() {
     Organization organization = organizations.create();
-    User user = users.createUser();
+    String orgKey = organization.getKey();
+    User user = users.createUser(p -> p.setLogin("foo"));
+    users.createUser();
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(organization.getKey());
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     page
       .shouldHaveTotal(1)
       .addMember(user.getLogin())
       .shouldHaveTotal(2);
-    page.getMembersByIdx(0)
-      .shouldBeNamed("admin", "Administrator")
-      .shouldHaveGroups(2);
-    page.getMembersByIdx(1)
-      .shouldBeNamed(user.getLogin(), user.getName())
-      .shouldHaveGroups(1);
+    page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator").shouldHaveGroups(2);
+    page.getMembersByIdx(1).shouldBeNamed(user.getLogin(), user.getName()).shouldHaveGroups(1);
   }
 
   @Test
   public void admin_can_remove_members() {
     Organization organization = organizations.create();
-    User user1 = users.createUser();
-    addMembership(organization, user1);
-    User user2 = users.createUser();
-    addMembership(organization, user2);
+    String orgKey = organization.getKey();
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(organization.getKey());
+    User user1 = users.createUser();
+    rootWsClient.organizations().addMember(orgKey, user1.getLogin());
+
+    User user2 = users.createUser();
+    rootWsClient.organizations().addMember(orgKey, user2.getLogin());
+
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     page.shouldHaveTotal(3)
       .getMembersByIdx(1).removeMembership();
     page.shouldHaveTotal(2);
@@ -146,10 +162,12 @@ public class OrganizationMembershipUiTest {
   @Test
   public void admin_can_manage_groups() {
     Organization organization = organizations.create();
-    User user = users.createUser();
-    addMembership(organization, user);
+    String orgKey = organization.getKey();
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(organization.getKey());
+    User user = users.createUser(p -> p.setLogin("foo"));
+    rootWsClient.organizations().addMember(orgKey, user.getLogin());
+
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     // foo user
     page.getMembersByIdx(1)
       .manageGroupsOpen()
@@ -167,9 +185,10 @@ public class OrganizationMembershipUiTest {
   @Test
   public void groups_count_should_be_updated_when_a_member_was_just_added() {
     Organization organization = organizations.create();
-    User user = users.createUser();
+    String orgKey = organization.getKey();
+    User user = users.createUser(p -> p.setLogin("foo"));
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(organization.getKey());
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     page
       .addMember(user.getLogin())
       .getMembersByIdx(1)
