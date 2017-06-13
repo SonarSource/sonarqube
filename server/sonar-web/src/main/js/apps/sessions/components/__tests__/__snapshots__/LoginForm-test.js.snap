@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`expands more options 1`] = `
-<div>
+<div
+  id="login_form"
+>
   <h1
     className="maintenance-title text-center"
   >
@@ -50,7 +52,9 @@ exports[`expands more options 1`] = `
 `;
 
 exports[`expands more options 2`] = `
-<div>
+<div
+  id="login_form"
+>
   <h1
     className="maintenance-title text-center"
   >
@@ -85,7 +89,6 @@ exports[`expands more options 2`] = `
     </ul>
   </section>
   <form
-    id="login_form"
     onSubmit={[Function]}
   >
     <Connect(GlobalMessages) />
@@ -154,7 +157,9 @@ exports[`expands more options 2`] = `
 `;
 
 exports[`logs in with identity provider 1`] = `
-<div>
+<div
+  id="login_form"
+>
   <h1
     className="maintenance-title text-center"
   >
@@ -203,14 +208,15 @@ exports[`logs in with identity provider 1`] = `
 `;
 
 exports[`logs in with simple credentials 1`] = `
-<div>
+<div
+  id="login_form"
+>
   <h1
     className="maintenance-title text-center"
   >
     login.login_to_sonarqube
   </h1>
   <form
-    id="login_form"
     onSubmit={[Function]}
   >
     <Connect(GlobalMessages) />
