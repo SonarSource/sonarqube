@@ -19,40 +19,34 @@
  */
 // @flow
 import React from 'react';
-import Select from 'react-select';
-import { translate } from '../../../helpers/l10n';
+import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
+import StaticGraphs from './StaticGraphs';
 import type { RawQuery } from '../../../helpers/query';
+import type { Analysis, MeasureHistory, Query } from '../types';
 
 type Props = {
-  updateQuery: RawQuery => void,
-  category?: string
+  analyses: Array<Analysis>,
+  loading: boolean,
+  measuresHistory: Array<MeasureHistory>,
+  metricsType: string,
+  project: string,
+  query: Query,
+  updateQuery: RawQuery => void
 };
 
-export default class ProjectActivityPageHeader extends React.PureComponent {
-  props: Props;
-
-  handleCategoryChange = (option: ?{ value: string }) => {
-    this.props.updateQuery({ category: option ? option.value : '' });
-  };
-
-  render() {
-    const selectOptions = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'].map(category => ({
-      label: translate('event.category', category),
-      value: category
-    }));
-
-    return (
-      <header className="page-header">
-        <Select
-          className="input-medium"
-          placeholder={translate('project_activity.filter_events') + '...'}
-          clearable={true}
-          searchable={false}
-          value={this.props.category}
-          options={selectOptions}
-          onChange={this.handleCategoryChange}
+export default function ProjectActivityGraphs(props: Props) {
+  return (
+    <div className="project-activity-layout-page-main">
+      <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
+        <ProjectActivityGraphsHeader graph={props.query.graph} updateQuery={props.updateQuery} />
+        <StaticGraphs
+          analyses={props.analyses}
+          loading={props.loading}
+          measuresHistory={props.measuresHistory}
+          metricsType={props.metricsType}
+          project={props.project}
         />
-      </header>
-    );
-  }
+      </div>
+    </div>
+  );
 }

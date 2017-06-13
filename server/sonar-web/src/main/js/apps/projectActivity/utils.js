@@ -22,19 +22,26 @@ import { cleanQuery, parseAsString, serializeString } from '../../helpers/query'
 import type { Query } from './types';
 import type { RawQuery } from '../../helpers/query';
 
+export const GRAPH_TYPES = ['overview'];
+export const GRAPHS_METRICS = { overview: ['bugs', 'vulnerabilities', 'code_smells'] };
+
 export const parseQuery = (urlQuery: RawQuery): Query => ({
-  project: parseAsString(urlQuery['id']),
-  category: parseAsString(urlQuery['category'])
+  category: parseAsString(urlQuery['category']),
+  graph: parseAsString(urlQuery['graph']) || 'overview',
+  project: parseAsString(urlQuery['id'])
 });
 
-export const serializeQuery = (query: Query): Query =>
+export const serializeQuery = (query: Query): RawQuery =>
   cleanQuery({
-    project: serializeString(query.project),
-    category: serializeString(query.category)
+    category: serializeString(query.category),
+    project: serializeString(query.project)
   });
 
-export const serializeUrlQuery = (query: Query): RawQuery =>
-  cleanQuery({
-    id: serializeString(query.project),
-    category: serializeString(query.category)
+export const serializeUrlQuery = (query: Query): RawQuery => {
+  const graph = query.graph === 'overview' ? '' : query.graph;
+  return cleanQuery({
+    category: serializeString(query.category),
+    graph: serializeString(graph),
+    id: serializeString(query.project)
   });
+};
