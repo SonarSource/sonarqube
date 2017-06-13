@@ -32,9 +32,9 @@ import org.junit.Test;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.organization.CreateWsRequest;
 import pageobjects.Navigation;
 import util.OrganizationRule;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.newAdminWsClient;
@@ -43,20 +43,24 @@ import static util.selenium.Selenese.runSelenese;
 
 public class OrganizationQualityProfilesUiTest {
 
+  private final static String ROOT_USER = "root-user";
+
   private static WsClient adminWsClient;
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-
   @Rule
   public OrganizationRule organizationRule = new OrganizationRule(orchestrator);
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   private static Organizations.Organization organization;
 
   @Before
   public void setUp() {
     adminWsClient = newAdminWsClient(orchestrator);
-    organization = adminWsClient.organizations().create(new CreateWsRequest.Builder().setKey("test-org").setName("test-org").build()).getOrganization();
+    organization = organizationRule.create(o -> o.setKey("test-org").setName("test-org"));
+    userRule.createRootUser(ROOT_USER, ROOT_USER);
   }
 
   @Before

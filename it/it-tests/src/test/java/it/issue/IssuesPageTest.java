@@ -21,6 +21,7 @@ package it.issue;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category2Suite;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -39,11 +40,13 @@ public class IssuesPageTest {
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category2Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(ORCHESTRATOR);
+  @Rule
+  public UserRule userRule = UserRule.from(ORCHESTRATOR);
 
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
+
+  private String adminUser;
 
   @BeforeClass
   public static void prepareData() {
@@ -56,9 +59,14 @@ public class IssuesPageTest {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
   }
 
+  @Before
+  public void before() {
+    adminUser = userRule.createAdminUser();
+  }
+
   @Test
   public void should_display_actions() {
-    IssuesPage page = nav.logIn().asAdmin().openIssues();
+    IssuesPage page = nav.logIn().submitCredentials(adminUser).openIssues();
     Issue issue = page.getFirstIssue();
     issue.shouldAllowAssign().shouldAllowChangeType();
   }

@@ -30,6 +30,7 @@ import org.junit.Test;
 import pageobjects.Navigation;
 import pageobjects.ProjectActivityPage;
 import pageobjects.ProjectAnalysisItem;
+import util.user.UserRule;
 
 import static util.ItUtils.projectDir;
 
@@ -37,6 +38,9 @@ public class ProjectActivityPageTest {
 
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
+
+  @Rule
+  public UserRule userRule = UserRule.from(ORCHESTRATOR);
 
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
@@ -81,7 +85,8 @@ public class ProjectActivityPageTest {
   }
 
   private ProjectActivityPage openPage() {
-    nav.logIn().submitCredentials("admin", "admin");
+    String userAdmin = userRule.createAdminUser();
+    nav.logIn().submitCredentials(userAdmin, userAdmin);
     return nav.openProjectActivity("sample");
   }
 

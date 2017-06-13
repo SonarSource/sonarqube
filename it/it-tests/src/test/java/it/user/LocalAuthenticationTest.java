@@ -24,8 +24,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import java.util.UUID;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -36,9 +35,7 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
@@ -56,11 +53,15 @@ import static util.selenium.Selenese.runSelenese;
 
 public class LocalAuthenticationTest {
 
+  private static final String ADMIN_USER_LOGIN = "admin-user";
+
+  private static final String LOGIN = "george.orwell";
+
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(ORCHESTRATOR);
+  @Rule
+  public UserRule userRule = UserRule.from(ORCHESTRATOR);
 
   @Rule
   public Navigation nav = Navigation.get(ORCHESTRATOR);
@@ -69,12 +70,8 @@ public class LocalAuthenticationTest {
 
   private static UserTokensService userTokensWsClient;
 
-  private static final String LOGIN = "george.orwell";
-
-  @BeforeClass
-  public static void setUp() {
-    ORCHESTRATOR.resetData();
-
+  @Before
+  public void setUp() {
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
     userTokensWsClient = adminWsClient.userTokens();
 
@@ -83,10 +80,11 @@ public class LocalAuthenticationTest {
     addUserPermission(LOGIN, "admin");
 
     userRule.createUser("simple-user", "password");
+    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
   }
 
-  @AfterClass
-  public static void deleteAndRestoreData() {
+  @After
+  public void deleteAndRestoreData() {
     userRule.resetUsers();
   }
 
@@ -246,15 +244,4 @@ public class LocalAuthenticationTest {
       .setPermission(permission));
   }
 
-  private static void removeGroupPermission(String groupName, String permission) {
-    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest()
-      .setGroupName(groupName)
-      .setPermission(permission));
-  }
-
-  private static void addGroupPermission(String groupName, String permission) {
-    adminWsClient.permissions().addGroup(new AddGroupWsRequest()
-      .setGroupName(groupName)
-      .setPermission(permission));
-  }
 }
