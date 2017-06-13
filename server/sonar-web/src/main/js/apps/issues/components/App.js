@@ -58,15 +58,19 @@ import EmptySearch from '../../../components/common/EmptySearch';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 import type { Issue } from '../../../components/issue/types';
+import type { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
 export type Props = {
   component?: Component,
   currentUser: CurrentUser,
-  fetchIssues: ({}) => Promise<*>,
-  location: { pathname: string, query: { [string]: string } },
+  fetchIssues: (query: RawQuery) => Promise<*>,
+  location: { pathname: string, query: RawQuery },
   onRequestFail: Error => void,
-  router: { push: ({}) => void, replace: ({}) => void }
+  router: {
+    push: ({ pathname: string, query?: RawQuery }) => void,
+    replace: ({ pathname: string, query?: RawQuery }) => void
+  }
 };
 
 export type State = {

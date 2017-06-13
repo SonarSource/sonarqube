@@ -21,18 +21,20 @@
 import React from 'react';
 import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
+import type { RawQuery } from '../../../helpers/query';
 
 type Props = {
-  changeFilter: (filter: ?string) => void,
-  filter: ?string
+  updateQuery: RawQuery => void,
+  category?: string
 };
 
 export default class ProjectActivityPageHeader extends React.PureComponent {
   props: Props;
 
-  handleChange = (option: null | { value: string }) => {
-    this.props.changeFilter(option && option.value);
+  handleCategoryChange = (option: ?{ value: string }) => {
+    this.props.updateQuery({ category: option ? option.value : '' });
   };
+
   render() {
     const selectOptions = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'].map(category => ({
       label: translate('event.category', category),
@@ -47,9 +49,9 @@ export default class ProjectActivityPageHeader extends React.PureComponent {
             placeholder={translate('filter_verb') + '...'}
             clearable={true}
             searchable={false}
-            value={this.props.filter}
+            value={this.props.category}
             options={selectOptions}
-            onChange={this.handleChange}
+            onChange={this.handleCategoryChange}
           />
         </div>
 

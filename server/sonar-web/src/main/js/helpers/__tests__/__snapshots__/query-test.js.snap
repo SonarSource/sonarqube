@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cleanQuery should remove undefined and null query items 1`] = `
+Object {
+  "a": "b",
+  "d": "",
+  "e": 0,
+}
+`;

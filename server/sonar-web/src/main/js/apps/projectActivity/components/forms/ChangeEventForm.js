@@ -20,8 +20,8 @@
 // @flow
 import React from 'react';
 import Modal from 'react-modal';
-import type { Event } from '../../../../store/projectActivity/duck';
 import { translate } from '../../../../helpers/l10n';
+import type { Event } from '../../types';
 
 type Props = {
   changeEvent: (event: string, name: string) => Promise<*>,
@@ -129,7 +129,6 @@ export default class ChangeEventForm extends React.PureComponent {
                 </div>}
           </footer>
         </form>
-
       </Modal>
     );
   }
