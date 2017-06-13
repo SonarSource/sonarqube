@@ -41,6 +41,7 @@ import org.sonar.application.process.ProcessMonitor;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 
+import static java.util.Collections.synchronizedList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -67,7 +68,7 @@ public class SchedulerImplTest {
   private TestJavaCommandFactory javaCommandFactory = new TestJavaCommandFactory();
   private TestJavaProcessLauncher processLauncher = new TestJavaProcessLauncher();
   private TestAppState appState = new TestAppState();
-  private List<ProcessId> orderedStops = new ArrayList<>();
+  private List<ProcessId> orderedStops = synchronizedList(new ArrayList<>());
 
   @After
   public void tearDown() throws Exception {
@@ -321,7 +322,7 @@ public class SchedulerImplTest {
 
   private class TestJavaProcessLauncher implements JavaProcessLauncher {
     private final EnumMap<ProcessId, TestProcess> processes = new EnumMap<>(ProcessId.class);
-    private final List<JavaCommand> commands = new ArrayList<>();
+    private final List<JavaCommand> commands = synchronizedList(new ArrayList<>());
     private ProcessId makeStartupFail = null;
 
     @Override
