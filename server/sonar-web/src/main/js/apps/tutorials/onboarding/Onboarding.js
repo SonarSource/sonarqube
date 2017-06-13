@@ -22,8 +22,10 @@ import React from 'react';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
+import ProjectWatcher from './ProjectWatcher';
 import { skipOnboarding } from '../../../api/users';
 import { translate } from '../../../helpers/l10n';
+import { getProjectUrl } from '../../../helpers/urls';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import './styles.css';
 
@@ -37,6 +39,7 @@ type Props = {
 type State = {
   finished: boolean,
   organization?: string,
+  projectKey?: string,
   skipping: boolean,
   step: string,
   token?: string
@@ -46,6 +49,10 @@ export default class Onboarding extends React.PureComponent {
   mounted: boolean;
   props: Props;
   state: State;
+
+  static contextTypes = {
+    router: React.PropTypes.object
+  };
 
   constructor(props: Props) {
     super(props);
@@ -67,21 +74,16 @@ export default class Onboarding extends React.PureComponent {
     this.mounted = false;
   }
 
-  handleTokenDone = (token: string) => {
-    this.setState({ step: 'analysis', token });
-  };
-
-  handleOrganizationDone = (organization: string) => {
-    this.setState({ organization, step: 'token' });
-  };
-
-  handleSkipClick = (event: Event) => {
-    event.preventDefault();
+  finishOnboarding = () => {
     this.setState({ skipping: true });
     skipOnboarding().then(
       () => {
         if (this.mounted) {
           this.props.onSkip();
+
+          if (this.state.projectKey) {
+            this.context.router.push(getProjectUrl(this.state.projectKey));
+          }
         }
       },
       () => {
@@ -92,7 +94,25 @@ export default class Onboarding extends React.PureComponent {
     );
   };
 
-  handleFinish = () => this.setState({ finished: true });
+  handleTimeout = () => {
+    // unset `projectKey` to display a generic "Finish this tutorial" button
+    this.setState({ projectKey: undefined });
+  };
+
+  handleTokenDone = (token: string) => {
+    this.setState({ step: 'analysis', token });
+  };
+
+  handleOrganizationDone = (organization: string) => {
+    this.setState({ organization, step: 'token' });
+  };
+
+  handleSkipClick = (event: Event) => {
+    event.preventDefault();
+    this.finishOnboarding();
+  };
+
+  handleFinish = (projectKey?: string) => this.setState({ finished: true, projectKey });
 
   handleReset = () => this.setState({ finished: false });
 
@@ -150,11 +170,17 @@ export default class Onboarding extends React.PureComponent {
 
         {this.state.finished &&
           !this.state.skipping &&
-          <footer className="text-right">
-            <a className="button" href="#" onClick={this.handleSkipClick}>
-              {translate('tutorials.finish')}
-            </a>
-          </footer>}
+          (this.state.projectKey
+            ? <ProjectWatcher
+                onFinish={this.finishOnboarding}
+                onTimeout={this.handleTimeout}
+                projectKey={this.state.projectKey}
+              />
+            : <footer className="text-right">
+                <a className="button" href="#" onClick={this.handleSkipClick}>
+                  {translate('tutorials.finish')}
+                </a>
+              </footer>)}
       </div>
     );
   }
