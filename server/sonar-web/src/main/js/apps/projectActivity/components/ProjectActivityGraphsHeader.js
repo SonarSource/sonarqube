@@ -20,37 +20,39 @@
 // @flow
 import React from 'react';
 import Select from 'react-select';
+import { GRAPH_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { RawQuery } from '../../../helpers/query';
 
 type Props = {
   updateQuery: RawQuery => void,
-  category?: string
+  graph: string
 };
 
-export default class ProjectActivityPageHeader extends React.PureComponent {
+export default class ProjectActivityGraphsHeader extends React.PureComponent {
   props: Props;
 
-  handleCategoryChange = (option: ?{ value: string }) => {
-    this.props.updateQuery({ category: option ? option.value : '' });
+  handleGraphChange = (option: { value: string }) => {
+    if (option.value !== this.props.graph) {
+      this.props.updateQuery({ graph: option.value });
+    }
   };
 
   render() {
-    const selectOptions = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'].map(category => ({
-      label: translate('event.category', category),
-      value: category
+    const selectOptions = GRAPH_TYPES.map(graph => ({
+      label: translate('project_activity.graphs', graph),
+      value: graph
     }));
 
     return (
       <header className="page-header">
         <Select
           className="input-medium"
-          placeholder={translate('project_activity.filter_events') + '...'}
-          clearable={true}
+          clearable={false}
           searchable={false}
-          value={this.props.category}
+          value={this.props.graph}
           options={selectOptions}
-          onChange={this.handleCategoryChange}
+          onChange={this.handleGraphChange}
         />
       </header>
     );

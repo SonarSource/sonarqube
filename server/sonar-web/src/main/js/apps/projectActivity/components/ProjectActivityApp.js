@@ -20,16 +20,19 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
+import moment from 'moment';
 import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
-import ProjectActivityPageFooter from './ProjectActivityPageFooter';
+import ProjectActivityGraphs from './ProjectActivityGraphs';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
-import { parseQuery, serializeQuery, serializeUrlQuery } from '../utils';
+import { getAllTimeMachineData } from '../../../api/time-machine';
+import { getMetrics } from '../../../api/metrics';
+import { GRAPHS_METRICS, parseQuery, serializeQuery, serializeUrlQuery } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import './projectActivity.css';
-import type { Analysis, Query, Paging } from '../types';
+import type { Analysis, LeakPeriod, MeasureHistory, Metric, Query, Paging } from '../types';
 import type { RawQuery } from '../../../helpers/query';
 
 type Props = {
@@ -40,7 +43,11 @@ type Props = {
 
 export type State = {
   analyses: Array<Analysis>,
+  leakPeriod?: LeakPeriod,
   loading: boolean,
+  measures: Array<*>,
+  metrics: Array<Metric>,
+  measuresHistory: Array<MeasureHistory>,
   paging?: Paging,
   query: Query
 };
@@ -52,7 +59,14 @@ export default class ProjectActivityApp extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    this.state = { analyses: [], loading: true, query: parseQuery(props.location.query) };
+    this.state = {
+      analyses: [],
+      loading: true,
+      measures: [],
+      measuresHistory: [],
+      metrics: [],
+      query: parseQuery(props.location.query)
+    };
   }
 
   componentDidMount() {
@@ -84,6 +98,21 @@ export default class ProjectActivityApp extends React.PureComponent {
     };
     return api.getProjectActivity(parameters).catch(throwGlobalError);
   };
+
+  fetchMetrics = (): Promise<Array<Metric>> => getMetrics().catch(throwGlobalError);
+
+  fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> =>
+    getAllTimeMachineData(this.props.project.key, metrics)
+      .then(({ measures }) =>
+        measures.map(measure => ({
+          metric: measure.metric,
+          history: measure.history.map(analysis => ({
+            date: moment(analysis.date).toDate(),
+            value: analysis.value
+          }))
+        }))
+      )
+      .catch(throwGlobalError);
 
   fetchMoreActivity = () => {
     const { paging, query } = this.state;
@@ -136,15 +165,29 @@ export default class ProjectActivityApp extends React.PureComponent {
       .then(() => this.mounted && this.setState(actions.deleteAnalysis(analysis)))
       .catch(throwGlobalError);
 
+  getMetricType = () => {
+    const metricKey = GRAPHS_METRICS[this.state.query.graph][0];
+    const metric = this.state.metrics.find(metric => metric.key === metricKey);
+    return metric ? metric.type : 'INT';
+  };
+
   handleQueryChange() {
     const query = parseQuery(this.props.location.query);
+    const graphMetrics = GRAPHS_METRICS[query.graph];
     this.setState({ loading: true, query });
-    this.fetchActivity(query).then(({ analyses, paging }) => {
+
+    Promise.all([
+      this.fetchActivity(query),
+      this.fetchMetrics(),
+      this.fetchMeasuresHistory(graphMetrics)
+    ]).then(response => {
       if (this.mounted) {
         this.setState({
-          analyses,
+          analyses: response[0].analyses,
           loading: false,
-          paging
+          metrics: response[1],
+          measuresHistory: response[2],
+          paging: response[0].paging
         });
       }
     });
@@ -174,21 +217,30 @@ export default class ProjectActivityApp extends React.PureComponent {
 
         <ProjectActivityPageHeader category={query.category} updateQuery={this.updateQuery} />
 
-        <ProjectActivityAnalysesList
-          addCustomEvent={this.addCustomEvent}
-          addVersion={this.addVersion}
-          analyses={this.state.analyses}
-          canAdmin={canAdmin}
-          changeEvent={this.changeEvent}
-          deleteAnalysis={this.deleteAnalysis}
-          deleteEvent={this.deleteEvent}
-        />
+        <div className="layout-page project-activity-page">
+          <ProjectActivityAnalysesList
+            addCustomEvent={this.addCustomEvent}
+            addVersion={this.addVersion}
+            analyses={this.state.analyses}
+            canAdmin={canAdmin}
+            changeEvent={this.changeEvent}
+            deleteAnalysis={this.deleteAnalysis}
+            deleteEvent={this.deleteEvent}
+            fetchMoreActivity={this.fetchMoreActivity}
+            paging={this.state.paging}
+          />
 
-        <ProjectActivityPageFooter
-          analyses={this.state.analyses}
-          fetchMoreActivity={this.fetchMoreActivity}
-          paging={this.state.paging}
-        />
+          <ProjectActivityGraphs
+            analyses={this.state.analyses}
+            leakPeriod={this.state.leakPeriod}
+            loading={this.state.loading}
+            measuresHistory={this.state.measuresHistory}
+            metricsType={this.getMetricType()}
+            project={this.props.project.key}
+            query={query}
+            updateQuery={this.updateQuery}
+          />
+        </div>
       </div>
     );
   }

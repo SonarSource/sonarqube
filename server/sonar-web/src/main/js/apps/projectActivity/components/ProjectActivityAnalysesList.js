@@ -22,9 +22,10 @@ import React from 'react';
 import { groupBy } from 'lodash';
 import moment from 'moment';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
+import ProjectActivityPageFooter from './ProjectActivityPageFooter';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis } from '../types';
+import type { Analysis, Paging } from '../types';
 
 type Props = {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<*>,
@@ -33,49 +34,63 @@ type Props = {
   canAdmin: boolean,
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
-  deleteEvent: (analysis: string, event: string) => Promise<*>
+  deleteEvent: (analysis: string, event: string) => Promise<*>,
+  fetchMoreActivity: () => void,
+  paging?: Paging
 };
 
 export default function ProjectActivityAnalysesList(props: Props) {
   if (props.analyses.length === 0) {
-    return <div className="note">{translate('no_results')}</div>;
+    return (
+      <div className="layout-page-side-outer project-activity-page-side-outer">
+        <div className="boxed-group boxed-group-inner">
+          <div className="note">{translate('no_results')}</div>
+        </div>
+      </div>
+    );
   }
 
   const firstAnalysis = props.analyses[0];
-
   const byDay = groupBy(props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());
-
   return (
-    <div className="boxed-group boxed-group-inner">
-      <ul className="project-activity-days-list">
-        {Object.keys(byDay).map(day => (
-          <li
-            key={day}
-            className="project-activity-day"
-            data-day={moment(Number(day)).format('YYYY-MM-DD')}>
-            <div className="project-activity-date">
-              <FormattedDate date={Number(day)} format="LL" />
-            </div>
+    <div className="layout-page-side-outer project-activity-page-side-outer">
+      <div className="boxed-group boxed-group-inner">
+        <ul className="project-activity-days-list">
+          {Object.keys(byDay).map(day => (
+            <li
+              key={day}
+              className="project-activity-day"
+              data-day={moment(Number(day)).format('YYYY-MM-DD')}>
+              <div className="project-activity-date">
+                <FormattedDate date={Number(day)} format="LL" />
+              </div>
 
-            <ul className="project-activity-analyses-list">
-              {byDay[day] != null &&
-                byDay[day].map(analysis => (
-                  <ProjectActivityAnalysis
-                    addCustomEvent={props.addCustomEvent}
-                    addVersion={props.addVersion}
-                    analysis={analysis}
-                    canAdmin={props.canAdmin}
-                    changeEvent={props.changeEvent}
-                    deleteAnalysis={props.deleteAnalysis}
-                    deleteEvent={props.deleteEvent}
-                    isFirst={analysis === firstAnalysis}
-                    key={analysis.key}
-                  />
-                ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
+              <ul className="project-activity-analyses-list">
+                {byDay[day] != null &&
+                  byDay[day].map(analysis => (
+                    <ProjectActivityAnalysis
+                      addCustomEvent={props.addCustomEvent}
+                      addVersion={props.addVersion}
+                      analysis={analysis}
+                      canAdmin={props.canAdmin}
+                      changeEvent={props.changeEvent}
+                      deleteAnalysis={props.deleteAnalysis}
+                      deleteEvent={props.deleteEvent}
+                      isFirst={analysis === firstAnalysis}
+                      key={analysis.key}
+                    />
+                  ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+
+        <ProjectActivityPageFooter
+          analyses={props.analyses}
+          fetchMoreActivity={props.fetchMoreActivity}
+          paging={props.paging}
+        />
+      </div>
     </div>
   );
 }
