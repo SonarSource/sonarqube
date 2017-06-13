@@ -18,24 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
 import { connect } from 'react-redux';
-import ChangeEventForm from './ChangeEventForm';
-import { changeEvent } from '../../actions';
-import type { Event } from '../../../../store/projectActivity/duck';
+import { withRouter } from 'react-router';
+import ProjectActivityApp from './ProjectActivityApp';
+import { getComponent } from '../../../store/rootReducer';
 
-type Props = {
-  changeEvent: (event: string, name: string) => Promise<*>,
-  event: Event,
-  onClose: () => void
-};
+const mapStateToProps = (state, ownProps) => ({
+  project: getComponent(state, ownProps.location.query.id)
+});
 
-const ChangeCustomEventForm = (props: Props) => (
-  <ChangeEventForm {...props} changeEventButtonText="project_activity.change_custom_event" />
-);
-
-const mapStateToProps = null;
-
-const mapDispatchToProps = { changeEvent };
-
-export default connect(mapStateToProps, mapDispatchToProps)(ChangeCustomEventForm);
+export default connect(mapStateToProps)(withRouter(ProjectActivityApp));

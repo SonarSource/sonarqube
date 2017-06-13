@@ -30,30 +30,15 @@ type GetProjectActivityResponse = {
 };
 
 type GetProjectActivityOptions = {
+  project: string,
   category?: ?string,
-  pageIndex?: ?number,
-  pageSize?: ?number
+  p?: ?number,
+  ps?: ?number
 };
 
 export const getProjectActivity = (
-  project: string,
-  options?: GetProjectActivityOptions
-): Promise<GetProjectActivityResponse> => {
-  const data: Object = { project };
-  if (options) {
-    if (options.category) {
-      data.category = options.category;
-    }
-    if (options.pageIndex) {
-      data.p = options.pageIndex;
-    }
-    if (options.pageSize) {
-      data.ps = options.pageSize;
-    }
-  }
-
-  return getJSON('/api/project_analyses/search', data);
-};
+  data: GetProjectActivityOptions
+): Promise<GetProjectActivityResponse> => getJSON('/api/project_analyses/search', data);
 
 type CreateEventResponse = {
   analysis: string,

@@ -18,81 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import * as api from '../../api/projectActivity';
-import {
-  receiveProjectActivity,
-  addEvent,
-  deleteEvent as deleteEventAction,
-  changeEvent as changeEventAction,
-  deleteAnalysis as deleteAnalysisAction,
-  getPaging
-} from '../../store/projectActivity/duck';
-import { onFail } from '../../store/rootActions';
-import { getProjectActivity } from '../../store/rootReducer';
+import type { Event } from './types';
+import type { State } from './components/ProjectActivityApp';
 
-const rejectOnFail = (dispatch: Function) => (error: Object) => {
-  onFail(dispatch)(error);
-  return Promise.reject();
-};
+export const addCustomEvent = (analysis: string, event: Event) => (state: State) => ({
+  analyses: state.analyses.map(item => {
+    if (item.key !== analysis) {
+      return item;
+    }
+    return { ...item, events: [...item.events, event] };
+  })
+});
 
-export const fetchProjectActivity = (project: string, filter: ?string) => (
-  dispatch: Function
-): void => {
-  api
-    .getProjectActivity(project, { category: filter })
-    .then(
-      ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
-      onFail(dispatch)
-    );
-};
+export const deleteEvent = (analysis: string, event: string) => (state: State) => ({
+  analyses: state.analyses.map(item => {
+    if (item.key !== analysis) {
+      return item;
+    }
+    return {
+      ...item,
+      events: item.events.filter(eventItem => eventItem.key !== event)
+    };
+  })
+});
 
-export const fetchMoreProjectActivity = (project: string, filter: ?string) => (
-  dispatch: Function,
-  getState: Function
-): void => {
-  const projectActivity = getProjectActivity(getState());
-  const { pageIndex } = getPaging(projectActivity, project);
+export const changeEvent = (analysis: string, event: Event) => (state: State) => ({
+  analyses: state.analyses.map(item => {
+    if (item.key !== analysis) {
+      return item;
+    }
+    return {
+      ...item,
+      events: item.events.map(
+        eventItem => (eventItem.key === event.key ? { ...eventItem, ...event } : eventItem)
+      )
+    };
+  })
+});
 
-  api
-    .getProjectActivity(project, { category: filter, pageIndex: pageIndex + 1 })
-    .then(
-      ({ analyses, paging }) => dispatch(receiveProjectActivity(project, analyses, paging)),
-      onFail(dispatch)
-    );
-};
-
-export const addCustomEvent = (analysis: string, name: string, category?: string) => (
-  dispatch: Function
-): Promise<*> => {
-  return api
-    .createEvent(analysis, name, category)
-    .then(({ analysis, ...event }) => dispatch(addEvent(analysis, event)), rejectOnFail(dispatch));
-};
-
-export const deleteEvent = (analysis: string, event: string) => (
-  dispatch: Function
-): Promise<*> => {
-  return api
-    .deleteEvent(event)
-    .then(() => dispatch(deleteEventAction(analysis, event)), rejectOnFail(dispatch));
-};
-
-export const addVersion = (analysis: string, version: string) => (
-  dispatch: Function
-): Promise<*> => {
-  return dispatch(addCustomEvent(analysis, version, 'VERSION'));
-};
-
-export const changeEvent = (event: string, name: string) => (dispatch: Function): Promise<*> => {
-  return api
-    .changeEvent(event, name)
-    .then(() => dispatch(changeEventAction(event, { name })), rejectOnFail(dispatch));
-};
-
-export const deleteAnalysis = (project: string, analysis: string) => (
-  dispatch: Function
-): Promise<*> => {
-  return api
-    .deleteAnalysis(analysis)
-    .then(() => dispatch(deleteAnalysisAction(project, analysis)), rejectOnFail(dispatch));
-};
+export const deleteAnalysis = (analysis: string) => (state: State) => ({
+  analyses: state.analyses.filter(item => item.key !== analysis)
+});

@@ -34,6 +34,7 @@ const getAsLevel = value => {
   return null;
 };
 
+// TODO Maybe use parseAsString form helpers/query
 const getAsString = value => {
   if (!value) {
     return null;
@@ -41,6 +42,7 @@ const getAsString = value => {
   return value;
 };
 
+// TODO Maybe move it to helpers/query
 const getAsArray = (values, elementGetter) => {
   if (!values) {
     return null;

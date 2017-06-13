@@ -18,31 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
-import { connect } from 'react-redux';
-import RemoveEventForm from './RemoveEventForm';
-import { deleteEvent } from '../../actions';
-import type { Event } from '../../../../store/projectActivity/duck';
+import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
+import type { Query } from './types';
+import type { RawQuery } from '../../helpers/query';
 
-type Props = {
-  analysis: string,
-  event: Event,
-  deleteEvent: (analysis: string, event: string) => Promise<*>,
-  onClose: () => void
-};
+export const parseQuery = (urlQuery: RawQuery): Query => ({
+  project: parseAsString(urlQuery['id']),
+  category: parseAsString(urlQuery['category'])
+});
 
-function RemoveCustomEventForm(props: Props) {
-  return (
-    <RemoveEventForm
-      {...props}
-      removeEventButtonText="project_activity.remove_custom_event"
-      removeEventQuestion="project_activity.remove_custom_event.question"
-    />
-  );
-}
+export const serializeQuery = (query: Query): Query =>
+  cleanQuery({
+    project: serializeString(query.project),
+    category: serializeString(query.category)
+  });
 
-const mapStateToProps = null;
-
-const mapDispatchToProps = { deleteEvent };
-
-export default connect(mapStateToProps, mapDispatchToProps)(RemoveCustomEventForm);
+export const serializeUrlQuery = (query: Query): RawQuery =>
+  cleanQuery({
+    id: serializeString(query.project),
+    category: serializeString(query.category)
+  });

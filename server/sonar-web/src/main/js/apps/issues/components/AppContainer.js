@@ -29,8 +29,7 @@ import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
 import { searchIssues } from '../../../api/issues';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-
-type Query = { [string]: string };
+import type { RawQuery } from '../../../helpers/query';
 
 const mapStateToProps = (state, ownProps) => ({
   component: ownProps.location.query.id
@@ -51,7 +50,7 @@ const fetchIssueOrganizations = issues => dispatch => {
   );
 };
 
-const fetchIssues = (query: Query) => dispatch =>
+const fetchIssues = (query: RawQuery) => dispatch =>
   searchIssues({ ...query, additionalFields: '_all' })
     .then(response => {
       const parsedIssues = response.issues.map(issue =>

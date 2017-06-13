@@ -22,13 +22,14 @@ import React from 'react';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 import { saveAll, saveFavorite } from '../utils';
+import type { RawQuery } from '../../../helpers/query';
 
 type Props = {
   user: {
     isLoggedIn?: boolean
   },
   organization?: { key: string },
-  query: { [string]: string }
+  query: RawQuery
 };
 
 export default class FavoriteFilter extends React.PureComponent {

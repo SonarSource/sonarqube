@@ -28,7 +28,6 @@ import notifications, * as fromNotifications from './notifications/duck';
 import organizations, * as fromOrganizations from './organizations/duck';
 import organizationsMembers, * as fromOrganizationsMembers from './organizationsMembers/reducer';
 import globalMessages, * as fromGlobalMessages from './globalMessages/duck';
-import projectActivity from './projectActivity/duck';
 import measuresApp, * as fromMeasuresApp from '../apps/component-measures/store/rootReducer';
 import permissionsApp, * as fromPermissionsApp from '../apps/permissions/shared/store/rootReducer';
 import projectAdminApp, * as fromProjectAdminApp from '../apps/project-admin/store/rootReducer';
@@ -46,7 +45,6 @@ export default combineReducers({
   notifications,
   organizations,
   organizationsMembers,
-  projectActivity,
   users,
 
   // apps
@@ -121,8 +119,6 @@ export const getOrganizationMembersLogins = (state, organization) =>
 
 export const getOrganizationMembersState = (state, organization) =>
   fromOrganizationsMembers.getOrganizationMembersState(state.organizationsMembers, organization);
-
-export const getProjectActivity = state => state.projectActivity;
 
 export const getProjects = state => fromProjectsApp.getProjects(state.projectsApp);
 
