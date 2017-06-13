@@ -17,46 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
+import React from 'react';
+import classNames from 'classnames';
+import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
+import { translate } from '../../../helpers/l10n';
 
-export type Event = {
-  key: string,
-  name: string,
-  category: string,
-  description?: string
+type Props = {
+  series: Array<{ name: string }>
 };
 
-export type Analysis = {
-  key: string,
-  date: string,
-  events: Array<Event>
-};
-
-export type LeakPeriod = {
-  date: string,
-  index: number,
-  mode: string,
-  parameter: string
-};
-
-export type HistoryItem = { date: Date, value: string };
-
-export type MeasureHistory = { metric: string, history: Array<HistoryItem> };
-
-export type Metric = {
-  key: string,
-  name: string,
-  type: string
-};
-
-export type Paging = {
-  pageIndex: number,
-  pageSize: number,
-  total: number
-};
-
-export type Query = {
-  category: string,
-  graph: string,
-  project: string
-};
+export default function StaticGraphsLegend({ series }: Props) {
+  return (
+    <div className="project-activity-graph-legends">
+      {series.map((serie, idx) => (
+        <span className="big-spacer-left big-spacer-right" key={serie.name}>
+          <ChartLegendIcon
+            className={classNames('spacer-right line-chart-legend', 'line-chart-legend-' + idx)}
+          />
+          {translate('metric', serie.name, 'name')}
+        </span>
+      ))}
+    </div>
+  );
+}
