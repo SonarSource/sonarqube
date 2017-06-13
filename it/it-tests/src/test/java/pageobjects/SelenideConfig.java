@@ -20,12 +20,19 @@
 package pageobjects;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.stream.Collectors;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
+import util.selenium.SeleniumDriver;
+import util.selenium.ThreadSafeDriver;
 
 import static java.util.Arrays.stream;
 
-class SelenideConfig {
+public class SelenideConfig {
 
   private enum Browser {
     firefox("(v46 and lower)"),
@@ -49,7 +56,7 @@ class SelenideConfig {
     }
   }
 
-  public static void configure(Orchestrator orchestrator) {
+  public static WebDriver configure(Orchestrator orchestrator) {
     String browserKey = orchestrator.getConfiguration().getString("orchestrator.browser", Browser.firefox.name());
     Browser browser = Browser.of(browserKey);
     Configuration.browser = browser.name();
@@ -59,6 +66,29 @@ class SelenideConfig {
     Configuration.screenshots = true;
     Configuration.captureJavascriptErrors = true;
     Configuration.savePageSource = true;
+    Configuration.startMaximized = true;
+    return getWebDriver();
   }
 
+  public static WebDriver getWebDriver() {
+    if (Configuration.browser.equals(Browser.firefox.name())) {
+      return PER_THREAD_FIREFOX_DRIVER.get();
+    }
+    return WebDriverRunner.getWebDriver();
+  }
+
+  private static final ThreadLocal<SeleniumDriver> PER_THREAD_FIREFOX_DRIVER = ThreadLocal.withInitial(() -> {
+    FirefoxProfile profile = new FirefoxProfile();
+    profile.setPreference("browser.startup.homepage", "about:blank");
+    profile.setPreference("startup.homepage_welcome_url", "about:blank");
+    profile.setPreference("startup.homepage_welcome_url.additional", "about:blank");
+    profile.setPreference("nglayout.initialpaint.delay", 0);
+    profile.setPreference("extensions.checkCompatibility", false);
+    profile.setPreference("browser.cache.use_new_backend", 1);
+    profile.setPreference("geo.enabled", false);
+    profile.setPreference("layout.spellcheckDefault", 0);
+    FirefoxOptions options = new FirefoxOptions().setProfile(profile).setLegacy(true);
+    FirefoxDriver driver = new FirefoxDriver(options);
+    return ThreadSafeDriver.makeThreadSafe(driver);
+  });
 }

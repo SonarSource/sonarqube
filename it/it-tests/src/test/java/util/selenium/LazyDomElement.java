@@ -29,25 +29,26 @@ import java.util.NoSuchElementException;
 import javax.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
 class LazyDomElement {
-  private final SeleniumDriver driver;
+  private final WebDriver driver;
   private final By selector;
   private final ElementFilter filter;
   private final Retry retry;
 
-  LazyDomElement(SeleniumDriver driver, By selector) {
+  LazyDomElement(WebDriver driver, By selector) {
     this(driver, selector, Retry._30_SECONDS);
   }
 
-  LazyDomElement(SeleniumDriver driver, By selector, Retry retry) {
+  LazyDomElement(WebDriver driver, By selector, Retry retry) {
     this(driver, selector, ElementFilter.any(), retry);
   }
 
-  private LazyDomElement(SeleniumDriver driver, By selector, ElementFilter filter, Retry retry) {
+  private LazyDomElement(WebDriver driver, By selector, ElementFilter filter, Retry retry) {
     this.driver = driver;
     this.selector = selector;
     this.filter = filter;
