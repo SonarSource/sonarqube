@@ -143,6 +143,19 @@ public class OnboardingTest {
     assertThat(adminService.current().getShowOnboardingTutorial()).isEqualTo(true);
   }
 
+  @Test
+  public void reactivated_user_should_see_the_onboarding_tutorial() {
+    setShownOnboardingSetting(true);
+    createUser();
+    createUsersServiceForUser().skipOnboardingTutorial();
+    assertOnboardingTutorial(false);
+
+    userRule.deactivateUsers(userLogin);
+    userRule.createUser(userLogin, userLogin);
+
+    assertOnboardingTutorial(true);
+  }
+
   private void createUser() {
     userLogin = randomAlphabetic(10).toLowerCase();
     userRule.createUser(userLogin, userLogin);
