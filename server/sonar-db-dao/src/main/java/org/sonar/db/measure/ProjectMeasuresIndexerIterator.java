@@ -20,12 +20,12 @@
 package org.sonar.db.measure;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,6 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 
-import static java.util.Arrays.asList;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.utils.KeyValueFormat.parseStringInt;
@@ -52,7 +51,7 @@ import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMeasuresIndexerIterator.ProjectMeasures> {
 
-  public static final Set<String> METRIC_KEYS = new HashSet<>(asList(
+  public static final Set<String> METRIC_KEYS = ImmutableSortedSet.of(
     CoreMetrics.NCLOC_KEY,
     CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
     CoreMetrics.COVERAGE_KEY,
@@ -66,7 +65,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_COVERAGE_KEY,
     CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY,
     CoreMetrics.NEW_LINES_KEY,
-    CoreMetrics.NEW_RELIABILITY_RATING_KEY));
+    CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
   private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.uuid, s.created_at, p.tags " +
     "FROM projects p " +

@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -234,9 +233,6 @@ public class SearchResponseLoader {
 
   private void loadOrganizations(DbSession dbSession, SearchResponseData result) {
     Collection<ComponentDto> components = result.getComponents();
-    if (components == null) {
-      return;
-    }
     dbClient.organizationDao().selectByUuids(
       dbSession,
       components.stream().map(ComponentDto::getOrganizationUuid).collect(MoreCollectors.toSet()))
@@ -272,13 +268,13 @@ public class SearchResponseLoader {
    * Collects the keys of all the data to be loaded (users, rules, ...)
    */
   public static class Collector {
-    private final EnumSet<SearchAdditionalField> fields;
+    private final Set<SearchAdditionalField> fields;
     private final SetMultimap<SearchAdditionalField, Object> fieldValues = MultimapBuilder.enumKeys(SearchAdditionalField.class).hashSetValues().build();
     private final Set<String> componentUuids = new HashSet<>();
     private final Set<String> projectUuids = new HashSet<>();
     private final List<String> issueKeys;
 
-    public Collector(EnumSet<SearchAdditionalField> fields, List<String> issueKeys) {
+    public Collector(Set<SearchAdditionalField> fields, List<String> issueKeys) {
       this.fields = fields;
       this.issueKeys = issueKeys;
     }

@@ -295,9 +295,6 @@ public class SearchResponseFormat {
 
   private static List<Issues.Component> formatComponents(SearchResponseData data) {
     Collection<ComponentDto> components = data.getComponents();
-    if (components == null) {
-      return Collections.emptyList();
-    }
     List<Issues.Component> result = new ArrayList<>();
     for (ComponentDto dto : components) {
       String uuid = dto.uuid();
