@@ -107,19 +107,65 @@
  * Line Chart
  */
 
+@defaultSerieColor: @darkBlue;
+@serieColor1: @blue;
+@serieColor2: #26adff;
+
 .line-chart {
 }
 
 .line-chart-path {
   fill: none;
-  stroke: @blue;
+  stroke: @defaultSerieColor;
   stroke-width: 2px;
+
+  &.line-chart-path-1 {
+    stroke: @serieColor1
+  }
+
+  &.line-chart-path-2 {
+    stroke: @serieColor2;
+  }
+}
+
+.line-chart-legend {
+  color: @defaultSerieColor;
+
+  &.line-chart-legend-1 {
+    color: @serieColor1;
+  }
+
+  &.line-chart-legend-2 {
+    color: @serieColor2;
+  }
 }
 
 .line-chart-point {
   fill: #fff;
-  stroke: @darkBlue;
+  stroke: @defaultSerieColor;
   stroke-width: 2px;
+}
+
+.line-chart-event {
+  fill: #fff;
+  stroke: @defaultSerieColor;
+  stroke-width: 2px;
+
+  &.VERSION {
+    stroke: @green;
+  }
+
+  &.QUALITY_GATE {
+    stroke: @blue;
+  }
+
+  &.QUALITY_PROFILE {
+    stroke: @orange;
+  }
+
+  &.OTHER {
+    stroke: @purple;
+  }
 }
 
 .line-chart-backdrop {

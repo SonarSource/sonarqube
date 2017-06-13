@@ -38,11 +38,47 @@ type Response = {
 export const getTimeMachineData = (
   component: string,
   metrics: Array<string>,
-  other?: {}
+  other?: { p?: number, ps?: number, from?: string, to?: string }
 ): Promise<Response> =>
   getJSON('/api/measures/search_history', {
     component,
     metrics: metrics.join(),
     ps: 1000,
     ...other
+  });
+
+export const getAllTimeMachineData = (
+  component: string,
+  metrics: Array<string>,
+  other?: { p?: number, ps?: number, from?: string, to?: string },
+  prev?: Response
+): Promise<Response> =>
+  getTimeMachineData(component, metrics, other).then((r: Response) => {
+    const result = prev
+      ? {
+          measures: prev.measures.map((measure, idx) => ({
+            ...measure,
+            history: measure.history.concat(r.measures[idx].history)
+          })),
+          paging: r.paging
+        }
+      : r;
+
+    if (
+      // TODO Remove the sameAsPrevious condition when the webservice paging is working correctly ?
+      // Or keep it to be sure to not have an infinite loop ?
+      result.measures.every((measure, idx) => {
+        const equalToTotal = measure.history.length >= result.paging.total;
+        const sameAsPrevious = prev && measure.history.length === prev.measures[idx].history.length;
+        return equalToTotal || sameAsPrevious;
+      })
+    ) {
+      return result;
+    }
+    return getAllTimeMachineData(
+      component,
+      metrics,
+      { ...other, p: result.paging.pageIndex + 1 },
+      result
+    );
   });

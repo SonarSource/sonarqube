@@ -1,3 +1,58 @@
+.project-activity-page {
+  min-height: 600px;
+  height: calc(100vh - 250px);
+}
+
+.project-activity-page-side-outer {
+  width: 400px;
+  overflow: auto;
+}
+
+.project-activity-page-side-outer .boxed-group {
+  margin-bottom: 0;
+}
+
+.project-activity-layout-page-main {
+  flex-grow: 1;
+  min-width: 640px;
+  padding-left: 20px;
+  display: flex;
+}
+
+.project-activity-layout-page-main-inner {
+  min-width: 640px;
+  max-width: 880px;
+  margin-bottom: 0px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.project-activity-list {
+  max-width: 400px;
+}
+
+.project-activity-graph-container {
+  padding: 10px 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.project-activity-graph {
+  flex: 1;
+  max-height: 500px;
+}
+
+.project-activity-graph-legends {
+  flex-grow: 0;
+  padding-bottom: 16px;
+  text-align: center;
+}
+
 .project-activity-days-list {}
 
 .project-activity-day {
