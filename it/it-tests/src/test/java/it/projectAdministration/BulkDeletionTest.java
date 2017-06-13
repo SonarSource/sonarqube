@@ -22,21 +22,35 @@ package it.projectAdministration;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import util.user.UserRule;
 
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
 public class BulkDeletionTest {
 
+  private static final String ADMIN_USER_LOGIN = "admin-user";
+
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   @Before
   public void deleteData() {
     orchestrator.resetData();
+    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
+  }
+
+  @After
+  public void deleteAdminUser() {
+    userRule.resetUsers();
   }
 
   /**

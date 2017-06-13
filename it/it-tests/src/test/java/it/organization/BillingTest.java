@@ -73,6 +73,7 @@ public class BillingTest {
   public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient adminClient;
+  private String adminUser;
 
   @BeforeClass
   public static void prepare() {
@@ -83,6 +84,11 @@ public class BillingTest {
   @After
   public void reset() {
     resetSettings(orchestrator, null, PROPERTY_PREVENT_ANALYSIS, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
+  }
+
+  @Before
+  public void createAdminUser() throws Exception {
+    adminUser = userRule.createRootUser();
   }
 
   @Test
@@ -217,7 +223,7 @@ public class BillingTest {
     String projectKey = createPublicProject(createOrganization());
     setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
-    nav.logIn().asAdmin().openProjectPermissions(projectKey)
+    nav.logIn().submitCredentials(adminUser).openProjectPermissions(projectKey)
       .shouldBePublic()
       .shouldNotAllowPrivate();
   }
@@ -227,12 +233,12 @@ public class BillingTest {
     String projectKey = createPublicProject(createOrganization());
     setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
-    nav.logIn().asAdmin().openProjectPermissions(projectKey)
+    nav.logIn().submitCredentials(adminUser).openProjectPermissions(projectKey)
       .shouldBePublic()
       .turnToPrivate();
   }
 
-  private static String createOrganization() {
+  private String createOrganization() {
     String key = newOrganizationKey();
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(key).setName(key).build()).getOrganization();
     return key;
@@ -244,16 +250,16 @@ public class BillingTest {
     return projectKey;
   }
 
-  private static String executeAnalysis(String organizationKey) {
+  private String executeAnalysis(String organizationKey) {
     return executeAnalysis(newProjectKey(), organizationKey);
   }
 
-  private static String executeAnalysis(String projectKey, String organizationKey) {
+  private String executeAnalysis(String projectKey, String organizationKey) {
     BuildResult buildResult = orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"),
       "sonar.organization", organizationKey,
       "sonar.projectKey", projectKey,
-      "sonar.login", "admin",
-      "sonar.password", "admin"));
+      "sonar.login", adminUser,
+      "sonar.password", adminUser));
     return ItUtils.extractCeTaskId(buildResult);
   }
 

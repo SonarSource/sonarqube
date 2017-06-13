@@ -40,6 +40,7 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.user.UserParameters;
 import pageobjects.Navigation;
 import pageobjects.settings.SettingsPage;
+import util.user.UserRule;
 
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,14 +61,19 @@ public class ProjectAdministrationTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
   private static final String PROJECT_KEY = "sample";
   private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
+  private String adminUser;
 
   @Before
   public void deleteAnalysisData() throws SQLException {
     orchestrator.resetData();
+    adminUser = userRule.createAdminUser();
   }
 
   @Test
@@ -163,7 +169,7 @@ public class ProjectAdministrationTest {
   public void display_project_settings() throws UnsupportedEncodingException {
     scanSample(null, null);
 
-    SettingsPage page = nav.logIn().asAdmin().openSettings("sample")
+    SettingsPage page = nav.logIn().submitCredentials(adminUser).openSettings("sample")
       .assertMenuContains("Analysis Scope")
       .assertMenuContains("Category 1")
       .assertMenuContains("DEV")
@@ -186,7 +192,7 @@ public class ProjectAdministrationTest {
   public void display_module_settings() throws UnsupportedEncodingException {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    nav.logIn().asAdmin()
+    nav.logIn().submitCredentials(adminUser)
       .openSettings("com.sonarsource.it.samples:multi-modules-sample:module_a")
       .assertMenuContains("Analysis Scope")
       .assertSettingDisplayed("sonar.coverage.exclusions");
