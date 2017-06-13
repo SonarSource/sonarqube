@@ -22,12 +22,14 @@ package it.uiExtension;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import pageobjects.Navigation;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -42,12 +44,21 @@ public class UiExtensionsTest {
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
+  private String adminUser;
 
   @BeforeClass
   public static void setUp() throws Exception {
     orchestrator.resetData();
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+  }
+
+  @Before
+  public void before() {
+    adminUser = userRule.createAdminUser();
   }
 
   @Test
@@ -69,7 +80,7 @@ public class UiExtensionsTest {
 
   @Test
   public void global_admin_page() {
-    nav.logIn().asAdmin().open("/about");
+    nav.logIn().submitCredentials(adminUser).open("/about");
 
     $(".navbar-admin-link").click();
     $("#settings-navigation-configuration").click();
@@ -92,7 +103,7 @@ public class UiExtensionsTest {
 
   @Test
   public void project_admin_page() {
-    nav.logIn().asAdmin().open("/dashboard?id=sample");
+    nav.logIn().submitCredentials(adminUser).open("/dashboard?id=sample");
 
     $("#component-navigation-admin").click();
     $(By.linkText("Project Admin Page")).click();

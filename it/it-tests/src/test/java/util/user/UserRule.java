@@ -33,9 +33,11 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -100,6 +102,35 @@ public class UserRule extends ExternalResource implements GroupManagement {
 
   public void createUser(String login, String password) {
     createUser(login, login, null, password);
+  }
+
+  /**
+   * Create a new admin user with random login, having password same as login
+   */
+  public String createAdminUser() {
+    String login = randomAlphabetic(10).toLowerCase();
+    return createAdminUser(login, login);
+  }
+
+  public String createAdminUser(String login, String password) {
+    createUser(login, password);
+    adminWsClient.permissions().addUser(new AddUserWsRequest().setLogin(login).setPermission("admin"));
+    adminWsClient.userGroups().addUser(org.sonarqube.ws.client.usergroup.AddUserWsRequest.builder().setLogin(login).setName("sonar-administrators").build());
+    return login;
+  }
+
+  /**
+   * Create a new root user with random login, having password same as login
+   */
+  public String createRootUser() {
+    String login = randomAlphabetic(10).toLowerCase();
+    return createRootUser(login, login);
+  }
+
+  public String createRootUser(String login, String password) {
+    createUser(login, password);
+    setRoot(login);
+    return login;
   }
 
   public void setRoot(String login) {

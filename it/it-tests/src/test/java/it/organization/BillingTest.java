@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category6Suite;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -62,8 +62,8 @@ public class BillingTest {
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -72,6 +72,7 @@ public class BillingTest {
   public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient adminClient;
+  private String adminUser;
 
   @BeforeClass
   public static void prepare() throws Exception {
@@ -83,12 +84,13 @@ public class BillingTest {
   public void setUp() throws Exception {
     userRule.deactivateUsers(USER_LOGIN);
     resetSettings(orchestrator, null, "sonar.billing.preventProjectAnalysis", "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
+    adminUser = userRule.createRootUser();
   }
 
-  @AfterClass
-  public static void tearDown() throws Exception {
+  @After
+  public void tearDown() throws Exception {
     resetSettings(orchestrator, null, "sonar.billing.preventProjectAnalysis", "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
-    userRule.deactivateUsers(USER_LOGIN);
+    userRule.resetUsers();
   }
 
   @Test
@@ -223,7 +225,7 @@ public class BillingTest {
     String projectKey = createPublicProject(createOrganization());
     setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
-    nav.logIn().asAdmin().openProjectPermissions(projectKey)
+    nav.logIn().submitCredentials(adminUser).openProjectPermissions(projectKey)
       .shouldBePublic()
       .shouldNotAllowPrivate();
   }
@@ -233,12 +235,12 @@ public class BillingTest {
     String projectKey = createPublicProject(createOrganization());
     setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
-    nav.logIn().asAdmin().openProjectPermissions(projectKey)
+    nav.logIn().submitCredentials(adminUser).openProjectPermissions(projectKey)
       .shouldBePublic()
       .turnToPrivate();
   }
 
-  private static String createOrganization() {
+  private String createOrganization() {
     String key = newOrganizationKey();
     adminClient.organizations().create(new CreateWsRequest.Builder().setKey(key).setName(key).build()).getOrganization();
     return key;
@@ -250,16 +252,16 @@ public class BillingTest {
     return projectKey;
   }
 
-  private static String executeAnalysis(String organizationKey) {
+  private String executeAnalysis(String organizationKey) {
     return executeAnalysis(newProjectKey(), organizationKey);
   }
 
-  private static String executeAnalysis(String projectKey, String organizationKey) {
+  private String executeAnalysis(String projectKey, String organizationKey) {
     BuildResult buildResult = orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"),
       "sonar.organization", organizationKey,
       "sonar.projectKey", projectKey,
-      "sonar.login", "admin",
-      "sonar.password", "admin"));
+      "sonar.login", adminUser,
+      "sonar.password", adminUser));
     return ItUtils.extractCeTaskId(buildResult);
   }
 

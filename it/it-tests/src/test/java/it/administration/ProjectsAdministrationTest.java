@@ -34,6 +34,7 @@ import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import pageobjects.Navigation;
 import pageobjects.ProjectsManagementPage;
 import util.ItUtils;
+import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -45,11 +46,17 @@ public class ProjectsAdministrationTest {
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
+  private String adminUser;
+
   @Before
-  public void deleteAnalysisData() throws SQLException {
+  public void initData() throws SQLException {
     orchestrator.resetData();
+    adminUser = userRule.createAdminUser();
   }
 
   @Test
@@ -60,7 +67,7 @@ public class ProjectsAdministrationTest {
     // Remove 'Admin' permission for admin group on project 2 -> No one can access or admin this project, expect System Admin
     newAdminWsClient(orchestrator).permissions().removeGroup(new RemoveGroupWsRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
 
-    nav.logIn().asAdmin().openProjectsManagement()
+    nav.logIn().submitCredentials(adminUser).openProjectsManagement()
       .shouldHaveProject("sample1")
       .shouldHaveProject("sample2");
   }
@@ -76,7 +83,7 @@ public class ProjectsAdministrationTest {
   }
 
   private void createProjectAndVerify(String visibility) {
-    ProjectsManagementPage page = nav.logIn().asAdmin().openProjectsManagement();
+    ProjectsManagementPage page = nav.logIn().submitCredentials(adminUser, adminUser).openProjectsManagement();
     page
       .shouldHaveProjectsCount(0)
       .createProject("foo", "foo", visibility)

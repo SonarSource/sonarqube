@@ -32,12 +32,12 @@ public class LoginPage {
     $("#login_form").should(Condition.exist);
   }
 
-  public Navigation submitCredentials(String login, String password) {
-    return submitCredentials(login, password, Navigation.class);
+  public Navigation submitCredentials(String login) {
+    return submitCredentials(login, login, Navigation.class);
   }
 
-  public Navigation asAdmin() {
-    return submitCredentials("admin", "admin");
+  public Navigation submitCredentials(String login, String password) {
+    return submitCredentials(login, password, Navigation.class);
   }
 
   public Navigation useOAuth2() {

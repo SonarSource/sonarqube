@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import pageobjects.EncryptionPage;
 import pageobjects.Navigation;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.visible;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,14 +42,17 @@ import static util.ItUtils.xooPlugin;
  */
 public class SettingsTestRestartingOrchestrator {
 
-  Orchestrator orchestrator;
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  private Orchestrator orchestrator;
+
+  private UserRule userRule;
 
   @After
   public void stop() {
     if (orchestrator != null) {
+      userRule.resetUsers();
       orchestrator.stop();
     }
   }
@@ -61,9 +65,10 @@ public class SettingsTestRestartingOrchestrator {
       .addPlugin(pluginArtifact("license-plugin"))
       .setServerProperty("sonar.secretKeyPath", secretKeyUrl.getFile())
       .build();
-    orchestrator.start();
+    startOrchestrator();
 
-    Navigation nav = Navigation.get(orchestrator).openHomepage().logIn().asAdmin();
+    String adminUser = userRule.createAdminUser();
+    Navigation nav = Navigation.get(orchestrator).openHomepage().logIn().submitCredentials(adminUser);
 
     nav.openSettings(null)
       .assertMenuContains("General")
@@ -86,7 +91,7 @@ public class SettingsTestRestartingOrchestrator {
       .addPlugin(xooPlugin())
       .setServerProperty("sonar.deprecatedKey", "true")
       .build();
-    orchestrator.start();
+    startOrchestrator();
 
     SonarScanner withDeprecatedKey = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.deprecatedKey", "true");
@@ -95,10 +100,16 @@ public class SettingsTestRestartingOrchestrator {
     // should not fail
     orchestrator.executeBuilds(withDeprecatedKey, withNewKey);
 
-    Navigation.get(orchestrator).openHomepage().logIn().asAdmin().openSettings(null)
+    String adminUser = userRule.createAdminUser();
+    Navigation.get(orchestrator).openHomepage().logIn().submitCredentials(adminUser).openSettings(null)
       .assertMenuContains("General")
       .assertSettingDisplayed("sonar.newKey")
       .assertSettingNotDisplayed("sonar.deprecatedKey");
+  }
+
+  private void startOrchestrator() {
+    orchestrator.start();
+    userRule = UserRule.from(orchestrator);
   }
 
 }

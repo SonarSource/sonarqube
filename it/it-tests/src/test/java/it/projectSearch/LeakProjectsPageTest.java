@@ -94,7 +94,7 @@ public class LeakProjectsPageTest {
     analyzeProject(projectKey1, "shared/xoo-sample", null);
 
     // Check the facets and project cards
-    ProjectsPage page = nav.logIn().asAdmin().openProjects(organizationKey);
+    ProjectsPage page = nav.openProjects(organizationKey);
     page.changePerspective("Leak");
     assertThat(url()).endsWith("/projects?view=leak");
     page.shouldHaveTotal(2);

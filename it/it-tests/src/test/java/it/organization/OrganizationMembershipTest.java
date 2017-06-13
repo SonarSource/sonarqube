@@ -24,6 +24,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
 import java.util.List;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -57,8 +58,8 @@ public class OrganizationMembershipTest {
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -67,6 +68,7 @@ public class OrganizationMembershipTest {
   public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient adminClient;
+  private String adminUser;
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -74,6 +76,11 @@ public class OrganizationMembershipTest {
     enableOrganizationsSupport();
     setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
     deleteOrganizationsIfExists(orchestrator, KEY);
+  }
+
+  @Before
+  public void before() {
+    adminUser = userRule.createRootUser();
   }
 
   @After
@@ -201,7 +208,7 @@ public class OrganizationMembershipTest {
     String userFoo = createUser("foo");
     createUser();
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     page
       .shouldHaveTotal(1)
       .addMember(userFoo)
@@ -220,7 +227,7 @@ public class OrganizationMembershipTest {
     String user2 = createUser();
     adminClient.organizations().addMember(orgKey, user2);
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     page.shouldHaveTotal(3)
       .getMembersByIdx(1).removeMembership();
     page.shouldHaveTotal(2);
@@ -233,7 +240,7 @@ public class OrganizationMembershipTest {
     String userFoo = createUser("foo");
     adminClient.organizations().addMember(orgKey, userFoo);
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     // foo user
     page.getMembersByIdx(1)
       .manageGroupsOpen()
@@ -253,7 +260,7 @@ public class OrganizationMembershipTest {
     String orgKey = createOrganization();
     String userFoo = createUser("foo");
 
-    MembersPage page = nav.logIn().asAdmin().openOrganizationMembers(orgKey);
+    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
     page
       .addMember(userFoo)
       .getMembersByIdx(1)
@@ -294,11 +301,11 @@ public class OrganizationMembershipTest {
     return KEY;
   }
 
-  private static String createUser() {
+  private String createUser() {
     return createUser("");
   }
 
-  private static String createUser(String prefix) {
+  private String createUser(String prefix) {
     String login = prefix + randomAlphabetic(10).toLowerCase();
     userRule.createUser(login, login);
     return login;
