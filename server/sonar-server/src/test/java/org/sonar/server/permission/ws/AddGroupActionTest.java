@@ -377,7 +377,7 @@ public class AddGroupActionTest extends BasePermissionWsTest<AddGroupAction> {
             .execute();
           fail("a BadRequestException should have been raised for " + permission);
         } catch (BadRequestException e) {
-          assertThat(e).hasMessage("No permission can be granted to AnyOne on a private component");
+          assertThat(e).hasMessage("No permission can be granted to Anyone on a private component");
         }
       });
   }
