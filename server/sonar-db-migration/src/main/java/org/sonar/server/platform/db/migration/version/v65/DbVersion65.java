@@ -52,8 +52,9 @@ public class DbVersion65 implements DbVersion {
       .add(1723, "Populate table qprofiles", PopulateOrgQProfiles.class)
       .add(1724, "Drop columns organization_uuid and parent_kee from rules_profiles", DropOrgColumnsFromRulesProfiles.class)
       .add(1725, "Mark rules_profiles.is_built_in to true for default organization", SetRulesProfilesIsBuiltInToTrueForDefaultOrganization.class)
-      .add(1726, "Update OrgQProfiles to point to built-in profiles", UpdateOrgQProfilesToPointToBuiltInProfiles.class)
-      .add(1727, "Rename column qprofile_changes.qprofile_key to qprofile_changes.rules_profile_uuid", RenameQProfileKeyToRulesProfileUuidOnQProfileChanges.class)
-      .add(1728, "Ensure presence of index on qprofile_changes.rules_profile_uuid", AddIndexRulesProfileUuidOnQProfileChangesIsIndexed.class);
+      .add(1726, "Update org_qprofiles to reference built-in profiles", UpdateOrgQProfilesToPointToBuiltInProfiles.class)
+      .add(1727, "Delete rules_profiles orphans", DeleteOrphansFromRulesProfiles.class)
+      .add(1728, "Rename column qprofile_changes.qprofile_key to qprofile_changes.rules_profile_uuid", RenameQProfileKeyToRulesProfileUuidOnQProfileChanges.class)
+      .add(1729, "Add index on qprofile_changes.rules_profile_uuid", AddIndexRulesProfileUuidOnQProfileChanges.class);
   }
 }

@@ -17,28 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.db.migration.version.v65;
 
 import java.sql.SQLException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonar.db.CoreDbTester;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.CreateIndexBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-public class AddIndexRulesProfileUuidOnQProfileChangesIsIndexedTest {
+public class AddIndexRulesProfileUuidOnQProfileChanges extends DdlChange {
 
   private static final String TABLE_NAME = "qprofile_changes";
   private static final String COLUMN_NAME = "rules_profile_uuid";
-  private static final String INDEX_NAME = "qp_changes_rules_profile_uuid";
+  private static final String NEW_INDEX_NAME = "qp_changes_rules_profile_uuid";
 
-  @Rule
-  public CoreDbTester db = CoreDbTester.createForSchema(AddIndexRulesProfileUuidOnQProfileChangesIsIndexedTest.class, "initial.sql");
+  public AddIndexRulesProfileUuidOnQProfileChanges(Database db) {
+    super(db);
+  }
 
-  private AddIndexRulesProfileUuidOnQProfileChangesIsIndexed underTest = new AddIndexRulesProfileUuidOnQProfileChangesIsIndexed(db.database());
+  @Override
+  public void execute(Context context) throws SQLException {
+    VarcharColumnDef rulesProfileUuid = VarcharColumnDef.newVarcharColumnDefBuilder()
+      .setColumnName(COLUMN_NAME)
+      .setLimit(255)
+      .setIsNullable(false)
+      .build();
 
-  @Test
-  public void add_index_ON_RULES_PROFILE_UUID_of_QPROFILE_CHANGES() throws SQLException {
-    underTest.execute();
-
-    db.assertIndex(TABLE_NAME, INDEX_NAME,COLUMN_NAME);
+    context.execute(new CreateIndexBuilder(getDialect())
+      .setName(NEW_INDEX_NAME)
+      .setTable(TABLE_NAME)
+      .addColumn(rulesProfileUuid)
+      .build()
+    );
   }
 }
