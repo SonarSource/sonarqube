@@ -23,11 +23,11 @@ import com.github.kevinsawicki.http.HttpRequest;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.MavenBuild;
 import com.sonar.orchestrator.locator.FileLocation;
-import org.junit.Ignore;
-import org.sonarsource.sonarqube.perf.PerfTestCase;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.sonarsource.sonarqube.perf.PerfTestCase;
 
 import static org.junit.Assert.fail;
 
@@ -98,7 +98,7 @@ public class WebTest extends PerfTestCase {
 
   @Test
   public void struts_dashboard() throws Exception {
-    PageStats counters = request("/dashboard/index/org.apache.struts:struts-parent?name=Custom");
+    PageStats counters = request("/dashboard?id=org.apache.struts:struts-parent?name=Custom");
     assertDurationLessThan(counters.durationMs, 400);
   }
 
