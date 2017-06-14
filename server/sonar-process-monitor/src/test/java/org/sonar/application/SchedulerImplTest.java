@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -175,6 +176,7 @@ public class SchedulerImplTest {
   }
 
   @Test
+  @Ignore("false-positives on Travis CI")
   public void restart_reloads_java_commands_and_restarts_all_processes() throws Exception {
     Scheduler underTest = startAll();
 
