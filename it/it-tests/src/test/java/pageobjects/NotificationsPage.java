@@ -20,6 +20,7 @@
 package pageobjects;
 
 import static com.codeborne.selenide.Condition.cssClass;
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
@@ -28,6 +29,7 @@ public class NotificationsPage {
   private final String EMAIL = "EmailNotificationChannel";
 
   public NotificationsPage() {
+    $("#account-page").shouldHave(text("Overall notifications"));
   }
 
   public NotificationsPage shouldHaveGlobalNotification(String type) {
