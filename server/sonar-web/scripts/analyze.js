@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable no-console */
 process.env.NODE_ENV = 'production';
 
 const webpack = require('webpack');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const config = require('../config/webpack/webpack.config.prod');
+const getConfig = require('../config/webpack.config');
+
+const config = getConfig({ production: true });
 
 config.plugins.push(new BundleAnalyzerPlugin());
 
