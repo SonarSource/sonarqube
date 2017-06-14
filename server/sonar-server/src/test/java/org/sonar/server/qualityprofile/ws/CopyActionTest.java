@@ -44,6 +44,7 @@ import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
@@ -68,7 +69,7 @@ public class CopyActionTest {
   @Rule
   public JUnitTempFolder tempDir = new JUnitTempFolder();
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private QProfileFactory profileFactory = new QProfileFactory(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE, activeRuleIndexer);
+  private QProfileFactory profileFactory = new QProfileFactoryImpl(db.getDbClient(), new SequenceUuidFactory(), System2.INSTANCE, activeRuleIndexer);
   private TestBackuper backuper = new TestBackuper();
   private QProfileCopier profileCopier = new QProfileCopier(db.getDbClient(), profileFactory, backuper, tempDir);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);

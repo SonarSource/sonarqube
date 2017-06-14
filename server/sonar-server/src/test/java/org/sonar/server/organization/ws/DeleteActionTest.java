@@ -49,6 +49,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
@@ -81,7 +82,7 @@ public class DeleteActionTest {
   private ComponentCleanerService componentCleanerService = mock(ComponentCleanerService.class);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QProfileFactory qProfileFactory = new QProfileFactory(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
+  private QProfileFactory qProfileFactory = new QProfileFactoryImpl(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
   private UserIndex userIndex = new UserIndex(es.client());
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
 

@@ -57,6 +57,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchIdResult;
@@ -291,11 +292,12 @@ public class RuleIndex {
     }
 
     /* Implementation of activation query */
-    if (query.getActivation() != null && query.getQProfile() != null) {
+    QProfileDto profile = query.getQProfile();
+    if (query.getActivation() != null && profile != null) {
 
       // ActiveRule Filter (profile and inheritance)
       BoolQueryBuilder childrenFilter = boolQuery();
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, query.getQProfile().getRulesProfileUuid());
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid());
       addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
 
@@ -419,7 +421,8 @@ public class RuleIndex {
 
   private static void addActiveSeverityFacetIfNeeded(RuleQuery query, SearchOptions options, Map<String, AbstractAggregationBuilder> aggregations,
     StickyFacetBuilder stickyFacetBuilder) {
-    if (options.getFacets().contains(FACET_ACTIVE_SEVERITIES) && query.getQProfile() != null) {
+    QProfileDto profile = query.getQProfile();
+    if (options.getFacets().contains(FACET_ACTIVE_SEVERITIES) && profile != null) {
       // We are building a children aggregation on active rules
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
@@ -429,7 +432,7 @@ public class RuleIndex {
 
       // Rebuilding the active rule filter without severities
       BoolQueryBuilder childrenFilter = boolQuery();
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, query.getQProfile().getRulesProfileUuid());
+      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid());
       RuleIndex.addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       QueryBuilder activeRuleFilter = childrenFilter.must(ruleFilter);
 

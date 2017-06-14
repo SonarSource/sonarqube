@@ -52,16 +52,15 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
       .collect(MoreCollectors.toHashSet());
 
     List<ActiveRuleChange> changes = new ArrayList<>();
-      builtIn.getActiveRules().forEach(ar -> {
+    builtIn.getActiveRules().forEach(ar -> {
       RuleActivation activation = convert(ar);
       toBeDeactivated.remove(activation.getRuleKey());
       changes.addAll(ruleActivator.activateOnBuiltInRulesProfile(dbSession, activation, ruleProfile));
     });
 
     // these rules are not part of the built-in profile anymore
-    toBeDeactivated.forEach(ruleKey -> {
-      changes.addAll(ruleActivator.deactivateOnBuiltInRulesProfile(dbSession, ruleProfile, ruleKey, false));
-    });
+    toBeDeactivated.forEach(ruleKey ->
+      changes.addAll(ruleActivator.deactivateOnBuiltInRulesProfile(dbSession, ruleProfile, ruleKey, false)));
 
     dbSession.commit();
     activeRuleIndexer.indexChanges(dbSession, changes);

@@ -82,7 +82,7 @@ public class PopulateTableDefaultQProfiles extends DataChange {
    * profile marked as default for an organization and language.
    * This method returns the buggy rows.
    */
-  private Set<OrgLang> selectOrgsWithMultipleDefaultProfiles(Context context) throws SQLException {
+  private static Set<OrgLang> selectOrgsWithMultipleDefaultProfiles(Context context) throws SQLException {
     Select rows = context.prepareSelect("select organization_uuid, language from rules_profiles " +
       " where is_default = ? " +
       " group by organization_uuid, language " +

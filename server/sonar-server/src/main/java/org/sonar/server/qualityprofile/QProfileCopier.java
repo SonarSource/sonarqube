@@ -26,7 +26,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.db.DbClient;
@@ -79,11 +78,6 @@ public class QProfileCopier {
   }
 
   private void verify(QProfileDto fromProfile, QProfileName toProfileName) {
-    if (!StringUtils.equals(fromProfile.getLanguage(), toProfileName.getLanguage())) {
-      throw new IllegalArgumentException(String.format(
-        "Source and target profiles do not have the same language: %s and %s",
-        fromProfile.getLanguage(), toProfileName.getLanguage()));
-    }
     if (fromProfile.getName().equals(toProfileName.getName())) {
       throw new IllegalArgumentException(String.format("Source and target profiles are equal: %s",
         fromProfile.getName()));

@@ -104,11 +104,7 @@ public class ActiveRuleCompleter {
       Multimap<RuleKey, OrgActiveRuleDto> activeRulesByRuleKey = activeRules.stream()
         .collect(MoreCollectors.index(OrgActiveRuleDto::getRuleKey));
       ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = loadParams(dbSession, activeRules);
-      rules.forEach(rule -> {
-      });
-      for (RuleDto rule : rules) {
-        profileUuids.addAll(writeActiveRules(rule.getKey(), activeRulesByRuleKey.get(rule.getKey()), activeRuleParamsByActiveRuleKey, activesBuilder));
-      }
+      rules.forEach(rule -> profileUuids.addAll(writeActiveRules(rule.getKey(), activeRulesByRuleKey.get(rule.getKey()), activeRuleParamsByActiveRuleKey, activesBuilder)));
     }
 
     response.setActives(activesBuilder);

@@ -115,7 +115,7 @@ public class Validations {
   }
 
   private static void checkDbIdentifierCharacters(String identifier, String identifierDesc) {
-    checkArgument(identifier != null && identifier.length() > 0, "Identifier must not be empty");
+    checkArgument(identifier.length() > 0, "Identifier must not be empty");
     checkArgument(
       LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER.or(DIGIT_CHAR_MATCHER).or(anyOf("_")).matchesAllOf(identifier),
       "%s must be lower case and contain only alphanumeric chars or '_', got '%s'", identifierDesc, identifier);

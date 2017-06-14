@@ -111,7 +111,7 @@ public class ActivateRuleAction implements QProfileWsAction {
     response.noContent();
   }
 
-  private RuleActivation readActivation(Request request) {
+  private static RuleActivation readActivation(Request request) {
     RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
     boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
     if (reset) {

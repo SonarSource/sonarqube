@@ -113,6 +113,7 @@ public class RuleActivatorTest {
     RuleActivation activation = RuleActivation.create(rule.getKey(), BLOCKER, null);
     List<ActiveRuleChange> changes = activate(profile, activation);
 
+
     assertThatRuleIsActivated(profile, rule, changes, BLOCKER, null, emptyMap());
     assertThatProfileIsUpdatedByUser(profile);
   }
@@ -1044,6 +1045,24 @@ public class RuleActivatorTest {
       .extracting(ActiveRuleChange::getType)
       .containsOnly(ActiveRuleChange.Type.DEACTIVATED)
       .hasSize(3);
+  }
+
+  @Test
+  public void activation_errors_are_ignored_when_setting_a_parent() {
+    RuleDefinitionDto rule1 = createJavaRule();
+    RuleDefinitionDto rule2 = createJavaRule();
+    QProfileDto parentProfile = createProfile(rule1);
+    activate(parentProfile, RuleActivation.create(rule1.getKey()));
+    activate(parentProfile, RuleActivation.create(rule2.getKey()));
+
+    rule1.setStatus(RuleStatus.REMOVED);
+    db.rules().update(rule1);
+
+    QProfileDto childProfile = createProfile(rule1);
+    List<ActiveRuleChange> changes = underTest.setParent(db.getSession(), childProfile, parentProfile);
+
+    assertThatRuleIsNotPresent(childProfile, rule1);
+    assertThatRuleIsActivated(childProfile, rule2, changes, rule2.getSeverityString(), INHERITED, emptyMap());
   }
 
   private void assertThatProfileHasNoActiveRules(QProfileDto profile) {

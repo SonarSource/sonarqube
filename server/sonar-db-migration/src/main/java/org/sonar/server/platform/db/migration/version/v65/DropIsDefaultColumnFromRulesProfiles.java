@@ -65,7 +65,7 @@ public class DropIsDefaultColumnFromRulesProfiles extends DdlChange {
     }
   }
 
-  private void dropMssqlConstraint(Connection connection, String constraintName) throws SQLException {
+  private static void dropMssqlConstraint(Connection connection, String constraintName) throws SQLException {
     try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate(format("ALTER TABLE %s DROP CONSTRAINT %s", TABLE_NAME, constraintName));
     }

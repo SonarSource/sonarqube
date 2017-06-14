@@ -223,7 +223,7 @@ public class RuleActivator {
   }
 
   @CheckForNull
-  private String firstNonNull(String... strings) {
+  private static String firstNonNull(String... strings) {
     for (String s : strings) {
       if (s != null) {
         return s;

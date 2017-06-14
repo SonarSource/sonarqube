@@ -42,7 +42,7 @@ public class DeleteOrphansFromRulesProfiles extends DataChange {
     execute(context, "qprofile_changes", "delete from qprofile_changes where not exists ( select 1 from rules_profiles rp where rp.kee = qprofile_key)");
   }
 
-  private void execute(Context context, String tableName, String sql) throws SQLException {
+  private static void execute(Context context, String tableName, String sql) throws SQLException {
     LOG.info("Deleting orphans from " + tableName);
     context
       .prepareUpsert(sql)

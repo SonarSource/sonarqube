@@ -157,7 +157,8 @@ public class SearchAction implements QProfileWsAction {
       }
 
       List<QProfileDto> profiles = dataLoader.findProfiles(dbSession, request, organization, project);
-      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList()));
+      List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList());
+      Set<String> defaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, organization.getUuid(), profileUuids);
 
       return new SearchData()
         .setOrganization(organization)

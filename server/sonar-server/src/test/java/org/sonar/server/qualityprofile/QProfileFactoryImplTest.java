@@ -53,7 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class QProfileFactoryTest {
+public class QProfileFactoryImplTest {
 
   private System2 system2 = new AlwaysIncreasingSystem2();
 
@@ -64,7 +64,7 @@ public class QProfileFactoryTest {
 
   private DbSession dbSession = db.getSession();
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
-  private QProfileFactory underTest = new QProfileFactory(db.getDbClient(), new SequenceUuidFactory(), system2, activeRuleIndexer);
+  private QProfileFactory underTest = new QProfileFactoryImpl(db.getDbClient(), new SequenceUuidFactory(), system2, activeRuleIndexer);
   private RuleDefinitionDto rule;
   private RuleParamDto ruleParam;
 

@@ -47,7 +47,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileExporters;
-import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -100,7 +100,7 @@ public class CreateActionTest {
     profileImporters);
   private OrganizationDto organization;
 
-  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactory(dbClient, UuidFactoryFast.getInstance(), system2, activeRuleIndexer), qProfileExporters,
+  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), system2, activeRuleIndexer), qProfileExporters,
     newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
     userSession, activeRuleIndexer, profileImporters);
   private WsActionTester wsTester = new WsActionTester(underTest);

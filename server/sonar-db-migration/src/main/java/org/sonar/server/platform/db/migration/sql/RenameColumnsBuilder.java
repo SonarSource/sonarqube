@@ -47,7 +47,7 @@ public class RenameColumnsBuilder {
 
   private final Dialect dialect;
   private final String tableName;
-  private final List<Renaming> renamings = new ArrayList();
+  private final List<Renaming> renamings = new ArrayList<>();
 
   public RenameColumnsBuilder(Dialect dialect, String tableName) {
     this.dialect = dialect;
@@ -61,13 +61,12 @@ public class RenameColumnsBuilder {
 
   public List<String> build() {
     validateTableName(tableName);
-    renamings.stream().forEach(
+    renamings.forEach(
       r -> {
         validateColumnName(r.getOldColumnName());
         validateColumnName(r.getNewColumnName());
         checkArgument(!r.getNewColumnName().equals(r.getOldColumnName()), "Column names must be different");
-      }
-    );
+      });
     return createSqlStatement();
   }
 
@@ -87,11 +86,10 @@ public class RenameColumnsBuilder {
           default:
             throw new IllegalArgumentException("Unsupported dialect id " + dialect.getId());
         }
-      }
-    ).collect(Collectors.toList());
+      }).collect(Collectors.toList());
   }
 
-  private class Renaming implements ColumnDef {
+  private static class Renaming implements ColumnDef {
     private final ColumnDef columnDef;
     private final String oldColumnName;
 
