@@ -44,8 +44,8 @@ import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
@@ -83,6 +83,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
         "</ul>")
       .setResponseExample(getClass().getResource("search_project_permissions-example.json"))
       .setSince("5.2")
+      .setDeprecatedSince("6.5")
       .addPagingParams(25)
       .setHandler(this);
 
