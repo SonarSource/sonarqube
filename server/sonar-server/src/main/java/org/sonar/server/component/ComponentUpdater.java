@@ -82,7 +82,7 @@ public class ComponentUpdater {
     checkBranchFormat(newComponent.qualifier(), newComponent.branch());
     String keyWithBranch = ComponentKeys.createKey(newComponent.key(), newComponent.branch());
     checkRequest(!dbClient.componentDao().selectByKey(session, keyWithBranch).isPresent(),
-      formatMessage("Could not create %s, key already exists: %s", newComponent.qualifier(), keyWithBranch));
+      "Could not create %s, key already exists: %s", getQualifierToDisplay(newComponent.qualifier()), keyWithBranch);
 
     String uuid = Uuids.create();
     ComponentDto component = new ComponentDto()
@@ -126,18 +126,18 @@ public class ComponentUpdater {
     }
   }
 
-  private void checkKeyFormat(String qualifier, String kee) {
-    checkRequest(isValidModuleKey(kee), formatMessage("Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
-      qualifier, kee));
+  private void checkKeyFormat(String qualifier, String key) {
+    checkRequest(isValidModuleKey(key),
+      "Malformed key for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", getQualifierToDisplay(qualifier), key);
   }
 
   private void checkBranchFormat(String qualifier, @Nullable String branch) {
     checkRequest(branch == null || ComponentKeys.isValidBranch(branch),
-      formatMessage("Malformed branch for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.", qualifier, branch));
+      "Malformed branch for %s: %s. Allowed characters are alphanumeric, '-', '_', '.' and '/', with at least one non-digit.", getQualifierToDisplay(qualifier), branch);
   }
 
-  private String formatMessage(String message, String qualifier, String key) {
-    return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
+  private String getQualifierToDisplay(String qualifier) {
+    return i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project");
   }
 
   private void index(ComponentDto project) {
