@@ -69,7 +69,7 @@ public class WsUtilsTest {
   }
 
   @Test
-  public void log_message_when_error_writing_message() throws IOException {
+  public void rethrow_error_as_ISE_when_error_writing_message() throws IOException {
     TestRequest request = new TestRequest();
     request.setMediaType(MediaTypes.PROTOBUF);
 
@@ -77,7 +77,7 @@ public class WsUtilsTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectCause(hasType(NullPointerException.class));
-    expectedException.expectMessage("Error while writing protobuf message org.sonarqube.ws.WsPermissions.Permission[name: \"permission-name\"]");
+    expectedException.expectMessage("Error while writing protobuf message");
     // provoke NullPointerException
     WsUtils.writeProtobuf(message, null, new DumbResponse());
   }

@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
@@ -33,10 +32,11 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.MessageFormatter;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonarqube.ws.MediaTypes.JSON;
+import static org.sonarqube.ws.MediaTypes.PROTOBUF;
 
 public class WsUtils {
 
@@ -47,17 +47,17 @@ public class WsUtils {
   public static void writeProtobuf(Message msg, Request request, Response response) {
     OutputStream output = response.stream().output();
     try {
-      if (request.getMediaType().equals(MediaTypes.PROTOBUF)) {
-        response.stream().setMediaType(MediaTypes.PROTOBUF);
+      if (request.getMediaType().equals(PROTOBUF)) {
+        response.stream().setMediaType(PROTOBUF);
         msg.writeTo(output);
       } else {
-        response.stream().setMediaType(MediaTypes.JSON);
-        try (JsonWriter writer = JsonWriter.of(new OutputStreamWriter(output, StandardCharsets.UTF_8))) {
+        response.stream().setMediaType(JSON);
+        try (JsonWriter writer = JsonWriter.of(new OutputStreamWriter(output, UTF_8))) {
           ProtobufJsonFormat.write(msg, writer);
         }
       }
     } catch (Exception e) {
-      throw new IllegalStateException(format("Error while writing protobuf message %s", MessageFormatter.print(msg)), e);
+      throw new IllegalStateException("Error while writing protobuf message", e);
     } finally {
       IOUtils.closeQuietly(output);
     }
