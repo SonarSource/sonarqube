@@ -64,6 +64,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
         "Requires the following permission: 'Administer System'")
       .setResponseExample(getClass().getResource("search_global_permissions-example.json"))
       .setSince("5.2")
+      .setDeprecatedSince("6.5")
       .setHandler(this);
 
     createOrganizationParameter(action).setSince("6.2");
