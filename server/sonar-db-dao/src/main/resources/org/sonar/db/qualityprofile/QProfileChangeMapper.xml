@@ -5,7 +5,7 @@
 
   <sql id="selectColumns">
     qpc.kee as "uuid",
-    qpc.qprofile_key as rulesProfileUuid,
+    qpc.rules_profile_uuid as rulesProfileUuid,
     qpc.created_at as createdAt,
     qpc.user_login as login,
     qpc.change_type as changeType,
@@ -16,7 +16,7 @@
     insert into qprofile_changes
     (
       kee,
-      qprofile_key,
+      rules_profile_uuid,
       created_at,
       user_login,
       change_type,
@@ -34,7 +34,7 @@
   <select id="countForQProfileUuid" resultType="int">
     select count(qpc.kee)
     from qprofile_changes qpc
-    inner join rules_profiles rp on rp.kee = qpc.qprofile_key
+    inner join rules_profiles rp on rp.kee = qpc.rules_profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     where
       oqp.uuid = #{qProfileUuid, jdbcType=VARCHAR}
@@ -65,7 +65,7 @@
   <sql id="sqlSelectByQuery">
     select <include refid="selectColumns" />
     from qprofile_changes qpc
-    inner join rules_profiles rp on rp.kee = qpc.qprofile_key
+    inner join rules_profiles rp on rp.kee = qpc.rules_profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     where
       oqp.uuid = #{query.profileUuid, jdbcType=VARCHAR}
@@ -80,7 +80,7 @@
 
   <delete id="deleteByRuleProfileUuids" parameterType="String">
     delete from qprofile_changes
-    where qprofile_key in
+    where rules_profile_uuid in
     <foreach collection="ruleProfileUuids" open="(" close=")" item="ruleProfileUuid" separator=",">
       #{ruleProfileUuid, jdbcType=VARCHAR}
     </foreach>

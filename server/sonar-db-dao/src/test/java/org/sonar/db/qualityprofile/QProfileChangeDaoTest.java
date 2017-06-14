@@ -239,7 +239,7 @@ public class QProfileChangeDaoTest {
 
   private QProfileChangeDto selectChangeByUuid(String uuid) {
     Map<String, Object> map = db.selectFirst(dbSession,
-      "select kee as \"uuid\", qprofile_key as \"rulesProfileUuid\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
+      "select kee as \"uuid\", rules_profile_uuid as \"rulesProfileUuid\", created_at as \"createdAt\", user_login as \"login\", change_type as \"changeType\", change_data as \"changeData\" from qprofile_changes where kee='"
         + uuid + "'");
     return new QProfileChangeDto()
       .setUuid((String) map.get("uuid"))

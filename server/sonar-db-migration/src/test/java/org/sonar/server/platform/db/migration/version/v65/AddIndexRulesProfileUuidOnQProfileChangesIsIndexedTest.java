@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v65;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddIndexRulesProfileUuidOnQProfileChangesIsIndexedTest {
 
-public class DbVersion65Test {
-  private DbVersion65 underTest = new DbVersion65();
+  private static final String TABLE_NAME = "qprofile_changes";
+  private static final String COLUMN_NAME = "rules_profile_uuid";
+  private static final String INDEX_NAME = "qp_changes_rules_profile_uuid";
+
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(AddIndexRulesProfileUuidOnQProfileChangesIsIndexedTest.class, "initial.sql");
+
+  private AddIndexRulesProfileUuidOnQProfileChangesIsIndexed underTest = new AddIndexRulesProfileUuidOnQProfileChangesIsIndexed(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1700() {
-    verifyMinimumMigrationNumber(underTest, 1700);
-  }
+  public void add_index_ON_RULES_PROFILE_UUID_of_QPROFILE_CHANGES() throws SQLException {
+    underTest.execute();
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 29);
+    db.assertIndex(TABLE_NAME, INDEX_NAME,COLUMN_NAME);
   }
 }

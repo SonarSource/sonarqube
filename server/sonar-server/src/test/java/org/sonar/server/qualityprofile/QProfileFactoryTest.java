@@ -313,7 +313,7 @@ public class QProfileFactoryTest {
     assertThat(db.countSql(dbSession, "select count(*) from default_qprofiles where qprofile_uuid = '" + profile.getKee() + "'")).isEqualTo(0);
     assertThat(db.countSql(dbSession, "select count(*) from rules_profiles where kee = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(0);
     assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_id = " + profile.getId())).isEqualTo(0);
-    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where qprofile_key = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(0);
+    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(0);
     // TODO active_rule_parameters
   }
 
@@ -323,7 +323,7 @@ public class QProfileFactoryTest {
     //assertThat(db.countSql(dbSession, "select count(*) from default_qprofiles where qprofile_uuid = '" + profile.getKee() + "'")).isGreaterThan(0);
     assertThat(db.countSql(dbSession, "select count(*) from rules_profiles where kee = '" + profile.getRulesProfileUuid() + "'")).isEqualTo(1);
     assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_id = " + profile.getId())).isGreaterThan(0);
-    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where qprofile_key = '" + profile.getRulesProfileUuid() + "'")).isGreaterThan(0);
+    assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isGreaterThan(0);
     // TODO active_rule_parameters
   }
 
