@@ -127,60 +127,62 @@ export default class Onboarding extends React.PureComponent {
     let stepNumber = 1;
 
     return (
-      <div className="page page-limited">
-        <header className="page-header">
-          <h1 className="page-title">
-            {translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header')}
-          </h1>
-          <div className="page-actions">
-            {this.state.skipping
-              ? <i className="spinner" />
-              : <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
-                  {translate('tutorials.skip')}
-                </a>}
-          </div>
-          <div className="page-description">
-            {translate('onboarding.header.description')}
-          </div>
-        </header>
+      <div className="modal-container">
+        <div className="page page-limited onboarding">
+          <header className="page-header">
+            <h1 className="page-title">
+              {translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header')}
+            </h1>
+            <div className="page-actions">
+              {this.state.skipping
+                ? <i className="spinner" />
+                : <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
+                    {translate('tutorials.skip')}
+                  </a>}
+            </div>
+            <div className="page-description">
+              {translate('onboarding.header.description')}
+            </div>
+          </header>
 
-        {organizationsEnabled &&
-          <OrganizationStep
-            currentUser={this.props.currentUser}
-            onContinue={this.handleOrganizationDone}
-            open={step === 'organization'}
+          {organizationsEnabled &&
+            <OrganizationStep
+              currentUser={this.props.currentUser}
+              onContinue={this.handleOrganizationDone}
+              open={step === 'organization'}
+              stepNumber={stepNumber++}
+            />}
+
+          <TokenStep
+            onContinue={this.handleTokenDone}
+            open={step === 'token'}
             stepNumber={stepNumber++}
-          />}
+          />
 
-        <TokenStep
-          onContinue={this.handleTokenDone}
-          open={step === 'token'}
-          stepNumber={stepNumber++}
-        />
+          <AnalysisStep
+            onFinish={this.handleFinish}
+            onReset={this.handleReset}
+            organization={this.state.organization}
+            open={step === 'analysis'}
+            sonarCloud={sonarCloud}
+            stepNumber={stepNumber}
+            token={token}
+          />
 
-        <AnalysisStep
-          onFinish={this.handleFinish}
-          onReset={this.handleReset}
-          organization={this.state.organization}
-          open={step === 'analysis'}
-          sonarCloud={sonarCloud}
-          stepNumber={stepNumber}
-          token={token}
-        />
-
-        {this.state.finished &&
-          !this.state.skipping &&
-          (this.state.projectKey
-            ? <ProjectWatcher
-                onFinish={this.finishOnboarding}
-                onTimeout={this.handleTimeout}
-                projectKey={this.state.projectKey}
-              />
-            : <footer className="text-right">
-                <a className="button" href="#" onClick={this.handleSkipClick}>
-                  {translate('tutorials.finish')}
-                </a>
-              </footer>)}
+          {this.state.finished &&
+            !this.state.skipping &&
+            (this.state.projectKey
+              ? <ProjectWatcher
+                  onFinish={this.finishOnboarding}
+                  onTimeout={this.handleTimeout}
+                  projectKey={this.state.projectKey}
+                />
+              : <footer className="text-right">
+                  <a className="button" href="#" onClick={this.handleSkipClick}>
+                    {translate('tutorials.finish')}
+                  </a>
+                </footer>)}
+        </div>
       </div>
     );
   }

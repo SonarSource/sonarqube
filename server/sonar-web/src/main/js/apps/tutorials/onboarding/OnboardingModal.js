@@ -60,7 +60,7 @@ export default class OnboardingModal extends React.PureComponent {
       <Modal
         isOpen={true}
         contentLabel={translate('tutorials.onboarding')}
-        className="modal modal-full-screen"
+        className="modal modal-large"
         overlayClassName="modal-overlay">
         {OnboardingContainer != null && <OnboardingContainer onSkip={this.props.onClose} />}
       </Modal>
