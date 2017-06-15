@@ -171,4 +171,10 @@ public class ComponentDbTester {
     db.commit();
     return snapshot;
   }
+
+  public void insertSnapshots(SnapshotDto... snapshotDtos) {
+    dbClient.snapshotDao().insert(dbSession, asList(snapshotDtos));
+    db.commit();
+  }
+
 }
