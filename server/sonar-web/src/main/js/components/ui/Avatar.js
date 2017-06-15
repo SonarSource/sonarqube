@@ -93,7 +93,7 @@ class Avatar extends React.PureComponent {
       return this.renderFallback();
     }
 
-    const emailHash = this.props.hash || md5.md5((this.props.email || '').toLowerCase()).trim();
+    const emailHash = this.props.hash || md5((this.props.email || '').toLowerCase()).trim();
     const url = this.props.gravatarServerUrl
       .replace('{EMAIL_MD5}', emailHash)
       .replace('{SIZE}', this.props.size * 2);
