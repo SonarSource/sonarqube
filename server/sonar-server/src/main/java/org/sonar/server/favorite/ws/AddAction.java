@@ -48,8 +48,8 @@ public class AddAction implements FavoritesWsAction {
   }
 
   @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("add")
+  public WebService.Action define() {
+    WebService.NewAction action = new WebService.NewAction("add")
       .setDescription("Add a component (project, directory, file etc.) as favorite for the authenticated user.<br>" +
         "Requires authentication and the following permission: 'Browse' on the project of the specified component.")
       .setSince("6.3")
@@ -60,6 +60,8 @@ public class AddAction implements FavoritesWsAction {
       .setDescription("Component key")
       .setRequired(true)
       .setExampleValue(KeyExamples.KEY_FILE_EXAMPLE_001);
+
+    return action.build("api/favorites");
   }
 
   @Override

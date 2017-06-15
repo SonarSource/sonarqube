@@ -19,8 +19,9 @@
  */
 package org.sonar.server.favorite.ws;
 
+import org.sonar.api.server.ws.ActionDefinition;
 import org.sonar.server.ws.WsAction;
 
-public interface FavoritesWsAction extends WsAction {
+public interface FavoritesWsAction extends ActionDefinition {
   // marker interface
 }

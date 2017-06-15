@@ -32,13 +32,11 @@ import static org.mockito.Mockito.mock;
 
 public class FavoritesWsTest {
 
-  private final FavoritesWsAction[] actions = {new AddAction(mock(UserSession.class), mock(DbClient.class), mock(FavoriteUpdater.class), mock(ComponentFinder.class))};
-  private WsTester ws = new WsTester(new FavoritesWs(actions));
-
-  private Controller underTest = ws.controller("api/favorites");
-
   @Test
   public void definition() {
-    assertThat(underTest.path()).isEqualTo("api/favorites");
+    Controller controller = new FavoritesWs(null).define();
+    assertThat(controller.path()).isEqualTo("api/favorites");
+    assertThat(controller.description()).isEqualTo("Manage user favorites");
+    assertThat(controller.since()).isEqualTo("6.3");
   }
 }
