@@ -134,8 +134,8 @@ public class PermissionQuery {
     private String searchQuery;
     private boolean withAtLeastOnePermission;
 
-    private Integer pageIndex = DEFAULT_PAGE_INDEX;
-    private Integer pageSize = DEFAULT_PAGE_SIZE;
+    private Integer pageIndex;
+    private Integer pageSize;
 
     private Builder() {
       // enforce method constructor

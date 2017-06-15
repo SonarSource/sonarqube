@@ -2,6 +2,73 @@
   margin-bottom: 0;
 }
 
+.projects-page-side {
+  transition: top 150ms ease-out;
+}
+
+.projects-page-content {
+  transition: padding-top 150ms ease-out;
+}
+
+.projects-topbar {
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+}
+
+.projects-topbar-actions {
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -50px;
+  z-index: 50;
+  flex-grow: 0.000001;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #fff;
+  transition: top 150ms ease-out;
+}
+
+.projects-topbar-actions.open {
+  top: 0;
+}
+
+.projects-topbar-actions-inner {
+  position: relative;
+  margin: auto;
+  padding: 0 20px;
+  min-width: 1040px;
+  max-width: 1280px;
+}
+
+.projects-topbar-items {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  height: 46px;
+}
+
+.projects-topbar-item {
+  padding: 0 24px;
+}
+
+.projects-topbar-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.projects-topbar-item.disabled * {
+  pointer-events: none !important;
+}
+
+.projects-topbar-button {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+}
+
 .projects-sidebar {
   width: 260px;
 }
@@ -12,7 +79,7 @@
 
 .project-card {
   position: relative;
-  min-height: 121px;
+  min-height: 114px;
   box-sizing: border-box;
 }
 
@@ -20,17 +87,49 @@
   font-weight: 600;
 }
 
+.project-card-dates {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: -10px;
+}
+
+.project-card-leak-date {
+  padding: 4px 8px;
+  margin: -5px -4px -5px 24px;
+  background-color: #fbf3d5;
+  border: 1px solid #eae3c7;
+}
+
 .project-card-measures {
+  padding-top: 8px;
   margin: 0 -15px;
+}
+
+.project-card-leak-measures {
+  padding: 8px 0;
+  margin: 4px -4px;
+  background-color: #fbf3d5;
+  border: 1px solid #eae3c7;
+}
+
+.projects-leak-sorting-option {
+  background-color: #fbf3d5;
+  margin-bottom: 2px;
+}
+
+.projects-leak-sorting-option.is-focused {
+  background-color: #eae3c7;
 }
 
 .project-card-measures .project-card-measure {
   width: 120px;
-  box-sizing: border-box;
-  padding: 0 15px;
 }
 
-.project-card-measures .project-card-measure:nth-child(-n+2) {
+.project-card-leak-measures .project-card-measure {
+  width: 130px;
+}
+
+.project-card-measure.smaller-card {
   width: 90px;
 }
 
@@ -39,6 +138,8 @@
   display: inline-block;
   vertical-align: top;
   text-align: center;
+  box-sizing: border-box;
+  padding: 0 15px;
 }
 
 .project-card-measure + .project-card-measure:before {
@@ -52,8 +153,16 @@
   content: "";
 }
 
+.project-card-measure.pull-right {
+  text-align: right;
+}
+
 .project-card-measure.pull-right:before {
   display: none;
+}
+
+.project-card-measure.pull-right .project-card-measure-inner {
+  text-align: right;
 }
 
 .project-card-measure .level {
@@ -68,12 +177,17 @@
 }
 
 .project-card-measure-number {
-  line-height: 24px;
+  line-height: 25px;
   font-size: 18px;
 }
 
 .project-card-measure-label {
   margin-top: 4px;
+  font-size: 12px;
+}
+
+.project-card-measure-label-with-icon {
+  margin-top: 2px;
   font-size: 12px;
 }
 
@@ -87,13 +201,6 @@
 
 .project-card-quality-gate {
   line-height: 24px;
-}
-
-.project-card-analysis-date {
-  margin-top: -15px;
-  padding-bottom: 5px;
-  padding-right: 20px;
-  text-align: right;
 }
 
 .project-card-not-analyzed {
@@ -131,21 +238,18 @@
 }
 
 .projects-facet-search {
-  position: relative;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 300px;
 }
 
 .projects-facet-search .note {
   position: absolute;
-  opacity: 0;
-  left: 0;
-  bottom: -7px;
-  transition: opacity 0.3s ease;
-}
-
-.projects-facet-search input.touched ~ .note {
-  opacity: 1;
+  top: 1px;
+  right: 30px;
+  line-height: 24px;
+  pointer-events: none;
 }
 
 .projects-facets-reset {
@@ -168,15 +272,13 @@
 }
 
 .search-navigator-facet.active .projects-facet-bar-inner,
-.search-navigator-facet-highlight-under.active ~ .search-navigator-facet .projects-facet-bar-inner {
+.search-navigator-facet-highlight-under-container .search-navigator-facet.active ~ .search-navigator-facet .projects-facet-bar-inner {
   background-color: #4b9fd5;
 }
 
 .projects-visualization {
   position: relative;
   height: 600px;
-  margin-top: 15px;
-  border-top: 1px solid #e6e6e6;
 }
 
 .projects-visualization .measure-details-bubble-chart-axis.y {

@@ -30,7 +30,7 @@ import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 class ProjectContainer extends React.PureComponent {
   props: {
-    addGlobalErrorMessage: () => void,
+    addGlobalErrorMessage: (message: string) => void,
     children?: React.Element<*>,
     location: {
       query: { id: string }

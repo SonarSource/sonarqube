@@ -91,7 +91,7 @@ public class GroupPermissionChangerTest {
           apply(new GroupPermissionChange(PermissionChange.Operation.ADD, perm, new ProjectId(privateProject), anyOneGroupId));
           fail("a BadRequestException should have been thrown");
         } catch (BadRequestException e) {
-          assertThat(e).hasMessage("No permission can be granted to AnyOne on a private component");
+          assertThat(e).hasMessage("No permission can be granted to Anyone on a private component");
         }
       });
   }

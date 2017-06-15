@@ -30,7 +30,10 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 
+import static org.apache.commons.lang.StringUtils.countMatches;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -38,6 +41,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -58,9 +62,9 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
     db.organizations().addMember(db.getDefaultOrganization(), user1);
     UserDto user2 = db.users().insertUser(newUserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
     db.organizations().addMember(db.getDefaultOrganization(), user2);
+    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
     db.users().insertPermissionOnUser(user1, ADMINISTER);
     db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_GATES);
-    db.users().insertPermissionOnUser(user1, ADMINISTER_QUALITY_PROFILES);
     db.users().insertPermissionOnUser(user2, SCAN);
 
     loginAsAdmin(db.getDefaultOrganization());
@@ -222,6 +226,66 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
       .getInput();
 
     assertThat(result).contains("login-1", "login-2", "login-3");
+  }
+
+  @Test
+  public void search_for_users_is_paginated() throws Exception {
+    for (int i = 9; i >= 0; i--) {
+      UserDto user = db.users().insertUser(newUserDto().setName("user-" + i));
+      db.organizations().addMember(db.getDefaultOrganization(), user);
+      db.users().insertPermissionOnUser(user, ADMINISTER);
+      db.users().insertPermissionOnUser(user, ADMINISTER_QUALITY_GATES);
+    }
+    loginAsAdmin(db.getDefaultOrganization());
+
+    assertJson(newRequest().setParam(PAGE, "1").setParam(PAGE_SIZE, "2").execute().getInput()).withStrictArrayOrder().isSimilarTo("{\n" +
+      "  \"paging\": {\n" +
+      "    \"pageIndex\": 1,\n" +
+      "    \"pageSize\": 2,\n" +
+      "    \"total\": 10\n" +
+      "  },\n" +
+      "  \"users\": [\n" +
+      "    {\n" +
+      "      \"name\": \"user-0\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"name\": \"user-1\"\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+    assertJson(newRequest().setParam(PAGE, "3").setParam(PAGE_SIZE, "4").execute().getInput()).withStrictArrayOrder().isSimilarTo("{\n" +
+      "  \"paging\": {\n" +
+      "    \"pageIndex\": 3,\n" +
+      "    \"pageSize\": 4,\n" +
+      "    \"total\": 10\n" +
+      "  },\n" +
+      "  \"users\": [\n" +
+      "    {\n" +
+      "      \"name\": \"user-8\"\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"name\": \"user-9\"\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}");
+  }
+
+  @Test
+  public void return_more_than_20_permissions() {
+    loginAsAdmin(db.getDefaultOrganization());
+    for (int i = 0; i < 30; i++) {
+      UserDto user = db.users().insertUser(newUserDto().setLogin("user-" + i));
+      db.organizations().addMember(db.getDefaultOrganization(), user);
+      db.users().insertPermissionOnUser(user, SCAN);
+      db.users().insertPermissionOnUser(user, PROVISION_PROJECTS);
+    }
+
+    String result = newRequest()
+      .setParam(PAGE_SIZE, "100")
+      .execute()
+      .getInput();
+
+    assertThat(countMatches(result, "scan")).isEqualTo(30);
   }
 
   @Test

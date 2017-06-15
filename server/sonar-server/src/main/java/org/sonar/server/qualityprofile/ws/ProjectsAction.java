@@ -40,7 +40,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -129,22 +129,22 @@ public class ProjectsAction implements QProfileWsAction {
   }
 
   private void checkProfileExists(String profileKey, DbSession session) {
-    if (dbClient.qualityProfileDao().selectByKey(session, profileKey) == null) {
+    if (dbClient.qualityProfileDao().selectByUuid(session, profileKey) == null) {
       throw new NotFoundException(String.format("Could not find a quality profile with key '%s'", profileKey));
     }
   }
 
   private List<ProjectQprofileAssociationDto> loadProjects(String profileKey, DbSession session, String selected, String query) {
-    QualityProfileDto qualityProfile = dbClient.qualityProfileDao().selectByKey(session, profileKey);
-    OrganizationDto organization = wsSupport.getOrganization(session, qualityProfile);
+    QProfileDto profile = dbClient.qualityProfileDao().selectByUuid(session, profileKey);
+    OrganizationDto organization = wsSupport.getOrganization(session, profile);
     List<ProjectQprofileAssociationDto> projects = Lists.newArrayList();
     SelectionMode selectionMode = SelectionMode.fromParam(selected);
     if (SelectionMode.SELECTED == selectionMode) {
-      projects.addAll(dbClient.qualityProfileDao().selectSelectedProjects(organization, profileKey, query, session));
+      projects.addAll(dbClient.qualityProfileDao().selectSelectedProjects(session, organization, profile, query));
     } else if (SelectionMode.DESELECTED == selectionMode) {
-      projects.addAll(dbClient.qualityProfileDao().selectDeselectedProjects(organization, profileKey, query, session));
+      projects.addAll(dbClient.qualityProfileDao().selectDeselectedProjects(session, organization, profile, query));
     } else {
-      projects.addAll(dbClient.qualityProfileDao().selectProjectAssociations(organization, profileKey, query, session));
+      projects.addAll(dbClient.qualityProfileDao().selectProjectAssociations(session, organization, profile, query));
     }
     return projects;
   }

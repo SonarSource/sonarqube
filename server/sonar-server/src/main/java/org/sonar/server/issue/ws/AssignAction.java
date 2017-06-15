@@ -26,6 +26,7 @@ import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -53,7 +54,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ASSIGNEE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 
 public class AssignAction implements IssuesWsAction {
-
   private static final String DEPRECATED_PARAM_ME = "me";
   private static final String ASSIGN_TO_ME_VALUE = "_me";
 
@@ -81,6 +81,9 @@ public class AssignAction implements IssuesWsAction {
     WebService.NewAction action = controller.createAction(ACTION_ASSIGN)
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
+      .setChangelog(
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "assign-example.json"))
       .setPost(true);
@@ -103,11 +106,11 @@ public class AssignAction implements IssuesWsAction {
     userSession.checkLoggedIn();
     String assignee = getAssignee(request);
     String key = request.mandatoryParam(PARAM_ISSUE);
-    assign(key, assignee);
-    responseWriter.write(key, request, response);
+    SearchResponseData preloadedResponseData = assign(key, assignee);
+    responseWriter.write(key, preloadedResponseData, request, response);
   }
 
-  private void assign(String issueKey, @Nullable String assignee) {
+  private SearchResponseData assign(String issueKey, @Nullable String assignee) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueDto issueDto = issueFinder.getByKey(dbSession, issueKey);
       DefaultIssue issue = issueDto.toDefaultIssue();
@@ -117,8 +120,9 @@ public class AssignAction implements IssuesWsAction {
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       if (issueFieldsSetter.assign(issue, user, context)) {
-        issueUpdater.saveIssue(dbSession, issue, context, null);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, null);
       }
+      return new SearchResponseData(issueDto);
     }
   }
 

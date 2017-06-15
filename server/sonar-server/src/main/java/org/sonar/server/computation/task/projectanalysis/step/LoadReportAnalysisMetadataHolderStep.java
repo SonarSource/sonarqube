@@ -31,7 +31,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolder;
@@ -107,10 +107,10 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
       .map(QProfile::getKey)
       .collect(toList(metadata.getQprofilesPerLanguage().size()));
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<QualityProfileDto> profiles = dbClient.qualityProfileDao().selectByKeys(dbSession, profileKeys);
+      List<QProfileDto> profiles = dbClient.qualityProfileDao().selectByUuids(dbSession, profileKeys);
       String badKeys = profiles.stream()
         .filter(p -> !p.getOrganizationUuid().equals(organization.getUuid()))
-        .map(QualityProfileDto::getKey)
+        .map(QProfileDto::getKee)
         .collect(MoreCollectors.join(Joiner.on(", ")));
       if (!badKeys.isEmpty()) {
         throw MessageException.of(format("Quality profiles with following keys don't exist in organization [%s]: %s", organization.getKey(), badKeys));

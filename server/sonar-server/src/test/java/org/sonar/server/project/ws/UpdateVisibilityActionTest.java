@@ -44,7 +44,7 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -91,7 +91,7 @@ public class UpdateVisibilityActionTest {
   private PermissionIndexer permissionIndexer = mock(PermissionIndexer.class);
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
 
-  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, new ComponentFinder(dbClient), userSessionRule, permissionIndexer,
+  private UpdateVisibilityAction underTest = new UpdateVisibilityAction(dbClient, TestComponentFinder.from(dbTester), userSessionRule, permissionIndexer,
     new ProjectsWsSupport(dbClient, billingValidations));
   private WsActionTester actionTester = new WsActionTester(underTest);
 

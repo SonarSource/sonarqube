@@ -22,18 +22,23 @@ package org.sonar.process.logging;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggerContextListener;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
@@ -85,6 +90,66 @@ public class LogbackHelperTest {
 
     LoggerContextListener propagator = underTest.enableJulChangePropagation(ctx);
     assertThat(ctx.getCopyOfListenerList().size()).isEqualTo(countListeners + 1);
+
+    ctx.removeListener(propagator);
+  }
+
+  @Test
+  public void verify_jul_initialization() {
+    LoggerContext ctx = underTest.getRootContext();
+    LogLevelConfig config = LogLevelConfig.newBuilder().levelByDomain(ROOT_LOGGER_NAME, ProcessId.WEB_SERVER, LogDomain.JMX).build();
+    props.set("sonar.log.level.web", "TRACE");
+    underTest.apply(config, props);
+
+    MemoryAppender memoryAppender = new MemoryAppender();
+    memoryAppender.start();
+    underTest.getRootContext().getLogger(ROOT_LOGGER_NAME).addAppender(memoryAppender);
+
+    java.util.logging.Logger julLogger = java.util.logging.Logger.getLogger("com.ms.sqlserver.jdbc.DTV");
+    julLogger.finest("Message1");
+    julLogger.finer("Message1");
+    julLogger.fine("Message1");
+    julLogger.info("Message1");
+    julLogger.warning("Message1");
+    julLogger.severe("Message1");
+
+    // JUL bridge has not been initialized, nothing in logs
+    assertThat(memoryAppender.getLogs()).hasSize(0);
+
+    // Enabling JUL bridge
+    LoggerContextListener propagator = underTest.enableJulChangePropagation(ctx);
+
+    julLogger.finest("Message2");
+    julLogger.finer("Message2");
+    julLogger.fine("Message2");
+    julLogger.info("Message2");
+    julLogger.warning("Message2");
+    julLogger.severe("Message2");
+
+    assertThat(julLogger.isLoggable(java.util.logging.Level.FINEST)).isTrue();
+    assertThat(julLogger.isLoggable(java.util.logging.Level.FINER)).isTrue();
+    assertThat(julLogger.isLoggable(java.util.logging.Level.FINE)).isTrue();
+    assertThat(julLogger.isLoggable(java.util.logging.Level.INFO)).isTrue();
+    assertThat(julLogger.isLoggable(java.util.logging.Level.SEVERE)).isTrue();
+    assertThat(julLogger.isLoggable(java.util.logging.Level.WARNING)).isTrue();
+
+    // We are expecting messages from info to severe
+    assertThat(memoryAppender.getLogs()).hasSize(6);
+    memoryAppender.clear();
+
+    ctx.getLogger(ROOT_LOGGER_NAME).setLevel(Level.INFO);
+
+    julLogger.finest("Message3");
+    julLogger.finer("Message3");
+    julLogger.fine("Message3");
+    julLogger.info("Message3");
+    julLogger.warning("Message3");
+    julLogger.severe("Message3");
+
+    // We are expecting messages from finest to severe in TRACE mode
+    assertThat(memoryAppender.getLogs()).hasSize(3);
+    memoryAppender.clear();
+    memoryAppender.stop();
 
     ctx.removeListener(propagator);
   }
@@ -367,5 +432,22 @@ public class LogbackHelperTest {
       {Level.TRACE},
       {Level.ALL}
     };
+  }
+
+  public static class MemoryAppender extends AppenderBase<ILoggingEvent> {
+    private static final List<ILoggingEvent> LOGS = new ArrayList<>();
+
+    @Override
+    protected void append(ILoggingEvent eventObject) {
+      LOGS.add(eventObject);
+    }
+
+    public List<ILoggingEvent> getLogs() {
+      return ImmutableList.copyOf(LOGS);
+    }
+
+    public void clear() {
+      LOGS.clear();
+    }
   }
 }

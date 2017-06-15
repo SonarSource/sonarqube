@@ -142,7 +142,5 @@ public class AlterColumnsBuilder {
     if (addNotNullableProperty) {
       sql.append(columnDef.isNullable() ? " NULL" : " NOT NULL");
     }
-
   }
-
 }

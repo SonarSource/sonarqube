@@ -39,6 +39,23 @@ public class AuthorsAction implements IssuesWsAction {
   }
 
   @Override
+  public void define(WebService.NewController controller) {
+    NewAction action = controller.createAction(ACTION_AUTHORS)
+      .setSince("5.1")
+      .setDescription("Search SCM accounts which match a given query")
+      .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
+      .setHandler(this);
+
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("A pattern to match SCM accounts against")
+      .setExampleValue("luke");
+    action.createParam(Param.PAGE_SIZE)
+      .setDescription("The size of the list to return")
+      .setExampleValue("25")
+      .setDefaultValue("10");
+  }
+
+  @Override
   public void handle(Request request, Response response) throws Exception {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
@@ -54,22 +71,5 @@ public class AuthorsAction implements IssuesWsAction {
 
       json.endArray().endObject();
     }
-  }
-
-  @Override
-  public void define(WebService.NewController controller) {
-    NewAction action = controller.createAction(ACTION_AUTHORS)
-      .setSince("5.1")
-      .setDescription("Search SCM accounts which match a given query")
-      .setResponseExample(Resources.getResource(this.getClass(), "authors-example.json"))
-      .setHandler(this);
-
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription("A pattern to match SCM accounts against")
-      .setExampleValue("luke");
-    action.createParam(Param.PAGE_SIZE)
-      .setDescription("The size of the list to return")
-      .setExampleValue("25")
-      .setDefaultValue("10");
   }
 }

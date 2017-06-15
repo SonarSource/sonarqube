@@ -34,7 +34,7 @@ import org.sonar.server.computation.task.projectanalysis.component.MutableDisabl
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.RandomStringUtils.random;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -51,7 +51,7 @@ public class PersistComponentsStepTest {
     Component component = mock(Component.class);
     DbClient dbClient = mock(DbClient.class);
     ComponentDao componentDao = mock(ComponentDao.class);
-    String projectKey = random(20);
+    String projectKey = randomAlphabetic(20);
 
     doReturn(component).when(treeRootHolder).getRoot();
     doReturn(projectKey).when(component).getKey();

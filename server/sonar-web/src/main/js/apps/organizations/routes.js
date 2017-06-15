@@ -20,6 +20,7 @@
 import OrganizationPage from './components/OrganizationPage';
 import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
 import OrganizationProjects from './components/OrganizationProjects';
+import OrganizationProjectsContainer from './components/OrganizationProjectsContainer';
 import OrganizationFavoriteProjects from './components/OrganizationFavoriteProjects';
 import OrganizationRules from './components/OrganizationRules';
 import OrganizationAdmin from './components/OrganizationAdmin';
@@ -47,11 +48,18 @@ const routes = [
       },
       {
         path: 'projects',
-        component: OrganizationProjects
-      },
-      {
-        path: 'projects/favorite',
-        component: OrganizationFavoriteProjects
+        component: OrganizationProjectsContainer,
+        childRoutes: [
+          {
+            indexRoute: {
+              component: OrganizationProjects
+            }
+          },
+          {
+            path: 'favorite',
+            component: OrganizationFavoriteProjects
+          }
+        ]
       },
       {
         path: 'members',

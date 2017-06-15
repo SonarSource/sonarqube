@@ -47,6 +47,47 @@ export const saveAll = () => save(LOCALSTORAGE_ALL);
 
 export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);
 
+export const SORTING_METRICS = [
+  { value: 'name' },
+  { value: 'analysis_date' },
+  { value: 'reliability' },
+  { value: 'security' },
+  { value: 'maintainability' },
+  { value: 'coverage' },
+  { value: 'duplications' },
+  { value: 'size' }
+];
+
+export const SORTING_LEAK_METRICS = [
+  { value: 'name' },
+  { value: 'analysis_date' },
+  { value: 'new_reliability', class: 'projects-leak-sorting-option' },
+  { value: 'new_security', class: 'projects-leak-sorting-option' },
+  { value: 'new_maintainability', class: 'projects-leak-sorting-option' },
+  { value: 'new_coverage', class: 'projects-leak-sorting-option' },
+  { value: 'new_duplications', class: 'projects-leak-sorting-option' },
+  { value: 'new_lines', class: 'projects-leak-sorting-option' }
+];
+
+export const SORTING_SWITCH = {
+  analysis_date: 'analysis_date',
+  name: 'name',
+  reliability: 'new_reliability',
+  security: 'new_security',
+  maintainability: 'new_maintainability',
+  coverage: 'new_coverage',
+  duplications: 'new_duplications',
+  size: 'new_lines',
+  new_reliability: 'reliability',
+  new_security: 'security',
+  new_maintainability: 'maintainability',
+  new_coverage: 'coverage',
+  new_duplications: 'duplications',
+  new_lines: 'size'
+};
+
+export const VIEWS = ['overall', 'leak'];
+
 export const VISUALIZATIONS = [
   'risk',
   'reliability',
@@ -58,4 +99,9 @@ export const VISUALIZATIONS = [
 
 export const localizeSorting = (sort?: string) => {
   return translate('projects.sort', sort || 'name');
+};
+
+export const parseSorting = (sort: string): { sortValue: string, sortDesc: boolean } => {
+  const desc = sort[0] === '-';
+  return { sortValue: desc ? sort.substr(1) : sort, sortDesc: desc };
 };

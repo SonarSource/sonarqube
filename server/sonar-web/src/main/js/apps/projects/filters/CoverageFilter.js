@@ -20,34 +20,41 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import SortingFilter from './SortingFilter';
 import CoverageRating from '../../../components/ui/CoverageRating';
 import { getCoverageRatingLabel, getCoverageRatingAverageValue } from '../../../helpers/ratings';
+import { translate } from '../../../helpers/l10n';
 
 export default class CoverageFilter extends React.PureComponent {
   static propTypes = {
+    className: React.PropTypes.string,
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object,
+    property: React.PropTypes.string
   };
 
-  property = 'coverage';
+  static defaultProps = {
+    property: 'coverage'
+  };
 
   getFacetValueForOption(facet, option) {
-    const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0'];
+    const map = ['80.0-*', '70.0-80.0', '50.0-70.0', '30.0-50.0', '*-30.0', 'NO_DATA'];
     return facet[map[option - 1]];
   }
 
   renderOption(option, selected) {
     return (
       <span>
-        <CoverageRating
-          value={getCoverageRatingAverageValue(option)}
-          size="small"
-          muted={!selected}
-        />
+        {option < 6 &&
+          <CoverageRating
+            value={getCoverageRatingAverageValue(option)}
+            size="small"
+            muted={!selected}
+          />}
         <span className="spacer-left">
-          {getCoverageRatingLabel(option)}
+          {option < 6
+            ? getCoverageRatingLabel(option)
+            : <span className="big-spacer-left">{translate('no_data')}</span>}
         </span>
       </span>
     );
@@ -56,25 +63,17 @@ export default class CoverageFilter extends React.PureComponent {
   render() {
     return (
       <FilterContainer
-        property={this.property}
-        options={[1, 2, 3, 4, 5]}
+        property={this.props.property}
+        className={this.props.className}
+        options={[1, 2, 3, 4, 5, 6]}
         query={this.props.query}
         renderOption={this.renderOption}
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={
-          <FilterHeader name="Coverage">
-            <SortingFilter
-              property={this.property}
-              query={this.props.query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-              sortDesc="right"
-            />
-          </FilterHeader>
-        }
+        highlightUnderMax={5}
+        header={<FilterHeader name={translate('metric_domain.Coverage')} />}
       />
     );
   }

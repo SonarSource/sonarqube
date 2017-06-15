@@ -39,7 +39,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.qualityprofile.QProfileComparison;
@@ -104,9 +104,9 @@ public class CompareAction implements QProfileWsAction {
     String rightKey = request.mandatoryParam(PARAM_RIGHT_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto left = dbClient.qualityProfileDao().selectByKey(dbSession, leftKey);
+      QProfileDto left = dbClient.qualityProfileDao().selectByUuid(dbSession, leftKey);
       checkArgument(left != null, "Could not find left profile '%s'", leftKey);
-      QualityProfileDto right = dbClient.qualityProfileDao().selectByKey(dbSession, rightKey);
+      QProfileDto right = dbClient.qualityProfileDao().selectByUuid(dbSession, rightKey);
       checkArgument(right != null, "Could not find right profile '%s'", rightKey);
 
       checkArgument(Objects.equals(left.getOrganizationUuid(), right.getOrganizationUuid()),
@@ -148,8 +148,8 @@ public class CompareAction implements QProfileWsAction {
     json.endObject().close();
   }
 
-  private void writeProfile(JsonWriter json, QualityProfileDto profile) {
-    json.prop(ATTRIBUTE_KEY, profile.getKey())
+  private void writeProfile(JsonWriter json, QProfileDto profile) {
+    json.prop(ATTRIBUTE_KEY, profile.getKee())
       .prop(ATTRIBUTE_NAME, profile.getName());
   }
 

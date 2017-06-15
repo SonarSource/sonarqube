@@ -24,17 +24,15 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
-import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserTesting;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
@@ -43,39 +41,38 @@ import static org.assertj.core.data.MapEntry.entry;
 
 public class ChangelogLoaderTest {
 
-  private static final String A_PROFILE_KEY = "P1";
-  private static final long A_DATE = 1_500_000_000L;
-  private static final RuleKey A_RULE_KEY = RuleKey.of("java", "S001");
-  private static final String A_USER_LOGIN = "marcel";
-
+  private System2 system2 = new AlwaysIncreasingSystem2();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  private DbSession dbSession = dbTester.getSession();
+  public DbTester db = DbTester.create(system2);
+  private DbSession dbSession = db.getSession();
 
-  private ChangelogLoader underTest = new ChangelogLoader(dbTester.getDbClient());
+  private ChangelogLoader underTest = new ChangelogLoader(db.getDbClient());
 
   @Test
   public void return_changes_in_reverse_chronological_order() {
-    insertChange("C1", ActiveRuleChange.Type.ACTIVATED, A_DATE, A_USER_LOGIN, null);
-    insertChange("C2", ActiveRuleChange.Type.DEACTIVATED, A_DATE + 10, "mazout", null);
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileChangeDto change1 = insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null, null);
+    QProfileChangeDto change2 = insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, "mazout", null);
 
-    QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
+    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
     ChangelogLoader.Changelog changes = underTest.load(dbSession, query);
 
-    assertThat(changes.getTotal()).isEqualTo(2);
-    assertThat(changes.getChanges()).extracting(ChangelogLoader.Change::getKey).containsExactly("C2", "C1");
+    assertThat(changes.getChanges())
+      .extracting(ChangelogLoader.Change::getKey)
+      .containsExactly(change2.getUuid(), change1.getUuid());
   }
 
   @Test
   public void return_change_with_only_required_fields() {
-    insertChange("C1", ActiveRuleChange.Type.ACTIVATED, A_DATE, null, null);
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    QProfileChangeDto inserted = insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null, null);
 
-    QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
+    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
     ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
-    assertThat(change.getKey()).isEqualTo("C1");
-    assertThat(change.getCreatedAt()).isEqualTo(A_DATE);
-    assertThat(change.getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
+    assertThat(change.getKey()).isEqualTo(inserted.getUuid());
+    assertThat(change.getCreatedAt()).isEqualTo(inserted.getCreatedAt());
+    assertThat(change.getType()).isEqualTo(inserted.getChangeType());
     // optional fields are null or empty
     assertThat(change.getInheritance()).isNull();
     assertThat(change.getRuleKey()).isNull();
@@ -88,52 +85,55 @@ public class ChangelogLoaderTest {
 
   @Test
   public void return_change_with_all_fields() {
-    Map<String, String> data = ImmutableMap.of(
-      "ruleKey", A_RULE_KEY.toString(),
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    Map<String, Object> data = ImmutableMap.of(
+      "ruleKey", "java:S001",
       "severity", "MINOR",
       "inheritance", ActiveRule.Inheritance.INHERITED.name(),
       "param_foo", "foo_value",
       "param_bar", "bar_value");
-    insertChange("C1", ActiveRuleChange.Type.ACTIVATED, A_DATE, A_USER_LOGIN, data);
+    QProfileChangeDto inserted = insertChange(profile, ActiveRuleChange.Type.ACTIVATED, "theLogin", data);
 
-    QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
+    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
     ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
-    assertThat(change.getKey()).isEqualTo("C1");
-    assertThat(change.getCreatedAt()).isEqualTo(A_DATE);
+    assertThat(change.getKey()).isEqualTo(inserted.getUuid());
+    assertThat(change.getCreatedAt()).isEqualTo(inserted.getCreatedAt());
     assertThat(change.getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
     assertThat(change.getInheritance()).isEqualTo(ActiveRule.Inheritance.INHERITED.name());
-    assertThat(change.getRuleKey()).isEqualTo(A_RULE_KEY);
+    assertThat(change.getRuleKey().toString()).isEqualTo("java:S001");
     assertThat(change.getRuleName()).isNull();
     assertThat(change.getSeverity()).isEqualTo("MINOR");
-    assertThat(change.getUserLogin()).isEqualTo(A_USER_LOGIN);
+    assertThat(change.getUserLogin()).isEqualTo("theLogin");
     assertThat(change.getUserName()).isNull();
     assertThat(change.getParams()).containsOnly(entry("foo", "foo_value"), entry("bar", "bar_value"));
   }
 
   @Test
   public void return_name_of_rule() {
-    Map<String, String> data = ImmutableMap.of("ruleKey", "java:S001");
-    insertChange("C1", ActiveRuleChange.Type.ACTIVATED, A_DATE, A_USER_LOGIN, data);
-    insertRule(A_RULE_KEY, "Potential NPE");
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    RuleDefinitionDto rule = db.rules().insert();
+    Map<String, Object> data = ImmutableMap.of("ruleKey", rule.getKey().toString());
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null, data);
 
-    QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
+    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
     ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
-    assertThat(change.getRuleKey()).isEqualTo(A_RULE_KEY);
-    assertThat(change.getRuleName()).isEqualTo("Potential NPE");
+    assertThat(change.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(change.getRuleName()).isEqualTo(rule.getName());
   }
 
   @Test
   public void return_name_of_user() {
-    insertChange("C1", ActiveRuleChange.Type.ACTIVATED, A_DATE, A_USER_LOGIN, null);
-    insertUser(A_USER_LOGIN, "Marcel");
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    UserDto user = db.users().insertUser();
+    insertChange(profile, ActiveRuleChange.Type.ACTIVATED, user.getLogin(), null);
 
-    QProfileChangeQuery query = new QProfileChangeQuery(A_PROFILE_KEY);
+    QProfileChangeQuery query = new QProfileChangeQuery(profile.getKee());
     ChangelogLoader.Change change = underTest.load(dbSession, query).getChanges().get(0);
 
-    assertThat(change.getUserLogin()).isEqualTo(A_USER_LOGIN);
-    assertThat(change.getUserName()).isEqualTo("Marcel");
+    assertThat(change.getUserLogin()).isEqualTo(user.getLogin());
+    assertThat(change.getUserName()).isEqualTo(user.getName());
   }
 
   @Test
@@ -146,29 +146,14 @@ public class ChangelogLoaderTest {
     assertThat(changelog.getChanges()).isEmpty();
   }
 
-  private void insertChange(String key, ActiveRuleChange.Type type, long date,
-    @Nullable String login, @Nullable Map<String, String> data) {
-    QProfileChangeDto dto = QualityProfileTesting.newQProfileChangeDto()
-      .setProfileKey(A_PROFILE_KEY)
-      .setKey(key)
-      .setCreatedAt(date)
+  private QProfileChangeDto insertChange(QProfileDto profile, ActiveRuleChange.Type type, @Nullable String login, @Nullable Map<String, Object> data) {
+    QProfileChangeDto dto = new QProfileChangeDto()
+      .setRulesProfileUuid(profile.getRulesProfileUuid())
       .setLogin(login)
       .setChangeType(type.name())
       .setData(data);
-    QualityProfileTesting.insert(dbTester, dto);
+    db.getDbClient().qProfileChangeDao().insert(dbSession, dto);
+    return dto;
   }
 
-  private void insertRule(RuleKey key, String name) {
-    RuleDefinitionDto dto = RuleTesting.newRule(key).setName(name);
-    dbTester.rules().insert(dto);
-    dbTester.getSession().commit();
-  }
-
-  private void insertUser(String login, String name) {
-    UserDto dto = UserTesting.newUserDto()
-      .setLogin(login)
-      .setName(name);
-    dbTester.getDbClient().userDao().insert(dbTester.getSession(), dto);
-    dbTester.getSession().commit();
-  }
 }

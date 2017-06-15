@@ -20,8 +20,9 @@
 package org.sonar.db.qualityprofile;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Consumer;
-import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.api.rule.Severity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -29,68 +30,82 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
-import static org.sonar.api.rule.Severity.MAJOR;
+import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 
 public class QualityProfileDbTester {
   private final DbClient dbClient;
   private final DbSession dbSession;
 
-  public QualityProfileDbTester(DbTester db) {
-    this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
+  public QualityProfileDbTester(DbTester dbTester) {
+    this.dbClient = dbTester.getDbClient();
+    this.dbSession = dbTester.getSession();
+  }
+
+  public Optional<QProfileDto> selectByUuid(String uuid) {
+    return Optional.ofNullable(dbClient.qualityProfileDao().selectByUuid(dbSession, uuid));
   }
 
   /**
    * Create a profile with random field values on the specified organization.
    */
-  @SafeVarargs
-  public final QualityProfileDto insert(OrganizationDto organization, Consumer<QualityProfileDto>... consumers) {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
-      // default is not randomized yet in QualityProfileTesting
-      .setDefault(RandomUtils.nextBoolean())
+  public QProfileDto insert(OrganizationDto organization) {
+    return insert(organization, c -> {
+    });
+  }
+
+  /**
+   * Create a profile with random field values on the specified organization.
+   */
+  public QProfileDto insert(OrganizationDto organization, Consumer<QProfileDto> consumer) {
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
-    Arrays.stream(consumers).forEach(c -> c.accept(profile));
+    consumer.accept(profile);
 
     dbClient.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     return profile;
   }
 
-  public void insertQualityProfiles(QualityProfileDto qualityProfile, QualityProfileDto... qualityProfiles) {
-    dbClient.qualityProfileDao().insert(dbSession, qualityProfile, qualityProfiles);
+  public QualityProfileDbTester insert(QProfileDto profile, QProfileDto... others) {
+    dbClient.qualityProfileDao().insert(dbSession, profile);
+    Arrays.stream(others).forEach(p -> dbClient.qualityProfileDao().insert(dbSession, p));
     dbSession.commit();
+    return this;
   }
 
-  public QualityProfileDto insertQualityProfile(QualityProfileDto qualityProfile) {
-    dbClient.qualityProfileDao().insert(dbSession, qualityProfile);
-    dbSession.commit();
-    return qualityProfile;
-  }
-
-  public void insertProjectWithQualityProfileAssociations(ComponentDto project, QualityProfileDto... qualityProfiles) {
-    dbClient.componentDao().insert(dbSession, project);
-    for (QualityProfileDto qualityProfile : qualityProfiles) {
-      dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
+  public QualityProfileDbTester associateWithProject(ComponentDto project, QProfileDto profile, QProfileDto... otherProfiles) {
+    dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, profile);
+    for (QProfileDto p : otherProfiles) {
+      dbClient.qualityProfileDao().insertProjectProfileAssociation(dbSession, project, p);
     }
     dbSession.commit();
+    return this;
   }
 
-  public void associateProjectWithQualityProfile(ComponentDto project, QualityProfileDto... qualityProfiles) {
-    for (QualityProfileDto qualityProfile : qualityProfiles) {
-      dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
-    }
-    dbSession.commit();
+  public ActiveRuleDto activateRule(QProfileDto profile, RuleDefinitionDto rule) {
+    return activateRule(profile, rule, ar -> {
+    });
   }
 
-  @SafeVarargs
-  public final ActiveRuleDto activateRule(QualityProfileDto profile, RuleDefinitionDto rule, Consumer<ActiveRuleDto>... consumers) {
-    ActiveRuleDto activeRule = createFor(profile, rule).setSeverity(MAJOR);
-    for (Consumer<ActiveRuleDto> consumer : consumers) {
-      consumer.accept(activeRule);
-    }
+  public ActiveRuleDto activateRule(QProfileDto profile, RuleDefinitionDto rule, Consumer<ActiveRuleDto> consumer) {
+    ActiveRuleDto activeRule = createFor(profile, rule)
+      .setSeverity(Severity.ALL.get(nextInt(Severity.ALL.size())))
+      .setCreatedAt(nextLong())
+      .setUpdatedAt(nextLong());
+    consumer.accept(activeRule);
     dbClient.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
     return activeRule;
+  }
+
+  public QualityProfileDbTester setAsDefault(QProfileDto profile, QProfileDto... others) {
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
+    for (QProfileDto other : others) {
+      dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(other));
+    }
+    dbSession.commit();
+    return this;
   }
 }

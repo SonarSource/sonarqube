@@ -64,8 +64,8 @@ export default class ComponentNavMeta extends React.PureComponent {
       );
     }
 
-    if (this.props.snapshotDate) {
-      metaList.push(<li key="snapshotDate">{moment(this.props.snapshotDate).format('LLL')}</li>);
+    if (this.props.analysisDate) {
+      metaList.push(<li key="analysisDate">{moment(this.props.analysisDate).format('LLL')}</li>);
     }
 
     if (this.props.version) {

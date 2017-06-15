@@ -33,6 +33,7 @@ import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
 import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_HOSTS;
+import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_DISABLED;
 import static org.sonar.process.ProcessProperties.CLUSTER_SEARCH_HOSTS;
 import static org.sonar.process.ProcessProperties.JDBC_URL;
 import static org.sonar.process.ProcessProperties.SEARCH_HOST;
@@ -91,6 +92,29 @@ public class ClusterSettingsTest {
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Property [sonar.cluster.web.startupLeader] is forbidden");
+
+    new ClusterSettings().accept(settings.getProps());
+  }
+
+  @Test
+  public void accept_throws_MessageException_if_search_enabled_with_loopback() {
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_SEARCH_DISABLED, "false");
+    settings.set(CLUSTER_SEARCH_HOSTS, "192.168.1.1,192.168.1.2");
+    settings.set(SEARCH_HOST, "::1");
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("The interface address [::1] of [sonar.search.host] must not be a loopback address");
+
+    new ClusterSettings().accept(settings.getProps());
+  }
+
+  @Test
+  public void accept_not_throwing_MessageException_if_search_disabled_with_loopback() {
+    settings.set(CLUSTER_ENABLED, "true");
+    settings.set(CLUSTER_SEARCH_DISABLED, "true");
+    settings.set(CLUSTER_SEARCH_HOSTS, "192.168.1.1,192.168.1.2");
+    settings.set(SEARCH_HOST, "127.0.0.1");
 
     new ClusterSettings().accept(settings.getProps());
   }

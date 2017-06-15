@@ -19,9 +19,8 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,10 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.CloseableIterator;
@@ -44,24 +46,26 @@ import org.sonar.db.DbSession;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.Metric.ValueType.BOOL;
-import static org.sonar.api.measures.Metric.ValueType.FLOAT;
-import static org.sonar.api.measures.Metric.ValueType.INT;
-import static org.sonar.api.measures.Metric.ValueType.LEVEL;
-import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
-import static org.sonar.api.measures.Metric.ValueType.PERCENT;
-import static org.sonar.api.measures.Metric.ValueType.RATING;
-import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
 import static org.sonar.api.utils.KeyValueFormat.parseStringInt;
-import static org.sonar.db.DatabaseUtils.repeatCondition;
 import static org.sonar.db.component.DbTagsReader.readDbTags;
 
 public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMeasuresIndexerIterator.ProjectMeasures> {
 
-  private static final Set<String> METRIC_TYPES = ImmutableSet.of(INT.name(), FLOAT.name(), PERCENT.name(), BOOL.name(), MILLISEC.name(), LEVEL.name(), RATING.name(),
-    WORK_DUR.name());
-
-  private static final Joiner METRICS_JOINER = Joiner.on("','");
+  public static final Set<String> METRIC_KEYS = ImmutableSortedSet.of(
+    CoreMetrics.NCLOC_KEY,
+    CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
+    CoreMetrics.COVERAGE_KEY,
+    CoreMetrics.SQALE_RATING_KEY,
+    CoreMetrics.RELIABILITY_RATING_KEY,
+    CoreMetrics.SECURITY_RATING_KEY,
+    CoreMetrics.ALERT_STATUS_KEY,
+    CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY,
+    CoreMetrics.NEW_SECURITY_RATING_KEY,
+    CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY,
+    CoreMetrics.NEW_COVERAGE_KEY,
+    CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY,
+    CoreMetrics.NEW_LINES_KEY,
+    CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
   private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.uuid, s.created_at, p.tags " +
     "FROM projects p " +
@@ -70,55 +74,35 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
-  private static final String SQL_METRICS = "SELECT m.id, m.name FROM metrics m " +
-    "WHERE (m.val_type IN ('" + METRICS_JOINER.join(METRIC_TYPES) + "') OR m.name=?)" +
-    "AND m.enabled=?";
-
-  private static final String SQL_MEASURES = "SELECT pm.metric_id, pm.value, pm.variation_value_1, pm.text_value FROM project_measures pm " +
+  private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.variation_value_1, pm.text_value FROM project_measures pm " +
+    "INNER JOIN metrics m ON m.id = pm.metric_id " +
     "WHERE pm.component_uuid = ? AND pm.analysis_uuid = ? " +
-    "AND pm.metric_id IN ({metricIds}) " +
+    "AND m.name IN ({metricNames}) " +
     "AND (pm.value IS NOT NULL OR pm.variation_value_1 IS NOT NULL OR pm.text_value IS NOT NULL) " +
-    "AND pm.person_id IS NULL ";
+    "AND pm.person_id IS NULL " +
+    "AND m.enabled = ? ";
+  private static final boolean ENABLED = true;
+  private static final int FIELD_METRIC_NAME = 1;
+  private static final int FIELD_MEASURE_VALUE = 2;
+  private static final int FIELD_MEASURE_VARIATION_VALUE_1 = 3;
+  private static final int FIELD_MEASURE_TEXT_VALUE = 4;
 
   private final PreparedStatement measuresStatement;
-  private final Map<Long, String> metricKeysByIds;
   private final Iterator<Project> projects;
 
-  private ProjectMeasuresIndexerIterator(PreparedStatement measuresStatement, Map<Long, String> metricKeysByIds, List<Project> projects) {
+  private ProjectMeasuresIndexerIterator(PreparedStatement measuresStatement, List<Project> projects) {
     this.measuresStatement = measuresStatement;
-    this.metricKeysByIds = metricKeysByIds;
     this.projects = projects.iterator();
   }
 
   public static ProjectMeasuresIndexerIterator create(DbSession session, @Nullable String projectUuid) {
     try {
-      Map<Long, String> metrics = selectMetricKeysByIds(session);
       List<Project> projects = selectProjects(session, projectUuid);
-      PreparedStatement projectsStatement = createMeasuresStatement(session, metrics.keySet());
-      return new ProjectMeasuresIndexerIterator(projectsStatement, metrics, projects);
+      PreparedStatement projectsStatement = createMeasuresStatement(session);
+      return new ProjectMeasuresIndexerIterator(projectsStatement, projects);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to execute request to select all project measures", e);
     }
-  }
-
-  private static Map<Long, String> selectMetricKeysByIds(DbSession session) {
-    Map<Long, String> metrics = new HashMap<>();
-    try (PreparedStatement stmt = createMetricsStatement(session);
-      ResultSet rs = stmt.executeQuery()) {
-      while (rs.next()) {
-        metrics.put(rs.getLong(1), rs.getString(2));
-      }
-      return metrics;
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to execute request to select all metrics", e);
-    }
-  }
-
-  private static PreparedStatement createMetricsStatement(DbSession session) throws SQLException {
-    PreparedStatement stmt = session.getConnection().prepareStatement(SQL_METRICS);
-    stmt.setString(1, NCLOC_LANGUAGE_DISTRIBUTION_KEY);
-    stmt.setBoolean(2, true);
-    return stmt;
   }
 
   private static List<Project> selectProjects(DbSession session, @Nullable String projectUuid) {
@@ -144,9 +128,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static PreparedStatement createProjectsStatement(DbSession session, @Nullable String projectUuid) {
     try {
-      String sql = SQL_PROJECTS;
-      sql += projectUuid == null ? "" : PROJECT_FILTER;
-      PreparedStatement stmt = session.getConnection().prepareStatement(sql);
+      StringBuilder sql = new StringBuilder(SQL_PROJECTS);
+      if (projectUuid != null) {
+        sql.append(PROJECT_FILTER);
+      }
+      PreparedStatement stmt = session.getConnection().prepareStatement(sql.toString());
       stmt.setBoolean(1, true);
       stmt.setBoolean(2, true);
       stmt.setString(3, Scopes.PROJECT);
@@ -160,16 +146,11 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private static PreparedStatement createMeasuresStatement(DbSession session, Set<Long> metricIds) throws SQLException {
+  private static PreparedStatement createMeasuresStatement(DbSession session) throws SQLException {
     try {
-      String sql = StringUtils.replace(SQL_MEASURES, "{metricIds}", repeatCondition("?", metricIds.size(), ","));
-      PreparedStatement stmt = session.getConnection().prepareStatement(sql);
-      int index = 3;
-      for (Long metricId : metricIds) {
-        stmt.setLong(index, metricId);
-        index++;
-      }
-      return stmt;
+      String metricNameQuestionMarks = METRIC_KEYS.stream().map(x -> "?").collect(Collectors.joining(","));
+      String sql = StringUtils.replace(SQL_MEASURES, "{metricNames}", metricNameQuestionMarks);
+      return session.getConnection().prepareStatement(sql);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select measures", e);
     }
@@ -188,13 +169,16 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private Measures selectMeasures(String projectUuid, @Nullable String analysisUuid) {
     Measures measures = new Measures();
-    if (analysisUuid == null || metricKeysByIds.isEmpty()) {
+    if (analysisUuid == null) {
       return measures;
     }
     ResultSet rs = null;
     try {
-      measuresStatement.setString(1, projectUuid);
-      measuresStatement.setString(2, analysisUuid);
+      AtomicInteger index = new AtomicInteger(1);
+      measuresStatement.setString(index.getAndIncrement(), projectUuid);
+      measuresStatement.setString(index.getAndIncrement(), analysisUuid);
+      METRIC_KEYS.forEach(DatabaseUtils.setStrings(measuresStatement, index::getAndIncrement));
+      measuresStatement.setBoolean(index.getAndIncrement(), ENABLED);
       rs = measuresStatement.executeQuery();
       while (rs.next()) {
         readMeasure(rs, measures);
@@ -207,9 +191,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     }
   }
 
-  private void readMeasure(ResultSet rs, Measures measures) throws SQLException {
-    String metricKey = metricKeysByIds.get(rs.getLong(1));
-    Optional<Double> value = metricKey.startsWith("new_") ? getDouble(rs, 3) : getDouble(rs, 2);
+  private static void readMeasure(ResultSet rs, Measures measures) throws SQLException {
+    String metricKey = rs.getString(FIELD_METRIC_NAME);
+    Optional<Double> value = metricKey.startsWith("new_") ? getDouble(rs, FIELD_MEASURE_VARIATION_VALUE_1) : getDouble(rs, FIELD_MEASURE_VALUE);
     if (value.isPresent()) {
       measures.addNumericMeasure(metricKey, value.get());
       return;
@@ -225,7 +209,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
   }
 
   private static void readTextValue(ResultSet rs, Consumer<String> action) throws SQLException {
-    String textValue = rs.getString(4);
+    String textValue = rs.getString(FIELD_MEASURE_TEXT_VALUE);
     if (!rs.wasNull()) {
       action.accept(textValue);
     }

@@ -35,7 +35,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.requireNonNull;
-import static org.apache.commons.lang.RandomStringUtils.random;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
@@ -252,7 +251,7 @@ public class RuleTesting {
   }
 
   public static RuleKey randomRuleKeyOfMaximumLength() {
-    return RuleKey.of(random(255), random(200));
+    return RuleKey.of(randomAlphabetic(255), randomAlphabetic(200));
   }
 
   public static Consumer<RuleDefinitionDto> setRepositoryKey(String repositoryKey) {
@@ -303,8 +302,8 @@ public class RuleTesting {
     return rule -> rule.setSystemTags(copyOf(tags));
   }
 
-  public static Consumer<RuleMetadataDto> setOrganizationUuid(String organizationUuid) {
-    return rule -> rule.setOrganizationUuid(organizationUuid);
+  public static Consumer<RuleMetadataDto> setOrganization(OrganizationDto organization) {
+    return rule -> rule.setOrganizationUuid(organization.getUuid());
   }
 
   public static Consumer<RuleMetadataDto> setTags(String... tags) {

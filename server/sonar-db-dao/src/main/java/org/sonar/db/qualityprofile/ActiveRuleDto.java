@@ -48,17 +48,21 @@ public class ActiveRuleDto {
   // These fields do not exists in db, it's only retrieve by joins
   private String repository;
   private String ruleField;
-  private String profileKey;
+  private String ruleProfileUuid;
 
   public ActiveRuleDto setKey(ActiveRuleKey key) {
-    this.repository = key.ruleKey().repository();
-    this.ruleField = key.ruleKey().rule();
-    this.profileKey = key.qProfile();
+    this.repository = key.getRuleKey().repository();
+    this.ruleField = key.getRuleKey().rule();
+    this.ruleProfileUuid = key.getRuleProfileUuid();
     return this;
   }
 
   public ActiveRuleKey getKey() {
-    return ActiveRuleKey.of(profileKey, RuleKey.of(repository, ruleField));
+    return new ActiveRuleKey(ruleProfileUuid, RuleKey.of(repository, ruleField));
+  }
+
+  public RuleKey getRuleKey() {
+    return RuleKey.of(repository, ruleField);
   }
 
   public Integer getId() {
@@ -142,13 +146,13 @@ public class ActiveRuleDto {
     return this;
   }
 
-  public static ActiveRuleDto createFor(QualityProfileDto profileDto, RuleDefinitionDto ruleDto) {
-    requireNonNull(profileDto.getId(), "Profile is not persisted");
+  public static ActiveRuleDto createFor(QProfileDto profile, RuleDefinitionDto ruleDto) {
+    requireNonNull(profile.getId(), "Profile is not persisted");
     requireNonNull(ruleDto.getId(), "Rule is not persisted");
     ActiveRuleDto dto = new ActiveRuleDto();
-    dto.setProfileId(profileDto.getId());
+    dto.setProfileId(profile.getId());
     dto.setRuleId(ruleDto.getId());
-    dto.setKey(ActiveRuleKey.of(profileDto.getKee(), ruleDto.getKey()));
+    dto.setKey(ActiveRuleKey.of(profile, ruleDto.getKey()));
     return dto;
   }
 

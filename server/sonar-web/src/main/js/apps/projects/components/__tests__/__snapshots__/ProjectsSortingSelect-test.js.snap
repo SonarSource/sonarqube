@@ -1,0 +1,328 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should handle the descending sort direction 1`] = `
+<div>
+  <label>
+    projects.sort_by
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-large"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.name (projects.sorting.default)",
+          "value": "name",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.analysis_date",
+          "value": "analysis_date",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.reliability",
+          "value": "reliability",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.security",
+          "value": "security",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.maintainability",
+          "value": "maintainability",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.coverage",
+          "value": "coverage",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.duplications",
+          "value": "duplications",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.size",
+          "value": "size",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="vulnerability"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+  <Tooltip
+    overlay="projects.sort_descending"
+    placement="bottom"
+  >
+    <a
+      className="spacer-left button-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <SortDescIcon
+        className="little-spacer-top"
+      />
+    </a>
+  </Tooltip>
+</div>
+`;
+
+exports[`should render correctly for leak view 1`] = `
+<div>
+  <label>
+    projects.sort_by
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-large"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.analysis_date (projects.sorting.default)",
+          "value": "analysis_date",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.name",
+          "value": "name",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
+          "label": "projects.sorting.new_reliability",
+          "value": "new_reliability",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
+          "label": "projects.sorting.new_security",
+          "value": "new_security",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
+          "label": "projects.sorting.new_maintainability",
+          "value": "new_maintainability",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
+          "label": "projects.sorting.new_coverage",
+          "value": "new_coverage",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
+          "label": "projects.sorting.new_duplications",
+          "value": "new_duplications",
+        },
+        Object {
+          "class": "projects-leak-sorting-option",
+          "label": "projects.sorting.new_lines",
+          "value": "new_lines",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="new_coverage"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+  <Tooltip
+    overlay="projects.sort_ascending"
+    placement="bottom"
+  >
+    <a
+      className="spacer-left button-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <SortAscIcon
+        className="little-spacer-top"
+      />
+    </a>
+  </Tooltip>
+</div>
+`;
+
+exports[`should render correctly for overall view 1`] = `
+<div>
+  <label>
+    projects.sort_by
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-large"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.name (projects.sorting.default)",
+          "value": "name",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.analysis_date",
+          "value": "analysis_date",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.reliability",
+          "value": "reliability",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.security",
+          "value": "security",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.maintainability",
+          "value": "maintainability",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.coverage",
+          "value": "coverage",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.duplications",
+          "value": "duplications",
+        },
+        Object {
+          "class": undefined,
+          "label": "projects.sorting.size",
+          "value": "size",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="name"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+  <Tooltip
+    overlay="projects.sort_ascending"
+    placement="bottom"
+  >
+    <a
+      className="spacer-left button-icon"
+      href="#"
+      onClick={[Function]}
+    >
+      <SortAscIcon
+        className="little-spacer-top"
+      />
+    </a>
+  </Tooltip>
+</div>
+`;

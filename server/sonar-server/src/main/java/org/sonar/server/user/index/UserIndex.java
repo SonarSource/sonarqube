@@ -20,7 +20,6 @@
 package org.sonar.server.user.index;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.CheckForNull;
@@ -28,20 +27,15 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 
@@ -49,7 +43,6 @@ import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettingsElement.USER_SEARCH_GRAMS_ANALYZER;
 import static org.sonar.server.user.index.UserIndexDefinition.FIELD_ACTIVE;
@@ -101,25 +94,6 @@ public class UserIndex {
       }
     }
     return result;
-  }
-
-  public Iterator<UserDoc> selectUsersForBatch(List<String> logins) {
-    BoolQueryBuilder filter = boolQuery()
-      .filter(termsQuery(FIELD_LOGIN, logins));
-
-    SearchRequestBuilder requestBuilder = esClient
-      .prepareSearch(UserIndexDefinition.INDEX_TYPE_USER)
-      .setSearchType(SearchType.SCAN)
-      .addSort(SortBuilders.fieldSort(FIELD_LOGIN).order(SortOrder.ASC))
-      .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
-      .setSize(10_000)
-      .setFetchSource(
-        new String[] {FIELD_LOGIN, FIELD_NAME},
-        null)
-      .setQuery(filter);
-    SearchResponse response = requestBuilder.get();
-
-    return EsUtils.scroll(esClient, response.getScrollId(), UserDoc::new);
   }
 
   public SearchResult<UserDoc> search(UserQuery userQuery, SearchOptions options) {

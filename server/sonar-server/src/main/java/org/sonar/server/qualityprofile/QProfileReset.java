@@ -21,18 +21,12 @@ package org.sonar.server.qualityprofile;
 
 import java.util.Collection;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 public interface QProfileReset {
-  /**
-   * Restore the built-in profiles provided by plugins for the specified language.
-   * Missing profiles are created and existing ones are updated.
-   */
-  void resetLanguage(DbSession dbSession, OrganizationDto organization, String language);
 
   /**
    * Reset the rules of the specified profile.
    */
-  BulkChangeResult reset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations);
+  BulkChangeResult reset(DbSession dbSession, QProfileDto profile, Collection<RuleActivation> activations);
 }

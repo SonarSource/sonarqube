@@ -19,44 +19,57 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.util.Date;
+import java.util.function.Consumer;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
 
 import static java.util.Arrays.stream;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class QualityProfileTesting {
 
-  public static QualityProfileDto newQualityProfileDto() {
+  private QualityProfileTesting() {
+    // prevent instantiation
+  }
+
+  /**
+   * Create an instance of {@link  QProfileDto} with random field values.
+   */
+  public static QProfileDto newQualityProfileDto() {
     String uuid = Uuids.createFast();
-    QualityProfileDto dto = QualityProfileDto.createFor(uuid)
+    return new QProfileDto()
+      .setKee(uuid)
+      .setRulesProfileUuid(Uuids.createFast())
       .setOrganizationUuid(randomAlphanumeric(40))
       .setName(uuid)
       .setLanguage(randomAlphanumeric(20))
       .setLastUsed(nextLong());
-    dto.setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
-    return dto;
   }
 
+  /**
+   * Create an instance of {@link  QProfileChangeDto} with random field values,
+   * except changeType which is always {@code "ACTIVATED"}.
+   */
   public static QProfileChangeDto newQProfileChangeDto() {
     return new QProfileChangeDto()
-      .setKey(randomAlphanumeric(40))
-      .setProfileKey(randomAlphanumeric(40))
+      .setUuid(randomAlphanumeric(40))
+      .setRulesProfileUuid(randomAlphanumeric(40))
       .setCreatedAt(nextLong())
       .setChangeType("ACTIVATED")
       .setLogin(randomAlphanumeric(10));
   }
 
-  public static void insert(DbTester dbTester, QProfileChangeDto... dtos) {
-    // do not use QProfileChangeDao so that generated fields key and creation date
-    // can be defined by tests
-    DbSession dbSession = dbTester.getSession();
-    QProfileChangeMapper mapper = dbSession.getMapper(QProfileChangeMapper.class);
-    stream(dtos).forEach(dto -> mapper.insert(dto));
-    dbSession.commit();
+  /**
+   * Create an instance of {@link  RulesProfileDto} with most of random field values.
+   */
+  public static RulesProfileDto newRuleProfileDto(Consumer<RulesProfileDto>... populators) {
+    RulesProfileDto dto = new RulesProfileDto()
+      .setKee("uuid" + randomAlphabetic(10))
+      .setName("name" + randomAlphabetic(10))
+      .setLanguage("lang" + randomAlphabetic(5))
+      .setIsBuiltIn(false);
+    stream(populators).forEach(p -> p.accept(dto));
+    return dto;
   }
 }

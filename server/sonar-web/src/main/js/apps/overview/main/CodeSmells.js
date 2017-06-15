@@ -25,7 +25,7 @@ import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
 import { getComponentIssuesUrl } from '../../../helpers/urls';
-import CodeSmellIcon from '../../../components/ui/CodeSmellIcon';
+import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 
 class CodeSmells extends React.PureComponent {
   renderHeader() {
@@ -42,8 +42,8 @@ class CodeSmells extends React.PureComponent {
       Object.assign(params, { sinceLeakPeriod: 'true' });
     }
 
-    const formattedSnapshotDate = moment(component.snapshotDate).format('LLL');
-    const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
+    const formattedAnalysisDate = moment(component.analysisDate).format('LLL');
+    const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedAnalysisDate);
 
     return (
       <Link to={getComponentIssuesUrl(component.key, params)}>

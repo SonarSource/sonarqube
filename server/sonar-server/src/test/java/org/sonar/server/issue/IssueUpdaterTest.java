@@ -35,13 +35,16 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDbTester;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDbTester;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.ws.SearchResponseData;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -100,7 +103,7 @@ public class IssueUpdaterTest {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto());
     ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    DefaultIssue issue = issueDbTester.insertIssue(newDto(rule, file, project)).setSeverity(MAJOR).toDefaultIssue();
+    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
@@ -125,7 +128,7 @@ public class IssueUpdaterTest {
     RuleDto rule = ruleDbTester.insertRule(newRuleDto().setStatus(RuleStatus.REMOVED));
     ComponentDto project = componentDbTester.insertPrivateProject();
     ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
-    DefaultIssue issue = issueDbTester.insertIssue(newDto(rule, file, project)).setSeverity(MAJOR).toDefaultIssue();
+    DefaultIssue issue = issueDbTester.insertIssue(IssueTesting.newIssue(rule.getDefinition(), project, file)).setSeverity(MAJOR).toDefaultIssue();
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
     issueFieldsSetter.setSeverity(issue, BLOCKER, context);
 
@@ -142,4 +145,49 @@ public class IssueUpdaterTest {
     return newDto(rule, file, project);
   }
 
+  @Test
+  public void saveIssue_populates_specified_SearchResponseData_with_rule_project_and_component_retrieved_from_DB() {
+    RuleDto rule = ruleDbTester.insertRule(newRuleDto());
+    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
+    IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
+    DefaultIssue issue = issueDbTester.insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
+
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(dbTester.getSession(), issue, context, null);
+
+    assertThat(preloadedSearchResponseData.getIssues())
+      .hasSize(1);
+    assertThat(preloadedSearchResponseData.getIssues().iterator().next())
+      .isNotSameAs(issueDto);
+    assertThat(preloadedSearchResponseData.getRules())
+      .extracting(RuleDefinitionDto::getKey)
+      .containsOnly(rule.getKey());
+    assertThat(preloadedSearchResponseData.getComponents())
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project.uuid(), file.uuid());
+  }
+
+  @Test
+  public void saveIssue_populates_specified_SearchResponseData_with_no_rule_but_with_project_and_component_if_rule_is_removed() {
+    RuleDto rule = ruleDbTester.insertRule(newRuleDto().setStatus(RuleStatus.REMOVED));
+    ComponentDto project = componentDbTester.insertPrivateProject();
+    ComponentDto file = componentDbTester.insertComponent(newFileDto(project));
+    IssueDto issueDto = IssueTesting.newIssue(rule.getDefinition(), project, file);
+    DefaultIssue issue = issueDbTester.insertIssue(issueDto).setSeverity(MAJOR).toDefaultIssue();
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "john");
+    issueFieldsSetter.setSeverity(issue, BLOCKER, context);
+
+    SearchResponseData preloadedSearchResponseData = underTest.saveIssueAndPreloadSearchResponseData(dbTester.getSession(), issue, context, null);
+
+    assertThat(preloadedSearchResponseData.getIssues())
+      .hasSize(1);
+    assertThat(preloadedSearchResponseData.getIssues().iterator().next())
+      .isNotSameAs(issueDto);
+    assertThat(preloadedSearchResponseData.getRules()).isNullOrEmpty();
+    assertThat(preloadedSearchResponseData.getComponents())
+      .extracting(ComponentDto::uuid)
+      .containsOnly(project.uuid(), file.uuid());
+  }
 }

@@ -24,14 +24,14 @@ import java.io.Writer;
 import javax.annotation.Nullable;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 /**
  * Backup and restore a Quality profile.
  */
 public interface QProfileBackuper {
 
-  void backup(DbSession dbSession, QualityProfileDto profile, Writer backupWriter);
+  void backup(DbSession dbSession, QProfileDto profile, Writer backupWriter);
 
   /**
    * Restore backup on a profile in the specified organization. The parameter {@code overriddenProfileName}
@@ -43,5 +43,5 @@ public interface QProfileBackuper {
   /**
    * Restore backup on an existing profile.
    */
-  QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile);
+  QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile);
 }

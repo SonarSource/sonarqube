@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.log;
 
+import ch.qos.logback.classic.Level;
 import org.sonar.process.ProcessId;
 import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
@@ -40,6 +41,7 @@ public class CeProcessLogging extends ServerProcessLogging {
     logLevelConfigBuilder.levelByDomain("sql", ProcessId.COMPUTE_ENGINE, LogDomain.SQL);
     logLevelConfigBuilder.levelByDomain("es", ProcessId.COMPUTE_ENGINE, LogDomain.ES);
     JMX_RMI_LOGGER_NAMES.forEach(loggerName -> logLevelConfigBuilder.levelByDomain(loggerName, ProcessId.COMPUTE_ENGINE, LogDomain.JMX));
+    MSQDRIVER_LOGGER_NAMES_TO_TURN_OFF.forEach(loggerName -> logLevelConfigBuilder.immutableLevel(loggerName, Level.OFF));
   }
 
   @Override

@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the overall measures and quality gate 1`] = `
+<div
+  className="boxed-group project-card"
+  data-key="foo"
+>
+  <div
+    className="boxed-group-header clearfix"
+  >
+    <h2
+      className="project-card-name"
+    >
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to={
+          Object {
+            "pathname": "/dashboard",
+            "query": Object {
+              "id": "foo",
+            },
+          }
+        }
+      >
+        Foo
+      </Link>
+    </h2>
+    <ProjectCardQualityGate
+      status="OK"
+    />
+    <div
+      className="pull-right text-right"
+    />
+    <div
+      className="project-card-dates note text-right"
+    >
+      <span
+        className="big-spacer-left"
+      >
+        projects.last_analysis_on_x.March 1, 2017 9:36 AM
+      </span>
+    </div>
+  </div>
+  <div
+    className="boxed-group-inner"
+  >
+    <ProjectCardOverallMeasures
+      measures={
+        Object {
+          "alert_status": "OK",
+          "new_bugs": 12,
+          "reliability_rating": "1.0",
+          "sqale_rating": "1.0",
+        }
+      }
+    />
+  </div>
+</div>
+`;

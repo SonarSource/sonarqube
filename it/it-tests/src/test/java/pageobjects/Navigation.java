@@ -42,10 +42,7 @@ import static com.codeborne.selenide.Selenide.page;
 public class Navigation extends ExternalResource {
 
   public static Navigation get(Orchestrator orchestrator) {
-    String browser = orchestrator.getConfiguration().getString("orchestrator.browser", "firefox");
-    SelenideConfig.INSTANCE
-      .setBrowser(browser)
-      .setBaseUrl(orchestrator.getServer().getUrl());
+    SelenideConfig.configure(orchestrator);
     return new Navigation();
   }
 
@@ -61,6 +58,10 @@ public class Navigation extends ExternalResource {
 
   public ProjectsPage openProjects() {
     return open("/projects", ProjectsPage.class);
+  }
+
+  public ProjectsPage openProjects(String organization) {
+    return open("/organizations/" + organization + "/projects", ProjectsPage.class);
   }
 
   public IssuesPage openIssues() {

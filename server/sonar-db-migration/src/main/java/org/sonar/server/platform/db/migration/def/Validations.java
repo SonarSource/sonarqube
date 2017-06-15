@@ -49,7 +49,7 @@ public class Validations {
    * @return the same {@code columnName}
    * @see #checkDbIdentifier(String, String, int)
    */
-  static String validateColumnName(@Nullable String columnName) {
+  public static String validateColumnName(@Nullable String columnName) {
     String name = requireNonNull(columnName, "Column name cannot be null");
     checkDbIdentifierCharacters(columnName, "Column name");
     return name;
@@ -115,6 +115,7 @@ public class Validations {
   }
 
   private static void checkDbIdentifierCharacters(String identifier, String identifierDesc) {
+    checkArgument(identifier.length() > 0, "Identifier must not be empty");
     checkArgument(
       LOWER_CASE_ASCII_LETTERS_CHAR_MATCHER.or(DIGIT_CHAR_MATCHER).or(anyOf("_")).matchesAllOf(identifier),
       "%s must be lower case and contain only alphanumeric chars or '_', got '%s'", identifierDesc, identifier);

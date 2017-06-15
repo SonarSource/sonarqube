@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import ChangeProjectsView from '../views/ChangeProjectsView';
+import ChangeProjectsForm from './ChangeProjectsForm';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { getProfileProjects } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
@@ -34,6 +34,7 @@ type Props = {
 };
 
 type State = {
+  formOpen: boolean,
   loading: boolean,
   more?: boolean,
   projects: ?Array<*>
@@ -43,6 +44,7 @@ export default class ProfileProjects extends React.PureComponent {
   mounted: boolean;
   props: Props;
   state: State = {
+    formOpen: false,
     loading: true,
     projects: null
   };
@@ -79,15 +81,15 @@ export default class ProfileProjects extends React.PureComponent {
     });
   }
 
-  handleChange(e: SyntheticInputEvent) {
-    e.preventDefault();
-    e.target.blur();
-    new ChangeProjectsView({
-      loadProjects: this.props.updateProfiles,
-      organization: this.props.organization,
-      profile: this.props.profile
-    }).render();
-  }
+  handleChangeClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ formOpen: true });
+  };
+
+  closeForm = () => {
+    this.setState({ formOpen: false });
+    this.props.updateProfiles();
+  };
 
   renderDefault() {
     return (
@@ -143,13 +145,20 @@ export default class ProfileProjects extends React.PureComponent {
           {this.props.canAdmin &&
             !this.props.profile.isDefault &&
             <div className="pull-right">
-              <button className="js-change-projects" onClick={this.handleChange.bind(this)}>
+              <button className="js-change-projects" onClick={this.handleChangeClick}>
                 {translate('quality_profiles.change_projects')}
               </button>
             </div>}
         </header>
 
         {this.props.profile.isDefault ? this.renderDefault() : this.renderProjects()}
+
+        {this.state.formOpen &&
+          <ChangeProjectsForm
+            onClose={this.closeForm}
+            organization={this.props.organization}
+            profile={this.props.profile}
+          />}
       </div>
     );
   }

@@ -23,13 +23,16 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -84,6 +87,7 @@ public class AssignActionTest {
       new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), db.getDbClient(), issueIndexer),
       mock(NotificationManager.class)),
     responseWriter);
+  private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -97,7 +101,8 @@ public class AssignActionTest {
       .execute();
 
     checkIssueAssignee(issue.getKey(), "arthur");
-    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verifyContentOfPreloadedSearchResponseData(issue);
   }
 
   @Test
@@ -110,7 +115,8 @@ public class AssignActionTest {
       .execute();
 
     checkIssueAssignee(issue.getKey(), CURRENT_USER_LOGIN);
-    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verifyContentOfPreloadedSearchResponseData(issue);
   }
 
   @Test
@@ -123,7 +129,8 @@ public class AssignActionTest {
       .execute();
 
     checkIssueAssignee(issue.getKey(), CURRENT_USER_LOGIN);
-    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verifyContentOfPreloadedSearchResponseData(issue);
   }
 
   @Test
@@ -135,7 +142,8 @@ public class AssignActionTest {
       .execute();
 
     checkIssueAssignee(issue.getKey(), null);
-    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verifyContentOfPreloadedSearchResponseData(issue);
   }
 
   @Test
@@ -148,7 +156,8 @@ public class AssignActionTest {
       .execute();
 
     checkIssueAssignee(issue.getKey(), null);
-    verify(responseWriter).write(eq(issue.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
+    verifyContentOfPreloadedSearchResponseData(issue);
   }
 
   @Test
@@ -234,6 +243,19 @@ public class AssignActionTest {
       .setParam("issue", issueDto.getKey())
       .setParam("assignee", "arthur")
       .execute();
+  }
+
+  private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {
+    SearchResponseData preloadedSearchResponseData = preloadedSearchResponseDataCaptor.getValue();
+    assertThat(preloadedSearchResponseData.getIssues())
+        .extracting(IssueDto::getKey)
+        .containsOnly(issue.getKey());
+    assertThat(preloadedSearchResponseData.getRules())
+        .extracting(RuleDefinitionDto::getKey)
+        .containsOnly(issue.getRuleKey());
+    assertThat(preloadedSearchResponseData.getComponents())
+        .extracting(ComponentDto::uuid)
+        .containsOnly(issue.getComponentUuid(), issue.getProjectUuid());
   }
 
   private UserDto insertUser(String login) {

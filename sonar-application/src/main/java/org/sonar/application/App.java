@@ -66,8 +66,9 @@ public class App {
         scheduler.awaitTermination();
         stopRequestWatcher.stopWatching();
       }
-      systemExit.exit(0);
     }
+
+    systemExit.exit(0);
   }
 
   public static void main(String... args) throws IOException {

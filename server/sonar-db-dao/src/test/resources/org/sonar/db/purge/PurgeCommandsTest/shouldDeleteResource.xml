@@ -58,7 +58,7 @@
   <events id="2"
           uuid="P2"
           analysis_uuid="u1"
-          component_uuid="[null]"
+          component_uuid="uuid_1"
           name="Version 1.0"
           category="VERSION"
           description="[null]"
@@ -69,7 +69,7 @@
   <events id="3"
           uuid="P3"
           analysis_uuid="u1"
-          component_uuid="[null]"
+          component_uuid="uuid_1"
           name="Version 1.0"
           category="VERSION"
           description="[null]"
@@ -80,7 +80,7 @@
   <issues id="1"
           kee="ABCDE"
           component_uuid="uuid_1"
-          project_uuid="1"
+          project_uuid="uuid_1"
           status="CLOSED"
           resolution="[null]"
           line="200"
@@ -105,14 +105,4 @@
                  change_type="comment"
                  change_data="this is a comment"/>
 
-  <authors id="1"
-           person_id="1"
-           login="tartanpion"
-           created_at="[null]"
-           updated_at="[null]"/>
-  <authors id="2"
-           person_id="1"
-           login="fanfoue"
-           created_at="[null]"
-           updated_at="[null]"/>
 </dataset>

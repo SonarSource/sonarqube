@@ -20,6 +20,7 @@
 package org.sonar.server.projectlink.ws;
 
 import java.io.IOException;
+import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,10 +33,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.WsProjectLinks.Link;
 import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
@@ -70,7 +75,7 @@ public class SearchActionTest {
 
   @Before
   public void setUp() {
-    ComponentFinder componentFinder = new ComponentFinder(dbClient);
+    ComponentFinder componentFinder = TestComponentFinder.from(db);
     underTest = new SearchAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
   }
@@ -183,6 +188,49 @@ public class SearchActionTest {
   public void fail_when_no_project() throws IOException {
     expectedException.expect(NotFoundException.class);
     callByKey("unknown");
+  }
+
+  @Test
+  public void fail_if_module() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
+    failIfNotAProject(project, module);
+  }
+
+  @Test
+  public void fail_if_directory() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
+    failIfNotAProject(project, directory);
+  }
+
+  @Test
+  public void fail_if_file() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    failIfNotAProject(project, file);
+  }
+
+  @Test
+  public void fail_if_subview() {
+    ComponentDto view = db.components().insertView();
+    ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
+    failIfNotAProject(view, subview);
+  }
+
+  private void failIfNotAProject(ComponentDto root, ComponentDto component) {
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, root);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Component '" + component.key() + "' (id: " + component.uuid() + ") must be a project");
+
+    TestRequest testRequest = ws.newRequest();
+    if (new Random().nextBoolean()) {
+      testRequest.setParam(PARAM_PROJECT_KEY, component.key());
+    } else {
+      testRequest.setParam(PARAM_PROJECT_ID, component.uuid());
+    }
+    testRequest.execute();
   }
 
   @Test

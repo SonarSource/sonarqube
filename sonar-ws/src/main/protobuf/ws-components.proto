@@ -117,6 +117,7 @@ message Component {
   optional string analysisDate = 13;
   optional Tags tags = 14;
   optional string visibility = 15;
+  optional string leakPeriodDate = 16;
 
   message Tags {
     repeated string tags = 1;

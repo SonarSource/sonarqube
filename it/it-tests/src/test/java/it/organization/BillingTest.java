@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category6Suite;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -40,9 +40,9 @@ import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import pageobjects.Navigation;
 import util.ItUtils;
+import util.OrganizationRule;
 import util.user.UserRule;
 
-import static it.Category6Suite.enableOrganizationsSupport;
 import static java.lang.String.format;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -58,43 +58,37 @@ import static util.ItUtils.setServerProperty;
 public class BillingTest {
 
   private static final String USER_LOGIN = "USER_LOGIN";
+  private static final String PROPERTY_PREVENT_ANALYSIS = "sonar.billing.preventProjectAnalysis";
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
-
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public OrganizationRule organizationRule = new OrganizationRule(orchestrator);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient adminClient;
 
   @BeforeClass
-  public static void prepare() throws Exception {
+  public static void prepare() {
     adminClient = newAdminWsClient(orchestrator);
-    enableOrganizationsSupport();
   }
 
   @Before
-  public void setUp() throws Exception {
-    userRule.deactivateUsers(USER_LOGIN);
-    resetSettings(orchestrator, null, "sonar.billing.preventProjectAnalysis", "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
-  }
-
-  @AfterClass
-  public static void tearDown() throws Exception {
-    resetSettings(orchestrator, null, "sonar.billing.preventProjectAnalysis", "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
-    userRule.deactivateUsers(USER_LOGIN);
+  @After
+  public void reset() {
+    resetSettings(orchestrator, null, PROPERTY_PREVENT_ANALYSIS, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
   }
 
   @Test
   public void execute_successfully_ce_analysis_on_organization() {
     String organizationKey = createOrganization();
-    setServerProperty(orchestrator, "sonar.billing.preventProjectAnalysis", "false");
+    setServerProperty(orchestrator, PROPERTY_PREVENT_ANALYSIS, "false");
 
     String taskUuid = executeAnalysis(organizationKey);
 
@@ -105,7 +99,7 @@ public class BillingTest {
   @Test
   public void fail_to_execute_ce_analysis_on_organization() {
     String organizationKey = createOrganization();
-    setServerProperty(orchestrator, "sonar.billing.preventProjectAnalysis", "true");
+    setServerProperty(orchestrator, PROPERTY_PREVENT_ANALYSIS, "true");
 
     String taskUuid = executeAnalysis(organizationKey);
 

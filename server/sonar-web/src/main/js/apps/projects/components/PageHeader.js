@@ -19,22 +19,36 @@
  */
 // @flow
 import React from 'react';
-import ViewSelect from './ViewSelect';
+import SearchFilterContainer from '../filters/SearchFilterContainer';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
+  isFavorite?: boolean,
   loading: boolean,
-  onViewChange: string => void,
-  total?: number,
-  view: string
+  onOpenOptionBar: () => void,
+  optionBarOpen?: boolean,
+  organization?: { key: string },
+  query: { [string]: string },
+  total?: number
 };
 
 export default function PageHeader(props: Props) {
   return (
     <header className="page-header">
-      <ViewSelect onChange={props.onViewChange} view={props.view} />
+      <SearchFilterContainer
+        isFavorite={props.isFavorite}
+        organization={props.organization}
+        query={props.query}
+      />
+      <div className="page-actions projects-page-actions text-right">
+        {!props.optionBarOpen &&
+          <a
+            className="button js-projects-topbar-open spacer-right"
+            href="#"
+            onClick={props.onOpenOptionBar}>
+            {translate('projects.view_settings')}
+          </a>}
 
-      <div className="page-actions projects-page-actions">
         {!!props.loading && <i className="spinner spacer-right" />}
 
         {props.total != null &&

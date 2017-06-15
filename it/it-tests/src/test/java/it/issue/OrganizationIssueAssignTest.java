@@ -24,9 +24,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,19 +36,17 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.AssignRequest;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
-import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import pageobjects.Navigation;
 import pageobjects.issues.IssuesPage;
+import util.OrganizationRule;
 import util.issue.IssueRule;
 import util.user.UserRule;
 
-import static it.Category6Suite.enableOrganizationsSupport;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.deleteOrganizationsIfExists;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newOrganizationKey;
 import static util.ItUtils.restoreProfile;
@@ -68,36 +64,24 @@ public class OrganizationIssueAssignTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
-
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
-
-  @ClassRule
-  public static IssueRule issueRule = IssueRule.from(orchestrator);
+  @Rule
+  public OrganizationRule organizations = new OrganizationRule(orchestrator);
+  @Rule
+  public UserRule userRule = new UserRule(orchestrator);
+  @Rule
+  public IssueRule issueRule = IssueRule.from(orchestrator);
+  @Rule
+  public Navigation nav = Navigation.get(orchestrator);
 
   private WsClient adminClient = newAdminWsClient(orchestrator);
 
-  @BeforeClass
-  public static void enableOrganizations() throws Exception {
-    enableOrganizationsSupport();
-  }
-
   @Before
   public void setUp() throws Exception {
-    userRule.deactivateUsers(ASSIGNEE_LOGIN, OTHER_LOGIN);
     createOrganization(ORGANIZATION_KEY);
     restoreProfile(orchestrator, getClass().getResource("/organization/IssueAssignTest/one-issue-per-file-profile.xml"), ORGANIZATION_KEY);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    userRule.deactivateUsers(ASSIGNEE_LOGIN, OTHER_LOGIN);
-    deleteOrganizationsIfExists(orchestrator, ORGANIZATION_KEY, OTHER_ORGANIZATION_KEY);
   }
 
   @Test
@@ -212,7 +196,7 @@ public class OrganizationIssueAssignTest {
   }
 
   private void createOrganization(String organizationKey) {
-    adminClient.organizations().create(new CreateWsRequest.Builder().setKey(organizationKey).setName(organizationKey).build()).getOrganization();
+    organizations.create(o -> o.setKey(organizationKey).setName(organizationKey));
   }
 
   private void provisionAndAnalyseProject(String projectKey, String organization) {

@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,13 +51,13 @@ public class CompareActionTest {
 
   @Test
   public void should_not_allow_to_compare_quality_profiles_from_different_organizations() {
-    QualityProfileDto left = QualityProfileTesting.newQualityProfileDto();
-    QualityProfileDto right = QualityProfileTesting.newQualityProfileDto();
-    dbTester.qualityProfiles().insertQualityProfiles(left, right);
+    QProfileDto left = QualityProfileTesting.newQualityProfileDto();
+    QProfileDto right = QualityProfileTesting.newQualityProfileDto();
+    dbTester.qualityProfiles().insert(left, right);
 
     TestRequest request = wsTester.newRequest().setMethod("POST")
-      .setParam("leftKey", left.getKey())
-      .setParam("rightKey", right.getKey());
+      .setParam("leftKey", left.getKee())
+      .setParam("rightKey", right.getKee());
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Cannot compare quality profiles of different organizations.");

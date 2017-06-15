@@ -19,9 +19,12 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UtcDateUtils;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -40,147 +44,245 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newQualityProfileDto;
+import static org.sonar.db.qualityprofile.RulesProfileDto.from;
 
 public class QualityProfileDaoTest {
 
   private System2 system = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system);
+  public DbTester db = DbTester.create(system);
 
-  private DbSession dbSession = dbTester.getSession();
-  private QualityProfileDbTester qualityProfileDb = new QualityProfileDbTester(dbTester);
-  private QualityProfileDao underTest = dbTester.getDbClient().qualityProfileDao();
+  private DbSession dbSession = db.getSession();
+  private QualityProfileDao underTest = db.getDbClient().qualityProfileDao();
   private OrganizationDto organization;
 
   @Before
   public void before() {
     when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-01-20T12:00:00+0000").getTime());
-    organization = dbTester.organizations().insertForUuid("QualityProfileDaoTest-ORG");
+    organization = db.organizations().insertForUuid("QualityProfileDaoTest-ORG");
   }
 
   @After
-  public void tearDown() {
-    // minor optimization, no need to commit pending operations
+  public void deleteData() {
     dbSession.rollback();
   }
 
   @Test
-  public void insert() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    QualityProfileDto dto = QualityProfileDto.createFor("abcde")
+  public void test_insert() {
+    QProfileDto dto = new QProfileDto()
+      .setKee("theUuid")
+      .setRulesProfileUuid("theRulesProfileUuid")
       .setOrganizationUuid(organization.getUuid())
-      .setName("ABCDE")
-      .setLanguage("xoo");
+      .setName("theName")
+      .setLanguage("theLang")
+      .setLastUsed(1_000L)
+      .setParentKee("theParentUuid")
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(true);
 
-    underTest.insert(dbTester.getSession(), dto);
-    dbTester.commit();
+    underTest.insert(dbSession, dto);
 
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
+    QProfileDto reloaded = underTest.selectByUuid(dbSession, dto.getKee());
+    assertThat(reloaded.getKee()).isEqualTo(dto.getKee());
+    assertThat(reloaded.getRulesProfileUuid()).isEqualTo(dto.getRulesProfileUuid());
+    assertThat(reloaded.getId()).isNotNull().isNotZero();
+    assertThat(reloaded.getLanguage()).isEqualTo(dto.getLanguage());
+    assertThat(reloaded.getName()).isEqualTo(dto.getName());
+    assertThat(reloaded.getLastUsed()).isEqualTo(dto.getLastUsed());
+    assertThat(reloaded.getRulesUpdatedAt()).isEqualTo(dto.getRulesUpdatedAt());
+    assertThat(reloaded.getParentKee()).isEqualTo(dto.getParentKee());
+    assertThat(reloaded.getOrganizationUuid()).isEqualTo(dto.getOrganizationUuid());
+    assertThat(reloaded.isBuiltIn()).isEqualTo(dto.isBuiltIn());
   }
 
   @Test
-  public void update() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    QualityProfileDto dto = QualityProfileDto.createFor("key")
-      .setId(1)
+  public void test_update() {
+    QProfileDto initial = new QProfileDto()
+      .setKee("theUuid")
+      .setRulesProfileUuid("theRulesProfileUuid")
       .setOrganizationUuid(organization.getUuid())
-      .setName("New Name")
-      .setLanguage("js")
-      .setParentKee("fghij")
-      .setDefault(false);
+      .setName("theName")
+      .setLanguage("theLang")
+      .setLastUsed(1_000L)
+      .setParentKee("theParentUuid")
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(true);
+    underTest.insert(dbSession, initial);
 
-    underTest.update(dbSession, dto);
-    dbSession.commit();
+    QProfileDto update = new QProfileDto()
+      .setKee(initial.getKee())
+      .setRulesProfileUuid(initial.getRulesProfileUuid())
+      .setName("theNewName")
+      .setLanguage("theNewLang")
+      .setLastUsed(11_000L)
+      .setParentKee("theNewParentUuid")
+      .setUserUpdatedAt(12_000L)
+      .setRulesUpdatedAt("2017-06-01")
+      .setIsBuiltIn(false)
 
-    dbTester.assertDbUnit(getClass(), "update-result.xml", new String[] {"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
+      // field that cannot be changed
+      .setOrganizationUuid("theNewOrg");
+    underTest.update(dbSession, update);
+
+    QProfileDto reloaded = underTest.selectByUuid(dbSession, initial.getKee());
+    assertThat(reloaded.getKee()).isEqualTo(initial.getKee());
+    assertThat(reloaded.getOrganizationUuid()).isEqualTo(initial.getOrganizationUuid());
+
+    // updated fields
+    assertThat(reloaded.getLanguage()).isEqualTo(update.getLanguage());
+    assertThat(reloaded.getName()).isEqualTo(update.getName());
+    assertThat(reloaded.getLastUsed()).isEqualTo(update.getLastUsed());
+    assertThat(reloaded.getRulesUpdatedAt()).isEqualTo(update.getRulesUpdatedAt());
+    assertThat(reloaded.getParentKee()).isEqualTo(update.getParentKee());
+    assertThat(reloaded.isBuiltIn()).isEqualTo(update.isBuiltIn());
   }
 
   @Test
-  public void test_deleteByKeys() {
-    QualityProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    QualityProfileDto p2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    QualityProfileDto p3 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+  public void deleteRulesProfilesByUuids() {
+    RulesProfileDto rp1 = insertRulesProfile();
+    RulesProfileDto rp2 = insertRulesProfile();
 
-    underTest.deleteByKeys(dbSession, asList(p1.getKey(), p3.getKey(), "does_not_exist"));
+    underTest.deleteRulesProfilesByUuids(dbSession, asList(rp1.getKee()));
 
-    List<Map<String, Object>> keysInDb = dbTester.select(dbSession, "select kee as \"key\" from rules_profiles");
-    assertThat(keysInDb).hasSize(1);
-    assertThat(keysInDb.get(0).get("key")).isEqualTo(p2.getKey());
+    List<Map<String, Object>> uuids = db.select(dbSession, "select kee as \"uuid\" from rules_profiles");
+    assertThat(uuids).hasSize(1);
+    assertThat(uuids.get(0).get("uuid")).isEqualTo(rp2.getKee());
   }
 
   @Test
-  public void deleteByKeys_does_nothing_if_empty_keys() {
-    QualityProfileDto p1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+  public void deleteRulesProfilesByUuids_does_nothing_if_empty_input() {
+    insertRulesProfile();
 
-    underTest.deleteByKeys(dbSession, Collections.emptyList());
+    underTest.deleteRulesProfilesByUuids(dbSession, emptyList());
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
   }
 
   @Test
-  public void deleteProjectAssociationsByProfileKeys_does_nothing_if_empty_keys() {
-    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    ComponentDto project1 = dbTester.components().insertPrivateProject();
-    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profile1);
+  public void deleteRulesProfilesByUuids_does_nothing_if_specified_uuid_does_not_exist() {
+    insertRulesProfile();
 
-    underTest.deleteProjectAssociationsByProfileKeys(dbSession, Collections.emptyList());
+    underTest.deleteRulesProfilesByUuids(dbSession, asList("does_not_exist"));
 
-    assertThat(dbTester.countRowsOfTable(dbSession, "project_qprofiles")).isEqualTo(1);
+    assertThat(db.countRowsOfTable(dbSession, "rules_profiles")).isEqualTo(1);
+  }
+
+  private RulesProfileDto insertRulesProfile() {
+    RulesProfileDto dto = new RulesProfileDto()
+      .setName(randomAlphanumeric(10))
+      .setLanguage(randomAlphanumeric(3))
+      .setKee(Uuids.createFast())
+      .setIsBuiltIn(false);
+    db.getDbClient().qualityProfileDao().insert(dbSession, dto);
+    return dto;
   }
 
   @Test
-  public void deleteProjectAssociationsByProfileKeys_deletes_rows_from_table_project_profiles() {
-    QualityProfileDto profile1 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    QualityProfileDto profile2 = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
-    ComponentDto project1 = dbTester.components().insertPrivateProject();
-    ComponentDto project2 = dbTester.components().insertPrivateProject();
-    ComponentDto project3 = dbTester.components().insertPrivateProject();
-    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profile1);
-    dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profile1);
-    dbTester.qualityProfiles().associateProjectWithQualityProfile(project3, profile2);
+  public void test_deleteProjectAssociationsByProfileUuids() {
+    QProfileDto profile1 = db.qualityProfiles().insert(organization);
+    QProfileDto profile2 = db.qualityProfiles().insert(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project3 = db.components().insertPrivateProject(organization);
+    db.qualityProfiles().associateWithProject(project1, profile1);
+    db.qualityProfiles().associateWithProject(project2, profile1);
+    db.qualityProfiles().associateWithProject(project3, profile2);
 
-    underTest.deleteProjectAssociationsByProfileKeys(dbSession, asList(profile1.getKey(), "does_not_exist"));
+    underTest.deleteProjectAssociationsByProfileUuids(dbSession, asList(profile1.getKee(), "does_not_exist"));
 
-    List<Map<String, Object>> rows = dbTester.select(dbSession, "select project_uuid as \"projectUuid\", profile_key as \"profileKey\" from project_qprofiles");
+    List<Map<String, Object>> rows = db.select(dbSession, "select project_uuid as \"projectUuid\", profile_key as \"profileKey\" from project_qprofiles");
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).get("projectUuid")).isEqualTo(project3.uuid());
-    assertThat(rows.get(0).get("profileKey")).isEqualTo(profile2.getKey());
+    assertThat(rows.get(0).get("profileKey")).isEqualTo(profile2.getKee());
   }
 
   @Test
-  public void find_all() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+  public void deleteProjectAssociationsByProfileUuids_does_nothing_if_empty_uuids() {
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    ComponentDto project = db.components().insertPrivateProject();
+    db.qualityProfiles().associateWithProject(project, profile);
 
-    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
+    underTest.deleteProjectAssociationsByProfileUuids(dbSession, Collections.emptyList());
 
-    assertThat(dtos).hasSize(2);
+    assertThat(db.countRowsOfTable(dbSession, "project_qprofiles")).isEqualTo(1);
+  }
 
-    QualityProfileDto dto1 = dtos.get(0);
-    assertThat(dto1.getId()).isEqualTo(1);
-    assertThat(dto1.getName()).isEqualTo("Sonar Way");
-    assertThat(dto1.getLanguage()).isEqualTo("java");
-    assertThat(dto1.getParentKee()).isNull();
+  @Test
+  public void test_selectAll() {
+    List<QProfileDto> sharedData = createSharedData();
 
-    QualityProfileDto dto2 = dtos.get(1);
-    assertThat(dto2.getId()).isEqualTo(2);
-    assertThat(dto2.getName()).isEqualTo("Sonar Way");
-    assertThat(dto2.getLanguage()).isEqualTo("js");
-    assertThat(dto2.getParentKee()).isNull();
+    List<QProfileDto> reloadeds = underTest.selectOrderedByOrganizationUuid(dbSession, organization);
+
+    assertThat(reloadeds).hasSize(sharedData.size());
+
+    IntStream.range(1, reloadeds.size())
+      .forEach(
+        i -> {
+          QProfileDto reloaded = reloadeds.get(i - 1);
+          QProfileDto original = sharedData.get(i - 1);
+
+          assertThat(reloaded.getId()).isEqualTo(original.getId());
+          assertThat(reloaded.getName()).isEqualTo(original.getName());
+          assertThat(reloaded.getKee()).isEqualTo(original.getKee());
+          assertThat(reloaded.getOrganizationUuid()).isEqualTo(original.getOrganizationUuid());
+          assertThat(reloaded.getLanguage()).isEqualTo(original.getLanguage());
+          assertThat(reloaded.getParentKee()).isEqualTo(original.getParentKee());
+          assertThat(reloaded.getRulesUpdatedAt()).isEqualTo(original.getRulesUpdatedAt());
+          assertThat(reloaded.getLastUsed()).isEqualTo(original.getLastUsed());
+          assertThat(reloaded.getUserUpdatedAt()).isEqualTo(original.getUserUpdatedAt());
+          assertThat(reloaded.isBuiltIn()).isEqualTo(original.isBuiltIn());
+        });
   }
 
   @Test
   public void find_all_is_sorted_by_profile_name() {
-    dbTester.prepareDbUnit(getClass(), "select_all_is_sorted_by_profile_name.xml");
+    QProfileDto dto1 = new QProfileDto()
+      .setKee("js_first")
+      .setRulesProfileUuid("rp-js_first")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("First")
+      .setLanguage("js")
+      .setLastUsed(1_000L)
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, dto1);
 
-    List<QualityProfileDto> dtos = underTest.selectAll(dbTester.getSession(), organization);
+    QProfileDto dto2 = new QProfileDto()
+      .setKee("js_second")
+      .setRulesProfileUuid("rp-js_second")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Second")
+      .setLanguage("js")
+      .setLastUsed(1_000L)
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, dto2);
+
+    QProfileDto dto3 = new QProfileDto()
+      .setKee("js_third")
+      .setRulesProfileUuid("rp-js_third")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Third")
+      .setLanguage("js")
+      .setLastUsed(1_000L)
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, dto3);
+
+    List<QProfileDto> dtos = underTest.selectOrderedByOrganizationUuid(dbSession, organization);
 
     assertThat(dtos).hasSize(3);
     assertThat(dtos.get(0).getName()).isEqualTo("First");
@@ -189,112 +291,184 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void get_default_profile() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+  public void selectDefaultProfile() {
+    List<QProfileDto> sharedData = createSharedData();
 
-    QualityProfileDto java = underTest.selectDefaultProfile(dbTester.getSession(), organization, "java");
+    QProfileDto java = underTest.selectDefaultProfile(dbSession, organization, "java");
     assertThat(java).isNotNull();
-    assertThat(java.getKey()).isEqualTo("java_sonar_way");
+    assertThat(java.getKee()).isEqualTo("java_sonar_way");
 
-    assertThat(underTest.selectDefaultProfile(dbTester.getSession(), dbTester.organizations().insert(), "java")).isNull();
-    assertThat(underTest.selectDefaultProfile(dbTester.getSession(), organization, "js")).isNull();
+    assertThat(underTest.selectDefaultProfile(dbSession, db.organizations().insert(), "java")).isNull();
+    assertThat(underTest.selectDefaultProfile(dbSession, organization, "js")).isNull();
   }
 
   @Test
-  public void get_default_profiles() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+  public void selectDefaultProfiles() {
+    List<QProfileDto> sharedData = createSharedData();
 
-    List<QualityProfileDto> java = underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("java"));
-    assertThat(java).extracting("key").containsOnly("java_sonar_way");
+    List<QProfileDto> java = underTest.selectDefaultProfiles(dbSession, organization, singletonList("java"));
+    assertThat(java).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
 
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, singletonList("js"))).isEmpty();
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("java", "js"))).extracting("key").containsOnly("java_sonar_way");
-    assertThat(underTest.selectDefaultProfiles(dbTester.getSession(), organization, of("js", "java"))).extracting("key").containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbSession, organization, singletonList("js"))).isEmpty();
+    assertThat(underTest.selectDefaultProfiles(dbSession, organization, of("java", "js"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
+    assertThat(underTest.selectDefaultProfiles(dbSession, organization, of("js", "java"))).extracting(QProfileDto::getKee).containsOnly("java_sonar_way");
   }
 
   @Test
   public void get_by_name_and_language() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    List<QProfileDto> sharedData = createSharedData();
 
-    QualityProfileDto dto = underTest.selectByNameAndLanguage(organization, "Sonar Way", "java", dbTester.getSession());
-    assertThat(dto.getId()).isEqualTo(1);
+    QProfileDto dto = underTest.selectByNameAndLanguage(dbSession, organization, "Sonar Way", "java");
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParentKee()).isNull();
 
-    assertThat(underTest.selectByNameAndLanguage(organization, "Sonar Way", "java", dbTester.getSession())).isNotNull();
-    assertThat(underTest.selectByNameAndLanguage(organization, "Sonar Way", "unknown", dbTester.getSession())).isNull();
+    assertThat(underTest.selectByNameAndLanguage(dbSession, organization, "Sonar Way", "java")).isNotNull();
+    assertThat(underTest.selectByNameAndLanguage(dbSession, organization, "Sonar Way", "unknown")).isNull();
   }
 
   @Test
   public void get_by_name_and_languages() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    createSharedData();
 
-    List<QualityProfileDto> dtos = underTest.selectByNameAndLanguages(organization, "Sonar Way", singletonList("java"), dbTester.getSession());
+    List<QProfileDto> dtos = underTest.selectByNameAndLanguages(dbSession, organization, "Sonar Way", singletonList("java"));
     assertThat(dtos).hasSize(1);
-    QualityProfileDto dto = dtos.iterator().next();
-    assertThat(dto.getId()).isEqualTo(1);
+    QProfileDto dto = dtos.iterator().next();
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
     assertThat(dto.getParentKee()).isNull();
 
-    assertThat(underTest.selectByNameAndLanguages(organization, "Sonar Way", singletonList("unknown"), dbTester.getSession())).isEmpty();
-    assertThat(underTest.selectByNameAndLanguages(organization, "Sonar Way", of("java", "unknown"), dbTester.getSession())).extracting("id").containsOnly(1);
+    assertThat(underTest.selectByNameAndLanguages(dbSession, organization, "Sonar Way", singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectByNameAndLanguages(dbSession, organization, "Sonar Way", of("java", "unknown")))
+      .extracting(QProfileDto::getKee).containsOnly(dto.getKee());
   }
 
   @Test
-  public void should_find_by_language() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+  public void selectByLanguage() {
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
 
-    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, organization, profile.getLanguage());
+    List<QProfileDto> results = underTest.selectByLanguage(dbSession, organization, profile.getLanguage());
     assertThat(results).hasSize(1);
-    QualityProfileDto result = results.get(0);
+    QProfileDto result = results.get(0);
 
     assertThat(result.getId()).isEqualTo(profile.getId());
     assertThat(result.getName()).isEqualTo(profile.getName());
-    assertThat(result.getKey()).isEqualTo(profile.getKey());
+    assertThat(result.getKee()).isEqualTo(profile.getKee());
     assertThat(result.getLanguage()).isEqualTo(profile.getLanguage());
     assertThat(result.getOrganizationUuid()).isEqualTo(profile.getOrganizationUuid());
+    assertThat(result.getRulesProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
   }
 
   @Test
   public void should_not_find_by_language_in_wrong_organization() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
 
-    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, OrganizationTesting.newOrganizationDto(), profile.getLanguage());
+    List<QProfileDto> results = underTest.selectByLanguage(dbSession, OrganizationTesting.newOrganizationDto(), profile.getLanguage());
     assertThat(results).isEmpty();
   }
 
   @Test
   public void should_not_find_by_language_with_wrong_language() {
-    QualityProfileDto profile = QualityProfileTesting.newQualityProfileDto()
+    QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
 
-    List<QualityProfileDto> results = underTest.selectByLanguage(dbSession, organization, "another language");
+    List<QProfileDto> results = underTest.selectByLanguage(dbSession, organization, "another language");
     assertThat(results).isEmpty();
   }
 
   @Test
   public void find_children() {
-    dbTester.prepareDbUnit(getClass(), "inheritance.xml");
+    QProfileDto original1 = new QProfileDto()
+      .setKee("java_child1")
+      .setRulesProfileUuid("rp-java_child1")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Child1")
+      .setLanguage("java")
+      .setLastUsed(1_000L)
+      .setParentKee("java_parent")
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, original1);
 
-    List<QualityProfileDto> dtos = underTest.selectChildren(dbTester.getSession(), "java_parent");
+    QProfileDto original2 = new QProfileDto()
+      .setKee("java_child2")
+      .setRulesProfileUuid("rp-java_child2")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Child2")
+      .setLanguage("java")
+      .setLastUsed(1_000L)
+      .setParentKee("java_parent")
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, original2);
+
+    QProfileDto original3 = new QProfileDto()
+      .setKee("java_parent")
+      .setRulesProfileUuid("rp-java_parent")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Parent")
+      .setLanguage("java")
+      .setLastUsed(1_000L)
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, original3);
+
+    QProfileDto original4 = new QProfileDto()
+      .setKee("js_child1")
+      .setRulesProfileUuid("rp-js_child1")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Child1")
+      .setLanguage("js")
+      .setLastUsed(1_000L)
+      .setParentKee("js_parent")
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, original4);
+
+    QProfileDto original5 = new QProfileDto()
+      .setKee("js_child2")
+      .setRulesProfileUuid("rp-js_child2")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Child2")
+      .setLanguage("js")
+      .setLastUsed(1_000L)
+      .setParentKee("js_parent")
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, original5);
+
+    QProfileDto original6 = new QProfileDto()
+      .setKee("js_parent")
+      .setRulesProfileUuid("rp-js_parent")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Parent")
+      .setLanguage("js")
+      .setLastUsed(1_000L)
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(false);
+    underTest.insert(dbSession, original6);
+
+    List<QProfileDto> dtos = underTest.selectChildren(dbSession, original3);
 
     assertThat(dtos).hasSize(2);
 
-    QualityProfileDto dto1 = dtos.get(0);
-    assertThat(dto1.getId()).isEqualTo(1);
+    QProfileDto dto1 = dtos.get(0);
     assertThat(dto1.getName()).isEqualTo("Child1");
     assertThat(dto1.getLanguage()).isEqualTo("java");
     assertThat(dto1.getParentKee()).isEqualTo("java_parent");
 
-    QualityProfileDto dto2 = dtos.get(1);
-    assertThat(dto2.getId()).isEqualTo(2);
+    QProfileDto dto2 = dtos.get(1);
     assertThat(dto2.getName()).isEqualTo("Child2");
     assertThat(dto2.getLanguage()).isEqualTo("java");
     assertThat(dto2.getParentKee()).isEqualTo("java_parent");
@@ -302,162 +476,282 @@ public class QualityProfileDaoTest {
 
   @Test
   public void countProjectsByProfileKey() {
-    QualityProfileDto profileWithoutProjects = dbTester.qualityProfiles().insert(organization);
-    QualityProfileDto profileWithProjects = dbTester.qualityProfiles().insert(organization);
-    ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
-    ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
-    dbTester.qualityProfiles().associateProjectWithQualityProfile(project1, profileWithProjects);
-    dbTester.qualityProfiles().associateProjectWithQualityProfile(project2, profileWithProjects);
+    QProfileDto profileWithoutProjects = db.qualityProfiles().insert(organization);
+    QProfileDto profileWithProjects = db.qualityProfiles().insert(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    db.qualityProfiles().associateWithProject(project1, profileWithProjects);
+    db.qualityProfiles().associateWithProject(project2, profileWithProjects);
 
-    OrganizationDto otherOrg = dbTester.organizations().insert();
-    QualityProfileDto profileInOtherOrg = dbTester.qualityProfiles().insert(otherOrg);
-    ComponentDto projectInOtherOrg = dbTester.components().insertPrivateProject(otherOrg);
-    dbTester.qualityProfiles().associateProjectWithQualityProfile(projectInOtherOrg, profileInOtherOrg);
+    OrganizationDto otherOrg = db.organizations().insert();
+    QProfileDto profileInOtherOrg = db.qualityProfiles().insert(otherOrg);
+    ComponentDto projectInOtherOrg = db.components().insertPrivateProject(otherOrg);
+    db.qualityProfiles().associateWithProject(projectInOtherOrg, profileInOtherOrg);
 
-    assertThat(underTest.countProjectsByProfileKey(dbTester.getSession(), organization)).containsOnly(
-      MapEntry.entry(profileWithProjects.getKey(), 2L));
+    assertThat(underTest.countProjectsByProfileUuid(dbSession, organization)).containsOnly(
+      MapEntry.entry(profileWithProjects.getKee(), 2L));
   }
 
   @Test
-  public void select_by_project_key_and_language() {
-    dbTester.prepareDbUnit(getClass(), "projects.xml");
+  public void test_selectAssociatedToProjectAndLanguage() {
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(org);
+    ComponentDto project2 = db.components().insertPublicProject(org);
+    QProfileDto javaProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    QProfileDto jsProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
 
-    QualityProfileDto dto = underTest.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "java");
-    assertThat(dto.getId()).isEqualTo(1);
-
-    assertThat(underTest.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "unkown")).isNull();
-    assertThat(underTest.selectByProjectAndLanguage(dbTester.getSession(), "unknown", "java")).isNull();
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "java").getKee())
+      .isEqualTo(javaProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "js").getKee())
+      .isEqualTo(jsProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project1, "cobol"))
+      .isNull();
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project2, "java"))
+      .isNull();
   }
 
   @Test
-  public void select_by_project_and_languages() {
-    dbTester.prepareDbUnit(getClass(), "projects.xml");
+  public void test_selectAssociatedToProjectUuidAndLanguages() {
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPublicProject(org);
+    ComponentDto project2 = db.components().insertPublicProject(org);
+    QProfileDto javaProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    QProfileDto jsProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    db.qualityProfiles().associateWithProject(project1, javaProfile, jsProfile);
 
-    OrganizationDto organization = dbTester.organizations().insert(OrganizationTesting.newOrganizationDto().setUuid("org1"));
-    ComponentDto project = dbTester.getDbClient().componentDao().selectOrFailByKey(dbTester.getSession(), "org.codehaus.sonar:sonar");
-    ComponentDto unknownProject = dbTester.components().insertPrivateProject(organization, p -> p.setKey("unknown"));
-    List<QualityProfileDto> dto = underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("java"));
-    assertThat(dto).extracting("id").containsOnly(1);
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, singletonList("java")))
+      .extracting(QProfileDto::getKee).containsOnly(javaProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, singletonList("unknown")))
+      .isEmpty();
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, of("java", "unknown")))
+      .extracting(QProfileDto::getKee).containsExactly(javaProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project1, of("java", "js")))
+      .extracting(QProfileDto::getKee).containsExactlyInAnyOrder(javaProfile.getKee(), jsProfile.getKee());
+    assertThat(underTest.selectAssociatedToProjectUuidAndLanguages(dbSession, project2, singletonList("java")))
+      .isEmpty();
+  }
 
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, singletonList("unkown"))).isEmpty();
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, project, of("java", "unkown"))).extracting("id").containsOnly(1);
-    assertThat(underTest.selectByProjectAndLanguages(dbTester.getSession(), organization, unknownProject, singletonList("java"))).isEmpty();
+  @Test
+  public void test_updateProjectProfileAssociation() {
+    OrganizationDto org = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(org);
+    QProfileDto javaProfile1 = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    QProfileDto jsProfile = db.qualityProfiles().insert(org, p -> p.setLanguage("js"));
+    QProfileDto javaProfile2 = db.qualityProfiles().insert(org, p -> p.setLanguage("java"));
+    db.qualityProfiles().associateWithProject(project, javaProfile1, jsProfile);
+
+    underTest.updateProjectProfileAssociation(dbSession, project, javaProfile2.getKee(), javaProfile1.getKee());
+
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "java").getKee()).isEqualTo(javaProfile2.getKee());
+    assertThat(underTest.selectAssociatedToProjectAndLanguage(dbSession, project, "js").getKee()).isEqualTo(jsProfile.getKee());
   }
 
   @Test
   public void selectByKeys() {
-    qualityProfileDb.insertQualityProfiles(newQualityProfileDto().setKey("qp-key-1"), newQualityProfileDto().setKee("qp-key-2"), newQualityProfileDto().setKee("qp-key-3"));
+    db.qualityProfiles().insert(newQualityProfileDto().setKee("qp-key-1"), newQualityProfileDto().setKee("qp-key-2"), newQualityProfileDto().setKee("qp-key-3"));
 
-    assertThat(underTest.selectOrFailByKey(dbSession, "qp-key-1")).isNotNull();
-    assertThat(underTest.selectByKey(dbSession, "qp-key-1")).isNotNull();
-    assertThat(underTest.selectByKey(dbSession, "qp-key-42")).isNull();
-    assertThat(underTest.selectByKeys(dbSession, newArrayList("qp-key-1", "qp-key-3", "qp-key-42")))
+    assertThat(underTest.selectOrFailByUuid(dbSession, "qp-key-1")).isNotNull();
+    assertThat(underTest.selectByUuid(dbSession, "qp-key-1")).isNotNull();
+    assertThat(underTest.selectByUuid(dbSession, "qp-key-42")).isNull();
+    assertThat(underTest.selectByUuids(dbSession, newArrayList("qp-key-1", "qp-key-3", "qp-key-42")))
       .hasSize(2)
-      .extracting(QualityProfileDto::getKey).containsOnlyOnce("qp-key-1", "qp-key-3");
-    assertThat(underTest.selectByKeys(dbSession, emptyList())).isEmpty();
+      .extracting(QProfileDto::getKee).containsOnlyOnce("qp-key-1", "qp-key-3");
+    assertThat(underTest.selectByUuids(dbSession, emptyList())).isEmpty();
   }
 
   @Test
   public void select_selected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
-    QualityProfileDto profile1 = newQualityProfileDto();
-    qualityProfileDb.insertQualityProfiles(profile1);
-    qualityProfileDb.associateProjectWithQualityProfile(project1, profile1);
-    qualityProfileDb.associateProjectWithQualityProfile(project2, profile1);
+    QProfileDto profile1 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
+    db.qualityProfiles().associateWithProject(project2, profile1);
 
-    QualityProfileDto profile2 = newQualityProfileDto();
-    qualityProfileDb.insertQualityProfiles(profile2);
-    qualityProfileDb.associateProjectWithQualityProfile(project3, profile2);
+    QProfileDto profile2 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile2);
+    db.qualityProfiles().associateWithProject(project3, profile2);
+    QProfileDto profile3 = newQualityProfileDto();
 
-    assertThat(underTest.selectSelectedProjects(organization, profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectSelectedProjects(dbSession, organization, profile1, null))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
-        tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), profile1.getKey()));
+        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKee()),
+        tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), profile1.getKee()));
 
-    assertThat(underTest.selectSelectedProjects(organization, profile1.getKey(), "ect1", dbSession)).hasSize(1);
-    assertThat(underTest.selectSelectedProjects(organization, "unknown", null, dbSession)).isEmpty();
+    assertThat(underTest.selectSelectedProjects(dbSession, organization, profile1, "ect1")).hasSize(1);
+    assertThat(underTest.selectSelectedProjects(dbSession, organization, profile3, null)).isEmpty();
   }
 
   @Test
   public void select_deselected_projects() throws Exception {
-    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
-    QualityProfileDto profile1 = newQualityProfileDto();
-    qualityProfileDb.insertQualityProfiles(profile1);
-    qualityProfileDb.associateProjectWithQualityProfile(project1, profile1);
+    QProfileDto profile1 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
 
-    QualityProfileDto profile2 = newQualityProfileDto();
-    qualityProfileDb.insertQualityProfiles(profile2);
-    qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
+    QProfileDto profile2 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile2);
+    db.qualityProfiles().associateWithProject(project2, profile2);
+    QProfileDto profile3 = newQualityProfileDto();
 
-    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectDeselectedProjects(dbSession, organization, profile1, null))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsExactly(
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
         tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
-    assertThat(underTest.selectDeselectedProjects(organization, profile1.getKey(), "ect2", dbSession)).hasSize(1);
-    assertThat(underTest.selectDeselectedProjects(organization, "unknown", null, dbSession)).hasSize(3);
+    assertThat(underTest.selectDeselectedProjects(dbSession, organization, profile1, "ect2")).hasSize(1);
+    assertThat(underTest.selectDeselectedProjects(dbSession, organization, profile3, null)).hasSize(3);
   }
 
   @Test
   public void select_project_associations() throws Exception {
-    ComponentDto project1 = dbTester.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project2 = dbTester.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    ComponentDto project3 = dbTester.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    ComponentDto project4 = dbTester.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
+    ComponentDto project1 = db.components().insertPrivateProject(t -> t.setName("Project1 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project2 = db.components().insertPrivateProject(t -> t.setName("Project2 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    ComponentDto project3 = db.components().insertPrivateProject(t -> t.setName("Project3 name"), t -> t.setOrganizationUuid(organization.getUuid()));
+    OrganizationDto organization2 = db.organizations().insert();
+    ComponentDto project4 = db.components().insertPrivateProject(t -> t.setName("Project4 name"), t -> t.setOrganizationUuid(organization2.getUuid()));
 
-    QualityProfileDto profile1 = newQualityProfileDto();
-    qualityProfileDb.insertQualityProfiles(profile1);
-    qualityProfileDb.associateProjectWithQualityProfile(project1, profile1);
+    QProfileDto profile1 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile1);
+    db.qualityProfiles().associateWithProject(project1, profile1);
 
-    QualityProfileDto profile2 = newQualityProfileDto();
-    qualityProfileDb.insertQualityProfiles(profile2);
-    qualityProfileDb.associateProjectWithQualityProfile(project2, profile2);
+    QProfileDto profile2 = newQualityProfileDto();
+    db.qualityProfiles().insert(profile2);
+    db.qualityProfiles().associateWithProject(project2, profile2);
+    QProfileDto profile3 = newQualityProfileDto();
 
-    assertThat(underTest.selectProjectAssociations(organization, profile1.getKey(), null, dbSession))
+    assertThat(underTest.selectProjectAssociations(dbSession, organization, profile1, null))
       .extracting("projectId", "projectUuid", "projectKey", "projectName", "profileKey")
       .containsOnly(
-        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKey()),
+        tuple(project1.getId(), project1.uuid(), project1.key(), project1.name(), profile1.getKee()),
         tuple(project2.getId(), project2.uuid(), project2.key(), project2.name(), null),
         tuple(project3.getId(), project3.uuid(), project3.key(), project3.name(), null));
 
-    assertThat(underTest.selectProjectAssociations(organization, profile1.getKey(), "ect2", dbSession)).hasSize(1);
-    assertThat(underTest.selectProjectAssociations(organization, "unknown", null, dbSession)).hasSize(3);
+    assertThat(underTest.selectProjectAssociations(dbSession, organization, profile1, "ect2")).hasSize(1);
+    assertThat(underTest.selectProjectAssociations(dbSession, organization, profile3, null)).hasSize(3);
   }
 
   @Test
-  public void update_project_profile_association() {
-    ComponentDto project = dbTester.components().insertPrivateProject();
-    QualityProfileDto profile1Language1 = insertQualityProfileDto("profile1", "Profile 1", "xoo");
-    QualityProfileDto profile2Language2 = insertQualityProfileDto("profile2", "Profile 2", "xoo2");
-    QualityProfileDto profile3Language1 = insertQualityProfileDto("profile3", "Profile 3", "xoo");
-    qualityProfileDb.associateProjectWithQualityProfile(project, profile1Language1, profile2Language2);
+  public void selectUuidsOfCustomRulesProfiles_returns_the_custom_profiles_with_specified_name() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    OrganizationDto org3 = db.organizations().insert();
+    QProfileDto outdatedProfile1 = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto outdatedProfile2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto builtInProfile = db.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
+    QProfileDto differentLanguage = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
+    QProfileDto differentName = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
 
-    underTest.updateProjectProfileAssociation(project.uuid(), profile3Language1.getKey(), profile1Language1.getKey(), dbSession);
+    Collection<String> keys = underTest.selectUuidsOfCustomRulesProfiles(dbSession, "java", "foo");
 
-    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo").getKey()).isEqualTo(profile3Language1.getKey());
-    assertThat(underTest.selectByProjectAndLanguage(dbSession, project.getKey(), "xoo2").getKey()).isEqualTo(profile2Language2.getKey());
+    assertThat(keys).containsExactlyInAnyOrder(outdatedProfile1.getRulesProfileUuid(), outdatedProfile2.getRulesProfileUuid());
   }
 
-  private QualityProfileDto insertQualityProfileDto(String key, String name, String language) {
-    QualityProfileDto dto = QualityProfileDto.createFor(key)
+  @Test
+  public void selectOutdatedProfiles_returns_empty_list_if_no_match() {
+    assertThat(underTest.selectUuidsOfCustomRulesProfiles(dbSession, "java", "foo")).isEmpty();
+  }
+
+  @Test
+  public void renameAndCommit_updates_name_of_specified_profiles() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    QProfileDto fooInOrg1 = db.qualityProfiles().insert(org1, p -> p.setName("foo"));
+    QProfileDto fooInOrg2 = db.qualityProfiles().insert(org2, p -> p.setName("foo"));
+    QProfileDto bar = db.qualityProfiles().insert(org1, p -> p.setName("bar"));
+
+    underTest.renameRulesProfilesAndCommit(dbSession, asList(fooInOrg1.getRulesProfileUuid(), fooInOrg2.getRulesProfileUuid()), "foo (copy)");
+
+    assertThat(underTest.selectOrFailByUuid(dbSession, fooInOrg1.getKee()).getName()).isEqualTo("foo (copy)");
+    assertThat(underTest.selectOrFailByUuid(dbSession, fooInOrg2.getKee()).getName()).isEqualTo("foo (copy)");
+    assertThat(underTest.selectOrFailByUuid(dbSession, bar.getKee()).getName()).isEqualTo("bar");
+  }
+
+  @Test
+  public void renameAndCommit_does_nothing_if_empty_keys() {
+    OrganizationDto org = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(org, p -> p.setName("foo"));
+
+    underTest.renameRulesProfilesAndCommit(dbSession, Collections.emptyList(), "foo (copy)");
+
+    assertThat(underTest.selectOrFailByUuid(dbSession, profile.getKee()).getName()).isEqualTo("foo");
+  }
+
+  private List<QProfileDto> createSharedData() {
+    QProfileDto dto1 = new QProfileDto()
+      .setKee("java_sonar_way")
+      .setRulesProfileUuid("rp-java_sonar_way")
       .setOrganizationUuid(organization.getUuid())
-      .setName(name)
-      .setLanguage(language);
-    underTest.insert(dbSession, dto);
-    return dto;
+      .setName("Sonar Way")
+      .setLanguage("java")
+      .setLastUsed(1_000L)
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(true);
+    underTest.insert(dbSession, dto1);
+
+    QProfileDto dto2 = new QProfileDto()
+      .setKee("js_sonar_way")
+      .setRulesProfileUuid("rp-js_sonar_way")
+      .setOrganizationUuid(organization.getUuid())
+      .setName("Sonar Way")
+      .setLanguage("js")
+      .setLastUsed(1_000L)
+      .setUserUpdatedAt(2_000L)
+      .setRulesUpdatedAt("2017-05-31")
+      .setIsBuiltIn(true);
+    underTest.insert(dbSession, dto2);
+
+    DefaultQProfileDto defaultQProfileDto = new DefaultQProfileDto()
+      .setQProfileUuid(dto1.getKee())
+      .setLanguage(dto1.getLanguage())
+      .setOrganizationUuid(organization.getUuid());
+    db.getDbClient().defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(dto1));
+
+    return Arrays.asList(dto1, dto2);
   }
 
+  @Test
+  public void selectChildrenOfBuiltInRulesProfile_must_return_only_inherited_profiles() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+    OrganizationDto org3 = db.organizations().insert();
+
+    QProfileDto builtInProfile = db.qualityProfiles().insert(org1, p -> p.setIsBuiltIn(true).setLanguage("java").setName("foo"));
+    QProfileDto javaProfileOrg2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto inheritedJavaProfileOrg2 = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo").setParentKee(builtInProfile.getKee()));
+    QProfileDto differentLanguage = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("cobol").setName("foo"));
+    QProfileDto differentName = db.qualityProfiles().insert(org2, p -> p.setIsBuiltIn(false).setLanguage("java").setName("bar"));
+    QProfileDto javaProfileOrg3 = db.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto inheritedJavaProfileOrg3 = db.qualityProfiles().insert(org3, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo").setParentKee(builtInProfile.getKee()));
+
+    List<QProfileDto> children = db.getDbClient().qualityProfileDao().selectChildrenOfBuiltInRulesProfile(db.getSession(), from(builtInProfile));
+
+    assertThat(children.stream().map(qp -> qp.getId()).collect(toList())).containsExactlyInAnyOrder(
+      inheritedJavaProfileOrg2.getId(), inheritedJavaProfileOrg3.getId());
+  }
+
+  @Test
+  public void selectChildrenOfBuiltInRulesProfile_must_return_empty_list_if_not_built_in() {
+    OrganizationDto org = db.organizations().insert();
+
+    QProfileDto notBuiltInProfile = db.qualityProfiles().insert(org, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo"));
+    QProfileDto inheritedProfile = db.qualityProfiles().insert(org, p -> p.setIsBuiltIn(false).setLanguage("java").setName("foo").setParentKee(notBuiltInProfile.getKee()));
+
+    List<QProfileDto> children = db.getDbClient().qualityProfileDao().selectChildrenOfBuiltInRulesProfile(db.getSession(), from(notBuiltInProfile));
+
+    assertThat(children).isEmpty();
+  }
 }

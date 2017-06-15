@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileChangeDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -66,12 +66,12 @@ public class ChangelogActionDatabaseTest {
   }
 
   @Test
-  public void find_changelog_by_profileKey() throws Exception {
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+  public void find_changelog_by_profile_key() throws Exception {
+    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
 
     String response = wsTester.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", qualityProfile.getKey())
+      .setParam("profileKey", profile.getKee())
       .execute()
       .getInput();
 
@@ -80,7 +80,7 @@ public class ChangelogActionDatabaseTest {
 
   @Test
   public void find_changelog_by_language_and_name() throws Exception {
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(dbTester.getDefaultOrganization());
 
     String response = wsTester.newRequest()
       .setMethod("GET")
@@ -94,7 +94,7 @@ public class ChangelogActionDatabaseTest {
 
   @Test
   public void find_changelog_by_organization_and_language_and_name() throws Exception {
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
 
     String response = wsTester.newRequest()
       .setMethod("GET")
@@ -112,7 +112,7 @@ public class ChangelogActionDatabaseTest {
     OrganizationDto organization1 = dbTester.organizations().insert();
     OrganizationDto organization2 = dbTester.organizations().insert();
 
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization1);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization1);
 
     TestRequest request = wsTester.newRequest()
       .setMethod("GET")
@@ -127,11 +127,11 @@ public class ChangelogActionDatabaseTest {
 
   @Test
   public void changelog_empty() throws Exception {
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
 
     String response = wsTester.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", qualityProfile.getKey())
+      .setParam("profileKey", qualityProfile.getKee())
       .execute()
       .getInput();
 
@@ -141,18 +141,18 @@ public class ChangelogActionDatabaseTest {
 
   @Test
   public void changelog_not_empty() throws Exception {
-    QualityProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
     QProfileChangeDto change = QualityProfileTesting.newQProfileChangeDto()
-      .setKey(null)
+      .setUuid(null)
       .setCreatedAt(0)
-      .setProfileKey(qualityProfile.getKey());
+      .setRulesProfileUuid(qualityProfile.getRulesProfileUuid());
     DbSession session = dbTester.getSession();
     dbTester.getDbClient().qProfileChangeDao().insert(session, change);
     session.commit();
 
     String response = wsTester.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", qualityProfile.getKey())
+      .setParam("profileKey", qualityProfile.getKee())
       .execute()
       .getInput();
 

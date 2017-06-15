@@ -1,0 +1,441 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly with all data 1`] = `
+<div
+  className="project-card-leak-measures"
+>
+  <div
+    className="project-card-measure smaller-card"
+    data-key="new_reliability_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "leak": "8",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_bugs",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+        <Rating
+          muted={false}
+          small={false}
+          value="1.0"
+        />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <BugIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.bugs.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_security_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "leak": "2",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_vulnerabilities",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+        <Rating
+          muted={false}
+          small={false}
+          value="2.0"
+        />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <VulnerabilityIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.vulnerabilities.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_maintainability_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "leak": "0",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_code_smells",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+        <Rating
+          muted={false}
+          small={false}
+          value="1.0"
+        />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <CodeSmellIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.code_smells.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_coverage"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          measure={
+            Object {
+              "leak": "26.55",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_coverage",
+              "type": "PERCENT",
+            }
+          }
+        />
+      </div>
+      <div
+        className="project-card-measure-label"
+      >
+        metric.coverage.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_duplicated_lines_density"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          measure={
+            Object {
+              "leak": "0.55",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_duplicated_lines_density",
+              "type": "PERCENT",
+            }
+          }
+        />
+      </div>
+      <div
+        className="project-card-measure-label"
+      >
+        metric.duplicated_lines_density.short_name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure smaller-card pull-right"
+    data-key="new_lines"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          measure={
+            Object {
+              "leak": "87",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_lines",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+      </div>
+      <div
+        className="project-card-measure-label"
+      >
+        metric.lines.name
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`should render no data style new coverage, new duplications and new lines 1`] = `
+<div
+  className="project-card-leak-measures"
+>
+  <div
+    className="project-card-measure smaller-card"
+    data-key="new_reliability_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "leak": "8",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_bugs",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+        <Rating
+          muted={false}
+          small={false}
+          value="1.0"
+        />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <BugIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.bugs.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_security_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "leak": "2",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_vulnerabilities",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+        <Rating
+          muted={false}
+          small={false}
+          value="2.0"
+        />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <VulnerabilityIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.vulnerabilities.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_maintainability_rating"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "leak": "0",
+            }
+          }
+          metric={
+            Object {
+              "key": "new_code_smells",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+        <Rating
+          muted={false}
+          small={false}
+          value="1.0"
+        />
+      </div>
+      <div
+        className="project-card-measure-label-with-icon"
+      >
+        <CodeSmellIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.code_smells.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_coverage"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          measure={
+            Object {
+              "leak": undefined,
+            }
+          }
+          metric={
+            Object {
+              "key": "new_coverage",
+              "type": "PERCENT",
+            }
+          }
+        />
+      </div>
+      <div
+        className="project-card-measure-label"
+      >
+        metric.coverage.name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure"
+    data-key="new_duplicated_lines_density"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          measure={
+            Object {
+              "leak": undefined,
+            }
+          }
+          metric={
+            Object {
+              "key": "new_duplicated_lines_density",
+              "type": "PERCENT",
+            }
+          }
+        />
+      </div>
+      <div
+        className="project-card-measure-label"
+      >
+        metric.duplicated_lines_density.short_name
+      </div>
+    </div>
+  </div>
+  <div
+    className="project-card-measure smaller-card pull-right"
+    data-key="new_lines"
+  >
+    <div
+      className="project-card-measure-inner"
+    >
+      <div
+        className="project-card-measure-number"
+      >
+        <Measure
+          measure={
+            Object {
+              "leak": undefined,
+            }
+          }
+          metric={
+            Object {
+              "key": "new_lines",
+              "type": "SHORT_INT",
+            }
+          }
+        />
+      </div>
+      <div
+        className="project-card-measure-label"
+      >
+        metric.lines.name
+      </div>
+    </div>
+  </div>
+</div>
+`;

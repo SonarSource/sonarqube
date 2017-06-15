@@ -18,30 +18,97 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ConfirmationModal from './ConfirmationModal';
-import { translate } from '../../../helpers/l10n';
+import Modal from 'react-modal';
+import { deleteProject } from '../../../api/components';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class Form extends React.PureComponent {
   static propTypes = {
     component: React.PropTypes.object.isRequired
   };
 
-  handleDelete(e) {
-    e.preventDefault();
-    new ConfirmationModal({ project: this.props.component })
-      .on('done', () => {
-        window.location = window.baseUrl + '/';
-      })
-      .render();
+  static contextTypes = {
+    router: React.PropTypes.object
+  };
+
+  state = { loading: false, modalOpen: false };
+
+  componentDidMount() {
+    this.mounted = true;
   }
 
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  handleDeleteClick = event => {
+    event.preventDefault();
+    this.setState({ modalOpen: true });
+  };
+
+  closeModal = () => this.setState({ modalOpen: false });
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
+  handleSubmit = event => {
+    event.preventDefault();
+    this.setState({ loading: true });
+    deleteProject(this.props.component.key)
+      .then(() => this.context.router.replace('/'))
+      .catch(this.stopLoading);
+  };
+
+  handleCloseClick = (event: Event) => {
+    event.preventDefault();
+    this.closeModal();
+  };
+
   render() {
+    const { component } = this.props;
+
     return (
-      <form onSubmit={this.handleDelete.bind(this)}>
-        <button id="delete-project" className="button-red">
+      <div>
+        <button id="delete-project" className="button-red" onClick={this.handleDeleteClick}>
           {translate('delete')}
         </button>
-      </form>
+
+        {this.state.modalOpen &&
+          <Modal
+            isOpen={true}
+            contentLabel="project deletion"
+            className="modal"
+            overlayClassName="modal-overlay"
+            onRequestClose={this.closeModal}>
+            <form onSubmit={this.handleSubmit}>
+              <div className="modal-head">
+                <h2>{translate('qualifiers.delete.TRK')}</h2>
+              </div>
+              <div className="modal-body">
+                <div className="js-modal-messages" />
+                {translateWithParameters(
+                  'project_deletion.delete_resource_confirmation',
+                  component.name
+                )}
+              </div>
+              <div className="modal-foot">
+                {this.state.loading && <i className="js-modal-spinner spinner spacer-right" />}
+                <button
+                  id="delete-project-confirm"
+                  className="button-red"
+                  disabled={this.state.loading}>
+                  {translate('delete')}
+                </button>
+                <a href="#" className="js-modal-close" onClick={this.handleCloseClick}>
+                  {translate('cancel')}
+                </a>
+              </div>
+            </form>
+          </Modal>}
+      </div>
     );
   }
 }

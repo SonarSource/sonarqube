@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
@@ -80,13 +80,13 @@ public class RemoveProjectAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = loadProject(dbSession, request);
-      QualityProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
+      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
 
       if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
         throw new IllegalArgumentException("Project and Quality profile must have same organization");
       }
 
-      dbClient.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), profile.getKey(), dbSession);
+      dbClient.qualityProfileDao().deleteProjectProfileAssociation(dbSession, project, profile);
       dbSession.commit();
 
       response.noContent();

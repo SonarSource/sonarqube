@@ -56,7 +56,7 @@ export const setLicense = (key, value) => dispatch => {
   const request = value ? licenses.setLicense(key, value) : licenses.resetLicense(key);
 
   return request
-    .then(() => {
+    .then(() =>
       licenses.getLicenses().then(licenses => {
         dispatch(receiveLicenses(licenses));
         if (isLicenseFromListInvalid(licenses, key)) {
@@ -64,7 +64,7 @@ export const setLicense = (key, value) => dispatch => {
         } else {
           dispatch(addGlobalSuccessMessage(translate('licenses.success_message')));
         }
-      });
-    })
+      })
+    )
     .catch(handleError(dispatch));
 };

@@ -33,7 +33,7 @@ type Props = {|
   issue: Issue,
   onChange: Issue => void,
   onFail: Error => void,
-  togglePopup: string => void
+  togglePopup: (string, boolean | void) => void
 |};
 
 export default class IssueTags extends React.PureComponent {

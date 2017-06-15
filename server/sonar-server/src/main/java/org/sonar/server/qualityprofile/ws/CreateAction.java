@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -123,7 +123,7 @@ public class CreateAction implements QProfileWsAction {
 
   private CreateWsResponse doHandle(DbSession dbSession, CreateRequest createRequest, Request request, OrganizationDto organization) {
     QProfileResult result = new QProfileResult();
-    QualityProfileDto profile = profileFactory.checkAndCreate(dbSession, organization,
+    QProfileDto profile = profileFactory.checkAndCreateCustom(dbSession, organization,
       QProfileName.createFor(createRequest.getLanguage(), createRequest.getProfileName()));
     result.setProfile(profile);
     for (ProfileImporter importer : importers) {
@@ -134,7 +134,7 @@ public class CreateAction implements QProfileWsAction {
       }
     }
     dbSession.commit();
-    activeRuleIndexer.index(result.getChanges());
+    activeRuleIndexer.indexChanges(dbSession, result.getChanges());
     return buildResponse(result, organization);
   }
 
@@ -150,7 +150,7 @@ public class CreateAction implements QProfileWsAction {
     String language = result.profile().getLanguage();
     CreateWsResponse.QualityProfile.Builder builder = CreateWsResponse.QualityProfile.newBuilder()
       .setOrganization(organization.getKey())
-      .setKey(result.profile().getKey())
+      .setKey(result.profile().getKee())
       .setName(result.profile().getName())
       .setLanguage(language)
       .setLanguageName(languages.get(result.profile().getLanguage()).getName())

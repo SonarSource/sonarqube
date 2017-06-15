@@ -23,6 +23,7 @@ import { Link, IndexLink } from 'react-router';
 import ProfileLink from '../components/ProfileLink';
 import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
+import BuiltInBadge from '../components/BuiltInBadge';
 import { translate } from '../../../helpers/l10n';
 import {
   isStagnant,
@@ -34,6 +35,7 @@ import type { Profile } from '../propTypes';
 
 type Props = {
   canAdmin: boolean,
+  onRequestFail: Object => void,
   organization: ?string,
   profile: Profile,
   updateProfiles: () => Promise<*>
@@ -114,6 +116,7 @@ export default class ProfileHeader extends React.PureComponent {
             organization={organization}>
             <span>{profile.name}</span>
           </ProfileLink>
+          {profile.isBuiltIn && <BuiltInBadge className="spacer-left" tooltip={false} />}
         </h1>
 
         <div className="pull-right">
@@ -136,6 +139,7 @@ export default class ProfileHeader extends React.PureComponent {
                 </button>
                 <ProfileActions
                   canAdmin={this.props.canAdmin}
+                  onRequestFail={this.props.onRequestFail}
                   organization={organization}
                   profile={profile}
                   updateProfiles={this.props.updateProfiles}
@@ -144,6 +148,13 @@ export default class ProfileHeader extends React.PureComponent {
             </li>
           </ul>
         </div>
+
+        {profile.isBuiltIn &&
+          <div className="page-description">
+            {translate('quality_profiles.built_in.description.1')}
+            <br />
+            {translate('quality_profiles.built_in.description.2')}
+          </div>}
       </header>
     );
   }

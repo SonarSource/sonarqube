@@ -162,7 +162,7 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void ignore_measure_that_does_not_have_value() throws Exception {
-    MetricDto metric1 = insertIntMetric("lines");
+    MetricDto metric1 = insertIntMetric("coverage");
     MetricDto metric2 = insertIntMetric("ncloc");
     MetricDto leakMetric = insertIntMetric("new_lines");
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
@@ -173,12 +173,12 @@ public class ProjectMeasuresIndexerIteratorTest {
     MeasureDto withoutValue = insertMeasure(project, analysis, metric2, null, null);
 
     Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(project.uuid()).getMeasures().getNumericMeasures();
-    assertThat(numericMeasures).containsOnly(entry("lines", 10d), entry("new_lines", 20d));
+    assertThat(numericMeasures).containsOnly(entry("coverage", 10d), entry("new_lines", 20d));
   }
 
   @Test
   public void ignore_numeric_measure_that_has_text_value_but_not_numeric_value() throws Exception {
-    MetricDto metric1 = insertIntMetric("lines");
+    MetricDto metric1 = insertIntMetric("coverage");
     MetricDto metric2 = insertIntMetric("ncloc");
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
     SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
@@ -187,7 +187,7 @@ public class ProjectMeasuresIndexerIteratorTest {
     MeasureDto withTextValue = insertMeasure(project, analysis, metric2, "foo");
 
     Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(project.uuid()).getMeasures().getNumericMeasures();
-    assertThat(numericMeasures).containsOnly(entry("lines", 10d));
+    assertThat(numericMeasures).containsOnly(entry("coverage", 10d));
   }
 
   @Test

@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -53,18 +54,15 @@ public class DeleteCommentActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public DbTester dbTester = DbTester.create();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = dbTester.getDbClient();
-
   private IssueDbTester issueDbTester = new IssueDbTester(dbTester);
-
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
+  private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private WsActionTester tester = new WsActionTester(
     new DeleteCommentAction(userSession, dbClient, new IssueFinder(dbClient, userSession), responseWriter));
@@ -77,8 +75,9 @@ public class DeleteCommentActionTest {
 
     call(commentDto.getKey());
 
-    verify(responseWriter).write(eq(issueDto.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
     assertThat(dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey())).isNotPresent();
+    verifyContentOfPreloadedSearchResponseData(issueDto);
   }
 
   @Test
@@ -89,8 +88,9 @@ public class DeleteCommentActionTest {
 
     tester.newRequest().setParam("key", commentDto.getKey()).setParam("text", "please have a look").execute();
 
-    verify(responseWriter).write(eq(issueDto.getKey()), any(Request.class), any(Response.class));
+    verify(responseWriter).write(eq(issueDto.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
     assertThat(dbClient.issueChangeDao().selectCommentByKey(dbTester.getSession(), commentDto.getKey())).isNotPresent();
+    verifyContentOfPreloadedSearchResponseData(issueDto);
   }
 
   @Test
@@ -155,6 +155,15 @@ public class DeleteCommentActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.params()).hasSize(1);
     assertThat(action.responseExample()).isNotNull();
+  }
+
+  private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {
+    SearchResponseData preloadedSearchResponseData = preloadedSearchResponseDataCaptor.getValue();
+    assertThat(preloadedSearchResponseData.getIssues())
+      .extracting(IssueDto::getKey)
+      .containsOnly(issue.getKey());
+    assertThat(preloadedSearchResponseData.getRules()).isNullOrEmpty();
+    assertThat(preloadedSearchResponseData.getComponents()).isNullOrEmpty();
   }
 
   private TestResponse call(@Nullable String commentKey) {

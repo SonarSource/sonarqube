@@ -457,7 +457,7 @@ public class BulkChangeActionTest {
     assertThat(action.key()).isEqualTo("bulk_change");
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.params()).hasSize(11);
+    assertThat(action.params()).hasSize(10);
     assertThat(action.responseExample()).isNotNull();
   }
 

@@ -39,6 +39,8 @@ function render(props?: Object) {
   );
 }
 
+jest.useFakeTimers();
+
 it('renders selected', () => {
   const wrapper = render();
   expect(wrapper).toMatchSnapshot();
@@ -106,4 +108,18 @@ it('renders organizations', () => {
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ appState: { organizationsEnabled: false } });
   expect(wrapper).toMatchSnapshot();
+});
+
+it('shows tooltip after delay', () => {
+  const wrapper = render();
+  expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
+
+  wrapper.setProps({ selected: true });
+  expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
+
+  jest.runAllTimers();
+  expect(wrapper.find('Tooltip').prop('visible')).toBe(true);
+
+  wrapper.setProps({ selected: false });
+  expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
 });

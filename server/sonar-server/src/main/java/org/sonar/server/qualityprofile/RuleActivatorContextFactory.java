@@ -29,7 +29,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 
@@ -44,25 +45,27 @@ public class RuleActivatorContextFactory {
     this.db = db;
   }
 
-  RuleActivatorContext create(String profileKey, RuleKey ruleKey, DbSession session) {
-    RuleActivatorContext context = new RuleActivatorContext();
-    QualityProfileDto profile = getQualityProfileDto(session, profileKey);
-    checkRequest(profile != null, "Quality profile not found: %s", profileKey);
-    context.setProfile(profile);
-    return create(ruleKey, session, context);
+  RuleActivatorContext createForBuiltIn(DbSession dbSession, RuleKey ruleKey, RulesProfileDto rulesProfile) {
+    RuleActivatorContext context = new RuleActivatorContext(rulesProfile);
+    return init(dbSession, ruleKey, context);
   }
 
-  RuleActivatorContext create(QualityProfileDto profile, RuleKey ruleKey, DbSession session) {
-    return create(ruleKey, session, new RuleActivatorContext().setProfile(profile));
+  RuleActivatorContext create(DbSession dbSession, RuleKey ruleKey, QProfileDto profile, boolean cascade) {
+    RuleActivatorContext context = new RuleActivatorContext(profile, cascade);
+    return init(dbSession, ruleKey, context);
   }
 
-  private RuleActivatorContext create(RuleKey ruleKey, DbSession session, RuleActivatorContext context) {
-    initRule(ruleKey, context, session);
-    initActiveRules(context.profile().getKey(), ruleKey, context, session, false);
-    String parentKee = context.profile().getParentKee();
-    if (parentKee != null) {
-      initActiveRules(parentKee, ruleKey, context, session, true);
+  private RuleActivatorContext init(DbSession dbSession, RuleKey ruleKey, RuleActivatorContext context) {
+    initRule(ruleKey, context, dbSession);
+    initActiveRules(context.getRulesProfile(), ruleKey, context, dbSession, false);
+
+    if (context.getProfile() != null && context.getProfile().getParentKee() != null) {
+      QProfileDto parent = db.qualityProfileDao().selectByUuid(dbSession, context.getProfile().getParentKee());
+      if (parent != null) {
+        initActiveRules(RulesProfileDto.from(parent), ruleKey, context, dbSession, true);
+      }
     }
+
     return context;
   }
 
@@ -75,24 +78,20 @@ public class RuleActivatorContextFactory {
     return ruleDefinitionDto;
   }
 
-  private void initActiveRules(String profileKey, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
-    ActiveRuleKey key = ActiveRuleKey.of(profileKey, ruleKey);
-    Optional<ActiveRuleDto> activeRule = getActiveRule(session, key);
+  private void initActiveRules(RulesProfileDto rulesProfile, RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession, boolean isParent) {
+    ActiveRuleKey key = ActiveRuleKey.of(rulesProfile, ruleKey);
+    Optional<ActiveRuleDto> activeRule = getActiveRule(dbSession, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule.isPresent()) {
-      activeRuleParams = getActiveRuleParams(session, activeRule.get());
+      activeRuleParams = getActiveRuleParams(dbSession, activeRule.get());
     }
-    if (parent) {
+    if (isParent) {
       context.setParentActiveRule(activeRule.orElse(null));
       context.setParentActiveRuleParams(activeRuleParams);
     } else {
       context.setActiveRule(activeRule.orElse(null));
       context.setActiveRuleParams(activeRuleParams);
     }
-  }
-
-  QualityProfileDto getQualityProfileDto(DbSession session, String profileKey) {
-    return db.qualityProfileDao().selectByKey(session, profileKey);
   }
 
   Optional<RuleDefinitionDto> getRule(DbSession dbSession, RuleKey ruleKey) {
@@ -103,11 +102,11 @@ public class RuleActivatorContextFactory {
     return db.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleDefinitionDto.getKey());
   }
 
-  Optional<ActiveRuleDto> getActiveRule(DbSession session, ActiveRuleKey key) {
-    return Optional.ofNullable(db.activeRuleDao().selectByKey(session, key).orNull());
+  Optional<ActiveRuleDto> getActiveRule(DbSession dbSession, ActiveRuleKey key) {
+    return db.activeRuleDao().selectByKey(dbSession, key);
   }
 
-  List<ActiveRuleParamDto> getActiveRuleParams(DbSession session, ActiveRuleDto activeRuleDto) {
-    return db.activeRuleDao().selectParamsByActiveRuleId(session, activeRuleDto.getId());
+  List<ActiveRuleParamDto> getActiveRuleParams(DbSession dbSession, ActiveRuleDto activeRuleDto) {
+    return db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
   }
 }

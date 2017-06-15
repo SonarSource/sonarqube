@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -30,31 +31,62 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 class RuleActivatorContext {
 
+  private final QProfileDto profile;
+  private final RulesProfileDto rulesProfile;
   private final Date initDate = new Date();
   private RuleDefinitionDto rule;
-  private final Map<String, RuleParamDto> ruleParams = Maps.newHashMap();
-  private QualityProfileDto profile;
+  private final Map<String, RuleParamDto> ruleParams = new HashMap<>();
   private ActiveRuleDto activeRule;
   private ActiveRuleDto parentActiveRule;
-  private final Map<String, ActiveRuleParamDto> activeRuleParams = Maps.newHashMap();
-  private final Map<String, ActiveRuleParamDto> parentActiveRuleParams = Maps.newHashMap();
+  private final Map<String, ActiveRuleParamDto> activeRuleParams = new HashMap<>();
+  private final Map<String, ActiveRuleParamDto> parentActiveRuleParams = new HashMap<>();
+  private final boolean isCascade;
 
-  RuleActivatorContext() {
+  RuleActivatorContext(QProfileDto profile, boolean isCascade) {
+    this.profile = profile;
+    this.rulesProfile = RulesProfileDto.from(profile);
+    this.isCascade = isCascade;
+  }
+
+  RuleActivatorContext(RulesProfileDto rulesProfile) {
+    checkArgument(rulesProfile.isBuiltIn(), "Rules profile must be a built-in profile: " + rulesProfile.getKee());
+    this.profile = null;
+    this.rulesProfile = rulesProfile;
+    this.isCascade = false;
+  }
+
+  @CheckForNull
+  QProfileDto getProfile() {
+    return profile;
+  }
+
+  RulesProfileDto getRulesProfile() {
+    return rulesProfile;
+  }
+
+  boolean isBuiltIn() {
+    return profile == null;
+  }
+
+  boolean isCascade() {
+    return isCascade;
   }
 
   ActiveRuleKey activeRuleKey() {
-    return ActiveRuleKey.of(profile.getKee(), rule.getKey());
+    return ActiveRuleKey.of(rulesProfile, rule.getKey());
   }
 
-  RuleDefinitionDto rule() {
+  RuleDefinitionDto getRule() {
     return rule;
   }
 
@@ -62,6 +94,8 @@ class RuleActivatorContext {
     this.rule = rule;
     return this;
   }
+
+
 
   Date getInitDate() {
     return initDate;
@@ -80,15 +114,6 @@ class RuleActivatorContext {
     for (RuleParamDto ruleParam : ruleParams) {
       this.ruleParams.put(ruleParam.getName(), ruleParam);
     }
-    return this;
-  }
-
-  QualityProfileDto profile() {
-    return profile;
-  }
-
-  RuleActivatorContext setProfile(QualityProfileDto profile) {
-    this.profile = profile;
     return this;
   }
 
@@ -117,11 +142,11 @@ class RuleActivatorContext {
     if (rule.isCustomRule()) {
       return null;
     }
-    return request.getParameters().get(key);
+    return request.getParameter(key);
   }
 
   boolean hasRequestParamValue(RuleActivation request, String key) {
-    return request.getParameters().containsKey(key);
+    return request.hasParameter(key);
   }
 
   @CheckForNull
@@ -231,6 +256,6 @@ class RuleActivatorContext {
   void verifyForActivation() {
     checkRequest(RuleStatus.REMOVED != rule.getStatus(), "Rule was removed: %s", rule.getKey());
     checkRequest(!rule.isTemplate(), "Rule template can't be activated on a Quality profile: %s", rule.getKey());
-    checkRequest(profile.getLanguage().equals(rule.getLanguage()), "Rule %s and profile %s have different languages", rule.getKey(), profile.getKey());
+    checkRequest(rulesProfile.getLanguage().equals(rule.getLanguage()), "Rule %s and profile %s have different languages", rule.getKey(), profile != null ? profile.getKee() : rulesProfile.getKee());
   }
 }

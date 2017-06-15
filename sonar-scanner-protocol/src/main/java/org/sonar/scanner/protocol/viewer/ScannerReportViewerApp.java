@@ -95,6 +95,8 @@ public class ScannerReportViewerApp {
   private JEditorPane measuresEditor;
   private JScrollPane scmTab;
   private JEditorPane scmEditor;
+  private JScrollPane activeRuleTab;
+  private JEditorPane activeRuleEditor;
 
   /**
    * Create the application.
@@ -184,6 +186,7 @@ public class ScannerReportViewerApp {
     metadata = reader.readMetadata();
     updateTitle();
     loadComponents();
+    updateActiveRules();
   }
 
   private void loadComponents() {
@@ -314,6 +317,18 @@ public class ScannerReportViewerApp {
         ex.printStackTrace(new PrintWriter(errors));
         sourceEditor.setText(errors.toString());
       }
+    }
+  }
+
+  private void updateActiveRules() {
+    activeRuleEditor.setText("");
+
+    StringBuilder builder = new StringBuilder();
+    try (CloseableIterator<ScannerReport.ActiveRule> activeRuleCloseableIterator = reader.readActiveRules()) {
+      while (activeRuleCloseableIterator.hasNext()) {
+        builder.append(activeRuleCloseableIterator.next().toString()).append("\n");
+      }
+      activeRuleEditor.setText(builder.toString());
     }
   }
 
@@ -467,6 +482,12 @@ public class ScannerReportViewerApp {
 
     scmEditor = new JEditorPane();
     scmTab.setViewportView(scmEditor);
+
+    activeRuleTab = new JScrollPane();
+    tabbedPane.addTab("ActiveRules", null, activeRuleTab, null);
+
+    activeRuleEditor = new JEditorPane();
+    activeRuleTab.setViewportView(activeRuleEditor);
 
     treeScrollPane = new JScrollPane();
     treeScrollPane.setPreferredSize(new Dimension(200, 400));

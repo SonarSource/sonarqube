@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.db.qualityprofile.ActiveRuleMapper">
 
-  <sql id="activeRuleKeyColumns">
+  <sql id="activeRuleColumns">
     a.id,
     a.profile_id as "profileId",
     a.rule_id as "ruleId",
@@ -11,105 +11,161 @@
     a.inheritance as "inheritance",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
-    qp.kee as "profileKey",
+    rp.kee as "ruleProfileUuid",
     a.created_at as "createdAt",
     a.updated_at as "updatedAt"
   </sql>
 
+  <sql id="orgActiveRuleColumns">
+    a.id,
+    a.profile_id as "profileId",
+    a.rule_id as "ruleId",
+    a.failure_level as "severity",
+    a.inheritance as "inheritance",
+    r.plugin_rule_key as "rulefield",
+    r.plugin_name as "repository",
+    rp.kee as "ruleProfileUuid",
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt",
+    oqp.organization_uuid as "organizationUuid",
+    oqp.uuid as "profileUuid"
+  </sql>
+
   <sql id="activeRuleKeyJoin">
-    INNER JOIN rules_profiles qp ON qp.id=a.profile_id
-    INNER JOIN rules r ON r.id = a.rule_id
+    inner join rules_profiles rp on rp.id = a.profile_id
+    inner join rules r on r.id = a.rule_id
   </sql>
 
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, created_at, updated_at)
-    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{createdAt}, #{updatedAt})
+    insert into active_rules (
+      profile_id,
+      rule_id,
+      failure_level,
+      inheritance,
+      created_at,
+      updated_at
+    ) values (
+      #{profileId, jdbcType=BIGINT},
+      #{ruleId, jdbcType=BIGINT},
+      #{severity, jdbcType=INTEGER},
+      #{inheritance, jdbcType=VARCHAR},
+      #{createdAt, jdbcType=BIGINT},
+      #{updatedAt, jdbcType=BIGINT}
+    )
   </insert>
 
   <update id="update" parameterType="ActiveRule">
-    UPDATE active_rules SET
-    failure_level=#{severity},
-    inheritance=#{inheritance},
-    updated_at=#{updatedAt}
-    WHERE id=#{id}
+    update active_rules
+    set
+      failure_level = #{severity, jdbcType=INTEGER},
+      inheritance = #{inheritance, jdbcType=VARCHAR},
+      updated_at = #{updatedAt, jdbcType=BIGINT}
+    where
+      id = #{id, jdbcType=BIGINT}
   </update>
 
-  <update id="delete" parameterType="int">
-    DELETE FROM active_rules WHERE id=#{id}
-  </update>
+  <delete id="delete" parameterType="int">
+    delete from active_rules
+    where
+      id=#{id, jdbcType=BIGINT}
+  </delete>
 
-  <update id="deleteByProfileKeys" parameterType="String">
+  <delete id="deleteByRuleProfileUuids" parameterType="String">
     delete from active_rules
     where exists (
       select 1
-      from rules_profiles p
-      where p.id = profile_id and p.kee in
-        <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">#{profileKey, jdbcType=VARCHAR}</foreach>
+      from rules_profiles rp
+      where rp.id = profile_id
+      and rp.kee in
+        <foreach collection="rulesProfileUuids" open="(" close=")" item="rulesProfileUuid" separator=",">#{rulesProfileUuid, jdbcType=VARCHAR}</foreach>
       )
-  </update>
+  </delete>
+
+  <delete id="deleteByIds" parameterType="Integer">
+    delete from active_rules
+    where
+      id in
+        <foreach collection="ids" open="(" close=")" item="id" separator=",">#{id, jdbcType=INTEGER}</foreach>
+  </delete>
 
   <select id="selectByKey" parameterType="map" resultType="ActiveRule">
-    SELECT
-    <include refid="activeRuleKeyColumns"/>
-    FROM active_rules a
+    select
+    <include refid="activeRuleColumns"/>
+    from active_rules a
     <include refid="activeRuleKeyJoin"/>
-    WHERE
-    qp.kee = #{profileKey}
-    AND r.plugin_rule_key = #{rule}
-    AND r.plugin_name = #{repository}
+    where
+    rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
+    and r.plugin_rule_key = #{rule, jdbcType=VARCHAR}
+    and r.plugin_name = #{repository, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByKeys" parameterType="map" resultType="ActiveRule">
-    SELECT
-    <include refid="activeRuleKeyColumns"/>
-    FROM active_rules a
+    select
+    <include refid="activeRuleColumns"/>
+    from active_rules a
     <include refid="activeRuleKeyJoin"/>
-    WHERE
+    where
     <foreach collection="keys" item="key" open="(" separator=" or " close=")">
-      (qp.kee = #{key.qualityProfileKey}
-      AND r.plugin_rule_key = #{key.ruleKey.rule}
-      AND r.plugin_name = #{key.ruleKey.repository}
+      (rp.kee = #{key.ruleProfileUuid, jdbcType=VARCHAR}
+      AND r.plugin_rule_key = #{key.ruleKey.rule, jdbcType=VARCHAR}
+      AND r.plugin_name = #{key.ruleKey.repository, jdbcType=VARCHAR}
       )
     </foreach>
   </select>
 
-  <select id="selectByProfileKey" parameterType="string" resultType="ActiveRule">
-    SELECT
-    <include refid="activeRuleKeyColumns"/>
-    FROM active_rules a
-    INNER JOIN rules_profiles qp ON qp.id=a.profile_id
-    INNER JOIN rules r ON r.id = a.rule_id AND r.status != 'REMOVED'
-    where qp.kee=#{id}
+  <select id="selectByProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+    select
+    <include refid="orgActiveRuleColumns"/>
+    from active_rules a
+    inner join rules_profiles rp on rp.id = a.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    inner join rules r on r.id = a.rule_id and r.status != 'REMOVED'
+    where oqp.uuid = #{id, jdbcType=VARCHAR}
   </select>
 
-  <select id="selectByRuleId" parameterType="map" resultType="ActiveRule">
-    SELECT
-    <include refid="activeRuleKeyColumns"/>
-    FROM active_rules a
+  <select id="selectByRuleProfileUuid" parameterType="string" resultType="org.sonar.db.qualityprofile.ActiveRuleDto">
+    select
+    <include refid="activeRuleColumns"/>
+    from active_rules a
     <include refid="activeRuleKeyJoin"/>
-    WHERE a.rule_id=#{ruleId, jdbcType=BIGINT}
-    AND qp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+    where
+      rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByRuleId" parameterType="map" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+    select
+    <include refid="orgActiveRuleColumns"/>
+    from active_rules a
+    inner join rules_profiles rp on rp.id = a.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    inner join rules r on r.id = a.rule_id
+    where
+    a.rule_id = #{ruleId, jdbcType=BIGINT}
+    and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByRuleIdOfAllOrganizations" parameterType="Integer" resultType="ActiveRule">
-    SELECT
-    <include refid="activeRuleKeyColumns"/>
-    FROM active_rules a
+    select
+    <include refid="activeRuleColumns"/>
+    from active_rules a
     <include refid="activeRuleKeyJoin"/>
-    WHERE a.rule_id=#{ruleId}
+    where
+      a.rule_id = #{ruleId, jdbcType=BIGINT}
   </select>
 
-  <select id="selectByRuleIds" parameterType="List" resultType="ActiveRule">
-    SELECT
-    <include refid="activeRuleKeyColumns"/>
-    FROM active_rules a
-    <include refid="activeRuleKeyJoin"/>
-    WHERE
+  <select id="selectByRuleIds" parameterType="List" resultType="org.sonar.db.qualityprofile.OrgActiveRuleDto">
+    select
+    <include refid="orgActiveRuleColumns"/>
+    from active_rules a
+    inner join rules_profiles rp on rp.id = a.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    inner join rules r on r.id = a.rule_id
+    where
     a.rule_id in
     <foreach collection="ruleIds" item="ruleId" separator="," open="(" close=")">
-      #{ruleId}
+      #{ruleId, jdbcType=BIGINT}
     </foreach>
-    AND qp.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+    and oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
   <!-- Parameters -->
@@ -123,43 +179,59 @@
   </sql>
 
   <insert id="insertParameter" parameterType="ActiveRuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO active_rule_parameters (active_rule_id, rules_parameter_id, rules_parameter_key, value)
-    VALUES (#{activeRuleId}, #{rulesParameterId}, #{key}, #{value})
+    insert into active_rule_parameters (
+      active_rule_id,
+      rules_parameter_id,
+      rules_parameter_key,
+      value
+    ) values (
+      #{activeRuleId, jdbcType=BIGINT},
+      #{rulesParameterId, jdbcType=BIGINT},
+      #{key, jdbcType=VARCHAR},
+      #{value, jdbcType=VARCHAR}
+    )
   </insert>
 
   <update id="updateParameter" parameterType="ActiveRuleParam">
     UPDATE active_rule_parameters SET
-    value=#{value}
-    WHERE id=#{id}
+    value=#{value, jdbcType=VARCHAR}
+    WHERE id=#{id, jdbcType=BIGINT}
   </update>
 
-  <update id="deleteParameters" parameterType="int">
-    DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
-  </update>
+  <delete id="deleteParameters" parameterType="int">
+    DELETE FROM active_rule_parameters WHERE active_rule_id=#{id, jdbcType=BIGINT}
+  </delete>
 
-  <update id="deleteParametersByProfileKeys" parameterType="String">
+  <delete id="deleteParametersByRuleProfileUuids" parameterType="String">
     delete from active_rule_parameters
     where exists (
       select 1 from active_rules ar
-      inner join rules_profiles p on p.id = ar.profile_id
+      inner join rules_profiles rp on rp.id = ar.profile_id
       where ar.id = active_rule_id
-      and p.kee in
-        <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
-        #{profileKey, jdbcType=VARCHAR}
+      and rp.kee in
+        <foreach collection="rulesProfileUuids" open="(" close=")" item="rulesProfileUuid" separator=",">
+        #{rulesProfileUuid, jdbcType=VARCHAR}
         </foreach>
     )
-  </update>
+  </delete>
 
-  <update id="deleteParameter" parameterType="int">
-    DELETE FROM active_rule_parameters WHERE id=#{id}
-  </update>
+  <delete id="deleteParameter" parameterType="int">
+    DELETE FROM active_rule_parameters WHERE id=#{id, jdbcType=BIGINT}
+  </delete>
+
+  <delete id="deleteParamsByActiveRuleIds" parameterType="Integer">
+    delete from active_rule_parameters
+    where
+      active_rule_id in
+    <foreach collection="activeRuleIds" open="(" close=")" item="activeRuleId" separator=",">#{activeRuleId, jdbcType=INTEGER}</foreach>
+  </delete>
 
   <select id="selectParamsByActiveRuleId" parameterType="Integer" resultType="ActiveRuleParam">
     select
     <include refid="activeRuleParamColumns"/>
     from active_rule_parameters p
     <where>
-      p.active_rule_id=#{id}
+      p.active_rule_id=#{id, jdbcType=BIGINT}
     </where>
   </select>
 
@@ -169,56 +241,43 @@
     from active_rule_parameters p
     <where>
       <foreach collection="ids" item="id" open="(" separator=" or " close=")">
-        p.active_rule_id=#{id}
+        p.active_rule_id=#{id, jdbcType=BIGINT}
       </foreach>
     </where>
   </select>
 
-  <select id="selectParamByActiveRuleAndKey" parameterType="map" resultType="ActiveRuleParam">
-    SELECT
-    <include refid="activeRuleParamColumns"/>
-    FROM active_rule_parameters p
-    <where>
-      AND p.active_rule_id=#{activeRuleId}
-      AND p.rules_parameter_key=#{key}
-    </where>
-  </select>
-
-  <select id="selectAllParams" resultType="ActiveRuleParam">
-    select
-    <include refid="activeRuleParamColumns"/>
-    from active_rule_parameters p
-  </select>
-
-  <select id="countActiveRulesByProfileKey" resultType="KeyLongValue" parameterType="map">
-    select p.kee as "key", count(ar.id) as "value"
+  <select id="countActiveRulesByProfileUuid" resultType="KeyLongValue" parameterType="map">
+    select oqp.uuid as "key", count(ar.id) as "value"
     from active_rules ar
-    inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules_profiles rp on rp.id = ar.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = ar.rule_id
-    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and r.status != 'REMOVED'
-    group by p.kee
+    group by oqp.uuid
   </select>
 
-  <select id="countActiveRulesForRuleStatusByProfileKey" resultType="KeyLongValue" parameterType="map">
-    select p.kee as "key", count(ar.id) as "value"
+  <select id="countActiveRulesForRuleStatusByProfileUuid" resultType="KeyLongValue" parameterType="map">
+    select oqp.uuid as "key", count(ar.id) as "value"
     from active_rules ar
-    inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules_profiles rp on rp.id = ar.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = ar.rule_id
-    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and r.status = #{ruleStatus, jdbcType=VARCHAR}
-    group by p.kee
+    group by oqp.uuid
   </select>
 
-  <select id="countActiveRulesForInheritanceByProfileKey" resultType="KeyLongValue" parameterType="map">
-    select p.kee as "key", count(ar.id) as "value"
+  <select id="countActiveRulesForInheritanceByProfileUuid" resultType="KeyLongValue" parameterType="map">
+    select oqp.uuid as "key", count(ar.id) as "value"
     from active_rules ar
-    inner join rules_profiles p on p.id = ar.profile_id
+    inner join rules_profiles rp on rp.id = ar.profile_id
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = ar.rule_id
-    where p.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
     and ar.inheritance = #{inheritance, jdbcType=VARCHAR}
     and r.status != 'REMOVED'
-    group by p.kee
+    group by oqp.uuid
   </select>
 </mapper>
 

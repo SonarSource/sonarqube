@@ -19,142 +19,234 @@
  */
 package org.sonar.server.component.ws;
 
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 
-import static org.sonar.api.measures.Metric.ValueType.DATA;
-import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
-import static org.sonar.api.measures.Metric.ValueType.INT;
-import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.component.ws.FilterParser.Operator.EQ;
-import static org.sonar.server.component.ws.FilterParser.Operator.GT;
-import static org.sonar.server.component.ws.FilterParser.Operator.LT;
-import static org.sonar.server.component.ws.FilterParser.Operator.LTE;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion.create;
 
 public class ProjectMeasuresQueryValidatorTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-
-  private ProjectMeasuresQueryValidator underTest = new ProjectMeasuresQueryValidator(dbClient);
-
   @Test
   public void query_with_empty_metrics_is_valid() throws Exception {
-    underTest.validate(dbSession, new ProjectMeasuresQuery());
+    ProjectMeasuresQueryValidator.validate(new ProjectMeasuresQuery());
   }
 
   @Test
-  public void does_not_fail_when_metric_criteria_contains_an_existing_metric() throws Exception {
-    insertValidMetric("ncloc");
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery().addMetricCriterion(new MetricCriterion("ncloc", GT, 10d));
-
-    underTest.validate(dbSession, query);
+  public void filter_by_ncloc_is_valid() throws Exception {
+    assertValidFilterKey("ncloc");
   }
 
   @Test
-  public void does_not_fail_when_sort_is_by_name() throws Exception {
-    insertValidMetric("ncloc");
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("ncloc", GT, 10d))
-      .setSort("name");
-
-    underTest.validate(dbSession, query);
+  public void filter_by_duplicated_lines_density_is_valid() throws Exception {
+    assertValidFilterKey("duplicated_lines_density");
   }
 
   @Test
-  public void does_not_fail_when_sort_contains_an_existing_metric() throws Exception {
-    insertValidMetric("ncloc");
-    insertValidMetric("debt");
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("ncloc", GT, 10d))
-      .setSort("debt");
-
-    underTest.validate(dbSession, query);
+  public void filter_by_coverage_is_valid() throws Exception {
+    assertValidFilterKey("coverage");
   }
 
   @Test
-  public void fail_when_metric_are_not_numeric() throws Exception {
-    insertMetric(createValidMetric("ncloc").setValueType(INT.name()));
-    insertMetric(createValidMetric("debt").setValueType(WORK_DUR.name()));
-    insertMetric(createValidMetric("data").setValueType(DATA.name()));
-    insertMetric(createValidMetric("distrib").setValueType(DISTRIB.name()));
-    insertMetric(createValidMetric("string").setValueType(STRING.name()));
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("data", GT, 10d))
-      .addMetricCriterion(new MetricCriterion("distrib", EQ, 11d))
-      .addMetricCriterion(new MetricCriterion("ncloc", LTE, 20d))
-      .addMetricCriterion(new MetricCriterion("debt", LT, 20d))
-      .addMetricCriterion(new MetricCriterion("string", EQ, 40d));
+  public void filter_by_sqale_rating_is_valid() throws Exception {
+    assertValidFilterKey("sqale_rating");
+  }
 
+  @Test
+  public void filter_by_reliability_rating_is_valid() throws Exception {
+    assertValidFilterKey("reliability_rating");
+  }
+
+  @Test
+  public void filter_by_security_rating_is_valid() throws Exception {
+    assertValidFilterKey("security_rating");
+  }
+
+  @Test
+  public void filter_by_alert_status_is_valid() throws Exception {
+    assertValidFilterKey("alert_status");
+  }
+
+  @Test
+  public void filter_by_ncloc_language_distribution_is_valid() throws Exception {
+    assertValidFilterKey("ncloc_language_distribution");
+  }
+
+  @Test
+  public void filter_by_new_security_rating_is_valid() throws Exception {
+    assertValidFilterKey("new_security_rating");
+  }
+
+  @Test
+  public void filter_by_new_maintainability_rating_is_valid() throws Exception {
+    assertValidFilterKey("new_maintainability_rating");
+  }
+
+  @Test
+  public void filter_by_new_coverage_is_valid() throws Exception {
+    assertValidFilterKey("new_coverage");
+  }
+
+  @Test
+  public void filter_by_new_duplicated_lines_density_is_valid() throws Exception {
+    assertValidFilterKey("new_duplicated_lines_density");
+  }
+
+  @Test
+  public void filter_by_new_lines_is_valid() throws Exception {
+    assertValidFilterKey("new_lines");
+  }
+
+  @Test
+  public void filter_by_new_reliability_rating_is_valid() throws Exception {
+    assertValidFilterKey("new_reliability_rating");
+  }
+
+  @Test
+  public void filter_by_bla_is_invalid() throws Exception {
+    assertInvalidFilterKey("bla");
+  }
+
+  @Test
+  public void filter_by_bla_and_new_lines_is_invalid() throws Exception {
+    assertInvalidFilterKeys("Following metrics are not supported: 'bla'", "bla", "new_lines");
+  }
+
+  @Test
+  public void filter_by_new_lines_and_bla_is_invalid() throws Exception {
+    assertInvalidFilterKeys("Following metrics are not supported: 'bla'", "new_lines", "bla");
+  }
+
+  @Test
+  public void filter_by_NeW_LiNeS_is_invalid() throws Exception {
+    assertInvalidFilterKey("NeW_LiNeS");
+  }
+
+  @Test
+  public void filter_by_empty_string_is_invalid() throws Exception {
+    assertInvalidFilterKey("");
+  }
+
+  @Test
+  public void sort_by_ncloc_is_valid() throws Exception {
+    assertValidSortKey("ncloc");
+  }
+
+  @Test
+  public void sort_by_duplicated_lines_density_is_valid() throws Exception {
+    assertValidSortKey("duplicated_lines_density");
+  }
+
+  @Test
+  public void sort_by_coverage_is_valid() throws Exception {
+    assertValidSortKey("coverage");
+  }
+
+  @Test
+  public void sort_by_sqale_rating_is_valid() throws Exception {
+    assertValidSortKey("sqale_rating");
+  }
+
+  @Test
+  public void sort_by_reliability_rating_is_valid() throws Exception {
+    assertValidSortKey("reliability_rating");
+  }
+
+  @Test
+  public void sort_by_security_rating_is_valid() throws Exception {
+    assertValidSortKey("security_rating");
+  }
+
+  @Test
+  public void sort_by_alert_status_is_valid() throws Exception {
+    assertValidSortKey("alert_status");
+  }
+
+  @Test
+  public void sort_by_ncloc_language_distribution_is_valid() throws Exception {
+    assertValidSortKey("ncloc_language_distribution");
+  }
+
+  @Test
+  public void sort_by_new_security_rating_is_valid() throws Exception {
+    assertValidSortKey("new_security_rating");
+  }
+
+  @Test
+  public void sort_by_new_maintainability_rating_is_valid() throws Exception {
+    assertValidSortKey("new_maintainability_rating");
+  }
+
+  @Test
+  public void sort_by_new_coverage_is_valid() throws Exception {
+    assertValidSortKey("new_coverage");
+  }
+
+  @Test
+  public void sort_by_new_duplicated_lines_density_is_valid() throws Exception {
+    assertValidSortKey("new_duplicated_lines_density");
+  }
+
+  @Test
+  public void sort_by_new_lines_is_valid() throws Exception {
+    assertValidSortKey("new_lines");
+  }
+
+  @Test
+  public void sort_by_new_reliability_rating_is_valid() throws Exception {
+    assertValidSortKey("new_reliability_rating");
+  }
+
+  @Test
+  public void sort_by_bla_is_invalid() throws Exception {
+    assertInvalidSortKey("bla");
+  }
+
+  @Test
+  public void sort_by_NeW_lInEs_is_invalid() throws Exception {
+    assertInvalidSortKey("NeW_lInEs");
+  }
+
+  @Test
+  public void sort_by_empty_string_is_invalid() throws Exception {
+    assertInvalidSortKey("");
+  }
+
+  private void assertValidSortKey(String metricKey) {
+    // do not expect an exception
+    ProjectMeasuresQueryValidator.validate(new ProjectMeasuresQuery().setSort(metricKey));
+  }
+
+  private void assertInvalidSortKey(String metricKey) {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Following metrics are not numeric : [data, distrib, string]");
-    underTest.validate(dbSession, query);
+    expectedException.expectMessage("Following metrics are not supported: '" + metricKey + "'");
+
+    ProjectMeasuresQueryValidator.validate(new ProjectMeasuresQuery().setSort(metricKey));
   }
 
-  @Test
-  public void fail_when_metric_is_disabled() throws Exception {
-    insertMetric(createValidMetric("ncloc").setEnabled(false));
-    insertMetric(createValidMetric("debt").setEnabled(false));
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("ncloc", GT, 10d))
-      .setSort("debt");
+  private static void assertValidFilterKey(String... metricKeys) {
+    // do not expect an exception
+    validateFilterKeys(metricKeys);
+  }
 
+  private void assertInvalidFilterKey(String metricKey) {
+    assertInvalidFilterKeys("Following metrics are not supported: '" + metricKey + "'", metricKey);
+  }
+
+  private void assertInvalidFilterKeys(String message, String... metricKeys) {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Following metrics are disabled : [debt, ncloc]");
-    underTest.validate(dbSession, query);
+    expectedException.expectMessage(message);
+    validateFilterKeys(metricKeys);
   }
 
-  @Test
-  public void fail_when_metric_does_not_exists() throws Exception {
-    insertValidMetric("ncloc");
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("unknown", GT, 10d))
-      .setSort("debt");
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown metric(s) [debt, unknown]");
-    underTest.validate(dbSession, query);
-  }
-
-  @Test
-  public void return_all_unknown_metrics() throws Exception {
-    insertValidMetric("ncloc");
-    ProjectMeasuresQuery query = new ProjectMeasuresQuery()
-      .addMetricCriterion(new MetricCriterion("debt", GT, 10d))
-      .addMetricCriterion(new MetricCriterion("ncloc", LTE, 20d))
-      .addMetricCriterion(new MetricCriterion("coverage", GT, 30d))
-      .setSort("duplications");
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Unknown metric(s) [coverage, debt, duplications]");
-    underTest.validate(dbSession, query);
-  }
-
-  private void insertValidMetric(String metricKey) {
-    insertMetric(createValidMetric(metricKey));
-  }
-
-  private void insertMetric(MetricDto metricDto) {
-    dbClient.metricDao().insert(dbSession, metricDto);
-  }
-
-  private static MetricDto createValidMetric(String metricKey) {
-    return newMetricDto().setKey(metricKey).setValueType(INT.name()).setEnabled(true).setHidden(false);
+  private static void validateFilterKeys(String... metricKeys) {
+    ProjectMeasuresQuery query = new ProjectMeasuresQuery();
+    Arrays.stream(metricKeys).forEachOrdered(metricKey -> query.addMetricCriterion(create(metricKey, FilterParser.Operator.LT, 80d)));
+    ProjectMeasuresQueryValidator.validate(query);
   }
 }

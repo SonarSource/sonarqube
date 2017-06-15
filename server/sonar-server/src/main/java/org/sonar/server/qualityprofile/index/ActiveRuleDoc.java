@@ -20,40 +20,33 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.server.es.BaseDoc;
 import org.sonar.server.qualityprofile.ActiveRule;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_ORGANIZATION_UUID;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT;
 
 public class ActiveRuleDoc extends BaseDoc {
 
-  private final ActiveRuleKey key;
-
-  public ActiveRuleDoc(ActiveRuleKey key) {
+  public ActiveRuleDoc(String id) {
     super(Maps.newHashMapWithExpectedSize(9));
-    checkNotNull(key, "ActiveRuleKey cannot be null");
-    this.key = key;
-    setField(FIELD_ACTIVE_RULE_KEY, key.toString());
-    setField(FIELD_ACTIVE_RULE_PROFILE_KEY, key.qProfile());
-    setField(FIELD_ACTIVE_RULE_RULE_KEY, key.ruleKey().toString());
-    setField(FIELD_ACTIVE_RULE_REPOSITORY, key.ruleKey().repository());
+    setField("_id", id);
+  }
+
+  public ActiveRuleDoc(Map<String,Object> source) {
+    super(source);
   }
 
   @Override
   public String getId() {
-    return key().toString();
+    return getField("_id");
   }
 
   @Override
@@ -63,32 +56,42 @@ public class ActiveRuleDoc extends BaseDoc {
 
   @Override
   public String getParent() {
-    return key.ruleKey().toString();
+    return getRuleKey().toString();
   }
 
-  public ActiveRuleKey key() {
-    return key;
+  RuleKey getRuleKey() {
+    return RuleKey.parse(getField(FIELD_ACTIVE_RULE_RULE_KEY));
   }
 
-  String organizationUuid() {
-    return getField(FIELD_ACTIVE_RULE_ORGANIZATION_UUID);
+  String getRuleRepository() {
+    return getField(FIELD_ACTIVE_RULE_REPOSITORY);
   }
 
-  public ActiveRuleDoc setOrganizationUuid(String s) {
-    setField(FIELD_ACTIVE_RULE_ORGANIZATION_UUID, s);
-    return this;
-  }
-
-  String severity() {
+  String getSeverity() {
     return getNullableField(FIELD_ACTIVE_RULE_SEVERITY);
   }
 
-  public ActiveRuleDoc setSeverity(@Nullable String s) {
+  ActiveRuleDoc setSeverity(@Nullable String s) {
     setField(FIELD_ACTIVE_RULE_SEVERITY, s);
     return this;
   }
 
-  ActiveRule.Inheritance inheritance() {
+  ActiveRuleDoc setRuleKey(RuleKey ruleKey) {
+    setField(FIELD_ACTIVE_RULE_RULE_KEY, ruleKey.toString());
+    setField(FIELD_ACTIVE_RULE_REPOSITORY, ruleKey.repository());
+    return this;
+  }
+
+  String getRuleProfileUuid() {
+    return getField(FIELD_ACTIVE_RULE_PROFILE_UUID);
+  }
+
+  ActiveRuleDoc setRuleProfileUuid(String s) {
+    setField(FIELD_ACTIVE_RULE_PROFILE_UUID, s);
+    return this;
+  }
+
+  ActiveRule.Inheritance getInheritance() {
     String inheritance = getNullableField(FIELD_ACTIVE_RULE_INHERITANCE);
     if (inheritance == null || inheritance.isEmpty() ||
       containsIgnoreCase(inheritance, "none")) {
@@ -104,24 +107,6 @@ public class ActiveRuleDoc extends BaseDoc {
 
   public ActiveRuleDoc setInheritance(@Nullable String s) {
     setField(FIELD_ACTIVE_RULE_INHERITANCE, s);
-    return this;
-  }
-
-  long createdAt() {
-    return (Long) getField(FIELD_ACTIVE_RULE_CREATED_AT);
-  }
-
-  public ActiveRuleDoc setCreatedAt(@Nullable Long l) {
-    setField(FIELD_ACTIVE_RULE_CREATED_AT, l);
-    return this;
-  }
-
-  long updatedAt() {
-    return (Long) getField(FIELD_ACTIVE_RULE_UPDATED_AT);
-  }
-
-  public ActiveRuleDoc setUpdatedAt(@Nullable Long l) {
-    setField(FIELD_ACTIVE_RULE_UPDATED_AT, l);
     return this;
   }
 }

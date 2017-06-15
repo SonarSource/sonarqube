@@ -32,7 +32,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -206,7 +206,7 @@ public class RestoreActionTest {
     private QProfileRestoreSummary restoredSummary;
 
     @Override
-    public void backup(DbSession dbSession, QualityProfileDto profile, Writer backupWriter) {
+    public void backup(DbSession dbSession, QProfileDto profile, Writer backupWriter) {
       throw new UnsupportedOperationException();
     }
 
@@ -220,8 +220,9 @@ public class RestoreActionTest {
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
-      QualityProfileDto profile = QualityProfileDto.createFor("P1")
-        .setDefault(false)
+      QProfileDto profile = new QProfileDto()
+        .setKee("P1")
+        .setRulesProfileUuid("rp-P1")
         .setLanguage("xoo")
         .setName(overriddenProfileName != null ? overriddenProfileName : "the-name-in-backup");
       restoredSummary = new QProfileRestoreSummary(profile, new BulkChangeResult());
@@ -229,7 +230,7 @@ public class RestoreActionTest {
     }
 
     @Override
-    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile) {
+    public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile) {
       throw new UnsupportedOperationException();
     }
   }

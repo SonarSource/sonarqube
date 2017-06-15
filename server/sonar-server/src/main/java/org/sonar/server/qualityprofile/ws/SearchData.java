@@ -21,8 +21,9 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -30,10 +31,11 @@ import static com.google.common.collect.ImmutableMap.copyOf;
 
 public class SearchData {
   private OrganizationDto organization;
-  private List<QualityProfileDto> profiles;
+  private List<QProfileDto> profiles;
   private Map<String, Long> activeRuleCountByProfileKey;
   private Map<String, Long> activeDeprecatedRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
+  private Set<String> defaultProfileKeys;
 
   public SearchData setOrganization(OrganizationDto organization) {
     this.organization = organization;
@@ -44,11 +46,11 @@ public class SearchData {
     return organization;
   }
 
-  public List<QualityProfileDto> getProfiles() {
+  public List<QProfileDto> getProfiles() {
     return profiles;
   }
 
-  public SearchData setProfiles(List<QualityProfileDto> profiles) {
+  public SearchData setProfiles(List<QProfileDto> profiles) {
     this.profiles = copyOf(profiles);
     return this;
   }
@@ -78,5 +80,14 @@ public class SearchData {
 
   public long getActiveDeprecatedRuleCount(String profileKey) {
     return firstNonNull(activeDeprecatedRuleCountByProfileKey.get(profileKey), 0L);
+  }
+
+  boolean isDefault(QProfileDto profile) {
+    return defaultProfileKeys.contains(profile.getKee());
+  }
+
+  SearchData setDefaultProfileKeys(Set<String> s) {
+    this.defaultProfileKeys = s;
+    return this;
   }
 }

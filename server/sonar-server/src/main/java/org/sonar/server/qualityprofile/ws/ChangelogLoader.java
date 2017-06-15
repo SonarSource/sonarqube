@@ -58,7 +58,7 @@ public class ChangelogLoader {
       .collect(MoreCollectors.toList(dtos.size()));
     completeUserAndRuleNames(dbSession, changes);
 
-    int total = dbClient.qProfileChangeDao().countForProfileKey(dbSession, query.getProfileKey());
+    int total = dbClient.qProfileChangeDao().countForQProfileUuid(dbSession, query.getProfileUuid());
     return new Changelog(total, changes);
   }
 
@@ -158,7 +158,7 @@ public class ChangelogLoader {
     private static Change from(QProfileChangeDto dto) {
       Map<String, String> data = dto.getDataAsMap();
       Change change = new Change();
-      change.key = dto.getKey();
+      change.key = dto.getUuid();
       change.userLogin = dto.getLogin();
       change.type = dto.getChangeType();
       change.at = dto.getCreatedAt();

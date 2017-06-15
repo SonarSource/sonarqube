@@ -24,14 +24,13 @@ import it.Category4Suite;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
 import okhttp3.CacheControl;
 import okhttp3.Response;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import static com.google.common.io.Files.getFileExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.call;
 
@@ -150,11 +149,11 @@ public class HttpHeadersTest {
    */
   private static String getJsHash() throws IOException {
     File cssFolder = new File(orchestrator.getServer().getHome(), "web/css");
-    Optional<Path> cssPath = Files.list(cssFolder.toPath()).map(Path::getFileName).findFirst();
-    if (cssPath.isPresent()) {
-      String fileName = cssPath.get().toFile().getName();
-      return fileName.replace("sonar.", "").replace(".css", "");
-    }
-    throw new IllegalStateException("sonar.css hasn't been found");
+    String fileName = Files.list(cssFolder.toPath())
+      .map(path -> path.toFile().getName())
+      .filter(name -> getFileExtension(name).equals("css"))
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("sonar.css hasn't been found"));
+    return fileName.replace("sonar.", "").replace(".css", "");
   }
 }

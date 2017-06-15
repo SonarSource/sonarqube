@@ -1,0 +1,212 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should handle perspective change correctly 1`] = `
+Array [
+  Array [
+    Object {
+      "view": "overall",
+    },
+  ],
+  Array [
+    Object {
+      "view": "leak",
+    },
+  ],
+  Array [
+    Object {
+      "view": "visualizations",
+      "visualization": "coverage",
+    },
+  ],
+]
+`;
+
+exports[`should render correctly 1`] = `
+<div>
+  <label>
+    projects.perspective
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-medium"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "projects.view.overall",
+          "type": "view",
+          "value": "overall",
+        },
+        Object {
+          "label": "projects.view.leak",
+          "type": "view",
+          "value": "leak",
+        },
+        Object {
+          "label": "projects.visualization.risk",
+          "type": "visualization",
+          "value": "risk",
+        },
+        Object {
+          "label": "projects.visualization.reliability",
+          "type": "visualization",
+          "value": "reliability",
+        },
+        Object {
+          "label": "projects.visualization.security",
+          "type": "visualization",
+          "value": "security",
+        },
+        Object {
+          "label": "projects.visualization.maintainability",
+          "type": "visualization",
+          "value": "maintainability",
+        },
+        Object {
+          "label": "projects.visualization.coverage",
+          "type": "visualization",
+          "value": "coverage",
+        },
+        Object {
+          "label": "projects.visualization.duplications",
+          "type": "visualization",
+          "value": "duplications",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="overall"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+</div>
+`;
+
+exports[`should render with coverage selected 1`] = `
+<div>
+  <label>
+    projects.perspective
+    :
+  </label>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="little-spacer-left input-medium"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={false}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "projects.view.overall",
+          "type": "view",
+          "value": "overall",
+        },
+        Object {
+          "label": "projects.view.leak",
+          "type": "view",
+          "value": "leak",
+        },
+        Object {
+          "label": "projects.visualization.risk",
+          "type": "visualization",
+          "value": "risk",
+        },
+        Object {
+          "label": "projects.visualization.reliability",
+          "type": "visualization",
+          "value": "reliability",
+        },
+        Object {
+          "label": "projects.visualization.security",
+          "type": "visualization",
+          "value": "security",
+        },
+        Object {
+          "label": "projects.visualization.maintainability",
+          "type": "visualization",
+          "value": "maintainability",
+        },
+        Object {
+          "label": "projects.visualization.coverage",
+          "type": "visualization",
+          "value": "coverage",
+        },
+        Object {
+          "label": "projects.visualization.duplications",
+          "type": "visualization",
+          "value": "duplications",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="Select..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value="coverage"
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+</div>
+`;

@@ -29,30 +29,28 @@ import org.sonar.api.utils.KeyValueFormat;
 
 public class QProfileChangeDto {
 
-  private String key;
-  private String profileKey;
-  // can't be named "type" because it's a reserved word in Oracle
-  // (used by Mybatis to map DB column with DTO field)
+  private String uuid;
+  private String rulesProfileUuid;
   private String changeType;
   private String login;
   private String data;
   private long createdAt;
 
-  public String getKey() {
-    return key;
+  public String getUuid() {
+    return uuid;
   }
 
-  public QProfileChangeDto setKey(String s) {
-    this.key = s;
+  public QProfileChangeDto setUuid(String s) {
+    this.uuid = s;
     return this;
   }
 
-  public String getProfileKey() {
-    return profileKey;
+  public String getRulesProfileUuid() {
+    return rulesProfileUuid;
   }
 
-  public QProfileChangeDto setProfileKey(String s) {
-    this.profileKey = s;
+  public QProfileChangeDto setRulesProfileUuid(String s) {
+    this.rulesProfileUuid = s;
     return this;
   }
 

@@ -19,8 +19,10 @@
  */
 package org.sonar.server.setting.ws;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -29,6 +31,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -59,13 +63,29 @@ public class SettingValidations {
     };
   }
 
+  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.MODULE, Qualifiers.SUBVIEW);
+
   public Consumer<SettingData> qualifier() {
     return data -> {
       String qualifier = data.component == null ? "" : data.component.qualifier();
       PropertyDefinition definition = definitions.get(data.key);
-      checkRequest(data.component == null || definition == null || definition.qualifiers().contains(data.component.qualifier()),
+      checkRequest(checkComponentScopeAndQualifier(data, definition),
         "Setting '%s' cannot be set on a %s", data.key, i18n.message(Locale.ENGLISH, "qualifier." + qualifier, null));
     };
+  }
+
+  private static boolean checkComponentScopeAndQualifier(SettingData data, @Nullable PropertyDefinition definition) {
+    ComponentDto component = data.component;
+    if (component == null) {
+      return true;
+    }
+    if (!Scopes.PROJECT.equals(component.scope())) {
+      return false;
+    }
+    if (definition == null) {
+      return SUPPORTED_QUALIFIERS.contains(component.qualifier());
+    }
+    return definition.qualifiers().contains(component.qualifier());
   }
 
   public Consumer<SettingData> valueType() {
@@ -76,13 +96,13 @@ public class SettingValidations {
     return !definition.global() && definition.qualifiers().isEmpty();
   }
 
-  public static class SettingData {
+  static class SettingData {
     private final String key;
     private final List<String> values;
     @CheckForNull
     private final ComponentDto component;
 
-    public SettingData(String key, List<String> values, @Nullable ComponentDto component) {
+    SettingData(String key, List<String> values, @Nullable ComponentDto component) {
       this.key = requireNonNull(key);
       this.values = requireNonNull(values);
       this.component = component;

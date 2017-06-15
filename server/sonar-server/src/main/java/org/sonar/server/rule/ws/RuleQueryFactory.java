@@ -22,8 +22,6 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -32,7 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.ws.WsUtils;
 
@@ -80,28 +78,29 @@ public class RuleQueryFactory {
     Boolean activation = request.paramAsBoolean(PARAM_ACTIVATION);
     query.setActivation(activation);
 
-    String qualityProfileKey = request.param(PARAM_QPROFILE);
+    String profileUuid = request.param(PARAM_QPROFILE);
     String organizationKey = request.param(PARAM_ORGANIZATION);
-    String organizationUuid;
+    OrganizationDto organization;
     List<String> languages;
-    if (qualityProfileKey == null) {
-      organizationUuid = wsSupport.getOrganizationByKey(dbSession, organizationKey).getUuid();
+    if (profileUuid == null) {
+      organization = wsSupport.getOrganizationByKey(dbSession, organizationKey);
       languages = request.paramAsStrings(PARAM_LANGUAGES);
     } else {
-      QualityProfileDto qualityProfileOptional = dbClient.qualityProfileDao().selectByKey(dbSession, qualityProfileKey);
-      QualityProfileDto qualityProfile = WsUtils.checkFound(qualityProfileOptional, "The specified qualityProfile '%s' does not exist", qualityProfileKey);
-      query.setQProfileKey(qualityProfileKey);
-      languages = ImmutableList.of(qualityProfile.getLanguage());
-      organizationUuid = qualityProfile.getOrganizationUuid();
+      QProfileDto profileOptional = dbClient.qualityProfileDao().selectByUuid(dbSession, profileUuid);
+      QProfileDto profile = WsUtils.checkFound(profileOptional, "The specified qualityProfile '%s' does not exist", profileUuid);
+      query.setQProfile(profile);
+      languages = ImmutableList.of(profile.getLanguage());
+      organization = WsUtils.checkFoundWithOptional(dbClient.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()), "No organization with UUID ",
+        profile.getOrganizationUuid());
       if (organizationKey != null) {
-        Optional<OrganizationDto> organizationOptional = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
-        OrganizationDto organization = WsUtils.checkFoundWithOptional(organizationOptional, "No organization with key '%s'", organizationKey);
-        if (!organizationUuid.equals(organization.getUuid())) {
-          throw new IllegalArgumentException(format("The specified quality profile '%s' is not part of the specified organization '%s'", qualityProfileKey, organizationKey));
+        OrganizationDto inputOrganization = WsUtils.checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'",
+          organizationKey);
+        if (!organization.getUuid().equals(inputOrganization.getUuid())) {
+          throw new IllegalArgumentException(format("The specified quality profile '%s' is not part of the specified organization '%s'", profileUuid, organizationKey));
         }
       }
     }
-    query.setOrganizationUuid(organizationUuid);
+    query.setOrganization(organization);
     query.setLanguages(languages);
 
     query.setTags(request.paramAsStrings(PARAM_TAGS));
@@ -119,10 +118,4 @@ public class RuleQueryFactory {
     }
     return query;
   }
-
-  @CheckForNull
-  private QualityProfileDto getProfileByKey(DbSession dbSession, String key) {
-    return dbClient.qualityProfileDao().selectByKey(dbSession, key);
-  }
-
 }

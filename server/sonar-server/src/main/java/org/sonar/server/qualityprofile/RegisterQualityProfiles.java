@@ -19,19 +19,19 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.Pagination;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 
-import static org.sonar.db.Pagination.forPage;
+import static java.lang.String.format;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -40,57 +40,81 @@ import static org.sonar.db.Pagination.forPage;
 public class RegisterQualityProfiles {
 
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
-  private static final Pagination PROCESSED_ORGANIZATIONS_BATCH_SIZE = forPage(1).andSize(2000);
 
-  private final DefinedQProfileRepository definedQProfileRepository;
+  private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DbClient dbClient;
-  private final DefinedQProfileCreation definedQProfileCreation;
-  private final ActiveRuleIndexer activeRuleIndexer;
+  private final BuiltInQProfileInsert builtInQProfileInsert;
+  private final BuiltInQProfileUpdate builtInQProfileUpdate;
 
-  public RegisterQualityProfiles(DefinedQProfileRepository definedQProfileRepository,
-    DbClient dbClient, DefinedQProfileCreation definedQProfileCreation, ActiveRuleIndexer activeRuleIndexer) {
-    this.definedQProfileRepository = definedQProfileRepository;
+  public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
+    DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate) {
+    this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
-    this.definedQProfileCreation = definedQProfileCreation;
-    this.activeRuleIndexer = activeRuleIndexer;
+    this.builtInQProfileInsert = builtInQProfileInsert;
+    this.builtInQProfileUpdate = builtInQProfileUpdate;
   }
 
   public void start() {
+    List<BuiltInQProfile> builtInQProfiles = builtInQProfileRepository.get();
+    if (builtInQProfiles.isEmpty()) {
+      return;
+    }
+
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
+    try (DbSession dbSession = dbClient.openSession(false);
+      DbSession batchDbSession = dbClient.openSession(true)) {
 
-    try (DbSession session = dbClient.openSession(false)) {
-      List<ActiveRuleChange> changes = new ArrayList<>();
-      definedQProfileRepository.getQProfilesByLanguage().entrySet()
-        .forEach(entry -> registerPerLanguage(session, entry.getValue(), changes));
-      activeRuleIndexer.index(changes);
-      profiler.stopDebug();
+      Map<QProfileName, RulesProfileDto> persistedRuleProfiles = loadPersistedProfiles(dbSession);
+
+      builtInQProfiles.forEach(builtIn -> {
+        RulesProfileDto ruleProfile = persistedRuleProfiles.get(builtIn.getQProfileName());
+        if (ruleProfile == null) {
+          register(dbSession, batchDbSession, builtIn);
+        } else {
+          update(dbSession, builtIn, ruleProfile);
+        }
+      });
     }
+    profiler.stopDebug();
   }
 
-  private void registerPerLanguage(DbSession session, List<DefinedQProfile> qualityProfiles, List<ActiveRuleChange> changes) {
-    qualityProfiles.forEach(qp -> registerPerQualityProfile(session, qp, changes));
-    session.commit();
+  private Map<QProfileName, RulesProfileDto> loadPersistedProfiles(DbSession dbSession) {
+    return dbClient.qualityProfileDao().selectBuiltInRulesProfiles(dbSession).stream()
+      .collect(MoreCollectors.uniqueIndex(rp -> new QProfileName(rp.getLanguage(), rp.getName())));
   }
 
-  private void registerPerQualityProfile(DbSession session, DefinedQProfile qualityProfile, List<ActiveRuleChange> changes) {
-    LOGGER.info("Register profile {}", qualityProfile.getQProfileName());
+  private void register(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn) {
+    LOGGER.info("Register profile {}", builtIn.getQProfileName());
 
-    List<OrganizationDto> organizationDtos;
-    while (!(organizationDtos = getOrganizationsWithoutQP(session, qualityProfile)).isEmpty()) {
-      organizationDtos.forEach(organization -> registerPerQualityProfileAndOrganization(session, qualityProfile, organization, changes));
+    renameOutdatedProfiles(dbSession, builtIn);
+
+    builtInQProfileInsert.create(dbSession, batchDbSession, builtIn);
+  }
+
+  private void update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
+    LOGGER.info("Update profile {}", builtIn.getQProfileName());
+
+    builtInQProfileUpdate.update(dbSession, builtIn, ruleProfile);
+  }
+
+  /**
+   * The Quality profiles created by users should be renamed when they have the same name
+   * as the built-in profile to be persisted.
+   *
+   * When upgrading from < 6.5 , all existing profiles are considered as "custom" (created
+   * by users) because the concept of built-in profile is not persisted. The "Sonar way" profiles
+   * are renamed to "Sonar way (outdated copy) in order to avoid conflicts with the new
+   * built-in profile "Sonar way", which has probably different configuration.
+   */
+  private void renameOutdatedProfiles(DbSession dbSession, BuiltInQProfile profile) {
+    Collection<String> uuids = dbClient.qualityProfileDao().selectUuidsOfCustomRulesProfiles(dbSession, profile.getLanguage(), profile.getName());
+    if (uuids.isEmpty()) {
+      return;
     }
+    Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass())).start();
+    String newName = profile.getName() + " (outdated copy)";
+    LOGGER.info("Rename Quality profiles [{}/{}] to [{}] in {} organizations", profile.getLanguage(), profile.getName(), newName, uuids.size());
+    dbClient.qualityProfileDao().renameRulesProfilesAndCommit(dbSession, uuids, newName);
+    profiler.stopDebug(format("%d Quality profiles renamed to [%s]", uuids.size(), newName));
   }
-
-  private List<OrganizationDto> getOrganizationsWithoutQP(DbSession session, DefinedQProfile qualityProfile) {
-    return dbClient.organizationDao().selectOrganizationsWithoutLoadedTemplate(session,
-      qualityProfile.getLoadedTemplateType(), PROCESSED_ORGANIZATIONS_BATCH_SIZE);
-  }
-
-  private void registerPerQualityProfileAndOrganization(DbSession session, DefinedQProfile qualityProfile, OrganizationDto organization, List<ActiveRuleChange> changes) {
-    LOGGER.debug("Register profile {} for organization {}", qualityProfile.getQProfileName(), organization.getKey());
-
-    definedQProfileCreation.create(session, qualityProfile, organization, changes);
-    session.commit();
-  }
-
 }

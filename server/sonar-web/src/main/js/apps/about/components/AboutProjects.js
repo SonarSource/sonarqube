@@ -17,30 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
-export default class AboutProjects extends React.PureComponent {
-  static propTypes = {
-    count: React.PropTypes.number.isRequired
-  };
+type Props = {
+  count: number,
+  loading: boolean
+};
 
-  render() {
-    return (
-      <div className="about-page-projects">
+export default function AboutProjects({ count, loading }: Props) {
+  return (
+    <div className="about-page-projects">
+      {loading && <i className="spinner" />}
+      {!loading &&
         <div>
           <div>
             <Link to="/projects" className="about-page-projects-link">
-              {formatMeasure(this.props.count, 'INT')}
+              {formatMeasure(count, 'INT')}
             </Link>
           </div>
           <div>
             {translate('about_page.projects_analyzed')}
           </div>
-        </div>
-      </div>
-    );
-  }
+        </div>}
+    </div>
+  );
 }

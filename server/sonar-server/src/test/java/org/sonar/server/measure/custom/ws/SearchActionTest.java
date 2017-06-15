@@ -40,7 +40,7 @@ import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -61,13 +61,10 @@ public class SearchActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-
   @Rule
   public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
 
@@ -79,7 +76,7 @@ public class SearchActionTest {
   @Before
   public void setUp() {
     CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
-    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, customMeasureJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
+    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, customMeasureJsonWriter, userSessionRule, TestComponentFinder.from(db))));
     defaultProject = insertDefaultProject();
     userSessionRule.logIn().addProjectPermission(UserRole.ADMIN, defaultProject);
 

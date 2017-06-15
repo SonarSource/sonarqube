@@ -82,7 +82,7 @@ public class DeleteAction implements RulesWsAction {
 
       // For custom rule, first deactivate the rule on all profiles
       if (rule.isCustomRule()) {
-        ruleActivator.deactivateOfAllOrganizations(dbSession, rule);
+        ruleActivator.delete(dbSession, rule);
       }
 
       rule.setStatus(RuleStatus.REMOVED);

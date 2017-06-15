@@ -30,9 +30,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -48,10 +47,12 @@ public class RenameAction implements QProfileWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final QProfileWsSupport wsSupport;
 
-  public RenameAction(DbClient dbClient, UserSession userSession) {
+  public RenameAction(DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -88,17 +89,17 @@ public class RenameAction implements QProfileWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto qualityProfile = ofNullable(dbClient.qualityProfileDao().selectByKey(dbSession, profileKey))
-          .orElseThrow(() -> new NotFoundException("Quality profile not found: " + profileKey));
+      QProfileDto qualityProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
 
       String organizationUuid = qualityProfile.getOrganizationUuid();
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organizationUuid);
+      wsSupport.checkNotBuiltInt(qualityProfile);
 
       if (!Objects.equals(newName, qualityProfile.getName())) {
         OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
             .orElseThrow(() -> new IllegalStateException("No organization found for uuid " + organizationUuid));
         String language = qualityProfile.getLanguage();
-        ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(organization, newName, language, dbSession))
+        ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, newName, language))
             .ifPresent(found -> {
               throw BadRequestException.create(format("Quality profile already exists: %s", newName));
             });

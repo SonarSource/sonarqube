@@ -42,6 +42,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
@@ -123,11 +124,12 @@ public class RegisterRulesMediumTest {
 
     // Create a profile and activate rule
     logInAsQProfileAdministrator();
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
+    QProfileDto profile = QProfileTesting.newXooP1("org-123");
+    db.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     dbSession.clearCache();
-    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    TESTER.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
+    RuleActivation activation = RuleActivation.create(RuleTesting.XOO_X1, null, null);
+    TESTER.get(RuleActivator.class).activate(dbSession, activation, profile);
 
     // Restart, repo xoo still exists -> deactivate x1
     register(new Rules() {
@@ -138,8 +140,8 @@ public class RegisterRulesMediumTest {
     });
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X2.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
-    assertThat(ruleIndex.search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).isEmpty();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(profile), new SearchOptions()).getIds()).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
   }
 
   @Test
@@ -154,11 +156,12 @@ public class RegisterRulesMediumTest {
 
     // create a profile and activate rule
     logInAsQProfileAdministrator();
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
+    QProfileDto profile = QProfileTesting.newXooP1("org-123");
+    db.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     dbSession.clearCache();
-    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    TESTER.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
+    RuleActivation activation = RuleActivation.create(RuleTesting.XOO_X1, null, null);
+    TESTER.get(RuleActivator.class).activate(dbSession, activation, profile);
     dbSession.commit();
 
     // Restart without xoo
@@ -167,12 +170,12 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
 
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
 
     // Re-install
     register(rules);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileUuid(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
   }
 
   @Test
@@ -190,12 +193,12 @@ public class RegisterRulesMediumTest {
 
     // Create profile and activate rule
     logInAsQProfileAdministrator();
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1("org-123"));
+    QProfileDto profile = QProfileTesting.newXooP1("org-123");
+    db.qualityProfileDao().insert(dbSession, profile);
     dbSession.commit();
     dbSession.clearCache();
-    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    activation.setParameter("format", "txt");
-    TESTER.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
+    RuleActivation activation = RuleActivation.create(RuleTesting.XOO_X1, null, ImmutableMap.of("format", "txt"));
+    TESTER.get(RuleActivator.class).activate(dbSession, activation, profile);
     dbSession.commit();
 
     // Default value of "min" is changed, "format" is removed, "format2" is added, "max" is added with a default value
@@ -209,7 +212,7 @@ public class RegisterRulesMediumTest {
       }
     });
 
-    ActiveRuleDto activeRuleDto = db.activeRuleDao().selectOrFailByKey(dbSession, ActiveRuleKey.of(QProfileTesting.XOO_P1_KEY, RuleTesting.XOO_X1));
+    ActiveRuleDto activeRuleDto = db.activeRuleDao().selectByKey(dbSession, ActiveRuleKey.of(profile, RuleTesting.XOO_X1)).get();
     List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(params).hasSize(2);
 

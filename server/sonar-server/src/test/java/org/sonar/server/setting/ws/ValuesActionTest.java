@@ -40,7 +40,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDbTester;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -75,10 +75,8 @@ public class ValuesActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -93,7 +91,7 @@ public class ValuesActionTest {
   private ComponentDto project;
 
   private WsActionTester ws = new WsActionTester(
-    new ValuesAction(dbClient, new ComponentFinder(dbClient), userSession, definitions, settingsFinder, support, scannerSettings));
+    new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, settingsFinder, support, scannerSettings));
 
   @Before
   public void setUp() throws Exception {

@@ -352,15 +352,6 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
-     * @deprecated since 4.4. Use {@link #createParam(String paramKey)} instead.
-     */
-    @Deprecated
-    public NewAction createParam(String paramKey, @Nullable String description) {
-      createParam(paramKey).setDescription(description);
-      return this;
-    }
-
-    /**
      * Add predefined parameters related to pagination of results.
      */
     public NewAction addPagingParams(int defaultPageSize) {

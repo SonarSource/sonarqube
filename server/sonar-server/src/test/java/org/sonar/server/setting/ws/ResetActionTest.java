@@ -19,6 +19,7 @@
  */
 package org.sonar.server.setting.ws;
 
+import java.util.Random;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,6 +40,7 @@ import org.sonar.db.property.PropertyQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserTesting;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.i18n.I18nRule;
@@ -62,10 +64,8 @@ public class ResetActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
@@ -74,7 +74,7 @@ public class ResetActionTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ComponentFinder componentFinder = new ComponentFinder(dbClient);
+  private ComponentFinder componentFinder = TestComponentFinder.from(db);
   private PropertyDefinitions definitions = new PropertyDefinitions();
   private SettingsUpdater settingsUpdater = new SettingsUpdater(dbClient, definitions);
   private SettingValidations settingValidations = new SettingValidations(definitions, dbClient, i18n);
@@ -290,6 +290,70 @@ public class ResetActionTest {
     executeRequestOnComponentSetting("foo", project);
   }
 
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_project_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    succeedForPropertyWithoutDefinitionAndValidComponent(project, project);
+  }
+
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_module_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    ComponentDto module = db.components().insertComponent(ComponentTesting.newModuleDto(project));
+    succeedForPropertyWithoutDefinitionAndValidComponent(project, module);
+  }
+
+  @Test
+  public void fail_for_property_without_definition_when_set_on_directory_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    ComponentDto directory = db.components().insertComponent(ComponentTesting.newDirectory(project, "A/B"));
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(project, directory);
+  }
+
+  @Test
+  public void fail_for_property_without_definition_when_set_on_file_component() {
+    ComponentDto project = randomPublicOrPrivateProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(project, file);
+  }
+
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_view_component() {
+    ComponentDto view = db.components().insertView();
+    succeedForPropertyWithoutDefinitionAndValidComponent(view, view);
+  }
+
+  @Test
+  public void succeed_for_property_without_definition_when_set_on_subview_component() {
+    ComponentDto view = db.components().insertView();
+    ComponentDto subview = db.components().insertComponent(ComponentTesting.newSubView(view));
+    succeedForPropertyWithoutDefinitionAndValidComponent(view, subview);
+  }
+
+  @Test
+  public void fail_for_property_without_definition_when_set_on_projectCopy_component() {
+    ComponentDto view = db.components().insertView();
+    ComponentDto projectCopy = db.components().insertComponent(ComponentTesting.newProjectCopy("a", db.components().insertPrivateProject(), view));
+
+    failForPropertyWithoutDefinitionOnUnsupportedComponent(view, projectCopy);
+  }
+
+  private void succeedForPropertyWithoutDefinitionAndValidComponent(ComponentDto root, ComponentDto module) {
+    logInAsProjectAdmin(root);
+
+    executeRequestOnComponentSetting("foo", module);
+  }
+
+  private void failForPropertyWithoutDefinitionOnUnsupportedComponent(ComponentDto root, ComponentDto component) {
+    i18n.put("qualifier." + component.qualifier(), "QualifierLabel");
+    logInAsProjectAdmin(root);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Setting 'foo' cannot be set on a QualifierLabel");
+
+    executeRequestOnComponentSetting("foo", component);
+  }
+
   private void executeRequestOnGlobalSetting(String key) {
     executeRequest(key, null);
   }
@@ -320,6 +384,10 @@ public class ResetActionTest {
     userSession.logIn().addProjectPermission(ADMIN, project);
   }
 
+  private void logInAsProjectAdmin(ComponentDto root) {
+    userSession.logIn().addProjectPermission(ADMIN, root);
+  }
+
   private void assertGlobalPropertyDoesNotExist(String key) {
     assertThat(dbClient.propertiesDao().selectGlobalProperty(dbSession, key)).isNull();
   }
@@ -342,6 +410,10 @@ public class ResetActionTest {
       .setUserId(user.getId())
       .build(),
       dbSession)).isNotEmpty();
+  }
+
+  private ComponentDto randomPublicOrPrivateProject() {
+    return new Random().nextBoolean() ? db.components().insertPrivateProject() : db.components().insertPublicProject();
   }
 
 }

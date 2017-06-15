@@ -19,162 +19,177 @@
  */
 package org.sonar.server.qualityprofile.index;
 
-import com.google.common.collect.Iterators;
+import java.util.List;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.MapSettings;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
-import static org.sonar.server.qualityprofile.index.ActiveRuleDocTesting.newDoc;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexerTest {
 
-  private static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
-  private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
-  private static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
-  private static final String QUALITY_PROFILE_KEY1 = "qp1";
-  private static final String QUALITY_PROFILE_KEY2 = "qp2";
-
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public DbTester db = DbTester.create(system2);
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings()));
 
-  private ActiveRuleIndexer indexer = new ActiveRuleIndexer(system2, dbTester.getDbClient(), esTester.client());
+  private ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client(), new ActiveRuleIteratorFactory(db.getDbClient()));
+  private RuleDefinitionDto rule1;
+  private RuleDefinitionDto rule2;
+  private OrganizationDto org;
+  private QProfileDto profile1;
+  private QProfileDto profile2;
 
-  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
-
-  @Test
-  public void index_nothing() {
-    indexer.index(Iterators.emptyIterator());
-    assertThat(esTester.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isZero();
+  @Before
+  public void before() {
+    rule1 = db.rules().insert();
+    rule2 = db.rules().insert();
+    org = db.organizations().insert();
+    profile1 = db.qualityProfiles().insert(org);
+    profile2 = db.qualityProfiles().insert(org);
   }
 
   @Test
-  public void index() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
-
-    indexer.index();
-
-    assertThat(esTester.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(1);
+  public void getIndexTypes() {
+    assertThat(underTest.getIndexTypes()).containsExactly(RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE);
   }
 
   @Test
-  public void deleteByProfileKeys_deletes_documents_associated_to_specified_profile() throws Exception {
-    indexActiveRules(
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)),
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)),
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3)));
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
-
-    indexer.deleteByProfileKeys(asList(QUALITY_PROFILE_KEY1));
-
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(
-      ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2).toString(),
-      ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3).toString());
+  public void indexOnStartup_does_nothing_if_no_data() {
+    underTest.indexOnStartup(emptySet());
+    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isZero();
   }
 
   @Test
-  public void deleteByProfileKeys_deletes_documents_associated_to_multiple_profiles() throws Exception {
-    indexActiveRules(
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)),
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)),
-      newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3)));
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
+  public void indexOnStartup_indexes_all_data() {
+    ActiveRuleDto activeRule = db.qualityProfiles().activateRule(profile1, rule1);
 
-    indexer.deleteByProfileKeys(asList(QUALITY_PROFILE_KEY1, QUALITY_PROFILE_KEY2));
+    underTest.indexOnStartup(emptySet());
 
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).isEmpty();
+    List<ActiveRuleDoc> docs = es.getDocuments(INDEX_TYPE_ACTIVE_RULE, ActiveRuleDoc.class);
+    assertThat(docs).hasSize(1);
+    verify(docs.get(0), rule1, profile1, activeRule);
   }
 
   @Test
-  public void index_from_changes_remove_deactivated_rules() throws Exception {
-    ActiveRuleKey activeRuleKey1 = ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1);
-    ActiveRuleKey activeRuleKey2 = ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2);
-    ActiveRuleKey activeRuleKey3 = ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2);
-    ActiveRuleKey activeRuleKey4 = ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3);
+  public void deleteByProfiles() throws Exception {
+    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(profile1, rule1);
+    ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(profile2, rule1);
+    ActiveRuleDto activeRule3 = db.qualityProfiles().activateRule(profile2, rule2);
+    index();
 
-    indexActiveRules(
-      newDoc(activeRuleKey1),
-      newDoc(activeRuleKey2),
-      newDoc(activeRuleKey3),
-      newDoc(activeRuleKey4));
+    underTest.deleteByProfiles(singletonList(profile2));
 
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).hasSize(4);
-
-    indexer.index(asList(
-      ActiveRuleChange.createFor(ACTIVATED, activeRuleKey1),
-      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey2),
-      ActiveRuleChange.createFor(DEACTIVATED, activeRuleKey3)));
-
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(
-      activeRuleKey1.toString(),
-      activeRuleKey4.toString());
+    verifyOnlyIndexed(activeRule1);
   }
 
   @Test
-  public void index_from_changes_index_new_active_rule() throws Exception {
-    long yesterday = 1000000L;
-    long now = 2000000L;
+  public void deleteByProfiles_does_nothing_if_profiles_are_not_indexed() throws Exception {
+    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(profile1, rule1);
+    ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(profile2, rule1);
+    ActiveRuleDto activeRule3 = db.qualityProfiles().activateRule(profile2, rule2);
+    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(0);
 
-    // Index one active rule
-    RuleDefinitionDto rule = RuleTesting.newRule(RULE_KEY_1);
-    dbTester.rules().insert(rule);
-    QualityProfileDto profile = QualityProfileDto.createFor("qp")
-      .setOrganizationUuid(organization.getUuid())
-      .setLanguage("xoo")
-      .setName("profile");
-    dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile);
-    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity(Severity.BLOCKER)
-      .setCreatedAt(yesterday).setUpdatedAt(yesterday);
-    dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule);
-    dbTester.getSession().commit();
+    underTest.deleteByProfiles(singletonList(profile2));
 
-    indexer.index();
-
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(activeRule.getKey().toString());
-
-    // Index another active rule
-    RuleDefinitionDto rule2 = RuleTesting.newRule(RULE_KEY_2);
-    dbTester.rules().insert(rule2);
-    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profile, rule2).setSeverity(Severity.CRITICAL)
-      .setCreatedAt(now).setUpdatedAt(now);
-    dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule2);
-    dbTester.getSession().commit();
-
-    indexer.index(singletonList(ActiveRuleChange.createFor(ACTIVATED, activeRule2.getKey())));
-
-    assertThat(esTester.getIds(INDEX_TYPE_ACTIVE_RULE)).containsOnly(
-      activeRule.getKey().toString(),
-      activeRule2.getKey().toString());
+    assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(0);
   }
 
-  private void indexActiveRules(ActiveRuleDoc... docs) {
-    indexer.index(asList(docs).iterator());
+  @Test
+  public void indexRuleProfile() throws Exception {
+    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(profile1, rule1);
+    ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(profile2, rule1);
+    ActiveRuleDto activeRule3 = db.qualityProfiles().activateRule(profile2, rule2);
+
+    indexProfile(profile2);
+
+    verifyOnlyIndexed(activeRule2, activeRule3);
+  }
+
+  @Test
+  public void indexChanges_puts_documents() throws Exception {
+    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(profile1, rule1);
+    ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(profile2, rule1);
+    ActiveRuleDto nonIndexed = db.qualityProfiles().activateRule(profile2, rule2);
+
+    underTest.indexChanges(db.getSession(), asList(
+      newChange(ACTIVATED, activeRule1), newChange(ACTIVATED, activeRule2)));
+
+    verifyOnlyIndexed(activeRule1, activeRule2);
+  }
+
+  @Test
+  public void indexChanges_deletes_documents_when_type_is_DEACTIVATED() throws Exception {
+    ActiveRuleDto activeRule1 = db.qualityProfiles().activateRule(profile1, rule1);
+    ActiveRuleDto activeRule2 = db.qualityProfiles().activateRule(profile2, rule1);
+    underTest.indexChanges(db.getSession(), asList(
+      newChange(ACTIVATED, activeRule1), newChange(ACTIVATED, activeRule2)));
+    assertThat(es.countDocuments(RuleIndexDefinition.INDEX_TYPE_ACTIVE_RULE)).isEqualTo(2);
+
+    underTest.indexChanges(db.getSession(), singletonList(newChange(DEACTIVATED, activeRule1)));
+
+    verifyOnlyIndexed(activeRule2);
+  }
+
+  @Test
+  public void deleteByRuleKeys() {
+    ActiveRuleDto active1 = db.qualityProfiles().activateRule(profile1, rule1);
+    ActiveRuleDto active2 = db.qualityProfiles().activateRule(profile2, rule1);
+    ActiveRuleDto onRule2 = db.qualityProfiles().activateRule(profile2, rule2);
+    index();
+
+    underTest.deleteByRuleKeys(singletonList(rule2.getKey()));
+
+    verifyOnlyIndexed(active1, active2);
+  }
+
+  private void verifyOnlyIndexed(ActiveRuleDto... expected) {
+    List<String> docs = es.getIds(INDEX_TYPE_ACTIVE_RULE);
+    assertThat(docs).hasSize(expected.length);
+    for (ActiveRuleDto activeRuleDto : expected) {
+      assertThat(docs).contains(activeRuleDto.getId().toString());
+    }
+  }
+
+  private ActiveRuleChange newChange(ActiveRuleChange.Type type, ActiveRuleDto activeRule) {
+    return new ActiveRuleChange(type, activeRule);
+  }
+
+  private void indexProfile(QProfileDto profile) {
+    underTest.indexRuleProfile(db.getSession(), RulesProfileDto.from(profile));
+  }
+
+  private void verify(ActiveRuleDoc doc1, RuleDefinitionDto rule, QProfileDto profile, ActiveRuleDto activeRule) {
+    assertThat(doc1)
+      .matches(doc -> doc.getRuleKey().equals(rule.getKey()))
+      .matches(doc -> doc.getId().equals("" + activeRule.getId()))
+      .matches(doc -> doc.getRuleProfileUuid().equals(profile.getRulesProfileUuid()))
+      .matches(doc -> doc.getRuleRepository().equals(rule.getRepositoryKey()))
+      .matches(doc -> doc.getSeverity().equals(activeRule.getSeverityString()));
+  }
+
+  private void index() {
+    underTest.indexOnStartup(emptySet());
   }
 
 }

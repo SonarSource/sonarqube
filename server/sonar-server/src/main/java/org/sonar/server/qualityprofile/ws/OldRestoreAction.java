@@ -32,7 +32,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
@@ -102,13 +102,13 @@ public class OldRestoreAction implements WsAction {
   }
 
   private void writeResponse(JsonWriter json, QProfileRestoreSummary result) {
-    QualityProfileDto profile = result.getProfile();
+    QProfileDto profile = result.getProfile();
     String languageKey = profile.getLanguage();
     Language language = languages.get(languageKey);
 
     JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
     jsonProfile
-      .prop("key", profile.getKey())
+      .prop("key", profile.getKee())
       .prop("name", profile.getName())
       .prop("language", languageKey)
       .prop("isDefault", false)

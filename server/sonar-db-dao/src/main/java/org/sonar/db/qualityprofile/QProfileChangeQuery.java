@@ -26,20 +26,20 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import static java.util.Objects.requireNonNull;
 
-public class QProfileChangeQuery {
+public final class QProfileChangeQuery {
 
-  private final String profileKey;
+  private final String profileUuid;
   private Long fromIncluded;
   private Long toExcluded;
   private int offset = 0;
   private int limit = 100;
 
-  public QProfileChangeQuery(String profileKey) {
-    this.profileKey = requireNonNull(profileKey);
+  public QProfileChangeQuery(String profileUuid) {
+    this.profileUuid = requireNonNull(profileUuid);
   }
 
-  public String getProfileKey() {
-    return profileKey;
+  public String getProfileUuid() {
+    return profileUuid;
   }
 
   @CheckForNull

@@ -54,13 +54,13 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.DefaultQProfileDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.source.FileSourceDao;
-import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
@@ -75,7 +75,6 @@ public class DaoModule extends Module {
     // for readability and easier merge, keep list ordered alphabetically
     // =====================================================================
     ActiveRuleDao.class,
-    AuthorDao.class,
     AuthorizationDao.class,
     CeActivityDao.class,
     CeQueueDao.class,
@@ -85,6 +84,7 @@ public class DaoModule extends Module {
     ComponentKeyUpdaterDao.class,
     ComponentLinkDao.class,
     CustomMeasureDao.class,
+    DefaultQProfileDao.class,
     DuplicationDao.class,
     EventDao.class,
     FileSourceDao.class,

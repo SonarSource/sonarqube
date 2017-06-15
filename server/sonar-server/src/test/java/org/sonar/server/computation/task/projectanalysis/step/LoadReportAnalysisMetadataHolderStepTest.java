@@ -274,7 +274,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     metadataBuilder.getMutableQprofilesPerLanguage().put("js", ScannerReport.Metadata.QProfile.newBuilder().setKey("p1").setName("Sonar way").setLanguage("js").build());
     reportReader.setMetadata(metadataBuilder.build());
 
-    dbTester.qualityProfiles().insert(organization, p -> p.setLanguage("js"), p -> p.setKey("p1"));
+    dbTester.qualityProfiles().insert(organization, p -> p.setLanguage("js").setKee("p1"));
 
     ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, organization.getUuid()));
 
@@ -292,8 +292,8 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     metadataBuilder.getMutableQprofilesPerLanguage().put("php", ScannerReport.Metadata.QProfile.newBuilder().setKey("phpInOrg2").setName("PHP way").setLanguage("php").build());
     reportReader.setMetadata(metadataBuilder.build());
 
-    dbTester.qualityProfiles().insert(organization1, p -> p.setLanguage("js"), p -> p.setKey("jsInOrg1"));
-    dbTester.qualityProfiles().insert(organization2, p -> p.setLanguage("php"), p -> p.setKey("phpInOrg2"));
+    dbTester.qualityProfiles().insert(organization1, p -> p.setLanguage("js").setKee("jsInOrg1"));
+    dbTester.qualityProfiles().insert(organization2, p -> p.setLanguage("php").setKee("phpInOrg2"));
 
     ComputationStep underTest = createStep(createCeTask(PROJECT_KEY, organization1.getUuid()));
 

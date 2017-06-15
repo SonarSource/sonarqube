@@ -22,12 +22,11 @@ package org.sonar.db.permission;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.component.ComponentMapper;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -37,40 +36,32 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class UserPermissionDao implements Dao {
 
   /**
-   * List of user permissions ordered by alphabetical order of user names
-   *  @param query non-null query including optional filters.
-   * @param userLogins if null, then filter on all active users. If not null, then filter on logins, including disabled users.
-   *                   Must not be empty. If not null then maximum size is {@link DatabaseUtils#PARTITION_SIZE_FOR_ORACLE}.
+   * List of user permissions ordered by alphabetical order of user names.
+   * Pagination is NOT applied.
+   * No sort is done.
+   *
+   * @param query non-null query including optional filters.
+   * @param userIds Filter on user ids, including disabled users. Must not be empty and maximum size is {@link DatabaseUtils#PARTITION_SIZE_FOR_ORACLE}.
    */
-  public List<UserPermissionDto> select(DbSession dbSession, PermissionQuery query, @Nullable Collection<String> userLogins) {
-    if (userLogins != null) {
-      if (userLogins.isEmpty()) {
-        return emptyList();
-      }
-      checkArgument(userLogins.size() <= DatabaseUtils.PARTITION_SIZE_FOR_ORACLE, "Maximum 1'000 users are accepted");
+  public List<UserPermissionDto> selectUserPermissionsByQuery(DbSession dbSession, PermissionQuery query, Collection<Integer> userIds) {
+    if (userIds.isEmpty()) {
+      return emptyList();
     }
-
-    RowBounds rowBounds = new RowBounds(query.getPageOffset(), query.getPageSize());
-    return mapper(dbSession).selectByQuery(query, userLogins, rowBounds);
+    checkArgument(userIds.size() <= DatabaseUtils.PARTITION_SIZE_FOR_ORACLE, "Maximum 1'000 users are accepted");
+    return mapper(dbSession).selectUserPermissionsByQueryAndUserIds(query, userIds);
   }
 
-  /**
-   * Shortcut over {@link #select(DbSession, PermissionQuery, Collection)} to return only distinct user
-   * ids, keeping the same order.
-   */
-  public List<Integer> selectUserIds(DbSession dbSession, PermissionQuery query) {
-    List<UserPermissionDto> dtos = select(dbSession, query, null);
-    return dtos.stream()
-      .map(UserPermissionDto::getUserId)
-      .distinct()
-      .collect(MoreCollectors.toList(dtos.size()));
+  public List<Integer> selectUserIdsByQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).selectUserIdsByQuery(query)
+      .stream()
+      // Pagination is done in Java because it's too complex to use SQL pagination in Oracle and MsSQL with the distinct
+      .skip(query.getPageOffset())
+      .limit(query.getPageSize())
+      .collect(MoreCollectors.toList());
   }
 
-  /**
-   * @see UserPermissionMapper#countUsersByQuery(String, PermissionQuery, Collection)
-   */
-  public int countUsers(DbSession dbSession, String organizationUuid, PermissionQuery query) {
-    return mapper(dbSession).countUsersByQuery(organizationUuid, query, null);
+  public int countUsersByQuery(DbSession dbSession, PermissionQuery query) {
+    return mapper(dbSession).countUsersByQuery(query);
   }
 
   /**

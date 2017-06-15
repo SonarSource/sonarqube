@@ -31,6 +31,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.dialect.Oracle;
 import org.sonar.db.version.SqTables;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
@@ -46,7 +47,6 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 public class BackendCleanup {
 
   private static final String[] ANALYSIS_TABLES = {
-    "authors",
     "ce_activity", "ce_queue", "ce_task_input", "ce_scanner_context",
     "duplications_index", "events", "issues", "issue_changes", "manual_measures",
     "notifications", "project_links", "project_measures", "projects",
@@ -126,11 +126,11 @@ public class BackendCleanup {
     clearIndex(ComponentIndexDefinition.INDEX_TYPE_COMPONENT.getIndex());
   }
 
-  private static void truncateAnalysisTables(Connection connection) throws SQLException {
+  private void truncateAnalysisTables(Connection connection) throws SQLException {
     try (Statement statement = connection.createStatement()) {
       // Clear inspection tables
       for (String table : ANALYSIS_TABLES) {
-        statement.execute("TRUNCATE TABLE " + table.toLowerCase());
+        statement.execute(createTruncateSql(table.toLowerCase(Locale.ENGLISH)));
         // commit is useless on some databases
         connection.commit();
       }
@@ -140,6 +140,18 @@ public class BackendCleanup {
         connection.commit();
       }
     }
+  }
+
+  private String createTruncateSql(String table) {
+    if (dbClient.getDatabase().getDialect().getId().equals(Oracle.ID)) {
+      // truncate operation is needs to lock the table on Oracle. Unfortunately
+      // it fails sometimes in our QA environment because table is locked.
+      // We never found the root cause (no locks found when displaying them just after
+      // receiving the error).
+      // Workaround is to use "delete" operation. It does not require lock on table.
+      return "DELETE FROM " + table;
+    }
+    return "TRUNCATE TABLE " + table;
   }
 
   private static void deleteManualRules(Connection connection) throws SQLException {

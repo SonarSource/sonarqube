@@ -30,6 +30,7 @@ type Props = {
   children: React.Element<*>,
   currentUser: { permissions: { global: Array<string> } },
   languages: Array<*>,
+  onRequestFail: Object => void,
   organization: { name: string, canAdmin?: boolean, key: string } | null
 };
 
@@ -108,6 +109,7 @@ export default class App extends React.PureComponent {
       languages: finalLanguages,
       exporters: this.state.exporters,
       updateProfiles: this.updateProfiles,
+      onRequestFail: this.props.onRequestFail,
       organization: organization ? organization.key : null,
       canAdmin
     });

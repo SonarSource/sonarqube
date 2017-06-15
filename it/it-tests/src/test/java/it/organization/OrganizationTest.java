@@ -23,203 +23,140 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
 import it.Category6Suite;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.Locale;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.Organizations.Organization;
+import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
-import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.organization.UpdateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.user.GroupsRequest;
+import util.OrganizationRule;
+import util.OrganizationSupport;
 import util.user.GroupManagement;
 import util.user.Groups;
 import util.user.UserRule;
 
-import static it.Category6Suite.enableOrganizationsSupport;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.deleteOrganizationsIfExists;
+import static util.ItUtils.expectBadRequestError;
+import static util.ItUtils.expectForbiddenError;
+import static util.ItUtils.expectNotFoundError;
+import static util.ItUtils.expectUnauthorizedError;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.newWsClient;
-import static util.ItUtils.resetSettings;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
 public class OrganizationTest {
+
+  private static final String SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS = "sonar.organizations.anyoneCanCreate";
   private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
   private static final String NAME = "Foo Company";
-  private static final String KEY = "foo-company";
+  // private static final String KEY = "foo-company";
   private static final String DESCRIPTION = "the description of Foo company";
   private static final String URL = "https://www.foo.fr";
   private static final String AVATAR_URL = "https://www.foo.fr/corporate_logo.png";
-  private static final String SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS = "sonar.organizations.anyoneCanCreate";
   private static final String USER_LOGIN = "foo";
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public OrganizationRule organizations = new OrganizationRule(orchestrator);
+  @Rule
+  public UserRule users = new UserRule(orchestrator);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private WsClient adminClient = newAdminWsClient(orchestrator);
-  private OrganizationService anonymousOrganizationService = newWsClient(orchestrator).organizations();
-  private OrganizationService adminOrganizationService = adminClient.organizations();
-
-  @BeforeClass
-  public static void enableOrganizations() throws Exception {
-    enableOrganizationsSupport();
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    resetSettings(orchestrator, null, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS);
-    deleteOrganizationsIfExists(orchestrator, KEY, "an-org");
-    userRule.deactivateUsers(USER_LOGIN);
-  }
 
   @After
-  public void tearDown() throws Exception {
-    deleteOrganizationsIfExists(orchestrator, KEY, "an-org");
+  public void tearDown() {
+    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, null);
   }
 
   @Test
-  public void create_update_delete_organizations_and_check_security() {
-    verifyOrganizationDoesNotExit(KEY);
+  public void default_organization_should_exist() {
+    Organization defaultOrg = organizations.getWsService().search(SearchWsRequest.builder().build())
+      .getOrganizationsList()
+      .stream()
+      .filter(Organization::getGuarded)
+      .findFirst()
+      .orElseThrow(IllegalStateException::new);
+    assertThat(defaultOrg.getKey().equals(DEFAULT_ORGANIZATION_KEY));
+    assertThat(defaultOrg.getName().equals("Default Organization"));
+  }
 
-    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
+  @Test
+  public void default_organization_can_not_be_deleted() {
+    expectBadRequestError(() -> organizations.getWsService().delete(DEFAULT_ORGANIZATION_KEY));
+  }
+
+  @Test
+  public void create_update_and_delete_organizations() {
+    Organization org = organizations.create(o -> o
       .setName(NAME)
-      .setKey(KEY)
       .setDescription(DESCRIPTION)
       .setUrl(URL)
       .setAvatar(AVATAR_URL)
-      .build())
-      .getOrganization();
-    assertThat(createdOrganization.getName()).isEqualTo(NAME);
-    assertThat(createdOrganization.getKey()).isEqualTo(KEY);
-    assertThat(createdOrganization.getDescription()).isEqualTo(DESCRIPTION);
-    assertThat(createdOrganization.getUrl()).isEqualTo(URL);
-    assertThat(createdOrganization.getAvatar()).isEqualTo(AVATAR_URL);
+      .build());
+    assertThat(org.getName()).isEqualTo(NAME);
+    assertThat(org.getDescription()).isEqualTo(DESCRIPTION);
+    assertThat(org.getUrl()).isEqualTo(URL);
+    assertThat(org.getAvatar()).isEqualTo(AVATAR_URL);
 
-    verifySingleSearchResult(createdOrganization, NAME, DESCRIPTION, URL, AVATAR_URL);
+    verifyOrganization(org, NAME, DESCRIPTION, URL, AVATAR_URL);
+    assertThatBuiltInQualityProfilesExist(org);
 
-    // update by id
-    adminOrganizationService.update(new UpdateWsRequest.Builder()
-      .setKey(createdOrganization.getKey())
+    // update by key
+    organizations.getWsService().update(new UpdateWsRequest.Builder()
+      .setKey(org.getKey())
       .setName("new name")
       .setDescription("new description")
       .setUrl("new url")
       .setAvatar("new avatar url")
       .build());
-    verifySingleSearchResult(createdOrganization, "new name", "new description", "new url", "new avatar url");
-
-    // update by key
-    adminOrganizationService.update(new UpdateWsRequest.Builder()
-      .setKey(createdOrganization.getKey())
-      .setName("new name 2")
-      .setDescription("new description 2")
-      .setUrl("new url 2")
-      .setAvatar("new avatar url 2")
-      .build());
-    verifySingleSearchResult(createdOrganization, "new name 2", "new description 2", "new url 2", "new avatar url 2");
+    verifyOrganization(org, "new name", "new description", "new url", "new avatar url");
 
     // remove optional fields
-    adminOrganizationService.update(new UpdateWsRequest.Builder()
-      .setKey(createdOrganization.getKey())
-      .setName("new name 3")
+    organizations.getWsService().update(new UpdateWsRequest.Builder()
+      .setKey(org.getKey())
+      .setName("new name 2")
       .setDescription("")
       .setUrl("")
       .setAvatar("")
       .build());
-    verifySingleSearchResult(createdOrganization, "new name 3", null, null, null);
+    verifyOrganization(org, "new name 2", null, null, null);
 
     // delete organization
-    adminOrganizationService.delete(createdOrganization.getKey());
-    verifyOrganizationDoesNotExit(KEY);
+    organizations.delete(org);
+    assertThatOrganizationDoesNotExit(org);
+    assertThatQualityProfilesDoNotExist(org);
 
-    adminOrganizationService.create(new CreateWsRequest.Builder()
+    // create again
+    organizations.getWsService().create(new CreateWsRequest.Builder()
       .setName(NAME)
-      .setKey(KEY)
+      .setKey(org.getKey())
       .build())
       .getOrganization();
-    verifySingleSearchResult(createdOrganization, NAME, null, null, null);
-
-    // verify anonymous can't create update nor delete an organization by default
-    verifyAnonymousNotAuthorized(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthenticated(service -> service.delete(KEY));
-
-    // verify logged in user without any permission can't create update nor delete an organization by default
-    userRule.createUser(USER_LOGIN, USER_LOGIN);
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.delete(KEY));
-
-    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
-    // verify anonymous still can't create update nor delete an organization if property is true
-    verifyUserNotAuthenticated(service -> service.create(new CreateWsRequest.Builder().setName("An org").build()));
-    verifyUserNotAuthenticated(service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthenticated(service -> service.delete(KEY));
-
-    // verify logged in user without any permission can't create nor update nor delete an organization if property is true
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.update(new UpdateWsRequest.Builder().setKey(KEY).setName("new name").build()));
-    verifyUserNotAuthorized(USER_LOGIN, USER_LOGIN, service -> service.delete(KEY));
-    // clean-up
-    adminOrganizationService.delete(KEY);
-    verifySingleSearchResult(
-      verifyUserAuthorized(USER_LOGIN, USER_LOGIN, service -> service.create(new CreateWsRequest.Builder().setName("An org").build())).getOrganization(),
-      "An org", null, null, null);
-  }
-
-  private void verifyAnonymousNotAuthorized(Consumer<OrganizationService> consumer) {
-    try {
-      consumer.accept(anonymousOrganizationService);
-      fail("An HttpException should have been raised");
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(403);
-    }
-  }
-
-  private void verifyUserNotAuthenticated(Consumer<OrganizationService> consumer) {
-    try {
-      consumer.accept(anonymousOrganizationService);
-      fail("An HttpException should have been raised");
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(401);
-    }
-  }
-
-  private void verifyUserNotAuthorized(String login, String password, Consumer<OrganizationService> consumer) {
-    try {
-      OrganizationService organizationService = newUserWsClient(orchestrator, login, password).organizations();
-      consumer.accept(organizationService);
-      fail("An HttpException should have been raised");
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(403);
-    }
-  }
-
-  private <T> T verifyUserAuthorized(String login, String password, Function<OrganizationService, T> consumer) {
-    OrganizationService organizationService = newUserWsClient(orchestrator, login, password).organizations();
-    return consumer.apply(organizationService);
+    verifyOrganization(org, NAME, null, null, null);
   }
 
   @Test
@@ -227,104 +164,94 @@ public class OrganizationTest {
     // create organization without key
     String name = "Foo  Company to keyize";
     String expectedKey = "foo-company-to-keyize";
-    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
+    Organization createdOrganization = organizations.getWsService().create(new CreateWsRequest.Builder()
       .setName(name)
       .build())
       .getOrganization();
     assertThat(createdOrganization.getKey()).isEqualTo(expectedKey);
-    verifySingleSearchResult(createdOrganization, name, null, null, null);
-
-    // clean-up
-    adminOrganizationService.delete(expectedKey);
+    verifyOrganization(createdOrganization, name, null, null, null);
   }
 
   @Test
-  public void default_organization_can_not_be_deleted() {
-    try {
-      adminOrganizationService.delete(DEFAULT_ORGANIZATION_KEY);
-      fail("a HttpException should have been raised");
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(400);
-    }
+  public void anonymous_user_cannot_administrate_organization() {
+    Organization org = organizations.create();
+    OrganizationSupport anonymousOrganisations = organizations.asAnonymous();
+
+    expectForbiddenError(() -> anonymousOrganisations.create());
+    expectUnauthorizedError(() -> anonymousOrganisations.getWsService().update(new UpdateWsRequest.Builder().setKey(org.getKey()).setName("new name").build()));
+    expectUnauthorizedError(() -> anonymousOrganisations.delete(org));
   }
 
   @Test
-  public void create_fails_if_user_is_not_root() {
-    userRule.createUser(USER_LOGIN, USER_LOGIN);
+  public void logged_in_user_cannot_administrate_organization() {
+    Organization org = organizations.create();
+    String password = "aPassword";
+    User user = users.createUser(p -> p.setPassword(password));
+    OrganizationSupport userOrganisations = organizations.as(user.getLogin(), password);
 
-    CreateWsRequest createWsRequest = new CreateWsRequest.Builder()
-      .setName("bla bla")
-      .build();
-    OrganizationService fooUserOrganizationService = newUserWsClient(orchestrator, USER_LOGIN, USER_LOGIN).organizations();
+    expectForbiddenError(() -> userOrganisations.create());
+    expectForbiddenError(() -> userOrganisations.getWsService().update(new UpdateWsRequest.Builder().setKey(org.getKey()).setName("new name").build()));
+    expectForbiddenError(() -> userOrganisations.delete(org));
+  }
 
-    expect403HttpError(() -> fooUserOrganizationService.create(createWsRequest));
+  @Test
+  public void logged_in_user_can_administrate_organization_if_root() {
+    String password = "aPassword";
+    User user = users.createUser(p -> p.setPassword(password));
+    OrganizationSupport userOrganisations = organizations.as(user.getLogin(), password);
 
-    userRule.setRoot(USER_LOGIN);
-    assertThat(fooUserOrganizationService.create(createWsRequest).getOrganization().getKey()).isEqualTo("bla-bla");
+    users.setRoot(user.getLogin());
+    Organization org = userOrganisations.create();
 
     // delete org, attempt recreate when no root anymore and ensure it can't anymore
-    fooUserOrganizationService.delete("bla-bla");
-    userRule.unsetRoot(USER_LOGIN);
-    expect403HttpError(() -> fooUserOrganizationService.create(createWsRequest));
+    userOrganisations.delete(org);
+
+    users.unsetRoot(user.getLogin());
+    expectForbiddenError(() -> userOrganisations.create());
   }
 
   @Test
   public void an_organization_member_can_analyze_project() {
-    verifyOrganizationDoesNotExit(KEY);
+    Organization organization = organizations.create();
 
-    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-      .setName(KEY)
-      .setKey(KEY)
-      .build())
-      .getOrganization();
-    verifySingleSearchResult(createdOrganization, KEY, null, null, null);
-
-    userRule.createUser(USER_LOGIN, USER_LOGIN);
-    userRule.removeGroups("sonar-users");
-    adminOrganizationService.addMember(KEY, USER_LOGIN);
-    addPermissionsToUser(KEY, USER_LOGIN, "provisioning", "scan");
+    String password = "aPassword";
+    User user = users.createUser(p -> p.setPassword(password));
+    users.removeGroups("sonar-users");
+    organizations.getWsService().addMember(organization.getKey(), user.getLogin());
+    addPermissionsToUser(organization.getKey(), user.getLogin(), "provisioning", "scan");
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.organization", KEY, "sonar.login", USER_LOGIN, "sonar.password", USER_LOGIN);
-    ComponentsService componentsService = newUserWsClient(orchestrator, USER_LOGIN, USER_LOGIN).components();
-    assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
+      "sonar.organization", organization.getKey(),
+      "sonar.login", user.getLogin(),
+      "sonar.password", password);
+    ComponentsService componentsService = newUserWsClient(orchestrator, user.getLogin(), password).components();
+    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
   }
 
   @Test
   public void by_default_anonymous_cannot_analyse_project_on_organization() {
-    verifyOrganizationDoesNotExit(KEY);
-
-    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-      .setName(KEY)
-      .setKey(KEY)
-      .build())
-      .getOrganization();
-    verifySingleSearchResult(createdOrganization, KEY, null, null, null);
+    Organization organization = organizations.create();
 
     try {
       runProjectAnalysis(orchestrator, "shared/xoo-sample",
-        "sonar.organization", KEY);
+        "sonar.organization", organization.getKey());
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains("Insufficient privileges");
     }
 
     ComponentsService componentsService = newAdminWsClient(orchestrator).components();
-    assertThat(searchSampleProject(KEY, componentsService).getComponentsCount()).isEqualTo(0);
+    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsCount()).isEqualTo(0);
   }
 
   @Test
   public void by_default_anonymous_can_browse_project_on_organization() {
-    adminOrganizationService.create(new CreateWsRequest.Builder()
-      .setName(KEY)
-      .setKey(KEY)
-      .build())
-      .getOrganization();
+    Organization organization = organizations.create();
 
-    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.organization", KEY, "sonar.login", "admin", "sonar.password", "admin");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.organization", organization.getKey(), "sonar.login", "admin", "sonar.password", "admin");
 
     ComponentsService componentsService = newWsClient(orchestrator).components();
-    assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
   }
 
   private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
@@ -336,59 +263,73 @@ public class OrganizationTest {
   }
 
   @Test
-  public void deleting_an_organization_also_deletes_projects_and_check_security() {
-    verifyOrganizationDoesNotExit(KEY);
+  public void deleting_an_organization_also_deletes_projects() {
+    Organization organization = organizations.create();
 
-    Organizations.Organization createdOrganization = adminOrganizationService.create(new CreateWsRequest.Builder()
-      .setName(KEY)
-      .setKey(KEY)
-      .build())
-      .getOrganization();
-    verifySingleSearchResult(createdOrganization, KEY, null, null, null);
+    GroupManagement groupManagement = users.forOrganization(organization.getKey());
 
-    GroupManagement groupManagement = userRule.forOrganization(KEY);
-
-    userRule.createUser(USER_LOGIN, USER_LOGIN);
-    adminOrganizationService.addMember(KEY, USER_LOGIN);
+    users.createUser(USER_LOGIN, USER_LOGIN);
+    organizations.getWsService().addMember(organization.getKey(), USER_LOGIN);
     groupManagement.createGroup("grp1");
     groupManagement.createGroup("grp2");
     groupManagement.associateGroupsToUser(USER_LOGIN, "grp1", "grp2");
     assertThat(groupManagement.getUserGroups(USER_LOGIN).getGroups())
       .extracting(Groups.Group::getName)
       .contains("grp1", "grp2");
-    addPermissionsToUser(KEY, USER_LOGIN, "provisioning", "scan");
+    addPermissionsToUser(organization.getKey(), USER_LOGIN, "provisioning", "scan");
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.organization", KEY, "sonar.login", USER_LOGIN, "sonar.password", USER_LOGIN);
+      "sonar.organization", organization.getKey(), "sonar.login", USER_LOGIN, "sonar.password", USER_LOGIN);
     ComponentsService componentsService = newAdminWsClient(orchestrator).components();
-    assertThat(searchSampleProject(KEY, componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
 
-    adminOrganizationService.delete(KEY);
+    organizations.delete(organization);
 
-    expect404HttpError(() -> searchSampleProject(KEY, componentsService));
-    verifyOrganizationDoesNotExit(KEY);
+    expectNotFoundError(() -> searchSampleProject(organization.getKey(), componentsService));
+    assertThatOrganizationDoesNotExit(organization);
   }
 
   @Test
   public void return_groups_belonging_to_a_user_on_an_organization() throws Exception {
     String userLogin = randomAlphabetic(10);
     String groupName = randomAlphabetic(10);
-    adminClient.organizations().create(new CreateWsRequest.Builder().setKey(KEY).setName(KEY).build()).getOrganization();
-    userRule.createUser(userLogin, userLogin);
-    adminOrganizationService.addMember(KEY, userLogin);
+    Organization organization = organizations.create();
+    users.createUser(userLogin, userLogin);
+    organizations.getWsService().addMember(organization.getKey(), userLogin);
     adminClient.wsConnector().call(new PostRequest("api/user_groups/create")
       .setParam("name", groupName)
       .setParam("description", groupName)
-      .setParam("organization", KEY)).failIfNotSuccessful();
+      .setParam("organization", organization.getKey())).failIfNotSuccessful();
     adminClient.wsConnector().call(new PostRequest("api/user_groups/add_user")
       .setParam("login", userLogin)
       .setParam("name", groupName)
-      .setParam("organization", KEY)).failIfNotSuccessful();
+      .setParam("organization", organization.getKey())).failIfNotSuccessful();
 
     List<WsUsers.GroupsWsResponse.Group> result = adminClient.users().groups(
-      GroupsRequest.builder().setLogin(userLogin).setOrganization(KEY).build()).getGroupsList();
+      GroupsRequest.builder().setLogin(userLogin).setOrganization(organization.getKey()).build()).getGroupsList();
 
     assertThat(result).extracting(WsUsers.GroupsWsResponse.Group::getName).containsOnly(groupName, "Members");
+  }
+
+  @Test
+  public void anonymous_cannot_create_organizations_even_if_anyone_is_allowed_to() {
+    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
+
+    expectUnauthorizedError(() -> organizations.asAnonymous().create());
+  }
+
+  @Test
+  public void logged_in_user_can_create_organizations_if_anyone_is_allowed_to() {
+    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
+
+    String password = "aPassword";
+    User user = users.createUser(p -> p.setPassword(password));
+    OrganizationSupport userOrganisations = organizations.as(user.getLogin(), password);
+    Organizations.Organization org = userOrganisations.create();
+
+    assertThat(org.getName()).isNotEmpty();
+    assertThat(org.getKey()).isNotEmpty();
+    assertThat(org.getGuarded()).isFalse();
   }
 
   private WsComponents.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
@@ -399,35 +340,17 @@ public class OrganizationTest {
         .setQuery("sample"));
   }
 
-  private void expect403HttpError(Runnable runnable) {
-    try {
-      runnable.run();
-      fail("Ws call should have failed");
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(403);
-    }
-  }
-
-  private void expect404HttpError(Runnable runnable) {
-    try {
-      runnable.run();
-      fail("Ws call should have failed");
-    } catch (HttpException e) {
-      assertThat(e.code()).isEqualTo(404);
-    }
-  }
-
-  private void verifyOrganizationDoesNotExit(String organizationKey) {
-    Organizations.SearchWsResponse searchWsResponse = anonymousOrganizationService.search(new SearchWsRequest.Builder().setOrganizations(organizationKey).build());
+  private void assertThatOrganizationDoesNotExit(Organization org) {
+    Organizations.SearchWsResponse searchWsResponse = organizations.getWsService().search(new SearchWsRequest.Builder().setOrganizations(org.getKey()).build());
     assertThat(searchWsResponse.getOrganizationsList()).isEmpty();
   }
 
-  private void verifySingleSearchResult(Organizations.Organization createdOrganization, String name, String description, String url,
+  private void verifyOrganization(Organization createdOrganization, String name, String description, String url,
     String avatarUrl) {
-    List<Organizations.Organization> organizations = anonymousOrganizationService.search(new SearchWsRequest.Builder().setOrganizations(createdOrganization.getKey())
+    List<Organization> result = organizations.getWsService().search(new SearchWsRequest.Builder().setOrganizations(createdOrganization.getKey())
       .build()).getOrganizationsList();
-    assertThat(organizations).hasSize(1);
-    Organizations.Organization searchedOrganization = organizations.get(0);
+    assertThat(result).hasSize(1);
+    Organization searchedOrganization = result.get(0);
     assertThat(searchedOrganization.getKey()).isEqualTo(createdOrganization.getKey());
     assertThat(searchedOrganization.getName()).isEqualTo(name);
     if (description == null) {
@@ -445,5 +368,32 @@ public class OrganizationTest {
     } else {
       assertThat(searchedOrganization.getAvatar()).isEqualTo(avatarUrl);
     }
+  }
+
+  private void assertThatBuiltInQualityProfilesExist(Organization org) {
+    org.sonarqube.ws.client.qualityprofile.SearchWsRequest profilesRequest = new org.sonarqube.ws.client.qualityprofile.SearchWsRequest()
+      .setOrganizationKey(org.getKey());
+    QualityProfiles.SearchWsResponse response = adminClient.qualityProfiles().search(profilesRequest);
+    assertThat(response.getProfilesCount()).isGreaterThan(0);
+
+    response.getProfilesList().forEach(p -> {
+      assertThat(p.getIsInherited()).isFalse();
+      assertThat(p.getProjectCount()).isEqualTo(0);
+      assertThat(p.getIsBuiltIn()).isTrue();
+      if (p.getName().toLowerCase(Locale.ENGLISH).contains("empty")) {
+        assertThat(p.getActiveRuleCount()).isEqualTo(0);
+      } else {
+        assertThat(p.getActiveRuleCount()).isGreaterThan(0);
+        // that allows to check the Elasticsearch index of active rules
+        Rules.SearchResponse activeRulesResponse = adminClient.rules().search(new org.sonarqube.ws.client.rule.SearchWsRequest().setActivation(true).setQProfile(p.getKey()));
+        assertThat(activeRulesResponse.getTotal()).as("profile " + p.getName()).isEqualTo(p.getActiveRuleCount());
+        assertThat(activeRulesResponse.getRulesCount()).isEqualTo((int) p.getActiveRuleCount());
+      }
+    });
+  }
+
+  private void assertThatQualityProfilesDoNotExist(Organization org) {
+    expectNotFoundError(() -> adminClient.qualityProfiles().search(
+      new org.sonarqube.ws.client.qualityprofile.SearchWsRequest().setOrganizationKey(org.getKey())));
   }
 }

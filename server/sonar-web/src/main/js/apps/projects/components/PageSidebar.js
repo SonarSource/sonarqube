@@ -17,109 +17,92 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+//@flow
 import React from 'react';
 import { Link } from 'react-router';
 import FavoriteFilterContainer from './FavoriteFilterContainer';
+import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
-import SizeFilter from '../filters/SizeFilter';
+import MaintainabilityFilter from '../filters/MaintainabilityFilter';
+import NewCoverageFilter from '../filters/NewCoverageFilter';
+import NewDuplicationsFilter from '../filters/NewDuplicationsFilter';
+import NewMaintainabilityFilter from '../filters/NewMaintainabilityFilter';
+import NewReliabilityFilter from '../filters/NewReliabilityFilter';
+import NewSecurityFilter from '../filters/NewSecurityFilter';
+import NewLinesFilter from '../filters/NewLinesFilter';
 import QualityGateFilter from '../filters/QualityGateFilter';
 import ReliabilityFilter from '../filters/ReliabilityFilter';
 import SecurityFilter from '../filters/SecurityFilter';
-import MaintainabilityFilter from '../filters/MaintainabilityFilter';
+import SizeFilter from '../filters/SizeFilter';
 import TagsFilterContainer from '../filters/TagsFilterContainer';
-import SearchFilterContainer from '../filters/SearchFilterContainer';
-import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
 import { translate } from '../../../helpers/l10n';
 
-export default class PageSidebar extends React.PureComponent {
-  static propTypes = {
-    query: React.PropTypes.object.isRequired,
-    isFavorite: React.PropTypes.bool.isRequired,
-    organization: React.PropTypes.object
-  };
+type Props = {
+  isFavorite: boolean,
+  organization?: { key: string },
+  query: { [string]: string },
+  view: string,
+  visualization: string
+};
 
-  render() {
-    const { query } = this.props;
+export default function PageSidebar({
+  query,
+  isFavorite,
+  organization,
+  view,
+  visualization
+}: Props) {
+  const isFiltered = Object.keys(query)
+    .filter(key => !['view', 'visualization', 'sort'].includes(key))
+    .some(key => query[key] != null);
+  const isLeakView = view === 'leak';
+  const basePathName = organization ? `/organizations/${organization.key}/projects` : '/projects';
+  const pathname = basePathName + (isFavorite ? '/favorite' : '');
+  const facetProps = { query, isFavorite, organization };
 
-    const isFiltered = Object.keys(query)
-      .filter(key => key !== 'view' && key !== 'visualization')
-      .some(key => query[key] != null);
+  let linkQuery: ?{ view: string, visualization?: string };
+  if (view !== 'overall') {
+    linkQuery = { view };
 
-    const basePathName = this.props.organization
-      ? `/organizations/${this.props.organization.key}/projects`
-      : '/projects';
-    const pathname = basePathName + (this.props.isFavorite ? '/favorite' : '');
-    const linkQuery = query.view === 'visualizations'
-      ? { view: query.view, visualization: query.visualization }
-      : undefined;
-
-    return (
-      <div>
-        <FavoriteFilterContainer organization={this.props.organization} />
-
-        <div className="projects-facets-header clearfix">
-          {isFiltered &&
-            <div className="projects-facets-reset">
-              <Link to={{ pathname, query: linkQuery }} className="button button-red">
-                {translate('clear_all_filters')}
-              </Link>
-            </div>}
-
-          <h3>{translate('filters')}</h3>
-          <SearchFilterContainer
-            query={query}
-            isFavorite={this.props.isFavorite}
-            organization={this.props.organization}
-          />
-        </div>
-
-        <QualityGateFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <ReliabilityFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <SecurityFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <MaintainabilityFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <CoverageFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <DuplicationsFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <SizeFilter
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <LanguagesFilterContainer
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-        <TagsFilterContainer
-          query={query}
-          isFavorite={this.props.isFavorite}
-          organization={this.props.organization}
-        />
-      </div>
-    );
+    if (view === 'visualizations') {
+      linkQuery.visualization = visualization;
+    }
   }
+
+  return (
+    <div>
+      <FavoriteFilterContainer query={linkQuery} organization={organization} />
+
+      <div className="projects-facets-header clearfix">
+        {isFiltered &&
+          <div className="projects-facets-reset">
+            <Link to={{ pathname, query: linkQuery }} className="button button-red">
+              {translate('clear_all_filters')}
+            </Link>
+          </div>}
+
+        <h3>{translate('filters')}</h3>
+      </div>
+      <QualityGateFilter {...facetProps} />
+      {!isLeakView && [
+        <ReliabilityFilter key="reliability" {...facetProps} />,
+        <SecurityFilter key="security" {...facetProps} />,
+        <MaintainabilityFilter key="maintainability" {...facetProps} />,
+        <CoverageFilter key="coverage" {...facetProps} />,
+        <DuplicationsFilter key="duplications" {...facetProps} />,
+        <SizeFilter key="size" {...facetProps} />
+      ]}
+      {isLeakView && [
+        <NewReliabilityFilter key="new_reliability" {...facetProps} />,
+        <NewSecurityFilter key="new_security" {...facetProps} />,
+        <NewMaintainabilityFilter key="new_maintainability" {...facetProps} />,
+        <NewCoverageFilter key="new_coverage" {...facetProps} />,
+        <NewDuplicationsFilter key="new_duplications" {...facetProps} />,
+        <NewLinesFilter key="new_size" {...facetProps} />
+      ]}
+      <LanguagesFilterContainer {...facetProps} />
+      <TagsFilterContainer {...facetProps} />
+    </div>
+  );
 }

@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="page-header"
+>
+  <withRouter(SearchFilterContainer)
+    query={
+      Object {
+        "search": "test",
+      }
+    }
+  />
+  <div
+    className="page-actions projects-page-actions text-right"
+  >
+    <a
+      className="button js-projects-topbar-open spacer-right"
+      href="#"
+    >
+      projects.view_settings
+    </a>
+    <span>
+      <strong
+        id="projects-total"
+      >
+        12
+      </strong>
+       
+      projects._projects
+    </span>
+  </div>
+</header>
+`;
+
+exports[`should render correctly while loading 1`] = `
+<header
+  className="page-header"
+>
+  <withRouter(SearchFilterContainer)
+    isFavorite={true}
+    query={
+      Object {
+        "search": "",
+      }
+    }
+  />
+  <div
+    className="page-actions projects-page-actions text-right"
+  >
+    <a
+      className="button js-projects-topbar-open spacer-right"
+      href="#"
+    >
+      projects.view_settings
+    </a>
+    <i
+      className="spinner spacer-right"
+    />
+    <span>
+      <strong
+        id="projects-total"
+      >
+        2
+      </strong>
+       
+      projects._projects
+    </span>
+  </div>
+</header>
+`;

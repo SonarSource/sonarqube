@@ -19,19 +19,18 @@
  */
 package org.sonar.db.qualityprofile;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
+import java.util.Optional;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.KeyLongValue;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.rule.RuleParamDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -40,26 +39,16 @@ public class ActiveRuleDao implements Dao {
   private static final String QUALITY_PROFILE_IS_NOT_PERSISTED = "Quality profile is not persisted (missing id)";
   private static final String RULE_IS_NOT_PERSISTED = "Rule is not persisted";
   private static final String RULE_PARAM_IS_NOT_PERSISTED = "Rule param is not persisted";
-  private static final String ACTIVE_RULE_KEY_CANNOT_BE_NULL = "ActiveRuleKey cannot be null";
   private static final String ACTIVE_RULE_IS_NOT_PERSISTED = "ActiveRule is not persisted";
   private static final String ACTIVE_RULE_IS_ALREADY_PERSISTED = "ActiveRule is already persisted";
   private static final String ACTIVE_RULE_PARAM_IS_NOT_PERSISTED = "ActiveRuleParam is not persisted";
   private static final String ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED = "ActiveRuleParam is already persisted";
-  private static final String PARAMETER_NAME_CANNOT_BE_NULL = "ParameterName cannot be null";
 
-  public Optional<ActiveRuleDto> selectByKey(DbSession session, ActiveRuleKey key) {
-    return Optional.fromNullable(mapper(session).selectByKey(key.qProfile(), key.ruleKey().repository(), key.ruleKey().rule()));
+  public Optional<ActiveRuleDto> selectByKey(DbSession dbSession, ActiveRuleKey key) {
+    return Optional.ofNullable(mapper(dbSession).selectByKey(key.getRuleProfileUuid(), key.getRuleKey().repository(), key.getRuleKey().rule()));
   }
 
-  public ActiveRuleDto selectOrFailByKey(DbSession session, ActiveRuleKey key) {
-    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
-    if (activeRule.isPresent()) {
-      return activeRule.get();
-    }
-    throw new RowNotFoundException(String.format("Active rule with key '%s' does not exist", key));
-  }
-
-  public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, OrganizationDto organization, int ruleId) {
+  public List<OrgActiveRuleDto> selectByRuleId(DbSession dbSession, OrganizationDto organization, int ruleId) {
     return mapper(dbSession).selectByRuleId(organization.getUuid(), ruleId);
   }
 
@@ -67,49 +56,63 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByRuleIdOfAllOrganizations(ruleId);
   }
 
-  public List<ActiveRuleDto> selectByRuleIds(DbSession dbSession, String organizationUuid, List<Integer> ids) {
-    return executeLargeInputs(ids, chunk -> mapper(dbSession).selectByRuleIds(organizationUuid, chunk));
+  public List<OrgActiveRuleDto> selectByRuleIds(DbSession dbSession, OrganizationDto organization, List<Integer> ids) {
+    return executeLargeInputs(ids, chunk -> mapper(dbSession).selectByRuleIds(organization.getUuid(), chunk));
   }
 
   /**
    * Active rule on removed rule are NOT returned
    */
-  public List<ActiveRuleDto> selectByProfileKey(DbSession session, String profileKey) {
-    return mapper(session).selectByProfileKey(profileKey);
+  public List<OrgActiveRuleDto> selectByProfileUuid(DbSession dbSession, String uuid) {
+    return mapper(dbSession).selectByProfileUuid(uuid);
   }
 
-  public ActiveRuleDto insert(DbSession session, ActiveRuleDto item) {
+  public List<OrgActiveRuleDto> selectByProfile(DbSession dbSession, QProfileDto profile) {
+    return selectByProfileUuid(dbSession, profile.getKee());
+  }
+
+  public List<ActiveRuleDto> selectByRuleProfile(DbSession dbSession, RulesProfileDto ruleProfileDto) {
+    return mapper(dbSession).selectByRuleProfileUuid(ruleProfileDto.getKee());
+  }
+
+  public ActiveRuleDto insert(DbSession dbSession, ActiveRuleDto item) {
     Preconditions.checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
     Preconditions.checkArgument(item.getRuleId() != null, RULE_IS_NOT_PERSISTED);
     Preconditions.checkArgument(item.getId() == null, ACTIVE_RULE_IS_ALREADY_PERSISTED);
-    mapper(session).insert(item);
+    mapper(dbSession).insert(item);
     return item;
   }
 
-  public ActiveRuleDto update(DbSession session, ActiveRuleDto item) {
+  public ActiveRuleDto update(DbSession dbSession, ActiveRuleDto item) {
     Preconditions.checkArgument(item.getProfileId() != null, QUALITY_PROFILE_IS_NOT_PERSISTED);
     Preconditions.checkArgument(item.getRuleId() != null, ActiveRuleDao.RULE_IS_NOT_PERSISTED);
     Preconditions.checkArgument(item.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
-    mapper(session).update(item);
+    mapper(dbSession).update(item);
     return item;
   }
 
-  public void delete(DbSession session, ActiveRuleKey key) {
-    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
+  public Optional<ActiveRuleDto> delete(DbSession dbSession, ActiveRuleKey key) {
+    Optional<ActiveRuleDto> activeRule = selectByKey(dbSession, key);
     if (activeRule.isPresent()) {
-      mapper(session).deleteParameters(activeRule.get().getId());
-      mapper(session).delete(activeRule.get().getId());
+      mapper(dbSession).deleteParameters(activeRule.get().getId());
+      mapper(dbSession).delete(activeRule.get().getId());
     }
+    return activeRule;
   }
 
-  public void deleteByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+  public void deleteByRuleProfileUuids(DbSession dbSession, Collection<String> rulesProfileUuids) {
     ActiveRuleMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByProfileKeys);
+    DatabaseUtils.executeLargeUpdates(rulesProfileUuids, mapper::deleteByRuleProfileUuids);
   }
 
-  public void deleteParametersByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+  public void deleteByIds(DbSession dbSession, List<Integer> activeRuleIds) {
     ActiveRuleMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteParametersByProfileKeys);
+    DatabaseUtils.executeLargeUpdates(activeRuleIds, mapper::deleteByIds);
+  }
+
+  public void deleteParametersByRuleProfileUuids(DbSession dbSession, Collection<String> rulesProfileUuids) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(rulesProfileUuids, mapper::deleteParametersByRuleProfileUuids);
   }
 
   /**
@@ -123,96 +126,68 @@ public class ActiveRuleDao implements Dao {
     return executeLargeInputs(activeRuleIds, mapper(dbSession)::selectParamsByActiveRuleIds);
   }
 
-  @CheckForNull
-  public ActiveRuleParamDto selectParamByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
-    Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
-    Preconditions.checkNotNull(name, PARAMETER_NAME_CANNOT_BE_NULL);
-    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
-    if (activeRule.isPresent()) {
-      return mapper(session).selectParamByActiveRuleAndKey(activeRule.get().getId(), name);
-    }
-    return null;
-  }
-
-  /**
-   * @deprecated currently used only by tests
-   */
-  @Deprecated
-  public List<ActiveRuleParamDto> selectAllParams(DbSession dbSession) {
-    return mapper(dbSession).selectAllParams();
-  }
-
-  public ActiveRuleParamDto insertParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
+  public ActiveRuleParamDto insertParam(DbSession dbSession, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
     Preconditions.checkArgument(activeRule.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
     Preconditions.checkArgument(activeRuleParam.getId() == null, ACTIVE_RULE_PARAM_IS_ALREADY_PERSISTED);
     Preconditions.checkNotNull(activeRuleParam.getRulesParameterId(), RULE_PARAM_IS_NOT_PERSISTED);
 
     activeRuleParam.setActiveRuleId(activeRule.getId());
-    mapper(session).insertParameter(activeRuleParam);
+    mapper(dbSession).insertParameter(activeRuleParam);
     return activeRuleParam;
   }
 
-  public void updateParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
-    Preconditions.checkNotNull(activeRule.getId(), ACTIVE_RULE_IS_NOT_PERSISTED);
+  public void updateParam(DbSession dbSession, ActiveRuleParamDto activeRuleParam) {
     Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
-    mapper(session).updateParameter(activeRuleParam);
+    mapper(dbSession).updateParameter(activeRuleParam);
   }
 
-  public void deleteParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
-    Preconditions.checkNotNull(activeRule.getId(), ACTIVE_RULE_IS_NOT_PERSISTED);
+  public void deleteParam(DbSession dbSession, ActiveRuleParamDto activeRuleParam) {
     Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
-    deleteParamById(session, activeRuleParam.getId());
+    deleteParamById(dbSession, activeRuleParam.getId());
   }
 
-  public void deleteParamById(DbSession session, int id) {
-    mapper(session).deleteParameter(id);
+  public void deleteParamById(DbSession dbSession, int id) {
+    mapper(dbSession).deleteParameter(id);
   }
 
-  public void deleteParamByKeyAndName(DbSession session, ActiveRuleKey key, String param) {
-    // TODO SQL rewrite to delete by key
-    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
-    if (activeRule.isPresent()) {
-      ActiveRuleParamDto activeRuleParam = mapper(session).selectParamByActiveRuleAndKey(activeRule.get().getId(), param);
-      if (activeRuleParam != null) {
-        mapper(session).deleteParameter(activeRuleParam.getId());
-      }
-    }
-  }
-
-  public void deleteParamsByRuleParamOfAllOrganizations(DbSession dbSession, int ruleId, String paramKey) {
-    List<ActiveRuleDto> activeRules = selectByRuleIdOfAllOrganizations(dbSession, ruleId);
+  public void deleteParamsByRuleParamOfAllOrganizations(DbSession dbSession, RuleParamDto param) {
+    List<ActiveRuleDto> activeRules = selectByRuleIdOfAllOrganizations(dbSession, param.getRuleId());
     for (ActiveRuleDto activeRule : activeRules) {
       for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
-        if (activeParam.getKey().equals(paramKey)) {
-          deleteParam(dbSession, activeRule, activeParam);
+        if (activeParam.getKey().equals(param.getName())) {
+          deleteParam(dbSession, activeParam);
         }
       }
     }
   }
 
-  /**
-   * Active rule on removed rule are NOT taken into account
-   */
-  public Map<String, Long> countActiveRulesByProfileKey(DbSession dbSession, OrganizationDto organization) {
-    return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesByProfileKey(organization.getUuid()));
-  }
-
-  public Map<String, Long> countActiveRulesForRuleStatusByProfileKey(DbSession dbSession, OrganizationDto organization, RuleStatus ruleStatus) {
-    return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesForRuleStatusByProfileKey(organization.getUuid(), ruleStatus));
+  public void deleteParamsByActiveRuleIds(DbSession dbSession, List<Integer> activeRuleIds) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(activeRuleIds, mapper::deleteParamsByActiveRuleIds);
   }
 
   /**
    * Active rule on removed rule are NOT taken into account
    */
-  public Map<String, Long> countActiveRulesForInheritanceByProfileKey(DbSession dbSession, OrganizationDto organization, String inheritance) {
+  public Map<String, Long> countActiveRulesByProfileUuid(DbSession dbSession, OrganizationDto organization) {
     return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesForInheritanceByProfileKey(organization.getUuid(), inheritance));
+      mapper(dbSession).countActiveRulesByProfileUuid(organization.getUuid()));
   }
 
-  private static ActiveRuleMapper mapper(DbSession session) {
-    return session.getMapper(ActiveRuleMapper.class);
+  public Map<String, Long> countActiveRulesForRuleStatusByProfileUuid(DbSession dbSession, OrganizationDto organization, RuleStatus ruleStatus) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesForRuleStatusByProfileUuid(organization.getUuid(), ruleStatus));
   }
 
+  /**
+   * Active rule on removed rule are NOT taken into account
+   */
+  public Map<String, Long> countActiveRulesForInheritanceByProfileUuid(DbSession dbSession, OrganizationDto organization, String inheritance) {
+    return KeyLongValue.toMap(
+      mapper(dbSession).countActiveRulesForInheritanceByProfileUuid(organization.getUuid(), inheritance));
+  }
+
+  private static ActiveRuleMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(ActiveRuleMapper.class);
+  }
 }

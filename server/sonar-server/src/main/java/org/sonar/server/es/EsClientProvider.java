@@ -19,11 +19,11 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.net.HostAndPort;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.annotation.concurrent.Immutable;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
@@ -56,13 +56,13 @@ public class EsClientProvider extends ProviderAdapter {
         esSettings.put("client.transport.sniff", true);
         nativeClient = TransportClient.builder().settings(esSettings).build();
         Arrays.stream(settings.getStringArray(ProcessProperties.CLUSTER_SEARCH_HOSTS))
-          .map(Host::parse)
-          .forEach(h -> h.addTo(nativeClient));
+          .map(HostAndPort::fromString)
+          .forEach(h -> addHostToClient(h, nativeClient));
         LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
       } else {
         nativeClient = TransportClient.builder().settings(esSettings).build();
-        Host host = new Host(settings.getString(ProcessProperties.SEARCH_HOST), settings.getInt(ProcessProperties.SEARCH_PORT));
-        host.addTo(nativeClient);
+        HostAndPort host = HostAndPort.fromParts(settings.getString(ProcessProperties.SEARCH_HOST), settings.getInt(ProcessProperties.SEARCH_PORT));
+        addHostToClient(host, nativeClient);
         LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));
       }
 
@@ -71,34 +71,15 @@ public class EsClientProvider extends ProviderAdapter {
     return cache;
   }
 
-  private static String displayedAddresses(TransportClient nativeClient) {
-    return nativeClient.transportAddresses().stream().map(TransportAddress::toString).collect(Collectors.joining(", "));
+  private static void addHostToClient(HostAndPort host, TransportClient client) {
+    try {
+      client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host.getHostText()), host.getPortOrDefault(9001)));
+    } catch (UnknownHostException e) {
+      throw new IllegalStateException("Can not resolve host [" + host + "]", e);
+    }
   }
 
-  @Immutable
-  private static class Host {
-    private final String ip;
-    private final int port;
-
-    Host(String ip, int port) {
-      this.ip = ip.trim();
-      this.port = port;
-    }
-
-    static Host parse(String s) {
-      String[] split = s.split(":");
-      if (split.length != 2) {
-        throw new IllegalArgumentException("Badly formatted Elasticsearch host: " + s);
-      }
-      return new Host(split[0], Integer.parseInt(split[1]));
-    }
-
-    void addTo(TransportClient client) {
-      try {
-        client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(ip), port));
-      } catch (UnknownHostException e) {
-        throw new IllegalStateException("Can not resolve host [" + ip + "]", e);
-      }
-    }
+  private static String displayedAddresses(TransportClient nativeClient) {
+    return nativeClient.transportAddresses().stream().map(TransportAddress::toString).collect(Collectors.joining(", "));
   }
 }

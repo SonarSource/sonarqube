@@ -3,28 +3,41 @@
 
 <mapper namespace="org.sonar.db.qualityprofile.QProfileChangeMapper">
 
+  <sql id="selectColumns">
+    qpc.kee as "uuid",
+    qpc.rules_profile_uuid as rulesProfileUuid,
+    qpc.created_at as createdAt,
+    qpc.user_login as login,
+    qpc.change_type as changeType,
+    qpc.change_data as data
+  </sql>
+
   <insert id="insert" useGeneratedKeys="false" parameterType="org.sonar.db.qualityprofile.QProfileChangeDto">
     insert into qprofile_changes
     (
-    kee,
-    qprofile_key,
-    created_at,
-    user_login,
-    change_type,
-    change_data
+      kee,
+      rules_profile_uuid,
+      created_at,
+      user_login,
+      change_type,
+      change_data
     ) values (
-    #{key,jdbcType=VARCHAR},
-    #{profileKey,jdbcType=VARCHAR},
-    #{createdAt,jdbcType=BIGINT},
-    #{login,jdbcType=VARCHAR},
-    #{changeType,jdbcType=VARCHAR},
-    #{data,jdbcType=VARCHAR}
+      #{uuid, jdbcType=VARCHAR},
+      #{rulesProfileUuid, jdbcType=VARCHAR},
+      #{createdAt, jdbcType=BIGINT},
+      #{login, jdbcType=VARCHAR},
+      #{changeType, jdbcType=VARCHAR},
+      #{data, jdbcType=VARCHAR}
     )
   </insert>
 
-  <select id="countForProfileKey" resultType="int">
-    select count(kee) from qprofile_changes
-    where qprofile_key = #{profileKey}
+  <select id="countForQProfileUuid" resultType="int">
+    select count(qpc.kee)
+    from qprofile_changes qpc
+    inner join rules_profiles rp on rp.kee = qpc.rules_profile_uuid
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    where
+      oqp.uuid = #{qProfileUuid, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByQuery" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
@@ -40,8 +53,8 @@
   </select>
 
   <select id="selectByQuery" databaseId="oracle" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
-    select "key", profileKey, createdAt, login, changeType, data from (
-    select rownum rnum, "key", profileKey, createdAt, login, changeType, data from (
+    select "uuid", rulesProfileUuid, createdAt, login, changeType, data from (
+    select rownum rnum, "uuid", rulesProfileUuid, createdAt, login, changeType, data from (
     <include refid="sqlSelectByQuery" />
     )
     where rownum &lt;= #{query.total}
@@ -49,34 +62,28 @@
     where rnum > #{query.offset}
   </select>
 
-  <sql id="sqlColumns">
-    kee as "key",
-    qprofile_key as profileKey,
-    created_at as createdAt,
-    user_login as login,
-    change_type as changeType,
-    change_data as data
-  </sql>
-
   <sql id="sqlSelectByQuery">
-    select <include refid="sqlColumns" />
-    from qprofile_changes
-    where qprofile_key = #{query.profileKey}
-    <if test="query.fromIncluded != null">
-      and created_at &gt;= #{query.fromIncluded}
-    </if>
-    <if test="query.toExcluded != null">
-      and created_at &lt; #{query.toExcluded}
-    </if>
-    order by created_at desc
+    select <include refid="selectColumns" />
+    from qprofile_changes qpc
+    inner join rules_profiles rp on rp.kee = qpc.rules_profile_uuid
+    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
+    where
+      oqp.uuid = #{query.profileUuid, jdbcType=VARCHAR}
+      <if test="query.fromIncluded != null">
+        and qpc.created_at &gt;= #{query.fromIncluded}
+      </if>
+      <if test="query.toExcluded != null">
+        and qpc.created_at &lt; #{query.toExcluded}
+      </if>
+    order by qpc.created_at desc
   </sql>
 
-  <update id="deleteByProfileKeys" parameterType="String">
+  <delete id="deleteByRuleProfileUuids" parameterType="String">
     delete from qprofile_changes
-    where qprofile_key in
-    <foreach collection="profileKeys" open="(" close=")" item="profileKey" separator=",">
-      #{profileKey, jdbcType=VARCHAR}
+    where rules_profile_uuid in
+    <foreach collection="ruleProfileUuids" open="(" close=")" item="ruleProfileUuid" separator=",">
+      #{ruleProfileUuid, jdbcType=VARCHAR}
     </foreach>
-  </update>
+  </delete>
 </mapper>
 

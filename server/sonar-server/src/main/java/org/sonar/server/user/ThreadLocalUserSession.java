@@ -40,7 +40,7 @@ public class ThreadLocalUserSession implements UserSession {
     if (session != null) {
       return session;
     }
-    throw new UnauthorizedException("User is not authenticate");
+    throw new UnauthorizedException("User is not authenticated");
   }
 
   public void set(UserSession session) {

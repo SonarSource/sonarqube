@@ -25,6 +25,7 @@ const { shape, string, number, bool, arrayOf } = PropTypes;
 export type Profile = {
   key: string,
   name: string,
+  isBuiltIn: boolean,
   isDefault: boolean,
   isInherited: boolean,
   language: string,
@@ -37,7 +38,8 @@ export type Profile = {
   userUpdatedAt?: string,
   lastUsed?: string,
   rulesUpdatedAt: string,
-  depth: number
+  depth: number,
+  childrenCount: number
 };
 
 export type Exporter = {

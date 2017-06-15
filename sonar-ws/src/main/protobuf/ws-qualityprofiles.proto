@@ -44,6 +44,7 @@ message SearchWsResponse {
     optional string lastUsed = 13;
     optional string userUpdatedAt = 14;
     optional string organization = 15;
+    optional bool isBuiltIn = 16;
   }
 }
 
@@ -84,5 +85,17 @@ message InheritanceWsResponse {
     optional string parent = 3;
     optional int64 activeRuleCount = 4;
     optional int64 overridingRuleCount = 5;
+    optional bool isBuiltIn = 6;
   }
+}
+
+// WS api/qualityprofiles/copy
+message CopyWsResponse {
+  optional string key = 1;
+  optional string name = 2;
+  optional string language = 3;
+  optional string languageName = 4;
+  optional bool isDefault = 5;
+  optional bool isInherited = 6;
+  optional string parentKey = 7;
 }

@@ -23,10 +23,12 @@ import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
-import ShortcutsHelpView from './ShortcutsHelpView';
+import ShortcutsHelp from './ShortcutsHelp';
 import { getCurrentUser, getAppState } from '../../../../store/rootReducer';
 
 class GlobalNav extends React.PureComponent {
+  state = { helpOpen: false };
+
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
   }
@@ -46,12 +48,14 @@ class GlobalNav extends React.PureComponent {
     }
   };
 
-  openHelp = e => {
-    if (e) {
-      e.preventDefault();
-    }
-    new ShortcutsHelpView().render();
+  handleHelpClick = event => {
+    event.preventDefault();
+    this.openHelp();
   };
+
+  openHelp = () => this.setState({ helpOpen: true });
+
+  closeHelp = () => this.setState({ helpOpen: false });
 
   render() {
     /* eslint-disable max-len */
@@ -65,7 +69,7 @@ class GlobalNav extends React.PureComponent {
           <ul className="nav navbar-nav navbar-right">
             <Search {...this.props} />
             <li>
-              <a className="navbar-help" onClick={this.openHelp} href="#">
+              <a className="navbar-help" onClick={this.handleHelpClick} href="#">
                 <svg width="16" height="16">
                   <g transform="matrix(0.0364583,0,0,0.0364583,1,-0.166667)">
                     <path
@@ -79,6 +83,8 @@ class GlobalNav extends React.PureComponent {
             <GlobalNavUserContainer {...this.props} />
           </ul>
         </div>
+
+        {this.state.helpOpen && <ShortcutsHelp onClose={this.closeHelp} />}
       </nav>
     );
   }

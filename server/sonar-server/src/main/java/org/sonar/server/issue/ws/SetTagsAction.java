@@ -34,6 +34,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
@@ -72,7 +73,10 @@ public class SetTagsAction implements IssuesWsAction {
       .setSince("5.1")
       .setDescription("Set tags on an issue. <br/>" +
         "Requires authentication and Browse permission on project")
-      .setChangelog(new Change("6.4", "response contains issue information instead of list of tags"))
+      .setChangelog(
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."),
+        new Change("6.4", "response contains issue information instead of list of tags"))
       .setResponseExample(Resources.getResource(this.getClass(), "set_tags-example.json"))
       .setHandler(this);
     action.createParam(PARAM_ISSUE)
@@ -90,18 +94,20 @@ public class SetTagsAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam(PARAM_ISSUE);
     List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings(PARAM_TAGS), Collections.<String>emptyList());
-    setTags(key, tags);
-    responseWriter.write(key, request, response);
+    SearchResponseData preloadedSearchResponseData = setTags(key, tags);
+    responseWriter.write(key, preloadedSearchResponseData, request, response);
   }
 
-  private void setTags(String issueKey, List<String> tags) {
+  private SearchResponseData setTags(String issueKey, List<String> tags) {
     userSession.checkLoggedIn();
     try (DbSession session = dbClient.openSession(false)) {
-      DefaultIssue issue = issueFinder.getByKey(session, issueKey).toDefaultIssue();
+      IssueDto issueDto = issueFinder.getByKey(session, issueKey);
+      DefaultIssue issue = issueDto.toDefaultIssue();
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueFieldsSetter.setTags(issue, tags, context)) {
-        issueUpdater.saveIssue(session, issue, context, null);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
       }
+      return new SearchResponseData(issueDto);
     }
   }
 

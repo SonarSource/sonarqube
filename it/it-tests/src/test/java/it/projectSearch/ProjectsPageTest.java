@@ -31,6 +31,8 @@ import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
 
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -74,7 +76,8 @@ public class ProjectsPageTest {
       .shouldHaveValue("2", "1")
       .shouldHaveValue("3", "1")
       .shouldHaveValue("4", "1")
-      .shouldHaveValue("5", "1");
+      .shouldHaveValue("5", "1")
+      .shouldHaveValue("6", "0");
   }
 
   @Test
@@ -90,8 +93,8 @@ public class ProjectsPageTest {
     // default page can be "All Projects" or "Favorite Projects" depending on your last choice
     ProjectsPage page = nav.openProjects();
 
-    // all projects for anonymous user
-    page.shouldHaveTotal(2).shouldDisplayAllProjects();
+    // all projects for anonymous user with default sorting to analysis date
+    page.shouldHaveTotal(2).shouldDisplayAllProjectsWidthSort("-analysis_date");
 
     // all projects by default for logged in user
     page = nav.logIn().asAdmin().openProjects();
@@ -144,13 +147,20 @@ public class ProjectsPageTest {
   }
 
   @Test
+  public void should_switch_between_perspectives() {
+    ProjectsPage page = nav.logIn().asAdmin().openProjects();
+    page.changePerspective("Risk");
+    assertThat(url()).endsWith("/projects?view=visualizations&visualization=risk");
+    page.changePerspective("Leak");
+    assertThat(url()).endsWith("/projects?view=leak");
+  }
+
+  @Test
   public void should_sort_by_facet() {
     ProjectsPage page = nav.openProjects();
-    page.getFacetByProperty("duplications")
-      .sortListDesc();
+    page.sortProjects("Duplications");
     page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "63.7%");
-    page.getFacetByProperty("duplications")
-      .sortListAsc();
+    page.invertSorting();
     page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "0.0%");
   }
 

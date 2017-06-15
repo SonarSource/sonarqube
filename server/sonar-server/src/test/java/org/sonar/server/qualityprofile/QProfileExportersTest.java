@@ -21,112 +21,106 @@ package org.sonar.server.qualityprofile;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
-import java.util.List;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.profiles.ProfileDefinition;
+import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.db.DbClient;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.DbTester;
+import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.tester.ServerTester;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class QProfileExportersTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .withEsIndexes()
-    .withStartupTasks()
-    .addXoo()
-    .addComponents(XooRulesDefinition.class, XooProfileDefinition.class, XooExporter.class, StandardExporter.class,
-      XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
+  private System2 system2 = new AlwaysIncreasingSystem2();
 
   @org.junit.Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  public ExpectedException expectedException = ExpectedException.none();
+  @org.junit.Rule
+  public DbTester db = DbTester.create(system2);
 
-  DbClient db;
-  DbSession dbSession;
-  QProfileExporters exporters;
-  ActiveRuleIndexer activeRuleIndexer;
+  public DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private RuleFinder ruleFinder = new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider);
+  private RuleActivator ruleActivator = mock(RuleActivator.class);
+  private ProfileExporter[] exporters = new ProfileExporter[] {
+    new StandardExporter(), new XooExporter()};
+  private ProfileImporter[] importers = new ProfileImporter[] {
+    new XooProfileImporter(), new XooProfileImporterWithMessages(), new XooProfileImporterWithError()};
+  private RuleDefinitionDto rule;
+  private RuleParamDto ruleParam;
+  private QProfileExporters underTest = new QProfileExporters(db.getDbClient(), ruleFinder, ruleActivator, exporters, importers);
 
   @Before
-  public void before() {
-    db = tester.get(DbClient.class);
-    dbSession = db.openSession(false);
-    exporters = tester.get(QProfileExporters.class);
-    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
-  }
-
-  @After
-  public void after() {
-    dbSession.close();
+  public void setUp() {
+    rule = db.rules().insert(r -> r.setLanguage("xoo").setRepositoryKey("SonarXoo").setRuleKey("R1"));
+    ruleParam = db.rules().insertRuleParam(rule);
   }
 
   @Test
   public void exportersForLanguage() {
-    assertThat(exporters.exportersForLanguage("xoo")).hasSize(2);
-    assertThat(exporters.exportersForLanguage("java")).hasSize(1);
-    assertThat(exporters.exportersForLanguage("java").get(0)).isInstanceOf(StandardExporter.class);
+    assertThat(underTest.exportersForLanguage("xoo")).hasSize(2);
+    assertThat(underTest.exportersForLanguage("java")).hasSize(1);
+    assertThat(underTest.exportersForLanguage("java").get(0)).isInstanceOf(StandardExporter.class);
   }
 
   @Test
   public void mimeType() {
-    assertThat(exporters.mimeType("xootool")).isEqualTo("plain/custom");
+    assertThat(underTest.mimeType("xootool")).isEqualTo("plain/custom");
 
     // default mime type
-    assertThat(exporters.mimeType("standard")).isEqualTo("text/plain");
+    assertThat(underTest.mimeType("standard")).isEqualTo("text/plain");
   }
 
   @Test
   public void import_xml() {
-    QualityProfileDto profileDto = QProfileTesting.newQProfileDto("org-123", QProfileName.createFor("xoo", "import_xml"), "import_xml");
-    db.qualityProfileDao().insert(dbSession, profileDto);
-    dbSession.commit();
+    QProfileDto profile = createProfile();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())).isEmpty();
 
-    QProfileResult result = exporters.importXml(profileDto, "XooProfileImporter", toInputStream("<xml/>", UTF_8), dbSession);
-    dbSession.commit();
-    activeRuleIndexer.index(result.getChanges());
+    underTest.importXml(profile, "XooProfileImporter", toInputStream("<xml/>", UTF_8), db.getSession());
 
-    // Check in db
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey());
-    assertThat(activeRules).hasSize(1);
-    ActiveRuleDto activeRule = activeRules.get(0);
-    assertThat(activeRule.getKey().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));
-    assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
+    ArgumentCaptor<QProfileDto> profileCapture = ArgumentCaptor.forClass(QProfileDto.class);
+    ArgumentCaptor<RuleActivation> activationCapture = ArgumentCaptor.forClass(RuleActivation.class);
+    verify(ruleActivator).activate(any(DbSession.class), activationCapture.capture(), profileCapture.capture());
 
-    // Check in es
-    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profileDto.getKey()).setActivation(true))).containsOnly(RuleKey.of("xoo", "R1"));
+    assertThat(profileCapture.getValue().getKee()).isEqualTo(profile.getKee());
+    assertThat(activationCapture.getValue().getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(activationCapture.getValue().getSeverity()).isEqualTo("CRITICAL");
   }
 
   @Test
   public void import_xml_return_messages() {
-    QProfileResult result = exporters.importXml(QProfileTesting.newXooP1("org-123"), "XooProfileImporterWithMessages", toInputStream("<xml/>", UTF_8), dbSession);
-    dbSession.commit();
+    QProfileDto profile = createProfile();
+
+    QProfileResult result = underTest.importXml(profile, "XooProfileImporterWithMessages", toInputStream("<xml/>", UTF_8), db.getSession());
 
     assertThat(result.infos()).containsOnly("an info");
     assertThat(result.warnings()).containsOnly("a warning");
@@ -135,21 +129,63 @@ public class QProfileExportersTest {
   @Test
   public void fail_to_import_xml_when_error_in_importer() {
     try {
-      exporters.importXml(QProfileTesting.newXooP1("org-123"), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), dbSession);
+      underTest.importXml(QProfileTesting.newXooP1("org-123"), "XooProfileImporterWithError", toInputStream("<xml/>", UTF_8), db.getSession());
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("error!");
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("error!");
     }
   }
 
   @Test
   public void fail_to_import_xml_on_unknown_importer() {
     try {
-      exporters.importXml(QProfileTesting.newXooP1("org-123"), "Unknown", toInputStream("<xml/>", UTF_8), dbSession);
+      underTest.importXml(QProfileTesting.newXooP1("org-123"), "Unknown", toInputStream("<xml/>", UTF_8), db.getSession());
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such importer : Unknown");
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("No such importer : Unknown");
     }
+  }
+
+  @Test
+  public void export_empty_profile() {
+    QProfileDto profile = createProfile();
+
+    StringWriter writer = new StringWriter();
+    underTest.export(db.getSession(), profile, "standard", writer);
+    assertThat(writer.toString()).isEqualTo("standard -> " + profile.getName() + " -> 0");
+
+    writer = new StringWriter();
+    underTest.export(db.getSession(), profile, "xootool", writer);
+    assertThat(writer.toString()).isEqualTo("xoo -> " + profile.getName() + " -> 0");
+  }
+
+  @Test
+  public void export_profile() {
+    QProfileDto profile = createProfile();
+    db.qualityProfiles().activateRule(profile, rule);
+
+    StringWriter writer = new StringWriter();
+    underTest.export(db.getSession(), profile, "standard", writer);
+    assertThat(writer.toString()).isEqualTo("standard -> " + profile.getName() + " -> 1");
+
+    writer = new StringWriter();
+    underTest.export(db.getSession(), profile, "xootool", writer);
+    assertThat(writer.toString()).isEqualTo("xoo -> " + profile.getName() + " -> 1");
+  }
+
+  @Test
+  public void export_throws_NotFoundException_if_exporter_does_not_exist() {
+    QProfileDto profile = createProfile();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Unknown quality profile exporter: does_not_exist");
+
+    underTest.export(db.getSession(), profile, "does_not_exist", new StringWriter());
+
+  }
+
+  private QProfileDto createProfile() {
+    return db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(rule.getLanguage()));
   }
 
   public static class XooExporter extends ProfileExporter {
@@ -192,32 +228,7 @@ public class QProfileExportersTest {
     }
   }
 
-  public static class XooRulesDefinition implements RulesDefinition {
-    @Override
-    public void define(Context context) {
-      NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
-      NewRule x1 = repository.createRule("R1")
-        .setName("R1 name")
-        .setHtmlDescription("R1 desc")
-        .setSeverity(Severity.MINOR);
-      x1.createParam("acceptWhitespace")
-        .setDefaultValue("false")
-        .setType(RuleParamType.BOOLEAN)
-        .setDescription("Accept whitespaces on the line");
-      repository.done();
-    }
-  }
-
-  public static class XooProfileDefinition extends ProfileDefinition {
-    @Override
-    public RulesProfile createProfile(ValidationMessages validation) {
-      RulesProfile profile = RulesProfile.create("P1", "xoo");
-      profile.activateRule(new Rule("xoo", "R1"), RulePriority.BLOCKER).setParameter("acceptWhitespace", "true");
-      return profile;
-    }
-  }
-
-  public static class XooProfileImporter extends ProfileImporter {
+  public class XooProfileImporter extends ProfileImporter {
     public XooProfileImporter() {
       super("XooProfileImporter", "Xoo Profile Importer");
     }
@@ -230,7 +241,7 @@ public class QProfileExportersTest {
     @Override
     public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
       RulesProfile rulesProfile = RulesProfile.create();
-      rulesProfile.activateRule(Rule.create("xoo", "R1"), RulePriority.CRITICAL);
+      rulesProfile.activateRule(Rule.create(rule.getRepositoryKey(), rule.getRuleKey()), RulePriority.CRITICAL);
       return rulesProfile;
     }
   }

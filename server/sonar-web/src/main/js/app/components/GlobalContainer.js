@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import GlobalNav from './nav/global/GlobalNav';
-import GlobalFooter from './GlobalFooter';
+import GlobalFooterContainer from './GlobalFooterContainer';
 import GlobalMessagesContainer from './GlobalMessagesContainer';
 
 export default function GlobalContainer(props: Object) {
@@ -35,7 +35,7 @@ export default function GlobalContainer(props: Object) {
           {props.children}
         </div>
       </div>
-      <GlobalFooter />
+      <GlobalFooterContainer />
     </div>
   );
 }

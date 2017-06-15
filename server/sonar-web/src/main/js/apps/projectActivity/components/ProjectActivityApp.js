@@ -31,7 +31,7 @@ import './projectActivity.css';
 
 type Props = {
   location: { query: { id: string } },
-  fetchProjectActivity: (project: string) => void,
+  fetchProjectActivity: (project: string, filter: ?string) => void,
   project: { configuration?: { showHistory: boolean } }
 };
 

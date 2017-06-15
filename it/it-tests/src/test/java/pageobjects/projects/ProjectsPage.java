@@ -69,6 +69,11 @@ public class ProjectsPage {
     return this;
   }
 
+  public ProjectsPage shouldDisplayAllProjectsWidthSort(String sort) {
+    assertThat(url()).endsWith("/projects?sort=" + sort);
+    return this;
+  }
+
   public ProjectsPage shouldDisplayFavoriteProjects() {
     assertThat(url()).endsWith("/projects/favorite");
     return this;
@@ -88,5 +93,33 @@ public class ProjectsPage {
     SelenideElement searchInput = $(".projects-facet-search input");
     searchInput.setValue("").sendKeys(search);
     return this;
+  }
+
+  public ProjectsPage changePerspective(String perspective) {
+    SelenideElement sortSelect = getOpenTopBar().$(".js-projects-perspective-select");
+    sortSelect.$(".Select-value").should(Condition.exist).click();
+    sortSelect.$(".Select-option[title='" + perspective + "']").should(Condition.exist).click();
+    return this;
+  }
+
+  public ProjectsPage sortProjects(String sort) {
+    SelenideElement sortSelect = getOpenTopBar().$(".js-projects-sorting-select");
+    sortSelect.$(".Select-value").should(Condition.exist).click();
+    sortSelect.$(".Select-option[title='" + sort + "']").should(Condition.exist).click();
+    return this;
+  }
+
+  public ProjectsPage invertSorting() {
+    getOpenTopBar().$(".js-projects-sorting-select a.button-icon").should(Condition.exist).click();
+    return this;
+  }
+
+  private SelenideElement getOpenTopBar() {
+    SelenideElement topBar = $(".projects-topbar-actions").should(Condition.exist);
+    if (!topBar.has(Condition.hasClass("open"))){
+      $(".js-projects-topbar-open").click();
+    }
+    topBar.should(Condition.hasClass("open"));
+    return topBar;
   }
 }

@@ -345,7 +345,7 @@ public class SearchAction implements RulesWsAction {
     List<RuleKey> ruleKeys = result.getIds();
     // rule order is managed by ES
     Map<RuleKey, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
-      dbClient.ruleDao().selectByKeys(dbSession, query.getOrganizationUuid(), ruleKeys), RuleDto::getKey);
+      dbClient.ruleDao().selectByKeys(dbSession, query.getOrganization(), ruleKeys), RuleDto::getKey);
     List<RuleDto> rules = new ArrayList<>();
     for (RuleKey ruleKey : ruleKeys) {
       RuleDto rule = rulesByRuleKey.get(ruleKey);

@@ -23,15 +23,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
 
 public class QualityProfilesServiceTest {
 
@@ -51,6 +55,7 @@ public class QualityProfilesServiceTest {
 
     assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchWsResponse.parser());
     serviceTester.assertThat(getRequest)
+      .hasPath("search")
       .hasParam(PARAM_DEFAULTS, true)
       .hasParam(PARAM_PROJECT_KEY, "project")
       .hasParam(PARAM_LANGUAGE, "language")
@@ -67,6 +72,7 @@ public class QualityProfilesServiceTest {
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("add_project")
       .hasParam(PARAM_LANGUAGE, "xoo")
       .hasParam(PARAM_PROFILE_NAME, "Sonar Way")
       .hasParam(PARAM_PROJECT_KEY, "sample")
@@ -82,6 +88,7 @@ public class QualityProfilesServiceTest {
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("remove_project")
       .hasParam(PARAM_LANGUAGE, "xoo")
       .hasParam(PARAM_PROFILE_NAME, "Sonar Way")
       .hasParam(PARAM_PROJECT_KEY, "sample")
@@ -89,15 +96,59 @@ public class QualityProfilesServiceTest {
   }
 
   @Test
-  public void create_project() throws Exception {
+  public void create() throws Exception {
     underTest.create(CreateRequest.builder()
       .setLanguage("xoo")
       .setProfileName("Sonar Way")
       .build());
 
     serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("create")
       .hasParam(PARAM_LANGUAGE, "xoo")
       .hasParam(PARAM_PROFILE_NAME, "Sonar Way")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void copy() throws Exception {
+    underTest.copy(new CopyRequest("fromKey", "My Sonar Way"));
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("copy")
+      .hasParam(PARAM_FROM_KEY, "fromKey")
+      .hasParam(PARAM_TO_NAME, "My Sonar Way")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void set_default() {
+    underTest.setDefault(new SetDefaultRequest("sample"));
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("set_default")
+      .hasParam(PARAM_PROFILE_KEY, "sample")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void delete() {
+    underTest.delete(new DeleteRequest("sample"));
+
+    serviceTester.assertThat(serviceTester.getPostRequest())
+      .hasPath("delete")
+      .hasParam(PARAM_PROFILE_KEY, "sample")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void deactivate_rule() {
+    underTest.deactivateRule("P1", "R1");
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("deactivate_rule")
+      .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY, "P1")
+      .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY, "R1")
       .andNoOtherParam();
   }
 }

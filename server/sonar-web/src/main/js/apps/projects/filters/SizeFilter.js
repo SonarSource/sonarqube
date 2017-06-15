@@ -20,19 +20,22 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import SortingFilter from './SortingFilter';
 import SizeRating from '../../../components/ui/SizeRating';
 import { translate } from '../../../helpers/l10n';
 import { getSizeRatingLabel, getSizeRatingAverageValue } from '../../../helpers/ratings';
 
 export default class SizeFilter extends React.PureComponent {
   static propTypes = {
+    className: React.PropTypes.string,
     query: React.PropTypes.object.isRequired,
     isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object,
+    property: React.PropTypes.string
   };
 
-  property = 'size';
+  static defaultProps = {
+    property: 'size'
+  };
 
   getFacetValueForOption(facet, option) {
     const map = [
@@ -56,23 +59,11 @@ export default class SizeFilter extends React.PureComponent {
     );
   }
 
-  renderSort = () => {
-    return (
-      <SortingFilter
-        property={this.property}
-        query={this.props.query}
-        isFavorite={this.props.isFavorite}
-        organization={this.props.organization}
-        leftText={translate('biggest')}
-        rightText={translate('smallest')}
-      />
-    );
-  };
-
   render() {
     return (
       <FilterContainer
-        property={this.property}
+        property={this.props.property}
+        className={this.props.className}
         options={[1, 2, 3, 4, 5]}
         query={this.props.query}
         renderOption={this.renderOption}
@@ -80,18 +71,7 @@ export default class SizeFilter extends React.PureComponent {
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
-        header={
-          <FilterHeader name="Size">
-            <SortingFilter
-              property={this.property}
-              query={this.props.query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-              leftText={translate('biggest')}
-              rightText={translate('smallest')}
-            />
-          </FilterHeader>
-        }
+        header={<FilterHeader name={translate('metric_domain.Size')} />}
       />
     );
   }

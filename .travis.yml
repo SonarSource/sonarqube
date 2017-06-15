@@ -1,8 +1,9 @@
-language: java
-sudo: false
+language: generic
+sudo: required
 install: true
 jdk: oraclejdk8
 script: ./travis.sh
+dist: trusty
 
 env:
   - TARGET=BUILD

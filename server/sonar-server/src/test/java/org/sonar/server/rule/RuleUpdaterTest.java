@@ -42,7 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -446,7 +446,7 @@ public class RuleUpdaterTest {
     db.rules().insertRuleParam(customRule, param -> param.setName("message").setType("STRING").setDescription("message"));
 
     // Create a quality profile
-    QualityProfileDto profileDto = QProfileTesting.newXooP1(db.getDefaultOrganization());
+    QProfileDto profileDto = QProfileTesting.newXooP1(db.getDefaultOrganization());
     db.getDbClient().qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 
@@ -482,7 +482,7 @@ public class RuleUpdaterTest {
     assertThat(paramsByKey.get("format").getDefaultValue()).isNull();
 
     // Verify that severity has not changed
-    ActiveRuleDto activeRuleReloaded = db.getDbClient().activeRuleDao().selectOrFailByKey(dbSession, ActiveRuleKey.of(profileDto.getKey(), customRule.getKey()));
+    ActiveRuleDto activeRuleReloaded = db.getDbClient().activeRuleDao().selectByKey(dbSession, ActiveRuleKey.of(profileDto, customRule.getKey())).get();
     assertThat(activeRuleReloaded.getSeverityString()).isEqualTo(Severity.BLOCKER);
 
     // Verify active rule parameters has been updated

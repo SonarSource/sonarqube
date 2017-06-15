@@ -31,6 +31,7 @@ import { convertToQueryData } from './utils';
 import { receiveFavorites } from '../../../store/favorites/duck';
 import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
+import { isDiffMetric, getPeriodValue } from '../../../helpers/measures';
 
 const PAGE_SIZE = 50;
 const PAGE_SIZE_VISUALIZATIONS = 99;
@@ -44,6 +45,19 @@ const METRICS = [
   'coverage',
   'ncloc',
   'ncloc_language_distribution'
+];
+
+const LEAK_METRICS = [
+  'alert_status',
+  'new_bugs',
+  'new_reliability_rating',
+  'new_vulnerabilities',
+  'new_security_rating',
+  'new_code_smells',
+  'new_maintainability_rating',
+  'new_coverage',
+  'new_duplicated_lines_density',
+  'new_lines'
 ];
 
 const METRICS_BY_VISUALIZATION = {
@@ -68,6 +82,18 @@ const FACETS = [
   'tags'
 ];
 
+const LEAK_FACETS = [
+  'new_reliability_rating',
+  'new_security_rating',
+  'new_maintainability_rating',
+  'new_coverage',
+  'new_duplicated_lines_density',
+  'new_lines',
+  'alert_status',
+  'languages',
+  'tags'
+];
+
 const onFail = dispatch => error => {
   parseError(error).then(message => dispatch(addGlobalErrorMessage(message)));
   dispatch(updateState({ loading: false }));
@@ -85,7 +111,9 @@ const onReceiveMeasures = (dispatch, expectedProjectKeys) => response => {
   Object.keys(byComponentKey).forEach(componentKey => {
     const measures = {};
     byComponentKey[componentKey].forEach(measure => {
-      measures[measure.metric] = measure.value;
+      measures[measure.metric] = isDiffMetric(measure.metric)
+        ? getPeriodValue(measure, 1)
+        : measure.value;
     });
     toStore[componentKey] = measures;
   });
@@ -98,11 +126,21 @@ const onReceiveOrganizations = dispatch => response => {
 };
 
 const defineMetrics = query => {
-  if (query.view === 'visualizations') {
-    return METRICS_BY_VISUALIZATION[query.visualization || 'risk'];
-  } else {
-    return METRICS;
+  switch (query.view) {
+    case 'visualizations':
+      return METRICS_BY_VISUALIZATION[query.visualization || 'risk'];
+    case 'leak':
+      return LEAK_METRICS;
+    default:
+      return METRICS;
   }
+};
+
+const defineFacets = query => {
+  if (query.view === 'leak') {
+    return LEAK_FACETS;
+  }
+  return FACETS;
 };
 
 const fetchProjectMeasures = (projects, query) => dispatch => {
@@ -174,8 +212,8 @@ export const fetchProjects = (query, isFavorite, organization) => dispatch => {
   const ps = query.view === 'visualizations' ? PAGE_SIZE_VISUALIZATIONS : PAGE_SIZE;
   const data = convertToQueryData(query, isFavorite, organization, {
     ps,
-    facets: FACETS.join(),
-    f: 'analysisDate'
+    facets: defineFacets(query).join(),
+    f: 'analysisDate,leakPeriodDate'
   });
   return searchProjects(data).then(onReceiveProjects(dispatch, query), onFail(dispatch));
 };
@@ -187,7 +225,7 @@ export const fetchMoreProjects = (query, isFavorite, organization) => (dispatch,
   const data = convertToQueryData(query, isFavorite, organization, {
     ps: PAGE_SIZE,
     p: pageIndex + 1,
-    f: 'analysisDate'
+    f: 'analysisDate,leakPeriodDate'
   });
   return searchProjects(data).then(onReceiveMoreProjects(dispatch, query), onFail(dispatch));
 };

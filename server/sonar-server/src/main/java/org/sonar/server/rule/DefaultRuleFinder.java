@@ -46,7 +46,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Will be removed in the future. Please use {@link org.sonar.server.rule.RuleService}
+ * Will be removed in the future.
  */
 public class DefaultRuleFinder implements RuleFinder {
 
@@ -69,30 +69,6 @@ public class DefaultRuleFinder implements RuleFinder {
         return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
       }
       return null;
-    }
-  }
-
-  public Collection<org.sonar.api.rules.Rule> findByIds(Collection<Integer> ruleIds) {
-    List<org.sonar.api.rules.Rule> rules = newArrayList();
-    if (ruleIds.isEmpty()) {
-      return rules;
-    }
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> ruleDtos = ruleDao.selectByIds(dbSession, defaultOrganizationProvider.get().getUuid(), new ArrayList<>(ruleIds));
-      return convertToRuleApi(dbSession, ruleDtos);
-    }
-  }
-
-  public Collection<org.sonar.api.rules.Rule> findByKeys(Collection<RuleKey> ruleKeys) {
-    List<org.sonar.api.rules.Rule> rules = newArrayList();
-    if (ruleKeys.isEmpty()) {
-      return rules;
-    }
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, defaultOrganizationProvider.get().getUuid(), new ArrayList<>(ruleKeys));
-      return convertToRuleApi(dbSession, ruleDtos);
     }
   }
 

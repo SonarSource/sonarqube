@@ -20,16 +20,18 @@
 import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
-import SortingFilter from './SortingFilter';
 import Rating from '../../../components/ui/Rating';
+import { translate } from '../../../helpers/l10n';
 
 export default class IssuesFilter extends React.PureComponent {
   static propTypes = {
-    property: React.PropTypes.string.isRequired,
-    name: React.PropTypes.string.isRequired,
-    query: React.PropTypes.object.isRequired,
+    className: React.PropTypes.string,
+    headerDetail: React.PropTypes.element,
     isFavorite: React.PropTypes.bool,
-    organization: React.PropTypes.object
+    organization: React.PropTypes.object,
+    name: React.PropTypes.string.isRequired,
+    property: React.PropTypes.string.isRequired,
+    query: React.PropTypes.object.isRequired
   };
 
   getFacetValueForOption(facet, option) {
@@ -40,7 +42,9 @@ export default class IssuesFilter extends React.PureComponent {
     return (
       <span>
         <Rating value={option} small={true} muted={!selected} />
-        {option > 1 && option < 5 && <span className="note spacer-left">and worse</span>}
+        {option > 1 &&
+          option < 5 &&
+          <span className="note spacer-left">{translate('and_worse')}</span>}
       </span>
     );
   }
@@ -49,6 +53,7 @@ export default class IssuesFilter extends React.PureComponent {
     return (
       <FilterContainer
         property={this.props.property}
+        className={this.props.className}
         options={[1, 2, 3, 4, 5]}
         query={this.props.query}
         renderOption={this.renderOption}
@@ -57,13 +62,8 @@ export default class IssuesFilter extends React.PureComponent {
         getFacetValueForOption={this.getFacetValueForOption}
         highlightUnder={1}
         header={
-          <FilterHeader name={this.props.name}>
-            <SortingFilter
-              property={this.props.property}
-              query={this.props.query}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-            />
+          <FilterHeader name={translate('metric_domain', this.props.name)}>
+            {this.props.headerDetail}
           </FilterHeader>
         }
       />

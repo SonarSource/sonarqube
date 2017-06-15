@@ -21,13 +21,14 @@
 import React from 'react';
 import classNames from 'classnames';
 import ProfileInheritanceBox from './ProfileInheritanceBox';
-import ChangeParentView from '../views/ChangeParentView';
+import ChangeParentForm from './ChangeParentForm';
 import { translate } from '../../../helpers/l10n';
 import { getProfileInheritance } from '../../../api/quality-profiles';
 import type { Profile } from '../propTypes';
 
 type Props = {
   canAdmin: boolean,
+  onRequestFail: Object => void,
   organization: ?string,
   profile: Profile,
   profiles: Array<Profile>,
@@ -36,6 +37,7 @@ type Props = {
 
 type ProfileInheritanceDetails = {
   activeRuleCount: number,
+  isBuiltIn: boolean,
   key: string,
   language: string,
   name: string,
@@ -45,6 +47,7 @@ type ProfileInheritanceDetails = {
 type State = {
   ancestors?: Array<ProfileInheritanceDetails>,
   children?: Array<ProfileInheritanceDetails>,
+  formOpen: boolean,
   loading: boolean,
   profile?: ProfileInheritanceDetails
 };
@@ -53,6 +56,7 @@ export default class ProfileInheritance extends React.PureComponent {
   mounted: boolean;
   props: Props;
   state: State = {
+    formOpen: false,
     loading: true
   };
 
@@ -85,22 +89,35 @@ export default class ProfileInheritance extends React.PureComponent {
     });
   }
 
-  handleChangeParent = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new ChangeParentView({ profile: this.props.profile, profiles: this.props.profiles })
-      .on('done', () => this.props.updateProfiles())
-      .render();
+  handleChangeParentClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ formOpen: true });
+  };
+
+  closeForm = () => {
+    this.setState({ formOpen: false });
+  };
+
+  handleParentChange = () => {
+    this.props.updateProfiles();
+    this.closeForm();
   };
 
   render() {
+    const { profile, profiles } = this.props;
+    const { ancestors } = this.state;
+
     const highlightCurrent =
       !this.state.loading &&
-      this.state.ancestors != null &&
+      ancestors != null &&
       this.state.children != null &&
-      (this.state.ancestors.length > 0 || this.state.children.length > 0);
+      (ancestors.length > 0 || this.state.children.length > 0);
+
     const currentClassName = classNames('js-inheritance-current', {
       selected: highlightCurrent
     });
+
+    const extendsBuiltIn = ancestors != null && ancestors.some(profile => profile.isBuiltIn);
 
     return (
       <div className="quality-profile-inheritance">
@@ -109,7 +126,8 @@ export default class ProfileInheritance extends React.PureComponent {
             {translate('quality_profiles.profile_inheritance')}
           </h2>
           {this.props.canAdmin &&
-            <button className="pull-right js-change-parent" onClick={this.handleChangeParent}>
+            !this.props.profile.isBuiltIn &&
+            <button className="pull-right js-change-parent" onClick={this.handleChangeParentClick}>
               {translate('quality_profiles.change_parent')}
             </button>}
         </header>
@@ -117,13 +135,13 @@ export default class ProfileInheritance extends React.PureComponent {
         {!this.state.loading &&
           <table className="data zebra">
             <tbody>
-              {this.state.ancestors != null &&
-                this.state.ancestors.map((ancestor, index) => (
+              {ancestors != null &&
+                ancestors.map((ancestor, index) => (
                   <ProfileInheritanceBox
                     className="js-inheritance-ancestor"
                     depth={index}
                     key={ancestor.key}
-                    language={this.props.profile.language}
+                    language={profile.language}
                     organization={this.props.organization}
                     profile={ancestor}
                   />
@@ -131,9 +149,10 @@ export default class ProfileInheritance extends React.PureComponent {
 
               <ProfileInheritanceBox
                 className={currentClassName}
-                depth={this.state.ancestors ? this.state.ancestors.length : 0}
+                depth={ancestors ? ancestors.length : 0}
                 displayLink={false}
-                language={this.props.profile.language}
+                extendsBuiltIn={extendsBuiltIn}
+                language={profile.language}
                 organization={this.props.organization}
                 profile={this.state.profile}
               />
@@ -142,15 +161,24 @@ export default class ProfileInheritance extends React.PureComponent {
                 this.state.children.map(child => (
                   <ProfileInheritanceBox
                     className="js-inheritance-child"
-                    depth={this.state.ancestors ? this.state.ancestors.length + 1 : 0}
+                    depth={ancestors ? ancestors.length + 1 : 0}
                     key={child.key}
-                    language={this.props.profile.language}
+                    language={profile.language}
                     organization={this.props.organization}
                     profile={child}
                   />
                 ))}
             </tbody>
           </table>}
+
+        {this.state.formOpen &&
+          <ChangeParentForm
+            onChange={this.handleParentChange}
+            onClose={this.closeForm}
+            onRequestFail={this.props.onRequestFail}
+            profile={profile}
+            profiles={profiles.filter(p => p !== profile && p.language === profile.language)}
+          />}
       </div>
     );
   }

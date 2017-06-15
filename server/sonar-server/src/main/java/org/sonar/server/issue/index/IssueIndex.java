@@ -471,7 +471,7 @@ public class IssueIndex {
     BoolQueryBuilder esFilter = boolQuery();
     filters.values().stream().filter(Objects::nonNull).forEach(esFilter::must);
     if (esFilter.hasClauses()) {
-      esRequest.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
+      esRequest.setQuery(QueryBuilders.boolQuery().must(esQuery).filter(esFilter));
     } else {
       esRequest.setQuery(esQuery);
     }
@@ -584,6 +584,7 @@ public class IssueIndex {
     SearchRequestBuilder requestBuilder = client
       .prepareSearch(INDEX_TYPE_ISSUE)
       .setQuery(boolQuery()
+        .filter(createAuthorizationFilter(true))
         .filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid())))
       .setSize(0);
 

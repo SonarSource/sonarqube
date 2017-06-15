@@ -36,7 +36,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.OrgActiveRuleDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 @ServerSide
 @ComputeEngineSide
@@ -48,9 +49,9 @@ public class QProfileComparison {
     this.dbClient = dbClient;
   }
 
-  public QProfileComparisonResult compare(DbSession dbSession, QualityProfileDto left, QualityProfileDto right) {
-    Map<RuleKey, ActiveRuleDto> leftActiveRulesByRuleKey = loadActiveRules(dbSession, left);
-    Map<RuleKey, ActiveRuleDto> rightActiveRulesByRuleKey = loadActiveRules(dbSession, right);
+  public QProfileComparisonResult compare(DbSession dbSession, QProfileDto left, QProfileDto right) {
+    Map<RuleKey, OrgActiveRuleDto> leftActiveRulesByRuleKey = loadActiveRules(dbSession, left);
+    Map<RuleKey, OrgActiveRuleDto> rightActiveRulesByRuleKey = loadActiveRules(dbSession, right);
 
     Set<RuleKey> allRules = Sets.newHashSet();
     allRules.addAll(leftActiveRulesByRuleKey.keySet());
@@ -70,7 +71,7 @@ public class QProfileComparison {
   }
 
   private void compareActivationParams(DbSession session, ActiveRuleDto leftRule, ActiveRuleDto rightRule, QProfileComparisonResult result) {
-    RuleKey key = leftRule.getKey().ruleKey();
+    RuleKey key = leftRule.getRuleKey();
     Map<String, String> leftParams = paramDtoToMap(dbClient.activeRuleDao().selectParamsByActiveRuleId(session, leftRule.getId()));
     Map<String, String> rightParams = paramDtoToMap(dbClient.activeRuleDao().selectParamsByActiveRuleId(session, rightRule.getId()));
     if (leftParams.equals(rightParams) && leftRule.getSeverityString().equals(rightRule.getSeverityString())) {
@@ -86,29 +87,29 @@ public class QProfileComparison {
     }
   }
 
-  private Map<RuleKey, ActiveRuleDto> loadActiveRules(DbSession session, QualityProfileDto profile) {
-    return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfileKey(session, profile.getKey()), ActiveRuleToRuleKey.INSTANCE);
+  private Map<RuleKey, OrgActiveRuleDto> loadActiveRules(DbSession dbSession, QProfileDto profile) {
+    return Maps.uniqueIndex(dbClient.activeRuleDao().selectByProfile(dbSession, profile), ActiveRuleToRuleKey.INSTANCE);
   }
 
   public static class QProfileComparisonResult {
 
-    private final QualityProfileDto left;
-    private final QualityProfileDto right;
+    private final QProfileDto left;
+    private final QProfileDto right;
     private final Map<RuleKey, ActiveRuleDto> inLeft = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDto> inRight = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDiff> modified = Maps.newHashMap();
     private final Map<RuleKey, ActiveRuleDto> same = Maps.newHashMap();
 
-    public QProfileComparisonResult(QualityProfileDto left, QualityProfileDto right) {
+    public QProfileComparisonResult(QProfileDto left, QProfileDto right) {
       this.left = left;
       this.right = right;
     }
 
-    public QualityProfileDto left() {
+    public QProfileDto left() {
       return left;
     }
 
-    public QualityProfileDto right() {
+    public QProfileDto right() {
       return right;
     }
 
@@ -161,7 +162,7 @@ public class QProfileComparison {
 
     @Override
     public RuleKey apply(@Nonnull ActiveRuleDto input) {
-      return input.getKey().ruleKey();
+      return input.getRuleKey();
     }
   }
 

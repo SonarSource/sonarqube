@@ -21,6 +21,7 @@ import React from 'react';
 import FilterContainer from './FilterContainer';
 import FilterHeader from './FilterHeader';
 import Level from '../../../components/ui/Level';
+import { translate } from '../../../helpers/l10n';
 
 export default class QualityGateFilter extends React.PureComponent {
   static propTypes = {
@@ -47,8 +48,7 @@ export default class QualityGateFilter extends React.PureComponent {
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
-        highlightUnder={1}
-        header={<FilterHeader name="Quality Gate" />}
+        header={<FilterHeader name={translate('projects.facets.quality_gate')} />}
       />
     );
   }

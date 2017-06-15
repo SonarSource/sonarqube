@@ -40,7 +40,7 @@ class CreateOrganizationForm extends React.PureComponent {
   mounted: boolean;
   state: State;
   props: {
-    createOrganization: () => Promise<*>,
+    createOrganization: (fields: {}) => Promise<*>,
     router: { push: string => void }
   };
 

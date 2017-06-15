@@ -71,20 +71,30 @@ public class RuleIndexDefinition implements IndexDefinition {
 
   // Active rule fields
   public static final IndexType INDEX_TYPE_ACTIVE_RULE = new IndexType(INDEX, "activeRule");
-  public static final String FIELD_ACTIVE_RULE_ORGANIZATION_UUID = "organizationUuid";
-  public static final String FIELD_ACTIVE_RULE_KEY = "key";
   public static final String FIELD_ACTIVE_RULE_REPOSITORY = "repo";
   public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";
-  public static final String FIELD_ACTIVE_RULE_PROFILE_KEY = "profile";
+  public static final String FIELD_ACTIVE_RULE_PROFILE_UUID = "ruleProfile";
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "severity";
   public static final String FIELD_ACTIVE_RULE_RULE_KEY = "ruleKey";
-  public static final String FIELD_ACTIVE_RULE_CREATED_AT = "createdAt";
-  public static final String FIELD_ACTIVE_RULE_UPDATED_AT = "updatedAt";
 
   private final Settings settings;
+  private final boolean enableSource;
 
   public RuleIndexDefinition(Settings settings) {
+    this(settings, false);
+  }
+
+  private RuleIndexDefinition(Settings settings, boolean enableSource) {
     this.settings = settings;
+    this.enableSource = enableSource;
+  }
+
+  /**
+   * Keep the document sources in index so that indexer tests can verify content
+   * of indexed documents.
+   */
+  public static RuleIndexDefinition createForTest(Settings settings) {
+    return new RuleIndexDefinition(settings, true);
   }
 
   @Override
@@ -96,23 +106,18 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     // Active rule type
     NewIndex.NewIndexType activeRuleMapping = index.createType(INDEX_TYPE_ACTIVE_RULE.getType());
-    activeRuleMapping.setEnableSource(false);
+    activeRuleMapping.setEnableSource(enableSource);
     activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
 
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_ORGANIZATION_UUID).disableNorms().build();
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).build();
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_KEY).disableNorms().build();
+    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
     activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
     activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
 
-    activeRuleMapping.createLongField(FIELD_ACTIVE_RULE_CREATED_AT);
-    activeRuleMapping.createLongField(FIELD_ACTIVE_RULE_UPDATED_AT);
-
     // Rule extension type
     NewIndex.NewIndexType ruleExtensionType = index.createType(INDEX_TYPE_RULE_EXTENSION.getType());
-    ruleExtensionType.setEnableSource(false);
+    ruleExtensionType.setEnableSource(enableSource);
     ruleExtensionType.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
 
     ruleExtensionType.stringFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build();
@@ -121,7 +126,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     // Rule type
     NewIndex.NewIndexType ruleMapping = index.createType(INDEX_TYPE_RULE.getType());
-    ruleMapping.setEnableSource(false);
+    ruleMapping.setEnableSource(enableSource);
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
@@ -140,7 +145,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
     ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().build();
-    
+
     ruleMapping.stringFieldBuilder(FIELD_RULE_TYPE).disableNorms().build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);

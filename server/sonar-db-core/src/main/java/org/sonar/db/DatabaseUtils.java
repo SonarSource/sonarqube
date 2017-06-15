@@ -20,12 +20,14 @@
 package org.sonar.db;
 
 import com.google.common.base.Function;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -39,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
@@ -332,5 +335,18 @@ public class DatabaseUtils {
 
   public static IllegalStateException wrapSqlException(SQLException e, String message, Object... messageArgs) {
     return new IllegalStateException(format(message, messageArgs), e);
+  }
+
+  /**
+   * This method can be used as a method reference, for not to have to handle the checked exception {@link SQLException}
+   */
+  public static Consumer<String> setStrings(PreparedStatement stmt, Supplier<Integer> index) {
+    return value -> {
+      try {
+        stmt.setString(index.get(), value);
+      } catch (SQLException e) {
+        Throwables.propagate(e);
+      }
+    };
   }
 }

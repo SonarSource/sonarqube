@@ -29,7 +29,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
@@ -87,21 +87,22 @@ public class AppAction implements RulesWsAction {
 
   private void addProfiles(DbSession dbSession, OrganizationDto organization, JsonWriter json) {
     json.name("qualityprofiles").beginArray();
-    for (QualityProfileDto profile : dbClient.qualityProfileDao().selectAll(dbSession, organization)) {
+    for (QProfileDto profile : dbClient.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization)) {
       if (languageIsSupported(profile)) {
         json
           .beginObject()
-          .prop("key", profile.getKey())
+          .prop("key", profile.getKee())
           .prop("name", profile.getName())
           .prop("lang", profile.getLanguage())
           .prop("parentKey", profile.getParentKee())
+          .prop("isBuiltIn", profile.isBuiltIn())
           .endObject();
       }
     }
     json.endArray();
   }
 
-  private boolean languageIsSupported(QualityProfileDto profile) {
+  private boolean languageIsSupported(QProfileDto profile) {
     return languages.get(profile.getLanguage()) != null;
   }
 

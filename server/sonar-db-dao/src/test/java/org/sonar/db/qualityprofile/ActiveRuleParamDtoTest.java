@@ -31,7 +31,7 @@ public class ActiveRuleParamDtoTest {
 
   @Test
   public void groupByKey() {
-    assertThat(ActiveRuleParamDto.groupByKey(Collections.<ActiveRuleParamDto>emptyList())).isEmpty();
+    assertThat(ActiveRuleParamDto.groupByKey(Collections.emptyList())).isEmpty();
 
     Collection<ActiveRuleParamDto> dtos = Arrays.asList(
       new ActiveRuleParamDto().setKey("foo"), new ActiveRuleParamDto().setKey("bar")

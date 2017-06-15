@@ -137,7 +137,7 @@ public class QualityGateNotificationTest {
     assertThat(message.getHeader("To", null)).isEqualTo("<tester@example.org>");
     assertThat((String) message.getContent()).contains("Quality gate status: Orange (was Green)");
     assertThat((String) message.getContent()).contains("Quality gate threshold: Lines of Code variation = 0 since previous analysis");
-    assertThat((String) message.getContent()).contains("/dashboard/index/sample");
+    assertThat((String) message.getContent()).contains("/dashboard?id=sample");
     assertThat(emails.hasNext()).isFalse();
   }
 

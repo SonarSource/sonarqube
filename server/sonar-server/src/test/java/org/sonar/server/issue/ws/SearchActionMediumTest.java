@@ -295,21 +295,6 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void issue_contains_component_id_for_eclipse() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization1, "PROJECT_ID").setKey("PROJECT_KEY"));
-    indexPermissionsOf(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setKey("FILE_KEY"));
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project);
-    db.issueDao().insert(session, issue);
-    session.commit();
-    IssueIndexer r = tester.get(IssueIndexer.class);
-    r.indexOnStartup(r.getIndexTypes());
-
-    WsTester.Result result = wsTester.newGetRequest(CONTROLLER_ISSUES, ACTION_SEARCH).execute();
-    assertThat(result.outputAsString()).contains("\"componentId\":" + file.getId() + ",");
-  }
-
-  @Test
   public void apply_paging_with_one_component() throws Exception {
     RuleDto rule = newRule();
     ComponentDto project = insertComponent(ComponentTesting.newPublicProjectDto(otherOrganization2, "PROJECT_ID").setKey("PROJECT_KEY"));

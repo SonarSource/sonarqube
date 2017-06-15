@@ -37,7 +37,8 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
@@ -604,9 +605,10 @@ public class ProjectDataLoaderMediumTest {
   private void addDefaultProfile() {
     OrganizationDto organizationDto = OrganizationTesting.newOrganizationDto();
     dbClient.organizationDao().insert(dbSession, organizationDto, false);
-    QualityProfileDto profileDto = newQProfileDto(organizationDto, QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      formatDateTime(new Date())).setDefault(true);
+    QProfileDto profileDto = newQProfileDto(organizationDto, QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
+      formatDateTime(new Date()));
     dbClient.qualityProfileDao().insert(dbSession, profileDto);
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profileDto));
   }
 
   private static FileSourceDto newFileSourceDto(ComponentDto file) {

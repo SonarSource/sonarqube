@@ -48,7 +48,7 @@ type Props = {|
   issues: Array<Issue>,
   last: boolean,
   line: SourceLine,
-  loadDuplications: (SourceLine, HTMLElement) => void,
+  loadDuplications: SourceLine => void,
   onClick: (SourceLine, HTMLElement) => void,
   onCoverageClick: (SourceLine, HTMLElement) => void,
   onDuplicationClick: (number, number) => void,

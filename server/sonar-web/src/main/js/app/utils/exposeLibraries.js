@@ -27,6 +27,7 @@ import * as request from '../../helpers/request';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
 import ListFooter from '../../components/controls/ListFooter';
 import Tooltip from '../../components/controls/Tooltip';
+import ModalForm from '../../components/common/modal-form';
 
 const exposeLibraries = () => {
   window.moment = moment;
@@ -39,7 +40,9 @@ const exposeLibraries = () => {
     ListFooter,
     Modal,
     Tooltip,
-    Select
+    Select,
+    // deprecated, used in Governance
+    ModalForm_deprecated: ModalForm
   };
 };
 

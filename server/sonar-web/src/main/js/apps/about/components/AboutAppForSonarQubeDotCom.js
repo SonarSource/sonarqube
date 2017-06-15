@@ -41,6 +41,7 @@ type Props = {
   codeSmells: number,
   currentUser: { isLoggedIn: boolean },
   customText?: string,
+  loading: boolean,
   projectsCount: number,
   vulnerabilities: number
 };
@@ -58,7 +59,7 @@ export default function AboutAppForSonarQubeDotCom(props: Props) {
             </h1>
             <a
               className="button button-active"
-              href="https://about.sonarqube.com/get-started/"
+              href="https://about.sonarcloud.io/get-started/"
               target="_blank">
               Get Started
             </a>
@@ -69,11 +70,12 @@ export default function AboutAppForSonarQubeDotCom(props: Props) {
           </div>
 
           <div className="sqcom-about-page-instance">
-            <AboutProjects count={props.projectsCount} />
+            <AboutProjects count={props.projectsCount} loading={props.loading} />
             <EntryIssueTypesForSonarQubeDotCom
               bugs={props.bugs}
-              vulnerabilities={props.vulnerabilities}
               codeSmells={props.codeSmells}
+              loading={props.loading}
+              vulnerabilities={props.vulnerabilities}
             />
           </div>
         </div>

@@ -34,7 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -99,7 +99,7 @@ public class CompareActionMediumTest {
      * - rule 4 active with different parameters => "modified"
      * - rule 5 active with different severity => "modified"
      */
-    QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRule(rule1, profile1);
     createActiveRule(rule2, profile1);
     createActiveRuleWithParam(rule4, profile1, "polop");
@@ -112,7 +112,7 @@ public class CompareActionMediumTest {
      * - rule 3 active (only in this profile) => "inRight"
      * - rule 4 active with different parameters => "modified"
      */
-    QualityProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRule(rule1, profile2);
     createActiveRule(rule3, profile2);
     createActiveRuleWithParam(rule4, profile2, "palap");
@@ -120,8 +120,8 @@ public class CompareActionMediumTest {
     session.commit();
 
     wsTester.newGetRequest("api/qualityprofiles", "compare")
-      .setParam("leftKey", profile1.getKey())
-      .setParam("rightKey", profile2.getKey())
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
       .execute().assertJson(this.getClass(), "compare_nominal.json");
   }
 
@@ -129,15 +129,15 @@ public class CompareActionMediumTest {
   public void compare_param_on_left() throws Exception {
     RuleDefinitionDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
-    QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRuleWithParam(rule1, profile1, "polop");
-    QualityProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRule(rule1, profile2);
     session.commit();
 
     wsTester.newGetRequest("api/qualityprofiles", "compare")
-      .setParam("leftKey", profile1.getKey())
-      .setParam("rightKey", profile2.getKey())
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
       .execute().assertJson(this.getClass(), "compare_param_on_left.json");
   }
 
@@ -145,15 +145,15 @@ public class CompareActionMediumTest {
   public void compare_param_on_right() throws Exception {
     RuleDefinitionDto rule1 = createRuleWithParam("xoo", "rule1");
     createRepository("blah", "xoo", "Blah");
-    QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    QProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
     createActiveRule(rule1, profile1);
-    QualityProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    QProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
     createActiveRuleWithParam(rule1, profile2, "polop");
     session.commit();
 
     wsTester.newGetRequest("api/qualityprofiles", "compare")
-      .setParam("leftKey", profile1.getKey())
-      .setParam("rightKey", profile2.getKey())
+      .setParam("leftKey", profile1.getKee())
+      .setParam("rightKey", profile2.getKee())
       .execute().assertJson(this.getClass(), "compare_param_on_right.json");
   }
 
@@ -189,8 +189,8 @@ public class CompareActionMediumTest {
       .execute();
   }
 
-  private QualityProfileDto createProfile(String lang, String name, String key) {
-    QualityProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, name), key);
+  private QProfileDto createProfile(String lang, String name, String key) {
+    QProfileDto profile = QProfileTesting.newQProfileDto("org-123", new QProfileName(lang, name), key);
     db.qualityProfileDao().insert(session, profile);
     session.commit();
     return profile;
@@ -218,14 +218,14 @@ public class CompareActionMediumTest {
     return rule;
   }
 
-  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QualityProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDefinitionDto rule, QProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     db.activeRuleDao().insert(session, activeRule);
     return activeRule;
   }
 
-  private ActiveRuleDto createActiveRuleWithParam(RuleDefinitionDto rule, QualityProfileDto profile, String value) {
+  private ActiveRuleDto createActiveRuleWithParam(RuleDefinitionDto rule, QProfileDto profile, String value) {
     ActiveRuleDto activeRule = createActiveRule(rule, profile);
     RuleParamDto paramDto = db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey()).get(0);
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(paramDto).setValue(value);
@@ -233,7 +233,7 @@ public class CompareActionMediumTest {
     return activeRule;
   }
 
-  private ActiveRuleDto createActiveRuleWithSeverity(RuleDefinitionDto rule, QualityProfileDto profile, String severity) {
+  private ActiveRuleDto createActiveRuleWithSeverity(RuleDefinitionDto rule, QProfileDto profile, String severity) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(severity);
     db.activeRuleDao().insert(session, activeRule);

@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import ProfileLink from '../components/ProfileLink';
 import ProfileDate from '../components/ProfileDate';
 import ProfileActions from '../components/ProfileActions';
+import BuiltInBadge from '../components/BuiltInBadge';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { isStagnant } from '../utils';
@@ -30,6 +31,7 @@ import type { Profile } from '../propTypes';
 
 type Props = {
   canAdmin: boolean,
+  onRequestFail: Object => void,
   organization: ?string,
   profile: Profile,
   updateProfiles: () => Promise<*>
@@ -49,6 +51,7 @@ export default class ProfilesListRow extends React.PureComponent {
           organization={this.props.organization}>
           {profile.name}
         </ProfileLink>
+        {profile.isBuiltIn && <BuiltInBadge className="spacer-left" />}
       </div>
     );
   }
@@ -160,6 +163,7 @@ export default class ProfilesListRow extends React.PureComponent {
               <ProfileActions
                 canAdmin={this.props.canAdmin}
                 fromList={true}
+                onRequestFail={this.props.onRequestFail}
                 organization={this.props.organization}
                 profile={this.props.profile}
                 updateProfiles={this.props.updateProfiles}

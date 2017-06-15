@@ -19,6 +19,12 @@
  */
 package org.sonar.api.config;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +35,9 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.AnnotationUtils;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class PropertyDefinitionTest {
   @Rule
@@ -50,7 +58,7 @@ public class PropertyDefinitionTest {
       .options("de", "en")
       .description("desc")
       .type(PropertyType.FLOAT)
-      .onlyOnQualifiers(Qualifiers.FILE)
+      .onlyOnQualifiers(Qualifiers.MODULE)
       .multiValues(true)
       .propertySetKey("set")
       .build();
@@ -63,7 +71,7 @@ public class PropertyDefinitionTest {
     assertThat(def.description()).isEqualTo("desc");
     assertThat(def.type()).isEqualTo(PropertyType.FLOAT);
     assertThat(def.global()).isFalse();
-    assertThat(def.qualifiers()).containsOnly(Qualifiers.FILE);
+    assertThat(def.qualifiers()).containsOnly(Qualifiers.MODULE);
     assertThat(def.multiValues()).isTrue();
     assertThat(def.propertySetKey()).isEqualTo("set");
     assertThat(def.fields()).isEmpty();
@@ -309,7 +317,7 @@ public class PropertyDefinitionTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Cannot be hidden and defining qualifiers on which to display");
 
-    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
+    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.VIEW).hidden().build();
   }
 
   @Test
@@ -317,7 +325,7 @@ public class PropertyDefinitionTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Cannot be hidden and defining qualifiers on which to display");
 
-    PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.FILE).hidden().build();
+    PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.PROJECT).hidden().build();
   }
 
   @Test
@@ -325,7 +333,107 @@ public class PropertyDefinitionTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Cannot define both onQualifiers and onlyOnQualifiers");
 
-    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).onlyOnQualifiers(Qualifiers.PROJECT).build();
+    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.MODULE).onlyOnQualifiers(Qualifiers.PROJECT).build();
+  }
+
+  private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of("TRK", "VW", "BRC", "SVW");
+  private static final Set<String> NOT_ALLOWED_QUALIFIERS = ImmutableSet.of("FIL", "DIR", "UTS", "", randomAlphabetic(3));
+
+  @Test
+  public void onQualifiers_with_varargs_parameter_fails_with_IAE_when_qualifier_is_not_supported() {
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onQualifiers(qualifier));
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onQualifiers("TRK", qualifier, "BRC"));
+  }
+
+  @Test
+  public void onQualifiers_with_list_parameter_fails_with_IAE_when_qualifier_is_not_supported() {
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onQualifiers(Collections.singletonList(qualifier)));
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onQualifiers(Arrays.asList("TRK", qualifier, "BRC")));
+  }
+
+  @Test
+  public void onlyOnQualifiers_with_varargs_parameter_fails_with_IAE_when_qualifier_is_not_supported() {
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onlyOnQualifiers(qualifier));
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onlyOnQualifiers("TRK", qualifier, "BRC"));
+  }
+
+  @Test
+  public void onlyOnQualifiers_with_list_parameter_fails_with_IAE_when_qualifier_is_not_supported() {
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onlyOnQualifiers(Collections.singletonList(qualifier)));
+    failsWithIAEForUnsupportedQualifiers((builder, qualifier) -> builder.onlyOnQualifiers(Arrays.asList("TRK", qualifier, "BRC")));
+  }
+
+  @Test
+  public void onQualifiers_with_varargs_parameter_fails_with_NPE_when_qualifier_is_null() {
+    failsWithNPEForNullQualifiers(builder -> builder.onQualifiers((String) null));
+    failsWithNPEForNullQualifiers(builder -> builder.onQualifiers("TRK", null, "BRC"));
+  }
+
+  @Test
+  public void onQualifiers_with_list_parameter_fails_with_NPE_when_qualifier_is_null() {
+    failsWithNPEForNullQualifiers(builder -> builder.onQualifiers(Collections.singletonList(null)));
+    failsWithNPEForNullQualifiers(builder -> builder.onlyOnQualifiers("TRK", null, "BRC"));
+  }
+
+  @Test
+  public void onlyOnQualifiers_with_varargs_parameter_fails_with_NPE_when_qualifier_is_null() {
+    failsWithNPEForNullQualifiers(builder -> builder.onlyOnQualifiers((String) null));
+    failsWithNPEForNullQualifiers(builder -> builder.onlyOnQualifiers("TRK", null, "BRC"));
+  }
+
+  @Test
+  public void onlyOnQualifiers_with_list_parameter_fails_with_NPE_when_qualifier_is_null() {
+    failsWithNPEForNullQualifiers(builder -> builder.onlyOnQualifiers(Collections.singletonList(null)));
+    failsWithNPEForNullQualifiers(builder -> builder.onlyOnQualifiers(Arrays.asList("TRK", null, "BRC")));
+  }
+
+  @Test
+  public void onQualifiers_with_varargs_parameter_accepts_supported_qualifiers() {
+    acceptsSupportedQualifiers((builder, qualifier) -> builder.onQualifiers(qualifier));
+  }
+
+  @Test
+  public void onQualifiers_with_list_parameter_accepts_supported_qualifiers() {
+    acceptsSupportedQualifiers((builder, qualifier) -> builder.onQualifiers(Collections.singletonList(qualifier)));
+  }
+
+  @Test
+  public void onlyOnQualifiers_with_varargs_parameter_accepts_supported_qualifiers() {
+    acceptsSupportedQualifiers((builder, qualifier) -> builder.onlyOnQualifiers(qualifier));
+  }
+
+  @Test
+  public void onlyOnQualifiers_with_list_parameter_accepts_supported_qualifiers() {
+    acceptsSupportedQualifiers((builder, qualifier) -> builder.onlyOnQualifiers(Collections.singletonList(qualifier)));
+  }
+
+  private static void failsWithIAEForUnsupportedQualifiers(BiConsumer<PropertyDefinition.Builder, String> biConsumer) {
+    PropertyDefinition.Builder builder = PropertyDefinition.builder(randomAlphabetic(3));
+    NOT_ALLOWED_QUALIFIERS.forEach(qualifier -> {
+      try {
+        biConsumer.accept(builder, qualifier);
+        fail("A IllegalArgumentException should have been thrown for qualifier " + qualifier);
+      } catch (IllegalArgumentException e) {
+        assertThat(e).hasMessage("Qualifier must be one of [TRK, VW, BRC, SVW]");
+      }
+    });
+  }
+
+  private static void acceptsSupportedQualifiers(BiConsumer<PropertyDefinition.Builder, String> biConsumer) {
+    PropertyDefinition.Builder builder = PropertyDefinition.builder(randomAlphabetic(3));
+    ALLOWED_QUALIFIERS.forEach(qualifier -> biConsumer.accept(builder, qualifier));
+  }
+
+  private static void failsWithNPEForNullQualifiers(Consumer<PropertyDefinition.Builder> consumer) {
+    PropertyDefinition.Builder builder = PropertyDefinition.builder(randomAlphabetic(3));
+    NOT_ALLOWED_QUALIFIERS.forEach(qualifier -> {
+      try {
+        consumer.accept(builder);
+        fail("A NullPointerException should have been thrown for null qualifier");
+      } catch (NullPointerException e) {
+        assertThat(e).hasMessage("Qualifier cannot be null");
+      }
+    });
   }
 
   @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",

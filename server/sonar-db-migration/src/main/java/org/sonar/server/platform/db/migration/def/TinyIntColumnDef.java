@@ -40,6 +40,10 @@ public class TinyIntColumnDef extends AbstractColumnDef {
     super(builder.columnName, builder.isNullable, null);
   }
 
+  public static Builder newTinyIntColumnDefBuilder() {
+    return new Builder();
+  }
+
   @Override
   public String generateSqlType(Dialect dialect) {
     switch (dialect.getId()) {

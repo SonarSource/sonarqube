@@ -1,6 +1,0 @@
-<dataset>
-
-  <rules_profiles id="2" name="Sonar Way" language="js" organization_uuid="QualityProfileDaoTest-ORG" parent_kee="[null]" kee="js_sonar_way" is_default="[false]"
-                  rules_updated_at="[null]" created_at="[null]" updated_at="[null]" last_used="123456789" user_updated_at="987654321"/>
-
-</dataset>

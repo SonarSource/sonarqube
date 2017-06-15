@@ -44,21 +44,21 @@ public class ServerIssueStorage extends IssueStorage {
   }
 
   @Override
-  protected String doInsert(DbSession session, long now, DefaultIssue issue) {
+  protected IssueDto doInsert(DbSession session, long now, DefaultIssue issue) {
     ComponentDto component = component(session, issue);
     ComponentDto project = project(session, issue);
     int ruleId = rule(issue).getId();
     IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
     getDbClient().issueDao().insert(session, dto);
-    return dto.getKey();
+    return dto;
   }
 
   @Override
-  protected String doUpdate(DbSession session, long now, DefaultIssue issue) {
+  protected IssueDto doUpdate(DbSession session, long now, DefaultIssue issue) {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
     getDbClient().issueDao().update(session, dto);
-    return dto.getKey();
+    return dto;
   }
 
   @Override

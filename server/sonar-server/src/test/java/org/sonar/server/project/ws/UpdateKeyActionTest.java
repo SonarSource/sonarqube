@@ -33,8 +33,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -50,16 +50,18 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_TO;
 
 public class UpdateKeyActionTest {
   private static final String ANOTHER_KEY = "another_key";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
 
   ComponentService componentService = mock(ComponentService.class);
 
-  WsActionTester ws = new WsActionTester(new org.sonar.server.project.ws.UpdateKeyAction(dbClient, new ComponentFinder(dbClient), componentService));
+  WsActionTester ws = new WsActionTester(new org.sonar.server.project.ws.UpdateKeyAction(dbClient, TestComponentFinder.from(db), componentService));
 
   @Test
   public void call_by_key() {

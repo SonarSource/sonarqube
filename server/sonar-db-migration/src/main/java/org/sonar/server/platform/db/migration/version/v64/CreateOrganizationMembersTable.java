@@ -41,7 +41,7 @@ public class CreateOrganizationMembersTable extends DdlChange {
   public void execute(Context context) throws SQLException {
     context.execute(
       new CreateTableBuilder(getDialect(), TABLE_NAME)
-        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(UUID_SIZE).setIsNullable(false).setIgnoreOracleUnit(true).build())
+        .addPkColumn(newVarcharColumnDefBuilder().setColumnName("organization_uuid").setLimit(UUID_SIZE).setIsNullable(false).build())
         .addPkColumn(newIntegerColumnDefBuilder().setColumnName("user_id").setIsNullable(false).build())
         .build());
   }

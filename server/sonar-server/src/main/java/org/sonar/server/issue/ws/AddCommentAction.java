@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -54,7 +55,7 @@ public class AddCommentAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
 
   public AddCommentAction(System2 system2, UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueUpdater issueUpdater, IssueFieldsSetter issueFieldsSetter,
-                          OperationResponseWriter responseWriter) {
+    OperationResponseWriter responseWriter) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -68,9 +69,12 @@ public class AddCommentAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(IssuesWsParameters.ACTION_ADD_COMMENT)
       .setDescription("Add a comment.<br/>" +
-        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.<br/>" +
-        "Since 6.3, the response contains the issue with all details, not only the added comment")
+        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
+      .setChangelog(
+        new Change("6.3", "the response returns the issue with all its details"),
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "add_comment-example.json"))
       .setPost(true);
@@ -94,8 +98,8 @@ public class AddCommentAction implements IssuesWsAction {
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       DefaultIssue defaultIssue = issueDto.toDefaultIssue();
       issueFieldsSetter.addComment(defaultIssue, wsRequest.getText(), context);
-      issueUpdater.saveIssue(dbSession, defaultIssue, context, wsRequest.getText());
-      responseWriter.write(defaultIssue.key(), request, response);
+      SearchResponseData preloadedSearchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context, wsRequest.getText());
+      responseWriter.write(defaultIssue.key(), preloadedSearchResponseData, request, response);
     }
   }
 

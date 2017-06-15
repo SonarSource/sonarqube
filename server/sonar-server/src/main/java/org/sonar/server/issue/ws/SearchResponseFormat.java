@@ -161,8 +161,6 @@ public class SearchResponseFormat {
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setOrganization(data.getOrganizationKey(component.getOrganizationUuid()));
     issueBuilder.setComponent(component.key());
-    // Only used for the compatibility with the Java WS Client <= 4.4 used by Eclipse
-    issueBuilder.setComponentId(component.getId());
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getKey());
@@ -192,7 +190,7 @@ public class SearchResponseFormat {
     setNullable(dto.getIssueCloseDate(), issueBuilder::setCloseDate, DateUtils::formatDateTime);
   }
 
-  private void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder) {
+  private static void completeIssueLocations(IssueDto dto, Issue.Builder issueBuilder) {
     DbIssues.Locations locations = dto.parseLocations();
     if (locations == null) {
       return;
@@ -212,9 +210,6 @@ public class SearchResponseFormat {
 
   private static Location convertLocation(DbIssues.Location source) {
     Location.Builder target = Location.newBuilder();
-    if (source.hasComponentId()) {
-      target.setComponentId(source.getComponentId());
-    }
     if (source.hasMsg()) {
       target.setMsg(source.getMsg());
     }
@@ -300,15 +295,11 @@ public class SearchResponseFormat {
 
   private static List<Issues.Component> formatComponents(SearchResponseData data) {
     Collection<ComponentDto> components = data.getComponents();
-    if (components == null) {
-      return Collections.emptyList();
-    }
     List<Issues.Component> result = new ArrayList<>();
     for (ComponentDto dto : components) {
       String uuid = dto.uuid();
       Component.Builder builder = Component.newBuilder()
         .setOrganization(data.getOrganizationKey(dto.getOrganizationUuid()))
-        .setId(dto.getId())
         .setKey(dto.key())
         .setUuid(uuid)
         .setQualifier(dto.qualifier())
@@ -322,14 +313,6 @@ public class SearchResponseFormat {
         builder.setPath(path);
       }
 
-      // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
-      if (!uuid.equals(dto.getRootUuid())) {
-        ComponentDto project = data.getComponentByUuid(dto.projectUuid());
-        setNullable(project, builder::setProjectId, ComponentDto::getId);
-
-        ComponentDto subProject = data.getComponentByUuid(dto.getRootUuid());
-        setNullable(subProject, builder::setSubProjectId, ComponentDto::getId);
-      }
       result.add(builder.build());
     }
     return result;

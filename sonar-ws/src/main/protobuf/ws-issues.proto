@@ -56,7 +56,7 @@ message Operation {
   repeated sonarqube.ws.commons.Rule rules = 3;
   repeated Users.User users = 4;
   // Deprecated since 5.5, action plan has been removed
-  repeated ActionPlan actiunusedActionPlansonPlans = 5;
+  repeated ActionPlan unusedActionPlans = 5;
 }
 
 message Issue {
@@ -65,7 +65,7 @@ message Issue {
   optional string rule = 2;
   optional sonarqube.ws.commons.Severity severity = 3;
   optional string component = 4;
-  optional int64 componentId = 5;
+  optional int64 unusedComponentId = 5;
   optional string project = 6;
   optional string subProject = 7;
   optional int32 line = 8;
@@ -120,7 +120,7 @@ message Flow {
 }
 
 message Location {
-  optional string componentId = 1;
+  optional string unusedComponentId = 1;
   // Only when component is a file. Can be empty for a file if this is an issue global to the file.
   optional sonarqube.ws.commons.TextRange textRange = 2;
   optional string msg = 3;
@@ -172,7 +172,7 @@ message Languages {
 
 message Component {
   optional string organization = 11;
-  optional int64 id = 1;
+  optional int64 deprecatedId = 1;
   optional string key = 2;
   optional string uuid = 3;
   optional bool enabled = 4;
@@ -180,8 +180,8 @@ message Component {
   optional string name = 6;
   optional string longName = 7;
   optional string path = 8;
-  optional int64 projectId = 9;
-  optional int64 subProjectId = 10;
+  optional int64 unusedProjectId = 9;
+  optional int64 unusedSubProjectId = 10;
 }
 
 // Response of GET api/issues/changelog

@@ -25,7 +25,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -34,19 +35,30 @@ public class CharsetValidation {
   private static final double UTF_16_NULL_PASS_THRESHOLD = 0.7;
   private static final double UTF_16_NULL_FAIL_THRESHOLD = 0.1;
 
+  private static final boolean[] VALID_WINDOWS_1252 = new boolean[256];
+  static {
+    Arrays.fill(VALID_WINDOWS_1252, true);
+    // See the Undefined cells in the charset table on https://en.wikipedia.org/wiki/Windows-1252
+    VALID_WINDOWS_1252[129 - 128] = false;
+    VALID_WINDOWS_1252[141 - 128] = false;
+    VALID_WINDOWS_1252[143 - 128] = false;
+    VALID_WINDOWS_1252[144 - 128] = false;
+    VALID_WINDOWS_1252[157 - 128] = false;
+  }
+
   /**
-   * Checks if an array of bytes looks UTF-16 encoded. 
+   * Checks if an array of bytes looks UTF-16 encoded.
    * We look for clues by checking the presence of nulls and new line control chars in both little and big endian byte orders.
    * Failing on nulls will greatly reduce FPs if the buffer is actually encoded in UTF-32.
-   * 
-   * Note that for any unicode between 0-255, UTF-16 encodes it directly in 2 bytes, being the first 0 (null). Since ASCII, ANSI and control chars are 
+   *
+   * Note that for any unicode between 0-255, UTF-16 encodes it directly in 2 bytes, being the first 0 (null). Since ASCII, ANSI and control chars are
    * within this range, we look for number of nulls and see if it is above a certain threshold.
-   * It's possible to have valid chars that map to the opposite (non-null followed by a null) even though it is very unlike. 
-   * That will happen, for example, for any unicode 0x??00, being ?? between 00 and D7. For this reason, we give a small maximum tolerance 
+   * It's possible to have valid chars that map to the opposite (non-null followed by a null) even though it is very unlike.
+   * That will happen, for example, for any unicode 0x??00, being ?? between 00 and D7. For this reason, we give a small maximum tolerance
    * for opposite nulls (10%).
-   * 
+   *
    * Line feed code point (0x000A) reversed would be (0x0A00). This code point is reserved and should never be found.
-   * 
+   *
    */
   public Result isUTF16(byte[] buffer, boolean failOnNull) {
     if (buffer.length < 2) {
@@ -115,26 +127,26 @@ public class CharsetValidation {
   }
 
   /**
-   * Checks whether it's a valid UTF-16-encoded buffer. 
+   * Checks whether it's a valid UTF-16-encoded buffer.
    * Most sequences of bytes of any encoding will be valid UTF-16, so this is not very effective and gives
    * often false positives.
-   * 
+   *
    * Possible 16bit values in UTF-16:
-   * 
+   *
    * 0x0000-0xD7FF: single 16bit block
    * 0xD800-0xDBFF: first block
    * 0xDC00-0xDFFF: second block
    * 0XE000-0xFFFF: single 16 bit block
-   * 
+   *
    * The following UTF code points get mapped into 1 or 2 blocks:
    * 0x0000 -0xD7FF   (0    -55295)  : 2 bytes, direct mapping
    * 0xE000 -0xFFFF   (57344-65535)  : 2 bytes, direct mapping
    * 0x10000-0x10FFFF (65536-1114111): 2 blocks of 2 bytes (not direct..)
-   * 
+   *
    * Note that Unicode 55296-57345 (0xD800 to 0xDFFF) are not used, since it's reserved and used in UTF-16 for the high/low surrogates.
-   * 
+   *
    * We reject 2-byte blocks with 0 (we consider it's binary) even though it's a valid UTF-16 encoding.
-   * 
+   *
    */
   public boolean isValidUTF16(byte[] buffer) {
     return isValidUTF16(buffer, false);
@@ -169,18 +181,18 @@ public class CharsetValidation {
   }
 
   /**
-   * Checks if a buffer contains only valid UTF8 encoded bytes. 
+   * Checks if a buffer contains only valid UTF8 encoded bytes.
    * It's very effective, giving a clear YES/NO, unless it's ASCII  (unicode < 127), in which case it returns MAYBE.
-   * 
-   * 
+   *
+   *
    * First byte:
    * 0xxxxxxx: only one byte (0-127)
    * 110xxxxx: 2 bytes       (194-223, as 192/193 are invalid)
    * 1110xxxx: 3 bytes       (224-239)
    * 11110xxx: 4 bytes       (240-244)
-   * 
+   *
    * Bytes 2,3 and 4 are always 10xxxxxx (0x80-0xBF or 128-191).
-   * 
+   *
    * So depending on the number of significant bits in the unicode code point, the length will be 1,2,3 or 4 bytes:
    * 0 -7 bits  (0x0000-007F):  1 byte encoding
    * 8 -11 bits (0x0080-07FF): 2 bytes encoding
@@ -252,6 +264,27 @@ public class CharsetValidation {
   private static int read16bit(byte[] buffer, int i, boolean le) {
     return le ? (buffer[i / 2] & 0xff) | ((buffer[i / 2 + 1] & 0xff) << 8)
       : ((buffer[i / 2] & 0xff) << 8) | (buffer[i / 2 + 1] & 0xff);
+  }
+
+  /**
+   * Verify that the buffer doesn't contain bytes that are not supposed to be used by Windows-1252.
+   *
+   * @return Result object with Validation.MAYBE and Windows-1252 if no unknown characters are used,
+   * otherwise Result.INVALID
+   * @param buf byte buffer to validate
+   */
+  public Result isValidWindows1252(byte[] buf) {
+    for (byte b : buf) {
+      if (!VALID_WINDOWS_1252[b + 128]) {
+        return Result.INVALID;
+      }
+    }
+
+    try {
+      return new Result(Validation.MAYBE, Charset.forName("Windows-1252"));
+    } catch (UnsupportedCharsetException e) {
+      return Result.INVALID;
+    }
   }
 
   public enum Validation {

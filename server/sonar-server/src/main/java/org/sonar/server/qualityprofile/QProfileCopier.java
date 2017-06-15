@@ -26,13 +26,12 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -51,10 +50,10 @@ public class QProfileCopier {
     this.temp = temp;
   }
 
-  public QualityProfileDto copyToName(DbSession dbSession, QualityProfileDto sourceProfile, String toName) {
+  public QProfileDto copyToName(DbSession dbSession, QProfileDto sourceProfile, String toName) {
     OrganizationDto organization = db.organizationDao().selectByUuid(dbSession, sourceProfile.getOrganizationUuid())
       .orElseThrow(() -> new IllegalStateException("Organization with UUID [" + sourceProfile.getOrganizationUuid() + "] does not exist"));
-    QualityProfileDto to = prepareTarget(dbSession, organization, sourceProfile, toName);
+    QProfileDto to = prepareTarget(dbSession, organization, sourceProfile, toName);
     File backupFile = temp.newFile();
     try {
       backup(dbSession, sourceProfile, backupFile);
@@ -65,12 +64,12 @@ public class QProfileCopier {
     }
   }
 
-  private QualityProfileDto prepareTarget(DbSession dbSession, OrganizationDto organization, QualityProfileDto sourceProfile, String toName) {
+  private QProfileDto prepareTarget(DbSession dbSession, OrganizationDto organization, QProfileDto sourceProfile, String toName) {
     QProfileName toProfileName = new QProfileName(sourceProfile.getLanguage(), toName);
     verify(sourceProfile, toProfileName);
-    QualityProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(organization, toProfileName.getName(), toProfileName.getLanguage(), dbSession);
+    QProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, toProfileName.getName(), toProfileName.getLanguage());
     if (toProfile == null) {
-      toProfile = factory.checkAndCreate(dbSession, organization, toProfileName);
+      toProfile = factory.checkAndCreateCustom(dbSession, organization, toProfileName);
       toProfile.setParentKee(sourceProfile.getParentKee());
       db.qualityProfileDao().update(dbSession, toProfile);
       dbSession.commit();
@@ -78,19 +77,14 @@ public class QProfileCopier {
     return toProfile;
   }
 
-  private void verify(QualityProfileDto fromProfile, QProfileName toProfileName) {
-    if (!StringUtils.equals(fromProfile.getLanguage(), toProfileName.getLanguage())) {
-      throw new IllegalArgumentException(String.format(
-        "Source and target profiles do not have the same language: %s and %s",
-        fromProfile.getLanguage(), toProfileName.getLanguage()));
-    }
+  private void verify(QProfileDto fromProfile, QProfileName toProfileName) {
     if (fromProfile.getName().equals(toProfileName.getName())) {
       throw new IllegalArgumentException(String.format("Source and target profiles are equal: %s",
         fromProfile.getName()));
     }
   }
 
-  private void backup(DbSession dbSession, QualityProfileDto profile, File backupFile) {
+  private void backup(DbSession dbSession, QProfileDto profile, File backupFile) {
     try (Writer writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile), UTF_8)) {
       backuper.backup(dbSession, profile, writer);
     } catch (IOException e) {
@@ -98,7 +92,7 @@ public class QProfileCopier {
     }
   }
 
-  private void restore(DbSession dbSession, File backupFile, QualityProfileDto profile) {
+  private void restore(DbSession dbSession, File backupFile, QProfileDto profile) {
     try (Reader reader = new InputStreamReader(FileUtils.openInputStream(backupFile), UTF_8)) {
       backuper.restore(dbSession, reader, profile);
     } catch (IOException e) {

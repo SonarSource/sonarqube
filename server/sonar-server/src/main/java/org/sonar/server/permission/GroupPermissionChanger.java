@@ -83,7 +83,7 @@ public class GroupPermissionChanger {
       .ifPresent(projectId -> {
         checkRequest(
           !isAttemptToAddPermissionToAnyoneOnPrivateComponent(change, projectId),
-          "No permission can be granted to AnyOne on a private component");
+          "No permission can be granted to Anyone on a private component");
         checkRequest(
           !isAttemptToRemovePublicPermissionFromPublicComponent(change, projectId),
           "Permission %s can't be removed from a public component", change.getPermission());

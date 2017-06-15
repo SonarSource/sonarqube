@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.Map;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
@@ -40,8 +39,9 @@ import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.index.RuleIndex;
@@ -49,12 +49,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.sonar.db.loadedtemplate.LoadedTemplateDto.QUALITY_PROFILE_TYPE;
 import static org.sonar.server.qualityprofile.QProfileTesting.getDefaultOrganization;
 
 // TODO replace this MediumTest by DbTester and EsTester
@@ -83,33 +78,35 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
+    assertThat(qualityProfileDao.selectOrderedByOrganizationUuid(dbSession, organization)).hasSize(1);
+    QProfileDto profile = qualityProfileDao.selectByNameAndLanguage(dbSession, organization, "Basic", "xoo");
     assertThat(profile).isNotNull();
+    assertThat(profile.isBuiltIn()).isTrue();
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile, ruleKey);
     assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
 
     // Check in ES
-    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
+    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true).setQProfile(profile), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
 
     tester.get(Platform.class).restart();
 
+    assertThat(profile.isBuiltIn()).isTrue();
     assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
 
     // Check ActiveRules
     ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, activeRuleKey).get();
-    assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKee());
-    assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
+    assertThat(activeRule.getKey().getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(activeRule.getKey().getRuleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check in ES
-    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
+    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true).setQProfile(profile), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
 
     // TODO
     // Check ActiveRuleParameters in DB
@@ -131,21 +128,22 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage(organization, "Basic", "xoo", dbSession);
+    assertThat(qualityProfileDao.selectOrderedByOrganizationUuid(dbSession, organization)).hasSize(1);
+    QProfileDto profile = qualityProfileDao.selectByNameAndLanguage(dbSession, organization, "Basic", "xoo");
     assertThat(profile).isNotNull();
+    assertThat(profile.isBuiltIn()).isTrue();
 
     // Check Default Profile
     verifyDefaultProfile(organization, "xoo", "Basic");
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
-    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile.getKey(), ruleKey)).get();
-    assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKey());
-    assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
+    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile, ruleKey)).get();
+    assertThat(activeRule.getKey().getRuleProfileUuid()).isEqualTo(profile.getRulesProfileUuid());
+    assertThat(activeRule.getKey().getRuleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check ActiveRuleParameters in DB
@@ -168,7 +166,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.selectAll(dbSession, organization)).hasSize(0);
+    assertThat(qualityProfileDao.selectOrderedByOrganizationUuid(dbSession, organization)).hasSize(0);
   }
 
   @Test
@@ -213,11 +211,8 @@ public class RegisterQualityProfilesMediumTest {
     dbSession = dbClient().openSession(false);
     OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
 
-    QualityProfileDao dao = dbClient().qualityProfileDao();
-    dao.update(dbSession, dao.selectDefaultProfile(dbSession, organization, "xoo")
-      .setDefault(false));
-    dao.update(dbSession, dao.selectByNameAndLanguage(organization, "two", "xoo", dbSession)
-      .setDefault(true));
+    QProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, "two", "xoo");
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
     dbSession.commit();
 
     verifyDefaultProfile(organization, "xoo", "two");
@@ -227,31 +222,9 @@ public class RegisterQualityProfilesMediumTest {
     verifyDefaultProfile(organization, "xoo", "two");
   }
 
-  /**
-   * Probably for db migration
-   */
-  @Test
-  public void clean_up_profiles_if_missing_loaded_template() {
-    tester = new ServerTester().withEsIndexes().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
-    tester.start();
-    DbClient dbClient = dbClient();
-    dbSession = dbClient().openSession(false);
-    OrganizationDto organization = getDefaultOrganization(tester, dbClient, dbSession);
-
-    String loadedTemplateType = computeLoadedTemplateType(new QProfileName("xoo", "Basic"));
-    dbClient().loadedTemplateDao().delete(dbSession, loadedTemplateType, organization.getUuid());
-    dbSession.commit();
-    assertThat(dbClient().loadedTemplateDao().countByTypeAndKey(loadedTemplateType, organization.getUuid(), dbSession)).isEqualTo(0);
-    dbSession.close();
-
-    tester.get(Platform.class).restart();
-
-    // do not fail
-  }
-
   private void verifyDefaultProfile(OrganizationDto organization, String language, String name) {
     dbSession = dbClient().openSession(false);
-    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
+    QProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
     assertThat(defaultProfile).isNotNull();
     assertThat(defaultProfile.getName()).isEqualTo(name);
   }
@@ -314,10 +287,5 @@ public class RegisterQualityProfilesMediumTest {
       profile.setDefaultProfile(asDefault);
       return profile;
     }
-  }
-
-  private String computeLoadedTemplateType(QProfileName qProfileName) {
-    String qpIdentifier = lowerCase(qProfileName.getLanguage()) + ":" + qProfileName.getName();
-    return format("%s.%s", QUALITY_PROFILE_TYPE, DigestUtils.md5Hex(qpIdentifier.getBytes(UTF_8)));
   }
 }

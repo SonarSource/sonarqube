@@ -22,23 +22,19 @@ package org.sonar.db.permission;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
 
 public interface UserPermissionMapper {
 
-  List<UserPermissionDto> selectByQuery(@Param("query") PermissionQuery query, @Nullable @Param("userLogins") Collection<String> userLogins, RowBounds rowBounds);
+  List<UserPermissionDto> selectUserPermissionsByQueryAndUserIds(@Param("query") PermissionQuery query, @Param("userIds") Collection<Integer> userIds);
+
+  List<Integer> selectUserIdsByQuery(@Param("query") PermissionQuery query);
 
   /**
-   * Count the number of distinct users returned by {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
+   * Count the number of distinct users returned by {@link #selectUserIdsByQuery(PermissionQuery)}
    * {@link PermissionQuery#getPageOffset()} and {@link PermissionQuery#getPageSize()} are ignored.
-   *
-   * @param useNull must always be null. It is needed for using the sql of 
-   * {@link #selectByQuery(PermissionQuery, Collection, RowBounds)}
    */
-  int countUsersByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") PermissionQuery query,
-    @Nullable @Param("userLogins") Collection<String> useNull);
+  int countUsersByQuery(@Param("query") PermissionQuery query);
 
   /**
    * Count the number of users per permission for a given list of projects.

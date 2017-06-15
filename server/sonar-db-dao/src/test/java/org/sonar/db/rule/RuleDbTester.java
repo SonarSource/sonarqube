@@ -21,12 +21,12 @@ package org.sonar.db.rule;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
-import org.apache.commons.lang.RandomStringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.sonar.db.rule.RuleTesting.newRule;
 import static org.sonar.db.rule.RuleTesting.newRuleDto;
 
@@ -61,6 +61,12 @@ public class RuleDbTester {
 
   public RuleDefinitionDto insert(RuleDefinitionDto rule) {
     db.getDbClient().ruleDao().insert(db.getSession(), rule);
+    db.commit();
+    return rule;
+  }
+
+  public RuleDefinitionDto update(RuleDefinitionDto rule) {
+    db.getDbClient().ruleDao().update(db.getSession(), rule);
     db.commit();
     return rule;
   }
@@ -101,6 +107,15 @@ public class RuleDbTester {
     return ruleDto;
   }
 
+  public RuleDto updateRule(RuleDto ruleDto) {
+    update(ruleDto.getDefinition());
+    RuleMetadataDto metadata = ruleDto.getMetadata();
+    if (metadata.getOrganizationUuid() != null) {
+      db.getDbClient().ruleDao().insertOrUpdate(db.getSession(), metadata.setRuleId(ruleDto.getId()));
+      db.commit();
+    }
+    return ruleDto;
+  }
   /**
    * Create and persist a rule with random values.
    */
@@ -125,7 +140,7 @@ public class RuleDbTester {
   public RuleParamDto insertRuleParam(RuleDto rule) {
     RuleParamDto param = new RuleParamDto();
     param.setRuleId(rule.getId());
-    param.setName(RandomStringUtils.random(10));
+    param.setName(randomAlphabetic(10));
     param.setType(RuleParamType.STRING.type());
     db.getDbClient().ruleDao().insertRuleParam(db.getSession(), rule.getDefinition(), param);
     db.commit();

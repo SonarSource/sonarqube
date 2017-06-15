@@ -47,8 +47,6 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
-import org.sonar.server.es.textsearch.ComponentTextSearchFeatureRepertoire;
-import org.sonar.server.es.textsearch.ComponentTextSearchQueryFactory;
 import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
@@ -67,11 +65,18 @@ import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
 import static org.sonar.server.measure.index.ProjectMeasuresDoc.QUALITY_GATE_STATUS;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ANALYSED_AT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_KEY;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_LANGUAGES;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_MEASURES;
@@ -80,6 +85,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
@@ -88,25 +94,43 @@ public class ProjectMeasuresIndex {
 
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
     NCLOC_KEY,
+    NEW_LINES_KEY,
     DUPLICATED_LINES_DENSITY_KEY,
+    NEW_DUPLICATED_LINES_DENSITY_KEY,
     COVERAGE_KEY,
+    NEW_COVERAGE_KEY,
     SQALE_RATING_KEY,
+    NEW_MAINTAINABILITY_RATING_KEY,
     RELIABILITY_RATING_KEY,
+    NEW_RELIABILITY_RATING_KEY,
     SECURITY_RATING_KEY,
+    NEW_SECURITY_RATING_KEY,
     ALERT_STATUS_KEY,
     FILTER_LANGUAGES,
     FILTER_TAGS);
+
+  private static final Double[] LINES_THRESHOLDS = new Double[] {1_000d, 10_000d, 100_000d, 500_000d};
+  private static final Double[] COVERAGE_THRESHOLDS = new Double[] {30d, 50d, 70d, 80d};
+  private static final Double[] DUPLICATIONS_THRESHOLDS = new Double[] {3d, 5d, 10d, 20d};
 
   private static final String FIELD_MEASURES_KEY = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_KEY;
   private static final String FIELD_MEASURES_VALUE = FIELD_MEASURES + "." + ProjectMeasuresIndexDefinition.FIELD_MEASURES_VALUE;
 
   private static final Map<String, FacetSetter> FACET_FACTORIES = ImmutableMap.<String, FacetSetter>builder()
-    .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, 1_000d, 10_000d, 100_000d, 500_000d))
-    .put(DUPLICATED_LINES_DENSITY_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, 3d, 5d, 10d, 20d))
-    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, COVERAGE_KEY, facetBuilder, 30d, 50d, 70d, 80d))
+    .put(NCLOC_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NCLOC_KEY, facetBuilder, LINES_THRESHOLDS))
+    .put(NEW_LINES_KEY, (esSearch, query, facetBuilder) -> addRangeFacet(esSearch, NEW_LINES_KEY, facetBuilder, LINES_THRESHOLDS))
+    .put(DUPLICATED_LINES_DENSITY_KEY,
+      (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
+    .put(NEW_DUPLICATED_LINES_DENSITY_KEY,
+      (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, NEW_DUPLICATED_LINES_DENSITY_KEY, facetBuilder, DUPLICATIONS_THRESHOLDS))
+    .put(COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
+    .put(NEW_COVERAGE_KEY, (esSearch, query, facetBuilder) -> addRangeFacetIncludingNoData(esSearch, NEW_COVERAGE_KEY, facetBuilder, COVERAGE_THRESHOLDS))
     .put(SQALE_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SQALE_RATING_KEY, facetBuilder))
+    .put(NEW_MAINTAINABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_MAINTAINABILITY_RATING_KEY, facetBuilder))
     .put(RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, RELIABILITY_RATING_KEY, facetBuilder))
+    .put(NEW_RELIABILITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_RELIABILITY_RATING_KEY, facetBuilder))
     .put(SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, SECURITY_RATING_KEY, facetBuilder))
+    .put(NEW_SECURITY_RATING_KEY, (esSearch, query, facetBuilder) -> addRatingFacet(esSearch, NEW_SECURITY_RATING_KEY, facetBuilder))
     .put(ALERT_STATUS_KEY, (esSearch, query, facetBuilder) -> esSearch.addAggregation(createStickyFacet(ALERT_STATUS_KEY, facetBuilder, createQualityGateFacet())))
     .put(FILTER_LANGUAGES, ProjectMeasuresIndex::addLanguagesFacet)
     .put(FIELD_TAGS, ProjectMeasuresIndex::addTagsFacet)
@@ -141,6 +165,8 @@ public class ProjectMeasuresIndex {
     String sort = query.getSort();
     if (SORT_BY_NAME.equals(sort)) {
       requestBuilder.addSort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), query.isAsc() ? ASC : DESC);
+    } else if (SORT_BY_LAST_ANALYSIS_DATE.equals(sort)) {
+      requestBuilder.addSort(FIELD_ANALYSED_AT, query.isAsc() ? ASC : DESC);
     } else if (ALERT_STATUS_KEY.equals(sort)) {
       requestBuilder.addSort(FIELD_QUALITY_GATE_STATUS, query.isAsc() ? ASC : DESC);
       requestBuilder.addSort(DefaultIndexSettingsElement.SORTABLE_ANALYZER.subField(FIELD_NAME), ASC);
@@ -162,6 +188,14 @@ public class ProjectMeasuresIndex {
 
   private static void addRangeFacet(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder, Double... thresholds) {
     esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder, createRangeFacet(metricKey, thresholds)));
+  }
+
+  private static void addRangeFacetIncludingNoData(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder, Double... thresholds) {
+    esSearch.addAggregation(createStickyFacet(metricKey, facetBuilder,
+      AggregationBuilders.filter("combined_" + metricKey)
+        .filter(matchAllQuery())
+        .subAggregation(createRangeFacet(metricKey, thresholds))
+        .subAggregation(createNoDataFacet(metricKey))));
   }
 
   private static void addRatingFacet(SearchRequestBuilder esSearch, String metricKey, StickyFacetBuilder facetBuilder) {
@@ -219,6 +253,12 @@ public class ProjectMeasuresIndex {
           .subAggregation(rangeAgg));
   }
 
+  private static AbstractAggregationBuilder createNoDataFacet(String metricKey) {
+    return AggregationBuilders.filter("no_data_" + metricKey)
+      .filter(boolQuery()
+        .mustNot(nestedQuery(FIELD_MEASURES, termQuery(FIELD_MEASURES_KEY, metricKey))));
+  }
+
   private static AbstractAggregationBuilder createRatingFacet(String metricKey) {
     return AggregationBuilders.nested("nested_" + metricKey)
       .path(FIELD_MEASURES)
@@ -248,9 +288,7 @@ public class ProjectMeasuresIndex {
       BoolQueryBuilder metricFilters = boolQuery();
       entry.getValue()
         .stream()
-        .map(criterion -> nestedQuery(FIELD_MEASURES, boolQuery()
-          .filter(termQuery(FIELD_MEASURES_KEY, criterion.getMetricKey()))
-          .filter(toValueQuery(criterion))))
+        .map(ProjectMeasuresIndex::toQuery)
         .forEach(metricFilters::must);
       filters.put(entry.getKey(), metricFilters);
     });
@@ -279,12 +317,16 @@ public class ProjectMeasuresIndex {
     if (!queryText.isPresent()) {
       return Optional.empty();
     }
-    ComponentTextSearchQueryFactory.ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQueryFactory.ComponentTextSearchQuery.builder()
-      .setQueryText(queryText.get())
-      .setFieldKey(FIELD_KEY)
-      .setFieldName(FIELD_NAME)
-      .build();
-    return Optional.of(ComponentTextSearchQueryFactory.createQuery(componentTextSearchQuery, ComponentTextSearchFeatureRepertoire.values()));
+    return Optional.of(ProjectsTextSearchQueryFactory.createQuery(queryText.get()));
+  }
+
+  private static QueryBuilder toQuery(MetricCriterion criterion) {
+    if (criterion.isNoData()) {
+      return boolQuery().mustNot(nestedQuery(FIELD_MEASURES, termQuery(FIELD_MEASURES_KEY, criterion.getMetricKey())));
+    }
+    return nestedQuery(FIELD_MEASURES, boolQuery()
+      .filter(termQuery(FIELD_MEASURES_KEY, criterion.getMetricKey()))
+      .filter(toValueQuery(criterion)));
   }
 
   private static QueryBuilder toValueQuery(MetricCriterion criterion) {

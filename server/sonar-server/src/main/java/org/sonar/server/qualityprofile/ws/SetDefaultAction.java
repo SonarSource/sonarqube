@@ -26,12 +26,13 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.DefaultQProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
 
 public class SetDefaultAction implements QProfileWsAction {
 
@@ -49,15 +50,13 @@ public class SetDefaultAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction setDefault = controller.createAction("set_default")
+    NewAction setDefault = controller.createAction(ACTION_SET_DEFAULT)
       .setSince("5.2")
       .setDescription("Select the default profile for a given language. Require Administer Quality Profiles permission.")
       .setPost(true)
       .setHandler(this);
 
-    QProfileWsSupport.createOrganizationParam(setDefault)
-      .setSince("6.4");
-
+    QProfileWsSupport.createOrganizationParam(setDefault).setSince("6.4");
     QProfileReference.defineParams(setDefault, languages);
   }
 
@@ -66,22 +65,18 @@ public class SetDefaultAction implements QProfileWsAction {
     userSession.checkLoggedIn();
     QProfileReference reference = QProfileReference.from(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
-      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, qualityProfile.getOrganizationUuid())
+      QProfileDto qualityProfile = qProfileWsSupport.getProfile(dbSession, reference);
+      dbClient.organizationDao().selectByUuid(dbSession, qualityProfile.getOrganizationUuid())
         .orElseThrow(() -> new IllegalStateException(
           format("Cannot find organization '%s' for quality profile '%s'", qualityProfile.getOrganizationUuid(), qualityProfile.getKee())));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, qualityProfile.getOrganizationUuid());
-      setDefault(dbSession, organization, qualityProfile);
+      setDefault(dbSession, qualityProfile);
       dbSession.commit();
     }
     response.noContent();
   }
 
-  public void setDefault(DbSession session, OrganizationDto organization, QualityProfileDto qualityProfile) {
-    QualityProfileDto previousDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, organization, qualityProfile.getLanguage());
-    if (previousDefault != null) {
-      dbClient.qualityProfileDao().update(session, previousDefault.setDefault(false));
-    }
-    dbClient.qualityProfileDao().update(session, qualityProfile.setDefault(true));
+  public void setDefault(DbSession dbSession, QProfileDto profile) {
+    dbClient.defaultQProfileDao().insertOrUpdate(dbSession, DefaultQProfileDto.from(profile));
   }
 }

@@ -47,7 +47,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.OrgActiveRuleDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -82,13 +83,13 @@ public class QProfileBackuperImpl implements QProfileBackuper {
   }
 
   @Override
-  public void backup(DbSession dbSession, QualityProfileDto profileDto, Writer writer) {
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey());
+  public void backup(DbSession dbSession, QProfileDto profile, Writer writer) {
+    List<OrgActiveRuleDto> activeRules = db.activeRuleDao().selectByProfile(dbSession, profile);
     activeRules.sort(BackupActiveRuleComparator.INSTANCE);
-    writeXml(dbSession, writer, profileDto, activeRules.iterator());
+    writeXml(dbSession, writer, profile, activeRules.iterator());
   }
 
-  private void writeXml(DbSession dbSession, Writer writer, QualityProfileDto profile, Iterator<ActiveRuleDto> activeRules) {
+  private void writeXml(DbSession dbSession, Writer writer, QProfileDto profile, Iterator<OrgActiveRuleDto> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
     xml.begin(ATTRIBUTE_PROFILE);
     xml.prop(ATTRIBUTE_NAME, profile.getName());
@@ -97,8 +98,8 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     while (activeRules.hasNext()) {
       ActiveRuleDto activeRule = activeRules.next();
       xml.begin(ATTRIBUTE_RULE);
-      xml.prop(ATTRIBUTE_REPOSITORY_KEY, activeRule.getKey().ruleKey().repository());
-      xml.prop(ATTRIBUTE_KEY, activeRule.getKey().ruleKey().rule());
+      xml.prop(ATTRIBUTE_REPOSITORY_KEY, activeRule.getRuleKey().repository());
+      xml.prop(ATTRIBUTE_KEY, activeRule.getRuleKey().rule());
       xml.prop(ATTRIBUTE_PRIORITY, activeRule.getSeverityString());
       xml.begin(ATTRIBUTE_PARAMETERS);
       for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
@@ -121,20 +122,20 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       if (overriddenProfileName != null) {
         targetName = new QProfileName(nameInBackup.getLanguage(), overriddenProfileName);
       }
-      return profileFactory.getOrCreate(dbSession, organization, targetName);
+      return profileFactory.getOrCreateCustom(dbSession, organization, targetName);
     });
   }
 
   @Override
-  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QualityProfileDto profile) {
+  public QProfileRestoreSummary restore(DbSession dbSession, Reader backup, QProfileDto profile) {
     return restore(dbSession, backup, nameInBackup -> {
       checkArgument(profile.getLanguage().equals(nameInBackup.getLanguage()),
-        "Can't restore %s backup on %s profile with key [%s]. Languages are different.", nameInBackup.getLanguage(), profile.getLanguage(), profile.getKey());
+        "Can't restore %s backup on %s profile with key [%s]. Languages are different.", nameInBackup.getLanguage(), profile.getLanguage(), profile.getKee());
       return profile;
     });
   }
 
-  private QProfileRestoreSummary restore(DbSession dbSession, Reader backup, Function<QProfileName, QualityProfileDto> profileLoader) {
+  private QProfileRestoreSummary restore(DbSession dbSession, Reader backup, Function<QProfileName, QProfileDto> profileLoader) {
     try {
       String profileLang = null;
       String profileName = null;
@@ -161,7 +162,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
       }
 
       QProfileName targetName = new QProfileName(profileLang, profileName);
-      QualityProfileDto targetProfile = profileLoader.apply(targetName);
+      QProfileDto targetProfile = profileLoader.apply(targetName);
       BulkChangeResult changes = profileReset.reset(dbSession, targetProfile, ruleActivations);
       return new QProfileRestoreSummary(targetProfile, changes);
     } catch (XMLStreamException e) {
@@ -200,10 +201,7 @@ public class QProfileBackuperImpl implements QProfileBackuper {
         duplicatedKeys.add(ruleKey);
       }
       activatedKeys.add(ruleKey);
-      RuleActivation activation = new RuleActivation(ruleKey);
-      activation.setSeverity(severity);
-      activation.setParameters(parameters);
-      activations.add(activation);
+      activations.add(RuleActivation.create(ruleKey, severity, parameters));
     }
     if (!duplicatedKeys.isEmpty()) {
       throw new IllegalArgumentException("The quality profile cannot be restored as it contains duplicates for the following rules: " +
@@ -247,8 +245,8 @@ public class QProfileBackuperImpl implements QProfileBackuper {
     @Override
     public int compare(ActiveRuleDto o1, ActiveRuleDto o2) {
       return new CompareToBuilder()
-        .append(o1.getKey().ruleKey().repository(), o2.getKey().ruleKey().repository())
-        .append(o1.getKey().ruleKey().rule(), o2.getKey().ruleKey().rule())
+        .append(o1.getRuleKey().repository(), o2.getRuleKey().repository())
+        .append(o1.getRuleKey().rule(), o2.getRuleKey().rule())
         .toComparison();
     }
   }

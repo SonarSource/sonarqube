@@ -105,7 +105,7 @@ public class UsersAction implements PermissionsWsAction {
 
       PermissionQuery query = buildPermissionQuery(request, org, projectId);
       List<UserDto> users = findUsers(dbSession, query);
-      int total = dbClient.userPermissionDao().countUsers(dbSession, org.getUuid(), query);
+      int total = dbClient.userPermissionDao().countUsersByQuery(dbSession, query);
       List<UserPermissionDto> userPermissions = findUserPermissions(dbSession, org, users, projectId);
       Paging paging = Paging.forPageIndex(request.mandatoryParamAsInt(Param.PAGE)).withPageSize(query.getPageSize()).andTotal(total);
       UsersWsResponse usersWsResponse = buildResponse(users, userPermissions, paging);
@@ -162,7 +162,7 @@ public class UsersAction implements PermissionsWsAction {
   }
 
   private List<UserDto> findUsers(DbSession dbSession, PermissionQuery query) {
-    List<Integer> orderedIds = dbClient.userPermissionDao().selectUserIds(dbSession, query);
+    List<Integer> orderedIds = dbClient.userPermissionDao().selectUserIdsByQuery(dbSession, query);
     return Ordering.explicit(orderedIds).onResultOf(UserDto::getId).immutableSortedCopy(dbClient.userDao().selectByIds(dbSession, orderedIds));
   }
 
@@ -170,12 +170,12 @@ public class UsersAction implements PermissionsWsAction {
     if (users.isEmpty()) {
       return emptyList();
     }
-    List<String> logins = users.stream().map(UserDto::getLogin).collect(Collectors.toList());
+    List<Integer> userIds = users.stream().map(UserDto::getId).collect(Collectors.toList());
     PermissionQuery query = PermissionQuery.builder()
       .setOrganizationUuid(org.getUuid())
-      .setComponentUuid(project.isPresent() ? project.get().getUuid() : null)
+      .setComponentUuid(project.map(ProjectId::getUuid).orElse(null))
       .withAtLeastOnePermission()
       .build();
-    return dbClient.userPermissionDao().select(dbSession, query, logins);
+    return dbClient.userPermissionDao().selectUserPermissionsByQuery(dbSession, query, userIds);
   }
 }

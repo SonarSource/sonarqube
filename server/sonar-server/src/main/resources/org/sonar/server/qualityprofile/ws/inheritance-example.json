@@ -1,0 +1,40 @@
+{
+  "profile": {
+    "key": "AU-TpxcA-iU5OvuD2FL5",
+    "name": "My BU Profile",
+    "parent": "AU-TpxcA-iU5OvuD2FL2",
+    "activeRuleCount": 3,
+    "overridingRuleCount": 1,
+    "isBuiltIn": false
+  },
+  "ancestors": [
+    {
+      "key": "AU-TpxcA-iU5OvuD2FL1",
+      "name": "My Company Profile",
+      "parent": "xoo-my-group-profile-01234",
+      "activeRuleCount": 3,
+      "isBuiltIn": false
+    },
+    {
+      "key": "AU-TpxcA-iU5OvuD2FL0",
+      "name": "Sonar way",
+      "activeRuleCount": 2,
+      "isBuiltIn": true
+    }
+  ],
+  "children": [
+    {
+      "key": "AU-TpxcB-iU5OvuD2FL6",
+      "name": "For Project One",
+      "activeRuleCount": 5,
+      "isBuiltIn": false
+    },
+    {
+      "key": "AU-TpxcB-iU5OvuD2FL7",
+      "name": "For Project Two",
+      "activeRuleCount": 4,
+      "overridingRuleCount": 1,
+      "isBuiltIn": false
+    }
+  ]
+}

@@ -39,10 +39,14 @@ type Props = {
   fetchOrganization: string => Promise<*>
 };
 
+type State = {
+  loading: boolean
+};
+
 class OrganizationPage extends React.PureComponent {
   mounted: boolean;
   props: Props;
-  state = { loading: true };
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;

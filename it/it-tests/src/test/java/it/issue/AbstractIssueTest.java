@@ -54,30 +54,6 @@ public abstract class AbstractIssueTest {
     return issueClient().find(issueQuery);
   }
 
-  static Issue searchIssueByKey(String issueKey) {
-    List<Issue> issues = searchIssues(IssueQuery.create().issues(issueKey));
-    assertThat(issues).hasSize(1);
-    return issues.get(0);
-  }
-
-  static List<Issue> searchIssues(String... issueKeys) {
-    return searchIssues(issueKeys, false);
-  }
-
-  static Issue searchIssue(String issueKey, boolean withComments) {
-    List<Issue> issues = searchIssues(new String[] {issueKey}, withComments);
-    assertThat(issues).hasSize(1);
-    return issues.iterator().next();
-  }
-
-  static List<Issue> searchIssues(String[] issueKeys, boolean withComments) {
-    IssueQuery query = IssueQuery.create().issues(issueKeys);
-    if (withComments) {
-      query.urlParams().put("additionalFields", "comments");
-    }
-    return searchIssues(query);
-  }
-
   static List<Issue> searchIssues() {
     return searchIssues(IssueQuery.create());
   }

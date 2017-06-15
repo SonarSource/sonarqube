@@ -21,7 +21,6 @@ package org.sonar.server.permission.ws;
 
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -49,13 +48,11 @@ public class PermissionWsSupport {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final GroupWsSupport groupWsSupport;
-  private final ResourceTypes resourceTypes;
 
-  public PermissionWsSupport(DbClient dbClient, ComponentFinder componentFinder, GroupWsSupport groupWsSupport, ResourceTypes resourceTypes) {
+  public PermissionWsSupport(DbClient dbClient, ComponentFinder componentFinder, GroupWsSupport groupWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.groupWsSupport = groupWsSupport;
-    this.resourceTypes = resourceTypes;
   }
 
   public OrganizationDto findOrganization(DbSession dbSession, @Nullable String organizationKey) {
@@ -72,13 +69,13 @@ public class PermissionWsSupport {
     String key = request.param(PermissionsWsParameters.PARAM_PROJECT_KEY);
     if (uuid != null || key != null) {
       ProjectWsRef ref = ProjectWsRef.newWsProjectRef(uuid, key);
-      return Optional.of(componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, ref.uuid(), ref.key(), resourceTypes));
+      return Optional.of(componentFinder.getRootComponentByUuidOrKey(dbSession, ref.uuid(), ref.key()));
     }
     return Optional.empty();
   }
 
   public ComponentDto getRootComponentOrModule(DbSession dbSession, ProjectWsRef projectRef) {
-    return componentFinder.getRootComponentOrModuleByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key(), resourceTypes);
+    return componentFinder.getRootComponentByUuidOrKey(dbSession, projectRef.uuid(), projectRef.key());
   }
 
   public GroupIdOrAnyone findGroup(DbSession dbSession, Request request) {

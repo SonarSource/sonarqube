@@ -29,11 +29,16 @@ import { searchProjects } from '../../../api/components';
 type Props = {
   currentUser: { isLoggedIn: boolean },
   location: { query: {} },
-  router: { replace: (path: string) => void }
+  optionBarOpen: boolean,
+  optionBarToggle: (open: boolean) => void,
+  router: {
+    replace: (location: { pathname?: string, query?: { [string]: string } }) => void
+  }
 };
 
 type State = {
-  shouldBeRedirected?: boolean
+  shouldBeRedirected?: boolean,
+  shouldForceSorting?: string
 };
 
 class DefaultPageSelector extends React.PureComponent {
@@ -53,42 +58,58 @@ class DefaultPageSelector extends React.PureComponent {
     if (prevProps.location !== this.props.location) {
       this.defineIfShouldBeRedirected();
     } else if (this.state.shouldBeRedirected === true) {
-      this.props.router.replace('/projects/favorite');
+      this.props.router.replace({ ...this.props.location, pathname: '/projects/favorite' });
+    } else if (this.state.shouldForceSorting != null) {
+      this.props.router.replace({
+        ...this.props.location,
+        query: {
+          ...this.props.location.query,
+          sort: this.state.shouldForceSorting
+        }
+      });
     }
   }
 
   defineIfShouldBeRedirected() {
     if (Object.keys(this.props.location.query).length > 0) {
       // show ALL projects when there are some filters
-      this.setState({ shouldBeRedirected: false });
+      this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
     } else if (!this.props.currentUser.isLoggedIn) {
       // show ALL projects if user is anonymous
-      this.setState({ shouldBeRedirected: false });
+      if (!this.props.location.query || !this.props.location.query.sort) {
+        // force default sorting to last analysis date
+        this.setState({ shouldBeRedirected: false, shouldForceSorting: '-analysis_date' });
+      } else {
+        this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
+      }
     } else if (isFavoriteSet()) {
       // show FAVORITE projects if "favorite" setting is explicitly set
-      this.setState({ shouldBeRedirected: true });
+      this.setState({ shouldBeRedirected: true, shouldForceSorting: undefined });
     } else if (isAllSet()) {
       // show ALL projects if "all" setting is explicitly set
-      this.setState({ shouldBeRedirected: false });
+      this.setState({ shouldBeRedirected: false, shouldForceSorting: undefined });
     } else {
       // otherwise, request favorites
-      this.setState({ shouldBeRedirected: undefined });
+      this.setState({ shouldBeRedirected: undefined, shouldForceSorting: undefined });
       searchProjects({ filter: 'isFavorite', ps: 1 }).then(r => {
         // show FAVORITE projects if there are any
-        this.setState({ shouldBeRedirected: r.paging.total > 0 });
+        this.setState({ shouldBeRedirected: r.paging.total > 0, shouldForceSorting: undefined });
       });
     }
   }
 
   render() {
-    if (this.state.shouldBeRedirected == null || this.state.shouldBeRedirected === true) {
+    const { shouldBeRedirected, shouldForceSorting } = this.state;
+    if (shouldBeRedirected == null || shouldBeRedirected === true || shouldForceSorting != null) {
       return null;
     } else {
       return (
         <AllProjectsContainer
           isFavorite={false}
           location={this.props.location}
-          user={this.props.currentUser}
+          optionBarOpen={this.props.optionBarOpen}
+          optionBarToggle={this.props.optionBarToggle}
+          currentUser={this.props.currentUser}
         />
       );
     }

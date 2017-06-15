@@ -20,9 +20,9 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import RenameProfileView from '../views/RenameProfileView';
-import CopyProfileView from '../views/CopyProfileView';
-import DeleteProfileView from '../views/DeleteProfileView';
+import RenameProfileForm from './RenameProfileForm';
+import CopyProfileForm from './CopyProfileForm';
+import DeleteProfileForm from './DeleteProfileForm';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
@@ -32,13 +32,21 @@ import type { Profile } from '../propTypes';
 type Props = {
   canAdmin: boolean,
   fromList: boolean,
+  onRequestFail: Object => void,
   organization: ?string,
   profile: Profile,
   updateProfiles: () => Promise<*>
 };
 
+type State = {
+  copyFormOpen: boolean,
+  deleteFormOpen: boolean,
+  renameFormOpen: boolean
+};
+
 export default class ProfileActions extends React.PureComponent {
   props: Props;
+  state: State;
 
   static defaultProps = {
     fromList: false
@@ -48,32 +56,50 @@ export default class ProfileActions extends React.PureComponent {
     router: React.PropTypes.object
   };
 
-  handleRenameClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new RenameProfileView({ profile: this.props.profile })
-      .on('done', (newName: string) => {
-        this.props.updateProfiles().then(() => {
-          if (!this.props.fromList) {
-            this.context.router.replace(
-              getProfilePath(newName, this.props.profile.language, this.props.organization)
-            );
-          }
-        });
-      })
-      .render();
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      copyFormOpen: false,
+      deleteFormOpen: false,
+      renameFormOpen: false
+    };
+  }
+
+  handleRenameClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ renameFormOpen: true });
   };
 
-  handleCopyClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new CopyProfileView({ profile: this.props.profile })
-      .on('done', profile => {
-        this.props.updateProfiles().then(() => {
-          this.context.router.push(
-            getProfilePath(profile.name, profile.language, this.props.organization)
-          );
-        });
-      })
-      .render();
+  handleProfileRename = (name: string) => {
+    this.closeRenameForm();
+    this.props.updateProfiles().then(() => {
+      if (!this.props.fromList) {
+        this.context.router.replace(
+          getProfilePath(name, this.props.profile.language, this.props.organization)
+        );
+      }
+    });
+  };
+
+  closeRenameForm = () => {
+    this.setState({ renameFormOpen: false });
+  };
+
+  handleCopyClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ copyFormOpen: true });
+  };
+
+  handleProfileCopy = (name: string) => {
+    this.props.updateProfiles().then(() => {
+      this.context.router.push(
+        getProfilePath(name, this.props.profile.language, this.props.organization)
+      );
+    });
+  };
+
+  closeCopyForm = () => {
+    this.setState({ copyFormOpen: false });
   };
 
   handleSetDefaultClick = (e: SyntheticInputEvent) => {
@@ -81,14 +107,18 @@ export default class ProfileActions extends React.PureComponent {
     setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles);
   };
 
-  handleDeleteClick = (e: SyntheticInputEvent) => {
-    e.preventDefault();
-    new DeleteProfileView({ profile: this.props.profile })
-      .on('done', () => {
-        this.context.router.replace(getProfilesPath(this.props.organization));
-        this.props.updateProfiles();
-      })
-      .render();
+  handleDeleteClick = (event: Event) => {
+    event.preventDefault();
+    this.setState({ deleteFormOpen: true });
+  };
+
+  handleProfileDelete = () => {
+    this.context.router.replace(getProfilesPath(this.props.organization));
+    this.props.updateProfiles();
+  };
+
+  closeDeleteForm = () => {
+    this.setState({ deleteFormOpen: false });
   };
 
   render() {
@@ -109,16 +139,18 @@ export default class ProfileActions extends React.PureComponent {
     return (
       <ul className="dropdown-menu dropdown-menu-right">
         {canAdmin &&
+          !profile.isBuiltIn &&
           <li>
             <Link to={activateMoreUrl}>
               {translate('quality_profiles.activate_more_rules')}
             </Link>
           </li>}
-        <li>
-          <a id="quality-profile-backup" href={backupUrl}>
-            {translate('backup_verb')}
-          </a>
-        </li>
+        {!profile.isBuiltIn &&
+          <li>
+            <a id="quality-profile-backup" href={backupUrl}>
+              {translate('backup_verb')}
+            </a>
+          </li>}
         <li>
           <Link
             to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
@@ -133,6 +165,7 @@ export default class ProfileActions extends React.PureComponent {
             </a>
           </li>}
         {canAdmin &&
+          !profile.isBuiltIn &&
           <li>
             <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick}>
               {translate('rename')}
@@ -147,11 +180,36 @@ export default class ProfileActions extends React.PureComponent {
           </li>}
         {canAdmin &&
           !profile.isDefault &&
+          !profile.isBuiltIn &&
           <li>
             <a id="quality-profile-delete" href="#" onClick={this.handleDeleteClick}>
               {translate('delete')}
             </a>
           </li>}
+
+        {this.state.copyFormOpen &&
+          <CopyProfileForm
+            onClose={this.closeCopyForm}
+            onCopy={this.handleProfileCopy}
+            onRequestFail={this.props.onRequestFail}
+            profile={profile}
+          />}
+
+        {this.state.deleteFormOpen &&
+          <DeleteProfileForm
+            onClose={this.closeDeleteForm}
+            onDelete={this.handleProfileDelete}
+            onRequestFail={this.props.onRequestFail}
+            profile={profile}
+          />}
+
+        {this.state.renameFormOpen &&
+          <RenameProfileForm
+            onClose={this.closeRenameForm}
+            onRename={this.handleProfileRename}
+            onRequestFail={this.props.onRequestFail}
+            profile={profile}
+          />}
       </ul>
     );
   }

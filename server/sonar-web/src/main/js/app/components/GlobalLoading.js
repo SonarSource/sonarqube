@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import './GlobalLoading.css';
 
 export default function GlobalLoading() {
   return (

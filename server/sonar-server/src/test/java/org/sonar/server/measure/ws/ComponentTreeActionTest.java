@@ -72,6 +72,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
@@ -88,14 +89,14 @@ public class ComponentTreeActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
 
   private I18nRule i18n = new I18nRule();
-  private ResourceTypesRule resourceTypes = new ResourceTypesRule();
+  private ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
   private WsActionTester ws = new WsActionTester(
     new ComponentTreeAction(
-      new ComponentTreeDataLoader(dbClient, new ComponentFinder(dbClient), userSession, resourceTypes),
+      new ComponentTreeDataLoader(dbClient, new ComponentFinder(dbClient, resourceTypes), userSession, resourceTypes),
       i18n, resourceTypes));
 
   @Before
@@ -603,6 +604,35 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER)
       .executeProtobuf(ComponentTreeWsResponse.class);
+  }
+
+  @Test
+  public void fail_when_component_does_not_exist() {
+    insertNclocMetric();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'project-key' not found");
+
+    ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_KEY, "project-key")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_component_is_removed() {
+    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    componentDb.insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+    userSession.anonymous().addProjectPermission(UserRole.USER, project);
+    insertNclocMetric();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component key 'file-key' not found");
+
+    ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_KEY, "file-key")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .execute();
   }
 
   private static MetricDto newMetricDto() {

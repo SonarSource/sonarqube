@@ -25,6 +25,7 @@ import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
 import { searchProjectTags } from '../../../api/components';
+import { translate } from '../../../helpers/l10n';
 
 type Props = {
   query: {},
@@ -45,7 +46,6 @@ type State = {
 const LIST_SIZE = 10;
 
 export default class TagsFilter extends React.PureComponent {
-  getSearchOptions: () => [{ label: string, value: string }];
   props: Props;
   state: State;
   property: string;
@@ -61,7 +61,7 @@ export default class TagsFilter extends React.PureComponent {
     this.handleSearch = debounce(this.handleSearch.bind(this), 250);
   }
 
-  getSearchOptions(facet: {}, tags: Array<string>) {
+  getSearchOptions(facet?: {}, tags: Array<string>): Array<{ label: string, value: string }> {
     let tagsCopy = [...tags];
     if (facet) {
       tagsCopy = difference(tagsCopy, Object.keys(facet));
@@ -103,8 +103,7 @@ export default class TagsFilter extends React.PureComponent {
         isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
-        highlightUnder={1}
-        header={<FilterHeader name="Tags" />}
+        header={<FilterHeader name={translate('projects.facets.tags')} />}
         footer={
           <SearchableFilterFooter
             property={this.property}

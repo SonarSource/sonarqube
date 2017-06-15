@@ -19,8 +19,7 @@
  */
 package org.sonar.server.app;
 
-import java.util.logging.LogManager;
-import org.slf4j.bridge.SLF4JBridgeHandler;
+import ch.qos.logback.classic.Level;
 import org.sonar.process.ProcessId;
 import org.sonar.process.logging.LogDomain;
 import org.sonar.process.logging.LogLevelConfig;
@@ -46,12 +45,12 @@ public class WebServerProcessLogging extends ServerProcessLogging {
     logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.ContainerBase");
     logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.StandardContext");
     logLevelConfigBuilder.offUnlessTrace("org.apache.catalina.core.StandardService");
+
+    MSQDRIVER_LOGGER_NAMES_TO_TURN_OFF.forEach(loggerName -> logLevelConfigBuilder.immutableLevel(loggerName, Level.OFF));
   }
 
   @Override
   protected void extendConfigure() {
-    // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
-    LogManager.getLogManager().reset();
-    SLF4JBridgeHandler.install();
+    // No extension needed
   }
 }

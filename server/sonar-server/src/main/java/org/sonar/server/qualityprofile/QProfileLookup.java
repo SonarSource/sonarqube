@@ -19,12 +19,13 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -37,23 +38,23 @@ public class QProfileLookup {
     this.db = db;
   }
 
-  public List<QualityProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
-    return db.qualityProfileDao().selectAll(dbSession, organization);
+  public List<QProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
+    return db.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
   }
 
-  public List<QualityProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {
+  public Collection<QProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {
     return db.qualityProfileDao().selectByLanguage(dbSession, organization, language);
   }
 
-  public List<QualityProfileDto> ancestors(QualityProfileDto profile, DbSession session) {
-    List<QualityProfileDto> ancestors = newArrayList();
+  public List<QProfileDto> ancestors(QProfileDto profile, DbSession session) {
+    List<QProfileDto> ancestors = newArrayList();
     incrementAncestors(profile, ancestors, session);
     return ancestors;
   }
 
-  private void incrementAncestors(QualityProfileDto profile, List<QualityProfileDto> ancestors, DbSession session) {
+  private void incrementAncestors(QProfileDto profile, List<QProfileDto> ancestors, DbSession session) {
     if (profile.getParentKee() != null) {
-      QualityProfileDto parentDto = db.qualityProfileDao().selectByKey(session, profile.getParentKee());
+      QProfileDto parentDto = db.qualityProfileDao().selectByUuid(session, profile.getParentKee());
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : " + profile.getId());
       }

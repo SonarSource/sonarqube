@@ -24,7 +24,7 @@ import OverviewApp from '../OverviewApp';
 import EmptyOverview from '../EmptyOverview';
 
 it('should render OverviewApp', () => {
-  const component = { id: 'id', snapshotDate: '2016-01-01' };
+  const component = { id: 'id', analysisDate: '2016-01-01' };
   const output = shallow(<UnconnectedApp component={component} />);
   expect(output.type()).toBe(OverviewApp);
 });
@@ -36,7 +36,7 @@ it('should render EmptyOverview', () => {
 });
 
 it('should pass leakPeriodIndex', () => {
-  const component = { id: 'id', snapshotDate: '2016-01-01' };
+  const component = { id: 'id', analysisDate: '2016-01-01' };
   const output = shallow(<UnconnectedApp component={component} />);
   expect(output.prop('leakPeriodIndex')).toBe('1');
 });

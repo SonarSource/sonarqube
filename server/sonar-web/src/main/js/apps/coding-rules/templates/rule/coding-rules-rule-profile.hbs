@@ -2,6 +2,12 @@
   <a href="{{profilePath}}">
     {{name}}
   </a>
+  {{#if isBuiltIn}}
+    <span class="built-in-badge spacer-left" data-toggle="tooltip"  data-placement="bottom"
+          title="{{t 'quality_profiles.built_in.description.1'}} {{t 'quality_profiles.built_in.description.2'}}">
+      {{t 'quality_profiles.built_in'}}
+    </span>
+  {{/if}}
   {{#if parent}}
     <div class="coding-rules-detail-quality-profile-inheritance">
       {{#eq inherit 'OVERRIDES'}}
@@ -47,24 +53,26 @@
   {{/unless}}
 
   {{#if canWrite}}
-    <td class="coding-rules-detail-quality-profile-actions">
-      <div class="button-group">
-        {{#unless isTemplate}}
-          <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
-        {{/unless}}
-        {{#if parent}}
-          {{#eq inherit 'OVERRIDES'}}
-            <button class="coding-rules-detail-quality-profile-revert button-red">
-              {{t 'coding_rules.revert_to_parent_definition'}}
+    {{#unless isBuiltIn}}
+      <td class="coding-rules-detail-quality-profile-actions">
+        <div class="button-group">
+          {{#unless isTemplate}}
+            <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
+          {{/unless}}
+          {{#if parent}}
+            {{#eq inherit 'OVERRIDES'}}
+              <button class="coding-rules-detail-quality-profile-revert button-red">
+                {{t 'coding_rules.revert_to_parent_definition'}}
+              </button>
+            {{/eq}}
+          {{else}}
+            <button class="coding-rules-detail-quality-profile-deactivate button-red">
+              {{t 'coding_rules.deactivate'}}
             </button>
-          {{/eq}}
-        {{else}}
-          <button class="coding-rules-detail-quality-profile-deactivate button-red">
-            {{t 'coding_rules.deactivate'}}
-          </button>
-        {{/if}}
-      </div>
-    </td>
+          {{/if}}
+        </div>
+      </td>
+    {{/unless}}
   {{/if}}
 
 {{else}}

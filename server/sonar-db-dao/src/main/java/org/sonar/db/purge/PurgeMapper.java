@@ -28,9 +28,9 @@ public interface PurgeMapper {
   List<IdUuidPair> selectAnalysisIdsAndUuids(PurgeSnapshotQuery query);
 
   /**
-   * Returns the list of components of a project from a project_uuid. The project itself is also returned.
+   * Returns the list of modules/subviews and the view/project for the specified project_uuid.
    */
-  List<IdUuidPair> selectComponentsByProjectUuid(String projectUuid);
+  List<IdUuidPair> selectRootAndModulesOrSubviewsByProjectUuid(@Param("rootUuid") String rootUuid);
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
@@ -39,6 +39,8 @@ public interface PurgeMapper {
   void deleteAnalysisEvents(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteAnalysisMeasures(@Param("analysisUuids") List<String> analysisUuids);
+
+  void fullDeleteComponentMeasures(@Param("componentUuids") List<String> componentUuids);
 
   void deleteComponentMeasures(@Param("analysisUuids") List<String> analysisUuids, @Param("componentUuids") List<String> componentUuids);
 
@@ -50,29 +52,33 @@ public interface PurgeMapper {
 
   void resolveComponentIssuesNotAlreadyResolved(@Param("componentUuids") List<String> componentUuids, @Param("dateAsLong") Long dateAsLong);
 
-  void deleteComponentLinks(@Param("componentUuids") List<String> componentUuids);
+  void deleteProjectLinksByComponentUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteComponentProperties(@Param("componentIds") List<Long> componentIds);
+  void deletePropertiesByComponentIds(@Param("componentIds") List<Long> componentIds);
 
-  void deleteComponents(@Param("componentUuids") List<String> componentUuids);
+  void deleteComponentsByProjectUuid(@Param("rootUuid") String rootUuid);
 
-  void deleteComponentGroupRoles(@Param("componentIds") List<Long> componentIds);
+  void deleteComponentsByUuids(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteComponentUserRoles(@Param("componentIds") List<Long> componentIds);
+  void deleteGroupRolesByComponentId(@Param("rootId") long rootId);
 
-  void deleteComponentManualMeasures(@Param("componentUuids") List<String> componentUuids);
+  void deleteUserRolesByComponentId(@Param("rootId") long rootId);
 
-  void deleteComponentEvents(@Param("componentUuids") List<String> componentUuids);
+  void deleteManualMeasuresByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteAuthors(@Param("resourceIds") List<Long> resourceIds);
+  void deleteEventsByComponentUuid(@Param("componentUuid") String componentUuid);
 
   List<PurgeableAnalysisDto> selectPurgeableAnalysesWithEvents(@Param("componentUuid") String componentUuid);
 
   List<PurgeableAnalysisDto> selectPurgeableAnalysesWithoutEvents(@Param("componentUuid") String componentUuid);
 
-  void deleteComponentIssueChanges(@Param("componentUuids") List<String> componentUuids);
+  void deleteIssueChangesByProjectUuid(@Param("projectUuid") String projectUuid);
 
-  void deleteComponentIssues(@Param("componentUuids") List<String> componentUuids);
+  void deleteIssuesByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  void deleteIssueChangesByComponentUuids(@Param("componentUuids") List<String> componentUuids);
+
+  void deleteIssuesByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
   List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
@@ -82,7 +88,7 @@ public interface PurgeMapper {
 
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 
-  void deleteFileSourcesByUuid(@Param("fileUuids") List<String> fileUuids);
+  void deleteFileSourcesByFileUuid(@Param("fileUuids") List<String> fileUuids);
 
   void deleteCeActivityByProjectUuid(@Param("projectUuid") String projectUuid);
 

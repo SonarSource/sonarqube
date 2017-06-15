@@ -34,19 +34,24 @@ public interface ActiveRuleMapper {
 
   void delete(int activeRuleId);
 
-  void deleteByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
+  void deleteByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
-  ActiveRuleDto selectByKey(@Param("profileKey") String profileKey, @Param("repository") String repository, @Param("rule") String rule);
+  void deleteByIds(@Param("ids") Collection<Integer> ids);
+
+  @CheckForNull
+  ActiveRuleDto selectByKey(@Param("ruleProfileUuid") String ruleProfileUuid, @Param("repository") String repository, @Param("rule") String rule);
 
   List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
 
-  List<ActiveRuleDto> selectByRuleId(@Param("organizationUuid") String organizationUuid, @Param("ruleId") int ruleId);
+  List<OrgActiveRuleDto> selectByRuleId(@Param("organizationUuid") String organizationUuid, @Param("ruleId") int ruleId);
 
   List<ActiveRuleDto> selectByRuleIdOfAllOrganizations(int ruleId);
 
-  List<ActiveRuleDto> selectByRuleIds(@Param("organizationUuid") String organizationUuid, @Param("ruleIds") List<Integer> partitionOfRuleIds);
+  List<OrgActiveRuleDto> selectByRuleIds(@Param("organizationUuid") String organizationUuid, @Param("ruleIds") List<Integer> partitionOfRuleIds);
 
-  List<ActiveRuleDto> selectByProfileKey(String key);
+  List<OrgActiveRuleDto> selectByProfileUuid(String uuid);
+
+  List<ActiveRuleDto> selectByRuleProfileUuid(@Param("ruleProfileUuid") String uuid);
 
   void insertParameter(ActiveRuleParamDto dto);
 
@@ -54,22 +59,19 @@ public interface ActiveRuleMapper {
 
   void deleteParameters(int activeRuleId);
 
-  void deleteParametersByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
+  void deleteParametersByRuleProfileUuids(@Param("rulesProfileUuids") Collection<String> rulesProfileUuids);
 
   void deleteParameter(int activeRuleParamId);
 
-  @CheckForNull
-  ActiveRuleParamDto selectParamByActiveRuleAndKey(@Param("activeRuleId") int activeRuleId, @Param("key") String key);
+  void deleteParamsByActiveRuleIds(@Param("activeRuleIds") Collection<Integer> activeRuleIds);
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleIds(@Param("ids") List<Integer> ids);
 
-  List<ActiveRuleParamDto> selectAllParams();
+  List<KeyLongValue> countActiveRulesByProfileUuid(@Param("organizationUuid") String organizationUuid);
 
-  List<KeyLongValue> countActiveRulesByProfileKey(@Param("organizationUuid") String organizationUuid);
+  List<KeyLongValue> countActiveRulesForRuleStatusByProfileUuid(@Param("organizationUuid") String organizationUuid, @Param("ruleStatus") RuleStatus ruleStatus);
 
-  List<KeyLongValue> countActiveRulesForRuleStatusByProfileKey(@Param("organizationUuid") String organizationUuid, @Param("ruleStatus") RuleStatus ruleStatus);
-
-  List<KeyLongValue> countActiveRulesForInheritanceByProfileKey(@Param("organizationUuid") String organizationUuid, @Param("inheritance") String inheritance);
+  List<KeyLongValue> countActiveRulesForInheritanceByProfileUuid(@Param("organizationUuid") String organizationUuid, @Param("inheritance") String inheritance);
 }

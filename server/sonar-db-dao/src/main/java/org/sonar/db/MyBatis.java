@@ -95,8 +95,8 @@ import org.sonar.db.qualitygate.QualityGateMapper;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleMapper;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.DefaultQProfileMapper;
 import org.sonar.db.qualityprofile.QProfileChangeMapper;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileMapper;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
@@ -105,8 +105,6 @@ import org.sonar.db.rule.RuleRepositoryMapper;
 import org.sonar.db.schemamigration.SchemaMigrationDto;
 import org.sonar.db.schemamigration.SchemaMigrationMapper;
 import org.sonar.db.source.FileSourceMapper;
-import org.sonar.db.user.AuthorDto;
-import org.sonar.db.user.AuthorMapper;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
 import org.sonar.db.user.GroupMembershipDto;
@@ -139,7 +137,6 @@ public class MyBatis implements Startable {
     // DTO aliases, keep them sorted alphabetically
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
-    confBuilder.loadAlias("Author", AuthorDto.class);
     confBuilder.loadAlias("Component", ComponentDto.class);
     confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
     confBuilder.loadAlias("ComponentWithSnapshot", ComponentDtoWithSnapshotId.class);
@@ -168,7 +165,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
-    confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
     confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
     confBuilder.loadAlias("Resource", ResourceDto.class);
     confBuilder.loadAlias("RuleParam", RuleParamDto.class);
@@ -190,7 +186,6 @@ public class MyBatis implements Startable {
     // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveRuleMapper.class,
-      AuthorMapper.class,
       AuthorizationMapper.class,
       CeActivityMapper.class,
       CeQueueMapper.class,
@@ -200,6 +195,7 @@ public class MyBatis implements Startable {
       ComponentLinkMapper.class,
       ComponentMapper.class,
       CustomMeasureMapper.class,
+      DefaultQProfileMapper.class,
       DuplicationMapper.class,
       EventMapper.class,
       FileSourceMapper.class,

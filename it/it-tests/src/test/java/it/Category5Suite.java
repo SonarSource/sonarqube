@@ -19,7 +19,6 @@
  */
 package it;
 
-import it.organization.RootTest;
 import it.serverSystem.ClusterTest;
 import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
@@ -46,8 +45,7 @@ import org.junit.runners.Suite;
   // update center
   UpdateCenterTest.class,
   RealmAuthenticationTest.class,
-  SsoAuthenticationTest.class,
-  RootTest.class
+  SsoAuthenticationTest.class
 })
 public class Category5Suite {
 

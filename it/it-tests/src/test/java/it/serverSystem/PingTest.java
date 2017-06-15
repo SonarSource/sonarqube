@@ -20,11 +20,10 @@
 package it.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.http.HttpResponse;
 import it.Category4Suite;
-import okhttp3.Response;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,9 +34,9 @@ public class PingTest {
 
   @Test
   public void ping_answers_pong() throws Exception {
-    Response response = ItUtils.call(orchestrator.getServer().getUrl() + "/api/system/ping");
+    HttpResponse response = orchestrator.getServer().newHttpCall("/api/system/ping").execute();
 
-    assertThat(response.body().string()).isEqualTo("pong");
-    assertThat(response.header("Content-Type")).isEqualTo("text/plain");
+    assertThat(response.getBodyAsString()).isEqualTo("pong");
+    assertThat(response.getHeader("Content-Type")).isEqualTo("text/plain");
   }
 }

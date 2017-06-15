@@ -22,14 +22,17 @@ package org.sonar.api.config;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -43,6 +46,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.FLOAT;
@@ -88,6 +92,8 @@ import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 @SonarLintSide
 @ExtensionPoint
 public final class PropertyDefinition {
+
+  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.VIEW, Qualifiers.MODULE, Qualifiers.SUBVIEW);
 
   private String key;
   private String defaultValue;
@@ -430,9 +436,12 @@ public final class PropertyDefinition {
      * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
+     *
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onQualifiers(String first, String... rest) {
-      this.onQualifiers.addAll(Lists.asList(first, rest));
+      addQualifiers(this.onQualifiers, first, rest);
       this.global = true;
       return this;
     }
@@ -446,9 +455,12 @@ public final class PropertyDefinition {
      * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
+     *
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onQualifiers(List<String> qualifiers) {
-      this.onQualifiers.addAll(ImmutableList.copyOf(qualifiers));
+      addQualifiers(this.onQualifiers, qualifiers);
       this.global = true;
       return this;
     }
@@ -462,9 +474,12 @@ public final class PropertyDefinition {
      * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
+     *
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onlyOnQualifiers(String first, String... rest) {
-      this.onlyOnQualifiers.addAll(Lists.asList(first, rest));
+      addQualifiers(this.onlyOnQualifiers, first, rest);
       this.global = false;
       return this;
     }
@@ -478,11 +493,27 @@ public final class PropertyDefinition {
      * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
+     *
+     * @throws IllegalArgumentException only qualifiers {@link Qualifiers#PROJECT PROJECT}, {@link Qualifiers#MODULE MODULE},
+     *         {@link Qualifiers#VIEW VIEW} and {@link Qualifiers#SUBVIEW SVW} are allowed.
      */
     public Builder onlyOnQualifiers(List<String> qualifiers) {
-      this.onlyOnQualifiers.addAll(ImmutableList.copyOf(qualifiers));
+      addQualifiers(this.onlyOnQualifiers, qualifiers);
       this.global = false;
       return this;
+    }
+
+    private static void addQualifiers(List<String> target, String first, String... rest) {
+      Stream.concat(Stream.of(first), Arrays.stream(rest)).peek(PropertyDefinition.Builder::validateQualifier).forEach(target::add);
+    }
+
+    private static void addQualifiers(List<String> target, List<String> qualifiers) {
+      qualifiers.stream().peek(PropertyDefinition.Builder::validateQualifier).forEach(target::add);
+    }
+
+    private static void validateQualifier(@Nullable String qualifier) {
+      requireNonNull(qualifier, "Qualifier cannot be null");
+      checkArgument(SUPPORTED_QUALIFIERS.contains(qualifier), "Qualifier must be one of %s", SUPPORTED_QUALIFIERS);
     }
 
     /**

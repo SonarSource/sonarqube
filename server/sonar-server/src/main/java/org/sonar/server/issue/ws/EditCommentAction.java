@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -66,10 +67,13 @@ public class EditCommentAction implements IssuesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_EDIT_COMMENT)
       .setDescription("Edit a comment.<br/>" +
-        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.<br/>" +
-        "Since 6.3, the response contains the issue with all details, not only the edited comment.<br/>" +
-        "Since 6.3, 'key' parameter has been renamed %s", PARAM_COMMENT)
+        "Requires authentication and the following permission: 'Browse' on the project of the specified issue.")
       .setSince("3.6")
+      .setChangelog(
+        new Change("6.3", "the response returns the issue with all its details"),
+        new Change("6.3", format("the 'key' parameter has been renamed %s", PARAM_COMMENT)),
+        new Change("6.5", "the database ids of the components are removed from the response"),
+        new Change("6.5", "the response field components.uuid is deprecated. Use components.key instead."))
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "edit_comment-example.json"))
       .setPost(true);
@@ -96,7 +100,7 @@ public class EditCommentAction implements IssuesWsAction {
         .peek(updateComment(dbSession))
         .collect(MoreCollectors.toOneElement())
         .getIssueDto();
-      responseWriter.write(issueDto.getKey(), request, response);
+      responseWriter.write(issueDto.getKey(), new SearchResponseData(issueDto), request, response);
     }
   }
 

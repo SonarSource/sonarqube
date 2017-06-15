@@ -32,7 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
@@ -55,10 +55,8 @@ public class DeleteActionTest {
 
   @Rule
   public DbTester db = DbTester.create(system2);
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -72,7 +70,7 @@ public class DeleteActionTest {
     ws = new WsTester(new ProjectsWs(
       new DeleteAction(
         componentCleanerService,
-        new ComponentFinder(dbClient),
+          TestComponentFinder.from(db),
         dbClient,
         userSessionRule)));
   }

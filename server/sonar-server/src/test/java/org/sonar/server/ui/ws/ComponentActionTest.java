@@ -505,7 +505,7 @@ public class ComponentActionTest {
     }});
     pageRepository.start();
     ws = new WsActionTester(
-      new ComponentAction(dbClient, pageRepository, resourceTypes, userSession, new ComponentFinder(dbClient),
+      new ComponentAction(dbClient, pageRepository, resourceTypes, userSession, new ComponentFinder(dbClient, resourceTypes),
         new QualityGateFinder(dbClient), billingValidations));
   }
 

@@ -31,8 +31,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileRestoreSummary;
@@ -40,6 +39,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
@@ -91,7 +91,7 @@ public class RestoreAction implements QProfileWsAction {
       reader = new InputStreamReader(backup, UTF_8);
 
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, organizationKey);
-      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
 
       QProfileRestoreSummary summary = backuper.restore(dbSession, reader, organization, null);
       writeResponse(response.newJsonWriter(), organization, summary);
@@ -102,14 +102,14 @@ public class RestoreAction implements QProfileWsAction {
   }
 
   private void writeResponse(JsonWriter json, OrganizationDto organization, QProfileRestoreSummary summary) {
-    QualityProfileDto profile = summary.getProfile();
+    QProfileDto profile = summary.getProfile();
     String languageKey = profile.getLanguage();
     Language language = languages.get(languageKey);
 
     JsonWriter jsonProfile = json.beginObject().name("profile").beginObject();
     jsonProfile
       .prop("organization", organization.getKey())
-      .prop("key", profile.getKey())
+      .prop("key", profile.getKee())
       .prop("name", profile.getName())
       .prop("language", languageKey)
       .prop("isDefault", false)

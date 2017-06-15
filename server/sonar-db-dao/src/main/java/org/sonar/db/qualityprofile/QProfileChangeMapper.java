@@ -29,7 +29,7 @@ public interface QProfileChangeMapper {
 
   List<QProfileChangeDto> selectByQuery(@Param("query") QProfileChangeQuery query);
 
-  int countForProfileKey(@Param("profileKey") String profileKey);
+  int countForQProfileUuid(@Param("qProfileUuid") String qProfileUuid);
 
-  void deleteByProfileKeys(@Param("profileKeys") Collection<String> profileKeys);
+  void deleteByRuleProfileUuids(@Param("ruleProfileUuids") Collection<String> uuids);
 }

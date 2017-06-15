@@ -20,7 +20,6 @@
 
 package org.sonar.db.organization;
 
-import com.google.common.collect.Multiset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -139,27 +137,6 @@ public class OrganizationMemberDaoTest {
     underTest.selectAllForUserIndexing(dbSession, (login, org) -> result.add(tuple(login, org)));
 
     assertThat(result).containsOnly(tuple("L_1", "ORG_1"), tuple("L_1", "ORG_2"), tuple("L_2", "ORG_1"));
-  }
-
-  @Test
-  public void count_by_organization_uuid() {
-    UserDto georgeOrwell = db.users().insertUser();
-    UserDto rayBradbury = db.users().insertUser();
-    UserDto frankHerbert = db.users().insertUser();
-    OrganizationDto org1 = db.organizations().insert();
-    db.organizations().addMember(org1, georgeOrwell);
-    db.organizations().addMember(org1, rayBradbury);
-    db.organizations().addMember(org1, frankHerbert);
-    OrganizationDto org2 = db.organizations().insert();
-    db.organizations().addMember(org2, georgeOrwell);
-    OrganizationDto org3 = db.organizations().insert();
-
-    Multiset<String> result = underTest.countByOrganizationUuids(dbSession, asList(org1.getUuid(), org2.getUuid(), org3.getUuid()));
-
-    assertThat(result.count(org1.getUuid())).isEqualTo(3);
-    assertThat(result.count(org2.getUuid())).isEqualTo(1);
-    assertThat(result.count(org3.getUuid())).isEqualTo(0);
-    assertThat(result.count("ORG_42")).isEqualTo(0);
   }
 
   @Test

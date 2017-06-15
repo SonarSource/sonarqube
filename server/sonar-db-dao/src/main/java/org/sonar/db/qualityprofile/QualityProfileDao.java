@@ -19,8 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +36,9 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class QualityProfileDao implements Dao {
 
@@ -48,137 +49,185 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectByKey(DbSession session, String key) {
-    return mapper(session).selectByKey(key);
+  public QProfileDto selectByUuid(DbSession dbSession, String uuid) {
+    return mapper(dbSession).selectByUuid(uuid);
   }
 
-  public QualityProfileDto selectOrFailByKey(DbSession session, String key) {
-    QualityProfileDto dto = selectByKey(session, key);
+  public QProfileDto selectOrFailByUuid(DbSession dbSession, String uuid) {
+    QProfileDto dto = selectByUuid(dbSession, uuid);
     if (dto == null) {
-      throw new RowNotFoundException("Quality profile not found: " + key);
+      throw new RowNotFoundException("Quality profile not found: " + uuid);
     }
     return dto;
   }
 
-  public List<QualityProfileDto> selectByKeys(DbSession session, List<String> keys) {
-    return executeLargeInputs(keys, mapper(session)::selectByKeys);
+  public List<QProfileDto> selectByUuids(DbSession dbSession, List<String> uuids) {
+    return executeLargeInputs(uuids, mapper(dbSession)::selectByUuids);
   }
 
-  public List<QualityProfileDto> selectAll(DbSession session, OrganizationDto organization) {
-    return mapper(session).selectAll(organization.getUuid());
+  public List<QProfileDto> selectOrderedByOrganizationUuid(DbSession dbSession, OrganizationDto organization) {
+    return mapper(dbSession).selectOrderedByOrganizationUuid(organization.getUuid());
   }
 
-  public void insert(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
-    QualityProfileMapper mapper = mapper(session);
+  public List<RulesProfileDto> selectBuiltInRulesProfiles(DbSession dbSession) {
+    return mapper(dbSession).selectBuiltInRuleProfiles();
+  }
+
+  public void insert(DbSession dbSession, RulesProfileDto dto) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    mapper.insertRuleProfile(dto, new Date(system.now()));
+  }
+
+  public void insert(DbSession dbSession, OrgQProfileDto dto) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    mapper.insertOrgQProfile(dto, system.now());
+  }
+
+  public void insert(DbSession dbSession, QProfileDto profile, QProfileDto... otherProfiles) {
+    QualityProfileMapper mapper = mapper(dbSession);
     doInsert(mapper, profile);
-    for (QualityProfileDto other : otherProfiles) {
+    for (QProfileDto other : otherProfiles) {
       doInsert(mapper, other);
     }
   }
 
-  private void doInsert(QualityProfileMapper mapper, QualityProfileDto profile) {
-    Preconditions.checkArgument(profile.getId() == null, "Quality profile is already persisted (got id %d)", profile.getId());
-    Date now = new Date(system.now());
-    profile.setCreatedAt(now);
-    profile.setUpdatedAt(now);
-    mapper.insert(profile);
+  private void doInsert(QualityProfileMapper mapper, QProfileDto profile) {
+    checkArgument(profile.getId() == null, "Quality profile is already persisted (got id %d)", profile.getId());
+    long now = system.now();
+    RulesProfileDto rulesProfile = RulesProfileDto.from(profile);
+    mapper.insertRuleProfile(rulesProfile, new Date(now));
+    mapper.insertOrgQProfile(OrgQProfileDto.from(profile), now);
+    profile.setId(rulesProfile.getId());
   }
 
-  public void update(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
-    QualityProfileMapper mapper = mapper(session);
-    doUpdate(mapper, profile);
-    for (QualityProfileDto otherProfile : otherProfiles) {
-      doUpdate(mapper, otherProfile);
+  public void update(DbSession dbSession, QProfileDto profile, QProfileDto... otherProfiles) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    long now = system.now();
+    doUpdate(mapper, profile, now);
+    for (QProfileDto otherProfile : otherProfiles) {
+      doUpdate(mapper, otherProfile, now);
     }
   }
 
-  private void doUpdate(QualityProfileMapper mapper, QualityProfileDto profile) {
-    Preconditions.checkArgument(profile.getId() != null, "Quality profile is not persisted");
-    profile.setUpdatedAt(new Date(system.now()));
-    mapper.update(profile);
+  public void update(DbSession dbSession, RulesProfileDto rulesProfile) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    long now = system.now();
+    mapper.updateRuleProfile(rulesProfile, new Date(now));
   }
 
-  public List<QualityProfileDto> selectDefaultProfiles(DbSession session, OrganizationDto organization, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, chunk -> mapper(session).selectDefaultProfiles(organization.getUuid(), chunk));
+  private static void doUpdate(QualityProfileMapper mapper, QProfileDto profile, long now) {
+    mapper.updateRuleProfile(RulesProfileDto.from(profile), new Date(now));
+    mapper.updateOrgQProfile(OrgQProfileDto.from(profile), now);
+  }
+
+  public List<QProfileDto> selectDefaultProfiles(DbSession dbSession, OrganizationDto organization, Collection<String> languages) {
+    return mapper(dbSession).selectDefaultProfiles(organization.getUuid(), languages);
   }
 
   @CheckForNull
-  public QualityProfileDto selectDefaultProfile(DbSession session, OrganizationDto organization, String language) {
-    return mapper(session).selectDefaultProfile(organization.getUuid(), language);
+  public QProfileDto selectDefaultProfile(DbSession dbSession, OrganizationDto organization, String language) {
+    return mapper(dbSession).selectDefaultProfile(organization.getUuid(), language);
   }
 
   @CheckForNull
-  public QualityProfileDto selectByProjectAndLanguage(DbSession session, String projectKey, String language) {
-    return mapper(session).selectByProjectAndLanguage(projectKey, language);
+  public QProfileDto selectAssociatedToProjectAndLanguage(DbSession dbSession, ComponentDto project, String language) {
+    return mapper(dbSession).selectAssociatedToProjectUuidAndLanguage(project.getOrganizationUuid(), project.projectUuid(), language);
   }
 
-  public List<QualityProfileDto> selectByProjectAndLanguages(DbSession session, OrganizationDto organization, ComponentDto project, Collection<String> languageKeys) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByProjectAndLanguages(organization.getUuid(), project.getKey(), input));
+  public List<QProfileDto> selectAssociatedToProjectUuidAndLanguages(DbSession dbSession, ComponentDto project, Collection<String> languages) {
+    return mapper(dbSession).selectAssociatedToProjectUuidAndLanguages(project.getOrganizationUuid(), project.uuid(), languages);
   }
 
-  public List<QualityProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
+  public List<QProfileDto> selectByLanguage(DbSession dbSession, OrganizationDto organization, String language) {
     return mapper(dbSession).selectByLanguage(organization.getUuid(), language);
   }
 
-  public List<QualityProfileDto> selectChildren(DbSession session, String key) {
-    return mapper(session).selectChildren(key);
+  public List<QProfileDto> selectChildren(DbSession dbSession, QProfileDto profile) {
+    return mapper(dbSession).selectChildren(profile.getKee());
   }
 
   /**
    * All descendants, in the top-down order.
    */
-  public List<QualityProfileDto> selectDescendants(DbSession session, String key) {
-    List<QualityProfileDto> descendants = Lists.newArrayList();
-    for (QualityProfileDto child : selectChildren(session, key)) {
+  public List<QProfileDto> selectDescendants(DbSession dbSession, QProfileDto profile) {
+    List<QProfileDto> descendants = new ArrayList<>();
+    for (QProfileDto child : selectChildren(dbSession, profile)) {
       descendants.add(child);
-      descendants.addAll(selectDescendants(session, child.getKey()));
+      descendants.addAll(selectDescendants(dbSession, child));
     }
     return descendants;
   }
 
   @CheckForNull
-  public QualityProfileDto selectByNameAndLanguage(OrganizationDto organization, String name, String language, DbSession session) {
-    return mapper(session).selectByNameAndLanguage(organization.getUuid(), name, language);
+  public QProfileDto selectByNameAndLanguage(DbSession dbSession, OrganizationDto organization, String name, String language) {
+    return mapper(dbSession).selectByNameAndLanguage(organization.getUuid(), name, language);
   }
 
-  public List<QualityProfileDto> selectByNameAndLanguages(OrganizationDto organization, String name, Collection<String> languageKeys, DbSession session) {
-    return executeLargeInputs(languageKeys, input -> mapper(session).selectByNameAndLanguages(organization.getUuid(), name, input));
+  public List<QProfileDto> selectByNameAndLanguages(DbSession dbSession, OrganizationDto organization, String name, Collection<String> languages) {
+    return mapper(dbSession).selectByNameAndLanguages(organization.getUuid(), name, languages);
   }
 
-  public Map<String, Long> countProjectsByProfileKey(DbSession dbSession, OrganizationDto organization) {
-    return KeyLongValue.toMap(mapper(dbSession).countProjectsByProfileKey(organization.getUuid()));
+  public Map<String, Long> countProjectsByProfileUuid(DbSession dbSession, OrganizationDto organization) {
+    return KeyLongValue.toMap(mapper(dbSession).countProjectsByProfileUuid(organization.getUuid()));
   }
 
-  public void insertProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    mapper(session).insertProjectProfileAssociation(projectUuid, profileKey);
+  public void insertProjectProfileAssociation(DbSession dbSession, ComponentDto project, QProfileDto profile) {
+    mapper(dbSession).insertProjectProfileAssociation(project.uuid(), profile.getKee());
   }
 
-  public void deleteProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    mapper(session).deleteProjectProfileAssociation(projectUuid, profileKey);
+  public void deleteProjectProfileAssociation(DbSession dbSession, ComponentDto project, QProfileDto profile) {
+    mapper(dbSession).deleteProjectProfileAssociation(project.uuid(), profile.getKee());
   }
 
-  public void updateProjectProfileAssociation(String projectUuid, String newProfileKey, String oldProfileKey, DbSession session) {
-    mapper(session).updateProjectProfileAssociation(projectUuid, newProfileKey, oldProfileKey);
+  public void updateProjectProfileAssociation(DbSession dbSession, ComponentDto project, String newProfileUuid, String oldProfileUuid) {
+    mapper(dbSession).updateProjectProfileAssociation(project.uuid(), newProfileUuid, oldProfileUuid);
   }
 
-  public void deleteProjectAssociationsByProfileKeys(DbSession dbSession, Collection<String> profileKeys) {
+  public void deleteProjectAssociationsByProfileUuids(DbSession dbSession, Collection<String> profileUuids) {
     QualityProfileMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteProjectAssociationByProfileKeys);
+    DatabaseUtils.executeLargeUpdates(profileUuids, mapper::deleteProjectAssociationByProfileUuids);
   }
 
-  public List<ProjectQprofileAssociationDto> selectSelectedProjects(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectSelectedProjects(DbSession dbSession, OrganizationDto organization, QProfileDto profile, @Nullable String query) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectSelectedProjects(organization.getUuid(), profileKey, nameQuery);
+    return mapper(dbSession).selectSelectedProjects(organization.getUuid(), profile.getKee(), nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(DbSession dbSession, OrganizationDto organization, QProfileDto profile, @Nullable String query) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectDeselectedProjects(organization.getUuid(), profileKey, nameQuery);
+    return mapper(dbSession).selectDeselectedProjects(organization.getUuid(), profile.getKee(), nameQuery);
   }
 
-  public List<ProjectQprofileAssociationDto> selectProjectAssociations(OrganizationDto organization, String profileKey, @Nullable String query, DbSession session) {
+  public List<ProjectQprofileAssociationDto> selectProjectAssociations(DbSession dbSession, OrganizationDto organization, QProfileDto profile, @Nullable String query) {
     String nameQuery = sqlQueryString(query);
-    return mapper(session).selectProjectAssociations(organization.getUuid(), profileKey, nameQuery);
+    return mapper(dbSession).selectProjectAssociations(organization.getUuid(), profile.getKee(), nameQuery);
+  }
+
+  public Collection<String> selectUuidsOfCustomRulesProfiles(DbSession dbSession, String language, String name) {
+    return mapper(dbSession).selectUuidsOfCustomRuleProfiles(language, name);
+  }
+
+  public void renameRulesProfilesAndCommit(DbSession dbSession, Collection<String> rulesProfileUuids, String newName) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    Date now = new Date(system.now());
+    executeLargeUpdates(rulesProfileUuids, partition -> {
+      mapper.renameRuleProfiles(newName, now, partition);
+      dbSession.commit();
+    });
+  }
+
+  public void deleteOrgQProfilesByUuids(DbSession dbSession, Collection<String> profileUuids) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(profileUuids, mapper::deleteOrgQProfilesByUuids);
+  }
+
+  public void deleteRulesProfilesByUuids(DbSession dbSession, Collection<String> rulesProfileUuids) {
+    QualityProfileMapper mapper = mapper(dbSession);
+    DatabaseUtils.executeLargeUpdates(rulesProfileUuids, mapper::deleteRuleProfilesByUuids);
+  }
+
+  public List<QProfileDto> selectChildrenOfBuiltInRulesProfile(DbSession dbSession, RulesProfileDto rulesProfile) {
+    return mapper(dbSession).selectChildrenOfBuiltInRulesProfile(rulesProfile.getKee());
   }
 
   private static String sqlQueryString(@Nullable String query) {
@@ -188,12 +237,7 @@ public class QualityProfileDao implements Dao {
     return "%" + query.toUpperCase(Locale.ENGLISH) + "%";
   }
 
-  private static QualityProfileMapper mapper(DbSession session) {
-    return session.getMapper(QualityProfileMapper.class);
-  }
-
-  public void deleteByKeys(DbSession dbSession, Collection<String> profileKeys) {
-    QualityProfileMapper mapper = mapper(dbSession);
-    DatabaseUtils.executeLargeUpdates(profileKeys, mapper::deleteByKeys);
+  private static QualityProfileMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(QualityProfileMapper.class);
   }
 }

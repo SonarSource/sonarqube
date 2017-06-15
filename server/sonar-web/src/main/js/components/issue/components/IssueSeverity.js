@@ -30,7 +30,7 @@ type Props = {
   isOpen: boolean,
   issue: Issue,
   setIssueProperty: (string, string, apiCall: (Object) => Promise<*>, string) => void,
-  togglePopup: string => void
+  togglePopup: (string, boolean | void) => void
 };
 
 export default class IssueSeverity extends React.PureComponent {

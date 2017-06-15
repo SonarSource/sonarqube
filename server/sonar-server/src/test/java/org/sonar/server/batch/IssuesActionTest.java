@@ -34,7 +34,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueIndex;
@@ -67,13 +67,10 @@ public class IssuesActionTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(system2);
-
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -83,7 +80,7 @@ public class IssuesActionTest {
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
   private WsActionTester tester = new WsActionTester(new IssuesAction(db.getDbClient(),
     new IssueIndex(es.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule)),
-    userSessionRule, new ComponentFinder(db.getDbClient())));
+    userSessionRule, TestComponentFinder.from(db)));
 
   @Test
   public void return_minimal_fields() throws Exception {

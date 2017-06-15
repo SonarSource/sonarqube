@@ -171,7 +171,7 @@ public class CorePropertyDefinitions {
         .name("Enable support of gravatars")
         .description("Gravatars are profile pictures of users based on their email.")
         .type(PropertyType.BOOLEAN)
-        .defaultValue(String.valueOf(true))
+        .defaultValue(String.valueOf(false))
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),

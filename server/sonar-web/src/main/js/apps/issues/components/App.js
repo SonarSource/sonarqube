@@ -63,10 +63,10 @@ import '../styles.css';
 export type Props = {
   component?: Component,
   currentUser: CurrentUser,
-  fetchIssues: () => Promise<*>,
+  fetchIssues: ({}) => Promise<*>,
   location: { pathname: string, query: { [string]: string } },
   onRequestFail: Error => void,
-  router: { push: () => void, replace: () => void }
+  router: { push: ({}) => void, replace: ({}) => void }
 };
 
 export type State = {
@@ -367,7 +367,7 @@ export default class App extends React.PureComponent {
   };
 
   fetchFirstIssues() {
-    this.setState({ loading: true });
+    this.setState({ checked: [], loading: true });
     return this.fetchIssues({}, true).then(({ facets, issues, paging, ...other }) => {
       if (this.mounted) {
         const openIssue = this.getOpenIssue(this.props, issues);

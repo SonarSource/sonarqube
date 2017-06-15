@@ -19,7 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -29,7 +31,7 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
@@ -42,14 +44,14 @@ public class DeleteAction implements QProfileWsAction {
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final QProfileWsSupport qProfileWsSupport;
+  private final QProfileWsSupport wsSupport;
 
-  public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession, QProfileWsSupport qProfileWsSupport) {
+  public DeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession, QProfileWsSupport wsSupport) {
     this.languages = languages;
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.qProfileWsSupport = qProfileWsSupport;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -70,35 +72,41 @@ public class DeleteAction implements QProfileWsAction {
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = qProfileWsSupport.getProfile(dbSession, QProfileReference.from(request));
+      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, profile.getOrganizationUuid());
+      wsSupport.checkNotBuiltInt(profile);
 
-      List<QualityProfileDto> descendants = selectDescendants(dbSession, profile);
-      ensureNoneIsMarkedAsDefault(profile, descendants);
+      List<QProfileDto> descendants = selectDescendants(dbSession, profile);
+      ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);
 
-      profileFactory.deleteByKeys(dbSession, toKeys(profile, descendants));
+      profileFactory.delete(dbSession, merge(profile, descendants));
       dbSession.commit();
     }
     response.noContent();
   }
 
-  private List<QualityProfileDto> selectDescendants(DbSession dbSession, QualityProfileDto profile) {
-    return dbClient.qualityProfileDao().selectDescendants(dbSession, profile.getKey());
+  private List<QProfileDto> selectDescendants(DbSession dbSession, QProfileDto profile) {
+    return dbClient.qualityProfileDao().selectDescendants(dbSession, profile);
   }
 
-  private static void ensureNoneIsMarkedAsDefault(QualityProfileDto profile, List<QualityProfileDto> descendants) {
-    checkArgument(!profile.isDefault(), "Profile '%s' cannot be deleted because it is marked as default", profile.getName());
+  private void ensureNoneIsMarkedAsDefault(DbSession dbSession, QProfileDto profile, List<QProfileDto> descendants) {
+    Set<String> allUuids = new HashSet<>();
+    allUuids.add(profile.getKee());
+    descendants.forEach(p -> allUuids.add(p.getKee()));
+
+    Set<String> uuidsOfDefaultProfiles = dbClient.defaultQProfileDao().selectExistingQProfileUuids(dbSession, profile.getOrganizationUuid(), allUuids);
+
+    checkArgument(!uuidsOfDefaultProfiles.contains(profile.getKee()), "Profile '%s' cannot be deleted because it is marked as default", profile.getName());
     descendants.stream()
-      .filter(QualityProfileDto::isDefault)
+      .filter(p -> uuidsOfDefaultProfiles.contains(p.getKee()))
       .findFirst()
       .ifPresent(p -> {
         throw new IllegalArgumentException(String.format("Profile '%s' cannot be deleted because its descendant named '%s' is marked as default", profile.getName(), p.getName()));
       });
   }
 
-  private static List<String> toKeys(QualityProfileDto profile, List<QualityProfileDto> descendants) {
+  private static List<QProfileDto> merge(QProfileDto profile, List<QProfileDto> descendants) {
     return Stream.concat(Stream.of(profile), descendants.stream())
-      .map(QualityProfileDto::getKee)
       .collect(MoreCollectors.toList(descendants.size() + 1));
   }
 }

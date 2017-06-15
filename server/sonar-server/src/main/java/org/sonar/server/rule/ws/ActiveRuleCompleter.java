@@ -23,20 +23,21 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -44,7 +45,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.OrgActiveRuleDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.ActiveRule;
@@ -53,10 +55,9 @@ import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
 
 import static com.google.common.base.Strings.nullToEmpty;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 /**
  * Add details about active rules to api/rules/search and api/rules/show
@@ -64,8 +65,6 @@ import static org.sonar.core.util.Protobuf.setNullable;
  */
 @ServerSide
 public class ActiveRuleCompleter {
-
-  private static final Logger LOG = Loggers.get(ActiveRuleCompleter.class);
 
   private final DbClient dbClient;
   private final Languages languages;
@@ -76,139 +75,137 @@ public class ActiveRuleCompleter {
   }
 
   void completeSearch(DbSession dbSession, RuleQuery query, List<RuleDto> rules, SearchResponse.Builder searchResponse) {
-    Collection<String> harvestedProfileKeys = writeActiveRules(dbSession, searchResponse, query, rules);
-    searchResponse.setQProfiles(buildQProfiles(dbSession, harvestedProfileKeys));
+    Set<String> profileUuids = writeActiveRules(dbSession, searchResponse, query, rules);
+    searchResponse.setQProfiles(buildQProfiles(dbSession, profileUuids));
   }
 
-  private Collection<String> writeActiveRules(DbSession dbSession, SearchResponse.Builder response, RuleQuery query, List<RuleDto> rules) {
-    Collection<String> qProfileKeys = new HashSet<>();
+  private Set<String> writeActiveRules(DbSession dbSession, SearchResponse.Builder response, RuleQuery query, List<RuleDto> rules) {
+    final Set<String> profileUuids = new HashSet<>();
     Rules.Actives.Builder activesBuilder = response.getActivesBuilder();
 
-    String profileKey = query.getQProfileKey();
-    if (profileKey != null) {
+    QProfileDto profile = query.getQProfile();
+    if (profile != null) {
       // Load details of active rules on the selected profile
-      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profileKey);
-      Map<RuleKey, ActiveRuleDto> activeRuleByRuleKey = activeRuleDtos.stream().collect(MoreCollectors.uniqueIndex(d -> d.getKey().ruleKey()));
-      ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
+      List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByProfile(dbSession, profile);
+      Map<RuleKey, OrgActiveRuleDto> activeRuleByRuleKey = activeRules.stream()
+        .collect(uniqueIndex(ActiveRuleDto::getRuleKey));
+      ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = loadParams(dbSession, activeRules);
 
       for (RuleDto rule : rules) {
-        ActiveRuleDto activeRule = activeRuleByRuleKey.get(rule.getKey());
+        OrgActiveRuleDto activeRule = activeRuleByRuleKey.get(rule.getKey());
         if (activeRule != null) {
-          qProfileKeys = writeActiveRules(rule.getKey(), singletonList(activeRule), activeRuleParamsByActiveRuleKey, activesBuilder);
+          profileUuids.addAll(writeActiveRules(rule.getKey(), singletonList(activeRule), activeRuleParamsByActiveRuleKey, activesBuilder));
         }
       }
     } else {
       // Load details of all active rules
-      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleIds(dbSession, query.getOrganizationUuid(), Lists.transform(rules, RuleDto::getId));
-      Multimap<RuleKey, ActiveRuleDto> activeRulesByRuleKey = from(activeRuleDtos).index(d -> d.getKey().ruleKey());
-      ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
-      for (RuleDto rule : rules) {
-        qProfileKeys = writeActiveRules(rule.getKey(), activeRulesByRuleKey.get(rule.getKey()), activeRuleParamsByActiveRuleKey, activesBuilder);
-      }
+      List<Integer> ruleIds = Lists.transform(rules, RuleDto::getId);
+      List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleIds(dbSession, query.getOrganization(), ruleIds);
+      Multimap<RuleKey, OrgActiveRuleDto> activeRulesByRuleKey = activeRules.stream()
+        .collect(MoreCollectors.index(OrgActiveRuleDto::getRuleKey));
+      ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = loadParams(dbSession, activeRules);
+      rules.forEach(rule -> profileUuids.addAll(writeActiveRules(rule.getKey(), activeRulesByRuleKey.get(rule.getKey()), activeRuleParamsByActiveRuleKey, activesBuilder)));
     }
 
     response.setActives(activesBuilder);
-    return qProfileKeys;
+    return profileUuids;
   }
 
-  private static Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRuleDto> activeRules,
+  private static Set<String> writeActiveRules(RuleKey ruleKey, Collection<OrgActiveRuleDto> activeRules,
     ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey, Rules.Actives.Builder activesBuilder) {
-    Collection<String> qProfileKeys = newHashSet();
+    final Set<String> profileUuids = new HashSet<>();
     Rules.ActiveList.Builder activeRulesListResponse = Rules.ActiveList.newBuilder();
-    for (ActiveRuleDto activeRule : activeRules) {
+    for (OrgActiveRuleDto activeRule : activeRules) {
       activeRulesListResponse.addActiveList(buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.getKey())));
-      qProfileKeys.add(activeRule.getKey().qProfile());
+      profileUuids.add(activeRule.getProfileUuid());
     }
     activesBuilder
       .getMutableActives()
       .put(ruleKey.toString(), activeRulesListResponse.build());
-    return qProfileKeys;
+    return profileUuids;
   }
 
-  private ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleDtosToActiveRuleParamDtos(DbSession dbSession, List<ActiveRuleDto> activeRuleDtos) {
+  private ListMultimap<ActiveRuleKey, ActiveRuleParamDto> loadParams(DbSession dbSession, List<OrgActiveRuleDto> activeRules) {
     Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
-    for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
-      activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());
+    for (OrgActiveRuleDto activeRule : activeRules) {
+      activeRuleIdsByKey.put(activeRule.getId(), activeRule.getKey());
     }
-    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDto::getId));
-    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRuleDtos.size(), 10);
-    for (ActiveRuleParamDto activeRuleParamDto : activeRuleParamDtos) {
-      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getActiveRuleId());
-      activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
+    List<ActiveRuleParamDto> activeRuleParams = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRules, ActiveRuleDto::getId));
+    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRules.size(), 10);
+    for (ActiveRuleParamDto activeRuleParam : activeRuleParams) {
+      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParam.getActiveRuleId());
+      activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParam);
     }
 
     return activeRuleParamsByActiveRuleKey;
   }
 
   List<Rules.Active> completeShow(DbSession dbSession, OrganizationDto organization, RuleDefinitionDto rule) {
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, organization, rule.getId());
+    List<OrgActiveRuleDto> activeRules = dbClient.activeRuleDao().selectByRuleId(dbSession, organization, rule.getId());
     Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
-    for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
+    for (OrgActiveRuleDto activeRuleDto : activeRules) {
       activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());
     }
 
-    List<Integer> activeRuleIds = activeRuleDtos.stream().map(ActiveRuleDto::getId).collect(Collectors.toList());
-    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
-    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRuleDtos.size(), 10);
-    for (ActiveRuleParamDto activeRuleParamDto : activeRuleParamDtos) {
+    List<Integer> activeRuleIds = activeRules.stream().map(ActiveRuleDto::getId).collect(Collectors.toList());
+    List<ActiveRuleParamDto> activeRuleParams = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
+    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRules.size(), 10);
+    for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams) {
       ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getActiveRuleId());
       activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
     }
 
-    return activeRuleDtos.stream()
+    return activeRules.stream()
       .map(activeRule -> buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.getKey())))
       .collect(Collectors.toList());
   }
 
-  private static Rules.Active buildActiveRuleResponse(ActiveRuleDto activeRule, List<ActiveRuleParamDto> parameters) {
-    Rules.Active.Builder activeRuleResponse = Rules.Active.newBuilder();
-    activeRuleResponse.setQProfile(activeRule.getKey().qProfile());
+  private static Rules.Active buildActiveRuleResponse(OrgActiveRuleDto activeRule, List<ActiveRuleParamDto> parameters) {
+    Rules.Active.Builder builder = Rules.Active.newBuilder();
+    builder.setQProfile(activeRule.getProfileUuid());
     String inheritance = activeRule.getInheritance();
-    activeRuleResponse.setInherit(inheritance != null ? inheritance : ActiveRule.Inheritance.NONE.name());
-    activeRuleResponse.setSeverity(activeRule.getSeverityString());
-    activeRuleResponse.setCreatedAt(DateUtils.formatDateTime(activeRule.getCreatedAt()));
+    builder.setInherit(inheritance != null ? inheritance : ActiveRule.Inheritance.NONE.name());
+    builder.setSeverity(activeRule.getSeverityString());
+    builder.setCreatedAt(DateUtils.formatDateTime(activeRule.getCreatedAt()));
     Rules.Active.Param.Builder paramBuilder = Rules.Active.Param.newBuilder();
     for (ActiveRuleParamDto parameter : parameters) {
-      activeRuleResponse.addParams(paramBuilder.clear()
+      builder.addParams(paramBuilder.clear()
         .setKey(parameter.getKey())
         .setValue(nullToEmpty(parameter.getValue())));
     }
 
-    return activeRuleResponse.build();
+    return builder.build();
   }
 
-  private Rules.QProfiles.Builder buildQProfiles(DbSession dbSession, Collection<String> harvestedProfileKeys) {
-    Map<String, QualityProfileDto> qProfilesByKey = new HashMap<>();
-    for (String qProfileKey : harvestedProfileKeys) {
-      if (!qProfilesByKey.containsKey(qProfileKey)) {
-        QualityProfileDto profile = loadProfile(dbSession, qProfileKey);
-        if (profile == null) {
-          LOG.warn("Could not find quality profile with key " + qProfileKey);
-          continue;
-        }
-        qProfilesByKey.put(qProfileKey, profile);
-        String parentKee = profile.getParentKee();
-        if (parentKee != null && !qProfilesByKey.containsKey(parentKee)) {
-          qProfilesByKey.put(parentKee, loadProfile(dbSession, parentKee));
-        }
-      }
+  private Rules.QProfiles.Builder buildQProfiles(DbSession dbSession, Set<String> profileUuids) {
+    Rules.QProfiles.Builder result = Rules.QProfiles.newBuilder();
+    if (profileUuids.isEmpty()) {
+      return result;
     }
 
-    Rules.QProfiles.Builder qProfilesResponse = Rules.QProfiles.newBuilder();
-    Map<String, Rules.QProfile> qProfilesMapResponse = qProfilesResponse.getMutableQProfiles();
-    for (QualityProfileDto profile : qProfilesByKey.values()) {
-      writeProfile(qProfilesMapResponse, profile);
+    // load profiles
+    Map<String, QProfileDto> profilesByUuid = dbClient.qualityProfileDao().selectByUuids(dbSession, new ArrayList<>(profileUuids))
+      .stream()
+      .collect(Collectors.toMap(QProfileDto::getKee, Function.identity()));
+
+    // load associated parents
+    List<String> parentUuids = profilesByUuid.values().stream()
+      .map(QProfileDto::getParentKee)
+      .filter(StringUtils::isNotEmpty)
+      .filter(uuid -> !profilesByUuid.containsKey(uuid))
+      .collect(MoreCollectors.toList());
+    if (!parentUuids.isEmpty()) {
+      dbClient.qualityProfileDao().selectByUuids(dbSession, parentUuids)
+        .forEach(p -> profilesByUuid.put(p.getKee(), p));
     }
 
-    return qProfilesResponse;
+    Map<String, Rules.QProfile> qProfilesMapResponse = result.getMutableQProfiles();
+    profilesByUuid.values().forEach(p -> writeProfile(qProfilesMapResponse, p));
+
+    return result;
   }
 
-  @CheckForNull
-  private QualityProfileDto loadProfile(DbSession dbSession, String qProfileKey) {
-    return dbClient.qualityProfileDao().selectByKey(dbSession, qProfileKey);
-  }
-
-  private void writeProfile(Map<String, Rules.QProfile> profilesResponse, QualityProfileDto profile) {
+  private void writeProfile(Map<String, Rules.QProfile> profilesResponse, QProfileDto profile) {
     Rules.QProfile.Builder profileResponse = Rules.QProfile.newBuilder();
     setNullable(profile.getName(), profileResponse::setName);
 
@@ -220,6 +217,6 @@ public class ActiveRuleCompleter {
     }
     setNullable(profile.getParentKee(), profileResponse::setParent);
 
-    profilesResponse.put(profile.getKey(), profileResponse.build());
+    profilesResponse.put(profile.getKee(), profileResponse.build());
   }
 }

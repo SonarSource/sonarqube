@@ -49,16 +49,19 @@ import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.INFO;
@@ -83,6 +86,7 @@ public class RegisterRulesTest {
   public LogTester logTester = new LogTester();
 
   private RuleActivator ruleActivator = mock(RuleActivator.class);
+  private WebServerRuleFinder webServerRuleFinder = mock(WebServerRuleFinder.class);
   private DbClient dbClient = dbTester.getDbClient();
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
@@ -95,7 +99,7 @@ public class RegisterRulesTest {
     when(system.now()).thenReturn(DATE1.getTime());
     ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
     ruleIndex = new RuleIndex(esTester.client());
-    activeRuleIndexer = new ActiveRuleIndexer(system, dbClient, esTester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client(), new ActiveRuleIteratorFactory(dbClient));
     defaultOrganization = dbTester.getDefaultOrganization();
   }
 
@@ -179,7 +183,7 @@ public class RegisterRulesTest {
   public void delete_repositories_that_have_been_uninstalled() {
     RuleRepositoryDto repository = new RuleRepositoryDto("findbugs", "java", "Findbugs");
     DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().ruleRepositoryDao().insert(dbSession, asList(repository));
+    dbTester.getDbClient().ruleRepositoryDao().insert(dbSession, singletonList(repository));
     dbSession.commit();
 
     execute(new FakeRepositoryV1());
@@ -195,7 +199,6 @@ public class RegisterRulesTest {
 
     // user adds tags and sets markdown note
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
-    String organizationUuid = defaultOrganization.getUuid();
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     rule1.setTags(newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
@@ -260,7 +263,6 @@ public class RegisterRulesTest {
     });
 
     OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
-    String organizationUuid = defaultOrganization.getUuid();
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     assertThat(rule.getSystemTags()).containsOnly("tag1");
 
@@ -360,7 +362,6 @@ public class RegisterRulesTest {
     when(system.now()).thenReturn(DATE2.getTime());
     execute();
 
-    String organizationUuid = dbTester.getDefaultOrganization().getUuid();
     RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), defaultOrganization, RULE_KEY1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RULE_KEY1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
@@ -484,11 +485,14 @@ public class RegisterRulesTest {
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), mock(CommonRuleDefinitionsImpl.class), defs);
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
+    reset(webServerRuleFinder);
 
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system, organizationFlags);
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system, organizationFlags, webServerRuleFinder);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();
+
+    verify(webServerRuleFinder).startCaching();
   }
 
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {

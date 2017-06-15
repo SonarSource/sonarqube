@@ -1,5 +1,5 @@
-// flow-typed signature: 5800b9dee6b8969ab2b5fa338d02a89f
-// flow-typed version: 473c121609/express_v4.x.x/flow_>=v0.32.x
+// flow-typed signature: 0a6a6906c197a7b95b251a16f7064bee
+// flow-typed version: f471f20d31/express_v4.x.x/flow_>=v0.32.x
 
 import type { Server } from 'http';
 
@@ -16,7 +16,7 @@ declare class express$RequestResponseBase {
 
 declare class express$Request extends http$IncomingMessage mixins express$RequestResponseBase {
   baseUrl: string;
-  body: mixed;
+  body: any;
   cookies: {[cookie: string]: string};
   fresh: boolean;
   hostname: string;
@@ -85,14 +85,14 @@ declare class express$Response extends http$ServerResponse mixins express$Reques
   sendStatus(statusCode: number): this;
   header(field: string, value?: string): this;
   header(headers: {[name: string]: string}): this;
-  set(field: string, value?: string): this;
+  set(field: string, value?: string|string[]): this;
   set(headers: {[name: string]: string}): this;
   status(statusCode: number): this;
   type(type: string): this;
   vary(field: string): this;
 }
 
-declare type express$NextFunction = (err?: ?Error) => mixed;
+declare type express$NextFunction = (err?: ?Error | 'route') => mixed;
 declare type express$Middleware =
   ((req: express$Request, res: express$Response, next: express$NextFunction) => mixed) |
   ((error: ?Error, req: express$Request, res: express$Response, next: express$NextFunction) => mixed);

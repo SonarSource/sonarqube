@@ -25,12 +25,17 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -73,6 +78,26 @@ public class WebServerProcessLoggingTest {
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
     Appender appender = root.getAppender("CONSOLE");
     assertThat(appender).isNull();
+  }
+
+
+  @Test
+  public void check_level_of_jul() throws IOException {
+    Props props = new Props(new Properties());
+    File dir = temp.newFolder();
+    props.set(ProcessProperties.PATH_LOGS, dir.getAbsolutePath());
+    props.set("sonar.log.level.web", "TRACE");
+
+    LoggerContext ctx = underTest.configure(props);
+
+    MemoryAppender memoryAppender = new MemoryAppender();
+    memoryAppender.start();
+    ctx.getLogger(ROOT_LOGGER_NAME).addAppender(memoryAppender);
+
+    java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.ms.sqlserver.jdbc.DTV");
+    logger.finest("Test");
+    memoryAppender.stop();
+    assertThat(memoryAppender.getLogs()).hasSize(1);
   }
 
   @Test
@@ -462,6 +487,17 @@ public class WebServerProcessLoggingTest {
     assertThat(context.getLogger("org.apache.catalina.core.StandardService").getLevel()).isNull();
   }
 
+  @Test
+  public void configure_turns_off_some_MsSQL_driver_logger() {
+    LoggerContext context = underTest.configure(props);
+
+    Stream.of("com.microsoft.sqlserver.jdbc.internals",
+      "com.microsoft.sqlserver.jdbc.ResultSet",
+      "com.microsoft.sqlserver.jdbc.Statement",
+      "com.microsoft.sqlserver.jdbc.Connection")
+      .forEach(loggerName -> assertThat(context.getLogger(loggerName).getLevel()).isEqualTo(Level.OFF));
+  }
+
   private void verifyRootLogLevel(LoggerContext ctx, Level expected) {
     Logger rootLogger = ctx.getLogger(ROOT_LOGGER_NAME);
     assertThat(rootLogger.getLevel()).isEqualTo(expected);
@@ -508,4 +544,20 @@ public class WebServerProcessLoggingTest {
     assertThat(context.getLogger("org.apache.catalina.core.StandardService").getLevel()).isEqualTo(Level.OFF);
   }
 
+  public static class MemoryAppender extends AppenderBase<ILoggingEvent> {
+    private static final List<ILoggingEvent> LOGS = new ArrayList<>();
+
+    @Override
+    protected void append(ILoggingEvent eventObject) {
+      LOGS.add(eventObject);
+    }
+
+    public List<ILoggingEvent> getLogs() {
+      return ImmutableList.copyOf(LOGS);
+    }
+
+    public void clear() {
+      LOGS.clear();
+    }
+  }
 }

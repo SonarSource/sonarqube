@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualityprofile.DefaultQProfileMapper">
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="map">
+    insert into default_qprofiles
+    (
+      organization_uuid,
+      language,
+      qprofile_uuid,
+      created_at,
+      updated_at
+    ) values (
+      #{dto.organizationUuid, jdbcType=VARCHAR},
+      #{dto.language, jdbcType=VARCHAR},
+      #{dto.qProfileUuid, jdbcType=VARCHAR},
+      #{now, jdbcType=BIGINT},
+      #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <update id="update" parameterType="map">
+    update default_qprofiles
+    set
+      qprofile_uuid = #{dto.qProfileUuid, jdbcType=VARCHAR},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      organization_uuid = #{dto.organizationUuid, jdbcType=VARCHAR}
+      and language = #{dto.language, jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteByQProfileUuids" parameterType="String">
+    delete from default_qprofiles
+    where qprofile_uuid in
+    <foreach collection="qProfileUuids" open="(" close=")" item="qProfileUuid" separator=",">
+      #{qProfileUuid, jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <select id="selectExistingQProfileUuids" parameterType="map" resultType="String">
+    select qprofile_uuid
+    from default_qprofiles
+    where
+      organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      and qprofile_uuid in
+      <foreach collection="qProfileUuids" open="(" close=")" item="qProfileUuid" separator=",">
+        #{qProfileUuid, jdbcType=VARCHAR}
+      </foreach>
+  </select>
+</mapper>
+

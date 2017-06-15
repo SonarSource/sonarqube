@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+./.travis/setup_ramdisk.sh
+
 function installPhantomJs {
   echo "Setup PhantomJS 2.1"
   mkdir -p ~/phantomjs
@@ -23,17 +25,16 @@ function installPhantomJs {
 # at each build.
 #
 function installJdk8 {
-  echo "Setup JDK 1.8u121"
+  echo "Setup JDK 1.8u131"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
-  if [ ! -d "jdk1.8.0_121" ]; then
-    echo "Download JDK8"
-    wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-linux-x64.tar.gz
-    tar xzf jdk-8u121-linux-x64.tar.gz
-    rm jdk-8u121-linux-x64.tar.gz
+  if [ ! -d "jdk1.8.0_131" ]; then
+    wget -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
+    tar xzf jdk-8u131-linux-x64.tar.gz
+    rm jdk-8u131-linux-x64.tar.gz
   fi
   popd > /dev/null
-  export JAVA_HOME=~/jvm/jdk1.8.0_121
+  export JAVA_HOME=~/jvm/jdk1.8.0_131
   export PATH=$JAVA_HOME/bin:$PATH
 }
 
@@ -112,8 +113,8 @@ function fixBuildVersion {
 # Configure Maven settings and install some script utilities
 #
 function configureTravis {
-  mkdir ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v35 | tar zx --strip-components 1 -C ~/.local
+  mkdir -p ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v36 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
@@ -127,17 +128,13 @@ case "$TARGET" in
 
 BUILD)
 
-  # Hack to keep job alive even if no logs during more than 10 minutes.
-  # That can occur when uploading sonarqube.zip to Artifactory.
-  ./clock.sh &
-
   installJdk8
   installMaven
   fixBuildVersion
 
   # Minimal Maven settings
   export MAVEN_OPTS="-Xmx1G -Xms128m"
-  MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
+  MAVEN_ARGS="-T 1C -Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
@@ -149,12 +146,14 @@ BUILD)
     # For this reason errors are ignored with "|| true"
     git fetch --unshallow || true
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
-          -Pdeploy-sonarsource,release \
+          -Pdeploy-sonarsource,release
+    mvn sonar:sonar \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.projectVersion=$INITIAL_VERSION
+
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
@@ -164,10 +163,11 @@ BUILD)
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
         $MAVEN_ARGS \
         -Dsource.skip=true \
-        -Pdeploy-sonarsource \
+        -Pdeploy-sonarsource
+    mvn sonar:sonar \
         -Dsonar.analysis.mode=preview \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
@@ -199,6 +199,3 @@ WEB_TESTS)
   ;;
 
 esac
-
-#stop the clock
-touch stop

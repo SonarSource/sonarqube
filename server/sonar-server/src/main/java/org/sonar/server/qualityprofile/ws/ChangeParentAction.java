@@ -28,7 +28,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
@@ -85,22 +85,23 @@ public class ChangeParentAction implements QProfileWsAction {
     QProfileReference reference = QProfileReference.from(request);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityProfileDto profile = wsSupport.getProfile(dbSession, reference);
+      QProfileDto profile = wsSupport.getProfile(dbSession, reference);
       String organizationUuid = profile.getOrganizationUuid();
       OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
         .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' of profile '%s'", organizationUuid, profile.getKee())));
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
+      wsSupport.checkNotBuiltInt(profile);
 
       String parentKey = request.param(PARAM_PARENT_KEY);
       String parentName = request.param(PARAM_PARENT_NAME);
       if (isEmpty(parentKey) && isEmpty(parentName)) {
-        ruleActivator.setParent(dbSession, profile.getKey(), null);
+        ruleActivator.setParent(dbSession, profile, null);
       } else {
         String parentOrganizationKey = parentKey == null ? organization.getKey() : null;
         String parentLanguage = parentKey == null ? request.param(PARAM_LANGUAGE) : null;
         QProfileReference parentRef = QProfileReference.from(parentKey, parentOrganizationKey, parentLanguage, parentName);
-        QualityProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
-        ruleActivator.setParent(dbSession, profile.getKey(), parent.getKey());
+        QProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
+        ruleActivator.setParent(dbSession, profile, parent);
       }
       response.noContent();
     }

@@ -38,7 +38,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.util.LanguageParamUtils;
@@ -111,12 +111,12 @@ public class ExportAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
-      QualityProfileDto profile = loadProfile(dbSession, organization, language, name);
+      QProfileDto profile = loadProfile(dbSession, organization, language, name);
       writeResponse(dbSession, profile, exporterKey, response);
     }
   }
 
-  private void writeResponse(DbSession dbSession, QualityProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
+  private void writeResponse(DbSession dbSession, QProfileDto profile, @Nullable String exporterKey, Response response) throws IOException {
     Stream stream = response.stream();
     try (
       OutputStream output = response.stream().output();
@@ -126,18 +126,18 @@ public class ExportAction implements QProfileWsAction {
         backuper.backup(dbSession, profile, writer);
       } else {
         stream.setMediaType(exporters.mimeType(exporterKey));
-        exporters.export(profile, exporterKey, writer);
+        exporters.export(dbSession, profile, exporterKey, writer);
       }
     }
   }
 
-  private QualityProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, String language, @Nullable String name) {
-    QualityProfileDto profile;
+  private QProfileDto loadProfile(DbSession dbSession, OrganizationDto organization, String language, @Nullable String name) {
+    QProfileDto profile;
     if (name == null) {
       // return the default profile
       profile = dbClient.qualityProfileDao().selectDefaultProfile(dbSession, organization, language);
     } else {
-      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(organization, name, language, dbSession);
+      profile = dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name, language);
     }
     return checkFound(profile, "Could not find profile with name '%s' for language '%s'", name, language);
   }

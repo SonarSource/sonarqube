@@ -115,7 +115,7 @@ public class SearchAction implements ProjectLinksWsAction {
   }
 
   private ComponentDto getComponentByUuidOrKey(DbSession dbSession, SearchWsRequest request) {
-    ComponentDto component = componentFinder.getByUuidOrKey(
+    ComponentDto component = componentFinder.getRootComponentByUuidOrKey(
       dbSession,
       request.getProjectId(),
       request.getProjectKey(),

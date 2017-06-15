@@ -53,13 +53,13 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.DefaultQProfileDao;
 import org.sonar.db.qualityprofile.QProfileChangeDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleRepositoryDao;
 import org.sonar.db.schemamigration.SchemaMigrationDao;
 import org.sonar.db.source.FileSourceDao;
-import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
@@ -100,7 +100,6 @@ public class DbClient {
   private final CeTaskInputDao ceTaskInputDao;
   private final CeScannerContextDao ceScannerContextDao;
   private final FileSourceDao fileSourceDao;
-  private final AuthorDao authorDao;
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
@@ -118,6 +117,7 @@ public class DbClient {
   private final QProfileChangeDao qProfileChangeDao;
   private final UserPermissionDao userPermissionDao;
   private final WebhookDeliveryDao webhookDeliveryDao;
+  private final DefaultQProfileDao defaultQProfileDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
@@ -155,7 +155,6 @@ public class DbClient {
     ceTaskInputDao = getDao(map, CeTaskInputDao.class);
     ceScannerContextDao = getDao(map, CeScannerContextDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
-    authorDao = getDao(map, AuthorDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
@@ -173,6 +172,7 @@ public class DbClient {
     qProfileChangeDao = getDao(map, QProfileChangeDao.class);
     userPermissionDao = getDao(map, UserPermissionDao.class);
     webhookDeliveryDao = getDao(map, WebhookDeliveryDao.class);
+    defaultQProfileDao = getDao(map, DefaultQProfileDao.class);
   }
 
   public DbSession openSession(boolean batch) {
@@ -295,10 +295,6 @@ public class DbClient {
     return fileSourceDao;
   }
 
-  public AuthorDao authorDao() {
-    return authorDao;
-  }
-
   public ComponentLinkDao componentLinkDao() {
     return componentLinkDao;
   }
@@ -365,6 +361,10 @@ public class DbClient {
 
   public WebhookDeliveryDao webhookDeliveryDao() {
     return webhookDeliveryDao;
+  }
+
+  public DefaultQProfileDao defaultQProfileDao() {
+    return defaultQProfileDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

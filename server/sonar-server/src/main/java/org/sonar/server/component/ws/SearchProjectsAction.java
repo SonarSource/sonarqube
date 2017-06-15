@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
@@ -38,7 +39,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -51,7 +51,6 @@ import org.sonar.server.component.ws.FilterParser.Criterion;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
@@ -66,13 +65,18 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
-import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.db.measure.ProjectMeasuresIndexerIterator.METRIC_KEYS;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.IS_FAVORITE_CRITERION;
 import static org.sonar.server.component.ws.ProjectMeasuresQueryFactory.newProjectMeasuresQuery;
+import static org.sonar.server.component.ws.ProjectMeasuresQueryValidator.NON_METRIC_SORT_KEYS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndex.SUPPORTED_FACETS;
+import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_LAST_ANALYSIS_DATE;
 import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
@@ -85,17 +89,16 @@ import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 public class SearchProjectsAction implements ComponentsWsAction {
 
   private static final String ANALYSIS_DATE = "analysisDate";
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ANALYSIS_DATE);
+  private static final String LEAK_PERIOD_DATE = "leakPeriodDate";
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet(ANALYSIS_DATE, LEAK_PERIOD_DATE);
 
   private final DbClient dbClient;
   private final ProjectMeasuresIndex index;
-  private final ProjectMeasuresQueryValidator queryValidator;
   private final UserSession userSession;
 
-  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, ProjectMeasuresQueryValidator queryValidator, UserSession userSession) {
+  public SearchProjectsAction(DbClient dbClient, ProjectMeasuresIndex index, UserSession userSession) {
     this.dbClient = dbClient;
     this.index = index;
-    this.queryValidator = queryValidator;
     this.userSession = userSession;
   }
 
@@ -109,7 +112,10 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("search_projects-example.json"))
       .setChangelog(
         new Change("6.4", format("The '%s' parameter accepts '%s' to filter by language", FILTER_LANGUAGES, PARAM_FILTER)),
-        new Change("6.4", "The 'visibility' field is added"))
+        new Change("6.4", "The 'visibility' field is added"),
+        new Change("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
+        new Change("6.5", "Added the option 'analysisDate' for the 'sort' parameter"),
+        new Change("6.5", format("Value '%s' is added to parameter '%s'", LEAK_PERIOD_DATE, FIELDS)))
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)
@@ -122,7 +128,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setSince("6.3");
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
-      .setPossibleValues(SUPPORTED_FACETS);
+      .setPossibleValues(SUPPORTED_FACETS.stream().sorted().collect(MoreCollectors.toList(SUPPORTED_FACETS.size())));
     action
       .createParam(PARAM_FILTER)
       .setDescription("Filter of projects on name, key, measure value, quality gate, language, tag or whether a project is a favorite or not.<br>" +
@@ -133,11 +139,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
         "   <code>filter=\"alert_status = ERROR and isFavorite and coverage >= 60 and coverage < 80\"</code></li>" +
         " <li>to filter projects with a reliability, security and maintainability rating equals or worse than B:<br>" +
         "   <code>filter=\"reliability_rating>=2 and security_rating>=2 and sqale_rating>=2\"</code></li>" +
+        " <li>to filter projects without duplication data:<br>" +
+        "   <code>filter=\"duplicated_lines_density = NO_DATA\"</code></li>" +
         "</ul>" +
         "To filter on project name or key, use the 'query' keyword, for instance : <code>filter='query = \"Sonar\"'</code>.<br>" +
         "<br>" +
-        "To filter on any numeric metric, provide the metric key.<br>" +
-        "Use the WS api/metrics/search to find the key of a metric.<br>" +
+        "To filter on a numeric metric, provide the metric key.<br>" +
+        "These are the supported metric keys:<br>" +
+        "<ul>" +
+        METRIC_KEYS.stream().sorted().map(key -> "<li>" + key + "</li>").collect(Collectors.joining()) +
+        "</ul>" +
         "<br>" +
         "To filter on a rating, provide the corresponding metric key (ex: reliability_rating for reliability rating).<br>" +
         "The possible values are:" +
@@ -167,10 +178,11 @@ public class SearchProjectsAction implements ComponentsWsAction {
         " <li>to filter on several tags you must use <code>tag in (offshore, java)</code></li>" +
         "</ul>");
     action.createParam(Param.SORT)
-      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), or by project name.<br/>" +
-        "See '%s' parameter description for the possible metric values", ALERT_STATUS_KEY, PARAM_FILTER)
+      .setDescription("Sort projects by numeric metric key, quality gate status (using '%s'), last analysis date (using '%s'), or by project name.",
+        ALERT_STATUS_KEY, SORT_BY_LAST_ANALYSIS_DATE, PARAM_FILTER)
       .setDefaultValue(SORT_BY_NAME)
-      .setExampleValue(NCLOC_KEY)
+      .setPossibleValues(
+        Stream.concat(METRIC_KEYS.stream(), NON_METRIC_SORT_KEYS.stream()).sorted().collect(MoreCollectors.toList(METRIC_KEYS.size() + NON_METRIC_SORT_KEYS.size())))
       .setSince("6.4");
     action.createParam(Param.ASCENDING)
       .setDescription("Ascending sort")
@@ -223,7 +235,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .map(OrganizationDto::getUuid)
       .ifPresent(query::setOrganizationUuid);
 
-    queryValidator.validate(dbSession, query);
+    ProjectMeasuresQueryValidator.validate(query);
 
     SearchIdResult<String> esResults = index.search(query, new SearchOptions()
       .addFacets(request.getFacets())
@@ -266,7 +278,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private Map<String, SnapshotDto> getSnapshots(DbSession dbSession, SearchProjectsRequest request, List<String> projectUuids) {
-    if (request.getAdditionalFields().contains(ANALYSIS_DATE)) {
+    if (request.getAdditionalFields().contains(ANALYSIS_DATE) || request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
       return dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids)
         .stream()
         .collect(MoreCollectors.uniqueIndex(SnapshotDto::getComponentUuid));
@@ -285,14 +297,14 @@ public class SearchProjectsAction implements ComponentsWsAction {
     if (httpRequest.hasParam(Param.FACETS)) {
       request.setFacets(httpRequest.paramAsStrings(Param.FACETS));
     }
-    if (httpRequest.hasParam(Param.FIELDS)) {
+    if (httpRequest.hasParam(FIELDS)) {
       request.setAdditionalFields(httpRequest.paramAsStrings(FIELDS));
     }
     return request.build();
   }
 
   private SearchProjectsWsResponse buildResponse(SearchProjectsRequest request, SearchResults searchResults, Map<String, OrganizationDto> organizationsByUuid) {
-    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
+    Function<ComponentDto, Component> dbToWsComponent = new DbToWsComponent(request, organizationsByUuid, searchResults.favoriteProjectUuids, searchResults.analysisByProjectUuid,
       userSession.isLoggedIn());
 
     return Stream.of(SearchProjectsWsResponse.newBuilder())
@@ -386,14 +398,16 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private static class DbToWsComponent implements Function<ComponentDto, Component> {
+    private final SearchProjectsRequest request;
     private final Component.Builder wsComponent;
     private final Map<String, OrganizationDto> organizationsByUuid;
     private final Set<String> favoriteProjectUuids;
     private final boolean isUserLoggedIn;
     private final Map<String, SnapshotDto> analysisByProjectUuid;
 
-    private DbToWsComponent(Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids, Map<String, SnapshotDto> analysisByProjectUuid,
-      boolean isUserLoggedIn) {
+    private DbToWsComponent(SearchProjectsRequest request, Map<String, OrganizationDto> organizationsByUuid, Set<String> favoriteProjectUuids,
+      Map<String, SnapshotDto> analysisByProjectUuid, boolean isUserLoggedIn) {
+      this.request = request;
       this.analysisByProjectUuid = analysisByProjectUuid;
       this.wsComponent = Component.newBuilder();
       this.organizationsByUuid = organizationsByUuid;
@@ -403,10 +417,9 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
     @Override
     public Component apply(ComponentDto dbComponent) {
-      OrganizationDto organizationDto = organizationsByUuid.get(dbComponent.getOrganizationUuid());
-      if (organizationDto == null) {
-        throw new NotFoundException(format("Organization with uuid '%s' not found", dbComponent.getOrganizationUuid()));
-      }
+      String organizationUuid = dbComponent.getOrganizationUuid();
+      OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
+      checkFound(organizationDto, "Organization with uuid '%s' not found", organizationUuid);
       wsComponent
         .clear()
         .setOrganization(organizationDto.getKey())
@@ -418,7 +431,12 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
       SnapshotDto snapshotDto = analysisByProjectUuid.get(dbComponent.uuid());
       if (snapshotDto != null) {
-        wsComponent.setAnalysisDate(DateUtils.formatDateTime(snapshotDto.getCreatedAt()));
+        if (request.getAdditionalFields().contains(ANALYSIS_DATE)) {
+          wsComponent.setAnalysisDate(formatDateTime(snapshotDto.getCreatedAt()));
+        }
+        if (request.getAdditionalFields().contains(LEAK_PERIOD_DATE)) {
+          setNullable(snapshotDto.getPeriodDate(), leakPeriodDate -> wsComponent.setLeakPeriodDate(formatDateTime(leakPeriodDate)));
+        }
       }
 
       if (isUserLoggedIn) {

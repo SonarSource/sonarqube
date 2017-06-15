@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonarqube.ws.MediaTypes;
 
@@ -69,7 +69,7 @@ public class BackupAction implements QProfileWsAction {
     try (OutputStreamWriter writer = new OutputStreamWriter(stream.output(), UTF_8);
       DbSession dbSession = dbClient.openSession(false)) {
 
-      QualityProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
+      QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
       response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profile.getKee()));
       backuper.backup(dbSession, profile, writer);
     }
