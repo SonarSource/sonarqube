@@ -7,7 +7,8 @@
     "qualifier": "FIL",
     "language": "java",
     "path": "src/main/java/com/sonarsource/markdown/impl/Rule.java",
-    "analysisDate": "2017-03-01T11:39:03+0100"
+    "analysisDate": "2017-03-01T11:39:03+0100",
+    "leakPeriodDate": "2017-01-01T11:39:03+0100"
   },
   "ancestors": [
     {
