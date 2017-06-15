@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
@@ -126,13 +127,15 @@ export default class Onboarding extends React.PureComponent {
 
     let stepNumber = 1;
 
+    const header = translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header');
+
     return (
       <div className="modal-container">
+        <Helmet title={header} titleTemplate="%s" />
+
         <div className="page page-limited onboarding">
           <header className="page-header">
-            <h1 className="page-title">
-              {translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header')}
-            </h1>
+            <h1 className="page-title">{header}</h1>
             <div className="page-actions">
               {this.state.skipping
                 ? <i className="spinner" />

@@ -4,6 +4,10 @@ exports[`guides for on-premise 1`] = `
 <div
   className="modal-container"
 >
+  <HelmetWrapper
+    title="onboarding.header"
+    titleTemplate="%s"
+  />
   <div
     className="page page-limited onboarding"
   >
@@ -52,6 +56,10 @@ exports[`guides for on-premise 2`] = `
 <div
   className="modal-container"
 >
+  <HelmetWrapper
+    title="onboarding.header"
+    titleTemplate="%s"
+  />
   <div
     className="page page-limited onboarding"
   >
@@ -101,6 +109,10 @@ exports[`guides for sonarcloud 1`] = `
 <div
   className="modal-container"
 >
+  <HelmetWrapper
+    title="onboarding.header.sonarcloud"
+    titleTemplate="%s"
+  />
   <div
     className="page page-limited onboarding"
   >
@@ -160,6 +172,10 @@ exports[`guides for sonarcloud 2`] = `
 <div
   className="modal-container"
 >
+  <HelmetWrapper
+    title="onboarding.header.sonarcloud"
+    titleTemplate="%s"
+  />
   <div
     className="page page-limited onboarding"
   >
@@ -220,6 +236,10 @@ exports[`guides for sonarcloud 3`] = `
 <div
   className="modal-container"
 >
+  <HelmetWrapper
+    title="onboarding.header.sonarcloud"
+    titleTemplate="%s"
+  />
   <div
     className="page page-limited onboarding"
   >
