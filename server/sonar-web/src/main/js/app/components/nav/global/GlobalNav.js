@@ -25,9 +25,11 @@ import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import GlobalHelp from '../../help/GlobalHelp';
+import Tooltip from '../../../../components/controls/Tooltip';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
 import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
 import { getCurrentUser, getAppState, getSettingValue } from '../../../../store/rootReducer';
+import { translate } from '../../../../helpers/l10n';
 
 type Props = {
   appState: { organizationsEnabled: boolean },
@@ -37,12 +39,18 @@ type Props = {
 
 type State = {
   helpOpen: boolean,
-  onboardingTutorialOpen: boolean
+  onboardingTutorialOpen: boolean,
+  onboardingTutorialTooltip: boolean
 };
 
 class GlobalNav extends React.PureComponent {
+  interval: ?number;
   props: Props;
-  state: State = { helpOpen: false, onboardingTutorialOpen: false };
+  state: State = {
+    helpOpen: false,
+    onboardingTutorialOpen: false,
+    onboardingTutorialTooltip: false
+  };
 
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
@@ -52,6 +60,9 @@ class GlobalNav extends React.PureComponent {
   }
 
   componentWillUnmount() {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
@@ -76,7 +87,14 @@ class GlobalNav extends React.PureComponent {
 
   openOnboardingTutorial = () => this.setState({ helpOpen: false, onboardingTutorialOpen: true });
 
-  closeOnboardingTutorial = () => this.setState({ onboardingTutorialOpen: false });
+  finishOnboardingTutorial = () => this.setState({ onboardingTutorialOpen: false });
+
+  skipOnboardingTutorial = () => {
+    this.setState({ onboardingTutorialOpen: false, onboardingTutorialTooltip: true });
+    this.interval = setInterval(() => {
+      this.setState({ onboardingTutorialTooltip: false });
+    }, 3000);
+  };
 
   render() {
     return (
@@ -90,7 +108,14 @@ class GlobalNav extends React.PureComponent {
             <Search appState={this.props.appState} currentUser={this.props.currentUser} />
             <li>
               <a className="navbar-help" onClick={this.handleHelpClick} href="#">
-                <HelpIcon />
+                {this.state.onboardingTutorialTooltip
+                  ? <Tooltip
+                      defaultVisible={true}
+                      overlay={translate('tutorials.follow_later')}
+                      trigger="manual">
+                      <HelpIcon />
+                    </Tooltip>
+                  : <HelpIcon />}
               </a>
             </li>
             <GlobalNavUserContainer {...this.props} />
@@ -106,7 +131,10 @@ class GlobalNav extends React.PureComponent {
           />}
 
         {this.state.onboardingTutorialOpen &&
-          <OnboardingModal onClose={this.closeOnboardingTutorial} />}
+          <OnboardingModal
+            onFinish={this.finishOnboardingTutorial}
+            onSkip={this.skipOnboardingTutorial}
+          />}
       </nav>
     );
   }

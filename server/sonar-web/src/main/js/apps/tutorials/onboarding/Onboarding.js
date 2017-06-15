@@ -30,12 +30,13 @@ import { getProjectUrl } from '../../../helpers/urls';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import './styles.css';
 
-type Props = {
+type Props = {|
   currentUser: { login: string, isLoggedIn: boolean },
+  onFinish: () => void,
   onSkip: () => void,
   organizationsEnabled: boolean,
   sonarCloud: boolean
-};
+|};
 
 type State = {
   finished: boolean,
@@ -75,12 +76,16 @@ export default class Onboarding extends React.PureComponent {
     this.mounted = false;
   }
 
-  finishOnboarding = () => {
+  finishOnboarding = (skipped: boolean = false) => {
     this.setState({ skipping: true });
     skipOnboarding().then(
       () => {
         if (this.mounted) {
-          this.props.onSkip();
+          if (skipped) {
+            this.props.onSkip();
+          } else {
+            this.props.onFinish();
+          }
 
           if (this.state.projectKey) {
             this.context.router.push(getProjectUrl(this.state.projectKey));
@@ -114,7 +119,7 @@ export default class Onboarding extends React.PureComponent {
 
   handleSkipClick = (event: Event) => {
     event.preventDefault();
-    this.finishOnboarding();
+    this.finishOnboarding(true);
   };
 
   handleFinish = (projectKey?: string) => this.setState({ finished: true, projectKey });

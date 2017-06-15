@@ -22,9 +22,10 @@ import React from 'react';
 import Modal from 'react-modal';
 import { translate } from '../../../helpers/l10n';
 
-type Props = {
-  onClose: () => void
-};
+type Props = {|
+  onFinish: () => void,
+  onSkip: () => void
+|};
 
 type State = {
   OnboardingContainer?: Object
@@ -62,7 +63,8 @@ export default class OnboardingModal extends React.PureComponent {
         contentLabel={translate('tutorials.onboarding')}
         className="modal modal-large"
         overlayClassName="modal-overlay">
-        {OnboardingContainer != null && <OnboardingContainer onSkip={this.props.onClose} />}
+        {OnboardingContainer != null &&
+          <OnboardingContainer onFinish={this.props.onFinish} onSkip={this.props.onSkip} />}
       </Modal>
     );
   }
