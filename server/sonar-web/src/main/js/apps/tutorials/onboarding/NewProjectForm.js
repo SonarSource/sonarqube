@@ -109,8 +109,8 @@ export default class NewProjectForm extends React.PureComponent {
       ? <form onSubmit={this.handleProjectDelete}>
           <span className="spacer-right text-middle">{projectKey}</span>
           {loading
-            ? <i className="spinner" />
-            : <button className="button-clean">
+            ? <i className="spinner text-middle" />
+            : <button className="button-clean text-middle">
                 <i className="icon-delete" />
               </button>}
         </form>
@@ -126,7 +126,7 @@ export default class NewProjectForm extends React.PureComponent {
             value={projectKey}
           />
           {loading
-            ? <i className="spinner" />
+            ? <i className="spinner text-middle" />
             : <button className="text-middle" disabled={!valid}>{translate('Done')}</button>}
           <div className="note spacer-top abs-width-300">
             {translate('onboarding.project_key_requirement')}

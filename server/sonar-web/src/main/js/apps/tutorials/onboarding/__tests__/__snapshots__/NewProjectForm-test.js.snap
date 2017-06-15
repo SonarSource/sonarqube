@@ -69,7 +69,7 @@ exports[`creates new project 2`] = `
         value="foo"
       />
       <i
-        className="spinner"
+        className="spinner text-middle"
       />
       <div
         className="note spacer-top abs-width-300"
@@ -103,7 +103,7 @@ exports[`creates new project 3`] = `
         foo
       </span>
       <button
-        className="button-clean"
+        className="button-clean text-middle"
       >
         <i
           className="icon-delete"
@@ -136,7 +136,7 @@ exports[`deletes project 1`] = `
         foo
       </span>
       <button
-        className="button-clean"
+        className="button-clean text-middle"
       >
         <i
           className="icon-delete"
@@ -169,7 +169,7 @@ exports[`deletes project 2`] = `
         foo
       </span>
       <i
-        className="spinner"
+        className="spinner text-middle"
       />
     </form>
   </div>

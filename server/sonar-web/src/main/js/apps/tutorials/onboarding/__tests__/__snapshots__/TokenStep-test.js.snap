@@ -41,14 +41,16 @@ exports[`generates token 1`] = `
         >
           <input
             autoFocus={true}
-            className="input-large spacer-right"
+            className="input-large spacer-right text-middle"
             onChange={[Function]}
             placeholder="onboarding.token.placeholder"
             required={true}
             type="text"
             value=""
           />
-          <button>
+          <button
+            className="text-middle"
+          >
             onboarding.token.generate
           </button>
         </form>
@@ -99,7 +101,7 @@ exports[`generates token 2`] = `
         >
           <input
             autoFocus={true}
-            className="input-large spacer-right"
+            className="input-large spacer-right text-middle"
             onChange={[Function]}
             placeholder="onboarding.token.placeholder"
             required={true}
@@ -107,7 +109,7 @@ exports[`generates token 2`] = `
             value="my token"
           />
           <i
-            className="spinner"
+            className="spinner text-middle"
           />
         </form>
       </div>
@@ -158,12 +160,12 @@ exports[`generates token 3`] = `
           my token
           : 
           <span
-            className="monospaced spacer-right"
+            className="monospaced spacer-right text-middle"
           >
             abcd1234
           </span>
           <button
-            className="button-clean"
+            className="button-clean text-middle"
             onClick={[Function]}
           >
             <i
@@ -229,12 +231,12 @@ exports[`revokes token 1`] = `
           my token
           : 
           <span
-            className="monospaced spacer-right"
+            className="monospaced spacer-right text-middle"
           >
             abcd1234
           </span>
           <button
-            className="button-clean"
+            className="button-clean text-middle"
             onClick={[Function]}
           >
             <i
@@ -300,12 +302,12 @@ exports[`revokes token 2`] = `
           my token
           : 
           <span
-            className="monospaced spacer-right"
+            className="monospaced spacer-right text-middle"
           >
             abcd1234
           </span>
           <i
-            className="spinner"
+            className="spinner text-middle"
           />
         </form>
         <div
@@ -365,14 +367,16 @@ exports[`revokes token 3`] = `
         >
           <input
             autoFocus={true}
-            className="input-large spacer-right"
+            className="input-large spacer-right text-middle"
             onChange={[Function]}
             placeholder="onboarding.token.placeholder"
             required={true}
             type="text"
             value=""
           />
-          <button>
+          <button
+            className="text-middle"
+          >
             onboarding.token.generate
           </button>
         </form>
