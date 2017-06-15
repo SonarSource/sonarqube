@@ -7,6 +7,10 @@
   padding-left: 34px;
 }
 
+.onboarding-step:not(.onboarding-step-open) {
+  opacity: 0.4;
+}
+
 .onboarding-step .boxed-group-actions {
   height: 24px;
   line-height: 24px;
@@ -20,7 +24,7 @@
   height: 24px;
   line-height: 24px;
   border-radius: 24px;
-  background-color: #cdcdcd;
+  background-color: #b9b9b9;
   color: #fff;
   font-size: 14px;
   text-align: center;
