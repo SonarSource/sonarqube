@@ -35,6 +35,7 @@ public class UsersWsModule extends Module {
       GroupsAction.class,
       IdentityProvidersAction.class,
       UserPropertiesWs.class,
-      UserJsonWriter.class);
+      UserJsonWriter.class,
+      SkipOnboardingTutorialAction.class);
   }
 }

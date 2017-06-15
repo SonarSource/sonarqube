@@ -124,6 +124,7 @@ const startReactApp = () => {
         <Redirect from="/profiles/index" to="/profiles" />
         <Redirect from="/quality_gates/index" to="/quality_gates" />
         <Redirect from="/settings/index" to="/settings" />
+        <Redirect from="/sessions/login" to="/sessions/new" />
         <Redirect from="/system/index" to="/system" />
 
         <Route path="markdown/help" component={MarkdownHelp} />
@@ -137,7 +138,7 @@ const startReactApp = () => {
 
             <Route component={MigrationContainer}>
               <Route component={SimpleSessionsContainer}>
-                <Route path="/sessions">{sessionsRoutes}</Route>
+                <Route path="/sessions" childRoutes={sessionsRoutes} />
               </Route>
 
               <Route path="/" component={App}>

@@ -21,20 +21,24 @@ package org.sonarqube.ws.client.user;
 
 import java.util.List;
 import org.sonarqube.ws.WsUsers.CreateWsResponse;
+import org.sonarqube.ws.WsUsers.CurrentWsResponse;
 import org.sonarqube.ws.WsUsers.GroupsWsResponse;
 import org.sonarqube.ws.WsUsers.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.client.WsResponse;
 
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_GROUPS;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_SKIP_ONBOARDING_TUTORIAL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.CONTROLLER_USERS;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -92,4 +96,11 @@ public class UsersService extends BaseService {
       GroupsWsResponse.parser());
   }
 
+  public CurrentWsResponse current() {
+    return call(new GetRequest(path(ACTION_CURRENT)), CurrentWsResponse.parser());
+  }
+
+  public WsResponse skipOnboardingTutorial() {
+    return call(new PostRequest(path(ACTION_SKIP_ONBOARDING_TUTORIAL)));
+  }
 }

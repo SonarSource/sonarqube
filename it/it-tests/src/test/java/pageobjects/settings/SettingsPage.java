@@ -35,7 +35,7 @@ public class SettingsPage {
   }
 
   public SettingsPage assertMenuContains(String categoryName) {
-    $(".settings-menu").$(By.linkText(categoryName)).shouldBe(visible);
+    $(".side-tabs-menu").$(By.linkText(categoryName)).shouldBe(visible);
     return this;
   }
 
@@ -50,7 +50,7 @@ public class SettingsPage {
   }
 
   public SettingsPage openCategory(String categoryName) {
-    $(".settings-menu").$(By.linkText(categoryName)).click();
+    $(".side-tabs-menu").$(By.linkText(categoryName)).click();
     return this;
   }
 

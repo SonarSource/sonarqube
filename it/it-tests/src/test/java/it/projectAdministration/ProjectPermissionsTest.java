@@ -22,12 +22,14 @@ package it.projectAdministration;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import pageobjects.Navigation;
 import pageobjects.ProjectPermissionsPage;
+import util.user.UserRule;
 
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
@@ -38,12 +40,21 @@ public class ProjectPermissionsTest {
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
+  private String adminUser;
 
   @BeforeClass
   public static void beforeClass() {
     executeBuild("project-permissions-project", "Test Project");
     executeBuild("project-permissions-project-2", "Another Test Project");
+  }
+
+  @Before
+  public void before() {
+    adminUser = userRule.createAdminUser();
   }
 
   @Test
@@ -53,7 +64,7 @@ public class ProjectPermissionsTest {
 
   @Test
   public void change_project_visibility() {
-    ProjectPermissionsPage page = nav.logIn().asAdmin().openProjectPermissions("project-permissions-project");
+    ProjectPermissionsPage page = nav.logIn().submitCredentials(adminUser).openProjectPermissions("project-permissions-project");
     page
       .shouldBePublic()
       .turnToPrivate()

@@ -31,35 +31,29 @@
   font-weight: 300;
 }
 
-.sqcom-about-page-intro > .button {
+.sonarcloud-about-github-button {
+  display: inline-block;
   height: 44px;
-  line-height: 42px;
+  line-height: 46px;
   padding-left: 20px;
   padding-right: 20px;
-  border-color: #fff;
+  border: none;
   border-radius: 3px;
-  color: #fff;
-  font-size: 16px;
+  background-color: #444;
+  color: #fff !important;
+  font-size: 15px;
   font-weight: 500;
   text-transform: uppercase;
-  transition: none;
 }
 
-.sqcom-about-page-intro > .button:hover {
-  background-color: #fff;
-  color: #4b9fd5;
+.sonarcloud-about-github-button:hover,
+.sonarcloud-about-github-button:focus {
+  background-color: #333;
 }
 
-.sqcom-about-page-intro > .button-active {
-  border-color: #b0eb41;
-  background-color: #b0eb41;
-  color: #225463;
-}
-
-.sqcom-about-page-intro > .button-active:hover {
-  border-color: #91d315;
-  background-color: #91d315;
-  color: #225463;
+.sonarcloud-about-github-button img {
+  margin-top: 12px;
+  margin-right: 10px;
 }
 
 .sqcom-about-page-instance {

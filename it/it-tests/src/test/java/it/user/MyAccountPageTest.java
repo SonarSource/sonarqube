@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -46,7 +47,11 @@ public class MyAccountPageTest {
   private static WsClient adminWsClient;
 
   @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
+  @Rule
   public Navigation nav = Navigation.get(orchestrator);
+  private String adminUser;
 
   @BeforeClass
   public static void setUp() {
@@ -55,6 +60,7 @@ public class MyAccountPageTest {
 
   @Before
   public void initUser() {
+    adminUser = userRule.createAdminUser();
     createUser("account-user", "User With Account", "user@example.com");
   }
 
@@ -101,7 +107,7 @@ public class MyAccountPageTest {
 
   @Test
   public void notifications() {
-    nav.logIn().asAdmin().openNotifications()
+    nav.logIn().submitCredentials(adminUser).openNotifications()
       .addGlobalNotification("ChangesOnMyIssue")
       .addGlobalNotification("NewIssues")
       .removeGlobalNotification("ChangesOnMyIssue");

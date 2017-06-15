@@ -20,23 +20,28 @@
 package org.sonar.server.user.ws;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.WsUsers.CurrentWsResponse;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Collections.emptyList;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
-import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_IDENTITY;
-import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_PROVIDER;
+import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.WsUsers.CurrentWsResponse.Permissions;
+import static org.sonarqube.ws.WsUsers.CurrentWsResponse.newBuilder;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
@@ -51,97 +56,55 @@ public class CurrentAction implements UsersWsAction {
 
   @Override
   public void define(NewController context) {
-    context.createAction("current")
+    context.createAction(ACTION_CURRENT)
       .setDescription("Get the details of the current authenticated user.")
       .setHandler(this)
       .setInternal(true)
       .setResponseExample(getClass().getResource("current-example.json"))
-      .setSince("5.2");
+      .setSince("5.2")
+      .setChangelog(new Change("6.5", "showOnboardingTutorial is now returned in the response"));
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<UserDto> user = Optional.empty();
-      Collection<String> groups = emptyList();
-      if (userSession.isLoggedIn()) {
-        user = selectCurrentUser(dbSession);
-        groups = selectGroups(dbSession);
+    if (userSession.isLoggedIn()) {
+      try (DbSession dbSession = dbClient.openSession(false)) {
+        writeProtobuf(toWsResponse(dbSession, userSession.getLogin()), request, response);
       }
-      writeResponse(response, user, groups);
+    } else {
+      writeProtobuf(newBuilder()
+        .setIsLoggedIn(false)
+        .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+        .build(),
+        request, response);
     }
   }
 
-  private Optional<UserDto> selectCurrentUser(DbSession dbSession) {
-    return Optional.ofNullable(dbClient.userDao().selectActiveUserByLogin(dbSession, userSession.getLogin()));
+  private CurrentWsResponse toWsResponse(DbSession dbSession, String userLogin) {
+    UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
+    checkState(user != null, "User login '%s' cannot be found", userLogin);
+    Collection<String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userLogin)).get(userLogin);
+
+    CurrentWsResponse.Builder builder = newBuilder()
+      .setIsLoggedIn(true)
+      .setLogin(user.getLogin())
+      .setName(user.getName())
+      .setLocal(user.isLocal())
+      .addAllGroups(groups)
+      .addAllScmAccounts(user.getScmAccountsAsList())
+      .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+      .setShowOnboardingTutorial(!user.isOnboarded());
+    setNullable(emptyToNull(user.getEmail()), builder::setEmail);
+    setNullable(user.getExternalIdentity(), builder::setExternalIdentity);
+    setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
+    return builder.build();
   }
 
-  private Collection<String> selectGroups(DbSession dbSession) {
-    return dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(userSession.getLogin()))
-      .get(userSession.getLogin());
-  }
-
-  private void writeResponse(Response response, Optional<UserDto> user, Collection<String> groups) {
-    JsonWriter json = response.newJsonWriter().beginObject();
-    writeUserDetails(json, user, groups);
-    json.endObject().close();
-  }
-
-  private void writeUserDetails(JsonWriter json, Optional<UserDto> optionalUser, Collection<String> groups) {
-    json
-      .prop("isLoggedIn", userSession.isLoggedIn())
-      .prop("login", userSession.getLogin())
-      .prop("name", userSession.getName());
-    if (optionalUser.isPresent()) {
-      UserDto user = optionalUser.get();
-      if (!isNullOrEmpty(user.getEmail())) {
-        json.prop("email", user.getEmail());
-      }
-      json.prop("local", user.isLocal());
-      json.prop(FIELD_EXTERNAL_IDENTITY, user.getExternalIdentity());
-      json.prop(FIELD_EXTERNAL_PROVIDER, user.getExternalIdentityProvider());
-    }
-
-    writeScmAccounts(json, optionalUser);
-    writeGroups(json, groups);
-    writePermissions(json);
-  }
-
-  private static void writeScmAccounts(JsonWriter json, Optional<UserDto> optionalUser) {
-    json.name("scmAccounts");
-    json.beginArray();
-    if (optionalUser.isPresent()) {
-      for (String scmAccount : optionalUser.get().getScmAccountsAsList()) {
-        json.value(scmAccount);
-      }
-    }
-    json.endArray();
-  }
-
-  private static void writeGroups(JsonWriter json, Collection<String> groups) {
-    json.name("groups");
-    json.beginArray();
-    for (String group : groups) {
-      json.value(group);
-    }
-    json.endArray();
-  }
-
-  private void writePermissions(JsonWriter json) {
-    json.name("permissions").beginObject();
-    writeGlobalPermissions(json);
-    json.endObject();
-  }
-
-  private void writeGlobalPermissions(JsonWriter json) {
-    json.name("global").beginArray();
-
+  private List<String> getGlobalPermissions() {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
-    OrganizationPermission.all()
+    return OrganizationPermission.all()
       .filter(permission -> userSession.hasPermission(permission, defaultOrganizationUuid))
-      .forEach(permission -> json.value(permission.getKey()));
-
-    json.endArray();
+      .map(OrganizationPermission::getKey)
+      .collect(Collectors.toList());
   }
-
 }

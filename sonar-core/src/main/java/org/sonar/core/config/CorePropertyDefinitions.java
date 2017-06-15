@@ -29,6 +29,7 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
+import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
 
 public class CorePropertyDefinitions {
@@ -45,6 +46,7 @@ public class CorePropertyDefinitions {
   private static final String CATEGORY_ORGANIZATIONS = "organizations";
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
+  public static final String ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS = "sonar.onboardingTutorial.showToNewUsers";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -120,6 +122,13 @@ public class CorePropertyDefinitions {
         .multiValues(true)
         .defaultValue(CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE)
         .build(),
+      PropertyDefinition.builder(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS)
+        .name("Show an onboarding tutorial to new users")
+        .type(BOOLEAN)
+        .description("Show an onboarding tutorial to news, that explains how to analyze a first project, after logging in for the fist time.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .defaultValue(String.valueOf(false))
+        .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_REALM)
         .name("Security Realm")
         .hidden()
@@ -127,13 +136,13 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder("sonar.authenticator.downcase")
         .name("Downcase login")
         .description("Downcase login during user authentication, typically for Active Directory")
-        .type(PropertyType.BOOLEAN)
+        .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
         .hidden()
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE)
         .name("Ignore failures during authenticator startup")
-        .type(PropertyType.BOOLEAN)
+        .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
         .hidden()
         .build(),
@@ -141,7 +150,7 @@ public class CorePropertyDefinitions {
         .name("Disable the SCM Sensor")
         .description("Disable the retrieval of blame information from Source Control Manager")
         .category(CoreProperties.CATEGORY_SCM)
-        .type(PropertyType.BOOLEAN)
+        .type(BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .defaultValue(String.valueOf(false))
         .build(),
@@ -170,7 +179,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(WebConstants.SONAR_LF_ENABLE_GRAVATAR)
         .name("Enable support of gravatars")
         .description("Gravatars are profile pictures of users based on their email.")
-        .type(PropertyType.BOOLEAN)
+        .type(BOOLEAN)
         .defaultValue(String.valueOf(false))
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
@@ -228,7 +237,7 @@ public class CorePropertyDefinitions {
         .onQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
-        .type(PropertyType.BOOLEAN)
+        .type(BOOLEAN)
         .build(),
       PropertyDefinition.builder(CoreProperties.CPD_EXCLUSIONS)
         .defaultValue("")
@@ -246,14 +255,14 @@ public class CorePropertyDefinitions {
         .name("Allow any authenticated user to create organizations")
         .defaultValue(Boolean.toString(false))
         .category(CATEGORY_ORGANIZATIONS)
-        .type(PropertyType.BOOLEAN)
+        .type(BOOLEAN)
         .hidden()
         .build(),
       PropertyDefinition.builder(ORGANIZATIONS_CREATE_PERSONAL_ORG)
         .name("Create an organization for each new user")
         .defaultValue(Boolean.toString(false))
         .category(CATEGORY_ORGANIZATIONS)
-        .type(PropertyType.BOOLEAN)
+        .type(BOOLEAN)
         .hidden()
         .build()));
     return defs;

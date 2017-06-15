@@ -93,4 +93,23 @@ message GroupsWsResponse {
   }
 }
 
+// WS api/users/current
+message CurrentWsResponse {
+  optional bool isLoggedIn = 1;
+  optional string login = 2;
+  optional string name = 3;
+  optional string email = 4;
+  optional bool local = 5;
+  optional string externalIdentity = 6;
+  optional string externalProvider = 7;
+  repeated string scmAccounts = 8;
+  repeated string groups = 9;
+  optional Permissions permissions = 10;
+  optional bool showOnboardingTutorial = 11;
+
+  message Permissions {
+    repeated string global = 1;
+  }
+}
+
 

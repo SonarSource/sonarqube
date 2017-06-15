@@ -1,0 +1,187 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+// @flow
+import React from 'react';
+import TokenStep from './TokenStep';
+import OrganizationStep from './OrganizationStep';
+import AnalysisStep from './AnalysisStep';
+import ProjectWatcher from './ProjectWatcher';
+import { skipOnboarding } from '../../../api/users';
+import { translate } from '../../../helpers/l10n';
+import { getProjectUrl } from '../../../helpers/urls';
+import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import './styles.css';
+
+type Props = {
+  currentUser: { login: string, isLoggedIn: boolean },
+  onSkip: () => void,
+  organizationsEnabled: boolean,
+  sonarCloud: boolean
+};
+
+type State = {
+  finished: boolean,
+  organization?: string,
+  projectKey?: string,
+  skipping: boolean,
+  step: string,
+  token?: string
+};
+
+export default class Onboarding extends React.PureComponent {
+  mounted: boolean;
+  props: Props;
+  state: State;
+
+  static contextTypes = {
+    router: React.PropTypes.object
+  };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      finished: false,
+      skipping: false,
+      step: props.organizationsEnabled ? 'organization' : 'token'
+    };
+  }
+
+  componentDidMount() {
+    this.mounted = true;
+    if (!this.props.currentUser.isLoggedIn) {
+      handleRequiredAuthentication();
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  finishOnboarding = () => {
+    this.setState({ skipping: true });
+    skipOnboarding().then(
+      () => {
+        if (this.mounted) {
+          this.props.onSkip();
+
+          if (this.state.projectKey) {
+            this.context.router.push(getProjectUrl(this.state.projectKey));
+          }
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ skipping: false });
+        }
+      }
+    );
+  };
+
+  handleTimeout = () => {
+    // unset `projectKey` to display a generic "Finish this tutorial" button
+    this.setState({ projectKey: undefined });
+  };
+
+  handleTokenDone = (token: string) => {
+    this.setState({ step: 'analysis', token });
+  };
+
+  handleOrganizationDone = (organization: string) => {
+    this.setState({ organization, step: 'token' });
+  };
+
+  handleSkipClick = (event: Event) => {
+    event.preventDefault();
+    this.finishOnboarding();
+  };
+
+  handleFinish = (projectKey?: string) => this.setState({ finished: true, projectKey });
+
+  handleReset = () => this.setState({ finished: false });
+
+  render() {
+    if (!this.props.currentUser.isLoggedIn) {
+      return null;
+    }
+
+    const { organizationsEnabled, sonarCloud } = this.props;
+    const { step, token } = this.state;
+
+    let stepNumber = 1;
+
+    return (
+      <div className="page page-limited">
+        <header className="page-header">
+          <h1 className="page-title">
+            {translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header')}
+          </h1>
+          <div className="page-actions">
+            {this.state.skipping
+              ? <i className="spinner" />
+              : <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
+                  {translate('tutorials.skip')}
+                </a>}
+          </div>
+          <div className="page-description">
+            {translate('onboarding.header.description')}
+          </div>
+        </header>
+
+        {organizationsEnabled &&
+          <OrganizationStep
+            currentUser={this.props.currentUser}
+            onContinue={this.handleOrganizationDone}
+            open={step === 'organization'}
+            stepNumber={stepNumber++}
+          />}
+
+        <TokenStep
+          onContinue={this.handleTokenDone}
+          open={step === 'token'}
+          stepNumber={stepNumber++}
+        />
+
+        <AnalysisStep
+          onFinish={this.handleFinish}
+          onReset={this.handleReset}
+          organization={this.state.organization}
+          open={step === 'analysis'}
+          sonarCloud={sonarCloud}
+          stepNumber={stepNumber}
+          token={token}
+        />
+
+        {this.state.finished &&
+          !this.state.skipping &&
+          (this.state.projectKey
+            ? <ProjectWatcher
+                onFinish={this.finishOnboarding}
+                onTimeout={this.handleTimeout}
+                projectKey={this.state.projectKey}
+              />
+            : <footer className="text-right">
+                <a className="button" href="#" onClick={this.handleSkipClick}>
+                  {translate('tutorials.finish')}
+                </a>
+              </footer>)}
+      </div>
+    );
+  }
+}

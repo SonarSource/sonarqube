@@ -28,10 +28,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.newAdminWsClient;
@@ -40,14 +42,30 @@ import static util.selenium.Selenese.runSelenese;
 
 public class QualityProfilesUiTest {
 
+  private static final String ADMIN_USER_LOGIN = "admin-user";
+
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
+
   private static WsClient adminWsClient;
 
   @BeforeClass
   public static void setUp() {
     adminWsClient = newAdminWsClient(orchestrator);
     orchestrator.resetData();
+  }
+
+  @Before
+  public void initAdminUser() throws Exception {
+    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
+  }
+
+  @After
+  public void deleteAdminUser() {
+    userRule.resetUsers();
   }
 
   @Before

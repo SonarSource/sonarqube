@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="big-spacer-top note text-center"
+>
+  onboarding.project_watcher.not_started
+</div>
+`;
+
+exports[`renders 2`] = `
+<div
+  className="big-spacer-top note text-center"
+>
+  <i
+    className="spinner spacer-right"
+  />
+  onboarding.project_watcher.in_progress
+</div>
+`;
+
+exports[`renders 3`] = `
+<div
+  className="big-spacer-top note text-center"
+>
+  <i
+    className="icon-check spacer-right"
+  />
+  onboarding.project_watcher.finished
+</div>
+`;
+
+exports[`renders 4`] = `
+<div
+  className="big-spacer-top note text-center"
+>
+  <i
+    className="spinner spacer-right"
+  />
+  onboarding.project_watcher.in_progress
+</div>
+`;

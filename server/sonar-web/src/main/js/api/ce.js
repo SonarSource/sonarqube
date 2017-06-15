@@ -38,7 +38,7 @@ export const cancelTask = (id: string): Promise<*> =>
 
 export const cancelAllTasks = (): Promise<*> => post('/api/ce/cancel_all');
 
-export const getTasksForComponent = (componentId: string): Promise<*> =>
-  getJSON('/api/ce/component', { componentId });
+export const getTasksForComponent = (componentKey: string): Promise<*> =>
+  getJSON('/api/ce/component', { componentKey });
 
 export const getTypes = (): Promise<*> => getJSON('/api/ce/task_types').then(r => r.taskTypes);

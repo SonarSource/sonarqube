@@ -70,7 +70,7 @@ export default class CategoriesList extends React.PureComponent {
     const sortedCategories = sortBy(categoriesWithName, category => category.name.toLowerCase());
 
     return (
-      <ul className="settings-menu">
+      <ul className="side-tabs-menu">
         {sortedCategories.map(category => (
           <li key={category.key}>
             {this.renderLink(category)}

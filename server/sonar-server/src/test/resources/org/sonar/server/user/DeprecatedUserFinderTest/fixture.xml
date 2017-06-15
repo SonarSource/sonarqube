@@ -4,11 +4,13 @@
          login="simon"
          name="Simon Brandhof"
          email="simon.brandhof@sonarsource.com"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
   <users id="2"
          login="godin"
          name="Evgeny Mandrikov"
          email="evgeny.mandrikov@sonarsource.com"
-         is_root="[false]"/>
+         is_root="[false]"
+         onboarded="[true]"/>
 
 </dataset>

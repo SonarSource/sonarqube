@@ -49,6 +49,7 @@ import static org.junit.Assert.fail;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.pluginArtifact;
+import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
@@ -59,11 +60,12 @@ import static util.selenium.Selenese.runSelenese;
  */
 public class RealmAuthenticationTest {
 
+  private static final String TECH_USER = "techUser";
+  private static final String USER_LOGIN = "tester";
+  private static final String ADMIN_USER_LOGIN = "admin-user";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  static final String TECH_USER = "techUser";
-  static final String USER_LOGIN = "tester";
 
   /**
    * Property from security-plugin for user management.
@@ -76,15 +78,23 @@ public class RealmAuthenticationTest {
     .setServerProperty("sonar.security.realm", "FakeRealm")
     .build();
 
-  @ClassRule
-  public static UserRule USER_RULE = UserRule.from(orchestrator);
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   @Before
   @After
   public void resetData() throws Exception {
-    setServerProperty(orchestrator, USERS_PROPERTY, null);
-    setServerProperty(orchestrator, "sonar.security.updateUserAttributes", null);
-    USER_RULE.resetUsers();
+    resetSettings(orchestrator, null, USERS_PROPERTY, "sonar.security.updateUserAttributes");
+  }
+
+  @Before
+  public void initAdminUser() throws Exception {
+    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
+  }
+
+  @After
+  public void deleteAdminUser() {
+    userRule.resetUsers();
   }
 
   /**
@@ -312,7 +322,7 @@ public class RealmAuthenticationTest {
       USER_LOGIN + ".email", "tester@example.org"));
 
     verifyAuthenticationIsOk(USER_LOGIN, "123");
-    assertThat(USER_RULE.getUserByLogin(USER_LOGIN).get())
+    assertThat(userRule.getUserByLogin(USER_LOGIN).get())
       .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
       .containsOnly(false, USER_LOGIN, "sonarqube");
   }

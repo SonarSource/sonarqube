@@ -22,7 +22,10 @@ package it.administration;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category1Suite;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.WsClient;
@@ -36,13 +39,25 @@ import static util.ItUtils.newAdminWsClient;
 
 public class UsersPageTest {
 
+  private static final String ADMIN_USER_LOGIN = "admin-user";
+
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   private WsClient adminClient = newAdminWsClient(orchestrator);
+
+  @Before
+  public void initAdminUser() throws Exception {
+    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
+  }
+
+  @After
+  public void deleteAdminUser() {
+    userRule.resetUsers();
+  }
 
   @Test
   public void generate_and_revoke_user_token() throws Exception {

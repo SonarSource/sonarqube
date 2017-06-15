@@ -32,6 +32,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
 import pageobjects.ProjectDashboardPage;
+import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
@@ -40,18 +41,24 @@ import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
 public class ProjectDashboardTest {
+
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   @Rule
   public Navigation nav = Navigation.get(orchestrator);
 
   private static WsClient wsClient;
+  private String adminUser;
 
   @Before
   public void setUp() throws Exception {
     wsClient = newAdminWsClient(orchestrator);
     orchestrator.resetData();
+    adminUser = userRule.createAdminUser();
   }
 
   @Test
@@ -79,8 +86,7 @@ public class ProjectDashboardTest {
     wsClient.wsConnector().call(
       new PostRequest("api/project_tags/set")
         .setParam("project", "sample")
-        .setParam("tags", "foo,bar,baz")
-    );
+        .setParam("tags", "foo,bar,baz"));
 
     ProjectDashboardPage page = nav.openProjectDashboard("sample");
     page
@@ -93,13 +99,12 @@ public class ProjectDashboardTest {
     executeBuild("shared/xoo-sample", "sample-with-tags", "Sample with tags");
     // Add some tags to another project to have them in the list
     wsClient.wsConnector().call(
-            new PostRequest("api/project_tags/set")
-                    .setParam("project", "sample-with-tags")
-                    .setParam("tags", "foo,bar,baz")
-    );
+      new PostRequest("api/project_tags/set")
+        .setParam("project", "sample-with-tags")
+        .setParam("tags", "foo,bar,baz"));
 
     executeBuild("shared/xoo-sample", "sample", "Sample");
-    ProjectDashboardPage page = nav.logIn().asAdmin().openProjectDashboard("sample");
+    ProjectDashboardPage page = nav.logIn().submitCredentials(adminUser).openProjectDashboard("sample");
     page
       .shouldHaveTags("No tags")
       .shouldBeEditable()
@@ -129,8 +134,7 @@ public class ProjectDashboardTest {
     orchestrator.executeBuild(
       SonarScanner.create(projectDir(projectLocation))
         .setProjectKey(projectKey)
-        .setProjectName(projectName)
-    );
+        .setProjectName(projectName));
   }
 
 }

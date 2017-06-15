@@ -1,0 +1,148 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <SQScanner
+    os="win"
+  />
+  <BuildWrapper
+    className="huge-spacer-top"
+    os="win"
+  />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.sq_scanner.execute.text",
+      }
+    }
+  />
+  <Command
+    command="build-wrapper-win-x86-64.exe --out-dir bw-output make clean all"
+  />
+  <Command
+    command={
+      Array [
+        "sonar-scanner.bat",
+        "-Dsonar.projectKey=projectKey",
+        undefined,
+        "-Dsonar.sources=.",
+        "-Dsonar.cfamily.build-wrapper-output=bw-output",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.sq_scanner.docs",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders correctly 2`] = `
+<div>
+  <SQScanner
+    os="linux"
+  />
+  <BuildWrapper
+    className="huge-spacer-top"
+    os="linux"
+  />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.sq_scanner.execute.text",
+      }
+    }
+  />
+  <Command
+    command="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
+  />
+  <Command
+    command={
+      Array [
+        "sonar-scanner",
+        "-Dsonar.projectKey=projectKey",
+        undefined,
+        "-Dsonar.sources=.",
+        "-Dsonar.cfamily.build-wrapper-output=bw-output",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.sq_scanner.docs",
+      }
+    }
+  />
+</div>
+`;
+
+exports[`renders correctly 3`] = `
+<div>
+  <SQScanner
+    os="linux"
+  />
+  <BuildWrapper
+    className="huge-spacer-top"
+    os="linux"
+  />
+  <h4
+    className="huge-spacer-top spacer-bottom"
+  >
+    onboarding.analysis.sq_scanner.execute
+  </h4>
+  <p
+    className="spacer-bottom markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.sq_scanner.execute.text",
+      }
+    }
+  />
+  <Command
+    command="build-wrapper-linux-x86-64 --out-dir bw-output make clean all"
+  />
+  <Command
+    command={
+      Array [
+        "sonar-scanner",
+        "-Dsonar.projectKey=projectKey",
+        "-Dsonar.organization=organization",
+        "-Dsonar.sources=.",
+        "-Dsonar.cfamily.build-wrapper-output=bw-output",
+        "-Dsonar.host.url=host",
+        "-Dsonar.login=token",
+      ]
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.sq_scanner.docs",
+      }
+    }
+  />
+</div>
+`;

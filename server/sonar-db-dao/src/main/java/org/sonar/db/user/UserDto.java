@@ -51,6 +51,7 @@ public class UserDto {
   private Long updatedAt;
   private boolean local = true;
   private boolean root = false;
+  private boolean onboarded = false;
 
   public Integer getId() {
     return id;
@@ -216,6 +217,15 @@ public class UserDto {
    */
   protected void setRoot(boolean root) {
     this.root = root;
+  }
+
+  public boolean isOnboarded() {
+    return onboarded;
+  }
+
+  public UserDto setOnboarded(boolean onboarded) {
+    this.onboarded = onboarded;
+    return this;
   }
 
   public static String encryptPassword(String password, String salt) {

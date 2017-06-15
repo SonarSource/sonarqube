@@ -492,5 +492,4 @@ public interface CoreProperties {
    * @since 5.1
    */
   String DEFAULT_ISSUE_ASSIGNEE = "sonar.issues.defaultAssigneeLogin";
-
 }

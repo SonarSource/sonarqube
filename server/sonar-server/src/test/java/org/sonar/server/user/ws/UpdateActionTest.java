@@ -77,7 +77,7 @@ public class UpdateActionTest {
     userIndexer = new UserIndexer(dbClient, esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(
       new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, system2, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
-        new DefaultGroupFinder(dbTester.getDbClient())),
+        new DefaultGroupFinder(dbTester.getDbClient()), settings),
       userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
   }
@@ -222,10 +222,11 @@ public class UpdateActionTest {
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setActive(true);
-    dbClient.userDao().insert(session, userDto)
+      .setActive(true)
+      .setLocal(true)
       .setExternalIdentity("jo")
       .setExternalIdentityProvider("sonarqube");
+    dbClient.userDao().insert(session, userDto);
     session.commit();
     userIndexer.index(userDto.getLogin());
   }

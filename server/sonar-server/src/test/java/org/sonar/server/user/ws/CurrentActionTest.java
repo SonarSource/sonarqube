@@ -19,26 +19,27 @@
  */
 package org.sonar.server.user.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.WsUsers.CurrentWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class CurrentActionTest {
@@ -46,44 +47,146 @@ public class CurrentActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws;
+  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider));
 
-  @Before
-  public void before() {
-    ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider));
+  @Test
+  public void return_user_info() {
+    db.users().insertUser(user -> user
+      .setLogin("obiwan.kenobi")
+      .setName("Obiwan Kenobi")
+      .setEmail("obiwan.kenobi@starwars.com")
+      .setLocal(true)
+      .setExternalIdentity("obiwan")
+      .setExternalIdentityProvider("sonarqube")
+      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
+      .setOnboarded(false));
+    userSessionRule.logIn("obiwan.kenobi");
+
+    CurrentWsResponse response = call();
+
+    assertThat(response)
+      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getLocal,
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", true, "obiwan", "sonarqube",
+        newArrayList("obiwan:github", "obiwan:bitbucket"), true);
+  }
+
+  @Test
+  public void return_minimal_user_info() {
+    db.users().insertUser(user -> user
+      .setLogin("obiwan.kenobi")
+      .setName("Obiwan Kenobi")
+      .setEmail(null)
+      .setLocal(true)
+      .setExternalIdentity("obiwan")
+      .setExternalIdentityProvider("sonarqube")
+      .setScmAccounts((String) null));
+    userSessionRule.logIn("obiwan.kenobi");
+
+    CurrentWsResponse response = call();
+
+    assertThat(response)
+      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getLocal,
+        CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider)
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", true, "obiwan", "sonarqube");
+    assertThat(response.hasEmail()).isFalse();
+    assertThat(response.getScmAccountsList()).isEmpty();
+    assertThat(response.getGroupsList()).isEmpty();
+    assertThat(response.getPermissions().getGlobalList()).isEmpty();
+  }
+
+  @Test
+  public void convert_empty_email_to_null() {
+    db.users().insertUser(user -> user
+      .setLogin("obiwan.kenobi")
+      .setEmail(""));
+    userSessionRule.logIn("obiwan.kenobi");
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.hasEmail()).isFalse();
+  }
+
+  @Test
+  public void return_group_membership() {
+    UserDto user = db.users().insertUser();
+    userSessionRule.logIn(user.getLogin());
+    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), user);
+    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), user);
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getGroupsList()).containsOnly("Jedi", "Rebel");
+  }
+
+  @Test
+  public void return_permissions() {
+    UserDto user = db.users().insertUser();
+    userSessionRule
+      .logIn(user.getLogin())
+      // permissions on default organization
+      .addPermission(SCAN, db.getDefaultOrganization())
+      .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization())
+      // permissions on other organizations are ignored
+      .addPermission(ADMINISTER, db.organizations().insert());
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getPermissions().getGlobalList()).containsOnly("profileadmin", "scan");
+  }
+
+  @Test
+  public void fail_with_ISE_when_user_login_in_db_does_not_exist() {
+    db.users().insertUser(usert -> usert.setLogin("another"));
+    userSessionRule.logIn("obiwan.kenobi");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("User login 'obiwan.kenobi' cannot be found");
+
+    call();
+  }
+
+  @Test
+  public void anonymous() {
+    userSessionRule
+      .anonymous()
+      .addPermission(SCAN, db.getDefaultOrganization())
+      .addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
+    CurrentWsResponse response = call();
+
+    assertThat(response.getIsLoggedIn()).isFalse();
+    assertThat(response.getPermissions().getGlobalList()).containsOnly("scan", "provisioning");
+    assertThat(response)
+      .extracting(CurrentWsResponse::hasLogin, CurrentWsResponse::hasName, CurrentWsResponse::hasEmail, CurrentWsResponse::hasLocal,
+        CurrentWsResponse::hasExternalIdentity, CurrentWsResponse::hasExternalProvider)
+      .containsOnly(false);
+    assertThat(response.getScmAccountsList()).isEmpty();
+    assertThat(response.getGroupsList()).isEmpty();
   }
 
   @Test
   public void json_example() {
-    userSessionRule.logIn("obiwan.kenobi").setName("Obiwan Kenobi");
-
-    // permissions on default organization
     userSessionRule
+      .logIn("obiwan.kenobi")
       .addPermission(SCAN, db.getDefaultOrganization())
       .addPermission(ADMINISTER_QUALITY_PROFILES, db.getDefaultOrganization());
-
-    // permissions on other organizations are ignored
-    userSessionRule.addPermission(ADMINISTER, db.organizations().insert());
-
-    UserDto obiwan = db.users().insertUser(
-      newUserDto("obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com")
-        .setLocal(true)
-        .setExternalIdentity("obiwan.kenobi")
-        .setExternalIdentityProvider("sonarqube")
-        .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
-    GroupDto jedi = db.users().insertGroup(newGroupDto().setName("Jedi"));
-    GroupDto rebel = db.users().insertGroup(newGroupDto().setName("Rebel"));
-    db.users().insertGroup(newGroupDto().setName("Sith"));
-    dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
-      .setUserId(obiwan.getId())
-      .setGroupId(jedi.getId()));
-    dbClient.userGroupDao().insert(db.getSession(), new UserGroupDto()
-      .setUserId(obiwan.getId())
-      .setGroupId(rebel.getId()));
-    db.commit();
+    UserDto obiwan = db.users().insertUser(user -> user
+      .setLogin("obiwan.kenobi")
+      .setName("Obiwan Kenobi")
+      .setEmail("obiwan.kenobi@starwars.com")
+      .setLocal(true)
+      .setExternalIdentity("obiwan.kenobi")
+      .setExternalIdentityProvider("sonarqube")
+      .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
+      .setOnboarded(true));
+    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
+    db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 
     String response = ws.newRequest().execute().getInput();
 
@@ -91,11 +194,20 @@ public class CurrentActionTest {
   }
 
   @Test
-  public void anonymous() {
-    userSessionRule.anonymous();
-
-    String response = ws.newRequest().execute().getInput();
-
-    assertJson(response).isSimilarTo(getClass().getResource("CurrentActionTest/anonymous.json"));
+  public void test_definition() {
+    WebService.Action definition = ws.getDef();
+    assertThat(definition.key()).isEqualTo("current");
+    assertThat(definition.description()).isEqualTo("Get the details of the current authenticated user.");
+    assertThat(definition.since()).isEqualTo("5.2");
+    assertThat(definition.isPost()).isFalse();
+    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.params()).isEmpty();
+    assertThat(definition.changelog()).hasSize(1);
   }
+
+  private CurrentWsResponse call() {
+    return ws.newRequest().executeProtobuf(CurrentWsResponse.class);
+  }
+
 }
