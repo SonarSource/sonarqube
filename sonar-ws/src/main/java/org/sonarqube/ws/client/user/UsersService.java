@@ -36,6 +36,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
+import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_DEACTIVATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_GROUPS;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_SKIP_ONBOARDING_TUTORIAL;
@@ -103,4 +104,10 @@ public class UsersService extends BaseService {
   public WsResponse skipOnboardingTutorial() {
     return call(new PostRequest(path(ACTION_SKIP_ONBOARDING_TUTORIAL)));
   }
+
+  public void deactivate(String login) {
+    call(new PostRequest(path(ACTION_DEACTIVATE))
+      .setParam(PARAM_LOGIN, login));
+  }
+
 }

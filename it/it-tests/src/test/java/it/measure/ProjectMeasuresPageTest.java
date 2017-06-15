@@ -44,16 +44,14 @@ public class ProjectMeasuresPageTest {
       SonarScanner
         .create(projectDir("shared/xoo-sample"))
         .setProperty("sonar.projectKey", "project-measures-page-test-project")
-        .setProperty("sonar.projectName", "ProjectMeasuresPageTest Project")
-    );
+        .setProperty("sonar.projectName", "ProjectMeasuresPageTest Project"));
 
     // one more time
     orchestrator.executeBuild(
       SonarScanner
         .create(projectDir("shared/xoo-sample"))
         .setProperty("sonar.projectKey", "project-measures-page-test-project")
-        .setProperty("sonar.projectName", "ProjectMeasuresPageTest Project")
-    );
+        .setProperty("sonar.projectName", "ProjectMeasuresPageTest Project"));
   }
 
   @Test
@@ -73,7 +71,7 @@ public class ProjectMeasuresPageTest {
 
   @Test
   public void should_show_history() {
-    Navigation nav = Navigation.get(orchestrator);
+    Navigation nav = Navigation.create(orchestrator);
     nav.open("/component_measures/metric/reliability_rating/history?id=project-measures-page-test-project");
     $(".line-chart").shouldBe(visible);
     $$(".line-chart-tick-x").shouldHaveSize(5);

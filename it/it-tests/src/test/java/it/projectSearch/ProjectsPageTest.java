@@ -22,55 +22,58 @@ package it.projectSearch;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.sonarqube.test.Tester;
+import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.project.DeleteRequest;
 import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
-import util.user.UserRule;
 
 import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 
 public class ProjectsPageTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
-
-  @Rule
-  public UserRule userRule = UserRule.from(ORCHESTRATOR);
-
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
+  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   private static final String PROJECT_KEY = "key-foo";
-  private WsClient userAdminWsClient;
-  private String adminUser;
+  private static Tester tester = new Tester(orchestrator).disableOrganizations();
+
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator)
+    .around(tester);
 
   @BeforeClass
   public static void setUp() {
-    ORCHESTRATOR.resetData();
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProjectKey(PROJECT_KEY));
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("duplications/file-duplications")).setProjectKey("key-bar"));
+    orchestrator.resetData();
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProjectKey(PROJECT_KEY));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("duplications/file-duplications")).setProjectKey("key-bar"));
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    tester.wsClient().projects().delete(DeleteRequest.builder().setKey(PROJECT_KEY).build());
+    tester.wsClient().projects().delete(DeleteRequest.builder().setKey("key-bar").build());
   }
 
   @Before
   public void before() {
-    adminUser = userRule.createAdminUser();
-    userAdminWsClient = newUserWsClient(ORCHESTRATOR, adminUser, adminUser);
     clearBrowserLocalStorage();
   }
 
   @Test
   public void should_display_projects() {
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.shouldHaveTotal(2);
     page.getProjectByKey(PROJECT_KEY)
       .shouldHaveMeasure("reliability_rating", "A")
@@ -83,7 +86,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_display_facets() {
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.getFacetByProperty("duplications")
       .shouldHaveValue("1", "1")
       .shouldHaveValue("2", "1")
@@ -95,7 +98,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_filter_using_facet() {
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.shouldHaveTotal(2);
     page.getFacetByProperty("duplications").selectValue("3");
     page.shouldHaveTotal(1);
@@ -104,22 +107,25 @@ public class ProjectsPageTest {
   @Test
   public void should_open_default_page() {
     // default page can be "All Projects" or "Favorite Projects" depending on your last choice
+    Navigation nav = tester.openBrowser();
     ProjectsPage page = nav.openProjects();
 
     // all projects for anonymous user with default sorting to analysis date
     page.shouldHaveTotal(2).shouldDisplayAllProjectsWidthSort("-analysis_date");
 
     // all projects by default for logged in user
-    page = nav.logIn().submitCredentials(adminUser).openProjects();
+    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministrator();
+    page = nav.logIn().submitCredentials(administrator.getLogin()).openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
     // favorite one project
-    userAdminWsClient.favorites().add(PROJECT_KEY);
+    WsClient administratorWsClient = tester.as(administrator.getLogin()).wsClient();
+    administratorWsClient.favorites().add(PROJECT_KEY);
     page = nav.openProjects();
     page.shouldHaveTotal(1).shouldDisplayFavoriteProjects();
 
     // un-favorite this project
-    userAdminWsClient.favorites().remove(PROJECT_KEY);
+    administratorWsClient.favorites().remove(PROJECT_KEY);
     page = nav.openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
@@ -136,7 +142,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_add_language_to_facet() {
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.getFacetByProperty("languages")
       .selectOptionItem("xoo2")
       .shouldHaveValue("xoo2", "0");
@@ -145,12 +151,12 @@ public class ProjectsPageTest {
   @Test
   public void should_add_tag_to_facet() {
     // Add some tags to this project
-    userAdminWsClient.wsConnector().call(
+    tester.wsClient().wsConnector().call(
       new PostRequest("api/project_tags/set")
         .setParam("project", PROJECT_KEY)
         .setParam("tags", "aa,bb,cc,dd,ee,ff,gg,hh,ii,jj,zz"));
 
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.getFacetByProperty("tags")
       .shouldHaveValue("aa", "1")
       .shouldHaveValue("ii", "1")
@@ -160,7 +166,10 @@ public class ProjectsPageTest {
 
   @Test
   public void should_switch_between_perspectives() {
-    ProjectsPage page = nav.logIn().submitCredentials(adminUser).openProjects();
+    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministrator();
+    ProjectsPage page = tester.openBrowser()
+      .logIn().submitCredentials(administrator.getLogin())
+      .openProjects();
     page.changePerspective("Risk");
     assertThat(url()).endsWith("/projects?view=visualizations&visualization=risk");
     page.changePerspective("Leak");
@@ -169,7 +178,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_sort_by_facet() {
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.sortProjects("Duplications");
     page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "63.7%");
     page.invertSorting();
@@ -178,14 +187,14 @@ public class ProjectsPageTest {
 
   @Test
   public void should_search_for_project() {
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.searchProject("s").shouldHaveTotal(2);
     page.searchProject("sam").shouldHaveTotal(1);
   }
 
   @Test
   public void should_search_for_project_and_keep_other_filters() {
-    ProjectsPage page = nav.openProjects();
+    ProjectsPage page = tester.openBrowser().openProjects();
     page.shouldHaveTotal(2);
     page.getFacetByProperty("duplications").selectValue("3");
     page.shouldHaveTotal(1);

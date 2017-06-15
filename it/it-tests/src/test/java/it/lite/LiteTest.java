@@ -22,16 +22,18 @@ package it.lite;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.component.TreeWsRequest;
+import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
-import util.ItUtils;
+import org.sonarqube.ws.client.measure.MeasuresService;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -44,34 +46,36 @@ public class LiteTest {
   private static final String PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+  public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .setOrchestratorProperty("sonar.web.context", "/sonarqube")
     .addPlugin(xooPlugin())
     .build();
 
-  private static WsClient wsClient;
+  @Rule
+  public Tester tester = new Tester(orchestrator)
+    .disableOrganizations();
 
   @BeforeClass
   public static void setUp() {
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
-    wsClient = ItUtils.newWsClient(ORCHESTRATOR);
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
   }
 
   @Test
   public void call_issues_ws() {
     // all issues
-    Issues.SearchWsResponse response = wsClient.issues().search(new SearchWsRequest());
+    IssuesService issuesService = tester.wsClient().issues();
+    Issues.SearchWsResponse response = issuesService.search(new SearchWsRequest());
     assertThat(response.getIssuesCount()).isGreaterThan(0);
 
     // project issues
-    response = wsClient.issues().search(new SearchWsRequest().setProjectKeys(singletonList(PROJECT_KEY)));
+    response = issuesService.search(new SearchWsRequest().setProjectKeys(singletonList(PROJECT_KEY)));
     assertThat(response.getIssuesCount()).isGreaterThan(0);
   }
 
   @Test
   public void call_components_ws() {
     // files in project
-    WsComponents.TreeWsResponse tree = wsClient.components().tree(new TreeWsRequest()
+    WsComponents.TreeWsResponse tree = tester.wsClient().components().tree(new TreeWsRequest()
       .setBaseComponentKey(PROJECT_KEY)
       .setQualifiers(singletonList("FIL")));
     assertThat(tree.getComponentsCount()).isEqualTo(4);
@@ -84,13 +88,14 @@ public class LiteTest {
   @Test
   public void call_measures_ws() {
     // project measures
-    WsMeasures.ComponentWsResponse component = wsClient.measures().component(new ComponentWsRequest()
+    MeasuresService measuresService = tester.wsClient().measures();
+    WsMeasures.ComponentWsResponse component = measuresService.component(new ComponentWsRequest()
       .setComponentKey(PROJECT_KEY)
       .setMetricKeys(asList("lines", "ncloc", "files")));
     assertThat(component.getComponent().getMeasuresCount()).isEqualTo(3);
 
     // file measures
-    WsMeasures.ComponentTreeWsResponse tree = wsClient.measures().componentTree(new ComponentTreeWsRequest()
+    WsMeasures.ComponentTreeWsResponse tree = measuresService.componentTree(new ComponentTreeWsRequest()
       .setBaseComponentKey(PROJECT_KEY)
       .setQualifiers(singletonList("FIL"))
       .setMetricKeys(asList("lines", "ncloc")));

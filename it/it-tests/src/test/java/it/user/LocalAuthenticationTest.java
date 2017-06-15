@@ -29,9 +29,11 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
@@ -42,11 +44,9 @@ import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 import pageobjects.LoginPage;
 import pageobjects.Navigation;
-import util.user.UserRule;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
@@ -58,43 +58,28 @@ public class LocalAuthenticationTest {
   private static final String LOGIN = "george.orwell";
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(ORCHESTRATOR);
-
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
-
-  private static WsClient adminWsClient;
-
-  private static UserTokensService userTokensWsClient;
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Before
   public void setUp() {
-    adminWsClient = newAdminWsClient(ORCHESTRATOR);
-    userTokensWsClient = adminWsClient.userTokens();
-
-    userRule.deactivateUsers(LOGIN, "simple-user");
-    userRule.createUser(LOGIN, "123456");
+    tester.users().generate(u -> u.setLogin(LOGIN).setPassword("123456"));
     addUserPermission(LOGIN, "admin");
 
-    userRule.createUser("simple-user", "password");
-    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
-  }
-
-  @After
-  public void deleteAndRestoreData() {
-    userRule.resetUsers();
+    tester.users().generate(u -> u.setLogin("simple-user").setPassword("password"));
+    tester.users().generateAdministrator(u -> u.setLogin(ADMIN_USER_LOGIN).setPassword(ADMIN_USER_LOGIN));
   }
 
   @After
   public void resetProperties() throws Exception {
-    resetSettings(ORCHESTRATOR, null, "sonar.forceAuthentication");
+    resetSettings(orchestrator, null, "sonar.forceAuthentication");
   }
 
   @Test
   public void log_in_with_correct_credentials_then_log_out() {
+    Navigation nav = tester.openBrowser();
     nav.shouldNotBeLoggedIn();
     nav.logIn().submitCredentials(LOGIN, "123456").shouldBeLoggedIn();
     nav.logOut().shouldNotBeLoggedIn();
@@ -102,12 +87,13 @@ public class LocalAuthenticationTest {
 
   @Test
   public void log_in_with_wrong_credentials() {
+    Navigation nav = tester.openBrowser();
     LoginPage page = nav
       .logIn()
       .submitWrongCredentials(LOGIN, "wrong");
     page.getErrorMessage().shouldHave(Condition.text("Authentication failed"));
 
-    nav.openHomepage();
+    nav.openHome();
     nav.shouldNotBeLoggedIn();
   }
 
@@ -117,10 +103,10 @@ public class LocalAuthenticationTest {
     String login = format("login-%s", userId);
     String name = format("name-%s", userId);
     String password = "!ascii-only:-)@";
-    userRule.createUser(login, name, null, password);
+    tester.users().generate(u -> u.setLogin(login).setName(name).setPassword(password));
 
     // authenticate
-    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
+    WsClient wsClient = tester.as(login, password).wsClient();
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
     assertThat(response.content()).isEqualTo("{\"valid\":true}");
   }
@@ -128,21 +114,22 @@ public class LocalAuthenticationTest {
   @Test
   public void basic_authentication_based_on_token() {
     String tokenName = "Validate token based authentication";
-    WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
+    UserTokensService tokensService = tester.wsClient().userTokens();
+    WsUserTokens.GenerateWsResponse generateWsResponse = tokensService.generate(new GenerateWsRequest()
       .setLogin(LOGIN)
       .setName(tokenName));
     WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
-      .url(ORCHESTRATOR.getServer().getUrl())
+      .url(orchestrator.getServer().getUrl())
       .token(generateWsResponse.getToken()).build());
 
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
 
     assertThat(response.content()).isEqualTo("{\"valid\":true}");
 
-    WsUserTokens.SearchWsResponse searchResponse = userTokensWsClient.search(new SearchWsRequest().setLogin(LOGIN));
+    WsUserTokens.SearchWsResponse searchResponse = tokensService.search(new SearchWsRequest().setLogin(LOGIN));
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(1);
-    userTokensWsClient.revoke(new RevokeWsRequest().setLogin(LOGIN).setName(tokenName));
-    searchResponse = userTokensWsClient.search(new SearchWsRequest().setLogin(LOGIN));
+    tokensService.revoke(new RevokeWsRequest().setLogin(LOGIN).setName(tokenName));
+    searchResponse = tokensService.search(new SearchWsRequest().setLogin(LOGIN));
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(0);
   }
 
@@ -159,7 +146,7 @@ public class LocalAuthenticationTest {
     String password = "κόσμε";
 
     // create user with a UTF-8 password
-    userRule.createUser(login, password);
+    tester.users().generate(u -> u.setLogin(login).setPassword(password));
 
     // authenticate
     assertThat(checkAuthenticationWithAuthenticateWebService(login, password)).isFalse();
@@ -167,14 +154,14 @@ public class LocalAuthenticationTest {
 
   @Test
   public void allow_user_login_with_2_characters() throws Exception {
-    userRule.createUser("jo", "password");
+    tester.users().generate(u -> u.setLogin("jo").setPassword("password"));
 
     assertThat(checkAuthenticationWithAuthenticateWebService("jo", "password")).isTrue();
   }
 
   @Test
   public void authentication_through_ui() {
-    runSelenese(ORCHESTRATOR,
+    runSelenese(orchestrator,
       "/user/LocalAuthenticationTest/login_successful.html",
       "/user/LocalAuthenticationTest/login_wrong_password.html",
       "/user/LocalAuthenticationTest/should_not_be_unlogged_when_going_to_login_page.html",
@@ -185,9 +172,9 @@ public class LocalAuthenticationTest {
       // SONAR-2009
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html");
 
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
+    setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
-    runSelenese(ORCHESTRATOR,
+    runSelenese(orchestrator,
       // SONAR-3473
       "/user/LocalAuthenticationTest/force-authentication.html");
   }
@@ -199,7 +186,7 @@ public class LocalAuthenticationTest {
     assertThat(checkAuthenticationWithAuthenticateWebService("admin", "wrong")).isFalse();
     assertThat(checkAuthenticationWithAuthenticateWebService(null, null)).isTrue();
 
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
+    setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
     assertThat(checkAuthenticationWithAuthenticateWebService("admin", "admin")).isTrue();
     assertThat(checkAuthenticationWithAuthenticateWebService("wrong", "admin")).isFalse();
@@ -218,7 +205,7 @@ public class LocalAuthenticationTest {
     assertThat(checkAuthenticationWithAnyWS("admin", null).code()).isEqualTo(401);
     assertThat(checkAuthenticationWithAnyWS(null, null).code()).isEqualTo(200);
 
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
+    setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
     assertThat(checkAuthenticationWithAnyWS("admin", "admin").code()).isEqualTo(200);
     assertThat(checkAuthenticationWithAnyWS("wrong", "admin").code()).isEqualTo(401);
@@ -228,18 +215,18 @@ public class LocalAuthenticationTest {
   }
 
   private boolean checkAuthenticationWithAuthenticateWebService(String login, String password) {
-    String result = ORCHESTRATOR.getServer().wsClient(login, password).get("/api/authentication/validate");
+    String result = tester.as(login, password).wsClient().wsConnector().call(new PostRequest("/api/authentication/validate")).content();
     return result.contains("{\"valid\":true}");
   }
 
   private WsResponse checkAuthenticationWithAnyWS(String login, String password) {
-    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
+    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).credentials(login, password).build());
     // Call any WS
     return wsClient.wsConnector().call(new GetRequest("api/rules/search"));
   }
 
-  private static void addUserPermission(String login, String permission) {
-    adminWsClient.permissions().addUser(new AddUserWsRequest()
+  private void addUserPermission(String login, String permission) {
+    tester.wsClient().permissions().addUser(new AddUserWsRequest()
       .setLogin(login)
       .setPermission(permission));
   }

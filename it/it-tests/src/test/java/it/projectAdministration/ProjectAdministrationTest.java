@@ -63,8 +63,7 @@ public class ProjectAdministrationTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
+  private Navigation nav = Navigation.create(orchestrator);
 
   private static final String PROJECT_KEY = "sample";
   private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";

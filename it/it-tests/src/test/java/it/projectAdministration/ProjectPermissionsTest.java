@@ -42,8 +42,7 @@ public class ProjectPermissionsTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
+  private Navigation nav = Navigation.create(orchestrator);
   private String adminUser;
 
   @BeforeClass

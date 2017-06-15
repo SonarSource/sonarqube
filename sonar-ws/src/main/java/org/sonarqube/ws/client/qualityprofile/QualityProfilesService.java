@@ -137,7 +137,8 @@ public class QualityProfilesService extends BaseService {
       .setParam(PARAM_PARENT_KEY, request.getParentKey())
       .setParam(PARAM_PARENT_NAME, request.getParentName())
       .setParam(PARAM_PROFILE_KEY, request.getProfileKey())
-      .setParam(PARAM_PROFILE_NAME, request.getProfileName()));
+      .setParam(PARAM_PROFILE_NAME, request.getProfileName())
+      .setParam(PARAM_ORGANIZATION, request.getOrganization()));
   }
 
   public void setDefault(SetDefaultRequest request) {
@@ -147,9 +148,9 @@ public class QualityProfilesService extends BaseService {
     call(postRequest);
   }
 
-  public void delete(DeleteRequest request) {
+  public void delete(String profileKey) {
     PostRequest postRequest = new PostRequest(path(ACTION_DELETE))
-      .setParam(PARAM_PROFILE_KEY, request.getProfileKey());
+      .setParam(PARAM_PROFILE_KEY, profileKey);
 
     call(postRequest);
   }

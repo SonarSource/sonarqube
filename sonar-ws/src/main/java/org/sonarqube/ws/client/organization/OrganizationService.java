@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.organization;
 
-import javax.annotation.Nullable;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 import org.sonarqube.ws.Organizations.SearchMembersWsResponse;
 import org.sonarqube.ws.Organizations.SearchWsResponse;
@@ -72,7 +71,7 @@ public class OrganizationService extends BaseService {
     return call(post, UpdateWsResponse.parser());
   }
 
-  public void delete(@Nullable String key) {
+  public void delete(String key) {
     PostRequest post = new PostRequest(path("delete"))
       .setParam("organization", key);
 

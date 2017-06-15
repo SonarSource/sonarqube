@@ -132,7 +132,7 @@ public class QualityProfilesServiceTest {
 
   @Test
   public void delete() {
-    underTest.delete(new DeleteRequest("sample"));
+    underTest.delete("sample");
 
     serviceTester.assertThat(serviceTester.getPostRequest())
       .hasPath("delete")

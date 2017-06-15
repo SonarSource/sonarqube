@@ -28,7 +28,7 @@ import org.openqa.selenium.By;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
-public class RulesPage {
+public class RulesPage extends Navigation {
 
   public RulesPage() {
     $(By.cssSelector(".coding-rules")).should(Condition.exist);

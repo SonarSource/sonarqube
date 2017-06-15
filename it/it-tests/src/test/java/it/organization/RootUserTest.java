@@ -22,23 +22,26 @@ package it.organization;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.test.Tester;
 
 import static util.ItUtils.expectForbiddenError;
-import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newWsClient;
 
 public class RootUserTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
+  @Rule
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
+
   @Test
   public void nobody_is_root_by_default_when_organizations_are_disabled() {
     // anonymous
-    expectForbiddenError(() -> newWsClient(orchestrator).rootService().search());
+    expectForbiddenError(() -> tester.wsClient().roots().search());
 
     // admin
-    expectForbiddenError(() -> newAdminWsClient(orchestrator).rootService().search());
+    expectForbiddenError(() -> tester.wsClient().roots().search());
   }
 }

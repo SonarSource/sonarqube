@@ -29,20 +29,18 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.Organizations;
+import org.sonarqube.test.Tester;
+import org.sonarqube.ws.Organizations.Organization;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import util.ItUtils;
-import util.OrganizationRule;
-import util.user.UserRule;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newProjectKey;
-import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.restoreProfile;
 
@@ -53,23 +51,22 @@ public class IssueTagsTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  @Rule
-  public UserRule userRule = new UserRule(orchestrator);
-  @Rule
-  public OrganizationRule organizationRule = new OrganizationRule(orchestrator);
 
-  private Organizations.Organization organization;
+  @Rule
+  public Tester tester = new Tester(orchestrator);
+
+  private Organization organization;
 
   @Before
   public void setUp() {
-    organization = organizationRule.create();
+    organization = tester.organizations().generate();
   }
 
   @Test
-  public void getTags()  {
+  public void getTags() {
     restoreProfile(orchestrator, IssueTagsTest.class.getResource("/issue/one-issue-per-line-profile.xml"), organization.getKey());
     String projectKey = newProjectKey();
-    ItUtils.newAdminWsClient(orchestrator).projects().create(
+    tester.wsClient().projects().create(
       CreateRequest.builder()
         .setKey(projectKey)
         .setOrganization(organization.getKey())
@@ -78,8 +75,8 @@ public class IssueTagsTest {
         .build());
     analyzeProject(projectKey);
 
-    String issue = newAdminWsClient(orchestrator).issues().search(new SearchWsRequest()).getIssues(0).getKey();
-    newAdminWsClient(orchestrator).issues().setTags(issue, "bla", "blubb");
+    String issue = tester.wsClient().issues().search(new SearchWsRequest()).getIssues(0).getKey();
+    tester.wsClient().issues().setTags(issue, "bla", "blubb");
 
     String[] publicTags = {"bad-practice", "convention", "pitfall"};
     String[] privateTags = {"bad-practice", "bla", "blubb", "convention", "pitfall"};
@@ -88,48 +85,44 @@ public class IssueTagsTest {
     // anonymous must not see custom tags of private project
     {
       String anonymous = null;
-      String anonymousPassword = null;
-      assertTags(anonymous, anonymousPassword, organization.getKey(), publicTags);
-      assertTags(anonymous, anonymousPassword, defaultOrganization, publicTags);
+      assertTags(anonymous, organization.getKey(), publicTags);
+      assertTags(anonymous, defaultOrganization, publicTags);
     }
 
     // stranger must not see custom tags of private project
     {
-      String stranger = randomAlphabetic(10).toLowerCase();
-      String strangerPassword = randomAlphabetic(8);
-      userRule.createUser(stranger, strangerPassword);
-      assertTags(stranger, strangerPassword, organization.getKey(), publicTags);
-      assertTags(stranger, strangerPassword, defaultOrganization, publicTags);
+      User stranger = tester.users().generate();
+      assertTags(stranger.getLogin(), organization.getKey(), publicTags);
+      assertTags(stranger.getLogin(), defaultOrganization, publicTags);
     }
 
     // member with user permission must be able to see custom tags of private project, if he provides the organization parameter
     {
-      String member = randomAlphabetic(10).toLowerCase();
-      String memberPassword = randomAlphabetic(8);
-      userRule.createUser(member, memberPassword);
-      addMember(member);
+      User member = tester.users().generate();
+      addMemberToOrganization(member);
       grantUserPermission(projectKey, member);
-      assertTags(member, memberPassword, organization.getKey(), privateTags);
-      assertTags(member, memberPassword, defaultOrganization, publicTags);
+      assertTags(member.getLogin(), organization.getKey(), privateTags);
+      assertTags(member.getLogin(), defaultOrganization, publicTags);
     }
   }
 
-  private void addMember(String member) {
-    newAdminWsClient(orchestrator).organizations().addMember(organization.getKey(), member);
+  private void addMemberToOrganization(User member) {
+    tester.organizations().service().addMember(organization.getKey(), member.getLogin());
   }
 
-  private void grantUserPermission(String projectKey, String member) {
-    newAdminWsClient(orchestrator).permissions().addUser(
+  private void grantUserPermission(String projectKey, User member) {
+    tester.wsClient().permissions().addUser(
       new AddUserWsRequest()
-        .setLogin(member)
+        .setLogin(member.getLogin())
         .setPermission("user")
         .setProjectKey(projectKey));
   }
 
-  private void assertTags(@Nullable String user, @Nullable String password, @Nullable String organization, String... expectedTags) {
+  private void assertTags(@Nullable String userLogin, @Nullable String organization, String... expectedTags) {
     assertThat(
       (List<String>) ItUtils.jsonToMap(
-        newUserWsClient(orchestrator, user, password)
+        tester.as(userLogin)
+          .wsClient()
           .issues()
           .getTags(organization)
           .content())

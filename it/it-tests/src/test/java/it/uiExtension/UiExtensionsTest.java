@@ -20,23 +20,21 @@
 package it.uiExtension;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import pageobjects.Navigation;
-import util.user.UserRule;
+import org.sonarqube.test.Tester;
+import org.sonarqube.ws.WsProjects;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.client.project.CreateRequest;
+import util.ItUtils;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
-import static util.selenium.Selenese.runSelenese;
 
 public class UiExtensionsTest {
 
@@ -44,31 +42,16 @@ public class UiExtensionsTest {
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
-
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
-  private String adminUser;
-
-  @BeforeClass
-  public static void setUp() throws Exception {
-    orchestrator.resetData();
-    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-  }
-
-  @Before
-  public void before() {
-    adminUser = userRule.createAdminUser();
-  }
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
   public void test_static_files() {
-    runSelenese(orchestrator, "/uiExtension/UiExtensionsTest/static-files.html");
+    tester.runHtmlTests("/uiExtension/UiExtensionsTest/static-files.html");
   }
 
   @Test
-  public void global_page() {
-    nav.open("/about");
+  public void test_global_page() {
+    tester.openBrowser().open("/about");
 
     // on about page
     $("#global-navigation-more").click();
@@ -79,8 +62,11 @@ public class UiExtensionsTest {
   }
 
   @Test
-  public void global_admin_page() {
-    nav.logIn().submitCredentials(adminUser).open("/about");
+  public void test_global_administration_page() {
+    User administrator = tester.users().generateAdministrator();
+    tester.openBrowser()
+      .logIn().submitCredentials(administrator.getLogin())
+      .open("/about");
 
     $(".navbar-admin-link").click();
     $("#settings-navigation-configuration").click();
@@ -91,8 +77,10 @@ public class UiExtensionsTest {
   }
 
   @Test
-  public void project_page() {
-    nav.open("/dashboard?id=sample");
+  public void test_project_page() {
+    WsProjects.CreateWsResponse.Project project = createSampleProject();
+
+    tester.openBrowser().open("/dashboard?id=" + project.getKey());
 
     $("#component-navigation-more").click();
     $(By.linkText("Project Page")).click();
@@ -102,13 +90,26 @@ public class UiExtensionsTest {
   }
 
   @Test
-  public void project_admin_page() {
-    nav.logIn().submitCredentials(adminUser).open("/dashboard?id=sample");
+  public void test_project_administration_page() {
+    WsProjects.CreateWsResponse.Project project = createSampleProject();
+    User administrator = tester.users().generateAdministrator();
+
+    tester.openBrowser()
+      .logIn().submitCredentials(administrator.getLogin())
+      .open("/dashboard?id=" + project.getKey());
 
     $("#component-navigation-admin").click();
     $(By.linkText("Project Admin Page")).click();
 
     assertThat(url()).contains("uiextensionsplugin/project_admin_page");
     $("body").shouldHave(text("uiextensionsplugin/project_admin_page"));
+  }
+
+  private WsProjects.CreateWsResponse.Project createSampleProject() {
+    String projectKey = ItUtils.newProjectKey();
+    return tester.wsClient().projects().create(CreateRequest.builder()
+      .setKey(projectKey)
+      .setName("Name of " + projectKey)
+      .build()).getProject();
   }
 }

@@ -26,7 +26,6 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -48,8 +47,7 @@ public class UiTest {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
+  private Navigation nav = Navigation.create(ORCHESTRATOR);
 
   @Before
   @After

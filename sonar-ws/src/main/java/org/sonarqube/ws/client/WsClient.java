@@ -102,12 +102,12 @@ public interface WsClient {
   /**
    * @since 6.1
    */
-  SettingsService settingsService();
+  SettingsService settings();
 
   /**
    * @since 6.2
    */
-  RootsService rootService();
+  RootsService roots();
 
   /**
    * @since 6.2
@@ -117,5 +117,5 @@ public interface WsClient {
   /**
    * @since 6.3
    */
-  ProjectAnalysisService projectAnanlysis();
+  ProjectAnalysisService projectAnalysis();
 }

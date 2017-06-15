@@ -30,20 +30,19 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
-import util.OrganizationRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.concat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.restoreProfile;
@@ -59,13 +58,13 @@ public class SearchProjectsTest {
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
-  public OrganizationRule organizations = new OrganizationRule(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   private Organization organization;
 
   @Before
   public void setUp() {
-    organization = organizations.create();
+    organization = tester.organizations().generate();
     restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
   }
 
@@ -91,7 +90,7 @@ public class SearchProjectsTest {
   @Test
   public void provisioned_projects_should_be_included_to_results() throws Exception {
     String projectKey = newProjectKey();
-    newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).build());
+    tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).build());
 
     SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).build());
 
@@ -110,7 +109,7 @@ public class SearchProjectsTest {
     analyzeProject(projectKey2, "shared/xoo-sample");
     // This project is provisioned, so has no leak period
     String projectKey3 = newProjectKey();
-    newAdminWsClient(orchestrator).projects().create(CreateRequest.builder().setKey(projectKey3).setName(projectKey3).setOrganization(organization.getKey()).build());
+    tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey3).setName(projectKey3).setOrganization(organization.getKey()).build());
 
     SearchProjectsWsResponse response = searchProjects(
       SearchProjectsRequest.builder().setAdditionalFields(singletonList("leakPeriodDate")).setOrganization(organization.getKey()).build());
@@ -294,7 +293,7 @@ public class SearchProjectsTest {
   }
 
   private SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) throws IOException {
-    return newAdminWsClient(orchestrator).components().searchProjects(request);
+    return tester.wsClient().components().searchProjects(request);
   }
 
   private void verifyFilterMatches(String projectKey, String filter) throws IOException {

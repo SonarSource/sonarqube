@@ -25,74 +25,67 @@ import java.sql.SQLException;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
+import org.sonarqube.test.Session;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.WsRoot;
-import org.sonarqube.ws.client.WsClient;
-import util.OrganizationRule;
+import org.sonarqube.ws.WsUsers;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.expectBadRequestError;
 import static util.ItUtils.expectForbiddenError;
-import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newUserWsClient;
 
 public class RootUserOnOrganizationTest {
 
-  private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  private static OrganizationRule organizationRule = new OrganizationRule(orchestrator);
-
   @ClassRule
-  public static TestRule chain = RuleChain.outerRule(orchestrator)
-    .around(organizationRule);
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void system_administrator_is_flagged_as_root_when_he_enables_organization_support() {
-    assertThat(newAdminWsClient(orchestrator).rootService().search().getRootsList())
+    assertThat(tester.wsClient().roots().search().getRootsList())
       .extracting(WsRoot.Root::getLogin)
       .containsExactly(UserRule.ADMIN_LOGIN);
   }
 
   @Test
   public void a_root_can_flag_other_user_as_root() {
-    userRule.createUser("bar", "foo");
-    userRule.setRoot("bar");
+    WsUsers.CreateWsResponse.User user = tester.users().generate();
+    tester.wsClient().roots().setRoot(user.getLogin());
 
-    assertThat(newAdminWsClient(orchestrator).rootService().search().getRootsList())
+    assertThat(tester.wsClient().roots().search().getRootsList())
       .extracting(WsRoot.Root::getLogin)
-      .containsOnly(UserRule.ADMIN_LOGIN, "bar");
+      .containsExactlyInAnyOrder(UserRule.ADMIN_LOGIN, user.getLogin());
   }
 
   @Test
   public void last_root_can_not_be_unset_root() throws SQLException {
-    expectBadRequestError(() -> newAdminWsClient(orchestrator).rootService().unsetRoot(UserRule.ADMIN_LOGIN));
+    expectBadRequestError(() -> tester.wsClient().roots().unsetRoot(UserRule.ADMIN_LOGIN));
   }
 
   @Test
   public void root_can_be_set_and_unset_via_web_services() {
-    userRule.createUser("root1", "bar");
-    userRule.createUser("root2", "bar");
-    WsClient root1WsClient = newUserWsClient(orchestrator, "root1", "bar");
-    WsClient root2WsClient = newUserWsClient(orchestrator, "root2", "bar");
+    WsUsers.CreateWsResponse.User user1 = tester.users().generate();
+    WsUsers.CreateWsResponse.User user2 = tester.users().generate();
+    Session user1Session = tester.as(user1.getLogin());
+    Session user2Session = tester.as(user2.getLogin());
 
     // non root can not set or unset root another user not itself
-    expectForbiddenError(() -> root1WsClient.rootService().setRoot("root2"));
-    expectForbiddenError(() -> root1WsClient.rootService().setRoot("root1"));
-    expectForbiddenError(() -> root1WsClient.rootService().unsetRoot("root1"));
-    expectForbiddenError(() -> root2WsClient.rootService().unsetRoot("root1"));
-    expectForbiddenError(() -> root2WsClient.rootService().unsetRoot("root2"));
+    expectForbiddenError(() -> user1Session.wsClient().roots().setRoot(user2.getLogin()));
+    expectForbiddenError(() -> user1Session.wsClient().roots().setRoot(user1.getLogin()));
+    expectForbiddenError(() -> user1Session.wsClient().roots().unsetRoot(user1.getLogin()));
+    expectForbiddenError(() -> user2Session.wsClient().roots().unsetRoot(user1.getLogin()));
+    expectForbiddenError(() -> user2Session.wsClient().roots().unsetRoot(user2.getLogin()));
     // admin (the first root) sets root1 as root
-    newAdminWsClient(orchestrator).rootService().setRoot("root1");
+    tester.wsClient().roots().setRoot(user1.getLogin());
     // root1 can set root root2
-    root1WsClient.rootService().setRoot("root2");
+    user1Session.wsClient().roots().setRoot(user2.getLogin());
     // root2 can unset root root1
-    root2WsClient.rootService().unsetRoot("root1");
+    user2Session.wsClient().roots().unsetRoot(user1.getLogin());
     // root2 can unset root itself as it's not the last root
-    root2WsClient.rootService().unsetRoot("root2");
+    user2Session.wsClient().roots().unsetRoot(user2.getLogin());
   }
 
 }

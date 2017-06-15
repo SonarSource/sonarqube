@@ -85,7 +85,7 @@ public class DeprecatedPropertiesWsTest {
     adminWsClient = newAdminWsClient(orchestrator);
     userWsClient = newUserWsClient(orchestrator, USER_LOGIN, "password");
     anonymousWsClient = newWsClient(orchestrator);
-    adminSettingsService = newAdminWsClient(orchestrator).settingsService();
+    adminSettingsService = newAdminWsClient(orchestrator).settings();
     runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
   }
 

@@ -49,8 +49,7 @@ public class ProjectLinksPageTest {
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
 
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
+  private Navigation nav = Navigation.create(ORCHESTRATOR);
 
   @Rule
   public UserRule userRule = UserRule.from(ORCHESTRATOR);

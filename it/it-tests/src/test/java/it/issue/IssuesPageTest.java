@@ -43,8 +43,7 @@ public class IssuesPageTest {
   @Rule
   public UserRule userRule = UserRule.from(ORCHESTRATOR);
 
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
+  public Navigation nav = Navigation.create(ORCHESTRATOR);
 
   private String adminUser;
 
@@ -73,6 +72,7 @@ public class IssuesPageTest {
 
   @Test
   public void should_not_display_actions() {
+    Navigation nav = Navigation.create(ORCHESTRATOR);
     IssuesPage page = nav.openIssues();
     Issue issue = page.getFirstIssue();
     issue.shouldNotAllowAssign().shouldNotAllowChangeType();

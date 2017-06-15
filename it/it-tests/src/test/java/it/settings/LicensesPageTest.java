@@ -45,8 +45,6 @@ public class LicensesPageTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
   private String adminUser;
 
   @BeforeClass
@@ -73,7 +71,7 @@ public class LicensesPageTest {
 
   @Test
   public void display_licenses() {
-    LicensesPage page = nav.logIn().submitCredentials(adminUser).openLicenses();
+    LicensesPage page = Navigation.create(orchestrator).logIn().submitCredentials(adminUser).openLicenses();
 
     page.getLicenses().shouldHaveSize(2);
     page.getLicensesAsItems().get(0).getName().shouldHave(text("Typed property"));
@@ -84,11 +82,11 @@ public class LicensesPageTest {
   public void change_licenses() {
     String EXAMPLE_LICENSE = "TmFtZTogRGV2ZWxvcHBlcnMKUGx1Z2luOiBhdXRvY29udHJvbApFeHBpcmVzOiAyMDEyLTA0LTAxCktleTogNjI5N2MxMzEwYzg2NDZiZTE5MDU1MWE4ZmZmYzk1OTBmYzEyYTIyMgo=";
 
-    LicensesPage page = nav.logIn().submitCredentials(adminUser).openLicenses();
+    LicensesPage page = Navigation.create(orchestrator).logIn().submitCredentials(adminUser).openLicenses();
     LicenseItem licenseItem = page.getLicenseByKey("typed.license.secured");
     licenseItem.setLicense(EXAMPLE_LICENSE);
 
-    ValuesWsResponse response = wsClient.settingsService()
+    ValuesWsResponse response = wsClient.settings()
       .values(ValuesRequest.builder().setKeys("typed.license.secured").build());
     assertThat(response.getSettings(0).getValue()).isEqualTo(EXAMPLE_LICENSE);
   }
