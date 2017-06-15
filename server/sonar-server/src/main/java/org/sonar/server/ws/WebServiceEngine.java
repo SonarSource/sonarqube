@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 import com.google.common.base.Throwables;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
@@ -32,6 +33,7 @@ import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebServiceDefinition;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -60,11 +62,22 @@ public class WebServiceEngine implements LocalConnector, Startable {
 
   private final WebService.Context context;
 
-  public WebServiceEngine(WebService[] webServices) {
+  public WebServiceEngine(WebService[] webServices, WebServiceDefinition[] webServiceDefinitions) {
     context = new WebService.Context();
     for (WebService webService : webServices) {
       webService.define(context);
     }
+    Arrays.stream(webServiceDefinitions)
+      .map(WebServiceDefinition::define)
+      .forEach(context::addController);
+  }
+
+  /**
+   * @deprecated since 6.5 use {@link #WebServiceEngine(WebService[],WebServiceDefinition[])}
+   */
+  @Deprecated
+  public WebServiceEngine(WebService[] webServices) {
+    this(webServices, new WebServiceDefinition[0]);
   }
 
   @Override

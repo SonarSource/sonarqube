@@ -94,9 +94,12 @@ import static java.util.Objects.requireNonNull;
  * provided by {@link RequestHandler#handle(Request, Response)}.
  *
  * @since 4.2
+ *
+ * @deprecated since 6.5 use {@link WebServiceDefinition}
  */
 @ServerSide
 @ExtensionPoint
+@Deprecated
 public interface WebService extends Definable<WebService.Context> {
 
   class Context {
@@ -116,12 +119,24 @@ public interface WebService extends Definable<WebService.Context> {
       return new NewController(this, path);
     }
 
+    /**
+     * @deprecated since 6.5 use {@link #addController(Controller)}
+     */
+    @Deprecated
     private void register(NewController newController) {
       if (controllers.containsKey(newController.path)) {
         throw new IllegalStateException(
           format("The web service '%s' is defined multiple times", newController.path));
       }
       controllers.put(newController.path, new Controller(newController));
+    }
+
+    public void addController(Controller controller) {
+      if (controllers.containsKey(controller.path)) {
+        throw new IllegalStateException(
+          format("The web service '%s' is defined multiple times", controller.path));
+      }
+      controllers.put(controller.path, controller);
     }
 
     @CheckForNull
@@ -135,11 +150,23 @@ public interface WebService extends Definable<WebService.Context> {
   }
 
   class NewController {
+    @CheckForNull
     private final Context context;
     private final String path;
     private String description;
     private String since;
     private final Map<String, NewAction> actions = Maps.newHashMap();
+
+    public NewController(String path) {
+      if (StringUtils.isBlank(path)) {
+        throw new IllegalArgumentException("WS controller path must not be empty");
+      }
+      if (StringUtils.startsWith(path, "/") || StringUtils.endsWith(path, "/")) {
+        throw new IllegalArgumentException("WS controller path must not start or end with slash: " + path);
+      }
+      this.context = null;
+      this.path = path;
+    }
 
     private NewController(Context context, String path) {
       if (StringUtils.isBlank(path)) {
@@ -184,6 +211,10 @@ public interface WebService extends Definable<WebService.Context> {
       NewAction action = new NewAction(actionKey);
       actions.put(actionKey, action);
       return action;
+    }
+
+    public Controller build() {
+      return new Controller(this);
     }
   }
 
