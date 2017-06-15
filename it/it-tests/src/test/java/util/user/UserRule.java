@@ -115,15 +115,17 @@ public class UserRule extends ExternalResource implements GroupManagement {
   }
 
   /**
-   * Create user with randomly generated values
+   * Create user with randomly generated values. By default password is the login.
    */
-  public WsUsers.CreateWsResponse.User createUser(Consumer<CreateRequest.Builder>... populators) {
+  @SafeVarargs
+  public final WsUsers.CreateWsResponse.User generate(Consumer<CreateRequest.Builder>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
+    String login = "login" + id;
     CreateRequest.Builder request = CreateRequest.builder()
-      .setLogin("login" + id)
+      .setLogin(login)
       .setName("name" + id)
       .setEmail(id + "@test.com")
-      .setPassword("password" + id);
+      .setPassword(login);
     stream(populators).forEach(p -> p.accept(request));
     return adminWsClient().users().create(request.build()).getUser();
   }
@@ -133,7 +135,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
   }
 
   public WsUsers.CreateWsResponse.User createAdministrator(Organizations.Organization organization, String password) {
-    WsUsers.CreateWsResponse.User user = createUser(p -> p.setPassword(password));
+    WsUsers.CreateWsResponse.User user = generate(p -> p.setPassword(password));
     adminWsClient.organizations().addMember(organization.getKey(), user.getLogin());
     forOrganization(organization.getKey()).associateGroupsToUser(user.getLogin(), "Owners");
     return user;
@@ -169,11 +171,11 @@ public class UserRule extends ExternalResource implements GroupManagement {
   }
 
   public void setRoot(String login) {
-    adminWsClient().rootService().setRoot(login);
+    adminWsClient().roots().setRoot(login);
   }
 
   public void unsetRoot(String login) {
-    adminWsClient().rootService().unsetRoot(login);
+    adminWsClient().roots().unsetRoot(login);
   }
 
   public Optional<Users.User> getUserByLogin(String login) {

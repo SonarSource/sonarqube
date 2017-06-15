@@ -22,21 +22,18 @@ package it.user;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.test.Tester;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
 import pageobjects.Navigation;
-import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
@@ -44,33 +41,21 @@ public class MyAccountPageTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
-  private static WsClient adminWsClient;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
-  private String adminUser;
-
-  @BeforeClass
-  public static void setUp() {
-    adminWsClient = newAdminWsClient(orchestrator);
-  }
+  private User administrator;
 
   @Before
   public void initUser() {
-    adminUser = userRule.createAdminUser();
+    administrator = tester.users().generateAdministrator();
     createUser("account-user", "User With Account", "user@example.com");
-  }
-
-  @After
-  public void deleteTestUser() {
-    deactivateUser("account-user");
   }
 
   @Test
   public void should_display_user_details() throws Exception {
+    Navigation nav = tester.openBrowser();
     nav.openLogin().submitCredentials("account-user", "password").shouldBeLoggedIn();
     nav.open("/account");
     $("#name").shouldHave(text("User With Account"));
@@ -83,6 +68,7 @@ public class MyAccountPageTest {
 
   @Test
   public void should_change_password() throws Exception {
+    Navigation nav = tester.openBrowser();
     nav.openLogin().submitCredentials("account-user", "password").shouldBeLoggedIn();
     nav.open("/account/security");
     $("#old_password").val("password");
@@ -107,7 +93,8 @@ public class MyAccountPageTest {
 
   @Test
   public void notifications() {
-    nav.logIn().submitCredentials(adminUser).openNotifications()
+    Navigation nav = tester.openBrowser();
+    nav.logIn().submitCredentials(administrator.getLogin()).openNotifications()
       .addGlobalNotification("ChangesOnMyIssue")
       .addGlobalNotification("NewIssues")
       .removeGlobalNotification("ChangesOnMyIssue");
@@ -117,19 +104,13 @@ public class MyAccountPageTest {
       .shouldNotHaveGlobalNotification("ChangesOnMyIssue");
   }
 
-  private static void createUser(String login, String name, String email) {
-    adminWsClient.wsConnector().call(
+  private void createUser(String login, String name, String email) {
+    tester.wsClient().wsConnector().call(
       new PostRequest("api/users/create")
         .setParam("login", login)
         .setParam("name", name)
         .setParam("email", email)
         .setParam("password", "password"));
-  }
-
-  private static void deactivateUser(String login) {
-    adminWsClient.wsConnector().call(
-      new PostRequest("api/users/deactivate")
-        .setParam("login", login));
   }
 
   private static void analyzeProject(String projectKey) {
@@ -140,8 +121,8 @@ public class MyAccountPageTest {
     orchestrator.executeBuild(build);
   }
 
-  private static void grantAdminPermission(String login, String projectKey) {
-    adminWsClient.wsConnector().call(
+  private void grantAdminPermission(String login, String projectKey) {
+    tester.wsClient().wsConnector().call(
       new PostRequest("api/permissions/add_user")
         .setParam("login", login)
         .setParam("projectKey", projectKey)

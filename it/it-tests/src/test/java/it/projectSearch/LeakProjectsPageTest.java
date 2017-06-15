@@ -31,10 +31,9 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
-import util.OrganizationRule;
 
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static java.util.Arrays.asList;
@@ -51,9 +50,7 @@ public class LeakProjectsPageTest {
   public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
-  public OrganizationRule organizationRule = new OrganizationRule(orchestrator);
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   private Organization organization;
 
@@ -69,7 +66,7 @@ public class LeakProjectsPageTest {
 
   @Before
   public void setUp() {
-    organization = organizationRule.create();
+    organization = tester.organizations().generate();
     restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
   }
 
@@ -86,7 +83,7 @@ public class LeakProjectsPageTest {
     analyzeProject(projectKey1, "shared/xoo-sample", null);
 
     // Check the facets and project cards
-    ProjectsPage page = nav.openProjects(organization.getKey());
+    ProjectsPage page = tester.openBrowser().openProjects(organization.getKey());
     page.changePerspective("Leak");
     assertThat(url()).endsWith("/projects?view=leak");
     page.shouldHaveTotal(2);

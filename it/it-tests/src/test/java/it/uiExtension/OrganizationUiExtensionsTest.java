@@ -22,17 +22,13 @@ package it.uiExtension;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 import org.openqa.selenium.By;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import pageobjects.Navigation;
-import util.OrganizationRule;
-import util.user.UserRule;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -41,29 +37,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OrganizationUiExtensionsTest {
 
-  private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  private static OrganizationRule organizations = new OrganizationRule(orchestrator);
-  private static UserRule userRule = UserRule.from(orchestrator);
-
   @ClassRule
-  public static TestRule chain = RuleChain.outerRule(orchestrator)
-    .around(organizations)
-    .around(userRule);
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
-  public Navigation nav = Navigation.get(orchestrator);
-
-  private String adminUser;
-
-  @Before
-  public void before() {
-    adminUser = userRule.createRootUser();
-  }
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void organization_page() {
-    Organization organization = organizations.create();
-    nav.open("/organizations/" + organization.getKey() + "/projects");
+    Organization organization = tester.organizations().generate();
+    tester.openBrowser().open("/organizations/" + organization.getKey() + "/projects");
 
     $("#organization-navigation-more").click();
     $(By.linkText("Organization Page")).shouldBe(Condition.visible).click();
@@ -74,8 +57,11 @@ public class OrganizationUiExtensionsTest {
 
   @Test
   public void organization_admin_page() {
-    Organization organization = organizations.create();
-    nav.logIn().submitCredentials(adminUser).open("/organizations/" + organization.getKey() + "/projects");
+    Organization organization = tester.organizations().generate();
+    User administrator = tester.users().generateAdministrator(organization);
+    tester.openBrowser()
+      .logIn().submitCredentials(administrator.getLogin())
+      .open("/organizations/" + organization.getKey() + "/projects");
 
     $("#context-navigation a.navbar-admin-link").click();
     $(By.linkText("Organization Admin Page")).shouldBe(Condition.visible).click();

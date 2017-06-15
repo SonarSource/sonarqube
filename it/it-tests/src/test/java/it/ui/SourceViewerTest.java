@@ -24,7 +24,6 @@ import com.sonar.orchestrator.build.SonarScanner;
 import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import pageobjects.Navigation;
 
@@ -37,8 +36,7 @@ public class SourceViewerTest {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
+  private Navigation nav = Navigation.create(ORCHESTRATOR);
 
   @BeforeClass
   public static void beforeClass() {

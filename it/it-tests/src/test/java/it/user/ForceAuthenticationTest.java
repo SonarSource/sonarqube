@@ -21,82 +21,74 @@ package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.Category4Suite;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.test.Tester;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 import pageobjects.Navigation;
-import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.WsRequest.Method.GET;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
-import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newWsClient;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
 
 public class ForceAuthenticationTest {
 
-  private static final String LOGIN = "force-authentication-user";
-
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
-
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
-
-  private static WsClient anonymousClient;
-  private static WsClient adminWsClient;
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  private User user;
 
   @Before
-  public void setUp() throws Exception {
-    userRule.resetUsers();
-    userRule.createUser(LOGIN, LOGIN);
+  public void setUp() {
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
-    anonymousClient = newWsClient(orchestrator);
-    adminWsClient = newAdminWsClient(orchestrator);
+    user = tester.users().generate();
   }
 
-  @AfterClass
-  public static void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     resetSettings(orchestrator, null, "sonar.forceAuthentication");
   }
 
   @Test
-  public void batch_ws_does_not_require_authentication() throws Exception {
-    WsResponse batchIndex = anonymousClient.wsConnector().call(new GetRequest("/batch/index")).failIfNotSuccessful();
+  public void batch_ws_does_not_require_authentication() {
+    WsConnector anonymousConnector = tester.asAnonymous().wsClient().wsConnector();
+    WsResponse batchIndex = anonymousConnector.call(new GetRequest("/batch/index")).failIfNotSuccessful();
     String batchIndexContent = batchIndex.content();
 
     assertThat(batchIndexContent).isNotEmpty();
     String jar = batchIndexContent.split("\\|")[0];
 
-    assertThat(anonymousClient.wsConnector().call(
+    assertThat(anonymousConnector.call(
       new GetRequest("/batch/file").setParam("name", jar)).failIfNotSuccessful().contentStream()).isNotNull();
 
     // As sonar-runner is still using deprecated /batch/key, we have to also verify it
-    assertThat(anonymousClient.wsConnector().call(new GetRequest("/batch/" + jar)).failIfNotSuccessful().contentStream()).isNotNull();
+    assertThat(anonymousConnector.call(new GetRequest("/batch/" + jar)).failIfNotSuccessful().contentStream()).isNotNull();
   }
 
   @Test
-  public void authentication_ws_does_not_require_authentication() throws Exception {
-    assertThat(anonymousClient.wsConnector().call(new PostRequest("/api/authentication/login")
-      .setParam("login", LOGIN)
-      .setParam("password", LOGIN)).isSuccessful()).isTrue();
+  public void authentication_ws_does_not_require_authentication() {
+    WsConnector anonymousConnector = tester.asAnonymous().wsClient().wsConnector();
+    assertThat(anonymousConnector.call(new PostRequest("/api/authentication/login")
+      .setParam("login", user.getLogin())
+      .setParam("password", user.getLogin())).isSuccessful()).isTrue();
     verifyPathDoesNotRequiresAuthentication("/api/authentication/logout", POST);
   }
 
   @Test
-  public void check_ws_not_requiring_authentication() throws Exception {
+  public void check_ws_not_requiring_authentication() {
     verifyPathDoesNotRequiresAuthentication("/api/system/db_migration_status", GET);
     verifyPathDoesNotRequiresAuthentication("/api/system/status", GET);
     verifyPathDoesNotRequiresAuthentication("/api/system/migrate_db", POST);
@@ -105,35 +97,36 @@ public class ForceAuthenticationTest {
   }
 
   @Test
-  public void check_ws_requiring_authentication() throws Exception {
+  public void check_ws_requiring_authentication() {
     verifyPathRequiresAuthentication("/api/issues/search", GET);
     verifyPathRequiresAuthentication("/api/rules/search", GET);
   }
 
   @Test
   public void redirect_to_login_page() {
-    String userAdmin = userRule.createAdminUser();
-    Navigation page = nav.openHomepage();
-    page.shouldBeRedirectToLogin();
-    page.openLogin().submitCredentials(userAdmin, userAdmin).shouldBeLoggedIn();
-    page.logOut().shouldBeRedirectToLogin();
+    User administrator = tester.users().generateAdministrator();
+    Navigation page = tester.openBrowser().openHome();
+    page.shouldBeRedirectedToLogin();
+    page.openLogin().submitCredentials(administrator.getLogin()).shouldBeLoggedIn();
+    page.logOut().shouldBeRedirectedToLogin();
   }
 
   private void verifyPathRequiresAuthentication(String path, WsRequest.Method method) {
-    assertThat(call(anonymousClient, path, method).code()).isEqualTo(401);
-    WsResponse wsResponse = call(adminWsClient, path, method);
+    assertThat(call(tester.asAnonymous().wsClient(), path, method).code()).isEqualTo(401);
+    WsResponse wsResponse = call(tester.wsClient(), path, method);
     assertThat(wsResponse.isSuccessful()).as("code is %s on path %s", wsResponse.code(), path).isTrue();
   }
 
   private void verifyPathDoesNotRequiresAuthentication(String path, WsRequest.Method method) {
-    WsResponse wsResponse = call(anonymousClient, path, method);
+    WsResponse wsResponse = call(tester.asAnonymous().wsClient(), path, method);
     assertThat(wsResponse.isSuccessful()).as("code is %s on path %s", wsResponse.code(), path).isTrue();
-    wsResponse = call(adminWsClient, path, method);
+    wsResponse = call(tester.wsClient(), path, method);
     assertThat(wsResponse.isSuccessful()).as("code is %s on path %s", wsResponse.code(), path).isTrue();
   }
 
   private WsResponse call(WsClient client, String path, WsRequest.Method method) {
-    return method.equals(GET) ? client.wsConnector().call(new GetRequest(path)) : client.wsConnector().call(new PostRequest(path));
+    WsRequest request = method.equals(GET) ? new GetRequest(path) : new PostRequest(path);
+    return client.wsConnector().call(request);
   }
 
 }

@@ -234,9 +234,9 @@ public class ItUtils {
 
   public static void setServerProperty(Orchestrator orchestrator, @Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(key).setComponent(componentKey).build());
+      newAdminWsClient(orchestrator).settings().reset(ResetRequest.builder().setKeys(key).setComponent(componentKey).build());
     } else {
-      newAdminWsClient(orchestrator).settingsService().set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
+      newAdminWsClient(orchestrator).settings().set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
     }
   }
 
@@ -248,7 +248,7 @@ public class ItUtils {
 
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
     if (keys.length > 0) {
-      newAdminWsClient(orchestrator).settingsService().reset(ResetRequest.builder().setKeys(keys).setComponent(componentKey).build());
+      newAdminWsClient(orchestrator).settings().reset(ResetRequest.builder().setKeys(keys).setComponent(componentKey).build());
     }
   }
 
@@ -476,36 +476,46 @@ public class ItUtils {
   }
 
   public static void expectBadRequestError(Runnable runnable) {
-    expectHttpError(runnable, 400);
+    expectHttpError(400, runnable);
   }
 
   public static void expectMissingError(Runnable runnable) {
-    expectHttpError(runnable, 404);
+    expectHttpError(404, runnable);
   }
   /**
    * Missing permissions
    */
   public static void expectForbiddenError(Runnable runnable) {
-    expectHttpError(runnable, 403);
+    expectHttpError(403, runnable);
   }
 
   /**
    * Not authenticated
    */
   public static void expectUnauthorizedError(Runnable runnable) {
-    expectHttpError(runnable, 401);
+    expectHttpError(401, runnable);
   }
 
   public static void expectNotFoundError(Runnable runnable) {
-    expectHttpError(runnable, 404);
+    expectHttpError(404, runnable);
   }
 
-  private static void expectHttpError(Runnable runnable, int expectedCode) {
+  public static void expectHttpError(int expectedCode, Runnable runnable) {
     try {
       runnable.run();
       Assert.fail("Ws call should have failed");
     } catch (org.sonarqube.ws.client.HttpException e) {
       assertThat(e.code()).isEqualTo(expectedCode);
+    }
+  }
+
+  public static void expectHttpError(int expectedCode, String expectedMessage, Runnable runnable) {
+    try {
+      runnable.run();
+      Assert.fail("Ws call should have failed");
+    } catch (org.sonarqube.ws.client.HttpException e) {
+      assertThat(e.code()).isEqualTo(expectedCode);
+      assertThat(e.getMessage()).contains(expectedMessage);
     }
   }
 }

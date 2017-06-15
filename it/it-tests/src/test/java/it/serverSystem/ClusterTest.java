@@ -141,7 +141,7 @@ public class ClusterTest {
   }
 
   private static String getPropertyValue(Orchestrator web, String property) {
-    Settings.ValuesWsResponse response = ItUtils.newAdminWsClient(web).settingsService().values(ValuesRequest.builder().setKeys(property).build());
+    Settings.ValuesWsResponse response = ItUtils.newAdminWsClient(web).settings().values(ValuesRequest.builder().setKeys(property).build());
     List<Settings.Setting> settingsList = response.getSettingsList();
     if (settingsList.isEmpty()) {
       return null;

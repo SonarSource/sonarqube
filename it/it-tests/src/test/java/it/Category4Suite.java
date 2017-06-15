@@ -46,7 +46,6 @@ import it.user.ForceAuthenticationTest;
 import it.user.LocalAuthenticationTest;
 import it.user.MyAccountPageTest;
 import it.user.OAuth2IdentityProviderTest;
-import it.user.OnboardingTest;
 import it.ws.WsLocalCallTest;
 import it.ws.WsTest;
 import org.junit.ClassRule;
@@ -66,7 +65,6 @@ import static util.ItUtils.xooPlugin;
   // user
   MyAccountPageTest.class,
   FavoritesWsTest.class,
-  OnboardingTest.class,
   // authentication
   ForceAuthenticationTest.class,
   LocalAuthenticationTest.class,

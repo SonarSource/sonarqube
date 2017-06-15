@@ -101,7 +101,7 @@ public class DifferentialPeriodsTest {
     assertThat(getLeakPeriodValue(orchestrator, PROJECT_KEY, "violations")).isEqualTo(17);
 
     // Check on ui that it's possible to define leak period on project
-    Navigation.get(orchestrator).openHomepage().logIn().submitCredentials(adminUser).openSettings("sample")
+    Navigation.create(orchestrator).openHome().logIn().submitCredentials(adminUser).openSettings("sample")
       .assertSettingDisplayed("sonar.leak.period");
   }
 

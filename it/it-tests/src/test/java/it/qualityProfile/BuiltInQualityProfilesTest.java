@@ -23,24 +23,21 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
 import java.util.function.Predicate;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
+import org.sonarqube.test.Session;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofile.CopyRequest;
-import org.sonarqube.ws.client.qualityprofile.DeleteRequest;
+import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import org.sonarqube.ws.client.qualityprofile.SetDefaultRequest;
-import util.OrganizationRule;
-import util.QualityProfileRule;
-import util.QualityProfileSupport;
-import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -48,23 +45,17 @@ import static util.ItUtils.expectBadRequestError;
 
 public class BuiltInQualityProfilesTest {
   private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
-  public static final String A_PASSWORD = "aPassword";
-
-  private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  private static OrganizationRule organizations = new OrganizationRule(orchestrator);
-  private static QualityProfileRule profiles = new QualityProfileRule(orchestrator);
-  private static UserRule users = new UserRule(orchestrator);
 
   @ClassRule
-  public static TestRule chain = RuleChain.outerRule(orchestrator)
-    .around(organizations)
-    .around(profiles)
-    .around(users);
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void built_in_profiles_are_available_in_new_organization() {
-    Organization org = organizations.create();
-    SearchWsResponse result = profiles.getWsService().search(new SearchWsRequest().setOrganizationKey(org.getKey()));
+    Organization org = tester.organizations().generate();
+    SearchWsResponse result = tester.qProfiles().service().search(new SearchWsRequest().setOrganizationKey(org.getKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
@@ -76,7 +67,7 @@ public class BuiltInQualityProfilesTest {
 
   @Test
   public void built_in_profiles_are_available_in_default_organization() {
-    SearchWsResponse result = profiles.getWsService().search(new SearchWsRequest().setOrganizationKey("default-organization"));
+    SearchWsResponse result = tester.qProfiles().service().search(new SearchWsRequest().setOrganizationKey("default-organization"));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getOrganization, QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
@@ -88,34 +79,34 @@ public class BuiltInQualityProfilesTest {
 
   @Test
   public void cannot_delete_built_in_profile_even_when_not_the_default_profile() {
-    Organization org = organizations.create();
+    Organization org = tester.organizations().generate();
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && p.getIsDefault() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
 
-    CreateWsResponse.QualityProfile profileInOrg = profiles.createXooProfile(org);
-    profiles.getWsService().setDefault(new SetDefaultRequest(profileInOrg.getKey()));
+    CreateWsResponse.QualityProfile profileInOrg = tester.qProfiles().createXooProfile(org);
+    tester.qProfiles().service().setDefault(new SetDefaultRequest(profileInOrg.getKey()));
 
-    expectBadRequestError(() ->
-      profiles.getWsService().delete(new DeleteRequest(builtInProfile.getKey())));
+    expectBadRequestError(() -> tester.qProfiles().service().delete(builtInProfile.getKey()));
   }
 
   @Test
   public void built_in_profile_cannot_be_modified() {
-    Organization org = organizations.create();
+    Organization org = tester.organizations().generate();
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && p.getIsDefault() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
 
-    expectBadRequestError(() -> profiles.activateRule(builtInProfile, RULE_ONE_BUG_PER_LINE));
-    expectBadRequestError(() -> profiles.deactivateRule(builtInProfile, RULE_ONE_BUG_PER_LINE));
-    expectBadRequestError(() -> profiles.delete(builtInProfile));
+    QualityProfilesService service = tester.qProfiles().service();
+    expectBadRequestError(() -> tester.qProfiles().activateRule(builtInProfile.getKey(), RULE_ONE_BUG_PER_LINE));
+    expectBadRequestError(() -> service.deactivateRule(builtInProfile.getKey(), RULE_ONE_BUG_PER_LINE));
+    expectBadRequestError(() -> service.delete(builtInProfile.getKey()));
   }
 
   @Test
   public void copy_built_in_profile_to_a_custom_profile() {
-    Organization org = organizations.create();
-    WsUsers.CreateWsResponse.User administrator = users.createAdministrator(org, A_PASSWORD);
+    Organization org = tester.organizations().generate();
+    User administrator = tester.users().generateAdministrator(org);
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
-    QualityProfileSupport adminProfiles = profiles.as(administrator.getLogin(), A_PASSWORD);
+    Session adminSession = tester.as(administrator.getLogin());
 
-    QualityProfiles.CopyWsResponse copyResponse = adminProfiles.getWsService().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
+    QualityProfiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
 
     assertThat(copyResponse.getIsDefault()).isFalse();
     assertThat(copyResponse.getKey()).isNotEmpty().isNotEqualTo(builtInProfile.getKey());
@@ -127,18 +118,18 @@ public class BuiltInQualityProfilesTest {
     assertThat(copy.getIsBuiltIn()).isFalse();
     assertThat(copy.getIsDefault()).isFalse();
     assertThat(builtInProfile.getActiveRuleCount()).isGreaterThan(0);
-    adminProfiles.assertThatNumberOfActiveRulesEqualsTo(copy, (int)builtInProfile.getActiveRuleCount());
+    adminSession.qProfiles().assertThatNumberOfActiveRulesEqualsTo(copy.getKey(), (int) builtInProfile.getActiveRuleCount());
   }
 
   @Test
   public void can_inherit_and_disinherit_from_built_in_profile_to_a_custom_profile() {
-    Organization org = organizations.create();
-    WsUsers.CreateWsResponse.User administrator = users.createAdministrator(org, A_PASSWORD);
+    Organization org = tester.organizations().generate();
+    User administrator = tester.users().generateAdministrator(org);
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
-    QualityProfileSupport adminProfiles = profiles.as(administrator.getLogin(), A_PASSWORD);
+    Session adminSession = tester.as(administrator.getLogin());
 
-    QualityProfiles.CopyWsResponse copyResponse = adminProfiles.getWsService().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
-    adminProfiles.getWsService().changeParent(
+    QualityProfiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
+    adminSession.qProfiles().service().changeParent(
       ChangeParentRequest.builder().setParentKey(builtInProfile.getKey()).setProfileKey(copyResponse.getKey()).build());
 
     QualityProfile inheritedQualityPropfile = getProfile(org, p -> p.getKey().equals(copyResponse.getKey()));
@@ -147,7 +138,7 @@ public class BuiltInQualityProfilesTest {
     assertThat(inheritedQualityPropfile.getParentName()).isEqualTo(builtInProfile.getName());
 
     // Remove inheritance
-    adminProfiles.getWsService().changeParent(
+    adminSession.qProfiles().service().changeParent(
       new ChangeParentRequest(ChangeParentRequest.builder().setProfileKey(inheritedQualityPropfile.getKey())));
 
     inheritedQualityPropfile = getProfile(org, p -> p.getKey().equals(copyResponse.getKey()));
@@ -157,7 +148,7 @@ public class BuiltInQualityProfilesTest {
   }
 
   private QualityProfile getProfile(Organization organization, Predicate<QualityProfile> filter) {
-    return profiles.getWsService().search(new SearchWsRequest()
+    return tester.qProfiles().service().search(new SearchWsRequest()
       .setOrganizationKey(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)

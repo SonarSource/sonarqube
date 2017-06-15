@@ -42,8 +42,7 @@ public class ProjectActivityPageTest {
   @Rule
   public UserRule userRule = UserRule.from(ORCHESTRATOR);
 
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
+  private Navigation nav = Navigation.create(ORCHESTRATOR);
 
   @Before
   public void setUp() throws Exception {

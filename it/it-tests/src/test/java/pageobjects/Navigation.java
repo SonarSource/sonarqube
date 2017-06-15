@@ -22,36 +22,57 @@ package pageobjects;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import org.junit.rules.ExternalResource;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.html5.WebStorage;
+import org.sonarqube.test.Tester;
 import pageobjects.issues.IssuesPage;
 import pageobjects.licenses.LicensesPage;
 import pageobjects.organization.MembersPage;
 import pageobjects.projects.ProjectsPage;
 import pageobjects.settings.SettingsPage;
 
-import static com.codeborne.selenide.Condition.hasText;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.Selenide.page;
 
-public class Navigation extends ExternalResource {
+public class Navigation {
 
-  public static Navigation get(Orchestrator orchestrator) {
-    SelenideConfig.configure(orchestrator);
-    return new Navigation();
+  public Navigation() {
+    $("#content").shouldBe(Condition.exist);
   }
 
-  @Override
-  protected void before() throws Throwable {
-    SelenideConfig.getWebDriver().manage().deleteAllCookies();
-    openHomepage();
+  /**
+   * @deprecated use {@link Tester#openBrowser()}
+   */
+  @Deprecated
+  public static Navigation create(Orchestrator orchestrator) {
+    WebDriver driver = SelenideConfig.configure(orchestrator);
+    driver.manage().deleteAllCookies();
+    clearStorage(d -> d.getLocalStorage().clear());
+    clearStorage(d -> d.getSessionStorage().clear());
+    clearStorage(d -> clearBrowserLocalStorage());
+    return Selenide.open("/", Navigation.class);
   }
 
-  public Navigation openHomepage() {
+  private static void clearStorage(Consumer<WebStorage> cleaner) {
+    try {
+      cleaner.accept((WebStorage) WebDriverRunner.getWebDriver());
+    } catch (Exception e) {
+      // ignore, it may occur when the first test opens browser. No pages are loaded
+      // and local/session storages are not available yet.
+      // Example with Chrome: "Failed to read the 'localStorage' property from 'Window': Storage is disabled inside 'data:' URLs."
+    }
+  }
+
+  public Navigation openHome() {
     return open("/", Navigation.class);
   }
 
@@ -152,12 +173,14 @@ public class Navigation extends ExternalResource {
     return Selenide.open(relativeUrl, pageObjectClassClass);
   }
 
-  public void shouldBeLoggedIn() {
+  public Navigation shouldBeLoggedIn() {
     loggedInDropdown().should(Condition.visible);
+    return this;
   }
 
-  public void shouldNotBeLoggedIn() {
+  public Navigation shouldNotBeLoggedIn() {
     logInLink().should(Condition.visible);
+    return this;
   }
 
   public LoginPage logIn() {
@@ -203,8 +226,9 @@ public class Navigation extends ExternalResource {
     return $(".js-user-authenticated");
   }
 
-  public void shouldBeRedirectToLogin() {
-    $("#content").should(hasText("Log In to SonarQube"));
+  public Navigation shouldBeRedirectedToLogin() {
+    $("#login_form").should(visible);
+    return this;
   }
 
 }

@@ -48,8 +48,7 @@ public class ProjectDashboardTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
+  private Navigation nav = Navigation.create(orchestrator);
 
   private static WsClient wsClient;
   private String adminUser;
@@ -72,7 +71,7 @@ public class ProjectDashboardTest {
   public void display_size() {
     executeBuild("shared/xoo-sample", "sample", "Sample");
 
-    ProjectDashboardPage page = nav.openProjectDashboard("sample");
+    ProjectDashboardPage page = Navigation.create(orchestrator).openProjectDashboard("sample");
 
     page.getLinesOfCode().should(hasText("13"));
     page.getLanguageDistribution().should(hasText("Xoo"), hasText("13"));
@@ -88,7 +87,7 @@ public class ProjectDashboardTest {
         .setParam("project", "sample")
         .setParam("tags", "foo,bar,baz"));
 
-    ProjectDashboardPage page = nav.openProjectDashboard("sample");
+    ProjectDashboardPage page = Navigation.create(orchestrator).openProjectDashboard("sample");
     page
       .shouldHaveTags("foo", "bar", "baz")
       .shouldNotBeEditable();
@@ -125,6 +124,7 @@ public class ProjectDashboardTest {
   @Test
   @Ignore("there is no more place to show the error")
   public void display_a_nice_error_when_requesting_unknown_project() {
+    Navigation nav = Navigation.create(orchestrator);
     nav.open("/dashboard/index?id=unknown");
     nav.getErrorMessage().should(text("The requested project does not exist. Either it has never been analyzed successfully or it has been deleted."));
     // TODO verify that on global homepage

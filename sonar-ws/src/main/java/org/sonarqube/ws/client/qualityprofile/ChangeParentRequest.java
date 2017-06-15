@@ -28,6 +28,7 @@ public class ChangeParentRequest {
   private final String parentName;
   private final String profileKey;
   private final String profileName;
+  private final String organization;
 
   public ChangeParentRequest(Builder builder) {
     this.language = builder.language;
@@ -35,6 +36,7 @@ public class ChangeParentRequest {
     this.parentName = builder.parentName;
     this.profileKey = builder.profileKey;
     this.profileName = builder.profileName;
+    this.organization = builder.organization;
   }
 
   public String getLanguage() {
@@ -57,6 +59,10 @@ public class ChangeParentRequest {
     return profileName;
   }
 
+  public String getOrganization() {
+    return organization;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -67,6 +73,7 @@ public class ChangeParentRequest {
     private String parentName;
     private String profileKey;
     private String profileName;
+    private String organization;
 
     private Builder() {
       // enforce factory method use
@@ -94,6 +101,11 @@ public class ChangeParentRequest {
 
     public Builder setParentName(@Nullable String parentName) {
       this.parentName = parentName;
+      return this;
+    }
+
+    public Builder setOrganization(@Nullable String s) {
+      this.organization = s;
       return this;
     }
 

@@ -47,8 +47,7 @@ public class BackgroundTasksTest {
   @Rule
   public UserRule userRule = UserRule.from(ORCHESTRATOR);
 
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
+  private Navigation nav = Navigation.create(ORCHESTRATOR);
 
   @BeforeClass
   public static void beforeClass() {
@@ -86,6 +85,7 @@ public class BackgroundTasksTest {
 
   @Test
   public void display_error_stacktrace() {
+    Navigation nav = Navigation.create(ORCHESTRATOR);
     executeBuild("test-project", "Test Project", "2010-01-01");
 
     nav.logIn().submitCredentials(ADMIN_USER_LOGIN);

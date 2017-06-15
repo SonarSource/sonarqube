@@ -80,17 +80,17 @@ public class SettingsTest {
     adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest().setGroupName("anyone").setPermission("scan"));
 
     // Anonymous user, without 'Execute Analysis' permission
-    anonymousSettingsService = newWsClient(orchestrator).settingsService();
+    anonymousSettingsService = newWsClient(orchestrator).settings();
 
     // Authenticated user, without 'Execute Analysis' permission
-    userSettingsService = newUserWsClient(orchestrator, "setting-user", "setting-user").settingsService();
+    userSettingsService = newUserWsClient(orchestrator, "setting-user", "setting-user").settings();
 
     // User with 'Execute Analysis' permission
     adminWsClient.permissions().addUser(new AddUserWsRequest().setLogin("scanner-user").setPermission("scan"));
-    scanSettingsService = newUserWsClient(orchestrator, "scanner-user", "scanner-user").settingsService();
+    scanSettingsService = newUserWsClient(orchestrator, "scanner-user", "scanner-user").settings();
 
     // User with 'Administer System' permission but without 'Execute Analysis' permission
-    adminSettingsService = adminWsClient.settingsService();
+    adminSettingsService = adminWsClient.settings();
   }
 
   @AfterClass

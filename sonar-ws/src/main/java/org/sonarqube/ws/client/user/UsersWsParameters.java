@@ -25,6 +25,7 @@ public class UsersWsParameters {
 
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_CREATE = "create";
+  public static final String ACTION_DEACTIVATE = "deactivate";
   public static final String ACTION_UPDATE = "update";
   public static final String ACTION_GROUPS = "groups";
   public static final String ACTION_SKIP_ONBOARDING_TUTORIAL = "skip_onboarding_tutorial";

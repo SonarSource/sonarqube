@@ -110,7 +110,7 @@ public class BaseIdentityProviderTest {
     enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
-    Navigation.get(ORCHESTRATOR).openLogin().useOAuth2().shouldBeLoggedIn();
+    Navigation.create(ORCHESTRATOR).openLogin().useOAuth2().shouldBeLoggedIn();
 
     userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }

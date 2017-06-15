@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonarqube.test;
 
-package org.sonarqube.ws.client.qualityprofile;
+import org.sonarqube.ws.client.WsClient;
 
-public class DeleteRequest {
-  private final String profileKey;
+public interface Session {
 
-  public DeleteRequest(String profileKey) {
-    this.profileKey = profileKey;
-  }
+  WsClient wsClient();
 
-  public String getProfileKey() {
-    return profileKey;
-  }
+  GroupTester groups();
+
+  OrganizationTester organizations();
+
+  QProfileTester qProfiles();
+
+  UserTester users();
+
 }

@@ -25,6 +25,7 @@ import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.settings.LicensesPageTest;
 import it.settings.SettingsTestRestartingOrchestrator;
 import it.updateCenter.UpdateCenterTest;
+import it.user.OnboardingTest;
 import it.user.RealmAuthenticationTest;
 import it.user.SsoAuthenticationTest;
 import org.junit.runner.RunWith;
@@ -45,7 +46,8 @@ import org.junit.runners.Suite;
   // update center
   UpdateCenterTest.class,
   RealmAuthenticationTest.class,
-  SsoAuthenticationTest.class
+  SsoAuthenticationTest.class,
+  OnboardingTest.class
 })
 public class Category5Suite {
 

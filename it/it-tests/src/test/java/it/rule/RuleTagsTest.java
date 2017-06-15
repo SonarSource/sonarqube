@@ -20,7 +20,6 @@
 package it.rule;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.http.HttpMethod;
 import it.Category6Suite;
 import java.util.List;
 import org.junit.BeforeClass;
@@ -28,29 +27,29 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.client.PostRequest;
 import util.ItUtils;
-import util.OrganizationRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newWsClient;
 
 public class RuleTagsTest {
 
   private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  private static OrganizationRule organizations = new OrganizationRule(orchestrator);
+  private static Tester tester = new Tester(orchestrator);
 
   @ClassRule
   public static TestRule chain = RuleChain.outerRule(orchestrator)
-    .around(organizations);
+    .around(tester);
 
   private static Organizations.Organization organization1;
   private static Organizations.Organization organization2;
 
   @BeforeClass
   public static void setUp() {
-    organization1 = organizations.create();
-    organization2 = organizations.create();
+    organization1 = tester.organizations().generate();
+    organization2 = tester.organizations().generate();
   }
 
   @Test
@@ -97,17 +96,15 @@ public class RuleTagsTest {
   }
 
   private List<String> showRuleTags(Organizations.Organization organization) {
-    return newWsClient(orchestrator).rules().show(organization.getKey(), "xoo:OneIssuePerFile")
+    return tester.wsClient().rules().show(organization.getKey(), "xoo:OneIssuePerFile")
       .getRule().getTags().getTagsList();
   }
 
   private void updateTag(String tag, Organizations.Organization organization) {
-    orchestrator.getServer().newHttpCall("/api/rules/update")
-      .setMethod(HttpMethod.POST)
-      .setAdminCredentials()
+    tester.wsClient().wsConnector().call(new PostRequest("/api/rules/update")
       .setParam("organization", organization.getKey())
       .setParam("key", "xoo:OneIssuePerFile")
-      .setParam("tags", tag)
-      .execute();
+      .setParam("tags", tag))
+      .failIfNotSuccessful();
   }
 }

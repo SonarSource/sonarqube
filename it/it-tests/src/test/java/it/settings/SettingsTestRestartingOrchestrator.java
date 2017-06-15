@@ -68,7 +68,7 @@ public class SettingsTestRestartingOrchestrator {
     startOrchestrator();
 
     String adminUser = userRule.createAdminUser();
-    Navigation nav = Navigation.get(orchestrator).openHomepage().logIn().submitCredentials(adminUser);
+    Navigation nav = Navigation.create(orchestrator).openHome().logIn().submitCredentials(adminUser);
 
     nav.openSettings(null)
       .assertMenuContains("General")
@@ -101,7 +101,7 @@ public class SettingsTestRestartingOrchestrator {
     orchestrator.executeBuilds(withDeprecatedKey, withNewKey);
 
     String adminUser = userRule.createAdminUser();
-    Navigation.get(orchestrator).openHomepage().logIn().submitCredentials(adminUser).openSettings(null)
+    Navigation.create(orchestrator).openHome().logIn().submitCredentials(adminUser).openSettings(null)
       .assertMenuContains("General")
       .assertSettingDisplayed("sonar.newKey")
       .assertSettingNotDisplayed("sonar.deprecatedKey");

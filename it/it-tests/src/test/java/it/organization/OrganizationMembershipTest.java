@@ -28,41 +28,27 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import pageobjects.Navigation;
-import util.OrganizationRule;
-import util.user.UserRule;
 
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.setServerProperty;
 
 public class OrganizationMembershipTest {
 
-  private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  private static OrganizationRule organizations = new OrganizationRule(orchestrator);
-  private static UserRule users = new UserRule(orchestrator);
-  private static Navigation nav = Navigation.get(orchestrator);
-
   @ClassRule
-  public static TestRule chain = RuleChain.outerRule(orchestrator)
-    .around(users)
-    .around(organizations)
-    .around(nav);
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private static WsClient adminClient;
-
   @BeforeClass
   public static void setUp() {
-    adminClient = newAdminWsClient(orchestrator);
     setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
   }
 
@@ -73,45 +59,45 @@ public class OrganizationMembershipTest {
 
   @Test
   public void new_user_should_not_become_member_of_default_organization() {
-    User user = users.createUser();
-    organizations.assertThatNotMemberOf(null, user);
+    User user = tester.users().generate();
+    tester.organizations().assertThatNotMemberOf(null, user);
   }
 
   @Test
   public void add_and_remove_member() {
-    Organization organization = organizations.create();
-    User user = users.createUser();
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generate();
 
     addMembership(organization, user);
-    organizations.assertThatMemberOf(organization, user);
+    tester.organizations().assertThatMemberOf(organization, user);
 
     removeMembership(organization, user);
-    organizations.assertThatNotMemberOf(organization, user);
+    tester.organizations().assertThatNotMemberOf(organization, user);
   }
 
   @Test
   public void remove_organization_admin_member() {
-    Organization organization = organizations.create();
-    User user = users.createUser();
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generate();
     addMembership(organization, user);
 
-    adminClient.permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
-    organizations.assertThatMemberOf(organization, user);
+    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    tester.organizations().assertThatMemberOf(organization, user);
 
     removeMembership(organization, user);
-    organizations.assertThatNotMemberOf(organization, user);
+    tester.organizations().assertThatNotMemberOf(organization, user);
   }
 
   @Test
   public void fail_to_remove_organization_admin_member_when_last_admin() {
-    Organization organization = organizations.create();
-    User user = users.createUser();
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generate();
     addMembership(organization, user);
 
-    adminClient.permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
-    organizations.assertThatMemberOf(organization, user);
+    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    tester.organizations().assertThatMemberOf(organization, user);
     // Admin is the creator of the organization so he was granted with admin permission
-    adminClient.organizations().removeMember(organization.getKey(), "admin");
+    tester.wsClient().organizations().removeMember(organization.getKey(), "admin");
 
     expectedException.expect(HttpException.class);
     expectedException.expectMessage("The last administrator member cannot be removed");
@@ -120,29 +106,28 @@ public class OrganizationMembershipTest {
 
   @Test
   public void remove_user_remove_its_membership() {
-    Organization organization = organizations.create();
-    User user = users.createUser();
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generate();
     addMembership(organization, user);
 
-    users.deactivateUsers(user.getLogin());
-    organizations.assertThatNotMemberOf(organization, user);
+    tester.users().service().deactivate(user.getLogin());
+    tester.organizations().assertThatNotMemberOf(organization, user);
   }
 
   @Test
   public void user_creating_an_organization_becomes_member_of_this_organization() {
-    String password = "aPassword";
-    User user = users.createUser(p -> p.setPassword(password));
+    User user = tester.users().generate();
 
-    Organization organization = organizations.as(user.getLogin(), password).create();
+    Organization organization = tester.as(user.getLogin()).organizations().generate();
 
-    organizations.assertThatMemberOf(organization, user);
+    tester.organizations().assertThatMemberOf(organization, user);
   }
 
   private void addMembership(Organization organization, User user) {
-    adminClient.organizations().addMember(organization.getKey(), user.getLogin());
+    tester.organizations().addMember(organization, user);
   }
 
   private void removeMembership(Organization organization, User user) {
-    adminClient.organizations().removeMember(organization.getKey(), user.getLogin());
+    tester.wsClient().organizations().removeMember(organization.getKey(), user.getLogin());
   }
 }

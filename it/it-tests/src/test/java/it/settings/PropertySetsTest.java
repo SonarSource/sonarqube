@@ -53,15 +53,14 @@ public class PropertySetsTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  @Rule
-  public Navigation nav = Navigation.get(orchestrator);
+  private Navigation nav = Navigation.create(orchestrator);
 
   static SettingsService SETTINGS;
   private String adminUser;
 
   @BeforeClass
   public static void initSettingsService() throws Exception {
-    SETTINGS = newAdminWsClient(orchestrator).settingsService();
+    SETTINGS = newAdminWsClient(orchestrator).settings();
   }
 
   @Before

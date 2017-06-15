@@ -180,12 +180,12 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public SettingsService settingsService() {
+  public SettingsService settings() {
     return settingsService;
   }
 
   @Override
-  public RootsService rootService() {
+  public RootsService roots() {
     return rootsService;
   }
 
@@ -195,7 +195,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public ProjectAnalysisService projectAnanlysis() {
+  public ProjectAnalysisService projectAnalysis() {
     return projectAnalysisService;
   }
 }

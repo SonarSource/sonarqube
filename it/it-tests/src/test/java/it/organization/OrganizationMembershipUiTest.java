@@ -23,74 +23,50 @@ package it.organization;
 import com.sonar.orchestrator.Orchestrator;
 import it.Category6Suite;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
+import org.sonarqube.test.OrganizationTester;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
-import org.sonarqube.ws.client.WsClient;
-import pageobjects.Navigation;
 import pageobjects.organization.MembersPage;
-import util.OrganizationRule;
-import util.user.UserRule;
 
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.setServerProperty;
 
 public class OrganizationMembershipUiTest {
 
-  private static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
-  private static OrganizationRule organizations = new OrganizationRule(orchestrator);
-  private static UserRule users = new UserRule(orchestrator);
-
   @ClassRule
-  public static TestRule chain = RuleChain.outerRule(orchestrator)
-    .around(users)
-    .around(organizations);
+  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
 
   @Rule
-  public Navigation nav = Navigation.get(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
-  private static WsClient rootWsClient;
-  private String adminUser;
-
-  @BeforeClass
-  public static void setUp() {
-    rootWsClient = newAdminWsClient(orchestrator);
-    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
-  }
-
-  @AfterClass
-  public static void tearDown() {
-    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", null);
-  }
+  private User root;
 
   @Before
-  public void createRootUser() {
-    adminUser = users.createRootUser();
+  public void setUp() {
+    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
+    root = tester.users().generate();
+    tester.wsClient().roots().setRoot(root.getLogin());
   }
 
   @After
-  public void purgeData() throws Exception {
-    organizations.deleteOrganizations();
-    users.deactivateAllUsers();
+  public void tearDown() {
+    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", null);
   }
 
   @Test
   public void should_display_members_page() {
-    Organization organization = organizations.create();
-    User member1 = users.createUser(p -> p.setName("foo"));
-    addMembership(organization, member1);
-    User member2 = users.createUser(p -> p.setName("bar"));
-    addMembership(organization, member2);
-    users.createUser();
+    Organization organization = tester.organizations().generate();
+    User member1 = tester.users().generate(p -> p.setName("foo"));
+    addMember(organization, member1);
+    User member2 = tester.users().generate(p -> p.setName("bar"));
+    addMember(organization, member2);
+    User nonMember = tester.users().generate();
 
-    MembersPage page = nav.openOrganizationMembers(organization.getKey());
+    MembersPage page = tester.openBrowser().openOrganizationMembers(organization.getKey());
     page
       .canNotAddMember()
       .shouldHaveTotal(3);
@@ -104,56 +80,53 @@ public class OrganizationMembershipUiTest {
 
   @Test
   public void search_for_members() {
-    Organization organization = organizations.create();
-
-    User user1 = users.createUser();
-    rootWsClient.organizations().addMember(organization.getKey(), user1.getLogin());
-
-    User user2 = users.createUser(p -> p.setLogin("sameprefixuser1"));
-    rootWsClient.organizations().addMember(organization.getKey(), user2.getLogin());
-
+    Organization organization = tester.organizations().generate();
+    User member1 = tester.users().generate(p -> p.setName("foo"));
+    addMember(organization, member1);
+    User member2 = tester.users().generate(p -> p.setName("sameprefixuser1"));
+    addMember(organization, member2);
     // Created to verify that only the user part of the org is returned
-    users.createUser(p -> p.setLogin("sameprefixuser2"));
+    User userWithSameNamePrefix = tester.users().generate(p -> p.setName(member2.getName() + "sameprefixuser2"));
 
-    MembersPage page = nav.openOrganizationMembers(organization.getKey());
+    MembersPage page = tester.openBrowser().openOrganizationMembers(organization.getKey());
     page
       .searchForMember("sameprefixuser")
       .shouldHaveTotal(1);
-    page.getMembersByIdx(0).shouldBeNamed(user2.getLogin(), user2.getName());
+    page.getMembersByIdx(0).shouldBeNamed(member2.getLogin(), member2.getName());
     page
-      .searchForMember(user1.getLogin())
+      .searchForMember(member1.getLogin())
       .shouldHaveTotal(1);
-    page.getMembersByIdx(0).shouldBeNamed(user1.getLogin(), user1.getName());
+    page.getMembersByIdx(0).shouldBeNamed(member1.getLogin(), member1.getName());
   }
 
   @Test
   public void admin_can_add_members() {
-    Organization organization = organizations.create();
-    String orgKey = organization.getKey();
-    User user = users.createUser(p -> p.setLogin("foo"));
-    users.createUser();
+    Organization organization = tester.organizations().generate();
+    User user1 = tester.users().generate(u -> u.setLogin("foo"));
+    User user2 = tester.users().generate();
 
-    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
+    MembersPage page = tester.openBrowser()
+      .logIn().submitCredentials(root.getLogin())
+      .openOrganizationMembers(organization.getKey());
     page
       .shouldHaveTotal(1)
-      .addMember(user.getLogin())
+      .addMember(user1.getLogin())
       .shouldHaveTotal(2);
     page.getMembersByIdx(0).shouldBeNamed("admin", "Administrator").shouldHaveGroups(2);
-    page.getMembersByIdx(1).shouldBeNamed(user.getLogin(), user.getName()).shouldHaveGroups(1);
+    page.getMembersByIdx(1).shouldBeNamed(user1.getLogin(), user1.getName()).shouldHaveGroups(1);
   }
 
   @Test
   public void admin_can_remove_members() {
-    Organization organization = organizations.create();
-    String orgKey = organization.getKey();
+    Organization organization = tester.organizations().generate();
+    User user1 = tester.users().generate();
+    addMember(organization, user1);
+    User user2 = tester.users().generate();
+    addMember(organization, user2);
 
-    User user1 = users.createUser();
-    rootWsClient.organizations().addMember(orgKey, user1.getLogin());
-
-    User user2 = users.createUser();
-    rootWsClient.organizations().addMember(orgKey, user2.getLogin());
-
-    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
+    MembersPage page = tester.openBrowser()
+      .logIn().submitCredentials(root.getLogin())
+      .openOrganizationMembers(organization.getKey());
     page.shouldHaveTotal(3)
       .getMembersByIdx(1).removeMembership();
     page.shouldHaveTotal(2);
@@ -161,13 +134,13 @@ public class OrganizationMembershipUiTest {
 
   @Test
   public void admin_can_manage_groups() {
-    Organization organization = organizations.create();
-    String orgKey = organization.getKey();
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generate(u -> u.setLogin("foo"));
+    addMember(organization, user);
 
-    User user = users.createUser(p -> p.setLogin("foo"));
-    rootWsClient.organizations().addMember(orgKey, user.getLogin());
-
-    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
+    MembersPage page = tester.openBrowser()
+      .logIn().submitCredentials(root.getLogin())
+      .openOrganizationMembers(organization.getKey());
     // foo user
     page.getMembersByIdx(1)
       .manageGroupsOpen()
@@ -184,11 +157,12 @@ public class OrganizationMembershipUiTest {
 
   @Test
   public void groups_count_should_be_updated_when_a_member_was_just_added() {
-    Organization organization = organizations.create();
-    String orgKey = organization.getKey();
-    User user = users.createUser(p -> p.setLogin("foo"));
+    Organization organization = tester.organizations().generate();
+    User user = tester.users().generate();
 
-    MembersPage page = nav.logIn().submitCredentials(adminUser).openOrganizationMembers(orgKey);
+    MembersPage page = tester.openBrowser()
+      .logIn().submitCredentials(root.getLogin())
+      .openOrganizationMembers(organization.getKey());
     page
       .addMember(user.getLogin())
       .getMembersByIdx(1)
@@ -199,7 +173,7 @@ public class OrganizationMembershipUiTest {
       .shouldHaveGroups(2);
   }
 
-  private void addMembership(Organization organization, User user) {
-    rootWsClient.organizations().addMember(organization.getKey(), user.getLogin());
+  private OrganizationTester addMember(Organization organization, User member1) {
+    return tester.organizations().addMember(organization, member1);
   }
 }

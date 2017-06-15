@@ -55,7 +55,7 @@ public class EmailsTest {
   @BeforeClass
   public static void before() throws Exception {
     ADMIN_WS_CLIENT = newAdminWsClient(orchestrator);
-    SETTINGS = ADMIN_WS_CLIENT.settingsService();
+    SETTINGS = ADMIN_WS_CLIENT.settings();
 
     SMTP_SERVER = new Wiser(0);
     SMTP_SERVER.start();

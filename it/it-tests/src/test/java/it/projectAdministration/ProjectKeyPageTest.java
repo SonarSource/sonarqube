@@ -25,7 +25,6 @@ import it.Category1Suite;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
@@ -44,9 +43,6 @@ public class ProjectKeyPageTest {
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
 
-  @Rule
-  public Navigation nav = Navigation.get(ORCHESTRATOR);
-
   private static WsClient wsClient;
 
   @BeforeClass
@@ -58,6 +54,8 @@ public class ProjectKeyPageTest {
   public void cleanUp() {
     ORCHESTRATOR.resetData();
   }
+
+  private Navigation nav = Navigation.create(ORCHESTRATOR);
 
   @Test
   public void change_key_when_no_modules() {
