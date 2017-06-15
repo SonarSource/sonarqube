@@ -2,11 +2,15 @@
 
 exports[`generates token 1`] = `
 <TokenStep
+  finished={false}
   onContinue={[Function]}
+  onOpen={[Function]}
   open={true}
   stepNumber={1}
 >
   <Step
+    finished={false}
+    onOpen={[Function]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -14,7 +18,7 @@ exports[`generates token 1`] = `
     stepTitle="onboarding.token.header"
   >
     <div
-      className="boxed-group onboarding-step onboarding-step-open"
+      className="boxed-group onboarding-step is-open"
     >
       <div
         className="onboarding-step-number"
@@ -62,11 +66,15 @@ exports[`generates token 1`] = `
 
 exports[`generates token 2`] = `
 <TokenStep
+  finished={false}
   onContinue={[Function]}
+  onOpen={[Function]}
   open={true}
   stepNumber={1}
 >
   <Step
+    finished={false}
+    onOpen={[Function]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -74,7 +82,7 @@ exports[`generates token 2`] = `
     stepTitle="onboarding.token.header"
   >
     <div
-      className="boxed-group onboarding-step onboarding-step-open"
+      className="boxed-group onboarding-step is-open"
     >
       <div
         className="onboarding-step-number"
@@ -120,11 +128,15 @@ exports[`generates token 2`] = `
 
 exports[`generates token 3`] = `
 <TokenStep
+  finished={false}
   onContinue={[Function]}
+  onOpen={[Function]}
   open={true}
   stepNumber={1}
 >
   <Step
+    finished={false}
+    onOpen={[Function]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -132,7 +144,7 @@ exports[`generates token 3`] = `
     stepTitle="onboarding.token.header"
   >
     <div
-      className="boxed-group onboarding-step onboarding-step-open"
+      className="boxed-group onboarding-step is-open"
     >
       <div
         className="onboarding-step-number"
@@ -195,11 +207,15 @@ exports[`generates token 3`] = `
 
 exports[`revokes token 1`] = `
 <TokenStep
+  finished={false}
   onContinue={[Function]}
+  onOpen={[Function]}
   open={true}
   stepNumber={1}
 >
   <Step
+    finished={false}
+    onOpen={[Function]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -207,7 +223,7 @@ exports[`revokes token 1`] = `
     stepTitle="onboarding.token.header"
   >
     <div
-      className="boxed-group onboarding-step onboarding-step-open"
+      className="boxed-group onboarding-step is-open"
     >
       <div
         className="onboarding-step-number"
@@ -270,11 +286,15 @@ exports[`revokes token 1`] = `
 
 exports[`revokes token 2`] = `
 <TokenStep
+  finished={false}
   onContinue={[Function]}
+  onOpen={[Function]}
   open={true}
   stepNumber={1}
 >
   <Step
+    finished={false}
+    onOpen={[Function]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -282,7 +302,7 @@ exports[`revokes token 2`] = `
     stepTitle="onboarding.token.header"
   >
     <div
-      className="boxed-group onboarding-step onboarding-step-open"
+      className="boxed-group onboarding-step is-open"
     >
       <div
         className="onboarding-step-number"
@@ -340,11 +360,15 @@ exports[`revokes token 2`] = `
 
 exports[`revokes token 3`] = `
 <TokenStep
+  finished={false}
   onContinue={[Function]}
+  onOpen={[Function]}
   open={true}
   stepNumber={1}
 >
   <Step
+    finished={false}
+    onOpen={[Function]}
     open={true}
     renderForm={[Function]}
     renderResult={[Function]}
@@ -352,7 +376,7 @@ exports[`revokes token 3`] = `
     stepTitle="onboarding.token.header"
   >
     <div
-      className="boxed-group onboarding-step onboarding-step-open"
+      className="boxed-group onboarding-step is-open"
     >
       <div
         className="onboarding-step-number"

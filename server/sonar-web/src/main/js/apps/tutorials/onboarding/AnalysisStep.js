@@ -174,6 +174,8 @@ export default class AnalysisStep extends React.PureComponent {
   render() {
     return (
       <Step
+        finished={false}
+        onOpen={() => {}}
         open={this.props.open}
         renderForm={this.renderForm}
         renderResult={this.renderResult}

@@ -29,7 +29,15 @@ jest.mock('../../../../api/user-tokens', () => ({
 }));
 
 it('generates token', () => {
-  const wrapper = mount(<TokenStep open={true} onContinue={jest.fn()} />);
+  const wrapper = mount(
+    <TokenStep
+      finished={false}
+      open={true}
+      onContinue={jest.fn()}
+      onOpen={jest.fn()}
+      stepNumber={1}
+    />
+  );
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'my token');
   submit(wrapper.find('form'));
@@ -38,7 +46,15 @@ it('generates token', () => {
 });
 
 it('revokes token', () => {
-  const wrapper = mount(<TokenStep open={true} onContinue={jest.fn()} />);
+  const wrapper = mount(
+    <TokenStep
+      finished={false}
+      open={true}
+      onContinue={jest.fn()}
+      onOpen={jest.fn()}
+      stepNumber={1}
+    />
+  );
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   expect(wrapper).toMatchSnapshot();
   submit(wrapper.find('form'));
@@ -48,7 +64,15 @@ it('revokes token', () => {
 
 it('continues', () => {
   const onContinue = jest.fn();
-  const wrapper = mount(<TokenStep open={true} onContinue={onContinue} />);
+  const wrapper = mount(
+    <TokenStep
+      finished={false}
+      open={true}
+      onContinue={onContinue}
+      onOpen={jest.fn()}
+      stepNumber={1}
+    />
+  );
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   click(wrapper.find('.js-continue'));
   expect(onContinue).toBeCalledWith('abcd1234');

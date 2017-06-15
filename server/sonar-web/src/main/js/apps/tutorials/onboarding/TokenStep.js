@@ -23,11 +23,13 @@ import Step from './Step';
 import { generateToken, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
-type Props = {
+type Props = {|
+  finished: boolean,
   open: boolean,
   onContinue: (token: string) => void,
+  onOpen: () => void,
   stepNumber: number
-};
+|};
 
 type State = {
   loading: boolean,
@@ -38,11 +40,6 @@ type State = {
 export default class TokenStep extends React.PureComponent {
   mounted: boolean;
   props: Props;
-
-  static defaultProps = {
-    stepNumber: 1
-  };
-
   state: State = {
     loading: false
   };
@@ -169,6 +166,8 @@ export default class TokenStep extends React.PureComponent {
   render() {
     return (
       <Step
+        finished={this.props.finished}
+        onOpen={this.props.onOpen}
         open={this.props.open}
         renderForm={this.renderForm}
         renderResult={this.renderResult}

@@ -37,7 +37,9 @@ exports[`guides for on-premise 1`] = `
       </div>
     </header>
     <TokenStep
+      finished={false}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={true}
       stepNumber={1}
     />
@@ -89,7 +91,9 @@ exports[`guides for on-premise 2`] = `
       </div>
     </header>
     <TokenStep
+      finished={true}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={false}
       stepNumber={1}
     />
@@ -148,12 +152,16 @@ exports[`guides for sonarcloud 1`] = `
           "login": "admin",
         }
       }
+      finished={false}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={true}
       stepNumber={1}
     />
     <TokenStep
+      finished={false}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={false}
       stepNumber={2}
     />
@@ -211,12 +219,16 @@ exports[`guides for sonarcloud 2`] = `
           "login": "admin",
         }
       }
+      finished={true}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={false}
       stepNumber={1}
     />
     <TokenStep
+      finished={false}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={true}
       stepNumber={2}
     />
@@ -275,12 +287,16 @@ exports[`guides for sonarcloud 3`] = `
           "login": "admin",
         }
       }
+      finished={true}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={false}
       stepNumber={1}
     />
     <TokenStep
+      finished={true}
       onContinue={[Function]}
+      onOpen={[Function]}
       open={false}
       stepNumber={2}
     />

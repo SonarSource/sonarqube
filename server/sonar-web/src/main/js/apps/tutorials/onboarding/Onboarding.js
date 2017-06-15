@@ -108,6 +108,10 @@ export default class Onboarding extends React.PureComponent {
     this.setState({ organization, step: 'token' });
   };
 
+  handleTokenOpen = () => this.setState({ step: 'token' });
+
+  handleOrganizationOpen = () => this.setState({ step: 'organization' });
+
   handleSkipClick = (event: Event) => {
     event.preventDefault();
     this.finishOnboarding();
@@ -151,13 +155,17 @@ export default class Onboarding extends React.PureComponent {
           {organizationsEnabled &&
             <OrganizationStep
               currentUser={this.props.currentUser}
+              finished={this.state.organization != null}
               onContinue={this.handleOrganizationDone}
+              onOpen={this.handleOrganizationOpen}
               open={step === 'organization'}
               stepNumber={stepNumber++}
             />}
 
           <TokenStep
+            finished={this.state.token != null}
             onContinue={this.handleTokenDone}
+            onOpen={this.handleTokenOpen}
             open={step === 'token'}
             stepNumber={stepNumber++}
           />

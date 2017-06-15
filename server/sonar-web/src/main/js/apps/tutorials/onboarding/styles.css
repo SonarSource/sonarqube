@@ -7,7 +7,7 @@
   padding-left: 34px;
 }
 
-.onboarding-step:not(.onboarding-step-open) {
+.onboarding-step:not(.is-open):not(.is-finished) {
   opacity: 0.4;
 }
 
@@ -30,8 +30,13 @@
   text-align: center;
 }
 
-.onboarding-step-open .onboarding-step-number {
+.onboarding-step.is-open .onboarding-step-number {
   background-color: #236a97;
+}
+
+.onboarding-step.is-finished {
+  cursor: pointer;
+  outline: none;
 }
 
 .onboarding-command {
