@@ -155,7 +155,9 @@ public interface WebService extends Definable<WebService.Context> {
     private final String path;
     private String description;
     private String since;
-    private final Map<String, NewAction> actions = Maps.newHashMap();
+    @Deprecated
+    private final Map<String, NewAction> newActions = Maps.newHashMap();
+    private final Map<String, Action> actions = Maps.newHashMap();
 
     public NewController(String path) {
       if (StringUtils.isBlank(path)) {
@@ -203,14 +205,27 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
+    /**
+     * @deprecated since 6.5 use {@link #addAction(Action)}
+     */
+    @Deprecated
     public NewAction createAction(String actionKey) {
-      if (actions.containsKey(actionKey)) {
+      if (newActions.containsKey(actionKey) || actions.containsKey(actionKey)) {
         throw new IllegalStateException(
           format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path));
       }
       NewAction action = new NewAction(actionKey);
-      actions.put(actionKey, action);
+      newActions.put(actionKey, action);
       return action;
+    }
+
+    public void addAction(Action action) {
+      String actionKey = action.key;
+      if (newActions.containsKey(actionKey) || actions.containsKey(actionKey)) {
+        throw new IllegalStateException(
+          format("The action '%s' is defined multiple times in the web service '%s'", actionKey, path));
+      }
+      actions.put(action.key, action);
     }
 
     public Controller build() {
@@ -226,14 +241,16 @@ public interface WebService extends Definable<WebService.Context> {
     private final Map<String, Action> actions;
 
     private Controller(NewController newController) {
-      checkState(!newController.actions.isEmpty(), "At least one action must be declared in the web service '%s'", newController.path);
+      checkState(!(newController.newActions.isEmpty() && newController.actions.isEmpty()),
+        "At least one action must be declared in the web service '%s'", newController.path);
       this.path = newController.path;
       this.description = newController.description;
       this.since = newController.since;
       ImmutableMap.Builder<String, Action> mapBuilder = ImmutableMap.builder();
-      for (NewAction newAction : newController.actions.values()) {
+      for (NewAction newAction : newController.newActions.values()) {
         mapBuilder.put(newAction.key, new Action(this, newAction));
       }
+      newController.actions.forEach(mapBuilder::put);
       this.actions = mapBuilder.build();
     }
 
@@ -289,7 +306,7 @@ public interface WebService extends Definable<WebService.Context> {
     private URL responseExample = null;
     private List<Change> changelog = new ArrayList<>();
 
-    private NewAction(String key) {
+    public NewAction(String key) {
       this.key = key;
     }
 
@@ -494,6 +511,10 @@ public interface WebService extends Definable<WebService.Context> {
         .setPossibleValues(SelectionMode.possibleValues());
       return this;
     }
+
+    public Action build(String controllerPath) {
+      return new Action(controllerPath, this);
+    }
   }
 
   @Immutable
@@ -513,10 +534,18 @@ public interface WebService extends Definable<WebService.Context> {
     private final URL responseExample;
     private final List<Change> changelog;
 
+    /**
+     * @deprecated since 6.5 use {@link #Action(String, NewAction)}
+     */
+    @Deprecated
     private Action(Controller controller, NewAction newAction) {
+      this(controller.path(), newAction);
+    }
+
+    private Action(String controllerPath, NewAction newAction) {
       this.key = newAction.key;
       this.deprecatedKey = newAction.deprecatedKey;
-      this.path = format("%s/%s", controller.path(), key);
+      this.path = format("%s/%s", controllerPath, key);
       this.description = newAction.description;
       this.since = newAction.since;
       this.deprecatedSince = newAction.deprecatedSince;

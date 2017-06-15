@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.server.ws;
 
-import org.sonar.api.server.ws.Definable;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.server.ServerSide;
 
 /**
- * Since 5.2, this interface is the base for Web Service marker interfaces
+ * Since 6.5, this interface is the base for Web Service marker interfaces
  * Convention for naming implementations: <i>web_service_class_name</i>Action. ex: ProjectsWsAction, UsersWsAction
- * @deprecated since 6.5 use {@link org.sonar.api.server.ws.ActionDefinition}
  */
-@Deprecated
-public interface WsAction extends RequestHandler, Definable<WebService.NewController> {
-  // Marker interface
+public interface ActionDefinition extends RequestHandler {
+  WebService.Action define();
 }

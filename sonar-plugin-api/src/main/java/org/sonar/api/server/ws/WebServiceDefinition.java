@@ -37,20 +37,23 @@ import org.sonar.api.server.ServerSide;
  *     controller.setDescription("Web service example");
  *
  *     // create the URL /api/hello/show
- *     controller.createAction("show")
- *       .setDescription("Entry point")
- *       .setHandler(new RequestHandler() {
- *         {@literal @}Override
- *         public void handle(Request request, Response response) {
- *           // read request parameters and generates response output
- *           response.newJsonWriter()
- *             .beginObject()
- *             .prop("hello", request.mandatoryParam("key"))
- *             .endObject()
- *             .close();
- *         }
- *      })
- *      .createParam("key").setDescription("Example key").setRequired(true);
+ *     controller.addAction(
+ *       new NewAction("show")
+ *         .setDescription("Entry point")
+ *         .setHandler(new RequestHandler() {
+ *           {@literal @}Override
+ *           public void handle(Request request, Response response) {
+ *             // read request parameters and generates response output
+ *             response.newJsonWriter()
+ *               .beginObject()
+ *               .prop("hello", request.mandatoryParam("key"))
+ *               .endObject()
+ *               .close();
+ *           }
+ *        })
+ *        .createParam("key").setDescription("Example key").setRequired(true)
+ *        .build(controller.path())
+ *      );
  *
  *    return controller;
  *   }
