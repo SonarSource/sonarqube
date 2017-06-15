@@ -31,11 +31,6 @@ exports[`generates token 1`] = `
       <div
         className="boxed-group-inner"
       >
-        <div
-          className="big-spacer-bottom width-50"
-        >
-          onboarding.token.text
-        </div>
         <form
           onSubmit={[Function]}
         >
@@ -54,6 +49,11 @@ exports[`generates token 1`] = `
             onboarding.token.generate
           </button>
         </form>
+        <div
+          className="note big-spacer-top width-50"
+        >
+          onboarding.token.text
+        </div>
       </div>
     </div>
   </Step>
@@ -91,11 +91,6 @@ exports[`generates token 2`] = `
       <div
         className="boxed-group-inner"
       >
-        <div
-          className="big-spacer-bottom width-50"
-        >
-          onboarding.token.text
-        </div>
         <form
           onSubmit={[Function]}
         >
@@ -112,6 +107,11 @@ exports[`generates token 2`] = `
             className="spinner text-middle"
           />
         </form>
+        <div
+          className="note big-spacer-top width-50"
+        >
+          onboarding.token.text
+        </div>
       </div>
     </div>
   </Step>
@@ -149,18 +149,17 @@ exports[`generates token 3`] = `
       <div
         className="boxed-group-inner"
       >
-        <div
-          className="big-spacer-bottom width-50"
-        >
-          onboarding.token.text
-        </div>
         <form
           onSubmit={[Function]}
         >
-          my token
-          : 
           <span
-            className="monospaced spacer-right text-middle"
+            className="text-middle"
+          >
+            my token
+            : 
+          </span>
+          <span
+            className="spacer-right text-middle"
           >
             abcd1234
           </span>
@@ -173,6 +172,11 @@ exports[`generates token 3`] = `
             />
           </button>
         </form>
+        <div
+          className="note big-spacer-top width-50"
+        >
+          onboarding.token.text
+        </div>
         <div
           className="big-spacer-top"
         >
@@ -220,18 +224,17 @@ exports[`revokes token 1`] = `
       <div
         className="boxed-group-inner"
       >
-        <div
-          className="big-spacer-bottom width-50"
-        >
-          onboarding.token.text
-        </div>
         <form
           onSubmit={[Function]}
         >
-          my token
-          : 
           <span
-            className="monospaced spacer-right text-middle"
+            className="text-middle"
+          >
+            my token
+            : 
+          </span>
+          <span
+            className="spacer-right text-middle"
           >
             abcd1234
           </span>
@@ -244,6 +247,11 @@ exports[`revokes token 1`] = `
             />
           </button>
         </form>
+        <div
+          className="note big-spacer-top width-50"
+        >
+          onboarding.token.text
+        </div>
         <div
           className="big-spacer-top"
         >
@@ -291,18 +299,17 @@ exports[`revokes token 2`] = `
       <div
         className="boxed-group-inner"
       >
-        <div
-          className="big-spacer-bottom width-50"
-        >
-          onboarding.token.text
-        </div>
         <form
           onSubmit={[Function]}
         >
-          my token
-          : 
           <span
-            className="monospaced spacer-right text-middle"
+            className="text-middle"
+          >
+            my token
+            : 
+          </span>
+          <span
+            className="spacer-right text-middle"
           >
             abcd1234
           </span>
@@ -310,6 +317,11 @@ exports[`revokes token 2`] = `
             className="spinner text-middle"
           />
         </form>
+        <div
+          className="note big-spacer-top width-50"
+        >
+          onboarding.token.text
+        </div>
         <div
           className="big-spacer-top"
         >
@@ -357,11 +369,6 @@ exports[`revokes token 3`] = `
       <div
         className="boxed-group-inner"
       >
-        <div
-          className="big-spacer-bottom width-50"
-        >
-          onboarding.token.text
-        </div>
         <form
           onSubmit={[Function]}
         >
@@ -380,6 +387,11 @@ exports[`revokes token 3`] = `
             onboarding.token.generate
           </button>
         </form>
+        <div
+          className="note big-spacer-top width-50"
+        >
+          onboarding.token.text
+        </div>
       </div>
     </div>
   </Step>
