@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import * as actions from '../actions';
 
 const ANALYSES = [
@@ -60,47 +61,56 @@ const newEvent = {
   category: 'Custom'
 };
 
+const emptyState = {
+  analyses: [],
+  loading: false,
+  measuresHistory: [],
+  measures: [],
+  metrics: [],
+  query: { category: '', graph: '', project: '' }
+};
+
+const state = { ...emptyState, analyses: ANALYSES };
+
 it('should never throw when there is no analyses', () => {
-  expect(actions.addCustomEvent('A1', newEvent)({})).toBeUndefined();
-  expect(actions.deleteEvent('A1', newEvent)({})).toBeUndefined();
-  expect(actions.changeEvent('A1', newEvent)({})).toBeUndefined();
-  expect(actions.deleteAnalysis('Anew')({})).toBeUndefined();
+  expect(actions.addCustomEvent('A1', newEvent)(emptyState).analyses).toHaveLength(0);
+  expect(actions.deleteEvent('A1', 'Enew')(emptyState).analyses).toHaveLength(0);
+  expect(actions.changeEvent('A1', newEvent)(emptyState).analyses).toHaveLength(0);
+  expect(actions.deleteAnalysis('Anew')(emptyState).analyses).toHaveLength(0);
 });
 
 describe('addCustomEvent', () => {
   it('should correctly add a custom event', () => {
-    expect(
-      actions.addCustomEvent('A2', newEvent)({ analyses: ANALYSES }).analyses[1]
-    ).toMatchSnapshot();
-    expect(
-      actions.addCustomEvent('A1', newEvent)({ analyses: ANALYSES }).analyses[0].events
-    ).toContain(newEvent);
+    expect(actions.addCustomEvent('A2', newEvent)(state).analyses[1]).toMatchSnapshot();
+    expect(actions.addCustomEvent('A1', newEvent)(state).analyses[0].events).toContain(newEvent);
   });
 });
 
 describe('deleteEvent', () => {
   it('should correctly remove an event', () => {
-    expect(actions.deleteEvent('A1', 'E1')({ analyses: ANALYSES }).analyses[0]).toMatchSnapshot();
-    expect(actions.deleteEvent('A2', 'E1')({ analyses: ANALYSES }).analyses[1]).toMatchSnapshot();
-    expect(actions.deleteEvent('A3', 'E2')({ analyses: ANALYSES }).analyses[2]).toMatchSnapshot();
+    expect(actions.deleteEvent('A1', 'E1')(state).analyses[0]).toMatchSnapshot();
+    expect(actions.deleteEvent('A2', 'E1')(state).analyses[1]).toMatchSnapshot();
+    expect(actions.deleteEvent('A3', 'E2')(state).analyses[2]).toMatchSnapshot();
   });
 });
 
 describe('changeEvent', () => {
   it('should correctly update an event', () => {
     expect(
-      actions.changeEvent('A1', { key: 'E1', name: 'changed' })({ analyses: ANALYSES }).analyses[0]
+      actions.changeEvent('A1', { key: 'E1', name: 'changed', category: 'VERSION' })(state)
+        .analyses[0]
     ).toMatchSnapshot();
     expect(
-      actions.changeEvent('A2', { key: 'E2' })({ analyses: ANALYSES }).analyses[1].events
+      actions.changeEvent('A2', { key: 'E2', name: 'foo', category: 'VERSION' })(state).analyses[1]
+        .events
     ).toHaveLength(0);
   });
 });
 
 describe('deleteAnalysis', () => {
   it('should correctly delete an analyses', () => {
-    expect(actions.deleteAnalysis('A1')({ analyses: ANALYSES }).analyses).toMatchSnapshot();
-    expect(actions.deleteAnalysis('A5')({ analyses: ANALYSES }).analyses).toHaveLength(3);
-    expect(actions.deleteAnalysis('A2')({ analyses: ANALYSES }).analyses).toHaveLength(2);
+    expect(actions.deleteAnalysis('A1')(state).analyses).toMatchSnapshot();
+    expect(actions.deleteAnalysis('A5')(state).analyses).toHaveLength(3);
+    expect(actions.deleteAnalysis('A2')(state).analyses).toHaveLength(2);
   });
 });

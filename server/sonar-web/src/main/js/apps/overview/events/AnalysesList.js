@@ -59,13 +59,11 @@ export default class AnalysesList extends React.PureComponent {
 
   fetchData() {
     this.setState({ loading: true });
-    getProjectActivity({ project: this.props.project, ps: PAGE_SIZE })
-      .then(({ analyses }) => {
-        if (this.mounted) {
-          this.setState({ analyses, loading: false });
-        }
-      })
-      .catch(throwGlobalError);
+    getProjectActivity({ project: this.props.project, ps: PAGE_SIZE }).then(({ analyses }) => {
+      if (this.mounted) {
+        this.setState({ analyses, loading: false });
+      }
+    }, throwGlobalError);
   }
 
   renderList(analyses: Array<AnalysisType>) {

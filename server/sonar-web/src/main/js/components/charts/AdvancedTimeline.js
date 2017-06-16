@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import { flatten } from 'lodash';
 import { extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
-import { line as d3Line, curveBasis } from 'd3-shape';
+import { line as d3Line, area, curveBasis } from 'd3-shape';
 
 type Point = { x: Date, y: number | string };
 
@@ -43,7 +43,8 @@ type Props = {
   width: number,
   leakPeriodDate: Date,
   padding: Array<number>,
-  series: Array<Serie>
+  series: Array<Serie>,
+  showAreas?: boolean
 };
 
 export default class AdvancedTimeline extends React.PureComponent {
@@ -158,9 +159,9 @@ export default class AdvancedTimeline extends React.PureComponent {
   };
 
   renderLines = (xScale: Scale, yScale: Scale) => {
-    const line = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y));
+    const lineGenerator = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y));
     if (this.props.basisCurve) {
-      line.curve(curveBasis);
+      lineGenerator.curve(curveBasis);
     }
     return (
       <g>
@@ -168,7 +169,25 @@ export default class AdvancedTimeline extends React.PureComponent {
           <path
             key={`${idx}-${serie.name}`}
             className={classNames('line-chart-path', 'line-chart-path-' + idx)}
-            d={line(serie.data)}
+            d={lineGenerator(serie.data)}
+          />
+        ))}
+      </g>
+    );
+  };
+
+  renderAreas = (xScale: Scale, yScale: Scale) => {
+    const areaGenerator = area().x(d => xScale(d.x)).y1(d => yScale(d.y)).y0(yScale(0));
+    if (this.props.basisCurve) {
+      areaGenerator.curve(curveBasis);
+    }
+    return (
+      <g>
+        {this.props.series.map((serie, idx) => (
+          <path
+            key={`${idx}-${serie.name}`}
+            className={classNames('line-chart-area', 'line-chart-area-' + idx)}
+            d={areaGenerator(serie.data)}
           />
         ))}
       </g>
@@ -208,6 +227,7 @@ export default class AdvancedTimeline extends React.PureComponent {
           {this.renderLeak(xScale, yScale)}
           {this.renderHorizontalGrid(xScale, yScale)}
           {this.renderTicks(xScale, yScale)}
+          {this.props.showAreas && this.renderAreas(xScale, yScale)}
           {this.renderLines(xScale, yScale)}
           {this.renderEvents(xScale, yScale)}
         </g>
