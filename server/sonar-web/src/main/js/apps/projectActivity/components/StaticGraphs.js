@@ -24,17 +24,18 @@ import { AutoSizer } from 'react-virtualized';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import StaticGraphsLegend from './StaticGraphsLegend';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
-import { generateCoveredLinesMetric } from '../utils';
+import { EVENT_TYPES, generateCoveredLinesMetric } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { Analysis, MeasureHistory } from '../types';
 
 type Props = {
   analyses: Array<Analysis>,
+  eventFilter: string,
   leakPeriodDate: Date,
   loading: boolean,
   measuresHistory: Array<MeasureHistory>,
   metricsType: string,
-  seriesStyle?: { [string]: string }
+  seriesOrder: Array<string>
 };
 
 export default class StaticGraphs extends React.PureComponent {
@@ -45,28 +46,39 @@ export default class StaticGraphs extends React.PureComponent {
   formatValue = value => formatMeasure(value, this.props.metricsType);
 
   getEvents = () => {
-    const events = this.props.analyses.reduce((acc, analysis) => {
-      return acc.concat(
-        analysis.events.map(event => ({
-          className: event.category,
-          name: event.name,
-          date: moment(analysis.date).toDate()
-        }))
-      );
+    const { analyses, eventFilter } = this.props;
+    const filteredEvents = analyses.reduce((acc, analysis) => {
+      if (analysis.events.length <= 0) {
+        return acc;
+      }
+      let event;
+      if (eventFilter) {
+        event = analysis.events.filter(event => event.category === eventFilter)[0];
+      } else {
+        event = sortBy(analysis.events, event => EVENT_TYPES.indexOf(event.category))[0];
+      }
+      if (!event) {
+        return acc;
+      }
+      return acc.concat({
+        className: event.category,
+        name: event.name,
+        date: moment(analysis.date).toDate()
+      });
     }, []);
-    return sortBy(events, 'date');
+    return sortBy(filteredEvents, 'date');
   };
 
   getSeries = () =>
     sortBy(
-      this.props.measuresHistory.map((measure, idx) => {
+      this.props.measuresHistory.map(measure => {
         if (measure.metric === 'uncovered_lines') {
           return generateCoveredLinesMetric(measure, this.props.measuresHistory);
         }
         return {
           name: measure.metric,
           translatedName: translate('metric', measure.metric, 'name'),
-          style: this.props.seriesStyle ? this.props.seriesStyle[measure.metric] : idx,
+          style: this.props.seriesOrder.indexOf(measure.metric),
           data: measure.history.map(analysis => ({
             x: analysis.date,
             y: this.props.metricsType === 'LEVEL' ? analysis.value : Number(analysis.value)
@@ -117,7 +129,6 @@ export default class StaticGraphs extends React.PureComponent {
                 formatYTick={this.formatYTick}
                 leakPeriodDate={this.props.leakPeriodDate}
                 metricType={this.props.metricsType}
-                padding={[25, 25, 30, 60]}
                 series={series}
                 showAreas={this.props.showAreas}
                 width={width}

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly the list of series 1`] = `
+<div
+  className="project-activity-graph-legends"
+>
+  <span
+    className="big-spacer-left big-spacer-right"
+  >
+    <ChartLegendIcon
+      className="spacer-right line-chart-legend line-chart-legend-2"
+    />
+    Bugs
+  </span>
+  <span
+    className="big-spacer-left big-spacer-right"
+  >
+    <ChartLegendIcon
+      className="spacer-right line-chart-legend line-chart-legend-1"
+    />
+    Code Smells
+  </span>
+</div>
+`;

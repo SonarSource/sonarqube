@@ -44,7 +44,8 @@ type Props = {
   leakPeriodDate: Date,
   padding: Array<number>,
   series: Array<Serie>,
-  showAreas?: boolean
+  showAreas?: boolean,
+  showEventMarkers?: boolean
 };
 
 export default class AdvancedTimeline extends React.PureComponent {
@@ -52,7 +53,7 @@ export default class AdvancedTimeline extends React.PureComponent {
 
   static defaultProps = {
     eventSize: 8,
-    padding: [10, 10, 10, 10]
+    padding: [25, 25, 30, 70]
   };
 
   getRatingScale = (availableHeight: number) =>
@@ -199,16 +200,18 @@ export default class AdvancedTimeline extends React.PureComponent {
     if (!events || !eventSize) {
       return null;
     }
-
+    const inRangeEvents = events.filter(
+      event => event.date >= xScale.domain()[0] && event.date <= xScale.domain()[1]
+    );
     const offset = eventSize / 2;
     return (
       <g>
-        {events.map((event, idx) => (
+        {inRangeEvents.map((event, idx) => (
           <path
             d={this.getEventMarker(eventSize)}
             className={classNames('line-chart-event', event.className)}
             key={`${idx}-${event.date.getTime()}`}
-            transform={`translate(${xScale(event.date) - offset}, ${yScale.range()[0] - offset})`}
+            transform={`translate(${xScale(event.date) - offset}, ${yScale.range()[0] + offset})`}
           />
         ))}
       </g>
@@ -229,7 +232,7 @@ export default class AdvancedTimeline extends React.PureComponent {
           {this.renderTicks(xScale, yScale)}
           {this.props.showAreas && this.renderAreas(xScale, yScale)}
           {this.renderLines(xScale, yScale)}
-          {this.renderEvents(xScale, yScale)}
+          {this.props.showEventMarkers && this.renderEvents(xScale, yScale)}
         </g>
       </svg>
     );
