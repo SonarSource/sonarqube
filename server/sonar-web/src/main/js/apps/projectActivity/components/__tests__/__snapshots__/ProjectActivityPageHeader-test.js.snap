@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly the list of series 1`] = `
+<header
+  className="page-header"
+>
+  <Select
+    addLabelText="Add \\"{label}\\"?"
+    arrowRenderer={[Function]}
+    autosize={true}
+    backspaceRemoves={true}
+    backspaceToRemoveMessage="Press backspace to remove {label}"
+    className="input-medium"
+    clearAllText="Clear all"
+    clearValueText="Clear value"
+    clearable={true}
+    delimiter=","
+    disabled={false}
+    escapeClearsValue={true}
+    filterOptions={[Function]}
+    ignoreAccents={true}
+    ignoreCase={true}
+    inputProps={Object {}}
+    isLoading={false}
+    joinValues={false}
+    labelKey="label"
+    matchPos="any"
+    matchProp="any"
+    menuBuffer={0}
+    menuRenderer={[Function]}
+    multi={false}
+    noResultsText="No results found"
+    onBlurResetsInput={true}
+    onChange={[Function]}
+    onCloseResetsInput={true}
+    openAfterFocus={false}
+    optionComponent={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "event.category.VERSION",
+          "value": "VERSION",
+        },
+        Object {
+          "label": "event.category.QUALITY_GATE",
+          "value": "QUALITY_GATE",
+        },
+        Object {
+          "label": "event.category.QUALITY_PROFILE",
+          "value": "QUALITY_PROFILE",
+        },
+        Object {
+          "label": "event.category.OTHER",
+          "value": "OTHER",
+        },
+      ]
+    }
+    pageSize={5}
+    placeholder="project_activity.filter_events..."
+    required={false}
+    scrollMenuIntoView={true}
+    searchable={false}
+    simpleValue={false}
+    tabSelectsValue={true}
+    value=""
+    valueComponent={[Function]}
+    valueKey="value"
+  />
+</header>
+`;

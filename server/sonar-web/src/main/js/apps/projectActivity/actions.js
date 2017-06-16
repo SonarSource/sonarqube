@@ -19,7 +19,7 @@
  */
 // @flow
 import type { Event } from './types';
-import type { State } from './components/ProjectActivityApp';
+import type { State } from './components/ProjectActivityAppContainer';
 
 export const addCustomEvent = (analysis: string, event: Event) => (state: State) => ({
   analyses: state.analyses.map(item => {
