@@ -50,7 +50,8 @@ export default class AnalysisStep extends React.PureComponent {
 
   handleLanguageSelect = (result?: Result) => {
     this.setState({ result });
-    this.props.onFinish(result && result.projectKey);
+    const projectKey = result && result.language !== 'java' ? result.projectKey : undefined;
+    this.props.onFinish(projectKey);
   };
 
   handleLanguageReset = () => {
@@ -174,6 +175,8 @@ export default class AnalysisStep extends React.PureComponent {
   render() {
     return (
       <Step
+        finished={false}
+        onOpen={() => {}}
         open={this.props.open}
         renderForm={this.renderForm}
         renderResult={this.renderResult}

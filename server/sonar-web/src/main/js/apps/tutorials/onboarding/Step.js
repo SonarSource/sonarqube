@@ -21,21 +21,35 @@
 import React from 'react';
 import classNames from 'classnames';
 
-type Props = {
+type Props = {|
+  finished: boolean,
+  onOpen: () => void,
   open: boolean,
   renderForm: () => React.Element<*>,
   renderResult: () => ?React.Element<*>,
   stepNumber: number,
   stepTitle: string
-};
+|};
 
 export default function Step(props: Props) {
   const className = classNames('boxed-group', 'onboarding-step', {
-    'onboarding-step-open': props.open
+    'is-open': props.open,
+    'is-finished': props.finished
   });
 
+  const clickable = !props.open && props.finished;
+
+  const handleClick = (event: Event) => {
+    event.preventDefault;
+    props.onOpen();
+  };
+
   return (
-    <div className={className}>
+    <div
+      className={className}
+      onClick={clickable ? handleClick : undefined}
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}>
       <div className="onboarding-step-number">{props.stepNumber}</div>
       {!props.open && props.renderResult()}
       <div className="boxed-group-header">

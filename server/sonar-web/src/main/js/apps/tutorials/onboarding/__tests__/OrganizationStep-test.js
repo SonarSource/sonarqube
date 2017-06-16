@@ -32,7 +32,14 @@ const currentUser = { isLoggedIn: true, login: 'user' };
 it('works with personal organization', () => {
   const onContinue = jest.fn();
   const wrapper = mount(
-    <OrganizationStep currentUser={currentUser} onContinue={onContinue} open={true} />
+    <OrganizationStep
+      currentUser={currentUser}
+      finished={false}
+      onContinue={onContinue}
+      onOpen={jest.fn()}
+      open={true}
+      stepNumber={1}
+    />
   );
   click(wrapper.find('.js-continue'));
   expect(onContinue).toBeCalledWith('user');
@@ -41,7 +48,14 @@ it('works with personal organization', () => {
 it('works with existing organization', () => {
   const onContinue = jest.fn();
   const wrapper = mount(
-    <OrganizationStep currentUser={currentUser} onContinue={onContinue} open={true} />
+    <OrganizationStep
+      currentUser={currentUser}
+      finished={false}
+      onContinue={onContinue}
+      onOpen={jest.fn()}
+      open={true}
+      stepNumber={1}
+    />
   );
   return doAsync(() => {
     click(wrapper.find('.js-existing'));
@@ -54,7 +68,14 @@ it('works with existing organization', () => {
 it('works with new organization', () => {
   const onContinue = jest.fn();
   const wrapper = mount(
-    <OrganizationStep currentUser={currentUser} onContinue={onContinue} open={true} />
+    <OrganizationStep
+      currentUser={currentUser}
+      finished={false}
+      onContinue={onContinue}
+      onOpen={jest.fn()}
+      open={true}
+      stepNumber={1}
+    />
   );
   click(wrapper.find('.js-new'));
   wrapper.find('NewOrganizationForm').prop('onDone')('new');

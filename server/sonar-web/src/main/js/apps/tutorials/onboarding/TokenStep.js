@@ -20,14 +20,17 @@
 // @flow
 import React from 'react';
 import Step from './Step';
+import CloseIcon from '../../../components/icons-components/CloseIcon';
 import { generateToken, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
-type Props = {
+type Props = {|
+  finished: boolean,
   open: boolean,
   onContinue: (token: string) => void,
+  onOpen: () => void,
   stepNumber: number
-};
+|};
 
 type State = {
   loading: boolean,
@@ -38,11 +41,6 @@ type State = {
 export default class TokenStep extends React.PureComponent {
   mounted: boolean;
   props: Props;
-
-  static defaultProps = {
-    stepNumber: 1
-  };
-
   state: State = {
     loading: false
   };
@@ -111,24 +109,20 @@ export default class TokenStep extends React.PureComponent {
 
     return (
       <div className="boxed-group-inner">
-        <div className="big-spacer-bottom width-50">
-          {translate('onboarding.token.text')}
-        </div>
-
         {token != null
           ? <form onSubmit={this.handleTokenRevoke}>
-              {tokenName}{': '}
-              <span className="monospaced spacer-right">{token}</span>
+              <span className="text-middle">{tokenName}{': '}</span>
+              <strong className="spacer-right text-middle">{token}</strong>
               {loading
-                ? <i className="spinner" />
-                : <button className="button-clean" onClick={this.handleTokenRevoke}>
-                    <i className="icon-delete" />
+                ? <i className="spinner text-middle" />
+                : <button className="button-clean text-middle" onClick={this.handleTokenRevoke}>
+                    <CloseIcon className="icon-red" />
                   </button>}
             </form>
           : <form onSubmit={this.handleTokenGenerate}>
               <input
                 autoFocus={true}
-                className="input-large spacer-right"
+                className="input-large spacer-right text-middle"
                 onChange={this.handleTokenNameChange}
                 placeholder={translate('onboarding.token.placeholder')}
                 required={true}
@@ -136,9 +130,13 @@ export default class TokenStep extends React.PureComponent {
                 value={tokenName || ''}
               />
               {loading
-                ? <i className="spinner" />
-                : <button>{translate('onboarding.token.generate')}</button>}
+                ? <i className="spinner text-middle" />
+                : <button className="text-middle">{translate('onboarding.token.generate')}</button>}
             </form>}
+
+        <div className="note big-spacer-top width-50">
+          {translate('onboarding.token.text')}
+        </div>
 
         {token != null &&
           <div className="big-spacer-top">
@@ -161,7 +159,7 @@ export default class TokenStep extends React.PureComponent {
       <div className="boxed-group-actions">
         <i className="icon-check spacer-right" />
         {tokenName}{': '}
-        <strong className="monospaced">{token}</strong>
+        <strong>{token}</strong>
       </div>
     );
   };
@@ -169,6 +167,8 @@ export default class TokenStep extends React.PureComponent {
   render() {
     return (
       <Step
+        finished={this.props.finished}
+        onOpen={this.props.onOpen}
         open={this.props.open}
         renderForm={this.renderForm}
         renderResult={this.renderResult}
