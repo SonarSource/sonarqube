@@ -28,7 +28,23 @@ export const GRAPHS_METRICS = {
   overview: ['bugs', 'vulnerabilities', 'code_smells'],
   coverage: ['uncovered_lines', 'lines_to_cover'],
   duplications: ['duplicated_lines', 'ncloc'],
-  remediation: ['sqale_index', 'security_remediation_effort', 'reliability_remediation_effort']
+  remediation: ['reliability_remediation_effort', 'security_remediation_effort', 'sqale_index']
+};
+export const GRAPHS_METRICS_STYLE = {
+  overview: { bugs: '0', code_smells: '1', vulnerabilities: '2' },
+  coverage: {
+    lines_to_cover: '1',
+    uncovered_lines: '0'
+  },
+  duplications: {
+    duplicated_lines: '0',
+    ncloc: '1'
+  },
+  remediation: {
+    reliability_remediation_effort: '0',
+    security_remediation_effort: '2',
+    sqale_index: '1'
+  }
 };
 
 const parseGraph = (value?: string): string => {
