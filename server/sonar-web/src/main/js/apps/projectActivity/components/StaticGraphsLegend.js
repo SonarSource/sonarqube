@@ -22,16 +22,19 @@ import classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 
 type Props = {
-  series: Array<{ name: string, translatedName: string }>
+  series: Array<{ name: string, translatedName: string, style: string }>
 };
 
 export default function StaticGraphsLegend({ series }: Props) {
   return (
     <div className="project-activity-graph-legends">
-      {series.map((serie, idx) => (
+      {series.map(serie => (
         <span className="big-spacer-left big-spacer-right" key={serie.name}>
           <ChartLegendIcon
-            className={classNames('spacer-right line-chart-legend', 'line-chart-legend-' + idx)}
+            className={classNames(
+              'spacer-right line-chart-legend',
+              'line-chart-legend-' + serie.style
+            )}
           />
           {serie.translatedName}
         </span>

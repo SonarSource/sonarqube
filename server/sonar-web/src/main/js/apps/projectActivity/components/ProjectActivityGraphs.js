@@ -21,6 +21,7 @@
 import React from 'react';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import StaticGraphs from './StaticGraphs';
+import { GRAPHS_METRICS_STYLE } from '../utils';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Query } from '../types';
 
@@ -47,6 +48,7 @@ export default function ProjectActivityGraphs(props: Props) {
         measuresHistory={props.measuresHistory}
         metricsType={props.metricsType}
         project={props.project}
+        seriesStyle={GRAPHS_METRICS_STYLE[graph]}
         showAreas={['coverage', 'duplications'].includes(graph)}
       />
     </div>

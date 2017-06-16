@@ -27,7 +27,7 @@ import { line as d3Line, area, curveBasis } from 'd3-shape';
 
 type Point = { x: Date, y: number | string };
 
-type Serie = { name: string, data: Array<Point> };
+type Serie = { name: string, data: Array<Point>, style: string };
 
 type Event = { className?: string, name: string, date: Date };
 
@@ -168,7 +168,7 @@ export default class AdvancedTimeline extends React.PureComponent {
         {this.props.series.map((serie, idx) => (
           <path
             key={`${idx}-${serie.name}`}
-            className={classNames('line-chart-path', 'line-chart-path-' + idx)}
+            className={classNames('line-chart-path', 'line-chart-path-' + serie.style)}
             d={lineGenerator(serie.data)}
           />
         ))}
@@ -186,7 +186,7 @@ export default class AdvancedTimeline extends React.PureComponent {
         {this.props.series.map((serie, idx) => (
           <path
             key={`${idx}-${serie.name}`}
-            className={classNames('line-chart-area', 'line-chart-area-' + idx)}
+            className={classNames('line-chart-area', 'line-chart-area-' + serie.style)}
             d={areaGenerator(serie.data)}
           />
         ))}
