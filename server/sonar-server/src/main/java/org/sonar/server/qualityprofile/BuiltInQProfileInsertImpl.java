@@ -96,8 +96,9 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     activeRuleIndexer.indexRuleProfile(dbSession, ruleProfile);
   }
 
-  private void associateToOrganizations(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtInQProfile, RulesProfileDto rulesProfileDto) {
+  private void associateToOrganizations(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {
     List<String> orgUuids = dbClient.organizationDao().selectAllUuids(dbSession);
+    Set<String> orgUuidsWithoutDefault = dbClient.defaultQProfileDao().selectUuidsOfOrganizationsWithoutDefaultProfile(dbSession, builtIn.getLanguage());
 
     List<DefaultQProfileDto> defaults = new ArrayList<>();
     orgUuids.forEach(orgUuid -> {
@@ -106,13 +107,13 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
         .setRulesProfileUuid(rulesProfileDto.getKee())
         .setUuid(uuidFactory.create());
 
-      if (builtInQProfile.isDefault()) {
+      if (builtIn.isDefault() && orgUuidsWithoutDefault.contains(orgUuid)) {
         // rows of table default_qprofiles must be inserted after
         // in order to benefit from batch SQL inserts
         defaults.add(new DefaultQProfileDto()
           .setQProfileUuid(dto.getUuid())
           .setOrganizationUuid(orgUuid)
-          .setLanguage(builtInQProfile.getLanguage()));
+          .setLanguage(builtIn.getLanguage()));
       }
 
       dbClient.qualityProfileDao().insert(batchDbSession, dto);
