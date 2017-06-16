@@ -43,6 +43,14 @@ exports[`renders correctly 1`] = `
       }
     }
   />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.browse_url_after_analysis",
+      }
+    }
+  />
 </div>
 `;
 
@@ -86,6 +94,14 @@ exports[`renders correctly 2`] = `
     dangerouslySetInnerHTML={
       Object {
         "__html": "onboarding.analysis.java.gradle.docs",
+      }
+    }
+  />
+  <p
+    className="big-spacer-top markdown"
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "onboarding.analysis.browse_url_after_analysis",
       }
     }
   />

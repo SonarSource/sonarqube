@@ -54,6 +54,12 @@ export default function JavaGradle(props: Props) {
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.gradle.docs') }}
       />
+      <p
+        className="big-spacer-top markdown"
+        dangerouslySetInnerHTML={{
+          __html: translate('onboarding.analysis.browse_url_after_analysis')
+        }}
+      />
     </div>
   );
 }
