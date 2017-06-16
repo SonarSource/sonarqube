@@ -101,17 +101,17 @@ export default class ProjectActivityApp extends React.PureComponent {
   fetchMetrics = (): Promise<Array<Metric>> => getMetrics().catch(throwGlobalError);
 
   fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> =>
-    getAllTimeMachineData(this.props.project.key, metrics)
-      .then(({ measures }) =>
+    getAllTimeMachineData(this.props.project.key, metrics).then(
+      ({ measures }) =>
         measures.map(measure => ({
           metric: measure.metric,
           history: measure.history.map(analysis => ({
             date: moment(analysis.date).toDate(),
             value: analysis.value
           }))
-        }))
-      )
-      .catch(throwGlobalError);
+        })),
+      throwGlobalError
+    );
 
   fetchMoreActivity = () => {
     const { paging, query } = this.state;
@@ -136,9 +136,9 @@ export default class ProjectActivityApp extends React.PureComponent {
       .createEvent(analysis, name, category)
       .then(
         ({ analysis, ...event }) =>
-          this.mounted && this.setState(actions.addCustomEvent(analysis, event))
-      )
-      .catch(throwGlobalError);
+          this.mounted && this.setState(actions.addCustomEvent(analysis, event)),
+        throwGlobalError
+      );
 
   addVersion = (analysis: string, version: string): Promise<*> =>
     this.addCustomEvent(analysis, version, 'VERSION');
@@ -146,23 +146,27 @@ export default class ProjectActivityApp extends React.PureComponent {
   deleteEvent = (analysis: string, event: string): Promise<*> =>
     api
       .deleteEvent(event)
-      .then(() => this.mounted && this.setState(actions.deleteEvent(analysis, event)))
-      .catch(throwGlobalError);
+      .then(
+        () => this.mounted && this.setState(actions.deleteEvent(analysis, event)),
+        throwGlobalError
+      );
 
   changeEvent = (event: string, name: string): Promise<*> =>
     api
       .changeEvent(event, name)
       .then(
         ({ analysis, ...event }) =>
-          this.mounted && this.setState(actions.changeEvent(analysis, event))
-      )
-      .catch(throwGlobalError);
+          this.mounted && this.setState(actions.changeEvent(analysis, event)),
+        throwGlobalError
+      );
 
   deleteAnalysis = (analysis: string): Promise<*> =>
     api
       .deleteAnalysis(analysis)
-      .then(() => this.mounted && this.setState(actions.deleteAnalysis(analysis)))
-      .catch(throwGlobalError);
+      .then(
+        () => this.mounted && this.setState(actions.deleteAnalysis(analysis)),
+        throwGlobalError
+      );
 
   getMetricType = () => {
     const metricKey = GRAPHS_METRICS[this.state.query.graph][0];
@@ -206,10 +210,9 @@ export default class ProjectActivityApp extends React.PureComponent {
   };
 
   render() {
-    const { query } = this.state;
+    const { analyses, loading, query } = this.state;
     const { configuration } = this.props.project;
     const canAdmin = configuration ? configuration.showHistory : false;
-
     return (
       <div id="project-activity" className="page page-limited">
         <Helmet title={translate('project_activity.page')} />
@@ -217,28 +220,33 @@ export default class ProjectActivityApp extends React.PureComponent {
         <ProjectActivityPageHeader category={query.category} updateQuery={this.updateQuery} />
 
         <div className="layout-page project-activity-page">
-          <ProjectActivityAnalysesList
-            addCustomEvent={this.addCustomEvent}
-            addVersion={this.addVersion}
-            analyses={this.state.analyses}
-            canAdmin={canAdmin}
-            changeEvent={this.changeEvent}
-            deleteAnalysis={this.deleteAnalysis}
-            deleteEvent={this.deleteEvent}
-            fetchMoreActivity={this.fetchMoreActivity}
-            paging={this.state.paging}
-          />
-
-          <ProjectActivityGraphs
-            analyses={this.state.analyses}
-            leakPeriodDate={moment(this.props.project.leakPeriodDate).toDate()}
-            loading={this.state.loading}
-            measuresHistory={this.state.measuresHistory}
-            metricsType={this.getMetricType()}
-            project={this.props.project.key}
-            query={query}
-            updateQuery={this.updateQuery}
-          />
+          <div className="layout-page-side-outer project-activity-page-side-outer boxed-group">
+            <ProjectActivityAnalysesList
+              addCustomEvent={this.addCustomEvent}
+              addVersion={this.addVersion}
+              analyses={analyses}
+              canAdmin={canAdmin}
+              className="boxed-group-inner"
+              changeEvent={this.changeEvent}
+              deleteAnalysis={this.deleteAnalysis}
+              deleteEvent={this.deleteEvent}
+              fetchMoreActivity={this.fetchMoreActivity}
+              loading={loading}
+              paging={this.state.paging}
+            />
+          </div>
+          <div className="project-activity-layout-page-main">
+            <ProjectActivityGraphs
+              analyses={analyses}
+              leakPeriodDate={moment(this.props.project.leakPeriodDate).toDate()}
+              loading={loading}
+              measuresHistory={this.state.measuresHistory}
+              metricsType={this.getMetricType()}
+              project={this.props.project.key}
+              query={query}
+              updateQuery={this.updateQuery}
+            />
+          </div>
         </div>
       </div>
     );
