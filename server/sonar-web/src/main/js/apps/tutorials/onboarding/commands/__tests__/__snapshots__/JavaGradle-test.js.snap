@@ -17,7 +17,7 @@ exports[`renders correctly 1`] = `
   />
   <Command
     command="plugins {
-    id \\"org.sonarqube\\" version \\"2.2\\"
+    id \\"org.sonarqube\\" version \\"2.5\\"
   }"
   />
   <p
@@ -63,7 +63,7 @@ exports[`renders correctly 2`] = `
   />
   <Command
     command="plugins {
-    id \\"org.sonarqube\\" version \\"2.2\\"
+    id \\"org.sonarqube\\" version \\"2.5\\"
   }"
   />
   <p
