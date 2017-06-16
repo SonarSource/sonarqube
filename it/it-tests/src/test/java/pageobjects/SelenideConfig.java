@@ -32,8 +32,7 @@ public class SelenideConfig {
   private enum Browser {
     firefox("(v46 and lower)"),
     marionette("(recent Firefox, require Geckodriver)"),
-    chrome("(require Chromedriver)"),
-    phantomjs("(headless)");
+    chrome("(require Chromedriver)");
 
     private final String label;
 

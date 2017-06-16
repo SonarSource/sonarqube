@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
 enum SelenideConfig {
   INSTANCE;
 
-  private static final Set<String> SUPPORTED_BROWSERS = ImmutableSet.of("firefox", "phantomjs");
+  private static final Set<String> SUPPORTED_BROWSERS = ImmutableSet.of("firefox");
 
   SelenideConfig() {
     Configuration.reportsFolder = "target/screenshots";
