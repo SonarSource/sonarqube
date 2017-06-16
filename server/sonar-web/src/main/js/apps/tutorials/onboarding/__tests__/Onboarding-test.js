@@ -34,7 +34,6 @@ it('guides for on-premise', () => {
     <Onboarding
       currentUser={currentUser}
       onFinish={jest.fn()}
-      onSkip={jest.fn()}
       organizationsEnabled={false}
       sonarCloud={false}
     />
@@ -52,7 +51,6 @@ it('guides for sonarcloud', () => {
     <Onboarding
       currentUser={currentUser}
       onFinish={jest.fn()}
-      onSkip={jest.fn()}
       organizationsEnabled={true}
       sonarCloud={true}
     />
@@ -70,19 +68,18 @@ it('guides for sonarcloud', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('skips', () => {
-  const onSkip = jest.fn();
+it('finishes', () => {
+  const onFinish = jest.fn();
   const wrapper = mount(
     <Onboarding
       currentUser={currentUser}
-      onFinish={jest.fn()}
-      onSkip={onSkip}
+      onFinish={onFinish}
       organizationsEnabled={false}
       sonarCloud={false}
     />
   );
   click(wrapper.find('.js-skip'));
   return doAsync(() => {
-    expect(onSkip).toBeCalled();
+    expect(onFinish).toBeCalled();
   });
 });
