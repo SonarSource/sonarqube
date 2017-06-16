@@ -56,7 +56,7 @@ class ProjectContainer extends React.PureComponent {
 
   fetchProject() {
     this.props.fetchProject(this.props.location.query.id).catch(e => {
-      if (e.response.status === 403) {
+      if (e.response && e.response.status === 403) {
         handleRequiredAuthorization();
       } else {
         parseError(e).then(message => this.props.addGlobalErrorMessage(message));

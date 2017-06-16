@@ -32,20 +32,22 @@ type Props = {
   addVersion: (analysis: string, version: string) => Promise<*>,
   analyses: Array<Analysis>,
   canAdmin: boolean,
+  className?: string,
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
   fetchMoreActivity: () => void,
+  loading: boolean,
   paging?: Paging
 };
 
 export default function ProjectActivityAnalysesList(props: Props) {
   if (props.analyses.length === 0) {
     return (
-      <div className="layout-page-side-outer project-activity-page-side-outer">
-        <div className="boxed-group boxed-group-inner">
-          <div className="note">{translate('no_results')}</div>
-        </div>
+      <div className={props.className}>
+        {props.loading
+          ? <div className="text-center"><i className="spinner" /></div>
+          : <span className="note">{translate('no_results')}</span>}
       </div>
     );
   }
@@ -53,44 +55,42 @@ export default function ProjectActivityAnalysesList(props: Props) {
   const firstAnalysis = props.analyses[0];
   const byDay = groupBy(props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());
   return (
-    <div className="layout-page-side-outer project-activity-page-side-outer">
-      <div className="boxed-group boxed-group-inner">
-        <ul className="project-activity-days-list">
-          {Object.keys(byDay).map(day => (
-            <li
-              key={day}
-              className="project-activity-day"
-              data-day={moment(Number(day)).format('YYYY-MM-DD')}>
-              <div className="project-activity-date">
-                <FormattedDate date={Number(day)} format="LL" />
-              </div>
+    <div className={props.className}>
+      <ul className="project-activity-days-list">
+        {Object.keys(byDay).map(day => (
+          <li
+            key={day}
+            className="project-activity-day"
+            data-day={moment(Number(day)).format('YYYY-MM-DD')}>
+            <div className="project-activity-date">
+              <FormattedDate date={Number(day)} format="LL" />
+            </div>
 
-              <ul className="project-activity-analyses-list">
-                {byDay[day] != null &&
-                  byDay[day].map(analysis => (
-                    <ProjectActivityAnalysis
-                      addCustomEvent={props.addCustomEvent}
-                      addVersion={props.addVersion}
-                      analysis={analysis}
-                      canAdmin={props.canAdmin}
-                      changeEvent={props.changeEvent}
-                      deleteAnalysis={props.deleteAnalysis}
-                      deleteEvent={props.deleteEvent}
-                      isFirst={analysis === firstAnalysis}
-                      key={analysis.key}
-                    />
-                  ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
+            <ul className="project-activity-analyses-list">
+              {byDay[day] != null &&
+                byDay[day].map(analysis => (
+                  <ProjectActivityAnalysis
+                    addCustomEvent={props.addCustomEvent}
+                    addVersion={props.addVersion}
+                    analysis={analysis}
+                    canAdmin={props.canAdmin}
+                    changeEvent={props.changeEvent}
+                    deleteAnalysis={props.deleteAnalysis}
+                    deleteEvent={props.deleteEvent}
+                    isFirst={analysis === firstAnalysis}
+                    key={analysis.key}
+                  />
+                ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
 
-        <ProjectActivityPageFooter
-          analyses={props.analyses}
-          fetchMoreActivity={props.fetchMoreActivity}
-          paging={props.paging}
-        />
-      </div>
+      <ProjectActivityPageFooter
+        analyses={props.analyses}
+        fetchMoreActivity={props.fetchMoreActivity}
+        paging={props.paging}
+      />
     </div>
   );
 }
