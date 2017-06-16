@@ -23,11 +23,12 @@ import { translate } from '../../helpers/l10n';
 import type { MeasureHistory, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
 
-export const GRAPH_TYPES = ['overview', 'coverage', 'duplications'];
+export const GRAPH_TYPES = ['overview', 'coverage', 'duplications', 'remediation'];
 export const GRAPHS_METRICS = {
   overview: ['bugs', 'vulnerabilities', 'code_smells'],
   coverage: ['uncovered_lines', 'lines_to_cover'],
-  duplications: ['duplicated_lines', 'ncloc']
+  duplications: ['duplicated_lines', 'ncloc'],
+  remediation: ['sqale_index', 'security_remediation_effort', 'reliability_remediation_effort']
 };
 
 const parseGraph = (value?: string): string => {
