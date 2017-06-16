@@ -1,0 +1,175 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly filter analyses 1`] = `
+Object {
+  "filteredAnalyses": Array [
+    Object {
+      "date": "2016-10-27T16:33:50+0200",
+      "events": Array [
+        Object {
+          "category": "VERSION",
+          "key": "E1",
+          "name": "6.5-SNAPSHOT",
+        },
+      ],
+      "key": "A1",
+    },
+    Object {
+      "date": "2016-10-26T12:17:29+0200",
+      "events": Array [
+        Object {
+          "category": "VERSION",
+          "key": "E2",
+          "name": "6.4",
+        },
+        Object {
+          "category": "OTHER",
+          "key": "E3",
+          "name": "foo",
+        },
+      ],
+      "key": "A3",
+    },
+  ],
+}
+`;
+
+exports[`should render correctly 1`] = `
+<div
+  className="page page-limited"
+  id="project-activity"
+>
+  <HelmetWrapper
+    title="project_activity.page"
+  />
+  <ProjectActivityPageHeader
+    category=""
+    updateQuery={[Function]}
+  />
+  <div
+    className="layout-page project-activity-page"
+  >
+    <div
+      className="layout-page-side-outer project-activity-page-side-outer boxed-group"
+    >
+      <ProjectActivityAnalysesList
+        addCustomEvent={[Function]}
+        addVersion={[Function]}
+        analyses={
+          Array [
+            Object {
+              "date": "2016-10-27T16:33:50+0200",
+              "events": Array [
+                Object {
+                  "category": "VERSION",
+                  "key": "E1",
+                  "name": "6.5-SNAPSHOT",
+                },
+              ],
+              "key": "A1",
+            },
+            Object {
+              "date": "2016-10-27T12:21:15+0200",
+              "events": Array [],
+              "key": "A2",
+            },
+            Object {
+              "date": "2016-10-26T12:17:29+0200",
+              "events": Array [
+                Object {
+                  "category": "VERSION",
+                  "key": "E2",
+                  "name": "6.4",
+                },
+                Object {
+                  "category": "OTHER",
+                  "key": "E3",
+                  "name": "foo",
+                },
+              ],
+              "key": "A3",
+            },
+          ]
+        }
+        canAdmin={false}
+        changeEvent={[Function]}
+        className="boxed-group-inner"
+        deleteAnalysis={[Function]}
+        deleteEvent={[Function]}
+        loading={false}
+      />
+    </div>
+    <div
+      className="project-activity-layout-page-main"
+    >
+      <ProjectActivityGraphs
+        analyses={
+          Array [
+            Object {
+              "date": "2016-10-27T16:33:50+0200",
+              "events": Array [
+                Object {
+                  "category": "VERSION",
+                  "key": "E1",
+                  "name": "6.5-SNAPSHOT",
+                },
+              ],
+              "key": "A1",
+            },
+            Object {
+              "date": "2016-10-27T12:21:15+0200",
+              "events": Array [],
+              "key": "A2",
+            },
+            Object {
+              "date": "2016-10-26T12:17:29+0200",
+              "events": Array [
+                Object {
+                  "category": "VERSION",
+                  "key": "E2",
+                  "name": "6.4",
+                },
+                Object {
+                  "category": "OTHER",
+                  "key": "E3",
+                  "name": "foo",
+                },
+              ],
+              "key": "A3",
+            },
+          ]
+        }
+        leakPeriodDate={2017-05-16T11:50:02.000Z}
+        loading={false}
+        measuresHistory={
+          Array [
+            Object {
+              "history": Array [
+                Object {
+                  "date": 2016-03-04T09:40:12.000Z,
+                  "value": "1749",
+                },
+                Object {
+                  "date": 2016-03-04T17:40:16.000Z,
+                  "value": "2286",
+                },
+              ],
+              "metric": "code_smells",
+            },
+          ]
+        }
+        metricsType="INT"
+        project="org.sonarsource.sonarqube:sonarqube"
+        query={
+          Object {
+            "category": "",
+            "graph": "overview",
+            "project": "org.sonarsource.sonarqube:sonarqube",
+          }
+        }
+        updateQuery={[Function]}
+      />
+    </div>
+  </div>
+</div>
+`;

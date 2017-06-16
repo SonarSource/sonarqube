@@ -23,28 +23,13 @@ import { translate } from '../../helpers/l10n';
 import type { MeasureHistory, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
 
+export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
 export const GRAPH_TYPES = ['overview', 'coverage', 'duplications', 'remediation'];
 export const GRAPHS_METRICS = {
-  overview: ['bugs', 'vulnerabilities', 'code_smells'],
+  overview: ['bugs', 'code_smells', 'vulnerabilities'],
   coverage: ['uncovered_lines', 'lines_to_cover'],
   duplications: ['duplicated_lines', 'ncloc'],
-  remediation: ['reliability_remediation_effort', 'security_remediation_effort', 'sqale_index']
-};
-export const GRAPHS_METRICS_STYLE = {
-  overview: { bugs: '0', code_smells: '1', vulnerabilities: '2' },
-  coverage: {
-    lines_to_cover: '1',
-    uncovered_lines: '0'
-  },
-  duplications: {
-    duplicated_lines: '0',
-    ncloc: '1'
-  },
-  remediation: {
-    reliability_remediation_effort: '0',
-    security_remediation_effort: '2',
-    sqale_index: '1'
-  }
+  remediation: ['reliability_remediation_effort', 'sqale_index', 'security_remediation_effort']
 };
 
 const parseGraph = (value?: string): string => {
@@ -73,6 +58,12 @@ export const serializeUrlQuery = (query: Query): RawQuery => {
     id: serializeString(query.project)
   });
 };
+
+export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  prevQuery.category !== nextQuery.category;
+
+export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  prevQuery.graph !== nextQuery.graph;
 
 export const generateCoveredLinesMetric = (
   uncoveredLines: MeasureHistory,

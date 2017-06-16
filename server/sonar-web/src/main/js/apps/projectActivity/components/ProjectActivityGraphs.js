@@ -21,7 +21,7 @@
 import React from 'react';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import StaticGraphs from './StaticGraphs';
-import { GRAPHS_METRICS_STYLE } from '../utils';
+import { GRAPHS_METRICS } from '../utils';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Query } from '../types';
 
@@ -37,18 +37,19 @@ type Props = {
 };
 
 export default function ProjectActivityGraphs(props: Props) {
-  const { graph } = props.query;
+  const { graph, category } = props.query;
   return (
     <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
       <ProjectActivityGraphsHeader graph={graph} updateQuery={props.updateQuery} />
       <StaticGraphs
         analyses={props.analyses}
+        eventFilter={category}
         leakPeriodDate={props.leakPeriodDate}
         loading={props.loading}
         measuresHistory={props.measuresHistory}
         metricsType={props.metricsType}
         project={props.project}
-        seriesStyle={GRAPHS_METRICS_STYLE[graph]}
+        seriesOrder={GRAPHS_METRICS[graph]}
         showAreas={['coverage', 'duplications'].includes(graph)}
       />
     </div>
