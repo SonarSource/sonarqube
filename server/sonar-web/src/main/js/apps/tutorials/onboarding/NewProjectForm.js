@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import CloseIcon from '../../../components/icons-components/CloseIcon';
 import { createProject, deleteProject } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 
@@ -111,7 +112,7 @@ export default class NewProjectForm extends React.PureComponent {
           {loading
             ? <i className="spinner text-middle" />
             : <button className="button-clean text-middle">
-                <i className="icon-delete" />
+                <CloseIcon className="icon-red" />
               </button>}
         </form>
       : <form onSubmit={this.handleProjectCreate}>

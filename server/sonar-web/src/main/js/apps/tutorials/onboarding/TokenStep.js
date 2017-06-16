@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import Step from './Step';
+import CloseIcon from '../../../components/icons-components/CloseIcon';
 import { generateToken, revokeToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
@@ -111,11 +112,11 @@ export default class TokenStep extends React.PureComponent {
         {token != null
           ? <form onSubmit={this.handleTokenRevoke}>
               <span className="text-middle">{tokenName}{': '}</span>
-              <span className="spacer-right text-middle">{token}</span>
+              <strong className="spacer-right text-middle">{token}</strong>
               {loading
                 ? <i className="spinner text-middle" />
                 : <button className="button-clean text-middle" onClick={this.handleTokenRevoke}>
-                    <i className="icon-delete" />
+                    <CloseIcon className="icon-red" />
                   </button>}
             </form>
           : <form onSubmit={this.handleTokenGenerate}>
