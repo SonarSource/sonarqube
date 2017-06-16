@@ -23,6 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.Category1Suite;
 import java.util.List;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.WsClient;
@@ -39,23 +40,23 @@ public class UsersPageTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  @Rule
+  public UserRule userRule = UserRule.from(orchestrator);
 
   private WsClient adminClient = newAdminWsClient(orchestrator);
 
   @Test
-  public void generate_and_revoke_user_token() throws Exception {
+  public void generate_and_revoke_user_token()  {
     Selenese.runSelenese(orchestrator, "/administration/UsersPageTest/generate_and_revoke_user_token.html");
   }
 
   @Test
-  public void admin_should_change_its_own_password() throws Exception {
+  public void admin_should_change_its_own_password()  {
     Selenese.runSelenese(orchestrator, "/administration/UsersPageTest/admin_should_change_its_own_password.html");
   }
 
   @Test
-  public void return_groups_belonging_to_a_user() throws Exception {
+  public void return_groups_belonging_to_a_user()  {
     String login = randomAlphabetic(10);
     String group = randomAlphabetic(10);
     userRule.createUser(login, login);
