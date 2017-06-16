@@ -19,15 +19,26 @@
  */
 // @flow
 import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
-import type { Query } from './types';
+import { translate } from '../../helpers/l10n';
+import type { MeasureHistory, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
 
-export const GRAPH_TYPES = ['overview'];
-export const GRAPHS_METRICS = { overview: ['bugs', 'vulnerabilities', 'code_smells'] };
+export const GRAPH_TYPES = ['overview', 'coverage'];
+export const GRAPHS_METRICS = {
+  overview: ['bugs', 'vulnerabilities', 'code_smells'],
+  coverage: ['uncovered_lines', 'lines_to_cover']
+};
+
+const parseGraph = (value?: string): string => {
+  const graph = parseAsString(value);
+  return GRAPH_TYPES.includes(graph) ? graph : 'overview';
+};
+
+const serializeGraph = (value: string): string => (value === 'overview' ? '' : value);
 
 export const parseQuery = (urlQuery: RawQuery): Query => ({
   category: parseAsString(urlQuery['category']),
-  graph: parseAsString(urlQuery['graph']) || 'overview',
+  graph: parseGraph(urlQuery['graph']),
   project: parseAsString(urlQuery['id'])
 });
 
@@ -38,10 +49,26 @@ export const serializeQuery = (query: Query): RawQuery =>
   });
 
 export const serializeUrlQuery = (query: Query): RawQuery => {
-  const graph = query.graph === 'overview' ? '' : query.graph;
   return cleanQuery({
     category: serializeString(query.category),
-    graph: serializeString(graph),
+    graph: serializeGraph(query.graph),
     id: serializeString(query.project)
   });
+};
+
+export const generateCoveredLinesMetric = (
+  uncoveredLines: MeasureHistory,
+  measuresHistory: Array<MeasureHistory>
+) => {
+  const linesToCover = measuresHistory.find(measure => measure.metric === 'lines_to_cover');
+  return {
+    name: 'covered_lines',
+    translatedName: translate('project_activity.custom_metric.covered_lines'),
+    data: linesToCover
+      ? uncoveredLines.history.map((analysis, idx) => ({
+          x: analysis.date,
+          y: Number(linesToCover.history[idx].value) - Number(analysis.value)
+        }))
+      : []
+  };
 };

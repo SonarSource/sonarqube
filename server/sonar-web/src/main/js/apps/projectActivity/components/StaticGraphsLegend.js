@@ -20,10 +20,9 @@
 import React from 'react';
 import classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
-import { translate } from '../../../helpers/l10n';
 
 type Props = {
-  series: Array<{ name: string }>
+  series: Array<{ name: string, translatedName: string }>
 };
 
 export default function StaticGraphsLegend({ series }: Props) {
@@ -34,7 +33,7 @@ export default function StaticGraphsLegend({ series }: Props) {
           <ChartLegendIcon
             className={classNames('spacer-right line-chart-legend', 'line-chart-legend-' + idx)}
           />
-          {translate('metric', serie.name, 'name')}
+          {serie.translatedName}
         </span>
       ))}
     </div>
