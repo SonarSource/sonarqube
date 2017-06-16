@@ -124,8 +124,8 @@ export function getBreadcrumbs(component: string) {
   });
 }
 
-export function getComponentTags(component: string) {
-  return getComponentShow(component).then(r => r.component.tags || []);
+export function getComponentData(component: string) {
+  return getComponentShow(component).then(r => r.component);
 }
 
 export function getMyProjects(data?: Object) {
