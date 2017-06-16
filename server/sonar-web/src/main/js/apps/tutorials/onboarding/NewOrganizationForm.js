@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { debounce } from 'lodash';
+import CloseIcon from '../../../components/icons-components/CloseIcon';
 import {
   createOrganization,
   deleteOrganization,
@@ -124,9 +125,9 @@ export default class NewOrganizationForm extends React.PureComponent {
       ? <form onSubmit={this.handleOrganizationDelete}>
           <span className="spacer-right text-middle">{organization}</span>
           {loading
-            ? <i className="spinner" />
-            : <button className="button-clean">
-                <i className="icon-delete" />
+            ? <i className="spinner text-middle" />
+            : <button className="button-clean text-middle">
+                <CloseIcon className="icon-red" />
               </button>}
         </form>
       : <form onSubmit={this.handleOrganizationCreate}>
@@ -142,7 +143,7 @@ export default class NewOrganizationForm extends React.PureComponent {
             value={organization}
           />
           {loading
-            ? <i className="spinner" />
+            ? <i className="spinner text-middle" />
             : <button className="text-middle" disabled={!valid}>{translate('create')}</button>}
           {!unique &&
             <span className="big-spacer-left text-danger text-middle">

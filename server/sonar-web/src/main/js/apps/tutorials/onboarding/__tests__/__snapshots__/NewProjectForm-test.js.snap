@@ -69,7 +69,7 @@ exports[`creates new project 2`] = `
         value="foo"
       />
       <i
-        className="spinner"
+        className="spinner text-middle"
       />
       <div
         className="note spacer-top abs-width-300"
@@ -103,11 +103,24 @@ exports[`creates new project 3`] = `
         foo
       </span>
       <button
-        className="button-clean"
+        className="button-clean text-middle"
       >
-        <i
-          className="icon-delete"
-        />
+        <CloseIcon
+          className="icon-red"
+        >
+          <svg
+            className="icon-red"
+            height={16}
+            viewBox="0 0 16 16"
+            width={16}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
+              fill="currentColor"
+            />
+          </svg>
+        </CloseIcon>
       </button>
     </form>
   </div>
@@ -136,11 +149,24 @@ exports[`deletes project 1`] = `
         foo
       </span>
       <button
-        className="button-clean"
+        className="button-clean text-middle"
       >
-        <i
-          className="icon-delete"
-        />
+        <CloseIcon
+          className="icon-red"
+        >
+          <svg
+            className="icon-red"
+            height={16}
+            viewBox="0 0 16 16"
+            width={16}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
+              fill="currentColor"
+            />
+          </svg>
+        </CloseIcon>
       </button>
     </form>
   </div>
@@ -169,7 +195,7 @@ exports[`deletes project 2`] = `
         foo
       </span>
       <i
-        className="spinner"
+        className="spinner text-middle"
       />
     </form>
   </div>
