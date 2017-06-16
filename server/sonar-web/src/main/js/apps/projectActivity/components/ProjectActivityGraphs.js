@@ -47,7 +47,7 @@ export default function ProjectActivityGraphs(props: Props) {
         measuresHistory={props.measuresHistory}
         metricsType={props.metricsType}
         project={props.project}
-        showAreas={graph === 'coverage'}
+        showAreas={['coverage', 'duplications'].includes(graph)}
       />
     </div>
   );
