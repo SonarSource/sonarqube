@@ -21,10 +21,13 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import Step from '../Step';
+import { click } from '../../../../helpers/testUtils';
 
 it('renders', () => {
   const wrapper = shallow(
     <Step
+      finished={true}
+      onOpen={jest.fn()}
       open={true}
       renderForm={() => <div>form</div>}
       renderResult={() => <div>result</div>}
@@ -35,4 +38,21 @@ it('renders', () => {
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ open: false });
   expect(wrapper).toMatchSnapshot();
+});
+
+it('re-opens', () => {
+  const onOpen = jest.fn();
+  const wrapper = shallow(
+    <Step
+      finished={true}
+      onOpen={onOpen}
+      open={false}
+      renderForm={() => <div>form</div>}
+      renderResult={() => <div>result</div>}
+      stepNumber={1}
+      stepTitle="First Step"
+    />
+  );
+  click(wrapper);
+  expect(onOpen).toBeCalled();
 });

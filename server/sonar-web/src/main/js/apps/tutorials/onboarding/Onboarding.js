@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import Helmet from 'react-helmet';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
@@ -29,12 +30,13 @@ import { getProjectUrl } from '../../../helpers/urls';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import './styles.css';
 
-type Props = {
+type Props = {|
   currentUser: { login: string, isLoggedIn: boolean },
+  onFinish: () => void,
   onSkip: () => void,
   organizationsEnabled: boolean,
   sonarCloud: boolean
-};
+|};
 
 type State = {
   finished: boolean,
@@ -74,12 +76,16 @@ export default class Onboarding extends React.PureComponent {
     this.mounted = false;
   }
 
-  finishOnboarding = () => {
+  finishOnboarding = (skipped: boolean = false) => {
     this.setState({ skipping: true });
     skipOnboarding().then(
       () => {
         if (this.mounted) {
-          this.props.onSkip();
+          if (skipped) {
+            this.props.onSkip();
+          } else {
+            this.props.onFinish();
+          }
 
           if (this.state.projectKey) {
             this.context.router.push(getProjectUrl(this.state.projectKey));
@@ -107,9 +113,13 @@ export default class Onboarding extends React.PureComponent {
     this.setState({ organization, step: 'token' });
   };
 
+  handleTokenOpen = () => this.setState({ step: 'token' });
+
+  handleOrganizationOpen = () => this.setState({ step: 'organization' });
+
   handleSkipClick = (event: Event) => {
     event.preventDefault();
-    this.finishOnboarding();
+    this.finishOnboarding(true);
   };
 
   handleFinish = (projectKey?: string) => this.setState({ finished: true, projectKey });
@@ -126,61 +136,69 @@ export default class Onboarding extends React.PureComponent {
 
     let stepNumber = 1;
 
+    const header = translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header');
+
     return (
-      <div className="page page-limited">
-        <header className="page-header">
-          <h1 className="page-title">
-            {translate(sonarCloud ? 'onboarding.header.sonarcloud' : 'onboarding.header')}
-          </h1>
-          <div className="page-actions">
-            {this.state.skipping
-              ? <i className="spinner" />
-              : <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
-                  {translate('tutorials.skip')}
-                </a>}
-          </div>
-          <div className="page-description">
-            {translate('onboarding.header.description')}
-          </div>
-        </header>
+      <div className="modal-container">
+        <Helmet title={header} titleTemplate="%s" />
 
-        {organizationsEnabled &&
-          <OrganizationStep
-            currentUser={this.props.currentUser}
-            onContinue={this.handleOrganizationDone}
-            open={step === 'organization'}
+        <div className="page page-limited onboarding">
+          <header className="page-header">
+            <h1 className="page-title">{header}</h1>
+            <div className="page-actions">
+              {this.state.skipping
+                ? <i className="spinner" />
+                : <a className="js-skip text-muted" href="#" onClick={this.handleSkipClick}>
+                    {translate('tutorials.skip')}
+                  </a>}
+            </div>
+            <div className="page-description">
+              {translate('onboarding.header.description')}
+            </div>
+          </header>
+
+          {organizationsEnabled &&
+            <OrganizationStep
+              currentUser={this.props.currentUser}
+              finished={this.state.organization != null}
+              onContinue={this.handleOrganizationDone}
+              onOpen={this.handleOrganizationOpen}
+              open={step === 'organization'}
+              stepNumber={stepNumber++}
+            />}
+
+          <TokenStep
+            finished={this.state.token != null}
+            onContinue={this.handleTokenDone}
+            onOpen={this.handleTokenOpen}
+            open={step === 'token'}
             stepNumber={stepNumber++}
-          />}
+          />
 
-        <TokenStep
-          onContinue={this.handleTokenDone}
-          open={step === 'token'}
-          stepNumber={stepNumber++}
-        />
+          <AnalysisStep
+            onFinish={this.handleFinish}
+            onReset={this.handleReset}
+            organization={this.state.organization}
+            open={step === 'analysis'}
+            sonarCloud={sonarCloud}
+            stepNumber={stepNumber}
+            token={token}
+          />
 
-        <AnalysisStep
-          onFinish={this.handleFinish}
-          onReset={this.handleReset}
-          organization={this.state.organization}
-          open={step === 'analysis'}
-          sonarCloud={sonarCloud}
-          stepNumber={stepNumber}
-          token={token}
-        />
-
-        {this.state.finished &&
-          !this.state.skipping &&
-          (this.state.projectKey
-            ? <ProjectWatcher
-                onFinish={this.finishOnboarding}
-                onTimeout={this.handleTimeout}
-                projectKey={this.state.projectKey}
-              />
-            : <footer className="text-right">
-                <a className="button" href="#" onClick={this.handleSkipClick}>
-                  {translate('tutorials.finish')}
-                </a>
-              </footer>)}
+          {this.state.finished &&
+            !this.state.skipping &&
+            (this.state.projectKey
+              ? <ProjectWatcher
+                  onFinish={this.finishOnboarding}
+                  onTimeout={this.handleTimeout}
+                  projectKey={this.state.projectKey}
+                />
+              : <footer className="text-right">
+                  <a className="button" href="#" onClick={this.handleSkipClick}>
+                    {translate('tutorials.finish')}
+                  </a>
+                </footer>)}
+        </div>
       </div>
     );
   }

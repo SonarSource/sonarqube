@@ -2,257 +2,313 @@
 
 exports[`guides for on-premise 1`] = `
 <div
-  className="page page-limited"
+  className="modal-container"
 >
-  <header
-    className="page-header"
+  <HelmetWrapper
+    title="onboarding.header"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited onboarding"
   >
-    <h1
-      className="page-title"
+    <header
+      className="page-header"
     >
-      onboarding.header
-    </h1>
-    <div
-      className="page-actions"
-    >
-      <a
-        className="js-skip text-muted"
-        href="#"
-        onClick={[Function]}
+      <h1
+        className="page-title"
       >
-        tutorials.skip
-      </a>
-    </div>
-    <div
-      className="page-description"
-    >
-      onboarding.header.description
-    </div>
-  </header>
-  <TokenStep
-    onContinue={[Function]}
-    open={true}
-    stepNumber={1}
-  />
-  <AnalysisStep
-    onFinish={[Function]}
-    onReset={[Function]}
-    open={false}
-    sonarCloud={false}
-    stepNumber={2}
-  />
+        onboarding.header
+      </h1>
+      <div
+        className="page-actions"
+      >
+        <a
+          className="js-skip text-muted"
+          href="#"
+          onClick={[Function]}
+        >
+          tutorials.skip
+        </a>
+      </div>
+      <div
+        className="page-description"
+      >
+        onboarding.header.description
+      </div>
+    </header>
+    <TokenStep
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+      stepNumber={1}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={false}
+      sonarCloud={false}
+      stepNumber={2}
+    />
+  </div>
 </div>
 `;
 
 exports[`guides for on-premise 2`] = `
 <div
-  className="page page-limited"
+  className="modal-container"
 >
-  <header
-    className="page-header"
+  <HelmetWrapper
+    title="onboarding.header"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited onboarding"
   >
-    <h1
-      className="page-title"
+    <header
+      className="page-header"
     >
-      onboarding.header
-    </h1>
-    <div
-      className="page-actions"
-    >
-      <a
-        className="js-skip text-muted"
-        href="#"
-        onClick={[Function]}
+      <h1
+        className="page-title"
       >
-        tutorials.skip
-      </a>
-    </div>
-    <div
-      className="page-description"
-    >
-      onboarding.header.description
-    </div>
-  </header>
-  <TokenStep
-    onContinue={[Function]}
-    open={false}
-    stepNumber={1}
-  />
-  <AnalysisStep
-    onFinish={[Function]}
-    onReset={[Function]}
-    open={true}
-    sonarCloud={false}
-    stepNumber={2}
-    token="abcd1234"
-  />
+        onboarding.header
+      </h1>
+      <div
+        className="page-actions"
+      >
+        <a
+          className="js-skip text-muted"
+          href="#"
+          onClick={[Function]}
+        >
+          tutorials.skip
+        </a>
+      </div>
+      <div
+        className="page-description"
+      >
+        onboarding.header.description
+      </div>
+    </header>
+    <TokenStep
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={1}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={true}
+      sonarCloud={false}
+      stepNumber={2}
+      token="abcd1234"
+    />
+  </div>
 </div>
 `;
 
 exports[`guides for sonarcloud 1`] = `
 <div
-  className="page page-limited"
+  className="modal-container"
 >
-  <header
-    className="page-header"
+  <HelmetWrapper
+    title="onboarding.header.sonarcloud"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited onboarding"
   >
-    <h1
-      className="page-title"
+    <header
+      className="page-header"
     >
-      onboarding.header.sonarcloud
-    </h1>
-    <div
-      className="page-actions"
-    >
-      <a
-        className="js-skip text-muted"
-        href="#"
-        onClick={[Function]}
+      <h1
+        className="page-title"
       >
-        tutorials.skip
-      </a>
-    </div>
-    <div
-      className="page-description"
-    >
-      onboarding.header.description
-    </div>
-  </header>
-  <OrganizationStep
-    currentUser={
-      Object {
-        "isLoggedIn": true,
-        "login": "admin",
+        onboarding.header.sonarcloud
+      </h1>
+      <div
+        className="page-actions"
+      >
+        <a
+          className="js-skip text-muted"
+          href="#"
+          onClick={[Function]}
+        >
+          tutorials.skip
+        </a>
+      </div>
+      <div
+        className="page-description"
+      >
+        onboarding.header.description
+      </div>
+    </header>
+    <OrganizationStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
       }
-    }
-    onContinue={[Function]}
-    open={true}
-    stepNumber={1}
-  />
-  <TokenStep
-    onContinue={[Function]}
-    open={false}
-    stepNumber={2}
-  />
-  <AnalysisStep
-    onFinish={[Function]}
-    onReset={[Function]}
-    open={false}
-    sonarCloud={true}
-    stepNumber={3}
-  />
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+      stepNumber={1}
+    />
+    <TokenStep
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={2}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={false}
+      sonarCloud={true}
+      stepNumber={3}
+    />
+  </div>
 </div>
 `;
 
 exports[`guides for sonarcloud 2`] = `
 <div
-  className="page page-limited"
+  className="modal-container"
 >
-  <header
-    className="page-header"
+  <HelmetWrapper
+    title="onboarding.header.sonarcloud"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited onboarding"
   >
-    <h1
-      className="page-title"
+    <header
+      className="page-header"
     >
-      onboarding.header.sonarcloud
-    </h1>
-    <div
-      className="page-actions"
-    >
-      <a
-        className="js-skip text-muted"
-        href="#"
-        onClick={[Function]}
+      <h1
+        className="page-title"
       >
-        tutorials.skip
-      </a>
-    </div>
-    <div
-      className="page-description"
-    >
-      onboarding.header.description
-    </div>
-  </header>
-  <OrganizationStep
-    currentUser={
-      Object {
-        "isLoggedIn": true,
-        "login": "admin",
+        onboarding.header.sonarcloud
+      </h1>
+      <div
+        className="page-actions"
+      >
+        <a
+          className="js-skip text-muted"
+          href="#"
+          onClick={[Function]}
+        >
+          tutorials.skip
+        </a>
+      </div>
+      <div
+        className="page-description"
+      >
+        onboarding.header.description
+      </div>
+    </header>
+    <OrganizationStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
       }
-    }
-    onContinue={[Function]}
-    open={false}
-    stepNumber={1}
-  />
-  <TokenStep
-    onContinue={[Function]}
-    open={true}
-    stepNumber={2}
-  />
-  <AnalysisStep
-    onFinish={[Function]}
-    onReset={[Function]}
-    open={false}
-    organization="my-org"
-    sonarCloud={true}
-    stepNumber={3}
-  />
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={1}
+    />
+    <TokenStep
+      finished={false}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={true}
+      stepNumber={2}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={false}
+      organization="my-org"
+      sonarCloud={true}
+      stepNumber={3}
+    />
+  </div>
 </div>
 `;
 
 exports[`guides for sonarcloud 3`] = `
 <div
-  className="page page-limited"
+  className="modal-container"
 >
-  <header
-    className="page-header"
+  <HelmetWrapper
+    title="onboarding.header.sonarcloud"
+    titleTemplate="%s"
+  />
+  <div
+    className="page page-limited onboarding"
   >
-    <h1
-      className="page-title"
+    <header
+      className="page-header"
     >
-      onboarding.header.sonarcloud
-    </h1>
-    <div
-      className="page-actions"
-    >
-      <a
-        className="js-skip text-muted"
-        href="#"
-        onClick={[Function]}
+      <h1
+        className="page-title"
       >
-        tutorials.skip
-      </a>
-    </div>
-    <div
-      className="page-description"
-    >
-      onboarding.header.description
-    </div>
-  </header>
-  <OrganizationStep
-    currentUser={
-      Object {
-        "isLoggedIn": true,
-        "login": "admin",
+        onboarding.header.sonarcloud
+      </h1>
+      <div
+        className="page-actions"
+      >
+        <a
+          className="js-skip text-muted"
+          href="#"
+          onClick={[Function]}
+        >
+          tutorials.skip
+        </a>
+      </div>
+      <div
+        className="page-description"
+      >
+        onboarding.header.description
+      </div>
+    </header>
+    <OrganizationStep
+      currentUser={
+        Object {
+          "isLoggedIn": true,
+          "login": "admin",
+        }
       }
-    }
-    onContinue={[Function]}
-    open={false}
-    stepNumber={1}
-  />
-  <TokenStep
-    onContinue={[Function]}
-    open={false}
-    stepNumber={2}
-  />
-  <AnalysisStep
-    onFinish={[Function]}
-    onReset={[Function]}
-    open={true}
-    organization="my-org"
-    sonarCloud={true}
-    stepNumber={3}
-    token="abcd1234"
-  />
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={1}
+    />
+    <TokenStep
+      finished={true}
+      onContinue={[Function]}
+      onOpen={[Function]}
+      open={false}
+      stepNumber={2}
+    />
+    <AnalysisStep
+      onFinish={[Function]}
+      onReset={[Function]}
+      open={true}
+      organization="my-org"
+      sonarCloud={true}
+      stepNumber={3}
+      token="abcd1234"
+    />
+  </div>
 </div>
 `;

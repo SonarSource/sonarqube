@@ -27,11 +27,14 @@ import NewOrganizationForm from './NewOrganizationForm';
 import { getMyOrganizations } from '../../../api/organizations';
 import { translate } from '../../../helpers/l10n';
 
-type Props = {
+type Props = {|
   currentUser: { login: string, isLoggedIn: boolean },
+  finished: boolean,
+  onOpen: () => void,
+  onContinue: (organization: string) => void,
   open: boolean,
-  onContinue: (organization: string) => void
-};
+  stepNumber: number
+|};
 
 type State = {
   loading: boolean,
@@ -229,10 +232,12 @@ export default class OrganizationStep extends React.PureComponent {
   render() {
     return (
       <Step
+        finished={this.props.finished}
+        onOpen={this.props.onOpen}
         open={this.props.open}
         renderForm={this.renderForm}
         renderResult={this.renderResult}
-        stepNumber={1}
+        stepNumber={this.props.stepNumber}
         stepTitle={translate('onboarding.organization.header')}
       />
     );

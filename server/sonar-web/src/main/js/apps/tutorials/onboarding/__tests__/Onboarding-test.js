@@ -33,6 +33,7 @@ it('guides for on-premise', () => {
   const wrapper = shallow(
     <Onboarding
       currentUser={currentUser}
+      onFinish={jest.fn()}
       onSkip={jest.fn()}
       organizationsEnabled={false}
       sonarCloud={false}
@@ -50,6 +51,7 @@ it('guides for sonarcloud', () => {
   const wrapper = shallow(
     <Onboarding
       currentUser={currentUser}
+      onFinish={jest.fn()}
       onSkip={jest.fn()}
       organizationsEnabled={true}
       sonarCloud={true}
@@ -73,6 +75,7 @@ it('skips', () => {
   const wrapper = mount(
     <Onboarding
       currentUser={currentUser}
+      onFinish={jest.fn()}
       onSkip={onSkip}
       organizationsEnabled={false}
       sonarCloud={false}
