@@ -32,18 +32,17 @@ import { getMetrics } from '../../../api/metrics';
 import { GRAPHS_METRICS, parseQuery, serializeQuery, serializeUrlQuery } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import './projectActivity.css';
-import type { Analysis, LeakPeriod, MeasureHistory, Metric, Query, Paging } from '../types';
+import type { Analysis, MeasureHistory, Metric, Query, Paging } from '../types';
 import type { RawQuery } from '../../../helpers/query';
 
 type Props = {
   location: { pathname: string, query: RawQuery },
-  project: { configuration?: { showHistory: boolean }, key: string },
+  project: { configuration?: { showHistory: boolean }, key: string, leakPeriodDate: string },
   router: { push: ({ pathname: string, query?: RawQuery }) => void }
 };
 
 export type State = {
   analyses: Array<Analysis>,
-  leakPeriod?: LeakPeriod,
   loading: boolean,
   measures: Array<*>,
   metrics: Array<Metric>,
@@ -232,7 +231,7 @@ export default class ProjectActivityApp extends React.PureComponent {
 
           <ProjectActivityGraphs
             analyses={this.state.analyses}
-            leakPeriod={this.state.leakPeriod}
+            leakPeriodDate={moment(this.props.project.leakPeriodDate).toDate()}
             loading={this.state.loading}
             measuresHistory={this.state.measuresHistory}
             metricsType={this.getMetricType()}

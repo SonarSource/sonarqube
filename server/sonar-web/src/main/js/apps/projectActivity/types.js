@@ -32,13 +32,6 @@ export type Analysis = {
   events: Array<Event>
 };
 
-export type LeakPeriod = {
-  date: string,
-  index: number,
-  mode: string,
-  parameter: string
-};
-
 export type HistoryItem = { date: Date, value: string };
 
 export type MeasureHistory = { metric: string, history: Array<HistoryItem> };

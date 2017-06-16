@@ -29,6 +29,7 @@ import type { Analysis, MeasureHistory } from '../types';
 
 type Props = {
   analyses: Array<Analysis>,
+  leakPeriodDate: Date,
   loading: boolean,
   measuresHistory: Array<MeasureHistory>,
   metricsType: string
@@ -36,6 +37,10 @@ type Props = {
 
 export default class StaticGraphs extends React.PureComponent {
   props: Props;
+
+  formatYTick = tick => formatMeasure(tick, getShortType(this.props.metricsType));
+
+  formatValue = value => formatMeasure(value, this.props.metricsType);
 
   getEvents = () => {
     const events = this.props.analyses.reduce((acc, analysis) => {
@@ -85,9 +90,6 @@ export default class StaticGraphs extends React.PureComponent {
       );
     }
 
-    const { metricsType } = this.props;
-    const formatValue = value => formatMeasure(value, metricsType);
-    const formatYTick = tick => formatMeasure(tick, getShortType(metricsType));
     const series = this.getSeries();
     return (
       <div className="project-activity-graph-container">
@@ -97,11 +99,11 @@ export default class StaticGraphs extends React.PureComponent {
             <AdvancedTimeline
               basisCurve={false}
               series={series}
-              metricType={metricsType}
+              metricType={this.props.metricsType}
               events={this.getEvents()}
               interpolate="linear"
-              formatValue={formatValue}
-              formatYTick={formatYTick}
+              formatValue={this.formatValue}
+              formatYTick={this.formatYTick}
               leakPeriodDate={this.props.leakPeriodDate}
               padding={[25, 25, 30, 60]}
             />
