@@ -26,6 +26,7 @@ import type { Analysis, MeasureHistory, Query } from '../types';
 
 type Props = {
   analyses: Array<Analysis>,
+  leakPeriodDate: Date,
   loading: boolean,
   measuresHistory: Array<MeasureHistory>,
   metricsType: string,
@@ -41,6 +42,7 @@ export default function ProjectActivityGraphs(props: Props) {
         <ProjectActivityGraphsHeader graph={props.query.graph} updateQuery={props.updateQuery} />
         <StaticGraphs
           analyses={props.analyses}
+          leakPeriodDate={props.leakPeriodDate}
           loading={props.loading}
           measuresHistory={props.measuresHistory}
           metricsType={props.metricsType}
