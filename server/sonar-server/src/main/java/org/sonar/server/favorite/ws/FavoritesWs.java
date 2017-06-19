@@ -20,8 +20,9 @@
 package org.sonar.server.favorite.ws;
 
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebServiceDefinition;
 
-public class FavoritesWs implements WebService {
+public class FavoritesWs implements WebServiceDefinition {
   private final FavoritesWsAction[] actions;
 
   public FavoritesWs(FavoritesWsAction[] actions) {
@@ -29,15 +30,15 @@ public class FavoritesWs implements WebService {
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/favorites")
+  public WebService.Controller define() {
+    WebService.NewController controller = new WebService.NewController("api/favorites")
       .setDescription("Manage user favorites")
       .setSince("6.3");
 
     for (FavoritesWsAction action : actions) {
-      action.define(controller);
+      controller.addAction(action.define());
     }
 
-    controller.done();
+    return controller.build();
   }
 }

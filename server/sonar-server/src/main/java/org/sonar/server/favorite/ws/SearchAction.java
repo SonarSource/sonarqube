@@ -58,8 +58,8 @@ public class SearchAction implements FavoritesWsAction {
   }
 
   @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION_SEARCH)
+  public WebService.Action define() {
+    WebService.NewAction action = new WebService.NewAction(ACTION_SEARCH)
       .setDescription("Search for the authenticated user favorites.<br>" +
         "Requires authentication.")
       .setSince("6.3")
@@ -67,6 +67,8 @@ public class SearchAction implements FavoritesWsAction {
       .setHandler(this);
 
     action.addPagingParams(100, MAX_PAGE_SIZE);
+
+    return action.build("api/favorites");
   }
 
   @Override

@@ -19,27 +19,18 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebServiceDefinition;
+import org.sonar.core.platform.ComponentContainer;
 
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssuesWs implements WebServiceDefinition {
+public class IssuesWsTest {
 
-  private final IssuesWsAction[] actions;
-
-  public IssuesWs(IssuesWsAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public WebService.Controller define() {
-    WebService.NewController controller = new WebService.NewController(CONTROLLER_ISSUES);
-    controller.setDescription("Read and update issues.");
-    controller.setSince("3.6");
-    for (IssuesWsAction action : actions) {
-      action.define(controller);
-    }
-    return controller.build();
+  @Test
+  public void checkDefinition() {
+    WebService.Controller controller = new IssuesWs().define();
+    assertThat(controller.description()).isEqualTo("Read and update issues.");
+    assertThat(controller.since()).isEqualTo("3.6");
   }
 }

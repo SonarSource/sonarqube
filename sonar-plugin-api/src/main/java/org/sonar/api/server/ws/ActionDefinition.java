@@ -17,29 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
+package org.sonar.api.server.ws;
 
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebServiceDefinition;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.server.ServerSide;
 
-import static org.sonarqube.ws.client.issue.IssuesWsParameters.CONTROLLER_ISSUES;
-
-public class IssuesWs implements WebServiceDefinition {
-
-  private final IssuesWsAction[] actions;
-
-  public IssuesWs(IssuesWsAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public WebService.Controller define() {
-    WebService.NewController controller = new WebService.NewController(CONTROLLER_ISSUES);
-    controller.setDescription("Read and update issues.");
-    controller.setSince("3.6");
-    for (IssuesWsAction action : actions) {
-      action.define(controller);
-    }
-    return controller.build();
-  }
+/**
+ * Since 6.5, this interface is the base for Web Service marker interfaces
+ * Convention for naming implementations: <i>web_service_class_name</i>Action. ex: ProjectsWsAction, UsersWsAction
+ */
+public interface ActionDefinition extends RequestHandler {
+  WebService.Action define();
 }

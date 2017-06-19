@@ -47,8 +47,8 @@ public class RemoveAction implements FavoritesWsAction {
   }
 
   @Override
-  public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("remove")
+  public WebService.Action define() {
+    WebService.NewAction action = new WebService.NewAction("remove")
       .setDescription("Remove a component (project, directory, file etc.) as favorite for the authenticated user.<br>" +
         "Requires authentication.")
       .setSince("6.3")
@@ -59,6 +59,8 @@ public class RemoveAction implements FavoritesWsAction {
       .setDescription("Component key")
       .setRequired(true)
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
+
+    return action.build("api/favorites");
   }
 
   @Override
