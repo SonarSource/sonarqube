@@ -29,8 +29,6 @@ import { searchProjects } from '../../../api/components';
 type Props = {
   currentUser: { isLoggedIn: boolean },
   location: { query: {} },
-  optionBarOpen: boolean,
-  optionBarToggle: (open: boolean) => void,
   router: {
     replace: (location: { pathname?: string, query?: { [string]: string } }) => void
   }
@@ -107,8 +105,6 @@ class DefaultPageSelector extends React.PureComponent {
         <AllProjectsContainer
           isFavorite={false}
           location={this.props.location}
-          optionBarOpen={this.props.optionBarOpen}
-          optionBarToggle={this.props.optionBarToggle}
           currentUser={this.props.currentUser}
         />
       );

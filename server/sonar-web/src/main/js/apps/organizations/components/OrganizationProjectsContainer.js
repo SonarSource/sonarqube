@@ -23,20 +23,10 @@ import { connect } from 'react-redux';
 import { getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
 import { updateOrganization } from '../actions';
 
-type State = {
-  optionBarOpen: boolean
-};
-
 class OrganizationProjectsContainer extends React.PureComponent {
-  state: State = { optionBarOpen: false };
-
-  handleOptionBarToggle = (open: boolean) => this.setState({ optionBarOpen: open });
-
   render() {
     return React.cloneElement(this.props.children, {
       currentUser: this.props.currentUser,
-      optionBarOpen: this.state.optionBarOpen,
-      optionBarToggle: this.handleOptionBarToggle,
       organization: this.props.organization
     });
   }
