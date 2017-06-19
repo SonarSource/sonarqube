@@ -22,6 +22,7 @@ import React from 'react';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 type Props = {
+  className?: string,
   handleSearch: (userString?: string) => void,
   query: { search?: string }
 };
@@ -63,11 +64,10 @@ export default class SearchFilter extends React.PureComponent {
     const { userQuery } = this.state;
     const shortQuery = userQuery != null && userQuery.length === 1;
     return (
-      <div className="projects-facet-search" data-key="search">
+      <div className={this.props.className}>
         <input
           type="search"
           value={userQuery || ''}
-          className="input-super-large"
           placeholder={translate('projects.search')}
           onChange={this.handleQueryChange}
           autoComplete="off"

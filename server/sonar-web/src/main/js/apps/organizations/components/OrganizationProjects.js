@@ -26,8 +26,6 @@ export default class OrganizationProjects extends React.PureComponent {
     children?: React.Element<*>,
     currentUser: { isLoggedIn: boolean },
     location: Object,
-    optionBarOpen: boolean,
-    optionBarToggle: (open: boolean) => void,
     organization: {
       key: string
     }
@@ -54,8 +52,6 @@ export default class OrganizationProjects extends React.PureComponent {
           currentUser={this.props.currentUser}
           isFavorite={false}
           location={this.props.location}
-          optionBarOpen={this.props.optionBarOpen}
-          optionBarToggle={this.props.optionBarToggle}
           organization={this.props.organization}
         />
       </div>

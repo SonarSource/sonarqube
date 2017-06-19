@@ -12,7 +12,7 @@ exports[`should handle the descending sort direction 1`] = `
     autosize={true}
     backspaceRemoves={true}
     backspaceToRemoveMessage="Press backspace to remove {label}"
-    className="little-spacer-left input-large"
+    className="little-spacer-left input-medium"
     clearAllText="Clear all"
     clearValueText="Clear value"
     clearable={false}
@@ -41,7 +41,7 @@ exports[`should handle the descending sort direction 1`] = `
       Array [
         Object {
           "class": undefined,
-          "label": "projects.sorting.name (projects.sorting.default)",
+          "label": "projects.sorting.name",
           "value": "name",
         },
         Object {
@@ -121,7 +121,7 @@ exports[`should render correctly for leak view 1`] = `
     autosize={true}
     backspaceRemoves={true}
     backspaceToRemoveMessage="Press backspace to remove {label}"
-    className="little-spacer-left input-large"
+    className="little-spacer-left input-medium"
     clearAllText="Clear all"
     clearValueText="Clear value"
     clearable={false}
@@ -150,7 +150,7 @@ exports[`should render correctly for leak view 1`] = `
       Array [
         Object {
           "class": undefined,
-          "label": "projects.sorting.analysis_date (projects.sorting.default)",
+          "label": "projects.sorting.analysis_date",
           "value": "analysis_date",
         },
         Object {
@@ -230,7 +230,7 @@ exports[`should render correctly for overall view 1`] = `
     autosize={true}
     backspaceRemoves={true}
     backspaceToRemoveMessage="Press backspace to remove {label}"
-    className="little-spacer-left input-large"
+    className="little-spacer-left input-medium"
     clearAllText="Clear all"
     clearValueText="Clear value"
     clearable={false}
@@ -259,7 +259,7 @@ exports[`should render correctly for overall view 1`] = `
       Array [
         Object {
           "class": undefined,
-          "label": "projects.sorting.name (projects.sorting.default)",
+          "label": "projects.sorting.name",
           "value": "name",
         },
         Object {

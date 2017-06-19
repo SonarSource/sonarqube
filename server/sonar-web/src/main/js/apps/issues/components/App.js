@@ -804,8 +804,8 @@ export default class App extends React.PureComponent {
         {this.renderSide(openIssue)}
 
         <div className="layout-page-main">
-          <div className="issues-header-panel issues-main-header">
-            <div className="issues-header-panel-inner issues-main-header-inner">
+          <div className="layout-page-header-panel layout-page-main-header issues-main-header">
+            <div className="layout-page-header-panel-inner layout-page-main-header-inner">
               <div className="layout-page-main-inner">
                 {this.renderBulkChange(openIssue)}
                 {openIssue != null

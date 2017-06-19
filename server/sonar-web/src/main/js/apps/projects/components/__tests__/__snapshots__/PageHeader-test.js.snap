@@ -2,9 +2,17 @@
 
 exports[`should render correctly 1`] = `
 <header
-  className="page-header"
+  className="page-header projects-topbar-items"
 >
+  <PerspectiveSelect
+    className="projects-topbar-item js-projects-perspective-select"
+  />
+  <ProjectsSortingSelect
+    className="projects-topbar-item js-projects-sorting-select"
+    defaultOption="analysis_date"
+  />
   <withRouter(SearchFilterContainer)
+    className="projects-topbar-item projects-topbar-item-search"
     query={
       Object {
         "search": "test",
@@ -12,14 +20,8 @@ exports[`should render correctly 1`] = `
     }
   />
   <div
-    className="page-actions projects-page-actions text-right"
+    className="projects-topbar-item is-last"
   >
-    <a
-      className="button js-projects-topbar-open spacer-right"
-      href="#"
-    >
-      projects.view_settings
-    </a>
     <span>
       <strong
         id="projects-total"
@@ -35,9 +37,17 @@ exports[`should render correctly 1`] = `
 
 exports[`should render correctly while loading 1`] = `
 <header
-  className="page-header"
+  className="page-header projects-topbar-items"
 >
+  <PerspectiveSelect
+    className="projects-topbar-item js-projects-perspective-select"
+  />
+  <ProjectsSortingSelect
+    className="projects-topbar-item js-projects-sorting-select"
+    defaultOption="analysis_date"
+  />
   <withRouter(SearchFilterContainer)
+    className="projects-topbar-item projects-topbar-item-search"
     isFavorite={true}
     query={
       Object {
@@ -46,14 +56,8 @@ exports[`should render correctly while loading 1`] = `
     }
   />
   <div
-    className="page-actions projects-page-actions text-right"
+    className="projects-topbar-item is-last is-loading"
   >
-    <a
-      className="button js-projects-topbar-open spacer-right"
-      href="#"
-    >
-      projects.view_settings
-    </a>
     <i
       className="spinner spacer-right"
     />
@@ -68,4 +72,52 @@ exports[`should render correctly while loading 1`] = `
     </span>
   </div>
 </header>
+`;
+
+exports[`should render disabled sorting options for visualizations 1`] = `
+<header
+  className="page-header projects-topbar-items"
+>
+  <PerspectiveSelect
+    className="projects-topbar-item js-projects-perspective-select"
+    view="visualizations"
+    visualization="coverage"
+  />
+  <Tooltip
+    overlay="projects.sort.disabled"
+    placement="bottom"
+  >
+    <div
+      className="projects-topbar-item disabled"
+    >
+      <ProjectsSortingSelect
+        className="js-projects-sorting-select"
+        defaultOption="analysis_date"
+        view="visualizations"
+      />
+    </div>
+  </Tooltip>
+  <withRouter(SearchFilterContainer)
+    className="projects-topbar-item projects-topbar-item-search"
+  />
+  <div
+    className="projects-topbar-item is-last"
+  />
+</header>
+`;
+
+exports[`should render switch the default sorting option for anonymous users 1`] = `
+<ProjectsSortingSelect
+  className="projects-topbar-item js-projects-sorting-select"
+  defaultOption="name"
+  view="overall"
+/>
+`;
+
+exports[`should render switch the default sorting option for anonymous users 2`] = `
+<ProjectsSortingSelect
+  className="projects-topbar-item js-projects-sorting-select"
+  defaultOption="analysis_date"
+  view="leak"
+/>
 `;

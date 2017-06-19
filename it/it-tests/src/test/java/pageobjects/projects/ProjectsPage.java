@@ -90,7 +90,7 @@ public class ProjectsPage {
   }
 
   public ProjectsPage searchProject(String search) {
-    SelenideElement searchInput = $(".projects-facet-search input");
+    SelenideElement searchInput = $(".projects-topbar-item-search input");
     searchInput.setValue("").sendKeys(search);
     return this;
   }
@@ -115,11 +115,6 @@ public class ProjectsPage {
   }
 
   private SelenideElement getOpenTopBar() {
-    SelenideElement topBar = $(".projects-topbar-actions").should(Condition.exist);
-    if (!topBar.has(Condition.hasClass("open"))){
-      $(".js-projects-topbar-open").click();
-    }
-    topBar.should(Condition.hasClass("open"));
-    return topBar;
+    return $(".projects-topbar-items").should(Condition.exist);
   }
 }
