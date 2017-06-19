@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Handlebars from 'handlebars/runtime';
+const Handlebars = require('handlebars/runtime');
 
 /* eslint-disable max-len */
 const bug = new Handlebars.default.SafeString(

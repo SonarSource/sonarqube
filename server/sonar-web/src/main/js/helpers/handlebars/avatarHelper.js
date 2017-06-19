@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { renderToString } from 'react-dom/server';
-import Handlebars from 'handlebars/runtime';
-import WithStore from '../../components/shared/WithStore';
-import Avatar from '../../components/ui/Avatar';
+const React = require('react');
+const { renderToString } = require('react-dom/server');
+const Handlebars = require('handlebars/runtime');
+const WithStore = require('../../components/shared/WithStore').default;
+const Avatar = require('../../components/ui/Avatar').default;
 
 module.exports = function(email, name, size) {
   return new Handlebars.default.SafeString(
