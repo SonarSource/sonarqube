@@ -33,7 +33,6 @@ import './styles.css';
 type Props = {|
   currentUser: { login: string, isLoggedIn: boolean },
   onFinish: () => void,
-  onSkip: () => void,
   organizationsEnabled: boolean,
   sonarCloud: boolean
 |};
@@ -76,16 +75,12 @@ export default class Onboarding extends React.PureComponent {
     this.mounted = false;
   }
 
-  finishOnboarding = (skipped: boolean = false) => {
+  finishOnboarding = () => {
     this.setState({ skipping: true });
     skipOnboarding().then(
       () => {
         if (this.mounted) {
-          if (skipped) {
-            this.props.onSkip();
-          } else {
-            this.props.onFinish();
-          }
+          this.props.onFinish();
 
           if (this.state.projectKey) {
             this.context.router.push(getProjectUrl(this.state.projectKey));
@@ -119,7 +114,7 @@ export default class Onboarding extends React.PureComponent {
 
   handleSkipClick = (event: Event) => {
     event.preventDefault();
-    this.finishOnboarding(true);
+    this.finishOnboarding();
   };
 
   handleFinish = (projectKey?: string) => this.setState({ finished: true, projectKey });

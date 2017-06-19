@@ -33,7 +33,12 @@ exports[`renders correctly 1`] = `
     }
   />
   <Command
-    command="build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild"
+    command={
+      Array [
+        "build-wrapper-win-x86-64.exe",
+        "--out-dir bw-output MsBuild.exe /t:Rebuild",
+      ]
+    }
   />
   <Command
     command={
@@ -87,7 +92,12 @@ exports[`renders correctly 2`] = `
     }
   />
   <Command
-    command="build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild"
+    command={
+      Array [
+        "build-wrapper-win-x86-64.exe",
+        "--out-dir bw-output MsBuild.exe /t:Rebuild",
+      ]
+    }
   />
   <Command
     command={

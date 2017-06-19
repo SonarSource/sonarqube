@@ -87,9 +87,7 @@ class GlobalNav extends React.PureComponent {
 
   openOnboardingTutorial = () => this.setState({ helpOpen: false, onboardingTutorialOpen: true });
 
-  finishOnboardingTutorial = () => this.setState({ onboardingTutorialOpen: false });
-
-  skipOnboardingTutorial = () => {
+  closeOnboardingTutorial = () => {
     this.setState({ onboardingTutorialOpen: false, onboardingTutorialTooltip: true });
     this.interval = setInterval(() => {
       this.setState({ onboardingTutorialTooltip: false });
@@ -131,10 +129,7 @@ class GlobalNav extends React.PureComponent {
           />}
 
         {this.state.onboardingTutorialOpen &&
-          <OnboardingModal
-            onFinish={this.finishOnboardingTutorial}
-            onSkip={this.skipOnboardingTutorial}
-          />}
+          <OnboardingModal onFinish={this.closeOnboardingTutorial} />}
       </nav>
     );
   }

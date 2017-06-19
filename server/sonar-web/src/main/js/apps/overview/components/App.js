@@ -60,7 +60,7 @@ class App extends React.PureComponent {
     }
 
     if (!component.analysisDate) {
-      return <EmptyOverview {...this.props} />;
+      return <EmptyOverview component={component} />;
     }
 
     return <OverviewApp {...this.props} leakPeriodIndex="1" />;

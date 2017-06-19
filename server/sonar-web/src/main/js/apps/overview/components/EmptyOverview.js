@@ -17,21 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
+import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+type Props = {
+  component: { key: string }
+};
+
+export default function EmptyOverview({ component }: Props) {
+  const rawMessage = translate('provisioning.no_analysis.delete');
+  const head = rawMessage.substr(0, rawMessage.indexOf('{0}'));
+  const tail = rawMessage.substr(rawMessage.indexOf('{0}') + 3);
+
   return (
     <div className="page page-limited">
       <div className="alert alert-warning">
         {translate('provisioning.no_analysis')}
       </div>
+
+      <div className="big-spacer-top">
+        {head}
+        <Link
+          className="text-danger"
+          to={{ pathname: '/project/deletion', query: { id: component.key } }}>
+          {translate('provisioning.no_analysis.delete_it')}
+        </Link>
+        {tail}
+      </div>
+
       <div className="big-spacer-top">
         <h4>{translate('key')}</h4>
         <code>{component.key}</code>
       </div>
     </div>
   );
-};
-
-export default EmptyOverview;
+}

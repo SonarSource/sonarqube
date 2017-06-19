@@ -29,22 +29,35 @@ export default function LinksHelp({ onClose }: Props) {
     <div>
       <h2 className="spacer-top spacer-bottom">{translate('help.section.links')}</h2>
 
-      <a href="http://www.sonarqube.org">{translate('footer.community')}</a>{' - '}
-      <a href="https://redirect.sonarsource.com/doc/home.html">
-        {translate('footer.documentation')}
-      </a>
-      {' - '}
-      <a href="https://redirect.sonarsource.com/doc/community.html">
-        {translate('footer.support')}
-      </a>
-      {' - '}
-      <a href="https://redirect.sonarsource.com/doc/plugin-library.html">
-        {translate('footer.plugins')}
-      </a>
-      {' - '}
-      <Link to="/web_api" onClick={onClose}>{translate('footer.web_api')}</Link>
-      {' - '}
-      <Link to="/about" onClick={onClose}>{translate('footer.about')}</Link>
+      <p className="spacer-bottom">
+        <a href="http://www.sonarqube.org">{translate('footer.community')}</a>
+      </p>
+
+      <p className="spacer-bottom">
+        <a href="https://redirect.sonarsource.com/doc/home.html">
+          {translate('footer.documentation')}
+        </a>
+      </p>
+
+      <p className="spacer-bottom">
+        <a href="https://redirect.sonarsource.com/doc/community.html">
+          {translate('footer.support')}
+        </a>
+      </p>
+
+      <p className="spacer-bottom">
+        <a href="https://redirect.sonarsource.com/doc/plugin-library.html">
+          {translate('footer.plugins')}
+        </a>
+      </p>
+
+      <p className="spacer-bottom">
+        <Link to="/web_api" onClick={onClose}>{translate('footer.web_api')}</Link>
+      </p>
+
+      <p>
+        <Link to="/about" onClick={onClose}>{translate('footer.about')}</Link>
+      </p>
     </div>
   );
 }
