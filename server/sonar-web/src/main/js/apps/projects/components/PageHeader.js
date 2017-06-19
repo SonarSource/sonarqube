@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import classNames from 'classnames';
 import SearchFilterContainer from '../filters/SearchFilterContainer';
 import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
@@ -91,7 +92,10 @@ export default function PageHeader(props: Props) {
         query={props.query}
       />
 
-      <div className="projects-topbar-item is-last">
+      <div
+        className={classNames('projects-topbar-item', 'is-last', {
+          'is-loading': props.projectsAppState.loading
+        })}>
         {!!props.projectsAppState.loading && <i className="spinner spacer-right" />}
 
         {props.projectsAppState.total != null &&

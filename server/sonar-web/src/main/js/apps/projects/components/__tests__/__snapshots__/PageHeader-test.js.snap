@@ -56,7 +56,7 @@ exports[`should render correctly while loading 1`] = `
     }
   />
   <div
-    className="projects-topbar-item is-last"
+    className="projects-topbar-item is-last is-loading"
   >
     <i
       className="spinner spacer-right"

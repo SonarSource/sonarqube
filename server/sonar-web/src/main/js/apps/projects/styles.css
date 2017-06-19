@@ -22,6 +22,11 @@
 
 .projects-topbar-item.is-last {
   margin-left: auto;
+  padding-left: 32px;
+}
+
+.projects-topbar-item.is-loading {
+  padding-left: 0;
 }
 
 .projects-topbar-item.disabled {
