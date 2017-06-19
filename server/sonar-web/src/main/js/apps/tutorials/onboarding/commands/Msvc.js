@@ -41,7 +41,7 @@ export default function Msvc(props: Props) {
     `/d:"sonar.login=${props.token}"`
   ];
 
-  const command2 = 'build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild';
+  const command2 = ['build-wrapper-win-x86-64.exe', '--out-dir bw-output MsBuild.exe /t:Rebuild'];
 
   const command3 = ['SonarQube.Scanner.MSBuild.exe end', `/d:"sonar.login=${props.token}"`];
 

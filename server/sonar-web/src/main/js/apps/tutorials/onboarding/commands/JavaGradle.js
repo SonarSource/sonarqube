@@ -29,7 +29,7 @@ type Props = {|
 |};
 
 export default function JavaGradle(props: Props) {
-  const config = 'plugins {\n  id "org.sonarqube" version "2.2"\n}';
+  const config = 'plugins {\n  id "org.sonarqube" version "2.5"\n}';
 
   const command = [
     './gradlew sonarqube',
@@ -53,6 +53,12 @@ export default function JavaGradle(props: Props) {
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.java.gradle.docs') }}
+      />
+      <p
+        className="big-spacer-top markdown"
+        dangerouslySetInnerHTML={{
+          __html: translate('onboarding.analysis.browse_url_after_analysis')
+        }}
       />
     </div>
   );

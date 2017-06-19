@@ -125,7 +125,7 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS)
         .name("Show an onboarding tutorial to new users")
         .type(BOOLEAN)
-        .description("Show an onboarding tutorial to news, that explains how to analyze a first project, after logging in for the fist time.")
+        .description("Show an onboarding tutorial to new users, that explains how to analyze a first project, after logging in for the fist time.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .defaultValue(String.valueOf(false))
         .build(),

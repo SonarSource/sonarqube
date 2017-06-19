@@ -69,6 +69,7 @@ export default class AnalysisStep extends React.PureComponent {
             <LanguageStep
               onDone={this.handleLanguageSelect}
               onReset={this.handleLanguageReset}
+              organization={this.props.organization}
               sonarCloud={this.props.sonarCloud}
             />
           </div>
