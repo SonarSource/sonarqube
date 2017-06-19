@@ -21,6 +21,7 @@ package org.sonar.server.organization.ws;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -112,7 +113,7 @@ public class CreateActionTest {
   @Before
   public void setUp() {
     user = dbTester.users().insertUser();
-    userIndexer.index(user.getLogin());
+    userIndexer.indexOnStartup(new HashSet<>());
     userSession.logIn(user);
   }
 

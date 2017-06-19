@@ -86,21 +86,21 @@ public class UserIdentityAuthenticator {
     }
   }
 
-  private UserDto registerNewUser(DbSession dbSession, UserIdentity user, IdentityProvider provider, AuthenticationEvent.Source source) {
+  private UserDto registerNewUser(DbSession dbSession, UserIdentity identity, IdentityProvider provider, AuthenticationEvent.Source source) {
     if (!provider.allowsUsersToSignUp()) {
       throw AuthenticationException.newBuilder()
         .setSource(source)
-        .setLogin(user.getLogin())
+        .setLogin(identity.getLogin())
         .setMessage(format("User signup disabled for provider '%s'", provider.getKey()))
         .setPublicMessage(format("'%s' users are not allowed to sign up", provider.getKey()))
         .build();
     }
 
-    String email = user.getEmail();
+    String email = identity.getEmail();
     if (email != null && dbClient.userDao().doesEmailExist(dbSession, email)) {
       throw AuthenticationException.newBuilder()
         .setSource(source)
-        .setLogin(user.getLogin())
+        .setLogin(identity.getLogin())
         .setMessage(format("Email '%s' is already used", email))
         .setPublicMessage(format(
           "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.",
@@ -108,25 +108,22 @@ public class UserIdentityAuthenticator {
         .build();
     }
 
-    String userLogin = user.getLogin();
-    userUpdater.create(dbSession, NewUser.builder()
+    String userLogin = identity.getLogin();
+    return userUpdater.createAndCommit(dbSession, NewUser.builder()
       .setLogin(userLogin)
-      .setEmail(user.getEmail())
-      .setName(user.getName())
-      .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
-      .build());
-    UserDto newUser = dbClient.userDao().selectOrFailByLogin(dbSession, userLogin);
-    syncGroups(dbSession, user, newUser);
-    return newUser;
+      .setEmail(identity.getEmail())
+      .setName(identity.getName())
+      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()))
+      .build(), u -> syncGroups(dbSession, identity, u));
   }
 
-  private void registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity user, IdentityProvider provider) {
-    userUpdater.update(dbSession, UpdateUser.create(userDto.getLogin())
-      .setEmail(user.getEmail())
-      .setName(user.getName())
-      .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
-      .setPassword(null));
-    syncGroups(dbSession, user, userDto);
+  private void registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity identity, IdentityProvider provider) {
+    UpdateUser update = UpdateUser.create(userDto.getLogin())
+      .setEmail(identity.getEmail())
+      .setName(identity.getName())
+      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()))
+      .setPassword(null);
+    userUpdater.updateAndCommit(dbSession, update, u -> syncGroups(dbSession, identity, u));
   }
 
   private void syncGroups(DbSession dbSession, UserIdentity userIdentity, UserDto userDto) {
@@ -149,8 +146,6 @@ public class UserIdentityAuthenticator {
 
     addGroups(dbSession, userDto, groupsToAdd, groupsByName);
     removeGroups(dbSession, userDto, groupsToRemove, groupsByName);
-
-    dbSession.commit();
   }
 
   private void addGroups(DbSession dbSession, UserDto userDto, Collection<String> groupsToAdd, Map<String, GroupDto> groupsByName) {

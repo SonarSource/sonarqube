@@ -35,6 +35,7 @@ import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
@@ -86,6 +87,7 @@ public class DaoModule extends Module {
     CustomMeasureDao.class,
     DefaultQProfileDao.class,
     DuplicationDao.class,
+    EsQueueDao.class,
     EventDao.class,
     FileSourceDao.class,
     GroupDao.class,

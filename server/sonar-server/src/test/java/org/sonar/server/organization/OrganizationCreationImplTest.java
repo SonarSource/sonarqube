@@ -20,6 +20,7 @@
 package org.sonar.server.organization;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang.RandomStringUtils;
@@ -113,7 +114,7 @@ public class OrganizationCreationImplTest {
   @Before
   public void setUp() {
     someUser = db.users().insertUser();
-    userIndexer.index(someUser.getLogin());
+    userIndexer.indexOnStartup(new HashSet<>());
   }
 
   @Test
@@ -263,10 +264,8 @@ public class OrganizationCreationImplTest {
   @Test
   public void create_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
     UserDto user = db.users().insertUser();
-    userIndexer.index(user.getLogin());
-
     builtInQProfileRepositoryRule.initialize();
-    userIndexer.index(someUser.getLogin());
+    userIndexer.commitAndIndex(db.getSession(), someUser);
 
     OrganizationDto result = underTest.create(dbSession, someUser, FULL_POPULATED_NEW_ORGANIZATION);
 

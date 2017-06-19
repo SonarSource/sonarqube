@@ -53,6 +53,7 @@ import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
+import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.issue.AddTagsAction;
@@ -520,7 +521,9 @@ public class PlatformLevel4 extends PlatformLevel {
       WebhooksWsModule.class,
 
       // Http Request ID
-      HttpRequestIdModule.class);
+      HttpRequestIdModule.class,
+
+      RecoveryIndexer.class);
     addAll(level4AddedComponents);
   }
 

@@ -20,6 +20,7 @@
 
 package org.sonar.server.organization.ws;
 
+import java.util.HashSet;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,6 +55,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
@@ -93,11 +95,11 @@ public class RemoveMemberActionTest {
 
     user = db.users().insertUser();
     db.organizations().addMember(organization, user);
-    userIndexer.index(user.getLogin());
 
     UserDto adminUser = db.users().insertAdminByUserPermission(organization);
     db.organizations().addMember(organization, adminUser);
-    userIndexer.index(adminUser.getLogin());
+
+    userIndexer.indexOnStartup(new HashSet<>());
   }
 
   @Test
@@ -317,10 +319,9 @@ public class RemoveMemberActionTest {
     OrganizationDto anotherOrganization = db.organizations().insert();
     UserDto admin1 = db.users().insertAdminByUserPermission(anotherOrganization);
     db.organizations().addMember(anotherOrganization, admin1);
-    userIndexer.index(admin1.getLogin());
     UserDto admin2 = db.users().insertAdminByUserPermission(anotherOrganization);
     db.organizations().addMember(anotherOrganization, admin2);
-    userIndexer.index(admin2.getLogin());
+    userIndexer.commitAndIndex(db.getSession(), asList(admin1, admin2));
 
     call(anotherOrganization.getKey(), admin1.getLogin());
 

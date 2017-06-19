@@ -19,6 +19,7 @@
  */
 package org.sonar.server.organization.ws;
 
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -138,11 +139,10 @@ public class DeleteAction implements OrganizationsWsAction {
   }
 
   private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {
-    List<String> logins = dbClient.organizationMemberDao().selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
+    Collection<String> logins = dbClient.organizationMemberDao().selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationMemberDao().deleteByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationDao().deleteByUuid(dbSession, organization.getUuid());
-    dbSession.commit();
-    userIndexer.index(logins);
+    userIndexer.commitAndIndexByLogins(dbSession, logins);
   }
 
   private static void preventDeletionOfDefaultOrganization(String key, DefaultOrganization defaultOrganization) {

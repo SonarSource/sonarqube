@@ -40,12 +40,14 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -65,11 +67,14 @@ import static org.sonar.server.authentication.event.AuthenticationExceptionMatch
 
 public class SsoAuthenticatorTest {
 
-  @Rule
-  public ExpectedException expectedException = none();
+  private MapSettings settings = new MapSettings();
 
   @Rule
+  public ExpectedException expectedException = none();
+  @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(settings.asConfig()));
 
   private static final String DEFAULT_LOGIN = "john";
   private static final String DEFAULT_NAME = "John";
@@ -93,14 +98,14 @@ public class SsoAuthenticatorTest {
   private GroupDto sonarUsers;
 
   private System2 system2 = mock(System2.class);
-  private MapSettings settings = new MapSettings();
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
 
+  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private UserIdentityAuthenticator userIdentityAuthenticator = new UserIdentityAuthenticator(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, organizationFlags, defaultOrganizationProvider, organizationCreation,
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
       new DefaultGroupFinder(db.getDbClient()), settings.asConfig()),
     defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()));
 

@@ -20,6 +20,7 @@
 
 package org.sonar.db.organization;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -70,7 +71,7 @@ public class OrganizationMemberDao implements Dao {
    *
    * @param loginOrganizationConsumer {@link BiConsumer}<String,String> (login, organization uuid)
    */
-  public void selectForUserIndexing(DbSession dbSession, List<String> logins, BiConsumer<String, String> loginOrganizationConsumer) {
+  public void selectForUserIndexing(DbSession dbSession, Collection<String> logins, BiConsumer<String, String> loginOrganizationConsumer) {
     executeLargeInputsWithoutOutput(logins, list -> mapper(dbSession).selectForIndexing(list)
       .forEach(row -> loginOrganizationConsumer.accept(row.get("login"), row.get("organizationUuid"))));
   }

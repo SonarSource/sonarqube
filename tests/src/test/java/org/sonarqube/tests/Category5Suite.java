@@ -31,6 +31,7 @@ import org.sonarqube.tests.updateCenter.UpdateCenterTest;
 import org.sonarqube.tests.user.OnboardingTest;
 import org.sonarqube.tests.user.RealmAuthenticationTest;
 import org.sonarqube.tests.user.SsoAuthenticationTest;
+import org.sonarqube.tests.user.UserEsResilienceTest;
 
 /**
  * This suite is reserved to the tests that start their own instance of Orchestrator.
@@ -49,7 +50,8 @@ import org.sonarqube.tests.user.SsoAuthenticationTest;
   RealmAuthenticationTest.class,
   SsoAuthenticationTest.class,
   OnboardingTest.class,
-  BuiltInQualityProfilesNotificationTest.class
+  BuiltInQualityProfilesNotificationTest.class,
+  UserEsResilienceTest.class
 })
 public class Category5Suite {
 

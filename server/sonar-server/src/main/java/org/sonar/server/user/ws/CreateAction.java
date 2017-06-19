@@ -127,9 +127,8 @@ public class CreateAction implements UsersWsAction {
       if (!request.isLocal()) {
         newUser.setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, request.getLogin()));
       }
-      UserDto userDto = userUpdater.create(dbSession, newUser.build());
-      dbSession.commit();
-      return buildResponse(userDto);
+      UserDto createdUser = userUpdater.createAndCommit(dbSession, newUser.build(), u -> {});
+      return buildResponse(createdUser);
     }
   }
 

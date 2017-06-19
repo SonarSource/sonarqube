@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.es.EsQueueMapper">
+
+  <sql id="esQueueColumns">
+    uuid,
+    doc_type as docType,
+    doc_uuid as docUuid,
+    created_at as createdAt
+  </sql>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    insert into es_queue (
+      uuid,
+      doc_type,
+      doc_uuid,
+      created_at
+    ) values (
+      #{dto.uuid, jdbcType=VARCHAR},
+      #{dto.docType, jdbcType=VARCHAR},
+      #{dto.docUuid, jdbcType=VARCHAR},
+      #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="delete" parameterType="string">
+    delete from es_queue
+    where uuid in
+      <foreach item="uuid" collection="uuids" open="(" separator="," close=")">
+        #{uuid, jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
+  <select id="selectForRecovery" parameterType="map" resultType="org.sonar.db.es.EsQueueDto">
+    select <include refid="esQueueColumns" />
+    from es_queue
+    where
+    created_at &lt;= #{beforeDate, jdbcType=BIGINT}
+    order by created_at desc
+    limit #{limit, jdbcType=INTEGER}
+  </select>
+
+  <select id="selectForRecovery" parameterType="map" resultType="org.sonar.db.es.EsQueueDto" databaseId="oracle">
+    select * from (
+    select rownum as rn, t.* from (
+      select <include refid="esQueueColumns" />
+      from es_queue
+      where
+      created_at &lt;= #{beforeDate, jdbcType=BIGINT}
+      order by created_at desc
+    ) t
+    ) t
+    where
+    t.rn &lt;= #{limit, jdbcType=INTEGER}
+  </select>
+
+  <select id="selectForRecovery" parameterType="map" resultType="org.sonar.db.es.EsQueueDto" databaseId="mssql">
+    select top(#{limit, jdbcType=INTEGER}) <include refid="esQueueColumns" />
+    from es_queue
+    where
+    created_at &lt;= #{beforeDate, jdbcType=BIGINT}
+    order by created_at desc
+  </select>
+
+</mapper>
+

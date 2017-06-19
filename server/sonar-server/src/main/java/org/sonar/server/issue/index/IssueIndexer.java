@@ -69,7 +69,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
   }
 
   @Override
-  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
+  public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     doIndex(createBulkIndexer(Size.LARGE), (String) null);
   }
 

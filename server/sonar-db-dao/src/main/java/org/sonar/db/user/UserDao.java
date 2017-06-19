@@ -19,13 +19,15 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.user.UserQuery;
@@ -34,8 +36,8 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class UserDao implements Dao {
 
@@ -82,7 +84,10 @@ public class UserDao implements Dao {
    */
   public List<UserDto> selectByOrderedLogins(DbSession session, Collection<String> logins) {
     List<UserDto> unordered = selectByLogins(session, logins);
-    return from(logins).transform(new LoginToUser(unordered)).filter(Predicates.notNull()).toList();
+    return logins.stream()
+      .map(new LoginToUser(unordered))
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 
   public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {
@@ -94,12 +99,17 @@ public class UserDao implements Dao {
   }
 
   public UserDto insert(DbSession session, UserDto dto) {
-    mapper(session).insert(dto);
+    long now = system2.now();
+    mapper(session).insert(dto, now);
+    dto.setCreatedAt(now);
+    dto.setUpdatedAt(now);
     return dto;
   }
 
   public UserDto update(DbSession session, UserDto dto) {
-    mapper(session).update(dto);
+    long now = system2.now();
+    mapper(session).update(dto, now);
+    dto.setUpdatedAt(now);
     return dto;
   }
 
@@ -107,8 +117,8 @@ public class UserDao implements Dao {
     mapper(session).setRoot(login, root, system2.now());
   }
 
-  public void deactivateUserById(DbSession dbSession, int userId) {
-    mapper(dbSession).deactivateUser(userId, system2.now());
+  public void deactivateUser(DbSession dbSession, UserDto user) {
+    mapper(dbSession).deactivateUser(user.getLogin(), system2.now());
   }
 
   @CheckForNull
@@ -138,6 +148,22 @@ public class UserDao implements Dao {
    */
   public boolean doesEmailExist(DbSession dbSession, String email) {
     return mapper(dbSession).countByEmail(email.toLowerCase(Locale.ENGLISH)) > 0;
+  }
+
+  public void scrollByLogins(DbSession dbSession, Collection<String> logins, Consumer<UserDto> consumer) {
+    UserMapper mapper = mapper(dbSession);
+
+    executeLargeInputsWithoutOutput(logins,
+      pageOfLogins -> mapper
+        .selectByLogins(pageOfLogins)
+        .forEach(consumer));
+  }
+
+  public void scrollAll(DbSession dbSession, Consumer<UserDto> consumer) {
+    mapper(dbSession).scrollAll(context -> {
+      UserDto user = (UserDto) context.getResultObject();
+      consumer.accept(user);
+    });
   }
 
   private static UserMapper mapper(DbSession session) {

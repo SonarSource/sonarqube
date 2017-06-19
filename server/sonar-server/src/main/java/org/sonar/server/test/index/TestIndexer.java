@@ -77,7 +77,7 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
   }
 
   @Override
-  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
+  public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     doIndex(null, Size.LARGE);
   }
 

@@ -106,11 +106,10 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       addCurrentUserToGroup(dbSession, ownerGroup, userCreator.getId());
       addCurrentUserToGroup(dbSession, defaultGroup, userCreator.getId());
 
-      dbSession.commit();
       batchDbSession.commit();
 
       // Elasticsearch is updated when DB session is committed
-      userIndexer.index(userCreator.getLogin());
+      userIndexer.commitAndIndex(dbSession, userCreator);
 
       return organization;
     }
@@ -144,11 +143,10 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       insertQualityProfiles(dbSession, batchDbSession, organization);
       addCurrentUserToGroup(dbSession, defaultGroup, newUser.getId());
 
-      dbSession.commit();
       batchDbSession.commit();
 
       // Elasticsearch is updated when DB session is committed
-      userIndexer.index(newUser.getLogin());
+      userIndexer.commitAndIndex(dbSession, newUser);
 
       return Optional.of(organization);
     }

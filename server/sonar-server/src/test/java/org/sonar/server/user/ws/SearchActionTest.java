@@ -19,7 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Rule;
@@ -281,8 +281,7 @@ public class SearchActionTest {
   }
 
   private List<UserDto> injectUsers(int numberOfUsers) throws Exception {
-    List<UserDto> userDtos = Lists.newArrayList();
-    long createdAt = System.currentTimeMillis();
+    List<UserDto> userDtos = new ArrayList<>();
     GroupDto group1 = db.users().insertGroup(newGroupDto().setName("sonar-users"));
     GroupDto group2 = db.users().insertGroup(newGroupDto().setName("sonar-admins"));
     for (int index = 0; index < numberOfUsers; index++) {
@@ -293,15 +292,13 @@ public class SearchActionTest {
 
       UserDto userDto = dbClient.userDao().insert(dbSession, new UserDto()
         .setActive(true)
-        .setCreatedAt(createdAt)
         .setEmail(email)
         .setLogin(login)
         .setName(name)
         .setScmAccounts(scmAccounts)
         .setLocal(true)
         .setExternalIdentity(login)
-        .setExternalIdentityProvider("sonarqube")
-        .setUpdatedAt(createdAt));
+        .setExternalIdentityProvider("sonarqube"));
       userDtos.add(userDto);
 
       for (int tokenIndex = 0; tokenIndex < index; tokenIndex++) {

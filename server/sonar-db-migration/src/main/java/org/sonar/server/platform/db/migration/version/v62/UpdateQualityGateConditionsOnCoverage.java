@@ -39,9 +39,9 @@ import org.sonar.server.platform.db.migration.step.Select;
 import org.sonar.server.platform.db.migration.step.Upsert;
 
 import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.sonar.core.util.stream.MoreCollectors.index;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
-import static org.sonar.db.DatabaseUtils.repeatCondition;
 
 /**
  * Migrate every quality gates that have conditions on related coverage metrics.
@@ -144,7 +144,7 @@ public class UpdateQualityGateConditionsOnCoverage extends DataChange {
       try {
         Select select = context.prepareSelect("select qgc.id, qgc.metric_id " +
           "from quality_gate_conditions qgc " +
-          "where qgc.qgate_id=? and qgc.metric_id in (" + repeatCondition("?", metricIds.size(), ",") + ")")
+          "where qgc.qgate_id=? and qgc.metric_id in (" + repeat("?", " , ", metricIds.size()) + ")")
           .setLong(1, qualityGateId);
         for (int i = 0; i < metricIds.size(); i++) {
           select.setLong(i + 2, metricIds.get(i));
@@ -192,7 +192,7 @@ public class UpdateQualityGateConditionsOnCoverage extends DataChange {
     metricKeys.addAll(COVERAGE_METRIC_KEYS.stream().map(metricKey -> IT_PREFIX + metricKey).collect(Collectors.toList()));
     metricKeys.addAll(COVERAGE_METRIC_KEYS.stream().map(metricKey -> OVERALL_PREFIX + metricKey).collect(Collectors.toList()));
     metricKeys.addAll(metricKeys.stream().map(metricKey -> NEW_PREFIX + metricKey).collect(Collectors.toList()));
-    Select select = context.prepareSelect("select id, name from metrics where name in (" + repeatCondition("?", metricKeys.size(), ",") + ")");
+    Select select = context.prepareSelect("select id, name from metrics where name in (" + repeat("?", ",", metricKeys.size()) + ")");
     for (int i = 0; i < metricKeys.size(); i++) {
       select.setString(i + 1, metricKeys.get(i));
     }

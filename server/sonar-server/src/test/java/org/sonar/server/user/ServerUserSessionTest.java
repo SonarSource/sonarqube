@@ -484,7 +484,7 @@ public class ServerUserSessionTest {
 
     session.checkIsSystemAdministrator();
 
-    db.getDbClient().userDao().deactivateUserById(db.getSession(), user.getId());
+    db.getDbClient().userDao().deactivateUser(db.getSession(), user);
     db.commit();
 
     // should fail but succeeds because flag is kept in cache

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.HashSet;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -81,11 +82,10 @@ public class CreateActionTest {
   private GroupDto defaultGroupInDefaultOrg;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private WsActionTester tester = new WsActionTester(new CreateAction(
     db.getDbClient(),
-    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, system2, organizationFlags, defaultOrganizationProvider,
+    new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), userIndexer, organizationFlags, defaultOrganizationProvider,
       organizationCreation, new DefaultGroupFinder(db.getDbClient()), settings.asConfig()),
     userSessionRule));
 
@@ -234,7 +234,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
 
     db.users().insertUser(newUserDto("john", "John", "john@email.com").setActive(false));
-    userIndexer.index("john");
+    userIndexer.indexOnStartup(new HashSet<>());
 
     call(CreateRequest.builder()
       .setLogin("john")

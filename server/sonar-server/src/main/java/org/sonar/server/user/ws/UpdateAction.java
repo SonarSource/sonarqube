@@ -118,7 +118,7 @@ public class UpdateAction implements UsersWsAction {
     if (!request.getScmAccounts().isEmpty()) {
       updateUser.setScmAccounts(request.getScmAccounts());
     }
-    userUpdater.update(dbSession, updateUser);
+    userUpdater.updateAndCommit(dbSession, updateUser, u -> {});
   }
 
   private void writeUser(DbSession dbSession, Response response, String login) {

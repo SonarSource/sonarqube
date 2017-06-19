@@ -53,7 +53,7 @@ public class ViewIndexer implements StartupIndexer {
   }
 
   @Override
-  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
+  public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, String> viewAndProjectViewUuidMap = newHashMap();
       for (UuidWithProjectUuidDto uuidWithProjectUuidDto : dbClient.componentDao().selectAllViewsAndSubViews(dbSession)) {

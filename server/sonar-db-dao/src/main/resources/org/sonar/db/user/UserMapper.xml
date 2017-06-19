@@ -62,6 +62,11 @@
     </foreach>
   </select>
 
+  <select id="scrollAll" resultType="User" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    select <include refid="userColumns"/>
+    from users u
+  </select>
+
   <select id="selectByIds" parameterType="string" resultType="User">
     SELECT
     <include refid="userColumns"/>
@@ -116,35 +121,31 @@
       and u.login &lt;&gt; #{login}
   </select>
 
-  <delete id="deleteOrganisationMembership" parameterType="int">
-    DELETE FROM organization_members WHERE user_id=#{id,jdbcType=BIGINT}
-  </delete>
-
   <update id="deactivateUser" parameterType="map">
-    UPDATE users SET
-      active=${_false},
-      email=null,
-      scm_accounts=null,
-      external_identity=null,
-      external_identity_provider=null,
-      salt=null,
-      crypted_password=null,
-      updated_at=#{now,jdbcType=BIGINT}
-    WHERE
-      id=#{id,jdbcType=INTEGER}
+    update users set
+      active = ${_false},
+      email = null,
+      scm_accounts = null,
+      external_identity = null,
+      external_identity_provider = null,
+      salt = null,
+      crypted_password = null,
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      login = #{login, jdbcType=VARCHAR}
   </update>
 
   <update id="setRoot">
     update users set
-      is_root = #{root,jdbcType=BOOLEAN},
-      updated_at=#{now,jdbcType=BIGINT}
+      is_root = #{root, jdbcType=BOOLEAN},
+      updated_at = #{now, jdbcType=BIGINT}
     where
-      login = #{login,jdbcType=VARCHAR}
+      login = #{login, jdbcType=VARCHAR}
       and active = ${_true}
   </update>
 
-  <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO users (
+  <insert id="insert" parameterType="map" keyColumn="id" useGeneratedKeys="true" keyProperty="user.id">
+    insert into users (
       login,
       name,
       email,
@@ -159,40 +160,39 @@
       onboarded,
       created_at,
       updated_at
-    )
-    VALUES (
-      #{login,jdbcType=VARCHAR},
-      #{name,jdbcType=VARCHAR},
-      #{email,jdbcType=VARCHAR},
-      #{active,jdbcType=BOOLEAN},
-      #{scmAccounts,jdbcType=VARCHAR},
-      #{externalIdentity,jdbcType=VARCHAR},
-      #{externalIdentityProvider,jdbcType=VARCHAR},
-      #{local,jdbcType=BOOLEAN},
-      #{salt,jdbcType=VARCHAR},
-      #{cryptedPassword,jdbcType=VARCHAR},
-      #{root,jdbcType=BOOLEAN},
-      #{onboarded,jdbcType=BOOLEAN},
-      #{createdAt,jdbcType=BIGINT},
-      #{updatedAt,jdbcType=BIGINT}
+    ) values (
+      #{user.login,jdbcType=VARCHAR},
+      #{user.name,jdbcType=VARCHAR},
+      #{user.email,jdbcType=VARCHAR},
+      #{user.active,jdbcType=BOOLEAN},
+      #{user.scmAccounts,jdbcType=VARCHAR},
+      #{user.externalIdentity,jdbcType=VARCHAR},
+      #{user.externalIdentityProvider,jdbcType=VARCHAR},
+      #{user.local,jdbcType=BOOLEAN},
+      #{user.salt,jdbcType=VARCHAR},
+      #{user.cryptedPassword,jdbcType=VARCHAR},
+      #{user.root,jdbcType=BOOLEAN},
+      #{user.onboarded,jdbcType=BOOLEAN},
+      #{now,jdbcType=BIGINT},
+      #{now,jdbcType=BIGINT}
     )
   </insert>
 
-  <insert id="update" parameterType="User" useGeneratedKeys="false">
-    UPDATE users set
-      name=#{name,jdbcType=VARCHAR},
-      email=#{email,jdbcType=VARCHAR},
-      active=#{active,jdbcType=BOOLEAN},
-      scm_accounts=#{scmAccounts,jdbcType=VARCHAR},
-      external_identity=#{externalIdentity,jdbcType=VARCHAR},
-      external_identity_provider=#{externalIdentityProvider,jdbcType=VARCHAR},
-      user_local=#{local,jdbcType=BOOLEAN},
-      onboarded=#{onboarded,jdbcType=BOOLEAN},
-      salt=#{salt,jdbcType=VARCHAR},
-      crypted_password=#{cryptedPassword,jdbcType=BIGINT},
-      updated_at=#{updatedAt,jdbcType=BIGINT}
-    WHERE
-      login = #{login,jdbcType=VARCHAR}
-  </insert>
+  <update id="update" parameterType="map">
+    update users set
+      name = #{user.name, jdbcType=VARCHAR},
+      email = #{user.email, jdbcType=VARCHAR},
+      active = #{user.active, jdbcType=BOOLEAN},
+      scm_accounts = #{user.scmAccounts, jdbcType=VARCHAR},
+      external_identity = #{user.externalIdentity, jdbcType=VARCHAR},
+      external_identity_provider = #{user.externalIdentityProvider, jdbcType=VARCHAR},
+      user_local = #{user.local, jdbcType=BOOLEAN},
+      onboarded = #{user.onboarded, jdbcType=BOOLEAN},
+      salt = #{user.salt, jdbcType=VARCHAR},
+      crypted_password = #{user.cryptedPassword, jdbcType=BIGINT},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      login = #{user.login, jdbcType=VARCHAR}
+  </update>
 
 </mapper>

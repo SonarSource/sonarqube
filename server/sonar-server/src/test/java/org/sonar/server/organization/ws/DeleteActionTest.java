@@ -20,7 +20,6 @@
 
 package org.sonar.server.organization.ws;
 
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,6 +58,7 @@ import org.sonar.server.user.index.UserQuery;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.ImmutableList.of;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -305,7 +305,7 @@ public class DeleteActionTest {
     db.organizations().addMember(org, user1);
     db.organizations().addMember(otherOrg, user1);
     db.organizations().addMember(org, user2);
-    userIndexer.index(Arrays.asList(user1.getLogin(), user2.getLogin()));
+    userIndexer.commitAndIndex(db.getSession(), asList(user1, user2));
     logInAsAdministrator(org);
 
     sendRequest(org);

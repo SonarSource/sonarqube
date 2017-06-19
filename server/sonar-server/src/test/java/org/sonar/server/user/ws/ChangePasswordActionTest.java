@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -60,7 +59,6 @@ public class ChangePasswordActionTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
 
   private UserUpdater userUpdater = new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), new UserIndexer(db.getDbClient(), esTester.client()),
-    System2.INSTANCE,
     organizationFlags,
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationCreation.class),
@@ -159,13 +157,15 @@ public class ChangePasswordActionTest {
   public void fail_to_update_password_on_external_auth() throws Exception {
     userSessionRule.logIn().setSystemAdministrator();
 
-    userUpdater.create(db.getSession(), NewUser.builder()
+    NewUser newUser = NewUser.builder()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
       .setExternalIdentity(new ExternalIdentity("gihhub", "john"))
-      .build());
+      .build();
+    userUpdater.createAndCommit(db.getSession(), newUser, u -> {
+    });
 
     expectedException.expect(BadRequestException.class);
     tester.newPostRequest("api/users", "change_password")
@@ -175,12 +175,13 @@ public class ChangePasswordActionTest {
   }
 
   private void createUser() {
-    userUpdater.create(db.getSession(), NewUser.builder()
+    userUpdater.createAndCommit(db.getSession(), NewUser.builder()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
       .setPassword("Valar Dohaeris")
-      .build());
+      .build(), u -> {
+      });
   }
 }

@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -35,9 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SkipOnboardingTutorialActionTest {
 
-  private final static long PAST = 100_000_000_000L;
-  private final static long NOW = 500_000_000_000L;
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -47,36 +43,31 @@ public class SkipOnboardingTutorialActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private TestSystem2 system2 = new TestSystem2().setNow(NOW);
-
-  private WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, db.getDbClient(), system2));
+  private WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, db.getDbClient()));
 
   @Test
   public void mark_user_as_onboarded() {
     UserDto user = db.users().insertUser(u -> u
-      .setOnboarded(false)
-      .setUpdatedAt(PAST));
+      .setOnboarded(false));
     userSession.logIn(user);
 
     call();
 
     UserDto userDto = selectUser(user.getLogin());
     assertThat(userDto.isOnboarded()).isEqualTo(true);
-    assertThat(userDto.getUpdatedAt()).isEqualTo(NOW);
   }
 
   @Test
   public void does_nothing_if_user_already_onboarded() {
     UserDto user = db.users().insertUser(u -> u
-      .setOnboarded(true)
-      .setUpdatedAt(PAST));
+      .setOnboarded(true));
     userSession.logIn(user);
 
     call();
 
     UserDto userDto = selectUser(user.getLogin());
     assertThat(userDto.isOnboarded()).isEqualTo(true);
-    assertThat(userDto.getUpdatedAt()).isEqualTo(PAST);
+    assertThat(userDto.getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
 
   @Test
@@ -112,7 +103,6 @@ public class SkipOnboardingTutorialActionTest {
 
   @Test
   public void test_definition() {
-    WsActionTester ws = new WsActionTester(new SkipOnboardingTutorialAction(userSession, db.getDbClient(), system2));
     WebService.Action def = ws.getDef();
     assertThat(def.isPost()).isTrue();
     assertThat(def.isInternal()).isTrue();

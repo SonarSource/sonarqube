@@ -32,8 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
-import static org.sonar.db.DatabaseUtils.repeatCondition;
 
 /**
  * No streaming because of union of joins -> no need to use ResultSetIterator
@@ -200,7 +200,7 @@ public class PermissionIndexerDao {
     if (projectUuids.isEmpty()) {
       sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", "");
     } else {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND (" + repeatCondition("projects.uuid = ?", projectUuids.size(), "OR") + ")");
+      sql = StringUtils.replace(SQL_TEMPLATE, "{projectsCondition}", " AND (" + repeat("projects.uuid = ?", " or ", projectUuids.size()) + ")");
     }
     PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
     int index = 1;

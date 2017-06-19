@@ -35,12 +35,10 @@ public class SkipOnboardingTutorialAction implements UsersWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final System2 system2;
 
-  public SkipOnboardingTutorialAction(UserSession userSession, DbClient dbClient, System2 system2) {
+  public SkipOnboardingTutorialAction(UserSession userSession, DbClient dbClient) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.system2 = system2;
   }
 
   @Override
@@ -63,7 +61,8 @@ public class SkipOnboardingTutorialAction implements UsersWsAction {
       checkState(userDto != null, "User login '%s' cannot be found", userLogin);
       if (!userDto.isOnboarded()) {
         userDto.setOnboarded(true);
-        userDto.setUpdatedAt(system2.now());
+        // no need to update Elasticsearch, the field onBoarded
+        // is not indexed
         dbClient.userDao().update(dbSession, userDto);
         dbSession.commit();
       }

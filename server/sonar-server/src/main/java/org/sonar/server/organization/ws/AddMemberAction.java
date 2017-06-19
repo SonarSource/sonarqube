@@ -118,8 +118,7 @@ public class AddMemberAction implements OrganizationsWsAction {
       .setUserId(user.getId()));
     dbClient.userGroupDao().insert(dbSession,
       new UserGroupDto().setGroupId(defaultGroupFinder.findDefaultGroup(dbSession, organization.getUuid()).getId()).setUserId(user.getId()));
-    dbSession.commit();
-    userIndexer.index(user.getLogin());
+    userIndexer.commitAndIndex(dbSession, user);
   }
 
   private AddMemberWsResponse buildResponse(UserDto user, int groups) {

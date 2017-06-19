@@ -20,7 +20,6 @@
 package org.sonar.server.user.index;
 
 import com.google.common.collect.Maps;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -83,14 +82,6 @@ public class UserDoc extends BaseDoc implements User {
     return getField(FIELD_ORGANIZATION_UUIDS);
   }
 
-  public long createdAt() {
-    return getFieldAsDate(UserIndexDefinition.FIELD_CREATED_AT).getTime();
-  }
-
-  public long updatedAt() {
-    return getFieldAsDate(UserIndexDefinition.FIELD_UPDATED_AT).getTime();
-  }
-
   public UserDoc setLogin(@Nullable String s) {
     setField(UserIndexDefinition.FIELD_LOGIN, s);
     return this;
@@ -118,16 +109,6 @@ public class UserDoc extends BaseDoc implements User {
 
   public UserDoc setOrganizationUuids(@Nullable List<String> organizationUuids) {
     setField(FIELD_ORGANIZATION_UUIDS, organizationUuids);
-    return this;
-  }
-
-  public UserDoc setCreatedAt(long l) {
-    setField(UserIndexDefinition.FIELD_CREATED_AT, new Date(l));
-    return this;
-  }
-
-  public UserDoc setUpdatedAt(long l) {
-    setField(UserIndexDefinition.FIELD_UPDATED_AT, new Date(l));
     return this;
   }
 }

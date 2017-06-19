@@ -101,11 +101,10 @@ public class DeactivateAction implements UsersWsAction {
       dbClient.userPermissionDao().deleteByUserId(dbSession, userId);
       dbClient.permissionTemplateDao().deleteUserPermissionsByUserId(dbSession, userId);
       dbClient.organizationMemberDao().deleteByUserId(dbSession, userId);
-      dbClient.userDao().deactivateUserById(dbSession, userId);
-      dbSession.commit();
+      dbClient.userDao().deactivateUser(dbSession, user);
+      userIndexer.commitAndIndex(dbSession, user);
     }
 
-    userIndexer.index(login);
     writeResponse(response, login);
   }
 

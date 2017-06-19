@@ -20,13 +20,21 @@
 package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.stream.IntStream;
+import org.apache.commons.lang.math.RandomUtils;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.db.DbTester;
+import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.BulkIndexer.Size;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,8 +43,12 @@ import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 
 public class BulkIndexerTest {
 
+  private TestSystem2 testSystem2 = new TestSystem2().setNow(1_000L);
+
   @Rule
   public EsTester esTester = new EsTester(new FakeIndexDefinition().setReplicas(1));
+  @Rule
+  public DbTester dbTester = DbTester.create(testSystem2);
 
   @Test
   public void index_nothing() {
@@ -100,6 +112,42 @@ public class BulkIndexerTest {
     BulkIndexer.delete(esTester.client(), INDEX, req);
 
     assertThat(count()).isEqualTo(removeFrom);
+  }
+
+  @Test
+  @Ignore
+  public void when_index_is_done_EsQueues_must_be_deleted() {
+    BulkIndexer indexer = new BulkIndexer(esTester.client(), INDEX, Size.REGULAR);
+    int nbOfDelete = 10 + RandomUtils.nextInt(10);
+    int nbOfInsert = 10 + RandomUtils.nextInt(10);
+    int nbOfDocumentNotToBeDeleted = 10 + RandomUtils.nextInt(10);
+    Collection<EsQueueDto> esQueueDtos = new ArrayList<>();
+
+    // Those documents must be kept
+    FakeDoc[] docs = new FakeDoc[nbOfDocumentNotToBeDeleted];
+    for (int i = 1; i <= nbOfDocumentNotToBeDeleted; i++) {
+      docs[i] = FakeIndexDefinition.newDoc(-i);
+    }
+    esTester.putDocuments(INDEX_TYPE_FAKE, docs);
+
+    // Create nbOfDelete documents to be deleted
+    docs = new FakeDoc[nbOfDelete];
+    for (int i = 1; i <= nbOfDelete; i++) {
+      docs[i] = FakeIndexDefinition.newDoc(i);
+    }
+    esTester.putDocuments(INDEX_TYPE_FAKE, docs);
+    assertThat(count()).isEqualTo(nbOfDelete + nbOfDocumentNotToBeDeleted);
+
+    indexer.start(dbTester.getSession(), dbTester.getDbClient(), esQueueDtos);
+    // Create nbOfDelete for old Documents
+    IntStream.rangeClosed(1, nbOfDelete).forEach(
+      i -> indexer.addDeletion(INDEX_TYPE_FAKE, "" + i));
+    // Create nbOfInsert for new Documents
+    IntStream.rangeClosed(nbOfDelete + 1, nbOfInsert).forEach(
+      i -> indexer.add(newIndexRequest(i)));
+    indexer.stop();
+
+    assertThat(count()).isEqualTo(nbOfInsert + nbOfDocumentNotToBeDeleted);
   }
 
   private long count() {

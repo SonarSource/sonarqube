@@ -34,6 +34,8 @@ public interface InternalProperties {
 
   String ORGANIZATION_ENABLED = "organization.enabled";
 
+  String ES_INDEX_INITIALIZING_PREFIX = "es.initializing.";
+
   /**
    * Read the value of the specified property.
    *

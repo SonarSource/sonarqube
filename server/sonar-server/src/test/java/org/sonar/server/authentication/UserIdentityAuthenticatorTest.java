@@ -35,12 +35,14 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent.Method;
 import org.sonar.server.authentication.event.AuthenticationEvent.Source;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
@@ -69,32 +71,33 @@ public class UserIdentityAuthenticatorTest {
     .setEnabled(true)
     .setAllowsUsersToSignUp(true);
 
+  private MapSettings settings = new MapSettings();
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
-
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(settings.asConfig()));
+  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
-  private MapSettings settings = new MapSettings();
-
   private UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
     db.getDbClient(),
-    mock(UserIndexer.class),
-    System2.INSTANCE,
+    userIndexer,
     organizationFlags,
     defaultOrganizationProvider,
     organizationCreation,
     new DefaultGroupFinder(db.getDbClient()),
     settings.asConfig());
+
   private UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(db.getDbClient(), userUpdater, defaultOrganizationProvider, organizationFlags,
     new DefaultGroupFinder(db.getDbClient()));
 
   @Test
-  public void authenticate_new_user() throws Exception {
+  public void authenticate_new_user() {
     organizationFlags.setEnabled(true);
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, Source.realm(Method.BASIC, IDENTITY_PROVIDER.getName()));
 
@@ -111,7 +114,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_new_user_with_groups() throws Exception {
+  public void authenticate_new_user_with_groups() {
     organizationFlags.setEnabled(true);
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
     GroupDto group2 = db.users().insertGroup(db.getDefaultOrganization(), "group2");
@@ -123,7 +126,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_new_user_and_force_default_group_when_organizations_are_disabled() throws Exception {
+  public void authenticate_new_user_and_force_default_group_when_organizations_are_disabled() {
     organizationFlags.setEnabled(false);
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
@@ -137,7 +140,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void does_not_force_default_group_when_authenticating_new_user_if_organizations_are_enabled() throws Exception {
+  public void does_not_force_default_group_when_authenticating_new_user_if_organizations_are_enabled() {
     organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
@@ -171,7 +174,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_existing_user() throws Exception {
+  public void authenticate_existing_user() {
     db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
@@ -192,7 +195,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_existing_disabled_user() throws Exception {
+  public void authenticate_existing_disabled_user() {
     organizationFlags.setEnabled(true);
     db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
@@ -214,7 +217,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_existing_user_and_add_new_groups() throws Exception {
+  public void authenticate_existing_user_and_add_new_groups() {
     organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
@@ -229,7 +232,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_existing_user_and_remove_groups() throws Exception {
+  public void authenticate_existing_user_and_remove_groups() {
     organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser(newUserDto()
       .setLogin(USER_LOGIN)
@@ -246,7 +249,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void authenticate_existing_user_and_remove_all_groups_expect_default_when_organizations_are_disabled() throws Exception {
+  public void authenticate_existing_user_and_remove_all_groups_expect_default_when_organizations_are_disabled() {
     organizationFlags.setEnabled(false);
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
@@ -262,7 +265,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void does_not_force_default_group_when_authenticating_existing_user_when_organizations_are_enabled() throws Exception {
+  public void does_not_force_default_group_when_authenticating_existing_user_when_organizations_are_enabled() {
     organizationFlags.setEnabled(true);
     UserDto user = db.users().insertUser();
     GroupDto group1 = db.users().insertGroup(db.getDefaultOrganization(), "group1");
@@ -276,7 +279,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void ignore_groups_on_non_default_organizations() throws Exception {
+  public void ignore_groups_on_non_default_organizations() {
     organizationFlags.setEnabled(true);
     OrganizationDto org = db.organizations().insert();
     UserDto user = db.users().insertUser(newUserDto()
@@ -299,7 +302,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_new_user_when_allow_users_to_signup_is_false() throws Exception {
+  public void fail_to_authenticate_new_user_when_allow_users_to_signup_is_false() {
     TestIdentityProvider identityProvider = new TestIdentityProvider()
       .setKey("github")
       .setName("Github")
@@ -313,7 +316,7 @@ public class UserIdentityAuthenticatorTest {
   }
 
   @Test
-  public void fail_to_authenticate_new_user_when_email_already_exists() throws Exception {
+  public void fail_to_authenticate_new_user_when_email_already_exists() {
     db.users().insertUser(newUserDto()
       .setLogin("Existing user with same email")
       .setActive(true)

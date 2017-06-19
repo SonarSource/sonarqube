@@ -245,12 +245,6 @@ public class DatabaseUtilsTest {
   }
 
   @Test
-  public void repeatCondition() {
-    assertThat(DatabaseUtils.repeatCondition("uuid=?", 1, "or")).isEqualTo("uuid=?");
-    assertThat(DatabaseUtils.repeatCondition("uuid=?", 3, "or")).isEqualTo("uuid=? or uuid=? or uuid=?");
-  }
-
-  @Test
   public void executeLargeInputs() {
     List<Integer> inputs = newArrayList();
     List<String> expectedOutputs = newArrayList();

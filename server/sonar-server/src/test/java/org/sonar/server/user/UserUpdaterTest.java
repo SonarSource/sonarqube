@@ -31,7 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -49,7 +49,6 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,11 +66,9 @@ import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class UserUpdaterTest {
 
-  private static final long NOW = 1418215735482L;
-  private static final long PAST = 1000000000000L;
   private static final String DEFAULT_LOGIN = "marius";
 
-  private System2 system2 = new TestSystem2().setNow(NOW);
+  private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -91,20 +88,21 @@ public class UserUpdaterTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
-  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, system2, organizationFlags, defaultOrganizationProvider, organizationCreation,
+  private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, organizationCreation,
     new DefaultGroupFinder(dbClient), settings.asConfig());
 
   @Test
   public void create_user() {
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
       .setScmAccounts(ImmutableList.of("u1", "u_1", "User 1"))
-      .build());
+      .build(), u -> {
+      });
 
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
@@ -116,8 +114,9 @@ public class UserUpdaterTest {
 
     assertThat(dto.getSalt()).isNotNull();
     assertThat(dto.getCryptedPassword()).isNotNull();
-    assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
-    assertThat(dto.getUpdatedAt()).isEqualTo(1418215735482L);
+    assertThat(dto.getCreatedAt())
+      .isPositive()
+      .isEqualTo(dto.getUpdatedAt());
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getId()).isEqualTo(dto.getId());
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
@@ -133,10 +132,11 @@ public class UserUpdaterTest {
   public void create_user_with_minimum_fields() {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("us")
       .setName("User")
-      .build());
+      .build(), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "us");
     assertThat(dto.getId()).isNotNull();
@@ -151,11 +151,12 @@ public class UserUpdaterTest {
   public void create_user_with_sq_authority_when_no_authority_set() throws Exception {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.getExternalIdentity()).isEqualTo("user");
@@ -167,11 +168,12 @@ public class UserUpdaterTest {
   public void create_user_with_identity_provider() throws Exception {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setExternalIdentity(new ExternalIdentity("github", "github-user"))
-      .build());
+      .build(), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
@@ -185,11 +187,12 @@ public class UserUpdaterTest {
   public void create_user_with_sonarqube_external_identity() throws Exception {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setExternalIdentity(new ExternalIdentity(SQ_AUTHORITY, "user"))
-      .build());
+      .build(), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, "user");
     assertThat(dto.isLocal()).isFalse();
@@ -203,12 +206,13 @@ public class UserUpdaterTest {
   public void create_user_with_scm_accounts_containing_blank_or_null_entries() {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
-      .setScmAccounts(newArrayList("u1", "", null))
-      .build());
+      .setScmAccounts(asList("u1", "", null))
+      .build(), u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -217,12 +221,13 @@ public class UserUpdaterTest {
   public void create_user_with_scm_accounts_containing_one_blank_entry() {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
-      .setScmAccounts(newArrayList(""))
-      .build());
+      .setScmAccounts(asList(""))
+      .build(), u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccounts()).isNull();
   }
@@ -231,12 +236,13 @@ public class UserUpdaterTest {
   public void create_user_with_scm_accounts_containing_duplications() {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setPassword("password")
-      .setScmAccounts(newArrayList("u1", "u1"))
-      .build());
+      .setScmAccounts(asList("u1", "u1"))
+      .build(), u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
@@ -246,10 +252,11 @@ public class UserUpdaterTest {
     createDefaultGroup();
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, false);
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .build());
+      .build(), u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isTrue();
   }
@@ -259,10 +266,11 @@ public class UserUpdaterTest {
     createDefaultGroup();
     settings.setProperty(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS, true);
 
-    UserDto user = underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
-      .build());
+      .build(), u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, "user").isOnboarded()).isFalse();
   }
@@ -272,12 +280,13 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login can't be empty");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(null)
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -285,12 +294,13 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("/marius/")
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -298,12 +308,13 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Use only letters, numbers, and .-_@ please.");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("mari us")
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -311,12 +322,13 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login is too short (minimum is 2 characters)");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("m")
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -324,12 +336,13 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login is too long (maximum is 255 characters)");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(Strings.repeat("m", 256))
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -337,12 +350,13 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name can't be empty");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName(null)
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -350,12 +364,13 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name is too long (maximum is 200 characters)");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName(Strings.repeat("m", 201))
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -363,23 +378,25 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Email is too long (maximum is 100 characters)");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius")
       .setEmail(Strings.repeat("m", 101))
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
   public void fail_to_create_user_with_many_errors() {
     try {
-      underTest.create(db.getSession(), NewUser.builder()
+      underTest.createAndCommit(db.getSession(), NewUser.builder()
         .setLogin("")
         .setName("")
         .setEmail("marius@mail.com")
         .setPassword("")
-        .build());
+        .build(), u -> {
+        });
       fail();
     } catch (BadRequestException e) {
       assertThat(e.errors()).hasSize(3);
@@ -393,13 +410,14 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .setScmAccounts(newArrayList("jo"))
-      .build());
+      .setScmAccounts(asList("jo"))
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -410,13 +428,14 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The scm account 'john@email.com' is already used by user(s) : 'John (john), Technical account (technical-account)'");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius")
       .setEmail("marius@mail.com")
       .setPassword("password")
-      .setScmAccounts(newArrayList("john@email.com"))
-      .build());
+      .setScmAccounts(asList("john@email.com"))
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -424,13 +443,14 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList(DEFAULT_LOGIN))
-      .build());
+      .setScmAccounts(asList(DEFAULT_LOGIN))
+      .build(), u -> {
+      });
   }
 
   @Test
@@ -438,26 +458,28 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList("marius2@mail.com"))
-      .build());
+      .setScmAccounts(asList("marius2@mail.com"))
+      .build(), u -> {
+      });
   }
 
   @Test
   public void notify_new_user() {
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
-      .setScmAccounts(newArrayList("u1", "u_1"))
-      .build());
+      .setScmAccounts(asList("u1", "u_1"))
+      .build(), u -> {
+      });
 
     verify(newUserNotifier).onNewUser(newUserHandler.capture());
     assertThat(newUserHandler.getValue().getLogin()).isEqualTo("user");
@@ -470,12 +492,13 @@ public class UserUpdaterTest {
     organizationFlags.setEnabled(false);
     GroupDto defaultGroup = createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
     assertThat(groups.get("user")).containsOnly(defaultGroup.getName());
@@ -486,12 +509,13 @@ public class UserUpdaterTest {
     organizationFlags.setEnabled(true);
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
-      .build());
+      .build(), u -> {
+      });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList("user"));
     assertThat(groups.get("user")).isEmpty();
@@ -502,25 +526,27 @@ public class UserUpdaterTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Default group cannot be found");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("password")
-      .setScmAccounts(newArrayList("u1", "u_1"))
-      .build());
+      .setScmAccounts(asList("u1", "u_1"))
+      .build(), u -> {
+      });
   }
 
   @Test
   public void create_personal_organization_when_creating_user() {
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
-      .build());
+      .build(), u -> {
+      });
 
     verify(organizationCreation).createForUser(any(DbSession.class), eq(dto));
   }
@@ -530,12 +556,13 @@ public class UserUpdaterTest {
     organizationFlags.setEnabled(false);
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
-      .build());
+      .build(), u -> {
+      });
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
   }
@@ -545,30 +572,30 @@ public class UserUpdaterTest {
     organizationFlags.setEnabled(true);
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
       .setPassword("PASSWORD")
-      .build());
+      .build(), u -> {
+      });
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
   }
 
   @Test
   public void reactivate_user_when_creating_user_with_existing_login() {
-    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(false)
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+    UserDto user = db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
+      .setLocal(false));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .build());
+      .build(), u -> {
+      });
     session.commit();
 
     assertThat(dto.isActive()).isTrue();
@@ -579,26 +606,25 @@ public class UserUpdaterTest {
 
     assertThat(dto.getSalt()).isNotNull().isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
     assertThat(dto.getCryptedPassword()).isNotNull().isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
-    assertThat(dto.getCreatedAt()).isEqualTo(PAST);
-    assertThat(dto.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());
+    assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).isActive()).isTrue();
   }
 
   @Test
   public void reactivate_user_not_having_password() {
-    db.users().insertUser(newDisabledUser("marius").setName("Marius").setEmail("marius@lesbronzes.fr")
+    UserDto user = db.users().insertUser(newDisabledUser("marius").setName("Marius").setEmail("marius@lesbronzes.fr")
       .setSalt(null)
-      .setCryptedPassword(null)
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setCryptedPassword(null));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
-      .build());
+      .build(), u -> {
+      });
     session.commit();
 
     assertThat(dto.isActive()).isTrue();
@@ -608,23 +634,22 @@ public class UserUpdaterTest {
 
     assertThat(dto.getSalt()).isNull();
     assertThat(dto.getCryptedPassword()).isNull();
-    assertThat(dto.getCreatedAt()).isEqualTo(PAST);
-    assertThat(dto.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());
+    assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
   }
 
   @Test
   public void update_external_provider_when_reactivating_user() {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(true)
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setLocal(true));
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setExternalIdentity(new ExternalIdentity("github", "john"))
-      .build());
+      .build(), u -> {
+      });
     session.commit();
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
@@ -635,40 +660,38 @@ public class UserUpdaterTest {
 
   @Test
   public void fail_to_reactivate_user_if_not_disabled() {
-    db.users().insertUser(newLocalUser("marius", "Marius", "marius@lesbronzes.fr")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+    db.users().insertUser(newLocalUser("marius", "Marius", "marius@lesbronzes.fr"));
     createDefaultGroup();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("An active user with login 'marius' already exists");
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .build());
+      .build(), u -> {
+      });
   }
 
   @Test
   public void associate_default_groups_when_reactivating_user_and_organizations_are_disabled() {
     organizationFlags.setEnabled(false);
     UserDto userDto = db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(true)
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setLocal(true));
     db.organizations().insertForUuid("org1");
     GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
     db.users().insertMember(groupDto, userDto);
     GroupDto defaultGroup = createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .build());
+      .build(), u -> {
+      });
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -679,20 +702,19 @@ public class UserUpdaterTest {
   public void does_not_associate_default_groups_when_reactivating_user_and_organizations_are_enabled() {
     organizationFlags.setEnabled(true);
     UserDto userDto = db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
-      .setLocal(true)
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setLocal(true));
     db.organizations().insertForUuid("org1");
     GroupDto groupDto = db.users().insertGroup(GroupTesting.newGroupDto().setName("sonar-devs").setOrganizationUuid("org1"));
     db.users().insertMember(groupDto, userDto);
     GroupDto defaultGroup = createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .build());
+      .build(), u -> {
+      });
     session.commit();
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -705,7 +727,8 @@ public class UserUpdaterTest {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build());
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build(), u -> {
+    });
     session.commit();
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
@@ -717,7 +740,8 @@ public class UserUpdaterTest {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build());
+    UserDto dto = underTest.createAndCommit(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build(), u -> {
+    });
     session.commit();
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
@@ -731,10 +755,11 @@ public class UserUpdaterTest {
       .setOnboarded(false));
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(user.getLogin())
       .setName("name")
-      .build());
+      .build(), u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isTrue();
   }
@@ -747,10 +772,11 @@ public class UserUpdaterTest {
       .setOnboarded(true));
     createDefaultGroup();
 
-    underTest.create(db.getSession(), NewUser.builder()
+    underTest.createAndCommit(db.getSession(), NewUser.builder()
       .setLogin(user.getLogin())
       .setName("name")
-      .build());
+      .build(), u -> {
+      });
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isFalse();
   }
@@ -760,17 +786,15 @@ public class UserUpdaterTest {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setScmAccounts(asList("ma", "marius33"))
       .setSalt("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365")
-      .setCryptedPassword("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setCryptedPassword("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList("ma2")));
-    session.commit();
+      .setScmAccounts(asList("ma2")), u -> {
+      });
 
     UserDto updatedUser = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(updatedUser.isActive()).isTrue();
@@ -780,8 +804,8 @@ public class UserUpdaterTest {
 
     assertThat(updatedUser.getSalt()).isNotEqualTo(user.getSalt());
     assertThat(updatedUser.getCryptedPassword()).isNotEqualTo(user.getCryptedPassword());
-    assertThat(updatedUser.getCreatedAt()).isEqualTo(PAST);
-    assertThat(updatedUser.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(updatedUser.getCreatedAt()).isEqualTo(user.getCreatedAt());
+    assertThat(updatedUser.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
 
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
     assertThat(indexUsers).hasSize(1);
@@ -794,37 +818,33 @@ public class UserUpdaterTest {
 
   @Test
   public void update_user_external_identity_when_user_was_not_local() {
-    db.users().insertUser(UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+    UserDto user = db.users().insertUser(UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setPassword(null)
-      .setExternalIdentity(new ExternalIdentity("github", "john")));
-    session.commit();
+      .setExternalIdentity(new ExternalIdentity("github", "john")), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getExternalIdentity()).isEqualTo("john");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
-    assertThat(dto.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
   }
 
   @Test
   public void update_user_external_identity_when_user_was_local() {
-    db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+    UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@email.com"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@email.com")
       .setPassword(null)
-      .setExternalIdentity(new ExternalIdentity("github", "john")));
-    session.commit();
+      .setExternalIdentity(new ExternalIdentity("github", "john")), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getExternalIdentity()).isEqualTo("john");
@@ -832,7 +852,7 @@ public class UserUpdaterTest {
     // Password must be removed
     assertThat(dto.getCryptedPassword()).isNull();
     assertThat(dto.getSalt()).isNull();
-    assertThat(dto.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(dto.getUpdatedAt()).isGreaterThan(user.getCreatedAt());
   }
 
   @Test
@@ -840,17 +860,15 @@ public class UserUpdaterTest {
     UserDto user = db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
       .setScmAccounts(asList("ma", "marius33"))
       .setSalt("salt")
-      .setCryptedPassword("crypted password")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setCryptedPassword("crypted password"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList("ma2")));
-    session.commit();
+      .setScmAccounts(asList("ma2")), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.isActive()).isTrue();
@@ -860,8 +878,8 @@ public class UserUpdaterTest {
 
     assertThat(dto.getSalt()).isNotEqualTo(user.getSalt());
     assertThat(dto.getCryptedPassword()).isNotEqualTo(user.getCryptedPassword());
-    assertThat(dto.getCreatedAt()).isEqualTo(PAST);
-    assertThat(dto.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(dto.getCreatedAt()).isEqualTo(user.getCreatedAt());
+    assertThat(dto.getUpdatedAt()).isGreaterThan(user.getUpdatedAt());
 
     List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX_TYPE_USER);
     assertThat(indexUsers).hasSize(1);
@@ -875,17 +893,15 @@ public class UserUpdaterTest {
   @Test
   public void update_user_with_scm_accounts_containing_blank_entry() {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
-      .setScmAccounts(asList("ma", "marius33"))
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setScmAccounts(asList("ma", "marius33")));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList("ma2", "", null)));
-    session.commit();
+      .setScmAccounts(asList("ma2", "", null)), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
@@ -896,14 +912,12 @@ public class UserUpdaterTest {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
       .setScmAccounts(asList("ma", "marius33"))
       .setSalt("salt")
-      .setCryptedPassword("crypted password")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setCryptedPassword("crypted password"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
-      .setName("Marius2"));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
+      .setName("Marius2"), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getName()).isEqualTo("Marius2");
@@ -920,14 +934,12 @@ public class UserUpdaterTest {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
       .setScmAccounts(asList("ma", "marius33"))
       .setSalt("salt")
-      .setCryptedPassword("crypted password")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setCryptedPassword("crypted password"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
-      .setEmail("marius2@mail.com"));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
+      .setEmail("marius2@mail.com"), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -944,14 +956,12 @@ public class UserUpdaterTest {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
       .setScmAccounts(asList("ma", "marius33"))
       .setSalt("salt")
-      .setCryptedPassword("crypted password")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setCryptedPassword("crypted password"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
-      .setScmAccounts(newArrayList("ma2")));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
+      .setScmAccounts(asList("ma2")), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
@@ -966,14 +976,12 @@ public class UserUpdaterTest {
   @Test
   public void update_scm_accounts_with_same_values() {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
-      .setScmAccounts(asList("ma", "marius33"))
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setScmAccounts(asList("ma", "marius33")));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
-      .setScmAccounts(newArrayList("ma", "marius33")));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
+      .setScmAccounts(asList("ma", "marius33")), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
@@ -982,14 +990,12 @@ public class UserUpdaterTest {
   @Test
   public void remove_scm_accounts() {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
-      .setScmAccounts(asList("ma", "marius33"))
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setScmAccounts(asList("ma", "marius33")));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
-      .setScmAccounts(null));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
+      .setScmAccounts(null), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getScmAccounts()).isNull();
@@ -1000,14 +1006,12 @@ public class UserUpdaterTest {
     db.users().insertUser(newLocalUser(DEFAULT_LOGIN, "Marius", "marius@lesbronzes.fr")
       .setScmAccounts(asList("ma", "marius33"))
       .setSalt("salt")
-      .setCryptedPassword("crypted password")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setCryptedPassword("crypted password"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
-      .setPassword("password2"));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
+      .setPassword("password2"), u -> {
+      });
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
     assertThat(dto.getSalt()).isNotEqualTo("salt");
@@ -1023,34 +1027,30 @@ public class UserUpdaterTest {
   public void update_only_external_identity_id() {
     db.users().insertUser(UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setExternalIdentity("john")
-      .setExternalIdentityProvider("github")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setExternalIdentityProvider("github"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setExternalIdentity(new ExternalIdentity("github", "john.smith")));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN).setExternalIdentity(new ExternalIdentity("github", "john.smith")), u -> {
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
-      .extracting(UserDto::getExternalIdentity, UserDto::getExternalIdentityProvider, UserDto::getUpdatedAt)
-      .containsOnly("john.smith", "github", NOW);
+      .extracting(UserDto::getExternalIdentity, UserDto::getExternalIdentityProvider)
+      .containsOnly("john.smith", "github");
   }
 
   @Test
   public void update_only_external_identity_provider() {
     db.users().insertUser(UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setExternalIdentity("john")
-      .setExternalIdentityProvider("github")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST));
+      .setExternalIdentityProvider("github"));
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setExternalIdentity(new ExternalIdentity("bitbucket", "john")));
-    session.commit();
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN).setExternalIdentity(new ExternalIdentity("bitbucket", "john")), u -> {
+    });
 
     assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN))
-      .extracting(UserDto::getExternalIdentity, UserDto::getExternalIdentityProvider, UserDto::getUpdatedAt)
-      .containsOnly("john", "bitbucket", NOW);
+      .extracting(UserDto::getExternalIdentity, UserDto::getExternalIdentityProvider)
+      .containsOnly("john", "bitbucket");
   }
 
   @Test
@@ -1058,20 +1058,18 @@ public class UserUpdaterTest {
     UserDto user = UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setExternalIdentity("john")
       .setExternalIdentityProvider("github")
-      .setScmAccounts(asList("ma1", "ma2"))
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST);
+      .setScmAccounts(asList("ma1", "ma2"));
     db.users().insertUser(user);
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(user.getLogin())
+    underTest.updateAndCommit(session, UpdateUser.create(user.getLogin())
       .setName(user.getName())
       .setEmail(user.getEmail())
       .setScmAccounts(user.getScmAccountsAsList())
-      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())));
-    session.commit();
+      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())), u -> {
+      });
 
-    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(PAST);
+    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
 
   @Test
@@ -1079,20 +1077,18 @@ public class UserUpdaterTest {
     UserDto user = UserTesting.newExternalUser(DEFAULT_LOGIN, "Marius", "marius@email.com")
       .setExternalIdentity("john")
       .setExternalIdentityProvider("github")
-      .setScmAccounts(asList("ma1", "ma2"))
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST);
+      .setScmAccounts(asList("ma1", "ma2"));
     db.users().insertUser(user);
     createDefaultGroup();
 
-    underTest.update(session, UpdateUser.create(user.getLogin())
+    underTest.updateAndCommit(session, UpdateUser.create(user.getLogin())
       .setName(user.getName())
       .setEmail(user.getEmail())
       .setScmAccounts(asList("ma2", "ma1"))
-      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())));
-    session.commit();
+      .setExternalIdentity(new ExternalIdentity(user.getExternalIdentityProvider(), user.getExternalIdentity())), u -> {
+      });
 
-    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(PAST);
+    assertThat(dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN).getUpdatedAt()).isEqualTo(user.getUpdatedAt());
   }
 
   @Test
@@ -1102,7 +1098,8 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Password can't be empty");
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setPassword(null));
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN).setPassword(null), u -> {
+    });
   }
 
   @Test
@@ -1114,7 +1111,8 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Password cannot be changed when external authentication is used");
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setPassword("password2"));
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN).setPassword("password2"), u -> {
+    });
   }
 
   @Test
@@ -1123,12 +1121,12 @@ public class UserUpdaterTest {
     GroupDto defaultGroup = createDefaultGroup();
 
     // Existing user, he has no group, and should not be associated to the default one
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList("ma2")));
-    session.commit();
+      .setScmAccounts(asList("ma2")), u -> {
+      });
 
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).isFalse();
@@ -1144,12 +1142,12 @@ public class UserUpdaterTest {
     Multimap<String, String> groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
     assertThat(groups.get(DEFAULT_LOGIN).stream().anyMatch(g -> g.equals(defaultGroup.getName()))).as("Current user groups : %s", groups.get(defaultGroup.getName())).isTrue();
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList("ma2")));
-    session.commit();
+      .setScmAccounts(asList("ma2")), u -> {
+      });
 
     // Nothing as changed
     groups = dbClient.groupMembershipDao().selectGroupsByLogins(session, asList(DEFAULT_LOGIN));
@@ -1165,11 +1163,12 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The scm account 'jo' is already used by user(s) : 'John (john)'");
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setName("Marius2")
       .setEmail("marius2@mail.com")
       .setPassword("password2")
-      .setScmAccounts(newArrayList("jo")));
+      .setScmAccounts(asList("jo")), u -> {
+      });
   }
 
   @Test
@@ -1179,7 +1178,8 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(newArrayList(DEFAULT_LOGIN)));
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(asList(DEFAULT_LOGIN)), u -> {
+    });
   }
 
   @Test
@@ -1189,7 +1189,8 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(newArrayList("marius@lesbronzes.fr")));
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN).setScmAccounts(asList("marius@lesbronzes.fr")), u -> {
+    });
   }
 
   @Test
@@ -1199,9 +1200,10 @@ public class UserUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Login and email are automatically considered as SCM accounts");
 
-    underTest.update(session, UpdateUser.create(DEFAULT_LOGIN)
+    underTest.updateAndCommit(session, UpdateUser.create(DEFAULT_LOGIN)
       .setEmail("marius@newmail.com")
-      .setScmAccounts(newArrayList("marius@newmail.com")));
+      .setScmAccounts(asList("marius@newmail.com")), u -> {
+      });
   }
 
   private GroupDto createDefaultGroup() {

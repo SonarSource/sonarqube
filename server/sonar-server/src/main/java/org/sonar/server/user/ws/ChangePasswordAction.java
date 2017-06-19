@@ -90,7 +90,7 @@ public class ChangePasswordAction implements UsersWsAction {
       String password = request.mandatoryParam(PARAM_PASSWORD);
       UpdateUser updateUser = UpdateUser.create(login).setPassword(password);
 
-      userUpdater.update(dbSession, updateUser);
+      userUpdater.updateAndCommit(dbSession, updateUser, u -> {});
     }
     response.noContent();
   }

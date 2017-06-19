@@ -334,14 +334,10 @@ public class DeactivateActionTest {
   }
 
   private UserDto insertUser(UserDto user) {
-    user
-      .setCreatedAt(system2.now())
-      .setUpdatedAt(system2.now());
     dbClient.userDao().insert(dbSession, user);
     dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(user.getLogin()));
     dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto().setUserId(user.getId()).setKey("foo").setValue("bar"));
-    dbSession.commit();
-    userIndexer.index(user.getLogin());
+    userIndexer.commitAndIndex(dbSession, user);
     return user;
   }
 

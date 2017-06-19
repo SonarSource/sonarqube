@@ -22,16 +22,17 @@ package org.sonar.server.user;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -73,19 +74,17 @@ public class UserUpdater {
   private final NewUserNotifier newUserNotifier;
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
-  private final System2 system2;
   private final OrganizationFlags organizationFlags;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationCreation organizationCreation;
   private final DefaultGroupFinder defaultGroupFinder;
   private final Configuration config;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2, OrganizationFlags organizationFlags,
+  public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, OrganizationFlags organizationFlags,
     DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Configuration config) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
-    this.system2 = system2;
     this.organizationFlags = organizationFlags;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationCreation = organizationCreation;
@@ -93,14 +92,17 @@ public class UserUpdater {
     this.config = config;
   }
 
-  public UserDto create(DbSession dbSession, NewUser newUser) {
+  public UserDto createAndCommit(DbSession dbSession, NewUser newUser, Consumer<UserDto> beforeCommit) {
     String login = newUser.login();
     UserDto userDto = dbClient.userDao().selectByLogin(dbSession, newUser.login());
     if (userDto == null) {
-      userDto = saveUser(dbSession, createNewUserDto(dbSession, newUser));
+      userDto = saveUser(dbSession, createDto(dbSession, newUser));
     } else {
       reactivateUser(dbSession, userDto, login, newUser);
     }
+    beforeCommit.accept(userDto);
+    userIndexer.commitAndIndex(dbSession, userDto);
+
     notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
     return userDto;
   }
@@ -120,26 +122,31 @@ public class UserUpdater {
     // Hack to allow to change the password of the user
     existingUser.setLocal(true);
     setOnboarded(existingUser);
-    updateUserDto(dbSession, updateUser, existingUser);
+    updateDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
     addUserToDefaultOrganizationAndDefaultGroup(dbSession, existingUser);
-    dbSession.commit();
   }
 
-  public void update(DbSession dbSession, UpdateUser updateUser) {
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
-    checkFound(user, "User with login '%s' has not been found", updateUser.login());
-    boolean isUserUpdated = updateUserDto(dbSession, updateUser, user);
-    if (!isUserUpdated) {
-      return;
+  public void updateAndCommit(DbSession dbSession, UpdateUser updateUser, Consumer<UserDto> beforeCommit) {
+    UserDto dto = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
+    checkFound(dto, "User with login '%s' has not been found", updateUser.login());
+    boolean isUserUpdated = updateDto(dbSession, updateUser, dto);
+    if (isUserUpdated) {
+      // at least one change. Database must be updated and Elasticsearch re-indexed
+      updateUser(dbSession, dto);
+      beforeCommit.accept(dto);
+      userIndexer.commitAndIndex(dbSession, dto);
+      notifyNewUser(dto.getLogin(), dto.getName(), dto.getEmail());
+    } else {
+      // no changes but still execute the consumer
+      beforeCommit.accept(dto);
+      dbSession.commit();
     }
-    updateUser(dbSession, user);
-    notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
   }
 
-  private UserDto createNewUserDto(DbSession dbSession, NewUser newUser) {
+  private UserDto createDto(DbSession dbSession, NewUser newUser) {
     UserDto userDto = new UserDto();
-    List<String> messages = newArrayList();
+    List<String> messages = new ArrayList<>();
 
     String login = newUser.login();
     if (validateLoginFormat(login, messages)) {
@@ -158,7 +165,7 @@ public class UserUpdater {
 
     String password = newUser.password();
     if (password != null && validatePasswords(password, messages)) {
-      setEncryptedPassWord(password, userDto);
+      setEncryptedPassword(password, userDto);
     }
 
     List<String> scmAccounts = sanitizeScmAccounts(newUser.scmAccounts());
@@ -173,13 +180,13 @@ public class UserUpdater {
     return userDto;
   }
 
-  private boolean updateUserDto(DbSession dbSession, UpdateUser updateUser, UserDto userDto) {
+  private boolean updateDto(DbSession dbSession, UpdateUser update, UserDto dto) {
     List<String> messages = newArrayList();
-    boolean changed = updateName(updateUser, userDto, messages);
-    changed |= updateEmail(updateUser, userDto, messages);
-    changed |= updateExternalIdentity(updateUser, userDto);
-    changed |= updatePassword(updateUser, userDto, messages);
-    changed |= updateScmAccounts(dbSession, updateUser, userDto, messages);
+    boolean changed = updateName(update, dto, messages);
+    changed |= updateEmail(update, dto, messages);
+    changed |= updateExternalIdentity(update, dto);
+    changed |= updatePassword(update, dto, messages);
+    changed |= updateScmAccounts(dbSession, update, dto, messages);
     checkRequest(messages.isEmpty(), messages);
     return changed;
   }
@@ -216,7 +223,7 @@ public class UserUpdater {
   private static boolean updatePassword(UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String password = updateUser.password();
     if (!updateUser.isExternalIdentityChanged() && updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
-      setEncryptedPassWord(password, userDto);
+      setEncryptedPassword(password, userDto);
       return true;
     }
     return false;
@@ -355,25 +362,19 @@ public class UserUpdater {
   }
 
   private UserDto saveUser(DbSession dbSession, UserDto userDto) {
-    long now = system2.now();
-    userDto.setActive(true).setCreatedAt(now).setUpdatedAt(now);
+    userDto.setActive(true);
     UserDto res = dbClient.userDao().insert(dbSession, userDto);
     addUserToDefaultOrganizationAndDefaultGroup(dbSession, userDto);
     organizationCreation.createForUser(dbSession, userDto);
-    dbSession.commit();
-    userIndexer.index(userDto.getLogin());
     return res;
   }
 
-  private void updateUser(DbSession dbSession, UserDto userDto) {
-    long now = system2.now();
-    userDto.setActive(true).setUpdatedAt(now);
-    dbClient.userDao().update(dbSession, userDto);
-    dbSession.commit();
-    userIndexer.index(userDto.getLogin());
+  private void updateUser(DbSession dbSession, UserDto dto) {
+    dto.setActive(true);
+    dbClient.userDao().update(dbSession, dto);
   }
 
-  private static void setEncryptedPassWord(String password, UserDto userDto) {
+  private static void setEncryptedPassword(String password, UserDto userDto) {
     Random random = new SecureRandom();
     byte[] salt = new byte[32];
     random.nextBytes(salt);
@@ -382,7 +383,7 @@ public class UserUpdater {
     userDto.setCryptedPassword(encryptPassword(password, saltHex));
   }
 
-  private void notifyNewUser(String login, String name, String email) {
+  private void notifyNewUser(String login, String name, @Nullable String email) {
     newUserNotifier.onNewUser(NewUserHandler.Context.builder()
       .setLogin(login)
       .setName(name)

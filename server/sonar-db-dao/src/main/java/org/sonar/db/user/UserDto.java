@@ -189,7 +189,7 @@ public class UserDto {
     return createdAt;
   }
 
-  public UserDto setCreatedAt(Long createdAt) {
+  UserDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
     return this;
   }
@@ -198,7 +198,7 @@ public class UserDto {
     return updatedAt;
   }
 
-  public UserDto setUpdatedAt(Long updatedAt) {
+  UserDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }

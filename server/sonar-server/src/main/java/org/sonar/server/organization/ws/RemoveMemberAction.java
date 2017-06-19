@@ -103,8 +103,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
 
     dbClient.organizationMemberDao().delete(dbSession, organizationUuid, userId);
-    dbSession.commit();
-    userIndexer.index(user.getLogin());
+    userIndexer.commitAndIndex(dbSession, user);
   }
 
   private void ensureLastAdminIsNotRemoved(DbSession dbSession, OrganizationDto organizationDto, UserDto user) {

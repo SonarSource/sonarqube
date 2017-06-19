@@ -36,8 +36,6 @@ public class UserIndexDefinition implements IndexDefinition {
   public static final String FIELD_LOGIN = "login";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_EMAIL = "email";
-  public static final String FIELD_CREATED_AT = "createdAt";
-  public static final String FIELD_UPDATED_AT = "updatedAt";
   public static final String FIELD_ACTIVE = "active";
   public static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
   public static final String FIELD_ORGANIZATION_UUIDS = "organizationUuids";
@@ -59,8 +57,6 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_LOGIN).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_NAME).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_EMAIL).addSubFields(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();
-    mapping.createDateTimeField(FIELD_CREATED_AT);
-    mapping.createDateTimeField(FIELD_UPDATED_AT);
     mapping.createBooleanField(FIELD_ACTIVE);
     mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
     mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUIDS).disableNorms().build();

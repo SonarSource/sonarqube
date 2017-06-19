@@ -22,6 +22,7 @@ package org.sonar.db.user;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.user.UserQuery;
 
 public interface UserMapper {
@@ -51,6 +52,8 @@ public interface UserMapper {
 
   List<UserDto> selectByIds(@Param("ids") List<Integer> ids);
 
+  void scrollAll(ResultHandler handler);
+
   long countByEmail(String email);
 
   /**
@@ -58,14 +61,12 @@ public interface UserMapper {
    */
   long countRootUsersButLogin(@Param("login") String login);
 
-  void insert(UserDto userDto);
+  void insert(@Param("user") UserDto userDto, @Param("now") long now);
 
-  void update(UserDto userDto);
+  void update(@Param("user") UserDto userDto, @Param("now") long now);
 
   void setRoot(@Param("login") String login, @Param("root") boolean root, @Param("now") long now);
 
-  void deleteOrganisationMembership(int userId);
-
-  void deactivateUser(@Param("id") int userId, @Param("now") long now);
+  void deactivateUser(@Param("login") String login, @Param("now") long now);
 
 }

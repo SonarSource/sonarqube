@@ -58,7 +58,7 @@ public class ActiveRuleIndexer implements StartupIndexer {
   }
 
   @Override
-  public void indexOnStartup(Set<IndexType> emptyIndexTypes) {
+  public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ActiveRuleIterator dbCursor = activeRuleIteratorFactory.createForAll(dbSession);
       scrollDbAndIndex(dbCursor, Size.LARGE);

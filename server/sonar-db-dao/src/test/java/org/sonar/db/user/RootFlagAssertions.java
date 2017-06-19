@@ -31,10 +31,6 @@ public class RootFlagAssertions {
     this.db = db;
   }
 
-  public void verifyUnchanged(UserDto user) {
-    verify(user, user.isRoot(), user.getUpdatedAt());
-  }
-
   public void verify(UserDto userDto, boolean root, long updatedAt) {
     Map<String, Object> row = db.selectFirst("select is_root as \"isRoot\", updated_at as \"updatedAt\" from users where login = '" + userDto.getLogin() + "'");
     Object isRoot = row.get("isRoot");
