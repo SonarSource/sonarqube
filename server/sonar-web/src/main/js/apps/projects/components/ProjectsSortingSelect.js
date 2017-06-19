@@ -65,10 +65,7 @@ export default class ProjectsSortingSelect extends React.PureComponent {
       opt => (opt.value === this.props.defaultOption ? 0 : 1)
     ).map((opt: { value: string, class?: string }) => ({
       value: opt.value,
-      label: translate('projects.sorting', opt.value) +
-        (opt.value === this.props.defaultOption
-          ? ` (${translate('projects.sorting.default')})`
-          : ''),
+      label: translate('projects.sorting', opt.value),
       class: opt.class
     }));
   };
