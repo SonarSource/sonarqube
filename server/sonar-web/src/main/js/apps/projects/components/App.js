@@ -20,32 +20,25 @@
 //@flow
 import React from 'react';
 
-type State = {
-  optionBarOpen: boolean
-};
-
 export default class App extends React.PureComponent {
-  state: State = { optionBarOpen: false };
-
   componentDidMount() {
     const elem = document.querySelector('html');
-    elem && elem.classList.add('dashboard-page');
+    if (elem) {
+      elem.classList.add('dashboard-page');
+    }
   }
 
   componentWillUnmount() {
     const elem = document.querySelector('html');
-    elem && elem.classList.remove('dashboard-page');
+    if (elem) {
+      elem.classList.remove('dashboard-page');
+    }
   }
-
-  handleOptionBarToggle = (open: boolean) => this.setState({ optionBarOpen: open });
 
   render() {
     return (
       <div id="projects-page">
-        {React.cloneElement(this.props.children, {
-          optionBarOpen: this.state.optionBarOpen,
-          optionBarToggle: this.handleOptionBarToggle
-        })}
+        {this.props.children}
       </div>
     );
   }

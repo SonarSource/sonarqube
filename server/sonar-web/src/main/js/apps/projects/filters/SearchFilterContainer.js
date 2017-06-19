@@ -24,12 +24,13 @@ import { debounce } from 'lodash';
 import { getFilterUrl } from './utils';
 import SearchFilter from './SearchFilter';
 
-type Props = {
+type Props = {|
+  className?: string,
   query: { search?: string },
   router: { push: ({ pathname: string }) => void },
   isFavorite?: boolean,
   organization?: {}
-};
+|};
 
 class SearchFilterContainer extends React.PureComponent {
   handleSearch: (userQuery?: string) => void;
@@ -46,7 +47,13 @@ class SearchFilterContainer extends React.PureComponent {
   }
 
   render() {
-    return <SearchFilter query={this.props.query} handleSearch={this.handleSearch} />;
+    return (
+      <SearchFilter
+        className={this.props.className}
+        query={this.props.query}
+        handleSearch={this.handleSearch}
+      />
+    );
   }
 }
 
