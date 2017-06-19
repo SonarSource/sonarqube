@@ -1,54 +1,12 @@
-.issues-header-panel,
-.issues-header-panel-inner {
-  height: 56px;
-  box-sizing: border-box;
-}
-
-.issues-header-panel {
-  margin-top: -20px;
-}
-
-.issues-header-panel-inner {
-  position: fixed;
-  z-index: 30;
-  line-height: 24px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
-}
-
-.issues-main-header {
-  margin-bottom: 20px;
-}
-
 .issues-main-header .component-name {
   line-height: 24px;
 }
 
-.issues-main-header-inner {
-  left: calc(50vw - 360px + 1px);
-  right: 0;
-  padding-left: 20px;
-  padding-right: 20px;
+.concise-issues-list-header, .concise-issues-list-header-inner {
 }
 
-@media (max-width: 1320px) {
-  .issues-main-header-inner {
-    left: 301px;
-  }
+.concise-issues-list-header {
 }
-
-.issues-main-header-spinner {
-  margin-left: 1px;
-  margin-right: 9px;
-  margin-top: -1px;
-}
-
-.concise-issues-list-header,
-.concise-issues-list-header-inner {}
-
-.concise-issues-list-header {}
 
 .concise-issues-list-header-inner {
   width: 260px;
@@ -156,8 +114,7 @@
   text-align: right;
 }
 
-.issues .search-navigator-facet-header,
-.issues .search-navigator-facet-list {
+.issues .search-navigator-facet-header, .issues .search-navigator-facet-list {
   padding-left: 0;
   padding-right: 0;
 }
@@ -167,7 +124,8 @@
   padding-bottom: 8px;
 }
 
-.issues .search-navigator-facet-box:not(.hidden):not(.leak-facet-box) + .search-navigator-facet-box:not(.leak-facet-box) {
+.issues .search-navigator-facet-box:not(.hidden):not(.leak-facet-box)
+  + .search-navigator-facet-box:not(.leak-facet-box) {
   border-top: none;
 }
 
