@@ -20,7 +20,6 @@ cache:
     - server/sonar-web/node_modules
     - $HOME/jvm
     - $HOME/maven
-    - $HOME/phantomjs
 
 before_cache:
   # remove all the artifacts (JAR, ZIP) that are installed in local repo because of mvn deploy

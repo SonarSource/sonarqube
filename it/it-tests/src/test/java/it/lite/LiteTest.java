@@ -19,8 +19,6 @@
  */
 package it.lite;
 
-import com.codeborne.selenide.CollectionCondition;
-import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -33,13 +31,8 @@ import org.sonarqube.ws.client.component.TreeWsRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
-import pageobjects.Navigation;
-import pageobjects.RuleItem;
-import pageobjects.RulesPage;
 import util.ItUtils;
 
-import static com.codeborne.selenide.Condition.hasText;
-import static com.codeborne.selenide.Condition.or;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,21 +98,5 @@ public class LiteTest {
     tree.getComponentsList().forEach(c -> {
       assertThat(c.getMeasuresList()).extracting(m -> m.getMetric()).containsOnly("lines", "ncloc");
     });
-  }
-
-  @Test
-  public void open_page_rules() {
-    RulesPage rulesPage = Navigation.get(ORCHESTRATOR)
-      .openHomepage()
-      .clickOnRules();
-
-    // wait for rules to be displayed
-    rulesPage.getRules().shouldHave(CollectionCondition.sizeGreaterThan(0));
-
-    assertThat(rulesPage.getTotal()).isGreaterThan(0);
-    for (RuleItem ruleItem : rulesPage.getRulesAsItems()) {
-      ruleItem.getTitle().should(Condition.visible);
-      ruleItem.getMetadata().should(or("have type", hasText("Bug"), hasText("Code Smell"), hasText("Vulnerability")));
-    }
   }
 }

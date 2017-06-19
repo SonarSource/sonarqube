@@ -29,9 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -47,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
@@ -64,8 +63,6 @@ public class ShowActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private ComponentDbTester componentDb = new ComponentDbTester(db);
-
   private WsActionTester ws = new WsActionTester(new ShowAction(userSession, db.getDbClient(), TestComponentFinder.from(db)));
 
   @Test
@@ -78,7 +75,8 @@ public class ShowActionTest {
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
       tuple("6.4", "Analysis date has been added to the response"),
       tuple("6.4", "The field 'id' is deprecated in the response"),
-      tuple("6.4", "The 'visibility' field is added"));
+      tuple("6.4", "The 'visibility' field is added to the response"),
+      tuple("6.5", "Leak period date is added to the response"));
 
     WebService.Param componentId = action.param(PARAM_COMPONENT_ID);
     assertThat(componentId.isRequired()).isFalse();
@@ -125,8 +123,8 @@ public class ShowActionTest {
   @Test
   public void show_with_browse_permission() {
     ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
-    componentDb.insertProjectAndSnapshot(project);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
+    db.components().insertProjectAndSnapshot(project);
+    userSession.logIn().addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest("project-uuid", null);
 
@@ -136,21 +134,22 @@ public class ShowActionTest {
   @Test
   public void show_provided_project() {
     userSession.logIn().setRoot();
-    componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    db.components().insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
 
     ShowWsResponse response = newRequest("project-uuid", null);
 
     assertThat(response.getComponent().getId()).isEqualTo("project-uuid");
     assertThat(response.getComponent().hasAnalysisDate()).isFalse();
+    assertThat(response.getComponent().hasLeakPeriodDate()).isFalse();
   }
 
   @Test
   public void show_with_ancestors_when_not_project() throws Exception {
-    ComponentDto project = componentDb.insertPrivateProject();
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = componentDb.insertComponent(newFileDto(directory));
-    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(null, file.key());
 
@@ -160,9 +159,9 @@ public class ShowActionTest {
 
   @Test
   public void show_without_ancestors_when_project() throws Exception {
-    ComponentDto project = componentDb.insertPrivateProject();
-    componentDb.insertComponent(newModuleDto(project));
-    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertComponent(newModuleDto(project));
+    userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(null, project.key());
 
@@ -172,11 +171,12 @@ public class ShowActionTest {
 
   @Test
   public void show_with_last_analysis_date() throws Exception {
-    ComponentDto project = componentDb.insertPrivateProject();
-    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(1_000_000_000L).setLast(false));
-    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(2_000_000_000L).setLast(false));
-    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
-    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertSnapshots(
+      newAnalysis(project).setCreatedAt(1_000_000_000L).setLast(false),
+      newAnalysis(project).setCreatedAt(2_000_000_000L).setLast(false),
+      newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
+    userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(null, project.key());
 
@@ -184,13 +184,28 @@ public class ShowActionTest {
   }
 
   @Test
+  public void show_with_leak_period_date() throws Exception {
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertSnapshots(
+      newAnalysis(project).setPeriodDate(1_000_000_000L).setLast(false),
+      newAnalysis(project).setPeriodDate(2_000_000_000L).setLast(false),
+      newAnalysis(project).setPeriodDate(3_000_000_000L).setLast(true));
+
+    userSession.addProjectPermission(USER, project);
+
+    ShowWsResponse response = newRequest(null, project.key());
+
+    assertThat(response.getComponent().getLeakPeriodDate()).isNotEmpty().isEqualTo(formatDateTime(new Date(3_000_000_000L)));
+  }
+
+  @Test
   public void show_with_ancestors_and_analysis_date() throws Exception {
-    ComponentDto project = componentDb.insertPrivateProject();
-    componentDb.insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
-    ComponentDto module = componentDb.insertComponent(newModuleDto(project));
-    ComponentDto directory = componentDb.insertComponent(newDirectory(module, "dir"));
-    ComponentDto file = componentDb.insertComponent(newFileDto(directory));
-    userSession.addProjectPermission(UserRole.USER, project);
+    ComponentDto project = db.components().insertPrivateProject();
+    db.components().insertSnapshot(newAnalysis(project).setCreatedAt(3_000_000_000L).setLast(true));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto directory = db.components().insertComponent(newDirectory(module, "dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(directory));
+    userSession.addProjectPermission(USER, project);
 
     ShowWsResponse response = newRequest(null, file.key());
 
@@ -243,7 +258,7 @@ public class ShowActionTest {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
-    componentDb.insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
+    db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
 
     newRequest("project-uuid", null);
   }
@@ -259,8 +274,8 @@ public class ShowActionTest {
   @Test
   public void fail_if_component_is_removed() {
     userSession.logIn().setRoot();
-    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
-    componentDb.insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(db.getDefaultOrganization()));
+    db.components().insertComponent(newFileDto(project).setKey("file-key").setEnabled(false));
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Component key 'file-key' not found");
@@ -281,19 +296,21 @@ public class ShowActionTest {
 
   private void insertJsonExampleComponentsAndSnapshots() {
     OrganizationDto organizationDto = db.organizations().insertForKey("my-org-1");
-    ComponentDto project = componentDb.insertComponent(newPrivateProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
+    ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organizationDto, "AVIF98jgA3Ax6PH2efOW")
       .setKey("com.sonarsource:java-markdown")
       .setName("Java Markdown")
       .setDescription("Java Markdown Project")
       .setQualifier(Qualifiers.PROJECT)
       .setTagsString("language, plugin"));
-    db.getDbClient().snapshotDao().insert(db.getSession(), newAnalysis(project).setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime()));
+    db.components().insertSnapshot(project, snapshot -> snapshot
+      .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime())
+      .setPeriodDate(parseDateTime("2017-01-01T11:39:03+0100").getTime()));
     ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
       .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setName("src/main/java/com/sonarsource/markdown/impl")
       .setQualifier(Qualifiers.DIRECTORY);
-    componentDb.insertComponent(directory);
-    componentDb.insertComponent(
+    db.components().insertComponent(directory);
+    db.components().insertComponent(
       newFileDto(directory, directory, "AVIF-FffA3Ax6PH2efPD")
         .setKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl/Rule.java")
         .setName("Rule.java")

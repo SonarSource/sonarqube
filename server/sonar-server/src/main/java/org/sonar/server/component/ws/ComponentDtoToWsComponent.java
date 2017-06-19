@@ -65,7 +65,11 @@ class ComponentDtoToWsComponent {
     setNullable(emptyToNull(dto.description()), wsComponent::setDescription);
     setNullable(emptyToNull(dto.language()), wsComponent::setLanguage);
     setTags(dto, wsComponent);
-    lastAnalysis.ifPresent(analysis -> wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt())));
+    lastAnalysis.ifPresent(
+      analysis -> {
+        wsComponent.setAnalysisDate(formatDateTime(analysis.getCreatedAt()));
+        setNullable(analysis.getPeriodDate(), leak -> wsComponent.setLeakPeriodDate(formatDateTime(leak)));
+      });
     if (QUALIFIERS_WITH_VISIBILITY.contains(dto.qualifier())) {
       wsComponent.setVisibility(Visibility.getLabel(dto.isPrivate()));
     }

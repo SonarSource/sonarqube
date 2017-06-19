@@ -120,7 +120,7 @@ public class BuiltInQProfileInsertImplTest {
   }
 
   @Test
-  public void flag_profile_as_default_on_organizations_if_declared_as_default_by_api() {
+  public void flag_profile_as_default_on_organization_if_declared_as_default_by_api() {
     OrganizationDto org = db.organizations().insert();
     RulesProfile apiProfile = RulesProfile.create("the name", "xoo");
     apiProfile.setDefaultProfile(true);
@@ -134,7 +134,23 @@ public class BuiltInQProfileInsertImplTest {
   }
 
   @Test
-  public void dont_flag_profile_as_default_on_organizations_if_not_declared_as_default_by_api() {
+  public void existing_default_profile_in_organization_must_not_be_changed() {
+    RulesProfile apiProfile = RulesProfile.create("the name", "xoo");
+    apiProfile.setDefaultProfile(true);
+    BuiltInQProfile builtIn = builtInQProfileRepository.create(apiProfile);
+
+    OrganizationDto org = db.organizations().insert();
+    QProfileDto currentDefault = db.qualityProfiles().insert(org, p -> p.setLanguage(apiProfile.getLanguage()));
+    db.qualityProfiles().setAsDefault(currentDefault);
+
+    call(builtIn);
+
+    QProfileDto defaultProfile = db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, apiProfile.getLanguage());
+    assertThat(defaultProfile.getKee()).isEqualTo(currentDefault.getKee());
+  }
+
+  @Test
+  public void dont_flag_profile_as_default_on_organization_if_not_declared_as_default_by_api() {
     OrganizationDto org = db.organizations().insert();
     RulesProfile apiProfile = RulesProfile.create("the name", "xoo");
     apiProfile.setDefaultProfile(false);

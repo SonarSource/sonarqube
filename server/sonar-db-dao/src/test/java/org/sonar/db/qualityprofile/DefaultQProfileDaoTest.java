@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultQProfileDaoTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE).setDisableDefaultOrganization(true);
 
   private DbSession dbSession = dbTester.getSession();
   private DefaultQProfileDao underTest = dbTester.getDbClient().defaultQProfileDao();
@@ -114,6 +114,18 @@ public class DefaultQProfileDaoTest {
     assertThat(underTest.isDefault(dbSession, org.getUuid(), profile1.getKee())).isTrue();
     assertThat(underTest.isDefault(dbSession, org.getUuid(), profile2.getKee())).isFalse();
     assertThat(underTest.isDefault(dbSession, org.getUuid(), "does_not_exist")).isFalse();
+  }
+
+  @Test
+  public void selectUuidsOfOrganizationsWithoutDefaultProfile() {
+    OrganizationDto org1 = dbTester.organizations().insert();
+    OrganizationDto org2 = dbTester.organizations().insert();
+    QProfileDto profileInOrg1 = dbTester.qualityProfiles().insert(org1, p -> p.setLanguage("java"));
+    QProfileDto profileInOrg2 = dbTester.qualityProfiles().insert(org2, p -> p.setLanguage("java"));
+    dbTester.qualityProfiles().setAsDefault(profileInOrg1);
+
+    //assertThat(underTest.selectUuidsOfOrganizationsWithoutDefaultProfile(dbSession, "java")).containsExactly(org2.getUuid());
+    assertThat(underTest.selectUuidsOfOrganizationsWithoutDefaultProfile(dbSession, "js")).containsExactlyInAnyOrder(org1.getUuid(), org2.getUuid());
   }
 
   private void assertThatIsDefault(OrganizationDto org, QProfileDto profile) {

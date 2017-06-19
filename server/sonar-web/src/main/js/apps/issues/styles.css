@@ -167,7 +167,7 @@
   padding-bottom: 8px;
 }
 
-.issues .search-navigator-facet-box:not(.hidden) + .search-navigator-facet-box {
+.issues .search-navigator-facet-box:not(.hidden):not(.leak-facet-box) + .search-navigator-facet-box:not(.leak-facet-box) {
   border-top: none;
 }
 

@@ -3,21 +3,6 @@ set -euo pipefail
 
 ./.travis/setup_ramdisk.sh
 
-function installPhantomJs {
-  echo "Setup PhantomJS 2.1"
-  mkdir -p ~/phantomjs
-  pushd ~/phantomjs > /dev/null
-  if [ ! -d "phantomjs-2.1.1-linux-x86_64" ]; then
-    echo "Download PhantomJS"
-    wget https://repox.sonarsource.com/public-3rd-parties/phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O phantomjs-2.1.1-linux-x86_64.tar.bz2
-    tar -xf phantomjs-2.1.1-linux-x86_64.tar.bz2
-    rm phantomjs-2.1.1-linux-x86_64.tar.bz2
-  fi
-  popd > /dev/null
-  export PHANTOMJS_HOME=~/phantomjs/phantomjs-2.1.1-linux-x86_64
-  export PATH=$PHANTOMJS_HOME/bin:$PATH
-}
-
 #
 # A (too) old version of JDK8 is installed by default on Travis.
 # This method is preferred over Travis apt oracle-java8-installer because
@@ -181,8 +166,7 @@ BUILD)
     mvn install $MAVEN_ARGS -Dsource.skip=true
   fi
 
-  installPhantomJs
-  ./run-integration-tests.sh "Lite" "" -Dorchestrator.browser=phantomjs
+  ./run-integration-tests.sh "Lite" ""
   ;;
 
 WEB_TESTS)

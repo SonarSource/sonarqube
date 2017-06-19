@@ -32,12 +32,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NotFoundException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
+import pageobjects.SelenideConfig;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
@@ -49,15 +51,14 @@ class SeleneseRunner {
 
   private Map<String, String> variables;
   private String baseUrl;
-  private SeleniumDriver driver;
+  private WebDriver driver;
 
   void runOn(Selenese selenese, Orchestrator orchestrator) {
     this.variables = new HashMap<>();
     this.baseUrl = orchestrator.getServer().getUrl();
-    this.driver = Browser.FIREFOX.getDriverForThread();
+    this.driver = SelenideConfig.configure(orchestrator);
 
     driver.manage().deleteAllCookies();
-    driver.manage().window().setSize(new Dimension(1280, 1024));
 
     for (File file : selenese.getHtmlTests()) {
       System.out.println();
@@ -82,7 +83,7 @@ class SeleneseRunner {
     }
   }
 
-  private static void analyzeLog(SeleniumDriver driver) {
+  private static void analyzeLog(WebDriver driver) {
     LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
     for (LogEntry entry : logEntries) {
       System.out.println(new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
@@ -293,7 +294,7 @@ class SeleneseRunner {
     _30_SECONDS.execute(new Runnable() {
       @Override
       public void run() {
-        Object result = driver.executeScript("return " + expression);
+        Object result = ((JavascriptExecutor) driver).executeScript("return " + expression);
         if (result == null) {
           throw new NotFoundException(expression);
         }

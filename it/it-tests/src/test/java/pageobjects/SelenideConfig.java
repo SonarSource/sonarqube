@@ -20,18 +20,19 @@
 package pageobjects;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.stream.Collectors;
+import org.openqa.selenium.WebDriver;
 
 import static java.util.Arrays.stream;
 
-class SelenideConfig {
+public class SelenideConfig {
 
   private enum Browser {
     firefox("(v46 and lower)"),
-    marionette("(recent Firefox)"),
-    chrome("(require Chromedriver)"),
-    phantomjs("(headless)");
+    marionette("(recent Firefox, require Geckodriver)"),
+    chrome("(require Chromedriver)");
 
     private final String label;
 
@@ -49,7 +50,7 @@ class SelenideConfig {
     }
   }
 
-  public static void configure(Orchestrator orchestrator) {
+  public static WebDriver configure(Orchestrator orchestrator) {
     String browserKey = orchestrator.getConfiguration().getString("orchestrator.browser", Browser.firefox.name());
     Browser browser = Browser.of(browserKey);
     Configuration.browser = browser.name();
@@ -59,6 +60,11 @@ class SelenideConfig {
     Configuration.screenshots = true;
     Configuration.captureJavascriptErrors = true;
     Configuration.savePageSource = true;
+    Configuration.browserSize = "1280x1024";
+    return getWebDriver();
   }
 
+  static WebDriver getWebDriver() {
+    return WebDriverRunner.getWebDriver();
+  }
 }
