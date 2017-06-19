@@ -4,6 +4,7 @@ install: true
 jdk: oraclejdk8
 script: ./travis.sh
 dist: trusty
+group: edge
 
 env:
   - TARGET=BUILD
