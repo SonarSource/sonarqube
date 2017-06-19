@@ -1,44 +1,9 @@
-.projects-page-actions {
-  margin-bottom: 0;
-}
-
 .projects-page-side {
   transition: top 150ms ease-out;
 }
 
 .projects-page-content {
   transition: padding-top 150ms ease-out;
-}
-
-.projects-topbar {
-  position: fixed;
-  width: 100%;
-  z-index: 100;
-}
-
-.projects-topbar-actions {
-  box-sizing: border-box;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -50px;
-  z-index: 50;
-  flex-grow: 0.000001;
-  border-bottom: 1px solid #e6e6e6;
-  background-color: #fff;
-  transition: top 150ms ease-out;
-}
-
-.projects-topbar-actions.open {
-  top: 0;
-}
-
-.projects-topbar-actions-inner {
-  position: relative;
-  margin: auto;
-  padding: 0 20px;
-  min-width: 1040px;
-  max-width: 1280px;
 }
 
 .projects-topbar-items {
@@ -84,16 +49,6 @@
   left: 80px;
   line-height: 24px;
   pointer-events: none;
-}
-
-.projects-topbar-button {
-  position: absolute;
-  right: 20px;
-  top: 10px;
-}
-
-.projects-sidebar {
-  width: 260px;
 }
 
 .projects-list .page-actions {
