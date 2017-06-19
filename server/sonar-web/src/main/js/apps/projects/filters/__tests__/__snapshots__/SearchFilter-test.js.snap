@@ -1,13 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display a help message when there is less than 2 characters 1`] = `
-<div
-  className="projects-facet-search"
-  data-key="search"
->
+<div>
   <input
     autoComplete="off"
-    className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
@@ -22,13 +18,9 @@ exports[`should display a help message when there is less than 2 characters 1`] 
 `;
 
 exports[`should display a help message when there is less than 2 characters 2`] = `
-<div
-  className="projects-facet-search"
-  data-key="search"
->
+<div>
   <input
     autoComplete="off"
-    className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
@@ -38,13 +30,9 @@ exports[`should display a help message when there is less than 2 characters 2`] 
 `;
 
 exports[`should render correctly without any search query 1`] = `
-<div
-  className="projects-facet-search"
-  data-key="search"
->
+<div>
   <input
     autoComplete="off"
-    className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
@@ -54,13 +42,9 @@ exports[`should render correctly without any search query 1`] = `
 `;
 
 exports[`should render with a search query 1`] = `
-<div
-  className="projects-facet-search"
-  data-key="search"
->
+<div>
   <input
     autoComplete="off"
-    className="input-super-large"
     onChange={[Function]}
     placeholder="projects.search"
     type="search"
