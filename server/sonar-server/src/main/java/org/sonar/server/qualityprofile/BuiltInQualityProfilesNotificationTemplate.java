@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification;
+package org.sonar.server.qualityprofile;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.notifications.Notification;
+import org.sonar.plugins.emailnotifications.api.EmailMessage;
+import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.BUILT_IN_QUALITY_PROFILES;
 
-public class NotificationModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new NotificationModule().configure(container);
-    assertThat(container.size()).isEqualTo(7 + 2);
+public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
+
+  @Override
+  public EmailMessage format(Notification notification) {
+    if (!BUILT_IN_QUALITY_PROFILES.equals(notification.getType())) {
+      return null;
+    }
+    // And finally return the email that will be sent
+    return new EmailMessage()
+      .setMessageId(BUILT_IN_QUALITY_PROFILES)
+      .setSubject("empty")
+      .setMessage("This is a test message from SonarQube");
   }
+
 }

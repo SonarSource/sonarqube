@@ -17,18 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification;
+package org.sonar.foo;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.Plugin;
+import org.sonar.foo.rule.FooBasicProfile;
+import org.sonar.foo.rule.FooRulesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Plugin entry-point, as declared in pom.xml.
+ */
+public class FooPlugin implements Plugin {
 
-public class NotificationModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new NotificationModule().configure(container);
-    assertThat(container.size()).isEqualTo(7 + 2);
+  @Override
+  public void define(Context context) {
+    context.addExtensions(
+      Foo.class,
+      FooRulesDefinition.class,
+      FooBasicProfile.class);
   }
+
 }

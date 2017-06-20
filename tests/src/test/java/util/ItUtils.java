@@ -146,7 +146,6 @@ public class ItUtils {
    * Locate the artifact of a fake plugin stored in it/plugins.
    *
    * @param dirName the directory of it/plugins, for example "sonar-fake-plugin".
-   *                     It assumes that version is 1.0-SNAPSHOT
    */
   public static FileLocation pluginArtifact(String dirName) {
     return FileLocation.byWildcardMavenFilename(new File("plugins/" + dirName + "/target"), dirName + "-*.jar");
@@ -495,6 +494,7 @@ public class ItUtils {
   public static void expectMissingError(Runnable runnable) {
     expectHttpError(404, runnable);
   }
+
   /**
    * Missing permissions
    */

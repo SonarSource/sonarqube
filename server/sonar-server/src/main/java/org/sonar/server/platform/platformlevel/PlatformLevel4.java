@@ -84,6 +84,7 @@ import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.notification.NotificationModule;
+import org.sonar.server.notification.ws.NotificationWsModule;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.OrganizationCreationImpl;
 import org.sonar.server.organization.OrganizationValidationImpl;
@@ -434,6 +435,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Notifications
       NotificationModule.class,
+      NotificationWsModule.class,
       EmailsWsModule.class,
 
       // Tests

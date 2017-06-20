@@ -20,6 +20,7 @@
 package org.sonar.db.permission;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
@@ -27,6 +28,7 @@ import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 /**
  * The SQL requests used to verify authorization (the permissions
@@ -161,6 +163,10 @@ public class AuthorizationDao implements Dao {
       userIds,
       partitionOfIds -> mapper(dbSession).keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds),
       partitionSize -> partitionSize / 3);
+  }
+
+  public List<String> selectQualityProfileAdministratorLogins(DbSession dbSession) {
+    return mapper(dbSession).selectQualityProfileAdministratorLogins(ADMINISTER_QUALITY_PROFILES.getKey());
   }
 
   private static AuthorizationMapper mapper(DbSession dbSession) {
