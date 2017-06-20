@@ -1,0 +1,54 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto3";
+
+package sonarqube.ws.duplication;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "WsDuplications";
+option optimize_for = SPEED;
+
+// WS api/duplications/show
+message ShowResponse {
+  repeated Duplication duplications = 1;
+  map<string,File> files = 2;
+
+}
+
+message Duplication {
+  repeated Block blocks = 1;
+}
+
+message Block {
+  int32 from = 1;
+  int32 size = 2;
+  string _ref = 3;
+}
+
+message File {
+  string key = 1;
+  string name = 2;
+  string uuid = 3;
+  string project = 4;
+  string projectUuid = 5;
+  string projectName = 6;
+  string subProject = 7;
+  string subProjectUuid = 8;
+  string subProjectName = 9;
+}

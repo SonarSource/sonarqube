@@ -47,7 +47,7 @@ import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
+import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.email.ws.EmailsWsModule;
@@ -430,7 +430,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Duplications
       DuplicationsParser.class,
       DuplicationsWs.class,
-      DuplicationsJsonWriter.class,
+      ShowResponseBuilder.class,
       org.sonar.server.duplication.ws.ShowAction.class,
 
       // text

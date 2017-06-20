@@ -24,46 +24,52 @@ import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonarqube.ws.WsDuplications;
+import org.sonarqube.ws.WsDuplications.Block;
+import org.sonarqube.ws.WsDuplications.ShowResponse;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.sonar.core.util.Protobuf.setNullable;
 
-@ServerSide
-public class DuplicationsJsonWriter {
+public class ShowResponseBuilder {
 
   private final ComponentDao componentDao;
 
-  public DuplicationsJsonWriter(ComponentDao componentDao) {
-    this.componentDao = componentDao;
+  public ShowResponseBuilder(DbClient dbClient) {
+    this.componentDao = dbClient.componentDao();
   }
 
   @VisibleForTesting
-  void write(List<DuplicationsParser.Block> blocks, JsonWriter json, DbSession session) {
+  ShowResponseBuilder(ComponentDao componentDao) {
+    this.componentDao = componentDao;
+  }
+
+  ShowResponse build(List<DuplicationsParser.Block> blocks, DbSession session) {
+    ShowResponse.Builder response = ShowResponse.newBuilder();
     Map<String, String> refByComponentKey = newHashMap();
-    json.name("duplications").beginArray();
-    writeDuplications(blocks, refByComponentKey, json);
-    json.endArray();
+    blocks.stream()
+      .map(block -> toWsDuplication(block, refByComponentKey))
+      .forEach(response::addDuplications);
 
-    json.name("files").beginObject();
-    writeFiles(refByComponentKey, json, session);
-    json.endObject();
+    writeFiles(response, refByComponentKey, session);
+
+    return response.build();
   }
 
-  private static void writeDuplications(List<DuplicationsParser.Block> blocks, Map<String, String> refByComponentKey, JsonWriter json) {
-    for (DuplicationsParser.Block block : blocks) {
-      json.beginObject().name("blocks").beginArray();
-      for (DuplicationsParser.Duplication duplication : block.getDuplications()) {
-        writeDuplication(refByComponentKey, duplication, json);
-      }
-      json.endArray().endObject();
-    }
+  private static WsDuplications.Duplication.Builder toWsDuplication(DuplicationsParser.Block block, Map<String, String> refByComponentKey) {
+    WsDuplications.Duplication.Builder wsDuplication = WsDuplications.Duplication.newBuilder();
+    block.getDuplications().stream()
+      .map(d -> toWsBlock(refByComponentKey, d))
+      .forEach(wsDuplication::addBlocks);
+
+    return wsDuplication;
   }
 
-  private static void writeDuplication(Map<String, String> refByComponentKey, DuplicationsParser.Duplication duplication, JsonWriter json) {
+  private static Block.Builder toWsBlock(Map<String, String> refByComponentKey, DuplicationsParser.Duplication duplication) {
     String ref = null;
     ComponentDto componentDto = duplication.file();
     if (componentDto != null) {
@@ -75,52 +81,52 @@ public class DuplicationsJsonWriter {
       }
     }
 
-    json.beginObject();
-    json.prop("from", duplication.from());
-    json.prop("size", duplication.size());
-    json.prop("_ref", ref);
-    json.endObject();
+    Block.Builder block = Block.newBuilder();
+    block.setFrom(duplication.from());
+    block.setSize(duplication.size());
+    setNullable(ref, block::setRef);
+
+    return block;
   }
 
-  private void writeFiles(Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
+  private static WsDuplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
+    WsDuplications.File.Builder wsFile = WsDuplications.File.newBuilder();
+    wsFile.setKey(file.key());
+    wsFile.setUuid(file.uuid());
+    wsFile.setName(file.longName());
+
+    if (project != null) {
+      wsFile.setProject(project.key());
+      wsFile.setProjectUuid(project.uuid());
+      wsFile.setProjectName(project.longName());
+
+      // Do not return sub project if sub project and project are the same
+      boolean displaySubProject = subProject != null && !subProject.uuid().equals(project.uuid());
+      if (displaySubProject) {
+        wsFile.setSubProject(subProject.key());
+        wsFile.setSubProjectUuid(subProject.uuid());
+        wsFile.setSubProjectName(subProject.longName());
+      }
+    }
+
+    return wsFile.build();
+  }
+
+  private void writeFiles(ShowResponse.Builder response, Map<String, String> refByComponentKey, DbSession session) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
-    Map<String, ComponentDto> parentProjectsByUuid = newHashMap();
+    Map<String, ComponentDto> parentModulesByUuid = newHashMap();
+    Map<String, WsDuplications.File> filesByRef = response.getMutableFiles();
+
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
       String ref = entry.getValue();
       Optional<ComponentDto> fileOptional = componentDao.selectByKey(session, componentKey);
       if (fileOptional.isPresent()) {
         ComponentDto file = fileOptional.get();
-        json.name(ref).beginObject();
 
-        addFile(json, file);
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
-        ComponentDto parentProject = getParentProject(file.getRootUuid(), parentProjectsByUuid, session);
-        addProject(json, project, parentProject);
-
-        json.endObject();
-      }
-    }
-  }
-
-  private static void addFile(JsonWriter json, ComponentDto file) {
-    json.prop("key", file.key());
-    json.prop("uuid", file.uuid());
-    json.prop("name", file.longName());
-  }
-
-  private static void addProject(JsonWriter json, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
-    if (project != null) {
-      json.prop("project", project.key());
-      json.prop("projectUuid", project.uuid());
-      json.prop("projectName", project.longName());
-
-      // Do not return sub project if sub project and project are the same
-      boolean displaySubProject = subProject != null && !subProject.uuid().equals(project.uuid());
-      if (displaySubProject) {
-        json.prop("subProject", subProject.key());
-        json.prop("subProjectUuid", subProject.uuid());
-        json.prop("subProjectName", subProject.longName());
+        ComponentDto parentModule = getParentProject(file.getRootUuid(), parentModulesByUuid, session);
+        filesByRef.put(ref, toWsFile(file, project, parentModule));
       }
     }
   }

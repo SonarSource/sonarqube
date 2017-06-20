@@ -19,16 +19,13 @@
  */
 package org.sonar.server.duplication.ws;
 
-import com.google.common.io.Resources;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,30 +36,34 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-public class ShowAction implements RequestHandler {
+public class ShowAction implements DuplicationsWsAction {
 
   private final DbClient dbClient;
   private final DuplicationsParser parser;
-  private final DuplicationsJsonWriter duplicationsJsonWriter;
+  private final ShowResponseBuilder responseBuilder;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public ShowAction(DbClient dbClient, DuplicationsParser parser,
-    DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession, ComponentFinder componentFinder) {
+  public ShowAction(DbClient dbClient, DuplicationsParser parser, ShowResponseBuilder responseBuilder, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.parser = parser;
-    this.duplicationsJsonWriter = duplicationsJsonWriter;
+    this.responseBuilder = responseBuilder;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
       .setDescription("Get duplications. Require Browse permission on file's project")
       .setSince("4.4")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-show.json"));
+      .setResponseExample(getClass().getResource("show-example.json"));
+
+    action.setChangelog(
+      new Change("6.5", "The fields 'uuid', 'projectUuid', 'subProjectUuid' are deprecated in the response."));
 
     action
       .createParam("key")
@@ -71,21 +72,20 @@ public class ShowAction implements RequestHandler {
 
     action
       .createParam("uuid")
-      .setDescription("File UUID")
+      .setDeprecatedSince("6.5")
+      .setDescription("File ID. If provided, 'key' must not be provided.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    try (DbSession dbSession = dbClient.openSession(false);
-         JsonWriter json = response.newJsonWriter()) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param("uuid"), request.param("key"), UUID_AND_KEY);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
-      json.beginObject();
       String duplications = findDataFromComponent(dbSession, component);
       List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, dbSession);
-      duplicationsJsonWriter.write(blocks, json, dbSession);
-      json.endObject();
+
+      writeProtobuf(responseBuilder.build(blocks, dbSession), request, response);
     }
   }
 
@@ -95,7 +95,8 @@ public class ShowAction implements RequestHandler {
       .setComponentUuid(component.uuid())
       .setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY)
       .build();
-    Optional<MeasureDto> measure = dbClient.measureDao().selectSingle(dbSession, query);
-    return measure.isPresent() ? measure.get().getData() : null;
+    return dbClient.measureDao().selectSingle(dbSession, query)
+      .map(MeasureDto::getData)
+      .orElse(null);
   }
 }

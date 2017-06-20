@@ -28,14 +28,19 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ItUtils;
 import util.issue.IssueRule;
 
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
@@ -51,6 +56,8 @@ public class DuplicationsTest {
   @ClassRule
   public static final IssueRule issueRule = IssueRule.from(orchestrator);
 
+  private static WsClient adminWsClient;
+
   @BeforeClass
   public static void analyzeProjects() {
     orchestrator.resetData();
@@ -62,11 +69,44 @@ public class DuplicationsTest {
     // Set minimum tokens to a big value in order to not get duplications
     setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", "1000");
     analyzeProject(WITHOUT_ENOUGH_TOKENS);
+
+    adminWsClient = newAdminWsClient(orchestrator);
   }
 
   @AfterClass
   public static void resetProperties() throws Exception {
     setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", null);
+  }
+
+  private static Map<String, Double> getMeasures(String key) {
+    return getMeasuresAsDoubleByMetricKey(orchestrator, key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
+  }
+
+  private static void verifyDuplicationMeasures(String componentKey, int duplicatedBlocks, int duplicatedLines, int duplicatedFiles, double duplicatedLinesDensity) {
+    Map<String, Double> measures = getMeasures(componentKey);
+    assertThat(measures.get("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
+    assertThat(measures.get("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
+    assertThat(measures.get("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
+    assertThat(measures.get("duplicated_lines_density")).isEqualTo(duplicatedLinesDensity);
+  }
+
+  private static void analyzeProject(String projectKey, String... additionalProperties) {
+    orchestrator.getServer().provisionProject(projectKey, projectKey);
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "xoo-duplication-profile");
+
+    runProjectAnalysis(orchestrator, "duplications/file-duplications",
+      ObjectArrays.concat(
+        new String[] {
+          "sonar.projectKey", projectKey,
+          "sonar.projectName", projectKey
+        },
+        additionalProperties, String.class));
+  }
+
+  private static void verifyWsResultOnDuplicateFile(String fileKey, String ws, String expectedFilePath) throws Exception {
+    String duplication = orchestrator.getServer().adminWsClient().get(ws, "key", fileKey);
+    assertEquals(IOUtils.toString(CrossProjectDuplicationsTest.class.getResourceAsStream("/duplication/DuplicationsTest/" + expectedFilePath), "UTF-8"), duplication,
+      false);
   }
 
   @Test
@@ -137,35 +177,13 @@ public class DuplicationsTest {
       "api/duplications/show", "duplications_show-expected.json");
   }
 
-  private static Map<String, Double> getMeasures(String key) {
-    return getMeasuresAsDoubleByMetricKey(orchestrator, key, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
-  }
+  // SONAR-9441
+  @Test
+  public void fail_properly_when_no_parameter() {
+    WsResponse result = adminWsClient.wsConnector().call(new GetRequest("api/duplications/show"));
 
-  private static void verifyDuplicationMeasures(String componentKey, int duplicatedBlocks, int duplicatedLines, int duplicatedFiles, double duplicatedLinesDensity) {
-    Map<String, Double> measures = getMeasures(componentKey);
-    assertThat(measures.get("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
-    assertThat(measures.get("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
-    assertThat(measures.get("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
-    assertThat(measures.get("duplicated_lines_density")).isEqualTo(duplicatedLinesDensity);
-  }
-
-  private static void analyzeProject(String projectKey, String... additionalProperties) {
-    orchestrator.getServer().provisionProject(projectKey, projectKey);
-    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "xoo-duplication-profile");
-
-    runProjectAnalysis(orchestrator, "duplications/file-duplications",
-      ObjectArrays.concat(
-        new String[] {
-          "sonar.projectKey", projectKey,
-          "sonar.projectName", projectKey
-        },
-        additionalProperties, String.class));
-  }
-
-  private static void verifyWsResultOnDuplicateFile(String fileKey, String ws, String expectedFilePath) throws Exception {
-    String duplication = orchestrator.getServer().adminWsClient().get(ws, "key", fileKey);
-    assertEquals(IOUtils.toString(CrossProjectDuplicationsTest.class.getResourceAsStream("/duplication/DuplicationsTest/" + expectedFilePath), "UTF-8"), duplication,
-      false);
+    assertThat(result.code()).isEqualTo(HTTP_BAD_REQUEST);
+    assertThat(result.content()).contains("Either 'uuid' or 'key' must be provided, not both");
   }
 
 }

@@ -19,67 +19,63 @@
  */
 package org.sonar.server.duplication.ws;
 
-import com.google.common.base.Optional;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.test.JsonAssert;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DuplicationsJsonWriterTest {
+public class ShowResponseBuilderTest {
 
-  @Mock
-  ComponentDao componentDao;
+  @Rule
+  public DbTester db = DbTester.create();
+  private DbSession dbSession = db.getSession();
+  private ComponentDao componentDao = spy(db.getDbClient().componentDao());
 
-  @Mock
-  DbSession session;
+  private ComponentDto project;
+  private OrganizationDto organization = OrganizationTesting.newOrganizationDto();
 
-  DuplicationsJsonWriter writer;
-
-  ComponentDto project;
+  private ShowResponseBuilder underTest = new ShowResponseBuilder(componentDao);
 
   @Before
   public void setUp() {
-    project = ComponentTesting.newPrivateProjectDto(OrganizationTesting.newOrganizationDto())
-      .setId(1L)
+    project = newPrivateProjectDto(organization)
       .setName("SonarQube")
       .setLongName("SonarQube")
       .setKey("org.codehaus.sonar:sonar");
-
-    writer = new DuplicationsJsonWriter(componentDao);
+    db.components().insertComponent(project);
   }
 
   @Test
   public void write_duplications() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
+    ComponentDto file1 = ComponentTesting.newFileDto(project, null).setKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
+    ComponentDto file2 = ComponentTesting.newFileDto(project, null).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
+    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setUuid("uuid_5").setKey("org.codehaus.sonar:sonar-ws-client")
+      .setLongName("SonarQube :: Web Service Client"));
 
-    when(componentDao.selectByKey(session, key1)).thenReturn(Optional.of(file1));
-    when(componentDao.selectByKey(session, key2)).thenReturn(Optional.of(file2));
-    when(componentDao.selectByUuid(session, "uuid_5")).thenReturn(Optional.of(
-      new ComponentDto().setUuid("uuid_5").setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client")));
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(Optional.of(project));
+    db.components().insertComponent(file1);
+    db.components().insertComponent(file2);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -121,10 +117,10 @@ public class DuplicationsJsonWriterTest {
         "  }" +
         "}");
 
-    verify(componentDao, times(2)).selectByKey(eq(session), anyString());
+    verify(componentDao, times(2)).selectByKey(eq(dbSession), anyString());
     // Verify call to dao is cached when searching for project / sub project
-    verify(componentDao, times(1)).selectByUuid(eq(session), eq(project.uuid()));
-    verify(componentDao, times(1)).selectByUuid(eq(session), eq("uuid_5"));
+    verify(componentDao, times(1)).selectByUuid(eq(dbSession), eq(project.uuid()));
+    verify(componentDao, times(1)).selectByUuid(eq(dbSession), eq("uuid_5"));
   }
 
   @Test
@@ -134,10 +130,8 @@ public class DuplicationsJsonWriterTest {
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
     ComponentDto file2 = ComponentTesting.newFileDto(project, null).setId(11L).setKey(key2).setLongName("PropertyUpdateQuery");
 
-    when(componentDao.selectByKey(session, key1)).thenReturn(Optional.of(file1));
-    when(componentDao.selectByKey(session, key2)).thenReturn(Optional.of(file2));
-    when(componentDao.selectById(eq(session), anyLong())).thenReturn(Optional.<ComponentDto>absent());
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(Optional.of(project));
+    db.components().insertComponent(file1);
+    db.components().insertComponent(file2);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -180,10 +174,7 @@ public class DuplicationsJsonWriterTest {
   public void write_duplications_with_a_removed_component() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
     ComponentDto file1 = ComponentTesting.newFileDto(project, null).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
-
-    when(componentDao.selectByKey(session, key1)).thenReturn(Optional.of(file1));
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(Optional.of(project));
-    when(componentDao.selectById(eq(session), anyLong())).thenReturn(Optional.<ComponentDto>absent());
+    db.components().insertComponent(file1);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
 
@@ -220,15 +211,13 @@ public class DuplicationsJsonWriterTest {
 
   @Test
   public void write_nothing_when_no_data() {
-    test(Collections.<DuplicationsParser.Block>emptyList(), "{\"duplications\": [], \"files\": {}}");
+    test(Collections.emptyList(), "{\"duplications\": [], \"files\": {}}");
   }
 
   private void test(List<DuplicationsParser.Block> blocks, String expected) {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
-    jsonWriter.beginObject();
-    writer.write(blocks, jsonWriter, session);
-    jsonWriter.endObject();
+    ProtobufJsonFormat.write(underTest.build(blocks, dbSession), jsonWriter);
     JsonAssert.assertJson(output.toString()).isSimilarTo(expected);
   }
 

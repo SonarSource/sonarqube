@@ -35,7 +35,7 @@ public class DuplicationsWsTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester tester = new WsTester(new DuplicationsWs(
-    new ShowAction(mock(DbClient.class), mock(DuplicationsParser.class), mock(DuplicationsJsonWriter.class), userSessionRule,
+    new ShowAction(mock(DbClient.class), mock(DuplicationsParser.class), mock(ShowResponseBuilder.class), userSessionRule,
       mock(ComponentFinder.class))));
 
   @Test
