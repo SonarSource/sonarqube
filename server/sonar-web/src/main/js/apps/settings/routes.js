@@ -20,33 +20,25 @@
 const routes = [
   {
     getIndexRoute(_, callback) {
-      require.ensure([], require => {
-        callback(null, { component: require('./components/AppContainer').default });
-      });
+      import('./components/AppContainer').then(i => callback(null, { component: i.default }));
     }
   },
   {
     path: 'licenses',
     getComponent(_, callback) {
-      require.ensure([], require => {
-        callback(null, require('./licenses/LicensesApp').default);
-      });
+      import('./licenses/LicensesApp').then(i => callback(null, i.default));
     }
   },
   {
     path: 'encryption',
     getComponent(_, callback) {
-      require.ensure([], require => {
-        callback(null, require('./encryption/EncryptionAppContainer').default);
-      });
+      import('./encryption/EncryptionAppContainer').then(i => callback(null, i.default));
     }
   },
   {
     path: 'server_id',
     getComponent(_, callback) {
-      require.ensure([], require => {
-        callback(null, require('./serverId/ServerIdAppContainer').default);
-      });
+      import('./serverId/ServerIdAppContainer').then(i => callback(null, i.default));
     }
   }
 ];

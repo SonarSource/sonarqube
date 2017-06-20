@@ -22,51 +22,41 @@ import { withRouter } from 'react-router';
 const routes = [
   {
     getComponent(state, callback) {
-      require.ensure([], require => {
-        const AppContainer = require('./components/AppContainer').default;
+      import('./components/AppContainer').then(i => i.default).then(AppContainer => {
         if (state.params.organizationKey) {
           callback(null, AppContainer);
         } else {
-          const forSingleOrganization = require('../organizations/forSingleOrganization').default;
-          callback(null, forSingleOrganization(AppContainer));
+          import('../organizations/forSingleOrganization')
+            .then(i => i.default)
+            .then(forSingleOrganization => callback(null, forSingleOrganization(AppContainer)));
         }
       });
     },
     getIndexRoute(_, callback) {
-      require.ensure([], require => {
-        callback(null, { component: require('./home/HomeContainer').default });
-      });
+      import('./home/HomeContainer').then(i => callback(null, { component: i.default }));
     },
     childRoutes: [
       {
         getComponent(_, callback) {
-          require.ensure([], require => {
-            callback(null, withRouter(require('./components/ProfileContainer').default));
-          });
+          import('./components/ProfileContainer').then(i => callback(null, withRouter(i.default)));
         },
         childRoutes: [
           {
             path: 'show',
             getComponent(_, callback) {
-              require.ensure([], require => {
-                callback(null, require('./details/ProfileDetails').default);
-              });
+              import('./details/ProfileDetails').then(i => callback(null, i.default));
             }
           },
           {
             path: 'changelog',
             getComponent(_, callback) {
-              require.ensure([], require => {
-                callback(null, require('./changelog/ChangelogContainer').default);
-              });
+              import('./changelog/ChangelogContainer').then(i => callback(null, i.default));
             }
           },
           {
             path: 'compare',
             getComponent(_, callback) {
-              require.ensure([], require => {
-                callback(null, require('./compare/ComparisonContainer').default);
-              });
+              import('./compare/ComparisonContainer').then(i => callback(null, i.default));
             }
           }
         ]

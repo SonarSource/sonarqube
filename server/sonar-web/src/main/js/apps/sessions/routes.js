@@ -21,25 +21,19 @@ const routes = [
   {
     path: 'new',
     getComponent(_, callback) {
-      require.ensure([], require => {
-        callback(null, require('./components/LoginFormContainer').default);
-      });
+      import('./components/LoginFormContainer').then(i => callback(null, i.default));
     }
   },
   {
     path: 'logout',
     getComponent(_, callback) {
-      require.ensure([], require => {
-        callback(null, require('./components/Logout').default);
-      });
+      import('./components/Logout').then(i => callback(null, i.default));
     }
   },
   {
     path: 'unauthorized',
     getComponent(_, callback) {
-      require.ensure([], require => {
-        callback(null, require('./components/Unauthorized').default);
-      });
+      import('./components/Unauthorized').then(i => callback(null, i.default));
     }
   }
 ];

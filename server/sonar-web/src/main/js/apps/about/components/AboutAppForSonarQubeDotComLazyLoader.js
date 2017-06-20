@@ -29,11 +29,9 @@ export default class AboutAppForSonarQubeDotComLazyLoader extends React.PureComp
 
   componentDidMount() {
     if (!this.state.AboutAppForSonarQubeDotCom) {
-      require.ensure([], require => {
-        this.setState({
-          AboutAppForSonarQubeDotCom: require('./AboutAppForSonarQubeDotCom').default
-        });
-      });
+      import('./AboutAppForSonarQubeDotCom').then(({ default: AboutAppForSonarQubeDotCom }) =>
+        this.setState({ AboutAppForSonarQubeDotCom })
+      );
     }
   }
 

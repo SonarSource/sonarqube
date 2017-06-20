@@ -22,13 +22,13 @@ import { saveAll } from '../../helpers/storage';
 const routes = [
   {
     getComponent(_, callback) {
-      require.ensure([], require => callback(null, require('./components/App').default));
+      import('./components/App').then(i => callback(null, i.default));
     },
     childRoutes: [
       {
         getIndexRoute(_, callback) {
-          require.ensure([], require =>
-            callback(null, { component: require('./components/DefaultPageSelector').default })
+          import('./components/DefaultPageSelector').then(i =>
+            callback(null, { component: i.default })
           );
         }
       },
@@ -42,9 +42,7 @@ const routes = [
       {
         path: 'favorite',
         getComponent(_, callback) {
-          require.ensure([], require =>
-            callback(null, require('./components/FavoriteProjectsContainer').default)
-          );
+          import('./components/FavoriteProjectsContainer').then(i => callback(null, i.default));
         }
       }
     ]

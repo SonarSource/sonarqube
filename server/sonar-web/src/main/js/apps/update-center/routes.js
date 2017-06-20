@@ -20,41 +20,33 @@
 const routes = [
   {
     getIndexRoute(_, callback) {
-      require.ensure([], require =>
-        callback(null, { component: require('./components/UpdateCenterAppContainer').default })
+      import('./components/UpdateCenterAppContainer').then(i =>
+        callback(null, { component: i.default })
       );
     }
   },
   {
     path: 'installed',
     getComponent(_, callback) {
-      require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default)
-      );
+      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
     }
   },
   {
     path: 'updates',
     getComponent(_, callback) {
-      require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default)
-      );
+      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
     }
   },
   {
     path: 'available',
     getComponent(_, callback) {
-      require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default)
-      );
+      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
     }
   },
   {
     path: 'system',
     getComponent(_, callback) {
-      require.ensure([], require =>
-        callback(null, require('./components/UpdateCenterAppContainer').default)
-      );
+      import('./components/UpdateCenterAppContainer').then(i => callback(null, i.default));
     }
   }
 ];

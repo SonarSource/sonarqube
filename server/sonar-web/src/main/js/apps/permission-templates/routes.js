@@ -20,12 +20,12 @@
 const routes = [
   {
     getIndexRoute(_, callback) {
-      require.ensure([], require => {
-        const AppContainer = require('./components/AppContainer').default;
-        const forSingleOrganization = require('../organizations/forSingleOrganization').default;
-        const component = forSingleOrganization(AppContainer);
-        callback(null, { component });
-      });
+      Promise.all([
+        import('./components/AppContainer').then(i => i.default),
+        import('../organizations/forSingleOrganization').then(i => i.default)
+      ]).then(([AppContainer, forSingleOrganization]) =>
+        callback(null, { component: forSingleOrganization(AppContainer) })
+      );
     }
   }
 ];

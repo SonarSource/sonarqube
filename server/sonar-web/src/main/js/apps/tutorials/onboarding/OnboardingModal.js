@@ -37,10 +37,7 @@ export default class OnboardingModal extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    // $FlowFixMe
-    require.ensure([], require => {
-      this.receiveComponent(require('./OnboardingContainer').default);
-    });
+    import('./OnboardingContainer').then(i => this.receiveComponent(i.default));
   }
 
   componentWillUnmount() {

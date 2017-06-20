@@ -20,12 +20,12 @@
 export const globalPermissionsRoutes = [
   {
     getIndexRoute(_, callback) {
-      require.ensure([], require => {
-        const GlobalPermissionsApp = require('./global/components/App').default;
-        const forSingleOrganization = require('../organizations/forSingleOrganization').default;
-        const component = forSingleOrganization(GlobalPermissionsApp);
-        callback(null, { component });
-      });
+      Promise.all([
+        import('./global/components/App').then(i => i.default),
+        import('../organizations/forSingleOrganization').then(i => i.default)
+      ]).then(([App, forSingleOrganization]) =>
+        callback(null, { component: forSingleOrganization(App) })
+      );
     }
   }
 ];
@@ -33,8 +33,8 @@ export const globalPermissionsRoutes = [
 export const projectPermissionsRoutes = [
   {
     getIndexRoute(_, callback) {
-      require.ensure([], require =>
-        callback(null, { component: require('./project/components/AppContainer').default })
+      import('./project/components/AppContainer').then(i =>
+        callback(null, { component: i.default })
       );
     }
   }
