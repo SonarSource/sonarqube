@@ -57,7 +57,8 @@ public class ReportDumpTest {
     assertThat(props).hasSize(6);
     assertThat(props.getProperty("projectKey")).isEqualTo("dump_metadata_of_uploaded_report");
     assertThat(props.getProperty("ceTaskId")).isNotEmpty();
-    assertThat(props.getProperty("serverVersion")).isEqualTo(orchestrator.getServer().version().toString());
+    String serverVersion = orchestrator.getServer().newHttpCall("api/server/version").execute().getBodyAsString();
+    assertThat(props.getProperty("serverVersion")).isEqualTo(serverVersion);
     verifyUrl(props.getProperty("serverUrl"));
     verifyUrl(props.getProperty("dashboardUrl"));
     verifyUrl(props.getProperty("ceTaskUrl"));
