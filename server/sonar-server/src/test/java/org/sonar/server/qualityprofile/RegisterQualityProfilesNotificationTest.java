@@ -115,6 +115,26 @@ public class RegisterQualityProfilesNotificationTest {
     verify(builtInQualityProfilesNotification).send();
   }
 
+  @Test
+  public void only_send_one_notification_when_several_built_in_profiles_contain_new_rules() {
+    String language = newLanguageKey();
+    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(language));
+    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
+
+    RulesProfileDto dbProfile1 = insertBuiltInProfile(language);
+    activateRuleInDb(dbProfile1, existingRule, MAJOR);
+    addPluginProfile(dbProfile1, existingRule, newRule);
+
+    RulesProfileDto dbProfile2 = insertBuiltInProfile(language);
+    activateRuleInDb(dbProfile2, existingRule, MAJOR);
+    addPluginProfile(dbProfile2, existingRule, newRule);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    verify(builtInQualityProfilesNotification).send();
+  }
+
   private void addPluginProfile(RulesProfileDto dbProfile, RuleDefinitionDto... dbRules) {
     RulesProfile pluginProfile = RulesProfile.create(dbProfile.getName(), dbProfile.getLanguage());
     Arrays.stream(dbRules).forEach(dbRule -> pluginProfile.activateRule(create(dbRule.getRepositoryKey(), dbRule.getRuleKey()), MAJOR));
