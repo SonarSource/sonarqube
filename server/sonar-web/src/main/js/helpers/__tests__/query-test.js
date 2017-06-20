@@ -69,6 +69,24 @@ describe('parseAsArray', () => {
   });
 });
 
+describe('parseAsDate', () => {
+  it('should parse string date correctly', () => {
+    expect(query.parseAsDate('2016-06-20T13:09:48.256Z')).toMatchSnapshot();
+    expect(query.parseAsDate('')).toBeFalsy();
+    expect(query.parseAsDate()).toBeFalsy();
+  });
+});
+
+describe('serializeDate', () => {
+  it('should serialize string correctly', () => {
+    expect(query.serializeDate(new Date('2016-06-20T13:09:48.256Z'))).toBe(
+      '2016-06-20T13:09:48.256Z'
+    );
+    expect(query.serializeDate('')).toBeUndefined();
+    expect(query.serializeDate()).toBeUndefined();
+  });
+});
+
 describe('serializeString', () => {
   it('should serialize string correctly', () => {
     expect(query.serializeString('foo')).toBe('foo');

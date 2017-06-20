@@ -70,12 +70,16 @@ export default class ProjectActivityApp extends React.PureComponent {
   }
 
   filterAnalyses = (analyses: Array<Analysis>, query: Query): Array<Analysis> => {
-    if (!query.category) {
+    if (!query.category && !query.from && !query.to) {
       return analyses;
     }
-    return analyses.filter(
-      analysis => analysis.events.find(event => event.category === query.category) != null
-    );
+    return analyses.filter(analysis => {
+      const isAfterFrom = !query.from || analysis.date >= query.from;
+      const isBeforeTo = !query.to || analysis.date <= query.to;
+      const hasSelectedCategoryEvents =
+        !query.category || analysis.events.find(event => event.category === query.category) != null;
+      return isAfterFrom && isBeforeTo && hasSelectedCategoryEvents;
+    });
   };
 
   getMetricType = () => {
