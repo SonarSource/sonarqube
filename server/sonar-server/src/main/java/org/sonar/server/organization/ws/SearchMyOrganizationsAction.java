@@ -57,14 +57,15 @@ public class SearchMyOrganizationsAction implements OrganizationsWsAction {
       return;
     }
 
-    try (DbSession dbSession = dbClient.openSession(false);
-      JsonWriter jsonWriter = response.newJsonWriter()) {
-      jsonWriter.beginObject();
-      jsonWriter.name("organizations").beginArray();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      JsonWriter json = response.newJsonWriter();
+      json.beginObject();
+      json.name("organizations").beginArray();
       dbClient.organizationDao().selectByPermission(dbSession, userSession.getUserId(), OrganizationPermission.ADMINISTER.getKey())
-        .forEach(dto -> jsonWriter.value(dto.getKey()));
-      jsonWriter.endArray();
-      jsonWriter.endObject();
+        .forEach(dto -> json.value(dto.getKey()));
+      json.endArray();
+      json.endObject();
+      json.close();
     }
   }
 }
