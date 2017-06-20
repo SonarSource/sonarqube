@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.List;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 
@@ -27,5 +28,5 @@ public interface BuiltInQProfileUpdate {
    * Persist a built-in profile and associate it to all existing organizations.
    * Db sessions are committed.
    */
-  void update(DbSession dbSession, BuiltInQProfile builtInQProfile, RulesProfileDto ruleProfile);
+  List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtInQProfile, RulesProfileDto ruleProfile);
 }

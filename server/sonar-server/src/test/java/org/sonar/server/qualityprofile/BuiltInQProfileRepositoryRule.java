@@ -60,8 +60,8 @@ public class BuiltInQProfileRepositoryRule extends ExternalResource implements B
     return add(language, profileName, false);
   }
 
-  public BuiltInQProfile add(Language language, String profileName, boolean isDefault) {
-    BuiltInQProfile builtIn = create(language, profileName, isDefault);
+  public BuiltInQProfile add(Language language, String profileName, boolean isDefault, org.sonar.api.rules.ActiveRule... rules) {
+    BuiltInQProfile builtIn = create(language, profileName, isDefault, rules);
     profiles.add(builtIn);
     return builtIn;
   }
