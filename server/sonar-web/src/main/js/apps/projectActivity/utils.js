@@ -18,7 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import { cleanQuery, parseAsString, serializeString } from '../../helpers/query';
+import {
+  cleanQuery,
+  parseAsDate,
+  parseAsString,
+  serializeDate,
+  serializeString
+} from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
 import type { MeasureHistory, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
@@ -41,8 +47,10 @@ const serializeGraph = (value: string): string => (value === 'overview' ? '' : v
 
 export const parseQuery = (urlQuery: RawQuery): Query => ({
   category: parseAsString(urlQuery['category']),
+  from: parseAsDate(urlQuery['from']),
   graph: parseGraph(urlQuery['graph']),
-  project: parseAsString(urlQuery['id'])
+  project: parseAsString(urlQuery['id']),
+  to: parseAsDate(urlQuery['to'])
 });
 
 export const serializeQuery = (query: Query): RawQuery =>
@@ -54,13 +62,17 @@ export const serializeQuery = (query: Query): RawQuery =>
 export const serializeUrlQuery = (query: Query): RawQuery => {
   return cleanQuery({
     category: serializeString(query.category),
+    from: serializeDate(query.from),
     graph: serializeGraph(query.graph),
-    id: serializeString(query.project)
+    id: serializeString(query.project),
+    to: serializeDate(query.to)
   });
 };
 
 export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
-  prevQuery.category !== nextQuery.category;
+  prevQuery.category !== nextQuery.category ||
+  prevQuery.from !== nextQuery.from ||
+  prevQuery.to !== nextQuery.to;
 
 export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   prevQuery.graph !== nextQuery.graph;

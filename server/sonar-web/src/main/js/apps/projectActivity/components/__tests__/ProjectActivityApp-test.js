@@ -24,7 +24,7 @@ import ProjectActivityApp from '../ProjectActivityApp';
 const ANALYSES = [
   {
     key: 'A1',
-    date: '2016-10-27T16:33:50+0200',
+    date: new Date('2016-10-27T16:33:50+0200'),
     events: [
       {
         key: 'E1',
@@ -35,12 +35,12 @@ const ANALYSES = [
   },
   {
     key: 'A2',
-    date: '2016-10-27T12:21:15+0200',
+    date: new Date('2016-10-27T12:21:15+0200'),
     events: []
   },
   {
     key: 'A3',
-    date: '2016-10-26T12:17:29+0200',
+    date: new Date('2016-10-26T12:17:29+0200'),
     events: [
       {
         key: 'E2',
@@ -86,8 +86,20 @@ it('should render correctly', () => {
   expect(shallow(<ProjectActivityApp {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
 
-it('should correctly filter analyses', () => {
+it('should correctly filter analyses by category', () => {
   const wrapper = mount(<ProjectActivityApp {...DEFAULT_PROPS} />);
   wrapper.setProps({ query: { ...DEFAULT_PROPS.query, category: 'VERSION' } });
+  expect(wrapper.state()).toMatchSnapshot();
+});
+
+it('should correctly filter analyses by date range', () => {
+  const wrapper = mount(<ProjectActivityApp {...DEFAULT_PROPS} />);
+  wrapper.setProps({
+    query: {
+      ...DEFAULT_PROPS.query,
+      from: new Date('2016-10-27T12:21:15+0200'),
+      to: new Date('2016-10-27T12:21:15+0200')
+    }
+  });
   expect(wrapper.state()).toMatchSnapshot();
 });
