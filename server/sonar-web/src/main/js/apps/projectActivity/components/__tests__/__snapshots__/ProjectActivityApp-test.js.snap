@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should correctly filter analyses 1`] = `
+exports[`should correctly filter analyses by category 1`] = `
 Object {
   "filteredAnalyses": Array [
     Object {
-      "date": "2016-10-27T16:33:50+0200",
+      "date": 2016-10-27T14:33:50.000Z,
       "events": Array [
         Object {
           "category": "VERSION",
@@ -15,7 +15,7 @@ Object {
       "key": "A1",
     },
     Object {
-      "date": "2016-10-26T12:17:29+0200",
+      "date": 2016-10-26T10:17:29.000Z,
       "events": Array [
         Object {
           "category": "VERSION",
@@ -29,6 +29,18 @@ Object {
         },
       ],
       "key": "A3",
+    },
+  ],
+}
+`;
+
+exports[`should correctly filter analyses by date range 1`] = `
+Object {
+  "filteredAnalyses": Array [
+    Object {
+      "date": 2016-10-27T10:21:15.000Z,
+      "events": Array [],
+      "key": "A2",
     },
   ],
 }
@@ -58,7 +70,7 @@ exports[`should render correctly 1`] = `
         analyses={
           Array [
             Object {
-              "date": "2016-10-27T16:33:50+0200",
+              "date": 2016-10-27T14:33:50.000Z,
               "events": Array [
                 Object {
                   "category": "VERSION",
@@ -69,12 +81,12 @@ exports[`should render correctly 1`] = `
               "key": "A1",
             },
             Object {
-              "date": "2016-10-27T12:21:15+0200",
+              "date": 2016-10-27T10:21:15.000Z,
               "events": Array [],
               "key": "A2",
             },
             Object {
-              "date": "2016-10-26T12:17:29+0200",
+              "date": 2016-10-26T10:17:29.000Z,
               "events": Array [
                 Object {
                   "category": "VERSION",
@@ -106,7 +118,7 @@ exports[`should render correctly 1`] = `
         analyses={
           Array [
             Object {
-              "date": "2016-10-27T16:33:50+0200",
+              "date": 2016-10-27T14:33:50.000Z,
               "events": Array [
                 Object {
                   "category": "VERSION",
@@ -117,12 +129,12 @@ exports[`should render correctly 1`] = `
               "key": "A1",
             },
             Object {
-              "date": "2016-10-27T12:21:15+0200",
+              "date": 2016-10-27T10:21:15.000Z,
               "events": Array [],
               "key": "A2",
             },
             Object {
-              "date": "2016-10-26T12:17:29+0200",
+              "date": 2016-10-26T10:17:29.000Z,
               "events": Array [
                 Object {
                   "category": "VERSION",
