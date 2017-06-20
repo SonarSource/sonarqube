@@ -160,7 +160,10 @@ export default class AdvancedTimeline extends React.PureComponent {
   };
 
   renderLines = (xScale: Scale, yScale: Scale) => {
-    const lineGenerator = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y));
+    const lineGenerator = d3Line()
+      .defined(d => d.y || d.y === 0)
+      .x(d => xScale(d.x))
+      .y(d => yScale(d.y));
     if (this.props.basisCurve) {
       lineGenerator.curve(curveBasis);
     }
@@ -178,7 +181,11 @@ export default class AdvancedTimeline extends React.PureComponent {
   };
 
   renderAreas = (xScale: Scale, yScale: Scale) => {
-    const areaGenerator = area().x(d => xScale(d.x)).y1(d => yScale(d.y)).y0(yScale(0));
+    const areaGenerator = area()
+      .defined(d => d.y || d.y === 0)
+      .x(d => xScale(d.x))
+      .y1(d => yScale(d.y))
+      .y0(yScale(0));
     if (this.props.basisCurve) {
       areaGenerator.curve(curveBasis);
     }
