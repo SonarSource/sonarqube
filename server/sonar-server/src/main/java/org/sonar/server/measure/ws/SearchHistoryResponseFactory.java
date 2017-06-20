@@ -22,9 +22,9 @@ package org.sonar.server.measure.ws;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
@@ -68,7 +68,7 @@ class SearchHistoryResponseFactory {
 
     return response -> {
       result.getMetrics().stream()
-        .peek(metric -> measure.clear())
+        .map(clearMetric())
         .map(addMetric())
         .map(metric -> addValues(measuresByMetricByAnalysis.row(metric)).apply(metric))
         .forEach(metric -> response.addMeasures(measure));
@@ -85,13 +85,11 @@ class SearchHistoryResponseFactory {
   }
 
   private UnaryOperator<MetricDto> addValues(Map<SnapshotDto, MeasureDto> measuresByAnalysis) {
-    Predicate<SnapshotDto> hasMeasure = analysis -> measuresByAnalysis.get(analysis) != null;
     return metric -> {
       result.getAnalyses().stream()
-        .filter(hasMeasure)
-        .peek(analysis -> value.clear())
+        .map(clearValue())
         .map(addDate())
-        .map(analysis -> addValue(metric, measuresByAnalysis.get(analysis)).apply(analysis))
+        .map(analysis -> addValue(analysis, metric, measuresByAnalysis.get(analysis)))
         .forEach(analysis -> measure.addHistory(value));
 
       return metric;
@@ -105,12 +103,27 @@ class SearchHistoryResponseFactory {
     };
   }
 
-  private UnaryOperator<SnapshotDto> addValue(MetricDto dbMetric, MeasureDto dbMeasure) {
-    return analysis -> {
+  private SnapshotDto addValue(SnapshotDto analysis, MetricDto dbMetric, @Nullable MeasureDto dbMeasure) {
+    if (dbMeasure != null) {
       String measureValue = dbMetric.getKey().startsWith("new_")
         ? formatNumericalValue(dbMeasure.getVariation(), dbMetric)
         : formatMeasureValue(dbMeasure, dbMetric);
       value.setValue(measureValue);
+    }
+
+    return analysis;
+  }
+
+  private UnaryOperator<MetricDto> clearMetric() {
+    return metric -> {
+      measure.clear();
+      return metric;
+    };
+  }
+
+  private UnaryOperator<SnapshotDto> clearValue() {
+    return analysis -> {
+      value.clear();
       return analysis;
     };
   }
