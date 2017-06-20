@@ -80,11 +80,12 @@ public class MetricsAction implements CustomMeasuresWsAction {
       checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 
-      writeResponse(response.newJsonWriter(), metrics);
+      writeResponse(response, metrics);
     }
   }
 
-  private static void writeResponse(JsonWriter json, List<MetricDto> metrics) {
+  private static void writeResponse(Response response, List<MetricDto> metrics) {
+    JsonWriter json = response.newJsonWriter();
     json.beginObject();
     MetricJsonWriter.write(json, metrics, MetricJsonWriter.ALL_FIELDS);
     json.endObject();
