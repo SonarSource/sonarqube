@@ -44,7 +44,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     this.activeRuleIndexer = activeRuleIndexer;
   }
 
-  public void update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
+  public List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
     // Keep reference to all the activated rules before update
     Set<RuleKey> toBeDeactivated = dbClient.activeRuleDao().selectByRuleProfile(dbSession, ruleProfile)
       .stream()
@@ -64,6 +64,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
 
     dbSession.commit();
     activeRuleIndexer.indexChanges(dbSession, changes);
+    return changes;
   }
 
   private static RuleActivation convert(org.sonar.api.rules.ActiveRule ar) {

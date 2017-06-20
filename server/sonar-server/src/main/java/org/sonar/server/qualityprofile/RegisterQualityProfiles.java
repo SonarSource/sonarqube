@@ -97,9 +97,11 @@ public class RegisterQualityProfiles {
   private void update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
     LOGGER.info("Update profile {}", builtIn.getQProfileName());
 
-    builtInQProfileUpdate.update(dbSession, builtIn, ruleProfile);
+    List<ActiveRuleChange> activeRuleChanges = builtInQProfileUpdate.update(dbSession, builtIn, ruleProfile);
 
-    builtInQualityProfilesNotification.send();
+    if (!activeRuleChanges.isEmpty()) {
+      builtInQualityProfilesNotification.send();
+    }
   }
 
   /**
