@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -69,14 +70,18 @@ public class RegisterQualityProfiles {
 
       Map<QProfileName, RulesProfileDto> persistedRuleProfiles = loadPersistedProfiles(dbSession);
 
+      List<ActiveRuleChange> changes = new ArrayList<>();
       builtInQProfiles.forEach(builtIn -> {
         RulesProfileDto ruleProfile = persistedRuleProfiles.get(builtIn.getQProfileName());
         if (ruleProfile == null) {
           register(dbSession, batchDbSession, builtIn);
         } else {
-          update(dbSession, builtIn, ruleProfile);
+          changes.addAll(update(dbSession, builtIn, ruleProfile));
         }
       });
+      if (!changes.isEmpty()) {
+        builtInQualityProfilesNotification.send();
+      }
     }
     profiler.stopDebug();
   }
@@ -94,14 +99,10 @@ public class RegisterQualityProfiles {
     builtInQProfileInsert.create(dbSession, batchDbSession, builtIn);
   }
 
-  private void update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
+  private List<ActiveRuleChange> update(DbSession dbSession, BuiltInQProfile builtIn, RulesProfileDto ruleProfile) {
     LOGGER.info("Update profile {}", builtIn.getQProfileName());
 
-    List<ActiveRuleChange> activeRuleChanges = builtInQProfileUpdate.update(dbSession, builtIn, ruleProfile);
-
-    if (!activeRuleChanges.isEmpty()) {
-      builtInQualityProfilesNotification.send();
-    }
+    return builtInQProfileUpdate.update(dbSession, builtIn, ruleProfile);
   }
 
   /**
