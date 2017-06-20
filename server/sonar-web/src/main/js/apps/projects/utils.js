@@ -38,7 +38,7 @@ export const isAllSet = (): boolean => {
   return setting === ALL;
 };
 
-const save = (key: string, value?: string) => {
+const save = (key: string, value: ?string) => {
   try {
     if (value) {
       window.localStorage.setItem(key, value);
@@ -55,13 +55,13 @@ export const saveAll = () => save(DEFAULT_FILTER, ALL);
 
 export const saveFavorite = () => save(DEFAULT_FILTER, FAVORITE);
 
-export const saveView = (view: string) => save(VIEW, view);
+export const saveView = (view: ?string) => save(VIEW, view);
 export const getView = () => window.localStorage.getItem(VIEW);
 
-export const saveVisualization = (visualization?: string) => save(VISUALIZATION, visualization);
+export const saveVisualization = (visualization: ?string) => save(VISUALIZATION, visualization);
 export const getVisualization = () => window.localStorage.getItem(VISUALIZATION);
 
-export const saveSort = (sort: string) => save(SORT, sort);
+export const saveSort = (sort: ?string) => save(SORT, sort);
 export const getSort = () => window.localStorage.getItem(SORT);
 
 export const SORTING_METRICS = [

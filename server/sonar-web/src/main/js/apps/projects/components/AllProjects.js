@@ -75,11 +75,19 @@ export default class AllProjects extends React.PureComponent {
 
   isFiltered = () => Object.keys(this.state.query).some(key => this.state.query[key] != null);
 
-  getSavedOptions = () => ({
-    sort: utils.getSort(),
-    view: utils.getView(),
-    visualization: utils.getVisualization()
-  });
+  getSavedOptions = () => {
+    const options = {};
+    if (utils.getSort()) {
+      options.sort = utils.getSort();
+    }
+    if (utils.getView()) {
+      options.view = utils.getView();
+    }
+    if (utils.getVisualization()) {
+      options.visualization = utils.getVisualization();
+    }
+    return options;
+  };
 
   handlePerspectiveChange = ({ view, visualization }: { view: string, visualization?: string }) => {
     const query: { view: ?string, visualization: ?string, sort?: ?string } = {
@@ -99,7 +107,8 @@ export default class AllProjects extends React.PureComponent {
       this.updateLocationQuery(query);
     }
 
-    utils.saveView(view);
+    utils.saveSort(query.sort);
+    utils.saveView(query.view);
     utils.saveVisualization(visualization);
   };
 
