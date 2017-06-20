@@ -378,4 +378,22 @@
       and p.organization_uuid = gr.organization_uuid
       and gr.group_id is null
   </sql>
+
+  <select id="selectQualityProfileAdministratorLogins" parameterType="map" resultType="String">
+    select u.login
+    from user_roles ur
+    inner join users u on u.id=ur.user_id
+    where
+    ur.role=#{permission,jdbcType=VARCHAR}
+
+    union
+
+    select u.login
+    from group_roles gr
+    inner join groups_users gu on gr.group_id = gu.group_id
+    inner join users u on u.id=gu.user_id
+    where
+    gr.role = #{permission,jdbcType=VARCHAR} and
+    gr.group_id is not null
+  </select>
 </mapper>

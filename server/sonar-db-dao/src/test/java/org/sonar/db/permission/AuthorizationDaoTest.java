@@ -46,7 +46,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 
 public class AuthorizationDaoTest {
@@ -691,7 +693,6 @@ public class AuthorizationDaoTest {
       users.stream().map(UserDto::getId).collect(Collectors.toSet()), "user", PROJECT_ID)).isEmpty();
   }
 
-
   @Test
   public void countUsersWithGlobalPermissionExcludingGroupMember() {
     // u1 has the direct permission, u2 and u3 have the permission through their group
@@ -958,6 +959,50 @@ public class AuthorizationDaoTest {
       .containsOnly(publicProject.uuid());
     assertThat(underTest.keepAuthorizedProjectUuids(dbSession, newHashSet(publicProject.uuid()), null, UserRole.ADMIN))
       .isEmpty();
-
   }
+
+  @Test
+  public void selectQualityProfileAdministratorLogins_return_users_with_quality_profile_administrator_permission() {
+    OrganizationDto organization1 = db.organizations().insert();
+    UserDto user1 = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization1, user1, ADMINISTER_QUALITY_PROFILES);
+    OrganizationDto organization2 = db.organizations().insert();
+    UserDto user2 = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization2, user2, ADMINISTER_QUALITY_PROFILES);
+
+    List<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
+
+    assertThat(logins).containsExactlyInAnyOrder(user1.getLogin(), user2.getLogin());
+  }
+
+  @Test
+  public void selectQualityProfileAdministratorLogins_return_users_within_quality_profile_administrator_group() {
+    OrganizationDto organization1 = db.organizations().insert();
+    GroupDto qualityProfileAdministratorGroup1 = db.users().insertGroup(organization1);
+    db.users().insertPermissionOnGroup(qualityProfileAdministratorGroup1, ADMINISTER_QUALITY_PROFILES);
+    UserDto user1 = db.users().insertUser();
+    db.users().insertMember(qualityProfileAdministratorGroup1, user1);
+    OrganizationDto organization2 = db.organizations().insert();
+    GroupDto qualityProfileAdministratorGroup2 = db.users().insertGroup(organization2);
+    db.users().insertPermissionOnGroup(qualityProfileAdministratorGroup2, ADMINISTER_QUALITY_PROFILES);
+    UserDto user2 = db.users().insertUser();
+    db.users().insertMember(qualityProfileAdministratorGroup2, user2);
+
+    List<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
+
+    assertThat(logins).containsExactlyInAnyOrder(user1.getLogin(), user2.getLogin());
+  }
+
+  @Test
+  public void selectQualityProfileAdministratorLogins_does_not_return_non_quality_profile_administrator_logins() {
+    OrganizationDto organization1 = db.organizations().insert();
+    UserDto user1 = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization1, user1, ADMINISTER);
+    db.users().insertUser();
+
+    List<String> logins = underTest.selectQualityProfileAdministratorLogins(dbSession);
+
+    assertThat(logins).isEmpty();
+  }
+
 }

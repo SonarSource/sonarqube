@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification;
+package org.sonar.foo.rule;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.foo.Foo;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class FooRulesDefinition implements RulesDefinition {
 
-public class NotificationModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new NotificationModule().configure(container);
-    assertThat(container.size()).isEqualTo(7 + 2);
+  public static final String FOO_REPOSITORY = "foo";
+
+  @Override
+  public void define(Context context) {
+    defineRulesXoo(context);
   }
+
+  private static void defineRulesXoo(Context context) {
+    NewRepository repo = context.createRepository(FOO_REPOSITORY, Foo.KEY).setName("Foo");
+    createRule(repo, "UnchangedRule");
+    createRule(repo, "ChangedRule");
+    createRule(repo, "RemovedRule");
+    repo.done();
+  }
+
+  private static NewRule createRule(NewRepository repo, String key) {
+    return repo.createRule(key).setName(key).setHtmlDescription(key);
+  }
+
 }

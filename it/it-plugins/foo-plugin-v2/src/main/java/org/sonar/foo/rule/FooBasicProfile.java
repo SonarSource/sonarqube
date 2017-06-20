@@ -17,22 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification;
+package org.sonar.foo.rule;
 
-import org.sonar.api.config.EmailSettings;
-import org.sonar.core.platform.Module;
-import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.ValidationMessages;
 
-public class NotificationModule extends Module {
+import static org.sonar.api.rules.RulePriority.MAJOR;
+import static org.sonar.api.rules.RulePriority.MINOR;
+import static org.sonar.foo.Foo.KEY;
+import static org.sonar.foo.rule.FooRulesDefinition.FOO_REPOSITORY;
+
+public class FooBasicProfile extends ProfileDefinition {
+
   @Override
-  protected void configureModule() {
-    add(
-      EmailSettings.class,
-      NotificationService.class,
-      NotificationCenter.class,
-      NotificationUpdater.class,
-      DefaultNotificationManager.class,
-      NotificationDaemon.class,
-      EmailNotificationChannel.class);
+  public RulesProfile createProfile(ValidationMessages validation) {
+    final RulesProfile profile = RulesProfile.create("Basic", KEY);
+    profile.activateRule(Rule.create(FOO_REPOSITORY, "UnchangedRule"), MAJOR);
+    profile.activateRule(Rule.create(FOO_REPOSITORY, "ChangedRule"), MINOR);
+    profile.activateRule(Rule.create(FOO_REPOSITORY, "NewRule"), MAJOR);
+    return profile;
   }
 }

@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification;
+package org.sonar.server.notification.ws;
 
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NotificationModuleTest {
+public class NotificationWsModuleTest {
   @Test
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
-    new NotificationModule().configure(container);
-    assertThat(container.size()).isEqualTo(7 + 2);
+    new NotificationWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(4 + 2);
   }
 }

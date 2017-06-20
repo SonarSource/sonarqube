@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notification;
+package org.sonar.foo.rule;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.ValidationMessages;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.rules.RulePriority.MAJOR;
+import static org.sonar.foo.Foo.KEY;
+import static org.sonar.foo.rule.FooRulesDefinition.FOO_REPOSITORY;
 
-public class NotificationModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new NotificationModule().configure(container);
-    assertThat(container.size()).isEqualTo(7 + 2);
+public class FooBasicProfile extends ProfileDefinition {
+
+  @Override
+  public RulesProfile createProfile(ValidationMessages validation) {
+    final RulesProfile profile = RulesProfile.create("Basic", KEY);
+    profile.activateRule(Rule.create(FOO_REPOSITORY, "UnchangedRule"), MAJOR);
+    profile.activateRule(Rule.create(FOO_REPOSITORY, "ChangedRule"), MAJOR);
+    profile.activateRule(Rule.create(FOO_REPOSITORY, "RemovedRule"), MAJOR);
+    return profile;
   }
 }

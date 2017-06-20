@@ -60,4 +60,6 @@ public interface AuthorizationMapper {
   Set<String> selectProjectPermissions(@Param("projectUuid") String projectUuid, @Param("userId") long userId);
 
   Set<String> selectProjectPermissionsOfAnonymous(@Param("projectUuid") String projectUuid);
+
+  List<String> selectQualityProfileAdministratorLogins(@Param("permission") String permission);
 }

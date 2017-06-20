@@ -45,13 +45,16 @@ public class RegisterQualityProfiles {
   private final DbClient dbClient;
   private final BuiltInQProfileInsert builtInQProfileInsert;
   private final BuiltInQProfileUpdate builtInQProfileUpdate;
+  private final BuiltInQualityProfilesNotification builtInQualityProfilesNotification;
 
   public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
-    DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate) {
+    DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
+    BuiltInQualityProfilesNotification builtInQualityProfilesNotification) {
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
     this.builtInQProfileInsert = builtInQProfileInsert;
     this.builtInQProfileUpdate = builtInQProfileUpdate;
+    this.builtInQualityProfilesNotification = builtInQualityProfilesNotification;
   }
 
   public void start() {
@@ -95,6 +98,8 @@ public class RegisterQualityProfiles {
     LOGGER.info("Update profile {}", builtIn.getQProfileName());
 
     builtInQProfileUpdate.update(dbSession, builtIn, ruleProfile);
+
+    builtInQualityProfilesNotification.send();
   }
 
   /**
