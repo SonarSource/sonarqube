@@ -20,9 +20,11 @@
 package org.sonar.server.qualityprofile;
 
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
@@ -42,6 +44,8 @@ import org.sonar.server.util.TypeValidations;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -71,7 +75,7 @@ public class RegisterQualityProfilesNotificationTest {
   private RuleActivator ruleActivator = new RuleActivator(system2, dbClient, mock(RuleIndex.class), new RuleActivatorContextFactory(dbClient), typeValidations, activeRuleIndexer,
     userSessionRule);
   private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer);
-  private BuiltInQualityProfilesNotification builtInQualityProfilesNotification = mock(BuiltInQualityProfilesNotification.class);
+  private BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification = mock(BuiltInQualityProfilesNotificationSender.class);
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient,
     builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification);
 
@@ -112,7 +116,12 @@ public class RegisterQualityProfilesNotificationTest {
 
     underTest.start();
 
-    verify(builtInQualityProfilesNotification).send();
+    ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+    verify(builtInQualityProfilesNotification).send(captor.capture());
+    List<QProfileName> updatedProfiles = captor.<List<QProfileName>>getValue();
+    assertThat(updatedProfiles)
+      .extracting(QProfileName::getName, QProfileName::getLanguage)
+      .containsExactlyInAnyOrder(tuple(dbProfile.getName(), dbProfile.getLanguage()));
   }
 
   @Test
@@ -132,7 +141,15 @@ public class RegisterQualityProfilesNotificationTest {
 
     underTest.start();
 
-    verify(builtInQualityProfilesNotification).send();
+    ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+    verify(builtInQualityProfilesNotification).send(captor.capture());
+    List<QProfileName> updatedProfiles = captor.<List<QProfileName>>getValue();
+    assertThat(updatedProfiles)
+      .extracting(QProfileName::getName, QProfileName::getLanguage)
+      .containsExactlyInAnyOrder(
+        tuple(dbProfile1.getName(), dbProfile1.getLanguage()),
+        tuple(dbProfile2.getName(), dbProfile2.getLanguage())
+      );
   }
 
   private void addPluginProfile(RulesProfileDto dbProfile, RuleDefinitionDto... dbRules) {

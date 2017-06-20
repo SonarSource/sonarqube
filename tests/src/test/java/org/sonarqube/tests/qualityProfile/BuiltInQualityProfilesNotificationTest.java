@@ -22,6 +22,7 @@ package org.sonarqube.tests.qualityProfile;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.io.File;
+import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.junit.After;
@@ -129,15 +130,17 @@ public class BuiltInQualityProfilesNotificationTest {
     orchestrator.restartServer();
 
     waitUntilAllNotificationsAreDelivered(2, 10, 1_000);
-    assertThat(smtpServer.getMessages())
+    List<WiserMessage> messages = smtpServer.getMessages();
+    assertThat(messages)
       .extracting(this::getMimeMessage)
       .extracting(this::getAllRecipients)
       .containsOnly("<" + profileAdmin1.getEmail() + ">", "<" + profileAdmin2.getEmail() + ">");
-    assertThat(smtpServer.getMessages())
-      .extracting(this::getMimeMessage)
-      .extracting(this::getContent)
-      .extracting(m -> m.contains("This is a test message from SonarQube"))
-      .containsOnly(true);
+    assertThat(messages.get(0).getMimeMessage().getContent().toString())
+      .containsSequence(
+        "Built-in quality profiles have been updated:",
+        "\"Basic\" - Foo",
+        "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.")
+      .isEqualTo(messages.get(1).getMimeMessage().getContent().toString());
   }
 
   private MimeMessage getMimeMessage(WiserMessage msg) {

@@ -46,11 +46,11 @@ public class RegisterQualityProfiles {
   private final DbClient dbClient;
   private final BuiltInQProfileInsert builtInQProfileInsert;
   private final BuiltInQProfileUpdate builtInQProfileUpdate;
-  private final BuiltInQualityProfilesNotification builtInQualityProfilesNotification;
+  private final BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification;
 
   public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
     DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
-    BuiltInQualityProfilesNotification builtInQualityProfilesNotification) {
+    BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification) {
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
     this.builtInQProfileInsert = builtInQProfileInsert;
@@ -70,17 +70,20 @@ public class RegisterQualityProfiles {
 
       Map<QProfileName, RulesProfileDto> persistedRuleProfiles = loadPersistedProfiles(dbSession);
 
-      List<ActiveRuleChange> changes = new ArrayList<>();
+      List<QProfileName> changedProfiles = new ArrayList<>();
       builtInQProfiles.forEach(builtIn -> {
         RulesProfileDto ruleProfile = persistedRuleProfiles.get(builtIn.getQProfileName());
         if (ruleProfile == null) {
           register(dbSession, batchDbSession, builtIn);
         } else {
-          changes.addAll(update(dbSession, builtIn, ruleProfile));
+          List<ActiveRuleChange> changes = update(dbSession, builtIn, ruleProfile);
+          if (!changes.isEmpty()) {
+            changedProfiles.add(builtIn.getQProfileName());
+          }
         }
       });
-      if (!changes.isEmpty()) {
-        builtInQualityProfilesNotification.send();
+      if (!changedProfiles.isEmpty()) {
+        builtInQualityProfilesNotification.send(changedProfiles);
       }
     }
     profiler.stopDebug();

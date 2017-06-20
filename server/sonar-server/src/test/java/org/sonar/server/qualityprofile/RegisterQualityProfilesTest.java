@@ -60,7 +60,7 @@ public class RegisterQualityProfilesTest {
   private DbClient dbClient = db.getDbClient();
   private DummyBuiltInQProfileInsert insert = new DummyBuiltInQProfileInsert();
   private DummyBuiltInQProfileUpdate update = new DummyBuiltInQProfileUpdate();
-  private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient, insert, update, mock(BuiltInQualityProfilesNotification.class));
+  private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient, insert, update, mock(BuiltInQualityProfilesNotificationSender.class));
 
   @Test
   public void start_fails_if_BuiltInQProfileRepository_has_not_been_initialized() {
