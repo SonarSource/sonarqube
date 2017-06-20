@@ -7,3 +7,5 @@ Object {
   "e": 0,
 }
 `;
+
+exports[`parseAsDate should parse string date correctly 1`] = `2016-06-20T13:09:48.256Z`;

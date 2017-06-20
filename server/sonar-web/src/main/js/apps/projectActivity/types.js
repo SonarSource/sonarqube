@@ -28,7 +28,7 @@ export type Event = {
 
 export type Analysis = {
   key: string,
-  date: string,
+  date: Date,
   events: Array<Event>
 };
 
@@ -50,6 +50,8 @@ export type Paging = {
 
 export type Query = {
   category: string,
+  from?: Date,
   graph: string,
-  project: string
+  project: string,
+  to?: Date
 };

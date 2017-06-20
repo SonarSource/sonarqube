@@ -137,7 +137,13 @@ class ProjectActivityAppContainer extends React.PureComponent {
     }
   ): Promise<{ analyses: Array<Analysis>, paging: Paging }> => {
     const parameters = { project, p, ps };
-    return api.getProjectActivity({ ...parameters, ...additional }).catch(throwGlobalError);
+    return api.getProjectActivity({ ...parameters, ...additional }).then(
+      ({ analyses, paging }) => ({
+        analyses: analyses.map(analysis => ({ ...analysis, date: moment(analysis.date).toDate() })),
+        paging
+      }),
+      throwGlobalError
+    );
   };
 
   fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> =>

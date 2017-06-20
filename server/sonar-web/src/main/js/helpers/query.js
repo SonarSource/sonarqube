@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { isNil, omitBy } from 'lodash';
+import moment from 'moment';
 
 export type RawQuery = { [string]: string };
 
@@ -54,6 +55,13 @@ export const cleanQuery = (query: { [string]: ?string }): RawQuery => omitBy(que
 export const parseAsBoolean = (value: ?string, defaultValue: boolean = true): boolean =>
   (value === 'false' ? false : value === 'true' ? true : defaultValue);
 
+export const parseAsDate = (value: ?string): ?Date => {
+  const date = moment(value);
+  if (value && date) {
+    return date.toDate();
+  }
+};
+
 export const parseAsFacetMode = (facetMode: string) =>
   (facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count');
 
@@ -61,6 +69,12 @@ export const parseAsString = (value: ?string): string => value || '';
 
 export const parseAsArray = <T>(value: ?string, itemParser: string => T): Array<T> =>
   (value ? value.split(',').map(itemParser) : []);
+
+export const serializeDate = (value: ?Date): ?string => {
+  if (value != null && value.toISOString) {
+    return value.toISOString();
+  }
+};
 
 export const serializeString = (value: string): ?string => value || undefined;
 
