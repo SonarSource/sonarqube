@@ -76,7 +76,7 @@ export default class MeasureHistory extends React.PureComponent {
       if (r.measures.length === 0) {
         return [];
       }
-      return r.measures[0].history.map(analysis => ({
+      return r.measures[0].history.filter(analysis => analysis.value != null).map(analysis => ({
         date: moment(analysis.date).toDate(),
         value: analysis.value
       }));

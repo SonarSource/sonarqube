@@ -63,6 +63,7 @@ export const LineChart = React.createClass({
       .x(d => xScale(d.x))
       .y0(yScale.range()[0])
       .y1(d => yScale(d.y))
+      .defined(d => d.y != null)
       .curve(curveBasis);
 
     let data = this.props.data;
@@ -77,7 +78,7 @@ export const LineChart = React.createClass({
     if (!this.props.displayPoints) {
       return null;
     }
-    const points = this.props.data.map((point, index) => {
+    const points = this.props.data.filter(point => point.y != null).map((point, index) => {
       const x = xScale(point.x);
       const y = yScale(point.y);
       return <circle key={index} className="line-chart-point" r="3" cx={x} cy={y} />;
@@ -125,7 +126,11 @@ export const LineChart = React.createClass({
   },
 
   renderLine(xScale, yScale) {
-    const p = d3Line().x(d => xScale(d.x)).y(d => yScale(d.y)).curve(curveBasis);
+    const p = d3Line()
+      .x(d => xScale(d.x))
+      .y(d => yScale(d.y))
+      .defined(d => d.y != null)
+      .curve(curveBasis);
     return <path className="line-chart-path" d={p(this.props.data)} />;
   },
 
