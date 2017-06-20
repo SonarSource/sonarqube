@@ -22,6 +22,7 @@ package org.sonar.api.rule;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * @since 3.6
@@ -37,7 +38,7 @@ public final class Severity {
   /**
    * All the supported severity values, ordered from {@link #INFO} to {@link #BLOCKER}.
    */
-  public static final List<String> ALL = asList(INFO, MINOR, MAJOR, CRITICAL, BLOCKER);
+  public static final List<String> ALL = unmodifiableList(asList(INFO, MINOR, MAJOR, CRITICAL, BLOCKER));
 
   private Severity() {
     // utility

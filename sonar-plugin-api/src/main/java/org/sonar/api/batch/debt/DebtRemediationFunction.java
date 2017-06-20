@@ -85,10 +85,10 @@ public class DebtRemediationFunction {
     if (type != that.type) {
       return false;
     }
-    if (coefficient != null ? !coefficient.equals(that.coefficient) : that.coefficient != null) {
+    if ((coefficient != null) ? !coefficient.equals(that.coefficient) : (that.coefficient != null)) {
       return false;
     }
-    return offset != null ? offset.equals(that.offset) : that.offset == null;
+    return (offset != null) ? offset.equals(that.offset) : (that.offset == null);
   }
 
   @Override
