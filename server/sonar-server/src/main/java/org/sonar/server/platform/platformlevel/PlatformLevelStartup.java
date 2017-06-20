@@ -29,8 +29,8 @@ import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.BuiltInQProfileInsertImpl;
 import org.sonar.server.qualityprofile.BuiltInQProfileLoader;
 import org.sonar.server.qualityprofile.BuiltInQProfileUpdateImpl;
-import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationDispatcher;
+import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationTemplate;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
@@ -66,7 +66,7 @@ public class PlatformLevelStartup extends PlatformLevel {
       NotificationModule.class,
       BuiltInQualityProfilesNotificationDispatcher.class,
       BuiltInQualityProfilesNotificationTemplate.class,
-      BuiltInQualityProfilesNotification.class,
+      BuiltInQualityProfilesNotificationSender.class,
       BuiltInQProfileInsertImpl.class,
       BuiltInQProfileUpdateImpl.class,
       RegisterQualityProfiles.class,

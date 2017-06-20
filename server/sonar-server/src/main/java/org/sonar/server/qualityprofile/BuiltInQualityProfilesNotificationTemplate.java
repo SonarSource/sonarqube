@@ -19,11 +19,13 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.util.Comparator;
 import org.sonar.api.notifications.Notification;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.BUILT_IN_QUALITY_PROFILES;
+import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender.BUILT_IN_QUALITY_PROFILES;
 
 public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
 
@@ -32,11 +34,22 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
     if (!BUILT_IN_QUALITY_PROFILES.equals(notification.getType())) {
       return null;
     }
+
+    BuiltInQualityProfilesNotification profilesNotification = BuiltInQualityProfilesNotification.parse(notification);
+
+    StringBuilder message = new StringBuilder("Built-in quality profiles have been updated:\n");
+    profilesNotification.getProfiles().stream()
+      .sorted(Comparator.comparing(Profile::getLanguage).thenComparing(Profile::getProfileName))
+      .forEach(profile -> message.append("\"").append(profile.getProfileName()).append("\" - ").append(profile.getLanguage()).append("\n"));
+
+    message.append(
+      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");
+
     // And finally return the email that will be sent
     return new EmailMessage()
       .setMessageId(BUILT_IN_QUALITY_PROFILES)
       .setSubject("empty")
-      .setMessage("This is a test message from SonarQube");
+      .setMessage(message.toString());
   }
 
 }

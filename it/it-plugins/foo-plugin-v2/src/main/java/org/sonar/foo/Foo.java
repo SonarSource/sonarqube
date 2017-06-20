@@ -24,7 +24,7 @@ import org.sonar.api.resources.Language;
 public class Foo implements Language {
 
   public static final String KEY = "foo";
-  public static final String NAME = "foo";
+  public static final String NAME = "Foo";
 
   @Override
   public String getKey() {
