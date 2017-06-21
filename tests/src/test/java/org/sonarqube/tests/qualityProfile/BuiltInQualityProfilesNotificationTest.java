@@ -70,8 +70,7 @@ public class BuiltInQualityProfilesNotificationTest {
       .addPlugin(pluginArtifact("foo-plugin-v1"))
       .setServerProperty("email.smtp_host.secured", "localhost")
       .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
-      // .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")// FIXME
-      // remove web debugging
+      //.setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")// FIXME remove web debugging
       .build();
     orchestrator.start();
 
@@ -101,8 +100,7 @@ public class BuiltInQualityProfilesNotificationTest {
       .addPlugin(pluginArtifact("foo-plugin-v1"))
       .setServerProperty("email.smtp_host.secured", "localhost")
       .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
-      // .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")// FIXME
-      // remove web debugging
+      //.setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")// FIXME remove web debugging
       .build();
     orchestrator.start();
 
@@ -139,6 +137,9 @@ public class BuiltInQualityProfilesNotificationTest {
       .containsSequence(
         "Built-in quality profiles have been updated:",
         "\"Basic\" - Foo",
+        " 1 new rules",
+        " 3 rules have been updated",
+        " 1 rules removed",
         "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.")
       .isEqualTo(messages.get(1).getMimeMessage().getContent().toString());
   }
@@ -147,14 +148,6 @@ public class BuiltInQualityProfilesNotificationTest {
     try {
       return msg.getMimeMessage();
     } catch (MessagingException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private String getContent(MimeMessage mimeMessage1) {
-    try {
-      return mimeMessage1.getContent().toString();
-    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

@@ -36,6 +36,12 @@ public class FooRulesDefinition implements RulesDefinition {
     createRule(repo, "UnchangedRule");
     createRule(repo, "ChangedRule");
     createRule(repo, "NewRule");
+    createRule(repo, "ToBeDeactivatedRule");
+    createRule(repo, "RuleWithUnchangedParameter").createParam("unchanged").setDefaultValue("10");
+    // Update of the default value of a parameter is not taken into account in quality profile as long as it's not also explicitly set in the quality profile
+    createRule(repo, "RuleWithChangedParameter").createParam("toBeChanged").setDefaultValue("20");
+    createRule(repo, "RuleWithRemovedParameter");
+    createRule(repo, "RuleWithAddedParameter").createParam("added").setDefaultValue("10");
     repo.done();
   }
 

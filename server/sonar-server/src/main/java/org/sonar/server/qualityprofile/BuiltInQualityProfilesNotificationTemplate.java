@@ -40,7 +40,23 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
     StringBuilder message = new StringBuilder("Built-in quality profiles have been updated:\n");
     profilesNotification.getProfiles().stream()
       .sorted(Comparator.comparing(Profile::getLanguage).thenComparing(Profile::getProfileName))
-      .forEach(profile -> message.append("\"").append(profile.getProfileName()).append("\" - ").append(profile.getLanguage()).append("\n"));
+      .forEach(profile -> {
+        message.append("\"")
+          .append(profile.getProfileName()).append("\" - ")
+          .append(profile.getLanguage()).append("\n");
+        int newRules = profile.getNewRules();
+        if (newRules > 0) {
+          message.append(" ").append(newRules).append(" new rules\n");
+        }
+        int updatedRules = profile.getUpdatedRules();
+        if (updatedRules > 0) {
+          message.append(" ").append(updatedRules).append(" rules have been updated\n");
+        }
+        int removedRules = profile.getRemovedRules();
+        if (removedRules > 0) {
+          message.append(" ").append(removedRules).append(" rules removed\n");
+        }
+      });
 
     message.append(
       "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");

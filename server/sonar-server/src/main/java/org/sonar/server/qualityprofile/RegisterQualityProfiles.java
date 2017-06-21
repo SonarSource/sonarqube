@@ -19,7 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
-import java.util.ArrayList;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -70,16 +71,14 @@ public class RegisterQualityProfiles {
 
       Map<QProfileName, RulesProfileDto> persistedRuleProfiles = loadPersistedProfiles(dbSession);
 
-      List<QProfileName> changedProfiles = new ArrayList<>();
+      Multimap<QProfileName, ActiveRuleChange> changedProfiles = ArrayListMultimap.create();
       builtInQProfiles.forEach(builtIn -> {
         RulesProfileDto ruleProfile = persistedRuleProfiles.get(builtIn.getQProfileName());
         if (ruleProfile == null) {
           register(dbSession, batchDbSession, builtIn);
         } else {
           List<ActiveRuleChange> changes = update(dbSession, builtIn, ruleProfile);
-          if (!changes.isEmpty()) {
-            changedProfiles.add(builtIn.getQProfileName());
-          }
+          changedProfiles.putAll(builtIn.getQProfileName(), changes);
         }
       });
       if (!changedProfiles.isEmpty()) {
