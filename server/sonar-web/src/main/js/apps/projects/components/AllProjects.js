@@ -27,7 +27,7 @@ import PageSidebar from './PageSidebar';
 import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
-import { SORTING_SWITCH, parseSorting } from '../utils';
+import * as utils from '../utils';
 import '../styles.css';
 
 type Props = {|
@@ -35,7 +35,10 @@ type Props = {|
   location: { pathname: string, query: { [string]: string } },
   fetchProjects: (query: string, isFavorite: boolean, organization?: {}) => Promise<*>,
   organization?: { key: string },
-  router: { push: ({ pathname: string, query?: {} }) => void },
+  router: {
+    push: ({ pathname: string, query?: {} }) => void,
+    replace: ({ pathname: string, query?: {} }) => void
+  },
   currentUser?: { isLoggedIn: boolean }
 |};
 
@@ -48,14 +51,14 @@ export default class AllProjects extends React.PureComponent {
   state: State = { query: {} };
 
   componentDidMount() {
-    this.handleQueryChange();
+    this.handleQueryChange(true);
     const footer = document.getElementById('footer');
     footer && footer.classList.add('search-navigator-footer');
   }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.location.query !== this.props.location.query) {
-      this.handleQueryChange();
+      this.handleQueryChange(false);
     }
   }
 
@@ -72,6 +75,20 @@ export default class AllProjects extends React.PureComponent {
 
   isFiltered = () => Object.keys(this.state.query).some(key => this.state.query[key] != null);
 
+  getSavedOptions = () => {
+    const options = {};
+    if (utils.getSort()) {
+      options.sort = utils.getSort();
+    }
+    if (utils.getView()) {
+      options.view = utils.getView();
+    }
+    if (utils.getVisualization()) {
+      options.visualization = utils.getVisualization();
+    }
+    return options;
+  };
+
   handlePerspectiveChange = ({ view, visualization }: { view: string, visualization?: string }) => {
     const query: { view: ?string, visualization: ?string, sort?: ?string } = {
       view: view === 'overall' ? undefined : view,
@@ -80,24 +97,39 @@ export default class AllProjects extends React.PureComponent {
 
     if (this.state.query.view === 'leak' || view === 'leak') {
       if (this.state.query.sort) {
-        const sort = parseSorting(this.state.query.sort);
-        if (SORTING_SWITCH[sort.sortValue]) {
-          query.sort = (sort.sortDesc ? '-' : '') + SORTING_SWITCH[sort.sortValue];
+        const sort = utils.parseSorting(this.state.query.sort);
+        if (utils.SORTING_SWITCH[sort.sortValue]) {
+          query.sort = (sort.sortDesc ? '-' : '') + utils.SORTING_SWITCH[sort.sortValue];
         }
       }
       this.props.router.push({ pathname: this.props.location.pathname, query });
     } else {
       this.updateLocationQuery(query);
     }
+
+    utils.saveSort(query.sort);
+    utils.saveView(query.view);
+    utils.saveVisualization(visualization);
   };
 
-  handleSortChange = (sort: string, desc: boolean) =>
-    this.updateLocationQuery({ sort: (desc ? '-' : '') + sort });
+  handleSortChange = (sort: string, desc: boolean) => {
+    const asString = (desc ? '-' : '') + sort;
+    this.updateLocationQuery({ sort: asString });
+    utils.saveSort(asString);
+  };
 
-  handleQueryChange() {
+  handleQueryChange(initialMount: boolean) {
     const query = parseUrlQuery(this.props.location.query);
-    this.setState({ query });
-    this.props.fetchProjects(query, this.props.isFavorite, this.props.organization);
+    const savedOptions = this.getSavedOptions();
+    const savedOptionsSet = savedOptions.sort || savedOptions.view || savedOptions.visualization;
+
+    // if there is no filter, but there are saved preferences in the localStorage
+    if (initialMount && !this.isFiltered() && savedOptionsSet) {
+      this.props.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
+    } else {
+      this.setState({ query });
+      this.props.fetchProjects(query, this.props.isFavorite, this.props.organization);
+    }
   }
 
   updateLocationQuery = (newQuery: { [string]: ?string }) => {

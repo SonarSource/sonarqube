@@ -20,32 +20,49 @@
 // @flow
 import { translate } from '../../helpers/l10n';
 
-const LOCALSTORAGE_KEY = 'sonarqube.projects.default';
-const LOCALSTORAGE_FAVORITE = 'favorite';
-const LOCALSTORAGE_ALL = 'all';
+const DEFAULT_FILTER = 'sonarqube.projects.default';
+const FAVORITE = 'favorite';
+const ALL = 'all';
+
+const VIEW = 'sonarqube.projects.view';
+const VISUALIZATION = 'sonarqube.projects.visualization';
+const SORT = 'sonarqube.projects.sort';
 
 export const isFavoriteSet = (): boolean => {
-  const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
-  return setting === LOCALSTORAGE_FAVORITE;
+  const setting = window.localStorage.getItem(DEFAULT_FILTER);
+  return setting === FAVORITE;
 };
 
 export const isAllSet = (): boolean => {
-  const setting = window.localStorage.getItem(LOCALSTORAGE_KEY);
-  return setting === LOCALSTORAGE_ALL;
+  const setting = window.localStorage.getItem(DEFAULT_FILTER);
+  return setting === ALL;
 };
 
-const save = (value: string) => {
+const save = (key: string, value: ?string) => {
   try {
-    window.localStorage.setItem(LOCALSTORAGE_KEY, value);
+    if (value) {
+      window.localStorage.setItem(key, value);
+    } else {
+      window.localStorage.removeItem(key);
+    }
   } catch (e) {
     // usually that means the storage is full
     // just do nothing in this case
   }
 };
 
-export const saveAll = () => save(LOCALSTORAGE_ALL);
+export const saveAll = () => save(DEFAULT_FILTER, ALL);
 
-export const saveFavorite = () => save(LOCALSTORAGE_FAVORITE);
+export const saveFavorite = () => save(DEFAULT_FILTER, FAVORITE);
+
+export const saveView = (view: ?string) => save(VIEW, view);
+export const getView = () => window.localStorage.getItem(VIEW);
+
+export const saveVisualization = (visualization: ?string) => save(VISUALIZATION, visualization);
+export const getVisualization = () => window.localStorage.getItem(VISUALIZATION);
+
+export const saveSort = (sort: ?string) => save(SORT, sort);
+export const getSort = () => window.localStorage.getItem(SORT);
 
 export const SORTING_METRICS = [
   { value: 'name' },

@@ -33,6 +33,7 @@ import pageobjects.Navigation;
 import pageobjects.projects.ProjectsPage;
 import util.user.UserRule;
 
+import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newUserWsClient;
@@ -64,6 +65,7 @@ public class ProjectsPageTest {
   public void before() {
     adminUser = userRule.createAdminUser();
     userAdminWsClient = newUserWsClient(ORCHESTRATOR, adminUser, adminUser);
+    clearBrowserLocalStorage();
   }
 
   @Test
