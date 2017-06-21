@@ -25,12 +25,9 @@ import { extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
 
-type Point = { x: Date, y: number | string };
-
-type Serie = { name: string, data: Array<Point>, style: string };
-
 type Event = { className?: string, name: string, date: Date };
-
+type Point = { x: Date, y: number | string };
+export type Serie = { name: string, data: Array<Point>, style: string };
 type Scale = Function;
 
 type Props = {
