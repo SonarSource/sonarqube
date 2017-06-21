@@ -22,42 +22,44 @@ package org.sonarqube.ws.client.qualityprofile;
 public class QualityProfileWsParameters {
 
   public static final String CONTROLLER_QUALITY_PROFILES = "api/qualityprofiles";
-
-  public static final String ACTION_ACTIVATE_RULE = "activate_rule";
   public interface ActivateActionParameters {
     String PARAM_PROFILE_KEY = "profile_key";
     String PARAM_RULE_KEY = "rule_key";
-    String PARAM_SEVERITY = "severity";
-    String PARAM_RESET = "reset";
-    String PARAM_PARAMS = "params";
   }
-
   public static final String ACTION_RESTORE = "restore";
+
   public interface RestoreActionParameters {
     String PARAM_BACKUP = "backup";
   }
+  public static final String ACTION_ACTIVATE_RULE = "activate_rule";
 
-  public static final String ACTION_DEACTIVATE_RULE = "deactivate_rule";
-  public static final String ACTION_SEARCH = "search";
   public static final String ACTION_ADD_PROJECT = "add_project";
-  public static final String ACTION_REMOVE_PROJECT = "remove_project";
-  public static final String ACTION_CREATE = "create";
-  public static final String ACTION_COPY = "copy";
   public static final String ACTION_CHANGE_PARENT = "change_parent";
-  public static final String ACTION_SET_DEFAULT = "set_default";
+  public static final String ACTION_COPY = "copy";
+  public static final String ACTION_CREATE = "create";
+  public static final String ACTION_DEACTIVATE_RULE = "deactivate_rule";
   public static final String ACTION_DELETE = "delete";
+  public static final String ACTION_REMOVE_PROJECT = "remove_project";
+  public static final String ACTION_SEARCH = "search";
+  public static final String ACTION_SET_DEFAULT = "set_default";
 
-  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_DEFAULTS = "defaults";
+  public static final String PARAM_FROM_KEY = "fromKey";
+  public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LANGUAGE = "language";
-  public static final String PARAM_PROFILE_NAME = "profileName";
+  public static final String PARAM_PARAMS = "params";
+  public static final String PARAM_PARENT_KEY = "parentKey";
+  public static final String PARAM_PARENT_NAME = "parentName";
+  public static final String PARAM_PROFILE = "profile";
   public static final String PARAM_PROFILE_KEY = "profileKey";
+  public static final String PARAM_PROFILE_NAME = "profileName";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_PROJECT_UUID = "projectUuid";
-  public static final String PARAM_FROM_KEY = "fromKey";
+  public static final String PARAM_RESET = "reset";
+  public static final String PARAM_RULE = "rule";
+  public static final String PARAM_RULE_KEY = "ruleKey";
+  public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_TO_NAME = "toName";
-  public static final String PARAM_PARENT_NAME = "parentName";
-  public static final String PARAM_PARENT_KEY = "parentKey";
 
   private QualityProfileWsParameters() {
     // Only static stuff

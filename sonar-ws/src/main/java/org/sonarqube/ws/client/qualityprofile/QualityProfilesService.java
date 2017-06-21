@@ -45,12 +45,18 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
 
@@ -63,11 +69,11 @@ public class QualityProfilesService extends BaseService {
   public void activateRule(ActivateRuleWsRequest request) {
     PostRequest httpRequest = new PostRequest(path(ACTION_ACTIVATE_RULE));
     httpRequest.setParam(PARAM_ORGANIZATION, request.getOrganization().orElse(null));
-    httpRequest.setParam(ActivateActionParameters.PARAM_PARAMS, request.getParams().orElse(null));
-    httpRequest.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, request.getProfileKey());
-    httpRequest.setParam(ActivateActionParameters.PARAM_RESET, request.getReset().orElse(null));
-    httpRequest.setParam(ActivateActionParameters.PARAM_RULE_KEY, request.getRuleKey());
-    httpRequest.setParam(ActivateActionParameters.PARAM_SEVERITY, request.getSeverity().map(Enum::name).orElse(null));
+    httpRequest.setParam(PARAM_PARAMS, request.getParams().orElse(null));
+    httpRequest.setParam(PARAM_PROFILE, request.getProfileKey());
+    httpRequest.setParam(PARAM_RESET, request.getReset().orElse(null));
+    httpRequest.setParam(PARAM_RULE, request.getRuleKey());
+    httpRequest.setParam(PARAM_SEVERITY, request.getSeverity().map(Enum::name).orElse(null));
     call(httpRequest);
   }
 

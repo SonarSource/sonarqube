@@ -21,6 +21,7 @@ package org.sonarqube.ws.client.qualityprofile;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.Common.Severity;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -32,9 +33,14 @@ import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
 
 public class QualityProfilesServiceTest {
@@ -149,6 +155,27 @@ public class QualityProfilesServiceTest {
       .hasPath("deactivate_rule")
       .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY, "P1")
       .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY, "R1")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void activate_rule() {
+    underTest.activateRule(ActivateRuleWsRequest.builder()
+      .setRuleKey("R1")
+      .setProfileKey("P1")
+      .setOrganization("O1")
+      .setParams("PS1")
+      .setSeverity(Severity.INFO)
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("activate_rule")
+      .hasParam(PARAM_PROFILE, "P1")
+      .hasParam(PARAM_RULE, "R1")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_PARAMS, "PS1")
+      .hasParam(PARAM_SEVERITY, Severity.INFO.toString())
       .andNoOtherParam();
   }
 }

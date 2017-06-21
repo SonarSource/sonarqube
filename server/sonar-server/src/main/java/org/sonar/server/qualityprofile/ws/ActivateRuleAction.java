@@ -23,12 +23,10 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -39,14 +37,14 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PARAMS;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_RESET;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_SEVERITY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 
-@ServerSide
 public class ActivateRuleAction implements QProfileWsAction {
 
   private final DbClient dbClient;
@@ -66,18 +64,21 @@ public class ActivateRuleAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction activate = controller
       .createAction(ACTION_ACTIVATE_RULE)
-      .setDescription("Activate a rule on a Quality profile")
+      .setDescription("Activate a rule on a Quality Profile.<br> " +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setHandler(this)
       .setPost(true)
       .setSince("4.4");
 
-    activate.createParam(PARAM_PROFILE_KEY)
-      .setDescription("Key of Quality profile, can be obtained through <code>api/qualityprofiles/search</code>")
+    activate.createParam(PARAM_PROFILE)
+      .setDescription("Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>")
+      .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+      .setExampleValue(UUID_EXAMPLE_01);
 
-    activate.createParam(PARAM_RULE_KEY)
-      .setDescription("Key of the rule")
+    activate.createParam(PARAM_RULE)
+      .setDescription("Rule key")
+      .setDeprecatedKey("rule_key", "6.5")
       .setRequired(true)
       .setExampleValue("squid:AvoidCycles");
 
@@ -86,12 +87,11 @@ public class ActivateRuleAction implements QProfileWsAction {
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAM_PARAMS)
-      .setDescription(format("Parameters as semi-colon list of <key>=<value>. Ignored if parameter %s is true.", PARAM_RESET))
+      .setDescription(format("Parameters as semi-colon list of <code>key=value</code>. Ignored if parameter %s is true.", PARAM_RESET))
       .setExampleValue("params=key1=v1;key2=v2");
 
     activate.createParam(PARAM_RESET)
-      .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile " +
-        "or from rule default values.")
+      .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile or from rule default values.")
       .setBooleanPossibleValues();
   }
 
@@ -99,7 +99,7 @@ public class ActivateRuleAction implements QProfileWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
+      String profileKey = request.mandatoryParam(PARAM_PROFILE);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
@@ -108,11 +108,12 @@ public class ActivateRuleAction implements QProfileWsAction {
       dbSession.commit();
       activeRuleIndexer.indexChanges(dbSession, changes);
     }
+
     response.noContent();
   }
 
   private static RuleActivation readActivation(Request request) {
-    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
+    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE));
     boolean reset = Boolean.TRUE.equals(request.paramAsBoolean(PARAM_RESET));
     if (reset) {
       return RuleActivation.createReset(ruleKey);

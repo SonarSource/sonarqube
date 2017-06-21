@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -52,14 +52,17 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonar.server.qualityprofile.ws.QProfilesWs.API_ENDPOINT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_SEVERITY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 
@@ -111,8 +114,8 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_DEACTIVATE_RULE);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
-    request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    request.setParam(ActivateActionParameters.PARAM_RULE_KEY, rule.getKey().toString());
     request.execute();
     session.clearCache();
 
@@ -139,7 +142,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -165,7 +168,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -189,8 +192,8 @@ public class QProfilesWsMediumTest {
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
-    request.setParam(WebService.Param.TEXT_QUERY, "hello");
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    request.setParam(Param.TEXT_QUERY, "hello");
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -210,8 +213,8 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
-    request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
+    request.setParam(PARAM_PROFILE, profile.getKee());
+    request.setParam(PARAM_RULE, rule.getKey().toString());
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -232,8 +235,8 @@ public class QProfilesWsMediumTest {
     try {
       // 1. Activate Rule
       WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-      request.setParam(PARAM_PROFILE_KEY, profile.getKee());
-      request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
+      request.setParam(PARAM_PROFILE, profile.getKee());
+      request.setParam(PARAM_RULE, rule.getKey().toString());
       request.execute();
       session.clearCache();
       fail();
@@ -254,8 +257,8 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
-    request.setParam(PARAM_RULE_KEY, rule.getKey().toString());
+    request.setParam(PARAM_PROFILE, profile.getKee());
+    request.setParam(PARAM_RULE, rule.getKey().toString());
     request.setParam(PARAM_SEVERITY, "MINOR");
     WsTester.Result result = request.execute();
     session.clearCache();
@@ -282,7 +285,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
     request.setParam(PARAM_LANGUAGES, "java");
     request.execute().assertJson(getClass(), "bulk_activate_rule.json");
     session.clearCache();
@@ -306,7 +309,7 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, php.getKee());
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, php.getKee());
     request.setParam(PARAM_LANGUAGES, "php");
     request.execute().assertJson(getClass(), "bulk_activate_rule_not_all.json");
     session.clearCache();
@@ -329,8 +332,8 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule with query returning 0 hits
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
-    request.setParam(WebService.Param.TEXT_QUERY, "php");
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    request.setParam(Param.TEXT_QUERY, "php");
     request.execute();
     session.clearCache();
 
@@ -339,8 +342,8 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule with query returning 1 hits
     request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, profile.getKee());
-    request.setParam(WebService.Param.TEXT_QUERY, "world");
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    request.setParam(Param.TEXT_QUERY, "world");
     request.execute();
     session.commit();
 
@@ -364,7 +367,7 @@ public class QProfilesWsMediumTest {
       new SearchOptions()).getIds()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    WsTester.TestRequest request = wsTester.newPostRequest(API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
     request.setParam(ActivateRulesAction.PROFILE_KEY, profile.getKee());
     request.setParam(ActivateRulesAction.SEVERITY, "MINOR");
     request.execute();
@@ -390,8 +393,8 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(PARAM_PROFILE_KEY, javaProfile.getKee());
+    WsTester.TestRequest request = wsTester.newPostRequest(API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
+    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, javaProfile.getKee());
     request.setParam(PARAM_QPROFILE, javaProfile.getKee());
     request.setParam("activation", "false");
     request.execute().assertJson(getClass(), "does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile.json");
@@ -424,10 +427,10 @@ public class QProfilesWsMediumTest {
     assertThat(activeRuleDto.get().getSeverityString()).isEqualTo(Severity.MINOR);
 
     // 1. reset child rule
-    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULE);
-    request.setParam("profile_key", subProfile.getKee());
-    request.setParam("rule_key", rule.getKey().toString());
-    request.setParam("reset", "true");
+    WsTester.TestRequest request = wsTester.newPostRequest(API_ENDPOINT, ACTION_ACTIVATE_RULE);
+    request.setParam(PARAM_PROFILE, subProfile.getKee());
+    request.setParam(PARAM_RULE, rule.getKey().toString());
+    request.setParam(PARAM_RESET, "true");
     request.execute();
     session.clearCache();
 
