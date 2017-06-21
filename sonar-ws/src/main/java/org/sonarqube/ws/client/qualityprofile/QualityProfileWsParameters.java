@@ -23,11 +23,6 @@ public class QualityProfileWsParameters {
 
   public static final String CONTROLLER_QUALITY_PROFILES = "api/qualityprofiles";
 
-  public interface ActivateActionParameters {
-    String PARAM_PROFILE_KEY = "profile_key";
-  }
-  public static final String ACTION_RESTORE = "restore";
-
   public interface RestoreActionParameters {
     String PARAM_BACKUP = "backup";
   }
@@ -39,8 +34,10 @@ public class QualityProfileWsParameters {
   public static final String ACTION_COPY = "copy";
   public static final String ACTION_CREATE = "create";
   public static final String ACTION_DEACTIVATE_RULE = "deactivate_rule";
+  public static final String ACTION_DEACTIVATE_RULES = "deactivate_rules";
   public static final String ACTION_DELETE = "delete";
   public static final String ACTION_REMOVE_PROJECT = "remove_project";
+  public static final String ACTION_RESTORE = "restore";
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_SET_DEFAULT = "set_default";
 

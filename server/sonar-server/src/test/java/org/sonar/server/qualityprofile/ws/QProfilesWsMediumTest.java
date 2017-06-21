@@ -52,7 +52,6 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -60,6 +59,7 @@ import static org.sonar.server.qualityprofile.ws.QProfilesWs.API_ENDPOINT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
@@ -145,8 +145,8 @@ public class QProfilesWsMediumTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(4);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_DEACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, profile.getKee());
     WsTester.Result result = request.execute();
     dbSession.clearCache();
 
@@ -171,8 +171,8 @@ public class QProfilesWsMediumTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_DEACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, profile.getKee());
     WsTester.Result result = request.execute();
     dbSession.clearCache();
 
@@ -195,8 +195,8 @@ public class QProfilesWsMediumTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, DeactivateRulesAction.DEACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_DEACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, profile.getKee());
     request.setParam(Param.TEXT_QUERY, "hello");
     WsTester.Result result = request.execute();
     dbSession.clearCache();

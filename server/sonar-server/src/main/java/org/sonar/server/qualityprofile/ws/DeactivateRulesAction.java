@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,15 +30,14 @@ import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_04;
+import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_PROFILE;
 
-@ServerSide
 public class DeactivateRulesAction implements QProfileWsAction {
-
-  public static final String PROFILE_KEY = "profile_key";
   public static final String SEVERITY = "activation_severity";
-
-  public static final String DEACTIVATE_RULES_ACTION = "deactivate_rules";
 
   private final RuleQueryFactory ruleQueryFactory;
   private final UserSession userSession;
@@ -57,23 +55,25 @@ public class DeactivateRulesAction implements QProfileWsAction {
 
   public void define(WebService.NewController controller) {
     WebService.NewAction deactivate = controller
-      .createAction(DEACTIVATE_RULES_ACTION)
-      .setDescription("Bulk deactivate rules on Quality profiles")
+      .createAction(ACTION_DEACTIVATE_RULES)
+      .setDescription("Bulk deactivate rules on Quality profiles.<br>" +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setPost(true)
       .setSince("4.4")
       .setHandler(this);
 
     defineRuleSearchParameters(deactivate);
 
-    deactivate.createParam(PROFILE_KEY)
-      .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see <code>api/qualityprofiles/search</code>")
+    deactivate.createParam(PARAM_TARGET_PROFILE)
+      .setDescription("Quality Profile key on which the rule deactivation is done. To retrieve a profile key please see <code>api/qualityprofiles/search</code>")
+      .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
-      .setExampleValue("java:MyProfile");
+      .setExampleValue(UUID_EXAMPLE_04);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String qualityProfileKey = request.mandatoryParam(PROFILE_KEY);
+    String qualityProfileKey = request.mandatoryParam(PARAM_TARGET_PROFILE);
     userSession.checkLoggedIn();
     BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -82,6 +82,6 @@ public class DeactivateRulesAction implements QProfileWsAction {
       wsSupport.checkNotBuiltInt(profile);
       result = ruleActivator.bulkDeactivate(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile);
     }
-    BulkChangeWsResponse.writeResponse(result, response);
+    writeResponse(result, response);
   }
 }
