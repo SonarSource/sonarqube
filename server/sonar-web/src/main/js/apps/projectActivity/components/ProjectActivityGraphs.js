@@ -20,8 +20,14 @@
 // @flow
 import React from 'react';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
+import GraphsZoom from './GraphsZoom';
 import StaticGraphs from './StaticGraphs';
-import { GRAPHS_METRICS, generateCoveredLinesMetric, historyQueryChanged } from '../utils';
+import {
+  GRAPHS_METRICS,
+  datesQueryChanged,
+  generateCoveredLinesMetric,
+  historyQueryChanged
+} from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Query } from '../types';
@@ -39,7 +45,8 @@ type Props = {
 };
 
 type State = {
-  filteredSeries: Array<Serie>,
+  graphStartDate: ?Date,
+  graphEndDate: ?Date,
   series: Array<Serie>
 };
 
@@ -51,7 +58,8 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     super(props);
     const series = this.getSeries(props.measuresHistory);
     this.state = {
-      filteredSeries: this.filterSeries(series, props.query),
+      graphStartDate: props.query.from || null,
+      graphEndDate: props.query.to || null,
       series
     };
   }
@@ -62,10 +70,13 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       historyQueryChanged(this.props.query, nextProps.query)
     ) {
       const series = this.getSeries(nextProps.measuresHistory);
-      this.setState({
-        filteredSeries: this.filterSeries(series, nextProps.query),
-        series
-      });
+      this.setState({ series });
+    }
+    if (
+      nextProps.query !== this.props.query &&
+      datesQueryChanged(this.props.query, nextProps.query)
+    ) {
+      this.setState({ graphStartDate: nextProps.query.from, graphEndDate: nextProps.query.to });
     }
   }
 
@@ -89,35 +100,37 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       };
     });
 
-  filterSeries = (series: Array<Serie>, query: Query): Array<Serie> => {
-    if (!query.from && !query.to) {
-      return series;
-    }
-    return series.map(serie => ({
-      ...serie,
-      data: serie.data.filter(p => {
-        const isAfterFrom = !query.from || p.x >= query.from;
-        const isBeforeTo = !query.to || p.x <= query.to;
-        return isAfterFrom && isBeforeTo;
-      })
-    }));
-  };
+  updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) =>
+    this.setState({ graphStartDate, graphEndDate });
 
   render() {
-    const { graph, category } = this.props.query;
+    const { leakPeriodDate, loading, metricsType, query } = this.props;
+    const { series } = this.state;
     return (
       <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
-        <ProjectActivityGraphsHeader graph={graph} updateQuery={this.props.updateQuery} />
+        <ProjectActivityGraphsHeader graph={query.graph} updateQuery={this.props.updateQuery} />
         <StaticGraphs
           analyses={this.props.analyses}
-          eventFilter={category}
-          filteredSeries={this.state.filteredSeries}
-          leakPeriodDate={this.props.leakPeriodDate}
-          loading={this.props.loading}
-          metricsType={this.props.metricsType}
+          eventFilter={query.category}
+          graphEndDate={this.state.graphEndDate}
+          graphStartDate={this.state.graphStartDate}
+          leakPeriodDate={leakPeriodDate}
+          loading={loading}
+          metricsType={metricsType}
           project={this.props.project}
-          series={this.state.series}
-          showAreas={['coverage', 'duplications'].includes(graph)}
+          series={series}
+          showAreas={['coverage', 'duplications'].includes(query.graph)}
+        />
+        <GraphsZoom
+          graphEndDate={this.state.graphEndDate}
+          graphStartDate={this.state.graphStartDate}
+          leakPeriodDate={leakPeriodDate}
+          loading={loading}
+          metricsType={metricsType}
+          series={series}
+          showAreas={['coverage', 'duplications'].includes(query.graph)}
+          updateGraphZoom={this.updateGraphZoom}
+          updateQuery={this.props.updateQuery}
         />
       </div>
     );
