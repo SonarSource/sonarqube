@@ -21,7 +21,9 @@ package org.sonar.foo.rule;
 
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 
 import static org.sonar.api.rules.RulePriority.MAJOR;
@@ -30,12 +32,28 @@ import static org.sonar.foo.rule.FooRulesDefinition.FOO_REPOSITORY;
 
 public class FooBasicProfile extends ProfileDefinition {
 
+  private final RuleFinder ruleFinder;
+
+  public FooBasicProfile(RuleFinder ruleFinder) {
+    this.ruleFinder = ruleFinder;
+  }
+
   @Override
   public RulesProfile createProfile(ValidationMessages validation) {
     final RulesProfile profile = RulesProfile.create("Basic", KEY);
-    profile.activateRule(Rule.create(FOO_REPOSITORY, "UnchangedRule"), MAJOR);
-    profile.activateRule(Rule.create(FOO_REPOSITORY, "ChangedRule"), MAJOR);
-    profile.activateRule(Rule.create(FOO_REPOSITORY, "RemovedRule"), MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "UnchangedRule", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "ChangedRule", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "ToBeDeactivatedRule", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "ToBeRemovedRule", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "RuleWithUnchangedParameter", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "RuleWithChangedParameter", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "RuleWithRemovedParameter", MAJOR);
+    activateRule(profile, FOO_REPOSITORY, "RuleWithAddedParameter", MAJOR);
     return profile;
   }
+
+  private ActiveRule activateRule(RulesProfile profile, String repo, String key, RulePriority severity) {
+    return profile.activateRule(ruleFinder.findByKey(repo, key), severity);
+  }
+
 }

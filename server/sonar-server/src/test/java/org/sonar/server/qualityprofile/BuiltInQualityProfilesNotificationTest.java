@@ -50,11 +50,17 @@ public class BuiltInQualityProfilesNotificationTest {
     String profileName = randomAlphanumeric(20);
     String language = randomAlphanumeric(20);
 
-    Notification notification = new BuiltInQualityProfilesNotification().addProfile(new Profile(profileName, language)).serialize();
+    Notification notification = new BuiltInQualityProfilesNotification()
+      .addProfile(Profile.newBuilder(profileName, language)
+        .setNewRules(3)
+        .setUpdatedRules(5)
+        .setRemovedRules(7)
+        .build())
+      .serialize();
     BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
 
-    assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguage)
-      .containsExactlyInAnyOrder(tuple(profileName, language));
+    assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguage, Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules)
+      .containsExactlyInAnyOrder(tuple(profileName, language, 3, 5, 7));
   }
 
   @Test
@@ -65,8 +71,8 @@ public class BuiltInQualityProfilesNotificationTest {
     String language2 = randomAlphanumeric(20);
 
     Notification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(new Profile(profileName1, language1))
-      .addProfile(new Profile(profileName2, language2))
+      .addProfile(Profile.newBuilder(profileName1, language1).build())
+      .addProfile(Profile.newBuilder(profileName2, language2).build())
       .serialize();
     BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
 

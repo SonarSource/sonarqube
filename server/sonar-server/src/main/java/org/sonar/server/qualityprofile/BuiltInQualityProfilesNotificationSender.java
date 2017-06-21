@@ -20,10 +20,15 @@
 
 package org.sonar.server.qualityprofile;
 
-import java.util.List;
+import com.google.common.collect.Multimap;
+import java.util.Collection;
 import org.sonar.api.resources.Languages;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
+
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
 
 public class BuiltInQualityProfilesNotificationSender {
 
@@ -37,13 +42,21 @@ public class BuiltInQualityProfilesNotificationSender {
     this.languages = languages;
   }
 
-  void send(List<QProfileName> changedProfiles) {
+  void send(Multimap<QProfileName, ActiveRuleChange> changedProfiles) {
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification();
-    changedProfiles.stream()
+    changedProfiles.keySet().stream()
       .map(changedProfile -> {
         String profileName = changedProfile.getName();
         String languageName = languages.get(changedProfile.getLanguage()).getName();
-        return new Profile(profileName, languageName);
+        Collection<ActiveRuleChange> activeRuleChanges = changedProfiles.get(changedProfile);
+        int newRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(ACTIVATED::equals).count();
+        int updatedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(UPDATED::equals).count();
+        int removedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(DEACTIVATED::equals).count();
+        return Profile.newBuilder(profileName, languageName)
+          .setNewRules(newRules)
+          .setUpdatedRules(updatedRules)
+          .setRemovedRules(removedRules)
+          .build();
       })
       .forEach(notification::addProfile);
     notificationManager.scheduleForSending(notification.serialize());

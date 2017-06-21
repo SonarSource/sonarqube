@@ -35,7 +35,12 @@ public class FooRulesDefinition implements RulesDefinition {
     NewRepository repo = context.createRepository(FOO_REPOSITORY, Foo.KEY).setName("Foo");
     createRule(repo, "UnchangedRule");
     createRule(repo, "ChangedRule");
-    createRule(repo, "RemovedRule");
+    createRule(repo, "ToBeDeactivatedRule");
+    createRule(repo, "ToBeRemovedRule");
+    createRule(repo, "RuleWithUnchangedParameter").createParam("unchanged").setDefaultValue("10");
+    createRule(repo, "RuleWithChangedParameter").createParam("toBeChanged").setDefaultValue("10");
+    createRule(repo, "RuleWithRemovedParameter").createParam("toBeRemoved").setDefaultValue("10");
+    createRule(repo, "RuleWithAddedParameter").createParam("added");
     repo.done();
   }
 

@@ -19,8 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.Multimap;
 import java.util.Arrays;
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,6 +53,8 @@ import static org.sonar.api.rules.Rule.create;
 import static org.sonar.api.rules.RulePriority.MAJOR;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 
 public class RegisterQualityProfilesNotificationTest {
 
@@ -116,39 +118,72 @@ public class RegisterQualityProfilesNotificationTest {
 
     underTest.start();
 
-    ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).send(captor.capture());
-    List<QProfileName> updatedProfiles = captor.<List<QProfileName>>getValue();
-    assertThat(updatedProfiles)
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(tuple(dbProfile.getName(), dbProfile.getLanguage()));
+    assertThat(updatedProfiles.values())
+      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(newRule.getId(), ACTIVATED));
+  }
+
+  @Test
+  public void send_notification_when_built_in_profile_contains_deactivated_rule() {
+    String language = newLanguageKey();
+    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(language));
+    RulesProfileDto dbProfile = insertBuiltInProfile(language);
+    activateRuleInDb(dbProfile, existingRule, MAJOR);
+    addPluginProfile(dbProfile);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
+    verify(builtInQualityProfilesNotification).send(captor.capture());
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    assertThat(updatedProfiles.keySet())
+      .extracting(QProfileName::getName, QProfileName::getLanguage)
+      .containsExactlyInAnyOrder(tuple(dbProfile.getName(), dbProfile.getLanguage()));
+    assertThat(updatedProfiles.values())
+      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(existingRule.getId(), DEACTIVATED));
   }
 
   @Test
   public void only_send_one_notification_when_several_built_in_profiles_contain_new_rules() {
     String language = newLanguageKey();
-    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(language));
-    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
 
+    RuleDefinitionDto existingRule1 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDefinitionDto newRule1 = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile1 = insertBuiltInProfile(language);
-    activateRuleInDb(dbProfile1, existingRule, MAJOR);
-    addPluginProfile(dbProfile1, existingRule, newRule);
+    activateRuleInDb(dbProfile1, existingRule1, MAJOR);
+    addPluginProfile(dbProfile1, existingRule1, newRule1);
 
+    RuleDefinitionDto existingRule2 = db.rules().insert(r -> r.setLanguage(language));
+    RuleDefinitionDto newRule2 = db.rules().insert(r -> r.setLanguage(language));
     RulesProfileDto dbProfile2 = insertBuiltInProfile(language);
-    activateRuleInDb(dbProfile2, existingRule, MAJOR);
-    addPluginProfile(dbProfile2, existingRule, newRule);
+    activateRuleInDb(dbProfile2, existingRule2, MAJOR);
+    addPluginProfile(dbProfile2, existingRule2, newRule2);
     builtInQProfileRepositoryRule.initialize();
 
     underTest.start();
 
-    ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
     verify(builtInQualityProfilesNotification).send(captor.capture());
-    List<QProfileName> updatedProfiles = captor.<List<QProfileName>>getValue();
-    assertThat(updatedProfiles)
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
       .containsExactlyInAnyOrder(
         tuple(dbProfile1.getName(), dbProfile1.getLanguage()),
         tuple(dbProfile2.getName(), dbProfile2.getLanguage())
+      );
+    assertThat(updatedProfiles.values())
+      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(
+        tuple(newRule1.getId(), ACTIVATED),
+        tuple(newRule2.getId(), ACTIVATED)
       );
   }
 
