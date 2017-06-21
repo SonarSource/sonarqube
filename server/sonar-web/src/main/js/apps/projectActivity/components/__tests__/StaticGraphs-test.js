@@ -56,22 +56,35 @@ const ANALYSES = [
   }
 ];
 
+const SERIES = [
+  {
+    name: 'bugs',
+    translatedName: 'metric.bugs.name',
+    style: 0,
+    data: [
+      { x: new Date('2016-10-27T16:33:50+0200'), y: 5 },
+      { x: new Date('2016-10-27T12:21:15+0200'), y: 16 },
+      { x: new Date('2016-10-26T12:17:29+0200'), y: 12 }
+    ]
+  }
+];
+
+const EMPTY_SERIES = [
+  {
+    name: 'bugs',
+    translatedName: 'metric.bugs.name',
+    style: 0,
+    data: []
+  }
+];
+
 const DEFAULT_PROPS = {
   analyses: ANALYSES,
   eventFilter: '',
+  filteredSeries: SERIES,
   leakPeriodDate: '2017-05-16T13:50:02+0200',
   loading: false,
-  measuresHistory: [
-    {
-      metric: 'bugs',
-      history: [
-        { date: new Date('2016-10-27T16:33:50+0200'), value: '5' },
-        { date: new Date('2016-10-27T12:21:15+0200'), value: '16' },
-        { date: new Date('2016-10-26T12:17:29+0200'), value: '12' }
-      ]
-    }
-  ],
-  seriesOrder: ['bugs'],
+  series: SERIES,
   metricsType: 'INT'
 };
 
@@ -80,9 +93,7 @@ it('should show a loading view', () => {
 });
 
 it('should show that there is no data', () => {
-  expect(
-    shallow(<StaticGraphs {...DEFAULT_PROPS} measuresHistory={[{ metric: 'bugs', history: [] }]} />)
-  ).toMatchSnapshot();
+  expect(shallow(<StaticGraphs {...DEFAULT_PROPS} series={EMPTY_SERIES} />)).toMatchSnapshot();
 });
 
 it('should correctly render a graph', () => {

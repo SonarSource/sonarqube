@@ -79,17 +79,19 @@ export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean
 
 export const generateCoveredLinesMetric = (
   uncoveredLines: MeasureHistory,
-  measuresHistory: Array<MeasureHistory>
+  measuresHistory: Array<MeasureHistory>,
+  style: string
 ) => {
   const linesToCover = measuresHistory.find(measure => measure.metric === 'lines_to_cover');
   return {
-    name: 'covered_lines',
-    translatedName: translate('project_activity.custom_metric.covered_lines'),
     data: linesToCover
       ? uncoveredLines.history.map((analysis, idx) => ({
           x: analysis.date,
           y: Number(linesToCover.history[idx].value) - Number(analysis.value)
         }))
-      : []
+      : [],
+    name: 'covered_lines',
+    style,
+    translatedName: translate('project_activity.custom_metric.covered_lines')
   };
 };

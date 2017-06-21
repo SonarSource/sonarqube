@@ -24,18 +24,19 @@ import { AutoSizer } from 'react-virtualized';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import StaticGraphsLegend from './StaticGraphsLegend';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
-import { EVENT_TYPES, generateCoveredLinesMetric } from '../utils';
+import { EVENT_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis, MeasureHistory } from '../types';
+import type { Analysis } from '../types';
+import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
   analyses: Array<Analysis>,
   eventFilter: string,
+  filteredSeries: Array<Serie>,
   leakPeriodDate: Date,
   loading: boolean,
-  measuresHistory: Array<MeasureHistory>,
   metricsType: string,
-  seriesOrder: Array<string>
+  series: Array<Serie>
 };
 
 export default class StaticGraphs extends React.PureComponent {
@@ -69,27 +70,7 @@ export default class StaticGraphs extends React.PureComponent {
     return sortBy(filteredEvents, 'date');
   };
 
-  getSeries = () =>
-    sortBy(
-      this.props.measuresHistory.map(measure => {
-        if (measure.metric === 'uncovered_lines') {
-          return generateCoveredLinesMetric(measure, this.props.measuresHistory);
-        }
-        return {
-          name: measure.metric,
-          translatedName: translate('metric', measure.metric, 'name'),
-          style: this.props.seriesOrder.indexOf(measure.metric),
-          data: measure.history.map(analysis => ({
-            x: analysis.date,
-            y: this.props.metricsType === 'LEVEL' ? analysis.value : Number(analysis.value)
-          }))
-        };
-      }),
-      'name'
-    );
-
-  hasHistoryData = () =>
-    some(this.props.measuresHistory, measure => measure.history && measure.history.length > 2);
+  hasHistoryData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
 
   render() {
     const { loading } = this.props;
@@ -114,7 +95,7 @@ export default class StaticGraphs extends React.PureComponent {
       );
     }
 
-    const series = this.getSeries();
+    const { filteredSeries, series } = this.props;
     return (
       <div className="project-activity-graph-container">
         <StaticGraphsLegend series={series} />
@@ -129,7 +110,7 @@ export default class StaticGraphs extends React.PureComponent {
                 formatYTick={this.formatYTick}
                 leakPeriodDate={this.props.leakPeriodDate}
                 metricType={this.props.metricsType}
-                series={series}
+                series={filteredSeries}
                 showAreas={this.props.showAreas}
                 width={width}
               />
