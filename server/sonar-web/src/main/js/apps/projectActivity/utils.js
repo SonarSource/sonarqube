@@ -77,6 +77,9 @@ export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolea
 export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   prevQuery.graph !== nextQuery.graph;
 
+export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  prevQuery.from !== nextQuery.from || prevQuery.to !== nextQuery.to;
+
 export const generateCoveredLinesMetric = (
   uncoveredLines: MeasureHistory,
   measuresHistory: Array<MeasureHistory>,

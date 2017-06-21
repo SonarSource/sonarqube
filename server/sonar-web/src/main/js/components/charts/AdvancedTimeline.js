@@ -20,18 +20,19 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { flatten } from 'lodash';
+import { flatten, sortBy } from 'lodash';
 import { extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
 
 type Event = { className?: string, name: string, date: Date };
-type Point = { x: Date, y: number | string };
+export type Point = { x: Date, y: number | string };
 export type Serie = { name: string, data: Array<Point>, style: string };
 type Scale = Function;
 
 type Props = {
   basisCurve?: boolean,
+  endDate: ?Date,
   events?: Array<Event>,
   eventSize?: number,
   formatYTick: number => string,
@@ -42,7 +43,8 @@ type Props = {
   padding: Array<number>,
   series: Array<Serie>,
   showAreas?: boolean,
-  showEventMarkers?: boolean
+  showEventMarkers?: boolean,
+  startDate: ?Date
 };
 
 export default class AdvancedTimeline extends React.PureComponent {
@@ -50,7 +52,7 @@ export default class AdvancedTimeline extends React.PureComponent {
 
   static defaultProps = {
     eventSize: 8,
-    padding: [25, 25, 30, 70]
+    padding: [10, 10, 30, 60]
   };
 
   getRatingScale = (availableHeight: number) =>
@@ -69,8 +71,12 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
   };
 
-  getXScale = (availableWidth: number, flatData: Array<Point>) =>
-    scaleTime().domain(extent(flatData, d => d.x)).range([0, availableWidth]).clamp(true);
+  getXScale = (availableWidth: number, flatData: Array<Point>) => {
+    const dateRange = extent(flatData, d => d.x);
+    const start = this.props.startDate ? this.props.startDate : dateRange[0];
+    const end = this.props.endDate ? this.props.endDate : dateRange[1];
+    return scaleTime().domain(sortBy([start, end])).range([0, availableWidth]).clamp(false);
+  };
 
   getScales = () => {
     const availableWidth = this.props.width - this.props.padding[1] - this.props.padding[3];
@@ -131,7 +137,7 @@ export default class AdvancedTimeline extends React.PureComponent {
           const nextTick = index + 1 < ticks.length ? ticks[index + 1] : xScale.domain()[1];
           const x = (xScale(tick) + xScale(nextTick)) / 2;
           return (
-            <text key={index} className="line-chart-tick" x={x} y={y} dy="2em">
+            <text key={index} className="line-chart-tick" x={x} y={y} dy="1.5em">
               {format(tick)}
             </text>
           );
@@ -144,13 +150,18 @@ export default class AdvancedTimeline extends React.PureComponent {
     if (!this.props.leakPeriodDate) {
       return null;
     }
-    const yScaleRange = yScale.range();
+    const yRange = yScale.range();
+    const xRange = xScale.range();
+    const leakWidth = xRange[xRange.length - 1] - xScale(this.props.leakPeriodDate);
+    if (leakWidth < 0) {
+      return null;
+    }
     return (
       <rect
         x={xScale(this.props.leakPeriodDate)}
-        y={yScaleRange[yScaleRange.length - 1]}
-        width={xScale.range()[1] - xScale(this.props.leakPeriodDate)}
-        height={yScaleRange[0] - yScaleRange[yScaleRange.length - 1]}
+        y={yRange[yRange.length - 1]}
+        width={leakWidth}
+        height={yRange[0] - yRange[yRange.length - 1]}
         fill="#fbf3d5"
       />
     );
@@ -222,14 +233,29 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
+  renderClipPath = (xScale: Scale, yScale: Scale) => {
+    return (
+      <defs>
+        <clipPath id="chart-clip">
+          <rect width={xScale.range()[1]} height={yScale.range()[0] + 10} />
+        </clipPath>
+      </defs>
+    );
+  };
+
   render() {
     if (!this.props.width || !this.props.height) {
       return <div />;
     }
 
     const { xScale, yScale } = this.getScales();
+    const isZoomed = this.props.startDate || this.props.endDate;
     return (
-      <svg className="line-chart" width={this.props.width} height={this.props.height}>
+      <svg
+        className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
+        width={this.props.width}
+        height={this.props.height}>
+        {this.renderClipPath(xScale, yScale)}
         <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
           {this.renderLeak(xScale, yScale)}
           {this.renderHorizontalGrid(xScale, yScale)}
