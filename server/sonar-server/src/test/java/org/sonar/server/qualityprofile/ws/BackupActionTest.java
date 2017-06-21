@@ -69,7 +69,7 @@ public class BackupActionTest {
     // parameters
     assertThat(definition.params()).hasSize(4);
     assertThat(definition.param("language")).isNotNull();
-    assertThat(definition.param("profileKey")).isNotNull();
+    assertThat(definition.param("profile")).isNotNull();
     assertThat(definition.param("profileName")).isNotNull();
     WebService.Param orgParam = definition.param("organization");
     assertThat(orgParam).isNotNull();

@@ -51,6 +51,7 @@ public class QualityProfileWsParameters {
   public static final String PARAM_PROFILE = "profile";
   public static final String PARAM_PROFILE_KEY = "profileKey";
   public static final String PARAM_PROFILE_NAME = "profileName";
+  public static final String PARAM_PROJECT = "project";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_PROJECT_UUID = "projectUuid";
   public static final String PARAM_RESET = "reset";

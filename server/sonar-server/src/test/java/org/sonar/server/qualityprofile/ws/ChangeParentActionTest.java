@@ -148,7 +148,7 @@ public class ChangeParentActionTest {
     assertThat(changeParent).isNotNull();
     assertThat(changeParent.isPost()).isTrue();
     assertThat(changeParent.params()).extracting("key").containsExactlyInAnyOrder(
-      "organization", "profileKey", "profileName", "language", "parentKey", "parentName");
+      "organization", "profile", "profileName", "language", "parentKey", "parentName");
     assertThat(changeParent.param("organization").since()).isEqualTo("6.4");
   }
 

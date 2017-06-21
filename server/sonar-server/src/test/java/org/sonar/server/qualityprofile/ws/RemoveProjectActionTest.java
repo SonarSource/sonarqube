@@ -71,7 +71,7 @@ public class RemoveProjectActionTest {
     assertThat(definition.isPost()).isTrue();
 
     // parameters
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("profileKey", "profileName", "projectKey", "language", "projectUuid", "organization");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("profile", "profileName", "projectKey", "language", "projectUuid", "organization");
     WebService.Param languageParam = definition.param("language");
     assertThat(languageParam.possibleValues()).containsOnly(LANGUAGE_1, LANGUAGE_2);
     assertThat(languageParam.exampleValue()).isNull();

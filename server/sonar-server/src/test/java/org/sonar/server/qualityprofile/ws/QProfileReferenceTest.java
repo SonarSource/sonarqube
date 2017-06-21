@@ -101,7 +101,7 @@ public class QProfileReferenceTest {
   @Test
   public void from_reads_request_parameters_and_creates_reference_by_key() {
     SimpleGetRequest req = new SimpleGetRequest();
-    req.setParam("profileKey", "foo");
+    req.setParam("profile", "foo");
 
     QProfileReference ref = QProfileReference.from(req);
     assertThat(ref.getKey()).isEqualTo("foo");
@@ -165,7 +165,7 @@ public class QProfileReferenceTest {
     WebService.Action action = wsTester.controller("api/qualityprofiles").action("do");
     assertThat(action.param("language")).isNotNull();
     assertThat(action.param("language").possibleValues()).containsOnly("java", "js");
-    assertThat(action.param("profileKey")).isNotNull();
+    assertThat(action.param("profile")).isNotNull();
     assertThat(action.param("profileName")).isNotNull();
   }
 

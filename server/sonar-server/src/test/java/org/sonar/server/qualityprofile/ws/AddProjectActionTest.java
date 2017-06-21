@@ -70,10 +70,20 @@ public class AddProjectActionTest {
     assertThat(definition.isPost()).isTrue();
 
     // parameters
-    assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("profileKey", "profileName", "projectKey", "language", "projectUuid", "organization");
+    assertThat(definition.params()).extracting(WebService.Param::key)
+      .containsExactlyInAnyOrder("profile", "profileName", "project", "language", "projectUuid", "organization");
+    WebService.Param profile = definition.param("profile");
+    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
+    WebService.Param profileName = definition.param("profileName");
+    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
     WebService.Param languageParam = definition.param("language");
     assertThat(languageParam.possibleValues()).containsOnly(LANGUAGE_1, LANGUAGE_2);
     assertThat(languageParam.exampleValue()).isNull();
+    assertThat(languageParam.deprecatedSince()).isEqualTo("6.5");
+    WebService.Param project = definition.param("project");
+    assertThat(project.deprecatedKey()).isEqualTo("projectKey");
+    WebService.Param projectUuid = definition.param("projectUuid");
+    assertThat(projectUuid.deprecatedSince()).isEqualTo("6.5");
     WebService.Param organizationParam = definition.param("organization");
     assertThat(organizationParam.since()).isEqualTo("6.4");
     assertThat(organizationParam.isInternal()).isTrue();
@@ -113,7 +123,7 @@ public class AddProjectActionTest {
     QProfileDto profileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(LANGUAGE_1));
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Project and Quality profile must have same organization");
+    expectedException.expectMessage("Project and quality profile must have the same organization");
 
     call(org2, project, profileInOrg2);
 
@@ -248,7 +258,7 @@ public class AddProjectActionTest {
   private TestResponse call(ComponentDto project, QProfileDto qualityProfile) {
     TestRequest request = tester.newRequest()
       .setParam("projectUuid", project.uuid())
-      .setParam("profileKey", qualityProfile.getKee());
+      .setParam("profile", qualityProfile.getKee());
     return request.execute();
   }
 

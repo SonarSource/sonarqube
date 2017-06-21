@@ -171,7 +171,7 @@ public class QProfilesWsTest {
     assertThat(delete).isNotNull();
     assertThat(delete.isPost()).isTrue();
     assertThat(delete.params()).hasSize(4).extracting("key").containsOnly(
-      "organization", "profileKey", "language", "profileName");
+      "organization", "profile", "language", "profileName");
   }
 
   @Test
@@ -189,7 +189,7 @@ public class QProfilesWsTest {
     assertThat(inheritance).isNotNull();
     assertThat(inheritance.isPost()).isFalse();
     assertThat(inheritance.params()).hasSize(4).extracting("key").containsExactlyInAnyOrder(
-      "organization", "profileKey", "language", "profileName");
+      "organization", "profile", "language", "profileName");
     assertThat(inheritance.responseExampleAsString()).isNotEmpty();
   }
 
