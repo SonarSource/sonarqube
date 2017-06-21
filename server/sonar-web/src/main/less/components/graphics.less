@@ -263,3 +263,47 @@
 .histogram-value {
   text-anchor: start;
 }
+
+/*
+ * Charts zooming
+ */
+
+.chart-zoomed {
+  .line-chart-area {
+    clip-path: url(#chart-clip);
+  }
+
+  .line-chart-path {
+    clip-path: url(#chart-clip);
+  }
+}
+
+.chart-zoom-tick {
+  fill: @secondFontColor;
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.chart-zoom {
+
+  .zoom-overlay{
+    fill: none;
+    stroke: none;
+    cursor: crosshair;;
+    pointer-events: all;
+  }
+
+  .zoom-selection {
+    fill: @secondFontColor;
+    fill-opacity: 0.2;
+    stroke: @secondFontColor;
+    shape-rendering: crispEdges;
+    cursor: move;
+  }
+
+  .zoom-selection-handle {
+    cursor: ew-resize;
+    fill-opacity: 0;
+    stroke: none;
+  }
+}
