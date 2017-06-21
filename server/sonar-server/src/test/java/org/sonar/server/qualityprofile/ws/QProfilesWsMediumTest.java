@@ -58,11 +58,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.server.qualityprofile.ws.QProfilesWs.API_ENDPOINT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 
@@ -285,8 +288,8 @@ public class QProfilesWsMediumTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, profile.getKee());
     request.setParam(PARAM_LANGUAGES, "java");
     request.execute().assertJson(getClass(), "bulk_activate_rule.json");
     dbSession.clearCache();
@@ -309,8 +312,8 @@ public class QProfilesWsMediumTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, php.getKee())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, php.getKee());
+    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, php.getKee());
     request.setParam(PARAM_LANGUAGES, "php");
     request.execute().assertJson(getClass(), "bulk_activate_rule_not_all.json");
     dbSession.clearCache();
@@ -332,8 +335,8 @@ public class QProfilesWsMediumTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
 
     // 1. Activate Rule with query returning 0 hits
-    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    WsTester.TestRequest request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, profile.getKee());
     request.setParam(Param.TEXT_QUERY, "php");
     request.execute();
     dbSession.clearCache();
@@ -342,8 +345,8 @@ public class QProfilesWsMediumTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).hasSize(0);
 
     // 1. Activate Rule with query returning 1 hits
-    request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profile.getKee());
+    request = ws.newPostRequest(QProfilesWs.API_ENDPOINT, ACTION_ACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, profile.getKee());
     request.setParam(Param.TEXT_QUERY, "world");
     request.execute();
     dbSession.commit();
@@ -368,9 +371,9 @@ public class QProfilesWsMediumTest {
       new SearchOptions()).getIds()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
-    WsTester.TestRequest request = ws.newPostRequest(API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(ActivateRulesAction.PROFILE_KEY, profile.getKee());
-    request.setParam(ActivateRulesAction.SEVERITY, "MINOR");
+    WsTester.TestRequest request = ws.newPostRequest(API_ENDPOINT, ACTION_ACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, profile.getKee());
+    request.setParam(PARAM_TARGET_SEVERITY, "MINOR");
     request.execute();
     dbSession.commit();
 
@@ -394,8 +397,8 @@ public class QProfilesWsMediumTest {
     dbSession.commit();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = ws.newPostRequest(API_ENDPOINT, ActivateRulesAction.ACTIVATE_RULES_ACTION);
-    request.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, javaProfile.getKee());
+    WsTester.TestRequest request = ws.newPostRequest(API_ENDPOINT, ACTION_ACTIVATE_RULES);
+    request.setParam(PARAM_TARGET_PROFILE, javaProfile.getKee());
     request.setParam(PARAM_QPROFILE, javaProfile.getKee());
     request.setParam("activation", "false");
     request.execute().assertJson(getClass(), "does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile.json");

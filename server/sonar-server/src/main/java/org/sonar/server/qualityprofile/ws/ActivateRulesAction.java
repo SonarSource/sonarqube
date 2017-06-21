@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,16 +31,15 @@ import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_03;
+import static org.sonar.server.qualityprofile.ws.BulkChangeWsResponse.writeResponse;
 import static org.sonar.server.qualityprofile.ws.QProfileReference.fromKey;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
 
-@ServerSide
 public class ActivateRulesAction implements QProfileWsAction {
-
-  public static final String PROFILE_KEY = "profile_key";
-  public static final String SEVERITY = "activation_severity";
-
-  public static final String ACTIVATE_RULES_ACTION = "activate_rules";
 
   private final RuleQueryFactory ruleQueryFactory;
   private final UserSession userSession;
@@ -59,35 +57,39 @@ public class ActivateRulesAction implements QProfileWsAction {
 
   public void define(WebService.NewController controller) {
     WebService.NewAction activate = controller
-      .createAction(ACTIVATE_RULES_ACTION)
-      .setDescription("Bulk-activate rules on one or several Quality profiles")
+      .createAction(ACTION_ACTIVATE_RULES)
+      .setDescription("Bulk-activate rules on one quality profile.<br> " +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setPost(true)
       .setSince("4.4")
       .setHandler(this);
 
     defineRuleSearchParameters(activate);
 
-    activate.createParam(PROFILE_KEY)
-      .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see <code>api/qualityprofiles/search</code>")
+    activate.createParam(PARAM_TARGET_PROFILE)
+      .setDescription("Quality Profile key on which the rule activation is done. To retrieve a profile key please see <code>api/qualityprofiles/search</code>")
+      .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
-      .setExampleValue("java:MyProfile");
+      .setExampleValue(UUID_EXAMPLE_03);
 
-    activate.createParam(SEVERITY)
-      .setDescription("Optional severity of rules activated in bulk")
+    activate.createParam(PARAM_TARGET_SEVERITY)
+      .setDescription("Severity to set on the activated rules")
+      .setDeprecatedKey("activation_severity", "6.5")
       .setPossibleValues(Severity.ALL);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String qualityProfileKey = request.mandatoryParam(PROFILE_KEY);
+    String qualityProfileKey = request.mandatoryParam(PARAM_TARGET_PROFILE);
     userSession.checkLoggedIn();
     BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, fromKey(qualityProfileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
-      result = ruleActivator.bulkActivate(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile, request.param(SEVERITY));
+      result = ruleActivator.bulkActivate(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile, request.param(PARAM_TARGET_SEVERITY));
     }
-    BulkChangeWsResponse.writeResponse(result, response);
+
+    writeResponse(result, response);
   }
 }

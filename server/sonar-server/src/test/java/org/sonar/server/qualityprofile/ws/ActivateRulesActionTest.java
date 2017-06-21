@@ -43,34 +43,36 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_PROFILE;
 
 public class ActivateRulesActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(dbTester));
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
   private RuleQueryFactory ruleQueryFactory = mock(RuleQueryFactory.class);
-  private ActivateRulesAction underTest = new ActivateRulesAction(ruleQueryFactory, userSession, ruleActivator, wsSupport, dbClient);
-  private WsActionTester wsActionTester = new WsActionTester(underTest);
+
+  private WsActionTester ws = new WsActionTester(new ActivateRulesAction(ruleQueryFactory, userSession, ruleActivator, wsSupport, dbClient));
+
   private OrganizationDto defaultOrganization;
   private OrganizationDto organization;
 
   @Before
   public void before() {
-    defaultOrganization = dbTester.getDefaultOrganization();
-    organization = dbTester.organizations().insert();
+    defaultOrganization = db.getDefaultOrganization();
+    organization = db.organizations().insert();
   }
 
   @Test
   public void define_bulk_activate_rule_action() {
-    WebService.Action definition = wsActionTester.getDef();
+    WebService.Action definition = ws.getDef();
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
@@ -80,42 +82,46 @@ public class ActivateRulesActionTest {
       "is_template",
       "inheritance",
       "qprofile",
-      "activation_severity",
+      "targetSeverity",
       "tags",
       "asc",
       "q",
       "active_severities",
       "s",
       "repositories",
-      "profile_key",
+      "targetProfile",
       "statuses",
       "rule_key",
       "available_since",
       "activation",
       "severities",
-      "organization"
-    );
+      "organization");
+    WebService.Param targetProfile = definition.param("targetProfile");
+    assertThat(targetProfile.deprecatedKey()).isEqualTo("profile_key");
+    WebService.Param targetSeverity = definition.param("targetSeverity");
+    assertThat(targetSeverity.deprecatedKey()).isEqualTo("activation_severity");
   }
 
   @Test
   public void should_fail_if_not_logged_in() {
-    TestRequest request = wsActionTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam("profile_key", randomAlphanumeric(UUID_SIZE));
+      .setParam(PARAM_TARGET_PROFILE, randomAlphanumeric(UUID_SIZE));
 
-    thrown.expect(UnauthorizedException.class);
+    expectedException.expect(UnauthorizedException.class);
+
     request.execute();
   }
 
   @Test
   public void fail_if_built_in_profile() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization, p -> p.setIsBuiltIn(true));
-    TestRequest request = wsActionTester.newRequest()
+    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, p -> p.setIsBuiltIn(true));
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam("profile_key", qualityProfile.getKee());
+      .setParam(PARAM_TARGET_PROFILE, qualityProfile.getKee());
 
-    thrown.expect(BadRequestException.class);
+    expectedException.expect(BadRequestException.class);
 
     request.execute();
   }
@@ -123,12 +129,13 @@ public class ActivateRulesActionTest {
   @Test
   public void should_fail_if_not_organization_quality_profile_administrator() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
-    TestRequest request = wsActionTester.newRequest()
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam("profile_key", qualityProfile.getKee());
+      .setParam(PARAM_TARGET_PROFILE, qualityProfile.getKee());
 
-    thrown.expect(ForbiddenException.class);
+    expectedException.expect(ForbiddenException.class);
+
     request.execute();
   }
 }

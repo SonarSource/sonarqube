@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.qualityprofile;
 public class QualityProfileWsParameters {
 
   public static final String CONTROLLER_QUALITY_PROFILES = "api/qualityprofiles";
+
   public interface ActivateActionParameters {
     String PARAM_PROFILE_KEY = "profile_key";
   }
@@ -30,8 +31,9 @@ public class QualityProfileWsParameters {
   public interface RestoreActionParameters {
     String PARAM_BACKUP = "backup";
   }
-  public static final String ACTION_ACTIVATE_RULE = "activate_rule";
 
+  public static final String ACTION_ACTIVATE_RULE = "activate_rule";
+  public static final String ACTION_ACTIVATE_RULES = "activate_rules";
   public static final String ACTION_ADD_PROJECT = "add_project";
   public static final String ACTION_CHANGE_PARENT = "change_parent";
   public static final String ACTION_COPY = "copy";
@@ -56,8 +58,9 @@ public class QualityProfileWsParameters {
   public static final String PARAM_PROJECT_UUID = "projectUuid";
   public static final String PARAM_RESET = "reset";
   public static final String PARAM_RULE = "rule";
-  public static final String PARAM_RULE_KEY = "ruleKey";
   public static final String PARAM_SEVERITY = "severity";
+  public static final String PARAM_TARGET_PROFILE = "targetProfile";
+  public static final String PARAM_TARGET_SEVERITY = "targetSeverity";
   public static final String PARAM_TO_NAME = "toName";
 
   private QualityProfileWsParameters() {
