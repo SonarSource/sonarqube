@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
@@ -49,7 +48,10 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.UUID_SIZE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 
 public class DeactivateRuleActionTest {
   @Rule
@@ -57,7 +59,7 @@ public class DeactivateRuleActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = db.getDbClient();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
@@ -78,17 +80,22 @@ public class DeactivateRuleActionTest {
     WebService.Action definition = wsActionTester.getDef();
     assertThat(definition).isNotNull();
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("profile_key", "rule_key");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("profile", "rule");
+    WebService.Param profileKey = definition.param("profile");
+    assertThat(profileKey.deprecatedKey()).isEqualTo("profile_key");
+    WebService.Param ruleKey = definition.param("rule");
+    assertThat(ruleKey.deprecatedKey()).isEqualTo("rule_key");
   }
 
   @Test
   public void should_fail_if_not_logged_in() {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
-      .setParam("profile_key", randomAlphanumeric(UUID_SIZE));
+      .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
+      .setParam(PARAM_PROFILE, randomAlphanumeric(UUID_SIZE));
 
-    thrown.expect(UnauthorizedException.class);
+    expectedException.expect(UnauthorizedException.class);
+
     request.execute();
   }
 
@@ -98,10 +105,11 @@ public class DeactivateRuleActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
-      .setParam("profile_key", qualityProfile.getKee());
+      .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
+      .setParam(PARAM_PROFILE, qualityProfile.getKee());
 
-    thrown.expect(ForbiddenException.class);
+    expectedException.expect(ForbiddenException.class);
+
     request.execute();
   }
 
@@ -112,10 +120,10 @@ public class DeactivateRuleActionTest {
     QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true));
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam("rule_key", RuleTesting.newRuleDto().getKey().toString())
-      .setParam("profile_key", qualityProfile.getKee());
+      .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
+      .setParam(PARAM_PROFILE, qualityProfile.getKee());
 
-    thrown.expect(BadRequestException.class);
+    expectedException.expect(BadRequestException.class);
 
     request.execute();
   }
@@ -127,15 +135,15 @@ public class DeactivateRuleActionTest {
     RuleKey ruleKey = RuleTesting.randomRuleKey();
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
-      .setParam("rule_key", ruleKey.toString())
-      .setParam("profile_key", qualityProfile.getKee());
+      .setParam(PARAM_RULE, ruleKey.toString())
+      .setParam(PARAM_PROFILE, qualityProfile.getKee());
 
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleKey> ruleKeyCaptor = ArgumentCaptor.forClass(RuleKey.class);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    Mockito.verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
+    verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
     assertThat(ruleKeyCaptor.getValue()).isEqualTo(ruleKey);
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
@@ -148,15 +156,15 @@ public class DeactivateRuleActionTest {
     TestRequest request = wsActionTester.newRequest()
       .setMethod("POST")
       .setParam("organization", organization.getKey())
-      .setParam("rule_key", ruleKey.toString())
-      .setParam("profile_key", qualityProfile.getKee());
+      .setParam(PARAM_RULE, ruleKey.toString())
+      .setParam(PARAM_PROFILE, qualityProfile.getKee());
 
     TestResponse response = request.execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleKey> captor = ArgumentCaptor.forClass(RuleKey.class);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    Mockito.verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), qProfileDtoCaptor.capture(), captor.capture());
+    verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), qProfileDtoCaptor.capture(), captor.capture());
     assertThat(captor.getValue()).isEqualTo(ruleKey);
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }

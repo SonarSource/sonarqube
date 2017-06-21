@@ -39,7 +39,6 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
@@ -55,7 +54,6 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
@@ -79,8 +77,8 @@ public class QualityProfilesService extends BaseService {
 
   public void deactivateRule(String profileKey, String ruleKey) {
     PostRequest httpRequest = new PostRequest(path(ACTION_DEACTIVATE_RULE));
-    httpRequest.setParam(ActivateActionParameters.PARAM_PROFILE_KEY, profileKey);
-    httpRequest.setParam(ActivateActionParameters.PARAM_RULE_KEY, ruleKey);
+    httpRequest.setParam(PARAM_PROFILE, profileKey);
+    httpRequest.setParam(PARAM_RULE, ruleKey);
     call(httpRequest);
   }
 

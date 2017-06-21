@@ -24,7 +24,6 @@ public class QualityProfileWsParameters {
   public static final String CONTROLLER_QUALITY_PROFILES = "api/qualityprofiles";
   public interface ActivateActionParameters {
     String PARAM_PROFILE_KEY = "profile_key";
-    String PARAM_RULE_KEY = "rule_key";
   }
   public static final String ACTION_RESTORE = "restore";
 

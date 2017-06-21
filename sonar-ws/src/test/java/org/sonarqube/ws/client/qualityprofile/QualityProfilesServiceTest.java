@@ -153,8 +153,8 @@ public class QualityProfilesServiceTest {
 
     serviceTester.assertThat(request)
       .hasPath("deactivate_rule")
-      .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY, "P1")
-      .hasParam(QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY, "R1")
+      .hasParam(PARAM_PROFILE, "P1")
+      .hasParam(PARAM_RULE, "R1")
       .andNoOtherParam();
   }
 

@@ -20,22 +20,20 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_PROFILE_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ActivateActionParameters.PARAM_RULE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 
-@ServerSide
 public class DeactivateRuleAction implements QProfileWsAction {
 
   private final DbClient dbClient;
@@ -53,26 +51,29 @@ public class DeactivateRuleAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction deactivate = controller
       .createAction(ACTION_DEACTIVATE_RULE)
-      .setDescription("Deactivate a rule on a Quality profile")
+      .setDescription("Deactivate a rule on a Quality profile.<br> " +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setHandler(this)
       .setPost(true)
       .setSince("4.4");
 
-    deactivate.createParam(PARAM_PROFILE_KEY)
-      .setDescription("Key of Quality profile, can be obtained through <code>api/qualityprofiles/search</code>")
+    deactivate.createParam(PARAM_PROFILE)
+      .setDescription("Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>")
+      .setDeprecatedKey("profile_key", "6.5")
       .setRequired(true)
-      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+      .setExampleValue(UUID_EXAMPLE_01);
 
-    deactivate.createParam(PARAM_RULE_KEY)
-      .setDescription("Key of the rule")
+    deactivate.createParam(PARAM_RULE)
+      .setDescription("Rule key")
+      .setDeprecatedKey("rule_key", "6.5")
       .setRequired(true)
       .setExampleValue("squid:AvoidCycles");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE_KEY));
-    String qualityProfileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
+    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam(PARAM_RULE));
+    String qualityProfileKey = request.mandatoryParam(PARAM_PROFILE);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));
