@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -39,6 +40,7 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
 public class BackupActionTest {
 
@@ -67,12 +69,14 @@ public class BackupActionTest {
     assertThat(definition.isPost()).isFalse();
 
     // parameters
-    assertThat(definition.params()).hasSize(4);
-    assertThat(definition.param("language")).isNotNull();
-    assertThat(definition.param("profile")).isNotNull();
-    assertThat(definition.param("profileName")).isNotNull();
-    WebService.Param orgParam = definition.param("organization");
-    assertThat(orgParam).isNotNull();
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "organization", "profileName", "language");
+    Param profile = definition.param("profile");
+    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
+    Param language = definition.param("language");
+    assertThat(language.deprecatedSince()).isEqualTo("6.5");
+    Param profileName = definition.param("profileName");
+    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    Param orgParam = definition.param("organization");
     assertThat(orgParam.since()).isEqualTo("6.4");
   }
 
@@ -80,7 +84,7 @@ public class BackupActionTest {
   public void returns_backup_of_profile_with_specified_key() throws Exception {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
-    TestResponse response = tester.newRequest().setParam("profileKey", profile.getKee()).execute();
+    TestResponse response = tester.newRequest().setParam(PARAM_PROFILE, profile.getKee()).execute();
     assertThat(response.getMediaType()).isEqualTo("application/xml");
     assertThat(response.getInput()).isXmlEqualTo(xmlForProfileWithoutRules(profile));
     assertThat(response.getHeader("Content-Disposition")).isEqualTo("attachment; filename=" + profile.getKee() + ".xml");
@@ -115,7 +119,7 @@ public class BackupActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'missing' does not exist");
 
-    tester.newRequest().setParam("profileKey", "missing").execute();
+    tester.newRequest().setParam(PARAM_PROFILE, "missing").execute();
   }
 
   @Test
