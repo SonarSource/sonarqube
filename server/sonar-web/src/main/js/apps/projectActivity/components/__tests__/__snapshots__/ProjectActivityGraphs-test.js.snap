@@ -1,5 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`should render correctly filter history on dates 1`] = `
+Object {
+  "filteredSeries": Array [
+    Object {
+      "data": Array [],
+      "name": "code_smells",
+      "style": 1,
+      "translatedName": "metric.code_smells.name",
+    },
+  ],
+  "series": Array [
+    Object {
+      "data": Array [
+        Object {
+          "x": 2016-10-26T10:17:29.000Z,
+          "y": 2286,
+        },
+        Object {
+          "x": 2016-10-27T10:21:15.000Z,
+          "y": 1749,
+        },
+        Object {
+          "x": 2016-10-27T14:33:50.000Z,
+          "y": 500,
+        },
+      ],
+      "name": "code_smells",
+      "style": 1,
+      "translatedName": "metric.code_smells.name",
+    },
+  ],
+}
+`;
+
 exports[`should render correctly the graph and legends 1`] = `
 <div
   className="project-activity-layout-page-main-inner boxed-group boxed-group-inner"
@@ -46,36 +80,54 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     eventFilter=""
-    leakPeriodDate="2017-05-16T13:50:02+0200"
-    loading={false}
-    measuresHistory={
+    filteredSeries={
       Array [
         Object {
-          "history": Array [
+          "data": Array [
             Object {
-              "date": 2016-10-26T10:17:29.000Z,
-              "value": "2286",
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 2286,
             },
             Object {
-              "date": 2016-10-27T10:21:15.000Z,
-              "value": "1749",
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 1749,
             },
             Object {
-              "date": 2016-10-27T14:33:50.000Z,
-              "value": "500",
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 500,
             },
           ],
-          "metric": "code_smells",
+          "name": "code_smells",
+          "style": 1,
+          "translatedName": "metric.code_smells.name",
         },
       ]
     }
+    leakPeriodDate="2017-05-16T13:50:02+0200"
+    loading={false}
     metricsType="INT"
     project="org.sonarsource.sonarqube:sonarqube"
-    seriesOrder={
+    series={
       Array [
-        "bugs",
-        "code_smells",
-        "vulnerabilities",
+        Object {
+          "data": Array [
+            Object {
+              "x": 2016-10-26T10:17:29.000Z,
+              "y": 2286,
+            },
+            Object {
+              "x": 2016-10-27T10:21:15.000Z,
+              "y": 1749,
+            },
+            Object {
+              "x": 2016-10-27T14:33:50.000Z,
+              "y": 500,
+            },
+          ],
+          "name": "code_smells",
+          "style": 1,
+          "translatedName": "metric.code_smells.name",
+        },
       ]
     }
     showAreas={false}
