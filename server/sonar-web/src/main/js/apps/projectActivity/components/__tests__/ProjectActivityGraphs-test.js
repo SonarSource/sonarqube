@@ -79,3 +79,13 @@ const DEFAULT_PROPS = {
 it('should render correctly the graph and legends', () => {
   expect(shallow(<ProjectActivityGraphs {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
+
+it('should render correctly filter history on dates', () => {
+  const wrapper = shallow(
+    <ProjectActivityGraphs
+      {...DEFAULT_PROPS}
+      query={{ ...DEFAULT_PROPS.query, from: '2016-10-27T12:21:15+0200' }}
+    />
+  );
+  expect(wrapper.state()).toMatchSnapshot();
+});
