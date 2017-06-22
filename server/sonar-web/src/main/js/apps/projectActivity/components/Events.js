@@ -35,8 +35,8 @@ type Props = {
 export default function Events(props: Props) {
   const sortedEvents: Array<EventType> = sortBy(
     props.events,
-    // versions first
-    (event: EventType) => (event.category === 'VERSION' ? 0 : 1),
+    // versions last
+    (event: EventType) => (event.category === 'VERSION' ? 1 : 0),
     // then the rest sorted by category
     'category'
   );
