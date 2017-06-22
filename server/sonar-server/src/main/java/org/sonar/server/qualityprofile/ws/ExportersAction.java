@@ -34,7 +34,7 @@ public class ExportersAction implements QProfileWsAction {
   }
 
   /**
-   * Used by Pico is no {@link ProfileExporter} is found
+   * Used by Pico if no {@link ProfileExporter} is found
    */
   public ExportersAction() {
     this(new ProfileExporter[0]);
@@ -45,7 +45,7 @@ public class ExportersAction implements QProfileWsAction {
     context.createAction("exporters")
       .setDescription("Lists available profile export formats.")
       .setHandler(this)
-      .setResponseExample(getClass().getResource("example-exporters.json"))
+      .setResponseExample(getClass().getResource("exporters-example.json"))
       .setSince("5.2");
   }
 

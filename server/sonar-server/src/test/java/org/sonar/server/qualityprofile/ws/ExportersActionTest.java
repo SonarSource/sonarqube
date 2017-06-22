@@ -23,16 +23,18 @@ import java.io.Writer;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
+
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ExportersActionTest {
+  private WsActionTester ws = new WsActionTester(new ExportersAction(createExporters()));
 
   @Test
   public void importers_nominal() throws Exception {
-    WsTester wsTester = new WsTester(new QProfilesWs(
-      new ExportersAction(createExporters())));
+    String result = ws.newRequest().execute().getInput();
 
-    wsTester.newGetRequest("api/qualityprofiles", "exporters").execute().assertJson(getClass(), "exporters.json");
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   private ProfileExporter[] createExporters() {
@@ -49,9 +51,10 @@ public class ExportersActionTest {
 
     }
     return new ProfileExporter[] {
-      new NoopImporter("findbugs", "FindBugs", "java"),
-      new NoopImporter("jslint", "JS Lint", "js"),
-      new NoopImporter("vaadin", "Vaadin", "java", "js")
+      new NoopImporter("pmd", "PMD", "java"),
+      new NoopImporter("checkstyle", "Checkstyle", "java"),
+      new NoopImporter("js-lint", "JS Lint", "js"),
+      new NoopImporter("android-lint", "Android Lint", "xml", "java")
     };
   }
 }
