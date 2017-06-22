@@ -19,10 +19,9 @@
  */
 // @flow
 import React from 'react';
-import { some, throttle } from 'lodash';
+import { some } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
 import ZoomTimeLine from '../../../components/charts/ZoomTimeLine';
-import type { RawQuery } from '../../../helpers/query';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
@@ -33,21 +32,13 @@ type Props = {
   metricsType: string,
   series: Array<Serie>,
   showAreas?: boolean,
-  updateGraphZoom: (from: ?Date, to: ?Date) => void,
-  updateQuery: RawQuery => void
+  updateGraphZoom: (from: ?Date, to: ?Date) => void
 };
 
 export default class GraphsZoom extends React.PureComponent {
   props: Props;
 
-  constructor(props: Props) {
-    super(props);
-    this.updateDateRange = throttle(this.updateDateRange, 100);
-  }
-
   hasHistoryData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
-
-  updateDateRange = (from: ?Date, to: ?Date) => this.props.updateQuery({ from, to });
 
   render() {
     const { loading } = this.props;
@@ -70,8 +61,7 @@ export default class GraphsZoom extends React.PureComponent {
               series={this.props.series}
               showAreas={this.props.showAreas}
               startDate={this.props.graphStartDate}
-              updateZoom={this.updateDateRange}
-              updateZoomFast={this.props.updateGraphZoom}
+              updateZoom={this.props.updateGraphZoom}
             />
           )}
         </AutoSizer>
