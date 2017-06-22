@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import { debounce, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import StaticGraphs from './StaticGraphs';
@@ -62,6 +63,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       graphEndDate: props.query.to || null,
       series
     };
+    this.updateQueryDateRange = debounce(this.updateQueryDateRange, 250);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -100,8 +102,27 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       };
     });
 
-  updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) =>
+  updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) => {
+    if (graphEndDate != null && graphStartDate != null) {
+      const msDiff = Math.abs(graphEndDate.valueOf() - graphStartDate.valueOf());
+      // 12 hours minimum between the two dates
+      if (msDiff < 1000 * 60 * 60 * 12) {
+        return;
+      }
+    }
+
     this.setState({ graphStartDate, graphEndDate });
+    this.updateQueryDateRange([graphStartDate, graphEndDate]);
+  };
+
+  updateQueryDateRange = (dates: Array<?Date>) => {
+    if (dates[0] == null || dates[1] == null) {
+      this.props.updateQuery({ from: dates[0], to: dates[1] });
+    } else {
+      const sortedDates = sortBy(dates);
+      this.props.updateQuery({ from: sortedDates[0], to: sortedDates[1] });
+    }
+  };
 
   render() {
     const { leakPeriodDate, loading, metricsType, query } = this.props;
@@ -120,6 +141,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
           project={this.props.project}
           series={series}
           showAreas={['coverage', 'duplications'].includes(query.graph)}
+          updateGraphZoom={this.updateGraphZoom}
         />
         <GraphsZoom
           graphEndDate={this.state.graphEndDate}
@@ -130,7 +152,6 @@ export default class ProjectActivityGraphs extends React.PureComponent {
           series={series}
           showAreas={['coverage', 'duplications'].includes(query.graph)}
           updateGraphZoom={this.updateGraphZoom}
-          updateQuery={this.props.updateQuery}
         />
       </div>
     );
