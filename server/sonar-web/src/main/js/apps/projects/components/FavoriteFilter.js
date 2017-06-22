@@ -21,7 +21,7 @@
 import React from 'react';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
-import { saveAll, saveFavorite } from '../utils';
+import { saveAll, saveFavorite } from '../../../helpers/storage';
 import type { RawQuery } from '../../../helpers/query';
 
 type Props = {

@@ -38,12 +38,42 @@ export const GRAPHS_METRICS = {
   remediation: ['reliability_remediation_effort', 'sqale_index', 'security_remediation_effort']
 };
 
+export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  prevQuery.category !== nextQuery.category ||
+  prevQuery.from !== nextQuery.from ||
+  prevQuery.to !== nextQuery.to;
+
+export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  prevQuery.from !== nextQuery.from || prevQuery.to !== nextQuery.to;
+
+export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  prevQuery.graph !== nextQuery.graph;
+
+export const generateCoveredLinesMetric = (
+  uncoveredLines: MeasureHistory,
+  measuresHistory: Array<MeasureHistory>,
+  style: string
+) => {
+  const linesToCover = measuresHistory.find(measure => measure.metric === 'lines_to_cover');
+  return {
+    data: linesToCover
+      ? uncoveredLines.history.map((analysis, idx) => ({
+          x: analysis.date,
+          y: Number(linesToCover.history[idx].value) - Number(analysis.value)
+        }))
+      : [],
+    name: 'covered_lines',
+    style,
+    translatedName: translate('project_activity.custom_metric.covered_lines')
+  };
+};
+
 const parseGraph = (value?: string): string => {
   const graph = parseAsString(value);
   return GRAPH_TYPES.includes(graph) ? graph : 'overview';
 };
 
-const serializeGraph = (value: string): string => (value === 'overview' ? '' : value);
+const serializeGraph = (value: string): ?string => (value === 'overview' ? undefined : value);
 
 export const parseQuery = (urlQuery: RawQuery): Query => ({
   category: parseAsString(urlQuery['category']),
@@ -67,34 +97,4 @@ export const serializeUrlQuery = (query: Query): RawQuery => {
     id: serializeString(query.project),
     to: serializeDate(query.to)
   });
-};
-
-export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
-  prevQuery.category !== nextQuery.category ||
-  prevQuery.from !== nextQuery.from ||
-  prevQuery.to !== nextQuery.to;
-
-export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
-  prevQuery.graph !== nextQuery.graph;
-
-export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
-  prevQuery.from !== nextQuery.from || prevQuery.to !== nextQuery.to;
-
-export const generateCoveredLinesMetric = (
-  uncoveredLines: MeasureHistory,
-  measuresHistory: Array<MeasureHistory>,
-  style: string
-) => {
-  const linesToCover = measuresHistory.find(measure => measure.metric === 'lines_to_cover');
-  return {
-    data: linesToCover
-      ? uncoveredLines.history.map((analysis, idx) => ({
-          x: analysis.date,
-          y: Number(linesToCover.history[idx].value) - Number(analysis.value)
-        }))
-      : [],
-    name: 'covered_lines',
-    style,
-    translatedName: translate('project_activity.custom_metric.covered_lines')
-  };
 };
