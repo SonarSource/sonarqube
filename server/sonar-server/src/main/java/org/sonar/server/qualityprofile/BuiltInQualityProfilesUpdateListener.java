@@ -22,28 +22,35 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 
+import static org.sonar.core.config.CorePropertyDefinitions.DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.ACTIVATED;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
 
-public class BuiltInQualityProfilesNotificationSender {
+public class BuiltInQualityProfilesUpdateListener {
 
   static final String BUILT_IN_QUALITY_PROFILES = "built-in-quality-profiles";
 
   private final NotificationManager notificationManager;
   private final Languages languages;
+  private final Settings settings;
 
-  public BuiltInQualityProfilesNotificationSender(NotificationManager notificationManager, Languages languages) {
+  public BuiltInQualityProfilesUpdateListener(NotificationManager notificationManager, Languages languages, Settings settings) {
     this.notificationManager = notificationManager;
     this.languages = languages;
+    this.settings = settings;
   }
 
-  void send(Multimap<QProfileName, ActiveRuleChange> changedProfiles, long startDate, long endDate) {
+  void onChange(Multimap<QProfileName, ActiveRuleChange> changedProfiles, long startDate, long endDate) {
+    if (settings.getBoolean(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES)) {
+      return;
+    }
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification();
     changedProfiles.keySet().stream()
       .map(changedProfile -> {

@@ -32,7 +32,7 @@ import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.parse;
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender.BUILT_IN_QUALITY_PROFILES;
+import static org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener.BUILT_IN_QUALITY_PROFILES;
 
 public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
 

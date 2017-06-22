@@ -47,6 +47,7 @@ public class CorePropertyDefinitions {
   public static final String ORGANIZATIONS_ANYONE_CAN_CREATE = "sonar.organizations.anyoneCanCreate";
   public static final String ORGANIZATIONS_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
   public static final String ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS = "sonar.onboardingTutorial.showToNewUsers";
+  public static final String DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES = "sonar.builtInQualityProfiles.disableNotificationOnUpdate";
 
   private CorePropertyDefinitions() {
     // only static stuff
@@ -159,6 +160,13 @@ public class CorePropertyDefinitions {
         .description("Force the provider to be used to get SCM information for this project. By default auto-detection is done. Example: svn, git.")
         .category(CoreProperties.CATEGORY_SCM)
         .onlyOnQualifiers(Qualifiers.PROJECT)
+        .build(),
+      PropertyDefinition.builder(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES)
+        .name("Avoid quality profiles notification")
+        .description("Avoid sending email notification on each update of built-in quality profiles to quality profile administrators")
+        .defaultValue(Boolean.toString(false))
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .type(BOOLEAN)
         .build(),
 
       // WEB LOOK&FEEL

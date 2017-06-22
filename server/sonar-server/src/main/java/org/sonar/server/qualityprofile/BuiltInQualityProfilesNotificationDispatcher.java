@@ -26,7 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 
-import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender.BUILT_IN_QUALITY_PROFILES;
+import static org.sonar.server.qualityprofile.BuiltInQualityProfilesUpdateListener.BUILT_IN_QUALITY_PROFILES;
 
 public class BuiltInQualityProfilesNotificationDispatcher extends NotificationDispatcher {
 
