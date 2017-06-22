@@ -38,6 +38,7 @@ import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
 import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse.QualityProfile;
 
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class InheritanceAction implements QProfileWsAction {
@@ -62,7 +63,7 @@ public class InheritanceAction implements QProfileWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("inheritance-example.json"));
 
-    QProfileWsSupport.createOrganizationParam(inheritance)
+    createOrganizationParam(inheritance)
       .setSince("6.4");
     QProfileReference.defineParams(inheritance, languages);
   }
@@ -72,9 +73,7 @@ public class InheritanceAction implements QProfileWsAction {
     QProfileReference reference = QProfileReference.from(request);
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);
-      String organizationUuid = profile.getOrganizationUuid();
-      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-        .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' for quality profile '%s'", organizationUuid, profile.getKee())));
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
       List<QProfileDto> ancestors = profileLookup.ancestors(profile, dbSession);
       List<QProfileDto> children = dbClient.qualityProfileDao().selectChildren(dbSession, profile);
       Statistics statistics = new Statistics(dbSession, organization);

@@ -30,6 +30,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -56,19 +58,20 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.qualityprofile.QProfileTesting.newQProfileDto;
+import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.MediaTypes.PROTOBUF;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
 public class InheritanceActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester db = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -77,25 +80,26 @@ public class InheritanceActionTest {
   private EsClient esClient;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
-  private InheritanceAction underTest;
-  private WsActionTester wsActionTester;
   private RuleActivator ruleActivator;
   private OrganizationDto organization;
 
+  private InheritanceAction underTest;
+  private WsActionTester ws;
+
   @Before
   public void setUp() {
-    dbClient = dbTester.getDbClient();
-    dbSession = dbTester.getSession();
-    esClient = esTester.client();
+    dbClient = db.getDbClient();
+    dbSession = db.getSession();
+    esClient = es.client();
     ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
-    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+    TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     underTest = new InheritanceAction(
       dbClient,
       new QProfileLookup(dbClient),
       new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
       new Languages());
-    wsActionTester = new WsActionTester(underTest);
+    ws = new WsActionTester(underTest);
     ruleActivator = new RuleActivator(
       System2.INSTANCE,
       dbClient,
@@ -104,7 +108,7 @@ public class InheritanceActionTest {
       new TypeValidations(new ArrayList<>()),
       activeRuleIndexer,
       userSession);
-    organization = dbTester.organizations().insert();
+    organization = db.organizations().insert();
   }
 
   @Test
@@ -116,7 +120,7 @@ public class InheritanceActionTest {
     /*
      * sonar way (2) <- companyWide (2) <- buWide (2, 1 overriding) <- (forProject1 (2), forProject2 (2))
      */
-    QProfileDto sonarway = dbTester.qualityProfiles().insert(organization, p ->
+    QProfileDto sonarway = db.qualityProfiles().insert(organization, p ->
       p.setKee("xoo-sonar-way").setLanguage("xoo").setName("Sonar way").setIsBuiltIn(true));
     ActiveRuleDto activeRule1 = createActiveRule(rule1, sonarway);
     ActiveRuleDto activeRule2 = createActiveRule(rule2, sonarway);
@@ -141,41 +145,41 @@ public class InheritanceActionTest {
     setParent(buWide, forProject2);
     overrideActiveRuleSeverity(rule2, forProject2, Severity.CRITICAL);
 
-    String response = wsActionTester.newRequest()
+    String response = ws.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", buWide.getKee())
+      .setParam(PARAM_PROFILE, buWide.getKee())
       .execute()
       .getInput();
 
-    JsonAssert.assertJson(response).isSimilarTo(getClass().getResource("InheritanceActionTest/inheritance-buWide.json"));
+    assertJson(response).isSimilarTo(getClass().getResource("InheritanceActionTest/inheritance-buWide.json"));
   }
 
   @Test
   public void inheritance_parent_child() throws Exception {
-    RuleDefinitionDto rule1 = dbTester.rules().insert();
+    RuleDefinitionDto rule1 = db.rules().insert();
     ruleIndexer.indexRuleDefinition(rule1.getKey());
 
-    RuleDefinitionDto rule2 = dbTester.rules().insert();
+    RuleDefinitionDto rule2 = db.rules().insert();
     ruleIndexer.indexRuleDefinition(rule1.getKey());
 
-    RuleDefinitionDto rule3 = dbTester.rules().insert();
+    RuleDefinitionDto rule3 = db.rules().insert();
     ruleIndexer.indexRuleDefinition(rule1.getKey());
 
-    QProfileDto parent = dbTester.qualityProfiles().insert(organization);
-    dbTester.qualityProfiles().activateRule(parent, rule1);
-    dbTester.qualityProfiles().activateRule(parent, rule2);
+    QProfileDto parent = db.qualityProfiles().insert(organization);
+    db.qualityProfiles().activateRule(parent, rule1);
+    db.qualityProfiles().activateRule(parent, rule2);
     long parentRules = 2;
 
-    QProfileDto child = dbTester.qualityProfiles().insert(organization, q -> q.setParentKee(parent.getKee()));
-    dbTester.qualityProfiles().activateRule(child, rule3);
+    QProfileDto child = db.qualityProfiles().insert(organization, q -> q.setParentKee(parent.getKee()));
+    db.qualityProfiles().activateRule(child, rule3);
     long childRules = 1;
 
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
-    InputStream response = wsActionTester.newRequest()
+    InputStream response = ws.newRequest()
       .setMethod("GET")
       .setMediaType(PROTOBUF)
-      .setParam("profileKey", child.getKee())
+      .setParam(PARAM_PROFILE, child.getKee())
       .execute()
       .getInputStream();
 
@@ -190,19 +194,19 @@ public class InheritanceActionTest {
 
   @Test
   public void inheritance_ignores_removed_rules() throws Exception {
-    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setStatus(RuleStatus.REMOVED));
     ruleIndexer.indexRuleDefinition(rule.getKey());
 
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization);
-    dbTester.qualityProfiles().activateRule(profile, rule);
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    db.qualityProfiles().activateRule(profile, rule);
     long activeRules = 0;
 
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
-    InputStream response = wsActionTester.newRequest()
+    InputStream response = ws.newRequest()
       .setMethod("GET")
       .setMediaType(PROTOBUF)
-      .setParam("profileKey", profile.getKee())
+      .setParam(PARAM_PROFILE, profile.getKee())
       .execute()
       .getInputStream();
 
@@ -216,19 +220,33 @@ public class InheritanceActionTest {
     // Simple profile, no parent, no child
     QProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
 
-    String response = wsActionTester.newRequest()
+    String response = ws.newRequest()
       .setMethod("GET")
-      .setParam("profileKey", remi.getKee())
+      .setParam(PARAM_PROFILE, remi.getKee())
       .execute()
       .getInput();
 
-    JsonAssert.assertJson(response).isSimilarTo(getClass().getResource("InheritanceActionTest/inheritance-simple.json"));
+    assertJson(response).isSimilarTo(getClass().getResource("InheritanceActionTest/inheritance-simple.json"));
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_if_not_found() throws Exception {
-    wsActionTester.newRequest()
-      .setMethod("GET").setParam("profileKey", "polop").execute();
+    ws.newRequest()
+      .setMethod("GET").setParam(PARAM_PROFILE, "polop").execute();
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("inheritance");
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "language", "profileName", "organization");
+    Param profile = definition.param("profile");
+    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
+    Param profileName = definition.param("profileName");
+    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    Param language = definition.param("language");
+    assertThat(language.deprecatedSince()).isEqualTo("6.5");
   }
 
   private QProfileDto createProfile(String lang, String name, String key) {
