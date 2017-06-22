@@ -134,7 +134,7 @@ public class PhasesSumUpTimeProfilerTest {
   }
 
   private Project mockProject(String name, boolean isRoot) {
-    return new Project(ProjectDefinition.create().setName(name).setKey(name));
+    return new Project(ProjectDefinition.create().setName(name).setKey(name).build());
   }
 
   private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final Project module) {

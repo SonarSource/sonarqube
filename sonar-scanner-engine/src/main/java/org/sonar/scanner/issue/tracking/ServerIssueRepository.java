@@ -21,7 +21,7 @@ package org.sonar.scanner.issue.tracking;
 
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.utils.log.Logger;
@@ -69,7 +69,7 @@ public class ServerIssueRepository {
 
   private void store(ServerIssue issue) {
     String moduleKeyWithBranch = issue.getModuleKey();
-    ProjectDefinition projectDefinition = reactor.getProjectDefinition(moduleKeyWithBranch);
+    ImmutableProjectDefinition projectDefinition = reactor.getProjectDefinition(moduleKeyWithBranch);
     if (projectDefinition != null) {
       String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(projectDefinition.getKey(), issue.hasPath() ? issue.getPath() : null);
       DefaultInputComponent r = (DefaultInputComponent) resourceCache.getByKey(componentKeyWithoutBranch);

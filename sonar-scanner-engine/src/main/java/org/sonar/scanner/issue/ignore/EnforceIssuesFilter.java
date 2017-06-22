@@ -23,7 +23,12 @@ import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,14 +38,15 @@ import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
+@ThreadSafe
 public class EnforceIssuesFilter implements IssueFilter {
   private static final Logger LOG = LoggerFactory.getLogger(EnforceIssuesFilter.class);
 
-  private IssueInclusionPatternInitializer patternInitializer;
-  private InputComponentStore componentStore;
+  private final List<IssuePattern> multicriteriaPatterns;
+  private final InputComponentStore componentStore;
 
   public EnforceIssuesFilter(IssueInclusionPatternInitializer patternInitializer, InputComponentStore componentStore) {
-    this.patternInitializer = patternInitializer;
+    this.multicriteriaPatterns = Collections.unmodifiableList(new ArrayList<>(patternInitializer.getMulticriteriaPatterns()));
     this.componentStore = componentStore;
   }
 
@@ -50,7 +56,7 @@ public class EnforceIssuesFilter implements IssueFilter {
     boolean atLeastOnePatternFullyMatched = false;
     IssuePattern matchingPattern = null;
 
-    for (IssuePattern pattern : patternInitializer.getMulticriteriaPatterns()) {
+    for (IssuePattern pattern : multicriteriaPatterns) {
       if (pattern.getRulePattern().match(issue.ruleKey().toString())) {
         atLeastOneRuleMatched = true;
         String relativePath = getRelativePath(issue.componentKey());
@@ -73,6 +79,7 @@ public class EnforceIssuesFilter implements IssueFilter {
 
   @CheckForNull
   private String getRelativePath(String componentKey) {
+    // TODO extract componentStore which is immutable
     InputComponent component = componentStore.getByKey(componentKey);
     if (component == null || !component.isFile()) {
       return null;

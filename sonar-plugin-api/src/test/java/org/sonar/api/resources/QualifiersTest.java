@@ -49,7 +49,7 @@ public class QualifiersTest {
     ProjectDefinition rootDef = ProjectDefinition.create();
     ProjectDefinition moduleDef = ProjectDefinition.create();
     rootDef.addSubProject(moduleDef);
-    Resource root = new Project(rootDef);
+    Resource root = new Project(rootDef.build());
     assertThat(Qualifiers.isView(root, true)).isFalse();
     assertThat(Qualifiers.isView(root, false)).isFalse();
     assertThat(Qualifiers.isProject(root, true)).isTrue();
@@ -61,7 +61,7 @@ public class QualifiersTest {
     ProjectDefinition rootDef = ProjectDefinition.create();
     ProjectDefinition moduleDef = ProjectDefinition.create();
     rootDef.addSubProject(moduleDef);
-    Resource sub = new Project(moduleDef);
+    Resource sub = new Project(moduleDef.build());
     assertThat(Qualifiers.isView(sub, true)).isFalse();
     assertThat(Qualifiers.isView(sub, false)).isFalse();
     assertThat(Qualifiers.isProject(sub, true)).isTrue();

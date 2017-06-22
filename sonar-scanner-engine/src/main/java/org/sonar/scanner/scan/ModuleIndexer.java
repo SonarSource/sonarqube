@@ -20,7 +20,7 @@
 package org.sonar.scanner.scan;
 
 import org.picocontainer.Startable;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
@@ -54,7 +54,7 @@ public class ModuleIndexer implements Startable {
   }
 
   private void createChildren(DefaultInputModule parent) {
-    for (ProjectDefinition def : parent.definition().getSubProjects()) {
+    for (ImmutableProjectDefinition def : parent.definition().getSubProjects()) {
       DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.get());
       moduleHierarchy.index(child, parent);
       componentTree.index(child, parent);

@@ -19,16 +19,16 @@
  */
 package org.sonar.api.resources;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScopesTest {
 
   @Test
   public void testProject() {
-    Project resource = new Project(ProjectDefinition.create());
+    Project resource = new Project(ProjectDefinition.create().build());
     assertThat(Scopes.isProject(resource)).isTrue();
     assertThat(Scopes.isDirectory(resource)).isFalse();
     assertThat(Scopes.isFile(resource)).isFalse();

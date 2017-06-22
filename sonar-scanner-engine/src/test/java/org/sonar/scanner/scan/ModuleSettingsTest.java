@@ -19,16 +19,18 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Table;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
@@ -41,9 +43,10 @@ import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
 
 public class ModuleSettingsTest {
 
@@ -69,16 +72,16 @@ public class ModuleSettingsTest {
 
   @Test
   public void testOrderedProjects() {
-    ProjectDefinition grandParent = ProjectDefinition.create();
-    ProjectDefinition parent = ProjectDefinition.create();
-    ProjectDefinition child = ProjectDefinition.create();
+    ProjectDefinition grandParent = ProjectDefinition.create().setKey("a");
+    ProjectDefinition parent = ProjectDefinition.create().setKey("b");
+    ProjectDefinition child = ProjectDefinition.create().setKey("c");
     grandParent.addSubProject(parent);
     parent.addSubProject(child);
 
-    List<ProjectDefinition> hierarchy = ModuleSettings.getTopDownParentProjects(child);
-    assertThat(hierarchy.get(0)).isEqualTo(grandParent);
-    assertThat(hierarchy.get(1)).isEqualTo(parent);
-    assertThat(hierarchy.get(2)).isEqualTo(child);
+    List<ImmutableProjectDefinition> hierarchy = ModuleSettings.getTopDownParentProjects(child.build());
+    assertThat(hierarchy.get(0).getKey()).isEqualTo(grandParent.getKey());
+    assertThat(hierarchy.get(1).getKey()).isEqualTo(parent.getKey());
+    assertThat(hierarchy.get(2).getKey()).isEqualTo(child.getKey());
   }
 
   @Test
@@ -89,7 +92,7 @@ public class ModuleSettingsTest {
 
     ProjectRepositories projRepos = createSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
-    ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
+    ImmutableProjectDefinition module = ProjectDefinition.create().setKey("struts-core").build();
 
     ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projRepos, mode, mock(AnalysisContextReportPublisher.class));
 
@@ -110,7 +113,8 @@ public class ModuleSettingsTest {
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     ProjectDefinition.create().setKey("struts").addSubProject(module);
 
-    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projRepos, mode, mock(AnalysisContextReportPublisher.class));
+    ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module.build(), projRepos, mode,
+      mock(AnalysisContextReportPublisher.class));
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -124,7 +128,7 @@ public class ModuleSettingsTest {
 
     ProjectRepositories projSettingsRepo = createSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
-    ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
+    ImmutableProjectDefinition module = ProjectDefinition.create().setKey("struts-core").build();
 
     ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
 
@@ -141,7 +145,7 @@ public class ModuleSettingsTest {
 
     when(mode.isIssues()).thenReturn(true);
 
-    ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
+    ImmutableProjectDefinition module = ProjectDefinition.create().setKey("struts-core").build();
 
     ModuleSettings moduleSettings = new ModuleSettings(globalSettings, module, projSettingsRepo, mode, mock(AnalysisContextReportPublisher.class));
 

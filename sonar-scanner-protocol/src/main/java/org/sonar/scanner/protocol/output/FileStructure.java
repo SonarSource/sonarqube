@@ -21,9 +21,12 @@ package org.sonar.scanner.protocol.output;
 
 import java.io.File;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Structure of files in the zipped report
  */
+@Immutable
 public class FileStructure {
 
   public enum Domain {

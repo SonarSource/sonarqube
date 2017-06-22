@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 
@@ -28,16 +29,16 @@ import org.sonar.api.batch.fs.InputModule;
 public class DefaultInputModule extends DefaultInputComponent implements InputModule {
 
   private final String moduleKey;
-  private final ProjectDefinition definition;
+  private final ImmutableProjectDefinition definition;
 
   /**
    * For testing only!
    */
   public DefaultInputModule(String moduleKey) {
-    this(ProjectDefinition.create().setKey(moduleKey), TestInputFileBuilder.nextBatchId());
+    this(ProjectDefinition.create().setKey(moduleKey).build(), TestInputFileBuilder.nextBatchId());
   }
 
-  public DefaultInputModule(ProjectDefinition definition, int batchId) {
+  public DefaultInputModule(ImmutableProjectDefinition definition, int batchId) {
     super(batchId);
     this.definition = definition;
     this.moduleKey = definition.getKey();
@@ -56,7 +57,7 @@ public class DefaultInputModule extends DefaultInputComponent implements InputMo
     return false;
   }
 
-  public ProjectDefinition definition() {
+  public ImmutableProjectDefinition definition() {
     return definition;
   }
 

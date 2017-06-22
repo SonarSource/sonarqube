@@ -32,7 +32,7 @@ import java.util.TreeSet;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -120,7 +120,7 @@ public class AnalysisContextReportPublisher {
     }
   }
 
-  public void dumpModuleSettings(ProjectDefinition moduleDefinition) {
+  public void dumpModuleSettings(ImmutableProjectDefinition moduleDefinition) {
     if (mode.isIssues()) {
       return;
     }
@@ -147,12 +147,12 @@ public class AnalysisContextReportPublisher {
   /**
    * Only keep props that are not in parent
    */
-  private Map<String, String> collectModuleSpecificProps(ProjectDefinition moduleDefinition) {
+  private Map<String, String> collectModuleSpecificProps(ImmutableProjectDefinition moduleDefinition) {
     Map<String, String> moduleSpecificProps = new HashMap<>();
     if (projectRepos.moduleExists(moduleDefinition.getKeyWithBranch())) {
       moduleSpecificProps.putAll(projectRepos.settings(moduleDefinition.getKeyWithBranch()));
     }
-    ProjectDefinition parent = moduleDefinition.getParent();
+    ImmutableProjectDefinition parent = moduleDefinition.getParent();
     if (parent == null) {
       moduleSpecificProps.putAll(moduleDefinition.properties());
     } else {

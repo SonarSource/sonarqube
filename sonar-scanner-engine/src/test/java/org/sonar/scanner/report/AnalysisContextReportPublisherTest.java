@@ -95,7 +95,7 @@ public class AnalysisContextReportPublisherTest {
 
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     publisher.init(writer);
-    publisher.dumpModuleSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"));
+    publisher.dumpModuleSettings(ProjectDefinition.create().setKey("foo").build());
 
     assertThat(writer.getFileStructure().analysisLog()).doesNotExist();
   }
@@ -122,8 +122,7 @@ public class AnalysisContextReportPublisherTest {
     when(projectRepos.moduleExists("foo")).thenReturn(true);
     when(projectRepos.settings("foo")).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
 
-    publisher.dumpModuleSettings(ProjectDefinition.create()
-      .setProperty("sonar.projectKey", "foo"));
+    publisher.dumpModuleSettings(ProjectDefinition.create().setKey("foo").build());
 
     String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).doesNotContain(COM_FOO);
@@ -147,7 +146,8 @@ public class AnalysisContextReportPublisherTest {
     publisher.dumpModuleSettings(ProjectDefinition.create()
       .setProperty("sonar.projectKey", "foo")
       .setProperty(COM_FOO, "bar")
-      .setProperty(SONAR_SKIP, "true"));
+      .setProperty(SONAR_SKIP, "true")
+      .build());
 
     content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).containsOnlyOnce(COM_FOO);
@@ -172,7 +172,8 @@ public class AnalysisContextReportPublisherTest {
 
     publisher.dumpModuleSettings(ProjectDefinition.create()
       .setProperty("sonar.projectKey", "foo")
-      .setProperty("env." + FOO, "BAR"));
+      .setProperty("env." + FOO, "BAR")
+      .build());
 
     content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).containsOnlyOnce(FOO);
@@ -192,7 +193,8 @@ public class AnalysisContextReportPublisherTest {
       .setProperty("sonar.projectKey", "foo")
       .setProperty("sonar.login", "my_token")
       .setProperty("sonar.password", "azerty")
-      .setProperty("sonar.cpp.license.secured", "AZERTY"));
+      .setProperty("sonar.cpp.license.secured", "AZERTY")
+      .build());
 
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
       "sonar.cpp.license.secured=******",
@@ -231,7 +233,7 @@ public class AnalysisContextReportPublisherTest {
       .setProperty(SONAR_SKIP, "true")
       .addSubProject(module);
 
-    publisher.dumpModuleSettings(module);
+    publisher.dumpModuleSettings(module.build());
 
     String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).doesNotContain(SONAR_SKIP);

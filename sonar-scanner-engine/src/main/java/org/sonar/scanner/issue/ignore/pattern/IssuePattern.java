@@ -25,17 +25,20 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
 
+@Immutable
 public class IssuePattern {
 
   private final WildcardPattern resourcePattern;
   private final WildcardPattern rulePattern;
-  private final Set<Integer> lines = new LinkedHashSet<>();
-  private final Set<LineRange> lineRanges = new LinkedHashSet<>();
+  private final Set<Integer> lines;
+  private final Set<LineRange> lineRanges;
   private final boolean checkLines;
 
   public IssuePattern(String resourcePattern, String rulePattern) {
@@ -46,13 +49,19 @@ public class IssuePattern {
     this.resourcePattern = WildcardPattern.create(resourcePattern);
     this.rulePattern = WildcardPattern.create(rulePattern);
     this.checkLines = !lineRanges.isEmpty();
+    Set<Integer> modifiableLines = new LinkedHashSet<>();
+    Set<LineRange> modifiableLineRanges = new LinkedHashSet<>();
+
     for (LineRange range : lineRanges) {
       if (range.from() == range.to()) {
-        this.lines.add(range.from());
+        modifiableLines.add(range.from());
       } else {
-        this.lineRanges.add(range);
+        modifiableLineRanges.add(range);
       }
     }
+
+    this.lines = Collections.unmodifiableSet(modifiableLines);
+    this.lineRanges = Collections.unmodifiableSet(modifiableLineRanges);
   }
 
   public WildcardPattern getResourcePattern() {

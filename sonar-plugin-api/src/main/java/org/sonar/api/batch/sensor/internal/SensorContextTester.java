@@ -345,4 +345,9 @@ public class SensorContextTester implements SensorContext {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     file.setPublish(true);
   }
+  
+  @Override
+  public int threads() {
+    return 1;
+  }
 }

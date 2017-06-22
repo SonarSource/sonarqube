@@ -19,12 +19,12 @@
  */
 package org.sonar.scanner.analysis;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.ComponentLifecycle;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.internal.DefaultTempFolder;
+import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +35,7 @@ public class AnalysisTempFolderProvider extends ProviderAdapter implements Compo
   private DefaultTempFolder projectTempFolder;
   private boolean started = false;
 
-  public TempFolder provide(ProjectReactor projectReactor) {
+  public TempFolder provide(ImmutableProjectReactor projectReactor) {
     if (projectTempFolder == null) {
       Path workingDir = projectReactor.getRoot().getWorkDir().toPath();
       Path tempDir = workingDir.normalize().resolve(TMP_NAME);

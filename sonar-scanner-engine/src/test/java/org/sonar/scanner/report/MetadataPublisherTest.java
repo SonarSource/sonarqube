@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
@@ -50,7 +51,7 @@ public class MetadataPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ProjectDefinition projectDef;
+  private ImmutableProjectDefinition projectDef;
   private DefaultInputModule rootModule;
   private MetadataPublisher underTest;
   private Settings settings;
@@ -60,7 +61,7 @@ public class MetadataPublisherTest {
 
   @Before
   public void prepare() {
-    projectDef = ProjectDefinition.create().setKey("foo");
+    projectDef = ProjectDefinition.create().setKey("foo").build();
     rootModule = new DefaultInputModule(projectDef, TestInputFileBuilder.nextBatchId());
     projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
@@ -75,11 +76,7 @@ public class MetadataPublisherTest {
   public void write_metadata() throws Exception {
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     Date date = new Date();
-    when(qProfiles.findAll()).thenReturn(asList(new QProfile()
-      .setKey("q1")
-      .setName("Q1")
-      .setLanguage("java")
-      .setRulesUpdatedAt(date)));
+    when(qProfiles.findAll()).thenReturn(asList(new QProfile("q1", "Q1", "java", date)));
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
 
@@ -103,8 +100,12 @@ public class MetadataPublisherTest {
   public void write_project_branch() throws Exception {
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
-    projectDef.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
-    projectDef.setKey("foo");
+
+    projectDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch")
+      .build();
+    rootModule = new DefaultInputModule(projectDef, TestInputFileBuilder.nextBatchId());
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);

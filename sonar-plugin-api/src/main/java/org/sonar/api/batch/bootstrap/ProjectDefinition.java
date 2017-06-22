@@ -36,6 +36,11 @@ import org.sonar.api.CoreProperties;
  * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point} and must not be used
  * by other standard extensions.
  *
+ * Since 6.5, this object represents a builder and should only be used while the project hierarchy is being defined.
+ * Plugins can access it in the {@link ProjectBuilder} extension point. After the project is initialized, 
+ * use {@link ImmutableProjectDefinition} instead.
+ *
+ * @see ImmutableProjectDefinition
  * @since 2.9
  */
 public class ProjectDefinition {
@@ -63,6 +68,10 @@ public class ProjectDefinition {
 
   public static ProjectDefinition create() {
     return new ProjectDefinition(new Properties());
+  }
+
+  public ImmutableProjectDefinition build() {
+    return new ImmutableProjectDefinition(this);
   }
 
   public ProjectDefinition setBaseDir(File baseDir) {
@@ -186,7 +195,7 @@ public class ProjectDefinition {
     }
     return null;
   }
-  
+
   @CheckForNull
   public String getOriginalVersion() {
     return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
@@ -199,7 +208,7 @@ public class ProjectDefinition {
     }
     return version;
   }
-  
+
   @CheckForNull
   public String getOriginalName() {
     return properties.get(CoreProperties.PROJECT_NAME_PROPERTY);

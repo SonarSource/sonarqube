@@ -20,6 +20,8 @@
 package org.sonar.scanner.scan;
 
 import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 public class ImmutableProjectReactorProvider extends ProviderAdapter {
@@ -34,7 +36,11 @@ public class ImmutableProjectReactorProvider extends ProviderAdapter {
       // 2 Validate final reactor
       validator.validate(reactor);
 
-      singleton = new ImmutableProjectReactor(reactor.getRoot());
+      // 3 Create immutable project definitions
+
+      ProjectDefinition mutableRoot = reactor.getRoot();
+      ImmutableProjectDefinition root = new ImmutableProjectDefinition(mutableRoot);
+      singleton = new ImmutableProjectReactor(root);
     }
     return singleton;
   }

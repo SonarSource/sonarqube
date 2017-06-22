@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
@@ -70,6 +73,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
  * <p/>
  * Scanners should not send other metrics, and the Compute Engine should not allow other metrics.
  */
+@Immutable
 @ComputeEngineSide
 @ScannerSide
 public class ScannerMetrics {

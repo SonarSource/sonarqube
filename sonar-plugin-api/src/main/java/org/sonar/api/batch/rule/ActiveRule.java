@@ -21,12 +21,15 @@ package org.sonar.api.batch.rule;
 
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.rule.RuleKey;
 
 /**
  * Configuration of a rule activated on a Quality profile
  * @since 4.2
  */
+@Immutable
 public interface ActiveRule {
 
   RuleKey ruleKey();

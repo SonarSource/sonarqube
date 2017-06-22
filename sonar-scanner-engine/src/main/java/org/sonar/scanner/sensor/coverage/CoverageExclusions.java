@@ -53,6 +53,9 @@ public class CoverageExclusions implements Startable {
     // Nothing to do
   }
 
+  /**
+   * Thread safe
+   */
   public boolean isExcluded(InputFile file) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = exclusionPatterns.iterator();

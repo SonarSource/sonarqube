@@ -23,47 +23,36 @@ import com.google.common.base.MoreObjects;
 
 import java.util.Date;
 
-public class QProfile {
+import javax.annotation.concurrent.Immutable;
 
-  private String key;
-  private String name;
-  private String language;
-  private Date rulesUpdatedAt;
+@Immutable
+public class QProfile {
+  private final String key;
+  private final String name;
+  private final String language;
+  private final Date rulesUpdatedAt;
+
+  public QProfile(String key, String name, String language, Date rulesUpdatedAt) {
+    this.key = key;
+    this.name = name;
+    this.language = language;
+    this.rulesUpdatedAt = rulesUpdatedAt;
+  }
 
   public String getKey() {
     return key;
-  }
-
-  public QProfile setKey(String key) {
-    this.key = key;
-    return this;
   }
 
   public String getName() {
     return name;
   }
 
-  public QProfile setName(String name) {
-    this.name = name;
-    return this;
-  }
-
   public String getLanguage() {
     return language;
   }
 
-  public QProfile setLanguage(String language) {
-    this.language = language;
-    return this;
-  }
-
   public Date getRulesUpdatedAt() {
     return rulesUpdatedAt;
-  }
-
-  public QProfile setRulesUpdatedAt(Date d) {
-    this.rulesUpdatedAt = d;
-    return this;
   }
 
   @Override
@@ -92,5 +81,52 @@ public class QProfile {
       .add("language", language)
       .add("rulesUpdatedAt", rulesUpdatedAt)
       .toString();
+  }
+
+  public static class Builder {
+    private String key;
+    private String name;
+    private String language;
+    private Date rulesUpdatedAt;
+
+    public String getKey() {
+      return key;
+    }
+
+    public Builder setKey(String key) {
+      this.key = key;
+      return this;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public Builder setLanguage(String language) {
+      this.language = language;
+      return this;
+    }
+
+    public Date getRulesUpdatedAt() {
+      return rulesUpdatedAt;
+    }
+
+    public Builder setRulesUpdatedAt(Date d) {
+      this.rulesUpdatedAt = d;
+      return this;
+    }
+
+    public QProfile build() {
+      return new QProfile(key, name, language, rulesUpdatedAt);
+    }
   }
 }

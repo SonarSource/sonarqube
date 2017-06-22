@@ -37,7 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
@@ -165,7 +165,7 @@ public class ReportPublisher implements Startable {
   String upload(File report) {
     LOG.debug("Upload report");
     long startTime = System.currentTimeMillis();
-    ProjectDefinition projectDefinition = projectReactor.getRoot();
+    ImmutableProjectDefinition projectDefinition = projectReactor.getRoot();
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)

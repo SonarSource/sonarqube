@@ -19,30 +19,32 @@
  */
 package org.sonar.scanner.repository;
 
-import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class ProjectRepositories {
-  private final Table<String, String, String> settingsByModule;
-  private final Table<String, String, FileData> fileDataByModuleAndPath;
+  private final ImmutableTable<String, String, String> settingsByModule;
+  private final ImmutableTable<String, String, FileData> fileDataByModuleAndPath;
   private final Date lastAnalysisDate;
   private final boolean exists;
 
   public ProjectRepositories() {
     this.exists = false;
-    this.settingsByModule = HashBasedTable.create();
-    this.fileDataByModuleAndPath = HashBasedTable.create();
+    this.settingsByModule = new ImmutableTable.Builder<String, String, String>().build();
+    this.fileDataByModuleAndPath = new ImmutableTable.Builder<String, String, FileData>().build();
     this.lastAnalysisDate = null;
   }
 
   public ProjectRepositories(Table<String, String, String> settingsByModule, Table<String, String, FileData> fileDataByModuleAndPath,
     @Nullable Date lastAnalysisDate) {
-    this.settingsByModule = settingsByModule;
-    this.fileDataByModuleAndPath = fileDataByModuleAndPath;
+    this.settingsByModule = ImmutableTable.copyOf(settingsByModule);
+    this.fileDataByModuleAndPath = ImmutableTable.copyOf(fileDataByModuleAndPath);
     this.lastAnalysisDate = lastAnalysisDate;
     this.exists = true;
   }

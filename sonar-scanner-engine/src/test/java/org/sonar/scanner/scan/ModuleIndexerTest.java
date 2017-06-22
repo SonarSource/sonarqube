@@ -60,7 +60,7 @@ public class ModuleIndexerTest {
     root.addSubProject(mod3);
     root.addSubProject(mod4);
 
-    when(reactor.getRoot()).thenReturn(root);
+    when(reactor.getRoot()).thenReturn(root.build());
     indexer.start();
 
     InputModule rootModule = moduleHierarchy.root();

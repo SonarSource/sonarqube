@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;
 
@@ -39,14 +39,14 @@ public class ModuleFileSystemInitializer {
   private List<File> sourceDirsOrFiles = new ArrayList<>();
   private List<File> testDirsOrFiles = new ArrayList<>();
 
-  public ModuleFileSystemInitializer(ProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
+  public ModuleFileSystemInitializer(ImmutableProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
     baseDir = module.getBaseDir();
     initWorkingDir(module, tempUtils);
     initSources(module, pathResolver);
     initTests(module, pathResolver);
   }
 
-  private void initWorkingDir(ProjectDefinition module, TempFolder tempUtils) {
+  private void initWorkingDir(ImmutableProjectDefinition module, TempFolder tempUtils) {
     workingDir = module.getWorkDir();
     if (workingDir == null) {
       workingDir = tempUtils.newDir("work");
@@ -59,7 +59,7 @@ public class ModuleFileSystemInitializer {
     }
   }
 
-  private void initSources(ProjectDefinition module, PathResolver pathResolver) {
+  private void initSources(ImmutableProjectDefinition module, PathResolver pathResolver) {
     for (String sourcePath : module.sources()) {
       File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
       if (dirOrFile.exists()) {
@@ -68,7 +68,7 @@ public class ModuleFileSystemInitializer {
     }
   }
 
-  private void initTests(ProjectDefinition module, PathResolver pathResolver) {
+  private void initTests(ImmutableProjectDefinition module, PathResolver pathResolver) {
     for (String testPath : module.tests()) {
       File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), testPath);
       if (dirOrFile.exists()) {

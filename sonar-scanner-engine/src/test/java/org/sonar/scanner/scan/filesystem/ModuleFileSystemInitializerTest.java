@@ -26,6 +26,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;
@@ -44,7 +45,7 @@ public class ModuleFileSystemInitializerTest {
   public void test_default_directories() throws Exception {
     File baseDir = temp.newFolder("base");
     File workDir = temp.newFolder("work");
-    ProjectDefinition module = ProjectDefinition.create().setBaseDir(baseDir).setWorkDir(workDir);
+    ImmutableProjectDefinition module = ProjectDefinition.create().setBaseDir(baseDir).setWorkDir(workDir).build();
 
     ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(module, mock(TempFolder.class), pathResolver);
 
@@ -64,10 +65,11 @@ public class ModuleFileSystemInitializerTest {
     File binaryDir = new File(baseDir, "target/classes");
     FileUtils.forceMkdir(binaryDir);
 
-    ProjectDefinition project = ProjectDefinition.create()
+    ImmutableProjectDefinition project = ProjectDefinition.create()
       .setBaseDir(baseDir)
       .addSources("src/main/java", "src/main/unknown")
-      .addTests("src/test/java", "src/test/unknown");
+      .addTests("src/test/java", "src/test/unknown")
+      .build();
 
     ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempFolder.class), pathResolver);
 

@@ -80,7 +80,7 @@ public class ComponentsPublisherTest {
       .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
       .setName("Root project")
       .setDescription("Root description");
-    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+    DefaultInputModule root = new DefaultInputModule(rootDef.build(), 1);
 
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
@@ -88,7 +88,7 @@ public class ComponentsPublisherTest {
       .setDescription("Module description");
     rootDef.addSubProject(module1Def);
 
-    DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
+    DefaultInputModule module1 = new DefaultInputModule(module1Def.build(), 2);
 
     moduleHierarchy = mock(InputModuleHierarchy.class);
     when(moduleHierarchy.root()).thenReturn(root);
@@ -148,7 +148,7 @@ public class ComponentsPublisherTest {
       .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
       .setName("Root project")
       .setDescription("Root description");
-    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+    DefaultInputModule root = new DefaultInputModule(rootDef.build(), 1);
 
     moduleHierarchy = mock(InputModuleHierarchy.class);
     when(moduleHierarchy.root()).thenReturn(root);
@@ -199,13 +199,13 @@ public class ComponentsPublisherTest {
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
       .setDescription("Root description");
-    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+    DefaultInputModule root = new DefaultInputModule(rootDef.build(), 1);
 
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
       .setDescription("Module description");
     rootDef.addSubProject(module1Def);
-    DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
+    DefaultInputModule module1 = new DefaultInputModule(module1Def.build(), 2);
 
     moduleHierarchy = mock(InputModuleHierarchy.class);
     when(moduleHierarchy.root()).thenReturn(root);
@@ -264,7 +264,7 @@ public class ComponentsPublisherTest {
       .setName("Root project")
       .setProperty(CoreProperties.LINKS_HOME_PAGE, "http://home")
       .setDescription("Root description");
-    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+    DefaultInputModule root = new DefaultInputModule(rootDef.build(), 1);
 
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
@@ -272,7 +272,7 @@ public class ComponentsPublisherTest {
       .setProperty(CoreProperties.LINKS_CI, "http://ci")
       .setDescription("Module description");
     rootDef.addSubProject(module1Def);
-    DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
+    DefaultInputModule module1 = new DefaultInputModule(module1Def.build(), 2);
 
     moduleHierarchy = mock(InputModuleHierarchy.class);
     when(moduleHierarchy.root()).thenReturn(root);

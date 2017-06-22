@@ -19,12 +19,12 @@
  */
 package org.sonar.scanner.analysis;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.junit.Before;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
+import org.sonar.scanner.scan.ImmutableProjectReactor;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -42,13 +42,13 @@ public class AnalysisTempFolderProviderTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private AnalysisTempFolderProvider tempFolderProvider;
-  private ProjectReactor projectReactor;
+  private ImmutableProjectReactor projectReactor;
 
   @Before
   public void setUp() {
     tempFolderProvider = new AnalysisTempFolderProvider();
-    projectReactor = mock(ProjectReactor.class);
-    ProjectDefinition projectDefinition = mock(ProjectDefinition.class);
+    projectReactor = mock(ImmutableProjectReactor.class);
+    ImmutableProjectDefinition projectDefinition = mock(ImmutableProjectDefinition.class);
     when(projectReactor.getRoot()).thenReturn(projectDefinition);
     when(projectDefinition.getWorkDir()).thenReturn(temp.getRoot());
   }

@@ -30,7 +30,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 
 public class WorkDirectoryCleaner {
-  private Path workDir;
+  private final Path workDir;
 
   public WorkDirectoryCleaner(ProjectReactor projectReactor) {
     workDir = projectReactor.getRoot().getWorkDir().toPath();

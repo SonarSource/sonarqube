@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.annotation.CheckForNull;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -82,9 +82,9 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
     }
     DefaultInputModule inputModule = (DefaultInputModule) module;
 
-    ProjectDefinition parentDefinition = parent.definition();
+    ImmutableProjectDefinition parentDefinition = parent.definition();
     Path parentBaseDir = parentDefinition.getBaseDir().toPath();
-    ProjectDefinition moduleDefinition = inputModule.definition();
+    ImmutableProjectDefinition moduleDefinition = inputModule.definition();
     Path moduleBaseDir = moduleDefinition.getBaseDir().toPath();
 
     return pathResolver.relativePath(parentBaseDir, moduleBaseDir);

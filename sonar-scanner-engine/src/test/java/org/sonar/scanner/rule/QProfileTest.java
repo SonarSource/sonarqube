@@ -25,18 +25,9 @@ import static org.assertj.core.api.Assertions.*;
 public class QProfileTest {
   @Test
   public void testEquals() {
-    QProfile q1 = new QProfile();
-    QProfile q2 = new QProfile();
-    QProfile q3 = new QProfile();
-
-    q1.setKey("k1");
-    q1.setName("name1");
-
-    q2.setKey("k1");
-    q2.setName("name2");
-
-    q3.setKey("k3");
-    q3.setName("name3");
+    QProfile q1 = new QProfile("k1", "name1", null, null);
+    QProfile q2 = new QProfile("k2", "name2", null, null);
+    QProfile q3 = new QProfile("k3", "name3", null, null);
 
     assertThat(q1).isEqualTo(q2);
     assertThat(q1).isNotEqualTo(q3);

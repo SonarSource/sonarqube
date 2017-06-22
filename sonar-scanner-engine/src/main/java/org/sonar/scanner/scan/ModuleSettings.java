@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
@@ -41,7 +42,7 @@ public class ModuleSettings extends Settings {
   private final DefaultAnalysisMode analysisMode;
   private final Map<String, String> properties = new HashMap<>();
 
-  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
+  public ModuleSettings(GlobalSettings batchSettings, ImmutableProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     super(batchSettings.getDefinitions(), batchSettings.getEncryption());
     this.projectRepos = projectSettingsRepo;
@@ -51,13 +52,13 @@ public class ModuleSettings extends Settings {
     contextReportPublisher.dumpModuleSettings(moduleDefinition);
   }
 
-  private ModuleSettings init(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
+  private ModuleSettings init(ImmutableProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
     addProjectProperties(moduleDefinition, batchSettings);
     addBuildProperties(moduleDefinition);
     return this;
   }
 
-  private void addProjectProperties(ProjectDefinition def, GlobalSettings batchSettings) {
+  private void addProjectProperties(ImmutableProjectDefinition def, GlobalSettings batchSettings) {
     addProperties(batchSettings.getProperties());
     do {
       if (projectRepos.moduleExists(def.getKeyWithBranch())) {
@@ -68,9 +69,9 @@ public class ModuleSettings extends Settings {
     } while (def != null);
   }
 
-  private void addBuildProperties(ProjectDefinition project) {
-    List<ProjectDefinition> orderedProjects = getTopDownParentProjects(project);
-    for (ProjectDefinition p : orderedProjects) {
+  private void addBuildProperties(ImmutableProjectDefinition project) {
+    List<ImmutableProjectDefinition> orderedProjects = getTopDownParentProjects(project);
+    for (ImmutableProjectDefinition p : orderedProjects) {
       addProperties(p.properties());
     }
   }
@@ -78,9 +79,9 @@ public class ModuleSettings extends Settings {
   /**
    * From root to given project
    */
-  static List<ProjectDefinition> getTopDownParentProjects(ProjectDefinition project) {
-    List<ProjectDefinition> result = new ArrayList<>();
-    ProjectDefinition p = project;
+  static List<ImmutableProjectDefinition> getTopDownParentProjects(ImmutableProjectDefinition project) {
+    List<ImmutableProjectDefinition> result = new ArrayList<>();
+    ImmutableProjectDefinition p = project;
     while (p != null) {
       result.add(0, p);
       p = p.getParent();

@@ -20,6 +20,9 @@
 package org.sonar.scanner.sensor;
 
 import java.io.Serializable;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
@@ -49,6 +52,7 @@ import org.sonar.scanner.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.scanner.sensor.noop.NoOpNewHighlighting;
 import org.sonar.scanner.sensor.noop.NoOpNewSymbolTable;
 
+@ThreadSafe
 public class DefaultSensorContext implements SensorContext {
 
   private static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
@@ -163,5 +167,10 @@ public class DefaultSensorContext implements SensorContext {
   public void markForPublishing(InputFile inputFile) {
     DefaultInputFile file = (DefaultInputFile) inputFile;
     file.setPublish(true);
+  }
+
+  @Override
+  public int threads() {
+    return Runtime.getRuntime().availableProcessors() + 1;
   }
 }

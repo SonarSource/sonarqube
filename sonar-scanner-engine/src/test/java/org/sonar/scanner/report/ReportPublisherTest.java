@@ -33,6 +33,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.PropertyDefinitions;
@@ -75,13 +76,13 @@ public class ReportPublisherTest {
   ScannerWsClient wsClient;
   Server server = mock(Server.class);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);
-  ProjectDefinition root;
+  ImmutableProjectDefinition root;
   AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
 
   @Before
   public void setUp() {
     wsClient = mock(ScannerWsClient.class, Mockito.RETURNS_DEEP_STUBS);
-    root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot());
+    root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot()).build();
     when(reactor.getRoot()).thenReturn(root);
     when(server.getPublicRootUrl()).thenReturn("https://localhost");
     when(server.getVersion()).thenReturn("6.4");

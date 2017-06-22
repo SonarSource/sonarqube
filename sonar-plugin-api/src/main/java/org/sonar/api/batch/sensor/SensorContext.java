@@ -164,5 +164,13 @@ public interface SensorContext {
    * @since 6.3
    */
   void markForPublishing(InputFile inputFile);
+  
+  
+  /**
+   * How many threads can be used by the sensor
+   * @return maximum number of threads that the user can use
+   * @since 6.5
+   */
+  int threads();
 
 }

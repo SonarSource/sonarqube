@@ -84,10 +84,10 @@ public class DefaultIndexTest {
     rootDef.addSubProject(moduleBDef);
     moduleBDef.addSubProject(moduleB1Def);
 
-    project = new Project(rootDef);
-    moduleA = new Project(moduleADef);
-    moduleB = new Project(moduleBDef);
-    moduleB1 = new Project(moduleB1Def);
+    project = new Project(rootDef.build());
+    moduleA = new Project(moduleADef.build());
+    moduleB = new Project(moduleBDef.build());
+    moduleB1 = new Project(moduleB1Def.build());
 
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");
@@ -117,7 +117,8 @@ public class DefaultIndexTest {
   public void shouldTransformToResource() {
     DefaultInputModule component = new DefaultInputModule(ProjectDefinition.create()
       .setKey("module1")
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch1"), 1);
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch1")
+      .build(), 1);
     InputFile file1 = new TestInputFileBuilder("module1", "src/org/foo/Bar.java").build();
     InputDir dir = new DefaultInputDir("module1", "src");
 

@@ -29,11 +29,13 @@ import org.sonar.api.utils.System2;
 
 /**
  * @since 6.3
+ * 
+ * Immutable after {@link #start()}
  */
 @ScannerSide
 public class ProjectAnalysisInfo implements Startable {
   private final System2 system2;
-  private Settings settings;
+  private final Settings settings;
 
   private Date analysisDate;
   private String analysisVersion;
