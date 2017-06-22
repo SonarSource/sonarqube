@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -31,8 +33,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -53,33 +55,33 @@ public class DeleteActionTest {
   private static final String A_LANGUAGE = "xoo";
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession session = dbTester.getSession();
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
+
   private DeleteAction underTest = new DeleteAction(
     new Languages(LanguageTesting.newLanguage(A_LANGUAGE)),
-    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer),
-    dbClient, userSessionRule,
-    new QProfileWsSupport(dbClient, userSessionRule, TestDefaultOrganizationProvider.from(dbTester)));
-  private WsActionTester tester = new WsActionTester(underTest);
+    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer), dbClient, userSessionRule,
+    new QProfileWsSupport(dbClient, userSessionRule, TestDefaultOrganizationProvider.from(db)));
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void delete_profile_by_key() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     QProfileDto profile1 = createProfile(organization);
     QProfileDto profile2 = createProfile(organization);
-    dbTester.qualityProfiles().associateWithProject(project, profile1);
+    db.qualityProfiles().associateWithProject(project, profile1);
 
     logInAsQProfileAdministrator(organization);
 
-    TestResponse response = tester.newRequest()
+    TestResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam("profileKey", profile1.getKee())
       .execute();
@@ -91,15 +93,15 @@ public class DeleteActionTest {
 
   @Test
   public void delete_profile_by_language_and_name_in_default_organization() throws Exception {
-    OrganizationDto organization = dbTester.getDefaultOrganization();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     QProfileDto profile1 = createProfile(organization);
     QProfileDto profile2 = createProfile(organization);
-    dbTester.qualityProfiles().associateWithProject(project, profile1);
+    db.qualityProfiles().associateWithProject(project, profile1);
 
     logInAsQProfileAdministrator(organization);
 
-    TestResponse response = tester.newRequest()
+    TestResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam("language", profile1.getLanguage())
       .setParam("profileName", profile1.getName())
@@ -113,14 +115,14 @@ public class DeleteActionTest {
 
   @Test
   public void delete_profile_by_language_and_name_in_specified_organization() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     QProfileDto profile1 = createProfile(organization);
     QProfileDto profile2 = createProfile(organization);
-    dbTester.qualityProfiles().associateWithProject(project, profile1);
+    db.qualityProfiles().associateWithProject(project, profile1);
     logInAsQProfileAdministrator(organization);
 
-    TestResponse response = tester.newRequest()
+    TestResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam("organization", organization.getKey())
       .setParam("language", profile1.getLanguage())
@@ -134,13 +136,13 @@ public class DeleteActionTest {
 
   @Test
   public void fail_if_built_in_profile() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    QProfileDto profile1 = dbTester.qualityProfiles().insert(organization, p -> p.setIsBuiltIn(true));
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile1 = db.qualityProfiles().insert(organization, p -> p.setIsBuiltIn(true));
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(BadRequestException.class);
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("profileKey", profile1.getKee())
       .execute();
@@ -148,8 +150,8 @@ public class DeleteActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_profile_administrator() {
-    OrganizationDto organization1 = dbTester.organizations().insert();
-    OrganizationDto organization2 = dbTester.organizations().insert();
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
 
     QProfileDto profileInOrg1 = createProfile(organization1);
     QProfileDto profileInOrg2 = createProfile(organization2);
@@ -159,7 +161,7 @@ public class DeleteActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("profileKey", profileInOrg2.getKee())
       .execute();
@@ -167,11 +169,11 @@ public class DeleteActionTest {
 
   @Test
   public void throw_UnauthorizedException_if_not_logged_in() {
-    QProfileDto profile = createProfile(dbTester.getDefaultOrganization());
+    QProfileDto profile = createProfile(db.getDefaultOrganization());
 
     expectedException.expect(UnauthorizedException.class);
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("profileKey", profile.getKee())
       .execute();
@@ -184,21 +186,21 @@ public class DeleteActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .execute();
   }
 
   @Test
   public void throw_IAE_if_missing_language_parameter() {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("organization", organization.getKey())
       .setParam("profileName", profile.getName())
@@ -207,14 +209,14 @@ public class DeleteActionTest {
 
   @Test
   public void throw_IAE_if_missing_name_parameter() throws Exception {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("organization", organization.getKey())
       .setParam("language", profile.getLanguage())
@@ -223,14 +225,14 @@ public class DeleteActionTest {
 
   @Test
   public void throw_IAE_if_too_many_parameters_to_reference_profile() {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("When providing a quality profile key, neither of organization/language/name must be set");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("organization", organization.getKey())
       .setParam("language", profile.getLanguage())
@@ -246,7 +248,7 @@ public class DeleteActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'does_not_exist' does not exist");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("profileKey", "does_not_exist")
       .execute();
@@ -254,15 +256,15 @@ public class DeleteActionTest {
 
   @Test
   public void throw_ISE_if_deleting_default_profile() {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
-    dbTester.qualityProfiles().setAsDefault(profile);
+    db.qualityProfiles().setAsDefault(profile);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Profile '" + profile.getName() + "' cannot be deleted because it is marked as default");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("profileKey", profile.getKee())
       .execute();
@@ -270,20 +272,33 @@ public class DeleteActionTest {
 
   @Test
   public void throw_ISE_if_a_descendant_is_marked_as_default() {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     QProfileDto parentProfile = createProfile(organization);
-    QProfileDto childProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE).setParentKee(parentProfile.getKee()));
-    dbTester.qualityProfiles().setAsDefault(childProfile);
+    QProfileDto childProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE).setParentKee(parentProfile.getKee()));
+    db.qualityProfiles().setAsDefault(childProfile);
     logInAsQProfileAdministrator(organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Profile '" + parentProfile.getName() + "' cannot be deleted because its descendant named '" + childProfile.getName() +
       "' is marked as default");
 
-    tester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam("profileKey", parentProfile.getKee())
       .execute();
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("language", "organization", "profile", "profileName");
+    Param profile = definition.param("profile");
+    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
+    Param profileName = definition.param("profileName");
+    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    Param language = definition.param("language");
+    assertThat(language.deprecatedSince()).isEqualTo("6.5");
   }
 
   private void logInAsQProfileAdministrator(OrganizationDto organization) {
@@ -293,15 +308,15 @@ public class DeleteActionTest {
   }
 
   private void verifyProfileDoesNotExist(QProfileDto profile, OrganizationDto organization) {
-    assertThat(dbClient.qualityProfileDao().selectByUuid(session, profile.getKee())).isNull();
-    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(session, organization, profile, null)).isEmpty();
+    assertThat(dbClient.qualityProfileDao().selectByUuid(dbSession, profile.getKee())).isNull();
+    assertThat(dbClient.qualityProfileDao().selectSelectedProjects(dbSession, organization, profile, null)).isEmpty();
   }
 
   private void verifyProfileExists(QProfileDto profile) {
-    assertThat(dbClient.qualityProfileDao().selectByUuid(session, profile.getKee())).isNotNull();
+    assertThat(dbClient.qualityProfileDao().selectByUuid(dbSession, profile.getKee())).isNotNull();
   }
 
   private QProfileDto createProfile(OrganizationDto organization) {
-    return dbTester.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
+    return db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE));
   }
 }

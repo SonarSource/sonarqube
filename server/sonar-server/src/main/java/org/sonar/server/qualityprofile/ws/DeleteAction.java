@@ -37,6 +37,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 
 public class DeleteAction implements QProfileWsAction {
 
@@ -57,14 +58,15 @@ public class DeleteAction implements QProfileWsAction {
   @Override
   public void define(NewController controller) {
     NewAction action = controller.createAction("delete")
-      .setDescription("Delete a quality profile and all its descendants. The default quality profile cannot be deleted. " +
-        "Require Administer Quality Profiles permission.")
+      .setDescription("Delete a quality profile and all its descendants. The default quality profile cannot be deleted.<br> " +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
 
     QProfileReference.defineParams(action, languages);
-    QProfileWsSupport.createOrganizationParam(action).setSince("6.4");
+    createOrganizationParam(action)
+      .setSince("6.4");
   }
 
   @Override
