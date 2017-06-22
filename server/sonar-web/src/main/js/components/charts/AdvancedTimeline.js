@@ -44,7 +44,9 @@ type Props = {
   series: Array<Serie>,
   showAreas?: boolean,
   showEventMarkers?: boolean,
-  startDate: ?Date
+  startDate: ?Date,
+  updateZoom: (start: ?Date, endDate: ?Date) => void,
+  zoomSpeed: number
 };
 
 export default class AdvancedTimeline extends React.PureComponent {
@@ -52,7 +54,8 @@ export default class AdvancedTimeline extends React.PureComponent {
 
   static defaultProps = {
     eventSize: 8,
-    padding: [10, 10, 30, 60]
+    padding: [10, 10, 30, 60],
+    zoomSpeed: 1
   };
 
   getRatingScale = (availableHeight: number) =>
@@ -75,7 +78,11 @@ export default class AdvancedTimeline extends React.PureComponent {
     const dateRange = extent(flatData, d => d.x);
     const start = this.props.startDate ? this.props.startDate : dateRange[0];
     const end = this.props.endDate ? this.props.endDate : dateRange[1];
-    return scaleTime().domain(sortBy([start, end])).range([0, availableWidth]).clamp(false);
+    const xScale = scaleTime().domain(sortBy([start, end])).range([0, availableWidth]).clamp(false);
+    return {
+      xScale,
+      maxXRange: dateRange.map(xScale)
+    };
   };
 
   getScales = () => {
@@ -83,7 +90,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     const availableHeight = this.props.height - this.props.padding[0] - this.props.padding[2];
     const flatData = flatten(this.props.series.map((serie: Serie) => serie.data));
     return {
-      xScale: this.getXScale(availableWidth, flatData),
+      ...this.getXScale(availableWidth, flatData),
       yScale: this.getYScale(availableHeight, flatData)
     };
   };
@@ -91,6 +98,21 @@ export default class AdvancedTimeline extends React.PureComponent {
   getEventMarker = (size: number) => {
     const half = size / 2;
     return `M${half} 0 L${size} ${half} L ${half} ${size} L0 ${half} L${half} 0 L${size} ${half}`;
+  };
+
+  handleWheel = (xScale: Scale, maxXRange: Array<number>) => (
+    evt: WheelEvent & { target: HTMLElement }
+  ) => {
+    evt.preventDefault();
+    const parentBbox = evt.target.getBoundingClientRect();
+    const mouseXPos = (evt.clientX - parentBbox.left) / parentBbox.width;
+    const xRange = xScale.range();
+    const speed = evt.deltaMode ? 25 / evt.deltaMode * this.props.zoomSpeed : this.props.zoomSpeed;
+    const leftPos = xRange[0] - Math.round(speed * evt.deltaY * mouseXPos);
+    const rightPos = xRange[1] + Math.round(speed * evt.deltaY * (1 - mouseXPos));
+    const startDate = leftPos > maxXRange[0] ? xScale.invert(leftPos) : null;
+    const endDate = rightPos < maxXRange[1] ? xScale.invert(rightPos) : null;
+    this.props.updateZoom(startDate, endDate);
   };
 
   renderHorizontalGrid = (xScale: Scale, yScale: Scale) => {
@@ -243,12 +265,23 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
+  renderZoomOverlay = (xScale: Scale, yScale: Scale, maxXRange: Array<number>) => {
+    return (
+      <rect
+        className="chart-wheel-zoom-overlay"
+        width={xScale.range()[1]}
+        height={yScale.range()[0]}
+        onWheel={this.handleWheel(xScale, maxXRange)}
+      />
+    );
+  };
+
   render() {
     if (!this.props.width || !this.props.height) {
       return <div />;
     }
 
-    const { xScale, yScale } = this.getScales();
+    const { maxXRange, xScale, yScale } = this.getScales();
     const isZoomed = this.props.startDate || this.props.endDate;
     return (
       <svg
@@ -262,6 +295,7 @@ export default class AdvancedTimeline extends React.PureComponent {
           {this.renderTicks(xScale, yScale)}
           {this.props.showAreas && this.renderAreas(xScale, yScale)}
           {this.renderLines(xScale, yScale)}
+          {this.renderZoomOverlay(xScale, yScale, maxXRange)}
           {this.props.showEventMarkers && this.renderEvents(xScale, yScale)}
         </g>
       </svg>
