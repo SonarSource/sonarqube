@@ -156,7 +156,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
         " 2 new rules\n",
         profileTitleText(profileName2, languageKey2, languageName2),
         " 13 new rules\n",
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions. " + server.getPublicRootUrl() + "/profiles");
+      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + server.getPublicRootUrl() + "/profiles");
   }
 
   @Test
@@ -220,15 +220,15 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
   private void assertMessage(EmailMessage emailMessage, String expectedProfileDetails) {
     assertThat(emailMessage.getMessage()).containsSequence("Built-in quality profiles have been updated:\n",
       expectedProfileDetails,
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions. " + server.getPublicRootUrl() + "/profiles");
+      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + server.getPublicRootUrl() + "/profiles");
   }
 
   private String profileTitleText(String profileName, String languageKey, String languageName) {
-    return "\"" + profileName + "\" - " + languageName + " " + server.getPublicRootUrl() + "/profiles/changelog?language=" + languageKey + "&name=" + profileName;
+    return "\"" + profileName + "\" - " + languageName + ": " + server.getPublicRootUrl() + "/profiles/changelog?language=" + languageKey + "&name=" + profileName;
   }
 
   private String profileTitleText(String profileName, String languageKey, String languageName, String startDate, String endDate) {
-    return "\"" + profileName + "\" - " + languageName + " " + server.getPublicRootUrl() + "/profiles/changelog?language=" + languageKey + "&name=" + profileName +
+    return "\"" + profileName + "\" - " + languageName + ": " + server.getPublicRootUrl() + "/profiles/changelog?language=" + languageKey + "&name=" + profileName +
       "&since=" + startDate + "&to=" + endDate + "\n";
   }
 

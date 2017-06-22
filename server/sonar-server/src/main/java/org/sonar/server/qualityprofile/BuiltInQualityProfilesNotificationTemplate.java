@@ -58,7 +58,7 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
           .append(profile.getProfileName())
           .append("\" - ")
           .append(profile.getLanguageName())
-          .append(" ")
+          .append(": ")
           .append(server.getPublicRootUrl()).append("/profiles/changelog?language=")
           .append(profile.getLanguageKey())
           .append("&name=")
@@ -82,7 +82,7 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
         }
       });
 
-    message.append("This is a good time to review your quality profiles and update them to benefit from the latest evolutions. ");
+    message.append("This is a good time to review your quality profiles and update them to benefit from the latest evolutions: ");
     message.append(server.getPublicRootUrl()).append("/profiles");
 
     // And finally return the email that will be sent
