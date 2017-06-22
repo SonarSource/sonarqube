@@ -80,7 +80,7 @@ it('should render correctly the graph and legends', () => {
   expect(shallow(<ProjectActivityGraphs {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
 
-it('should render correctly filter history on dates', () => {
+it('should render correctly with filter history on dates', () => {
   const wrapper = shallow(
     <ProjectActivityGraphs
       {...DEFAULT_PROPS}

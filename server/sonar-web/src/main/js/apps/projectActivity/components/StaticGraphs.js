@@ -32,13 +32,14 @@ import type { Serie } from '../../../components/charts/AdvancedTimeline';
 type Props = {
   analyses: Array<Analysis>,
   eventFilter: string,
+  graphEndDate: ?Date,
   graphStartDate: ?Date,
   leakPeriodDate: Date,
   loading: boolean,
   metricsType: string,
   series: Array<Serie>,
   showAreas?: boolean,
-  graphEndDate: ?Date
+  updateGraphZoom: (from: ?Date, to: ?Date) => void
 };
 
 export default class StaticGraphs extends React.PureComponent {
@@ -108,6 +109,7 @@ export default class StaticGraphs extends React.PureComponent {
                 endDate={this.props.graphEndDate}
                 events={this.getEvents()}
                 height={height}
+                width={width}
                 interpolate="linear"
                 formatValue={this.formatValue}
                 formatYTick={this.formatYTick}
@@ -116,7 +118,7 @@ export default class StaticGraphs extends React.PureComponent {
                 series={series}
                 showAreas={this.props.showAreas}
                 startDate={this.props.graphStartDate}
-                width={width}
+                updateZoom={this.props.updateGraphZoom}
               />
             )}
           </AutoSizer>

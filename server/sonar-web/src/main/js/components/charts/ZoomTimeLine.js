@@ -21,7 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { flatten, sortBy } from 'lodash';
-import { extent, max, min } from 'd3-array';
+import { extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
 import Draggable, { DraggableCore } from 'react-draggable';
@@ -41,8 +41,7 @@ type Props = {
   showAreas?: boolean,
   showXTicks?: boolean,
   startDate: ?Date,
-  updateZoom: (start: ?Date, endDate: ?Date) => void,
-  updateZoomFast: (start: ?Date, endDate: ?Date) => void
+  updateZoom: (start: ?Date, endDate: ?Date) => void
 };
 
 type State = {
@@ -96,35 +95,42 @@ export default class ZoomTimeLine extends React.PureComponent {
 
   handleSelectionDrag = (
     xScale: Scale,
-    updateFunc: (xScale: Scale, xArray: Array<number>) => void,
+    width: number,
+    xDim: Array<number>,
     checkDelta?: boolean
   ) => (e: Event, data: DraggableData) => {
     if (!checkDelta || data.deltaX) {
-      updateFunc(xScale, [data.x, data.node.getBoundingClientRect().width + data.x]);
+      const x = Math.max(xDim[0], Math.min(data.x, xDim[1] - width));
+      this.handleZoomUpdate(xScale, [x, width + x]);
     }
   };
 
   handleSelectionHandleDrag = (
     xScale: Scale,
     fixedX: number,
-    updateFunc: (xScale: Scale, xArray: Array<number>) => void,
+    xDim: Array<number>,
     handleDirection: string,
     checkDelta?: boolean
   ) => (e: Event, data: DraggableData) => {
     if (!checkDelta || data.deltaX) {
-      updateFunc(xScale, handleDirection === 'right' ? [fixedX, data.x] : [data.x, fixedX]);
+      const x = Math.max(xDim[0], Math.min(data.x, xDim[1]));
+      this.handleZoomUpdate(xScale, handleDirection === 'right' ? [fixedX, x] : [x, fixedX]);
     }
   };
 
-  handleNewZoomDragStart = (e: Event, data: DraggableData) =>
-    this.setState({ newZoomStart: data.x - data.node.getBoundingClientRect().left });
+  handleNewZoomDragStart = (xDim: Array<number>) => (e: Event, data: DraggableData) =>
+    this.setState({
+      newZoomStart: Math.round(
+        Math.max(xDim[0], Math.min(data.x - data.node.getBoundingClientRect().left, xDim[1]))
+      )
+    });
 
-  handleNewZoomDrag = (xScale: Scale) => (e: Event, data: DraggableData) => {
+  handleNewZoomDrag = (xScale: Scale, xDim: Array<number>) => (e: Event, data: DraggableData) => {
     const { newZoomStart } = this.state;
     if (newZoomStart != null && data.deltaX) {
-      this.handleFastZoomUpdate(xScale, [
+      this.handleZoomUpdate(xScale, [
         newZoomStart,
-        data.x - data.node.getBoundingClientRect().left
+        Math.max(xDim[0], Math.min(data.x - data.node.getBoundingClientRect().left, xDim[1]))
       ]);
     }
   };
@@ -135,7 +141,10 @@ export default class ZoomTimeLine extends React.PureComponent {
   ) => {
     const { newZoomStart } = this.state;
     if (newZoomStart != null) {
-      const x = data.x - data.node.getBoundingClientRect().left;
+      const x = Math.max(
+        xDim[0],
+        Math.min(data.x - data.node.getBoundingClientRect().left, xDim[1])
+      );
       this.handleZoomUpdate(xScale, newZoomStart === x ? xDim : [newZoomStart, x]);
       this.setState({ newZoomStart: null });
     }
@@ -143,21 +152,14 @@ export default class ZoomTimeLine extends React.PureComponent {
 
   handleZoomUpdate = (xScale: Scale, xArray: Array<number>) => {
     const xRange = xScale.range();
-    const xStart = min(xArray);
-    const xEnd = max(xArray);
-    const startDate = xStart > xRange[0] ? xScale.invert(xStart) : null;
-    const endDate = xEnd < xRange[xRange.length - 1] ? xScale.invert(xEnd) : null;
+    const startDate = xArray[0] > xRange[0] && xArray[0] < xRange[xRange.length - 1]
+      ? xScale.invert(xArray[0])
+      : null;
+    const endDate = xArray[1] > xRange[0] && xArray[1] < xRange[xRange.length - 1]
+      ? xScale.invert(xArray[1])
+      : null;
     if (this.props.startDate !== startDate || this.props.endDate !== endDate) {
       this.props.updateZoom(startDate, endDate);
-    }
-  };
-
-  handleFastZoomUpdate = (xScale: Scale, xArray: Array<number>) => {
-    const xRange = xScale.range();
-    const startDate = xArray[0] > xRange[0] ? xScale.invert(xArray[0]) : null;
-    const endDate = xArray[1] < xRange[xRange.length - 1] ? xScale.invert(xArray[1]) : null;
-    if (this.props.startDate !== startDate || this.props.endDate !== endDate) {
-      this.props.updateZoomFast(startDate, endDate);
     }
   };
 
@@ -252,7 +254,7 @@ export default class ZoomTimeLine extends React.PureComponent {
   };
 
   renderZoomHandle = (
-    opts: {
+    options: {
       xScale: Scale,
       xPos: number,
       fixedPos: number,
@@ -263,26 +265,26 @@ export default class ZoomTimeLine extends React.PureComponent {
   ) => (
     <Draggable
       axis="x"
-      bounds={{ left: opts.xDim[0], right: opts.xDim[1] }}
-      position={{ x: opts.xPos, y: 0 }}
+      bounds={{ left: options.xDim[0], right: options.xDim[1] }}
+      position={{ x: options.xPos, y: 0 }}
       onDrag={this.handleSelectionHandleDrag(
-        opts.xScale,
-        opts.fixedPos,
-        this.handleFastZoomUpdate,
-        opts.direction,
+        options.xScale,
+        options.fixedPos,
+        options.xDim,
+        options.direction,
         true
       )}
       onStop={this.handleSelectionHandleDrag(
-        opts.xScale,
-        opts.fixedPos,
-        this.handleZoomUpdate,
-        opts.direction
+        options.xScale,
+        options.fixedPos,
+        options.xDim,
+        options.direction
       )}>
       <rect
         className="zoom-selection-handle"
         x={-3}
-        y={opts.yDim[1]}
-        height={opts.yDim[0] - opts.yDim[1]}
+        y={options.yDim[1]}
+        height={options.yDim[0] - options.yDim[1]}
         width={6}
       />
     </Draggable>
@@ -296,12 +298,13 @@ export default class ZoomTimeLine extends React.PureComponent {
     const startX = Math.round(this.props.startDate ? xScale(this.props.startDate) : xDim[0]);
     const endX = Math.round(this.props.endDate ? xScale(this.props.endDate) : xDim[1]);
     const xArray = sortBy([startX, endX]);
+    const zoomBoxWidth = xArray[1] - xArray[0];
     const showZoomArea = this.state.newZoomStart == null || this.state.newZoomStart === startX;
     return (
       <g className="chart-zoom">
         <DraggableCore
-          onStart={this.handleNewZoomDragStart}
-          onDrag={this.handleNewZoomDrag(xScale)}
+          onStart={this.handleNewZoomDragStart(xDim)}
+          onDrag={this.handleNewZoomDrag(xScale, xDim)}
           onStop={this.handleNewZoomDragEnd(xScale, xDim)}>
           <rect
             className="zoom-overlay"
@@ -314,16 +317,16 @@ export default class ZoomTimeLine extends React.PureComponent {
         {showZoomArea &&
           <Draggable
             axis="x"
-            bounds={{ left: xDim[0], right: xDim[1] - xArray[1] + xArray[0] }}
+            bounds={{ left: xDim[0], right: Math.floor(xDim[1] - zoomBoxWidth) }}
             position={{ x: xArray[0], y: 0 }}
-            onDrag={this.handleSelectionDrag(xScale, this.handleFastZoomUpdate, true)}
-            onStop={this.handleSelectionDrag(xScale, this.handleZoomUpdate)}>
+            onDrag={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim, true)}
+            onStop={this.handleSelectionDrag(xScale, zoomBoxWidth, xDim)}>
             <rect
               className="zoom-selection"
               x={0}
-              y={yDim[1]}
+              y={yDim[1] + 1}
               height={yDim[0] - yDim[1]}
-              width={xArray[1] - xArray[0]}
+              width={zoomBoxWidth}
             />
           </Draggable>}
         {showZoomArea &&
