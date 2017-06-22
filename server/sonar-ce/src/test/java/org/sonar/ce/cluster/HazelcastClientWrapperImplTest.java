@@ -26,6 +26,8 @@ import ch.qos.logback.core.AppenderBase;
 import com.google.common.collect.ImmutableSet;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.client.impl.HazelcastClientProxy;
+import com.hazelcast.core.Client;
+import com.hazelcast.core.ClientListener;
 import com.hazelcast.core.HazelcastInstance;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -36,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -154,15 +158,18 @@ public class HazelcastClientWrapperImplTest {
   }
 
   @Test
-  public void client_must_connect_to_hazelcast() {
+  public void client_must_connect_to_hazelcast() throws InterruptedException {
     int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
     // Launch a fake Hazelcast instance
     HazelcastInstance hzInstance = HazelcastTestHelper.createHazelcastCluster("client_must_connect_to_hazelcast", port);
     Settings settings = createClusterSettings("client_must_connect_to_hazelcast", "localhost:" + port);
 
     HazelcastClientWrapperImpl hazelcastClientWrapperImpl = new HazelcastClientWrapperImpl(settings);
+    ClientListenerImpl clientListener = new ClientListenerImpl();
+    hzInstance.getClientService().addClientListener(clientListener);
     try {
       hazelcastClientWrapperImpl.start();
+      clientListener.counter.await(5, TimeUnit.SECONDS);
       assertThat(hazelcastClientWrapperImpl.getConnectedClients()).hasSize(1);
       assertThat(hazelcastClientWrapperImpl.getClientUUID()).isNotEmpty();
     } finally {
@@ -267,6 +274,20 @@ public class HazelcastClientWrapperImplTest {
     memoryAppender.events.stream().forEach(
       e -> assertThat(e.getLoggerName()).startsWith("com.hazelcast")
     );
+  }
+
+  private class ClientListenerImpl implements ClientListener {
+    CountDownLatch counter = new CountDownLatch(1);
+
+    @Override
+    public void clientConnected(Client client) {
+      counter.countDown();
+    }
+
+    @Override
+    public void clientDisconnected(Client client) {
+
+    }
   }
 
   private static Settings createClusterSettings(String name, String localEndPoint) {
