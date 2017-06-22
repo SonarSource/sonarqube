@@ -63,7 +63,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
     assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
-      .extracting(Profile::getProfileName, Profile::getLanguage, Profile::getNewRules)
+      .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules)
       .containsExactlyInAnyOrder(expectedTuple);
   }
 
@@ -80,7 +80,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
     assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
-      .extracting(Profile::getProfileName, Profile::getLanguage, Profile::getUpdatedRules)
+      .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getUpdatedRules)
       .containsExactlyInAnyOrder(expectedTuple);
   }
 
@@ -97,7 +97,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
     assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
-      .extracting(Profile::getProfileName, Profile::getLanguage, Profile::getRemovedRules)
+      .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getRemovedRules)
       .containsExactlyInAnyOrder(expectedTuple);
   }
 
@@ -115,7 +115,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
     verifyNoMoreInteractions(notificationManager);
     assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
-      .extracting(Profile::getProfileName, Profile::getLanguage, Profile::getNewRules)
+      .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules)
       .containsExactlyInAnyOrder(expectedTuple1, expectedTuple2);
   }
 
@@ -127,7 +127,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     profiles.putAll(
       new QProfileName(language.getKey(), profileName),
       IntStream.range(0, numberOfChanges).mapToObj(i -> new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule" + i))).collect(Collectors.toSet()));
-    return tuple(profileName, language.getName(), numberOfChanges);
+    return tuple(profileName, language.getKey(), language.getName(), numberOfChanges);
   }
 
   private static String randomLowerCaseText() {

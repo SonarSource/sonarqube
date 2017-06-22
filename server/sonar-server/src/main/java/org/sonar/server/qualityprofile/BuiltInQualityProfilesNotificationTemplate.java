@@ -19,15 +19,26 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.platform.Server;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
-import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 
+import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
+import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.parse;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender.BUILT_IN_QUALITY_PROFILES;
 
 public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
+
+  private final Server server;
+
+  public BuiltInQualityProfilesNotificationTemplate(Server server) {
+    this.server = server;
+  }
 
   @Override
   public EmailMessage format(Notification notification) {
@@ -35,15 +46,22 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
       return null;
     }
 
-    BuiltInQualityProfilesNotification profilesNotification = BuiltInQualityProfilesNotification.parse(notification);
+    BuiltInQualityProfilesNotification profilesNotification = parse(notification);
 
     StringBuilder message = new StringBuilder("Built-in quality profiles have been updated:\n");
     profilesNotification.getProfiles().stream()
-      .sorted(Comparator.comparing(Profile::getLanguage).thenComparing(Profile::getProfileName))
+      .sorted(Comparator.comparing(Profile::getLanguageName).thenComparing(Profile::getProfileName))
       .forEach(profile -> {
         message.append("\"")
-          .append(profile.getProfileName()).append("\" - ")
-          .append(profile.getLanguage()).append("\n");
+          .append(profile.getProfileName())
+          .append("\" - ")
+          .append(profile.getLanguageName())
+          .append(" ")
+          .append(server.getPublicRootUrl()).append("/profiles/changelog?language=")
+          .append(profile.getLanguageKey())
+          .append("&name=")
+          .append(encode(profile.getProfileName()))
+          .append("\n");
         int newRules = profile.getNewRules();
         if (newRules > 0) {
           message.append(" ").append(newRules).append(" new rules\n");
@@ -58,8 +76,8 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
         }
       });
 
-    message.append(
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");
+    message.append("This is a good time to review your quality profiles and update them to benefit from the latest evolutions. ");
+    message.append(server.getPublicRootUrl()).append("/profiles");
 
     // And finally return the email that will be sent
     return new EmailMessage()
@@ -68,4 +86,11 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
       .setMessage(message.toString());
   }
 
+  public String encode(String text) {
+    try {
+      return URLEncoder.encode(text, StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException(String.format("Cannot encode %s", text), e);
+    }
+  }
 }
