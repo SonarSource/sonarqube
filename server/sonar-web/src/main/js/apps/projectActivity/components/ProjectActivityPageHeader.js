@@ -20,6 +20,8 @@
 // @flow
 import React from 'react';
 import Select from 'react-select';
+import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
+import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
 import { EVENT_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { RawQuery } from '../../../helpers/query';
@@ -54,6 +56,8 @@ export default class ProjectActivityPageHeader extends React.PureComponent {
           clearable={true}
           searchable={false}
           value={this.props.category}
+          optionComponent={ProjectActivityEventSelectOption}
+          valueComponent={ProjectActivityEventSelectValue}
           options={this.options}
           onChange={this.handleCategoryChange}
         />
