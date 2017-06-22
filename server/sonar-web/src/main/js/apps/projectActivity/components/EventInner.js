@@ -19,25 +19,28 @@
  */
 // @flow
 import React from 'react';
+import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-import type { Event as EventType } from '../types';
 import { translate } from '../../../helpers/l10n';
-import './Event.css';
+import type { Event as EventType } from '../types';
 
 export default function EventInner(props: { event: EventType }) {
   const { event } = props;
 
-  if (event.category === 'VERSION') {
-    return <span className="badge project-activity-version-badge">{props.event.name}</span>;
-  }
-
   return (
     <TooltipsContainer>
-      <span>
-        <span className="note">{translate('event.category', event.category)}:</span>
-        {' '}
-        <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
-      </span>
+      <div className="project-activity-event-inner">
+        <div className="project-activity-event-inner-icon little-spacer-right">
+          <ProjectEventIcon
+            className={'text-text-bottom project-activity-event-icon ' + event.category}
+          />
+        </div>
+        <span className="project-activity-event-inner-text">
+          <span className="note">{translate('event.category', event.category)}:</span>
+          {' '}
+          <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
+        </span>
+      </div>
     </TooltipsContainer>
   );
 }
