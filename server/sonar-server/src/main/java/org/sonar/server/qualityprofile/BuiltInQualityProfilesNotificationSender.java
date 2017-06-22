@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
@@ -47,12 +48,15 @@ public class BuiltInQualityProfilesNotificationSender {
     changedProfiles.keySet().stream()
       .map(changedProfile -> {
         String profileName = changedProfile.getName();
-        String languageName = languages.get(changedProfile.getLanguage()).getName();
+        Language language = languages.get(changedProfile.getLanguage());
         Collection<ActiveRuleChange> activeRuleChanges = changedProfiles.get(changedProfile);
         int newRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(ACTIVATED::equals).count();
         int updatedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(UPDATED::equals).count();
         int removedRules = (int) activeRuleChanges.stream().map(ActiveRuleChange::getType).filter(DEACTIVATED::equals).count();
-        return Profile.newBuilder(profileName, languageName)
+        return Profile.newBuilder()
+          .setProfileName(profileName)
+          .setLanguageKey(language.getKey())
+          .setLanguageName(language.getName())
           .setNewRules(newRules)
           .setUpdatedRules(updatedRules)
           .setRemovedRules(removedRules)

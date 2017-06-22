@@ -20,74 +20,98 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.platform.Server;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BuiltInQualityProfilesNotificationTemplateTest {
 
-  private BuiltInQualityProfilesNotificationTemplate underTest = new BuiltInQualityProfilesNotificationTemplate();
+  private Server server = mock(Server.class);
+
+  private BuiltInQualityProfilesNotificationTemplate underTest = new BuiltInQualityProfilesNotificationTemplate(server);
+
+  @Before
+  public void setUp() throws Exception {
+    when(server.getPublicRootUrl()).thenReturn("http://" + randomAlphanumeric(10));
+  }
 
   @Test
   public void notification_contains_list_of_new_rules() {
-    String profileName = randomAlphanumeric(20);
-    String language = randomAlphanumeric(20);
+    String profileName = newProfileName();
+    String languageKey = newLanguageKey();
+    String languageName = newLanguageName();
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName, language)
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
         .setNewRules(2)
         .build());
 
     EmailMessage emailMessage = underTest.format(notification.serialize());
 
-    assertThat(emailMessage.getMessage()).isEqualTo("Built-in quality profiles have been updated:\n" +
-      "\"" + profileName + "\" - " + language + "\n" +
-      " 2 new rules\n" +
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");
+    assertMessage(emailMessage,
+      profileTitleText(profileName, languageKey, languageName) +
+        " 2 new rules\n");
   }
 
   @Test
   public void notification_contains_list_of_updated_rules() {
-    String profileName = randomAlphanumeric(20);
-    String language = randomAlphanumeric(20);
+    String profileName = newProfileName();
+    String languageKey = newLanguageKey();
+    String languageName = newLanguageName();
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName, language)
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
         .setUpdatedRules(2)
         .build());
 
     EmailMessage emailMessage = underTest.format(notification.serialize());
 
-    assertThat(emailMessage.getMessage()).isEqualTo("Built-in quality profiles have been updated:\n" +
-      "\"" + profileName + "\" - " + language + "\n" +
-      " 2 rules have been updated\n" +
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");
+    assertMessage(emailMessage,
+      profileTitleText(profileName, languageKey, languageName) +
+        " 2 rules have been updated\n");
   }
 
   @Test
   public void notification_contains_list_of_removed_rules() {
-    String profileName = randomAlphanumeric(20);
-    String language = randomAlphanumeric(20);
+    String profileName = newProfileName();
+    String languageKey = newLanguageKey();
+    String languageName = newLanguageName();
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName, language)
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
         .setRemovedRules(2)
         .build());
 
     EmailMessage emailMessage = underTest.format(notification.serialize());
 
-    assertThat(emailMessage.getMessage()).isEqualTo("Built-in quality profiles have been updated:\n" +
-      "\"" + profileName + "\" - " + language + "\n" +
-      " 2 rules removed\n" +
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");
+    assertMessage(emailMessage,
+      profileTitleText(profileName, languageKey, languageName) +
+        " 2 rules removed\n");
   }
 
   @Test
   public void notification_contains_list_of_new_updated_and_removed_rules() {
-    String profileName = randomAlphanumeric(20);
-    String language = randomAlphanumeric(20);
+    String profileName = newProfileName();
+    String languageKey = newLanguageKey();
+    String languageName = newLanguageName();
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName, language)
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
         .setNewRules(2)
         .setUpdatedRules(3)
         .setRemovedRules(4)
@@ -95,55 +119,100 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
 
     EmailMessage emailMessage = underTest.format(notification.serialize());
 
-    assertThat(emailMessage.getMessage()).isEqualTo("Built-in quality profiles have been updated:\n" +
-      "\"" + profileName + "\" - " + language + "\n" +
-      " 2 new rules\n" +
-      " 3 rules have been updated\n" +
-      " 4 rules removed\n" +
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");
+    assertMessage(emailMessage,
+      profileTitleText(profileName, languageKey, languageName) +
+        " 2 new rules\n" +
+        " 3 rules have been updated\n" +
+        " 4 rules removed\n");
   }
 
   @Test
   public void notification_contains_many_profiles() {
     String profileName1 = "profile1_" + randomAlphanumeric(20);
-    String language1 = "lang1_" + randomAlphanumeric(20);
-    String profileName2 = "profile1_" + randomAlphanumeric(20);
-    String language2 = "lang2_" + randomAlphanumeric(20);
+    String languageKey1 = "langkey1_" + randomAlphanumeric(20);
+    String languageName1 = "langName1_" + randomAlphanumeric(20);
+    String profileName2 = "profile2_" + randomAlphanumeric(20);
+    String languageKey2 = "langkey2_" + randomAlphanumeric(20);
+    String languageName2 = "langName2_" + randomAlphanumeric(20);
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName1, language1)
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName1)
+        .setLanguageKey(languageKey1)
+        .setLanguageName(languageName1)
         .setNewRules(2)
         .build())
-      .addProfile(Profile.newBuilder(profileName2, language2)
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName2)
+        .setLanguageKey(languageKey2)
+        .setLanguageName(languageName2)
         .setNewRules(13)
         .build());
 
     EmailMessage emailMessage = underTest.format(notification.serialize());
 
-    assertThat(emailMessage.getMessage()).isEqualTo("Built-in quality profiles have been updated:\n" +
-      "\"" + profileName1 + "\" - " + language1 + "\n" +
-      " 2 new rules\n" +
-      "\"" + profileName2 + "\" - " + language2 + "\n" +
-      " 13 new rules\n" +
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.");
+    assertMessage(emailMessage,
+      profileTitleText(profileName1, languageKey1, languageName1) +
+        " 2 new rules\n" +
+        profileTitleText(profileName2, languageKey2, languageName2) +
+        " 13 new rules\n");
   }
 
   @Test
   public void notification_contains_profiles_sorted_by_language_then_by_profile_name() {
-    String language1 = "lang1_" + randomAlphanumeric(20);
-    String language2 = "lang2_" + randomAlphanumeric(20);
+    String languageKey1 = "langkey1_" + randomAlphanumeric(20);
+    String languageName1 = "langName1_" + randomAlphanumeric(20);
+    String languageKey2 = "langKey2_" + randomAlphanumeric(20);
+    String languageName2 = "langName2_" + randomAlphanumeric(20);
     String profileName1 = "profile1_" + randomAlphanumeric(20);
     String profileName2 = "profile2_" + randomAlphanumeric(20);
     String profileName3 = "profile3_" + randomAlphanumeric(20);
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName3, language2).build())
-      .addProfile(Profile.newBuilder(profileName2, language1).build())
-      .addProfile(Profile.newBuilder(profileName1, language2).build());
+      .addProfile(Profile.newBuilder().setProfileName(profileName3).setLanguageKey(languageKey2).setLanguageName(languageName2).build())
+      .addProfile(Profile.newBuilder().setProfileName(profileName2).setLanguageKey(languageKey1).setLanguageName(languageName1).build())
+      .addProfile(Profile.newBuilder().setProfileName(profileName1).setLanguageKey(languageKey2).setLanguageName(languageName2).build());
 
     EmailMessage emailMessage = underTest.format(notification.serialize());
 
     assertThat(emailMessage.getMessage()).containsSequence(
-      "\"" + profileName2 + "\" - " + language1,
-      "\"" + profileName1 + "\" - " + language2,
-      "\"" + profileName3 + "\" - " + language2);
+      "\"" + profileName2 + "\" - " + languageName1,
+      "\"" + profileName1 + "\" - " + languageName2,
+      "\"" + profileName3 + "\" - " + languageName2);
+  }
+
+  @Test
+  public void notification_contains_encoded_profile_name() {
+    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+      .addProfile(Profile.newBuilder()
+        .setProfileName("Sonar Way")
+        .setLanguageKey("java")
+        .setLanguageName(newLanguageName())
+        .build());
+
+    EmailMessage emailMessage = underTest.format(notification.serialize());
+
+    assertThat(emailMessage.getMessage()).contains(server.getPublicRootUrl() + "/profiles/changelog?language=java&name=Sonar+Way");
+  }
+
+  private void assertMessage(EmailMessage emailMessage, String expectedProfileDetails) {
+    String expected = "Built-in quality profiles have been updated:\n" +
+      expectedProfileDetails +
+      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions. " + server.getPublicRootUrl() + "/profiles";
+    assertThat(emailMessage.getMessage()).isEqualTo(expected);
+  }
+
+  private String profileTitleText(String profileName, String languageKey, String languageName) {
+    return "\"" + profileName + "\" - " + languageName + " " + server.getPublicRootUrl() + "/profiles/changelog?language=" + languageKey + "&name=" + profileName + "\n";
+  }
+
+  private static String newProfileName() {
+    return "profileName_" + randomAlphanumeric(20);
+  }
+
+  private static String newLanguageName() {
+    return "languageName_" + randomAlphanumeric(20);
+  }
+
+  private static String newLanguageKey() {
+    return "languageKey_" + randomAlphanumeric(20);
   }
 }

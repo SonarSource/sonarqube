@@ -70,7 +70,8 @@ public class BuiltInQualityProfilesNotificationTest {
       .addPlugin(pluginArtifact("foo-plugin-v1"))
       .setServerProperty("email.smtp_host.secured", "localhost")
       .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
-      //.setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")// FIXME remove web debugging
+      // .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")// FIXME
+      // remove web debugging
       .build();
     orchestrator.start();
 
@@ -100,7 +101,8 @@ public class BuiltInQualityProfilesNotificationTest {
       .addPlugin(pluginArtifact("foo-plugin-v1"))
       .setServerProperty("email.smtp_host.secured", "localhost")
       .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
-      //.setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")// FIXME remove web debugging
+      // .setServerProperty("sonar.web.javaAdditionalOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8001")// FIXME
+      // remove web debugging
       .build();
     orchestrator.start();
 
@@ -133,14 +135,15 @@ public class BuiltInQualityProfilesNotificationTest {
       .extracting(this::getMimeMessage)
       .extracting(this::getAllRecipients)
       .containsOnly("<" + profileAdmin1.getEmail() + ">", "<" + profileAdmin2.getEmail() + ">");
+    String url = orchestrator.getServer().getUrl();
     assertThat(messages.get(0).getMimeMessage().getContent().toString())
       .containsSequence(
         "Built-in quality profiles have been updated:",
-        "\"Basic\" - Foo",
+        "\"Basic\" - Foo " + url + "/profiles/changelog?language=foo&name=Basic",
         " 1 new rules",
         " 3 rules have been updated",
         " 1 rules removed",
-        "This is a good time to review your quality profiles and update them to benefit from the latest evolutions.")
+        "This is a good time to review your quality profiles and update them to benefit from the latest evolutions. " + url + "/profiles")
       .isEqualTo(messages.get(1).getMimeMessage().getContent().toString());
   }
 

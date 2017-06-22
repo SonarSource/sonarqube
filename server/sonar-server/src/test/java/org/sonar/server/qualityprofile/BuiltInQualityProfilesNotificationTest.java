@@ -48,10 +48,14 @@ public class BuiltInQualityProfilesNotificationTest {
   @Test
   public void serialize_and_parse_single_profile() {
     String profileName = randomAlphanumeric(20);
-    String language = randomAlphanumeric(20);
+    String languageKey = randomAlphanumeric(20);
+    String languageName = randomAlphanumeric(20);
 
     Notification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName, language)
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
         .setNewRules(3)
         .setUpdatedRules(5)
         .setRemovedRules(7)
@@ -59,25 +63,36 @@ public class BuiltInQualityProfilesNotificationTest {
       .serialize();
     BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
 
-    assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguage, Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules)
-      .containsExactlyInAnyOrder(tuple(profileName, language, 3, 5, 7));
+    assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName,
+      Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules)
+      .containsExactlyInAnyOrder(tuple(profileName, languageKey, languageName, 3, 5, 7));
   }
 
   @Test
   public void serialize_and_parse_multiple_profiles() {
     String profileName1 = randomAlphanumeric(20);
-    String language1 = randomAlphanumeric(20);
+    String languageKey1 = randomAlphanumeric(20);
+    String languageName1 = randomAlphanumeric(20);
     String profileName2 = randomAlphanumeric(20);
-    String language2 = randomAlphanumeric(20);
+    String languageKey2 = randomAlphanumeric(20);
+    String languageName2 = randomAlphanumeric(20);
 
     Notification notification = new BuiltInQualityProfilesNotification()
-      .addProfile(Profile.newBuilder(profileName1, language1).build())
-      .addProfile(Profile.newBuilder(profileName2, language2).build())
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName1)
+        .setLanguageKey(languageKey1)
+        .setLanguageName(languageName1)
+        .build())
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName2)
+        .setLanguageKey(languageKey2)
+        .setLanguageName(languageName2)
+        .build())
       .serialize();
     BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
 
-    assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguage)
-      .containsExactlyInAnyOrder(tuple(profileName1, language1), tuple(profileName2, language2));
+    assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName)
+      .containsExactlyInAnyOrder(tuple(profileName1, languageKey1, languageName1), tuple(profileName2, languageKey2, languageName2));
   }
 
   @Test

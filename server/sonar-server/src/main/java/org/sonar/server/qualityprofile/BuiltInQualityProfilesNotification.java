@@ -36,7 +36,8 @@ public class BuiltInQualityProfilesNotification {
 
   private static final String NUMBER_OF_PROFILES = "numberOfProfiles";
   private static final String PROFILE_NAME = ".profileName";
-  private static final String LANGUAGE = ".language";
+  private static final String LANGUAGE_KEY = ".languageKey";
+  private static final String LANGUAGE_NAME = ".languageName";
   private static final String NEW_RULES = ".newRules";
   private static final String UPDATED_RULES = ".updatedRules";
   private static final String REMOVED_RULES = ".removedRules";
@@ -55,7 +56,8 @@ public class BuiltInQualityProfilesNotification {
     profiles.forEach(profile -> {
       int index = count.getAndIncrement();
       notification.setFieldValue(index + PROFILE_NAME, profile.getProfileName());
-      notification.setFieldValue(index + LANGUAGE, profile.getLanguage());
+      notification.setFieldValue(index + LANGUAGE_KEY, profile.getLanguageKey());
+      notification.setFieldValue(index + LANGUAGE_NAME, profile.getLanguageName());
       notification.setFieldValue(index + NEW_RULES, String.valueOf(profile.getNewRules()));
       notification.setFieldValue(index + UPDATED_RULES, String.valueOf(profile.getUpdatedRules()));
       notification.setFieldValue(index + REMOVED_RULES, String.valueOf(profile.getRemovedRules()));
@@ -71,9 +73,10 @@ public class BuiltInQualityProfilesNotification {
     checkState(numberOfProfilesText != null, "Could not read the built-in quality profile notification");
     Integer numberOfProfiles = Integer.valueOf(numberOfProfilesText);
     IntStream.rangeClosed(0, numberOfProfiles - 1)
-      .mapToObj(index -> Profile.newBuilder(
-        getNonNullFieldValue(notification, index + PROFILE_NAME),
-        getNonNullFieldValue(notification, index + LANGUAGE))
+      .mapToObj(index -> Profile.newBuilder()
+        .setProfileName(getNonNullFieldValue(notification, index + PROFILE_NAME))
+        .setLanguageKey(getNonNullFieldValue(notification, index + LANGUAGE_KEY))
+        .setLanguageName(getNonNullFieldValue(notification, index + LANGUAGE_NAME))
         .setNewRules(parseInt(getNonNullFieldValue(notification, index + NEW_RULES)))
         .setUpdatedRules(parseInt(getNonNullFieldValue(notification, index + UPDATED_RULES)))
         .setRemovedRules(parseInt(getNonNullFieldValue(notification, index + REMOVED_RULES)))
@@ -93,14 +96,16 @@ public class BuiltInQualityProfilesNotification {
 
   public static class Profile {
     private final String profileName;
-    private final String language;
+    private final String languageKey;
+    private final String languageName;
     private final int newRules;
     private final int updatedRules;
     private final int removedRules;
 
     public Profile(Builder builder) {
       this.profileName = builder.profileName;
-      this.language = builder.language;
+      this.languageKey = builder.languageKey;
+      this.languageName = builder.languageName;
       this.newRules = builder.newRules;
       this.updatedRules = builder.updatedRules;
       this.removedRules = builder.removedRules;
@@ -110,8 +115,12 @@ public class BuiltInQualityProfilesNotification {
       return profileName;
     }
 
-    public String getLanguage() {
-      return language;
+    public String getLanguageKey() {
+      return languageKey;
+    }
+
+    public String getLanguageName() {
+      return languageName;
     }
 
     public int getNewRules() {
@@ -126,20 +135,34 @@ public class BuiltInQualityProfilesNotification {
       return removedRules;
     }
 
-    public static Builder newBuilder(String profileName, String language) {
-      return new Builder(profileName, language);
+    public static Builder newBuilder() {
+      return new Builder();
     }
 
     public static class Builder {
-      private final String profileName;
-      private final String language;
+      private String profileName;
+      private String languageKey;
+      private String languageName;
       private int newRules;
       private int updatedRules;
       private int removedRules;
 
-      private Builder(String profileName, String language) {
+      private Builder() {
+      }
+
+      public Builder setLanguageKey(String languageKey) {
+        this.languageKey = requireNonNull(languageKey, "languageKEy should not be null");
+        return this;
+      }
+
+      public Builder setLanguageName(String languageName) {
+        this.languageName = requireNonNull(languageName, "languageName should not be null");
+        return this;
+      }
+
+      public Builder setProfileName(String profileName) {
         this.profileName = requireNonNull(profileName, "profileName should not be null");
-        this.language = requireNonNull(language, "language should not be null");
+        return this;
       }
 
       public Builder setNewRules(int newRules) {
