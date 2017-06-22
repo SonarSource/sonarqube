@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -49,15 +50,17 @@ public class RegisterQualityProfiles {
   private final BuiltInQProfileInsert builtInQProfileInsert;
   private final BuiltInQProfileUpdate builtInQProfileUpdate;
   private final BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification;
+  private final System2 system2;
 
   public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
-    DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
-    BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification) {
+                                 DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
+                                 BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification, System2 system2) {
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
     this.builtInQProfileInsert = builtInQProfileInsert;
     this.builtInQProfileUpdate = builtInQProfileUpdate;
     this.builtInQualityProfilesNotification = builtInQualityProfilesNotification;
+    this.system2 = system2;
   }
 
   public void start() {
@@ -69,6 +72,7 @@ public class RegisterQualityProfiles {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
     try (DbSession dbSession = dbClient.openSession(false);
       DbSession batchDbSession = dbClient.openSession(true)) {
+      long startDate = system2.now();
 
       Map<QProfileName, RulesProfileDto> persistedRuleProfiles = loadPersistedProfiles(dbSession);
 
@@ -85,7 +89,8 @@ public class RegisterQualityProfiles {
         }
       });
       if (!changedProfiles.isEmpty()) {
-        builtInQualityProfilesNotification.send(changedProfiles);
+        long endDate = system2.now();
+        builtInQualityProfilesNotification.send(changedProfiles, startDate, endDate);
       }
     }
     profiler.stopDebug();

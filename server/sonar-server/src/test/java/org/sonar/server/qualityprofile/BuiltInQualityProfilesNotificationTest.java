@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,6 +33,8 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender.BUILT_IN_QUALITY_PROFILES;
 
 public class BuiltInQualityProfilesNotificationTest {
+
+  private static final Random RANDOM = new Random();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -50,22 +53,30 @@ public class BuiltInQualityProfilesNotificationTest {
     String profileName = randomAlphanumeric(20);
     String languageKey = randomAlphanumeric(20);
     String languageName = randomAlphanumeric(20);
+    int newRules = RANDOM.nextInt(5000);
+    int updatedRules = RANDOM.nextInt(5000);
+    int removedRules = RANDOM.nextInt(5000);
+    long startDate = RANDOM.nextInt(5000);
+    long endDate = startDate + RANDOM.nextInt(5000);
 
     Notification notification = new BuiltInQualityProfilesNotification()
       .addProfile(Profile.newBuilder()
         .setProfileName(profileName)
         .setLanguageKey(languageKey)
         .setLanguageName(languageName)
-        .setNewRules(3)
-        .setUpdatedRules(5)
-        .setRemovedRules(7)
+        .setNewRules(newRules)
+        .setUpdatedRules(updatedRules)
+        .setRemovedRules(removedRules)
+        .setStartDate(startDate)
+        .setEndDate(endDate)
         .build())
       .serialize();
     BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
 
-    assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName,
-      Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules)
-      .containsExactlyInAnyOrder(tuple(profileName, languageKey, languageName, 3, 5, 7));
+    assertThat(result.getProfiles())
+      .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules,
+        Profile::getStartDate, Profile::getEndDate)
+      .containsExactlyInAnyOrder(tuple(profileName, languageKey, languageName, newRules, updatedRules, removedRules, startDate, endDate));
   }
 
   @Test
@@ -93,6 +104,37 @@ public class BuiltInQualityProfilesNotificationTest {
 
     assertThat(result.getProfiles()).extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName)
       .containsExactlyInAnyOrder(tuple(profileName1, languageKey1, languageName1), tuple(profileName2, languageKey2, languageName2));
+  }
+
+  @Test
+  public void serialize_and_parse_max_values() {
+    String profileName = randomAlphanumeric(20);
+    String languageKey = randomAlphanumeric(20);
+    String languageName = randomAlphanumeric(20);
+    int newRules = Integer.MAX_VALUE;
+    int updatedRules = Integer.MAX_VALUE;
+    int removedRules = Integer.MAX_VALUE;
+    long startDate = Long.MAX_VALUE;
+    long endDate = Long.MAX_VALUE;
+
+    Notification notification = new BuiltInQualityProfilesNotification()
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
+        .setNewRules(newRules)
+        .setUpdatedRules(updatedRules)
+        .setRemovedRules(removedRules)
+        .setStartDate(startDate)
+        .setEndDate(endDate)
+        .build())
+      .serialize();
+    BuiltInQualityProfilesNotification result = BuiltInQualityProfilesNotification.parse(notification);
+
+    assertThat(result.getProfiles())
+      .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules, Profile::getUpdatedRules, Profile::getRemovedRules,
+        Profile::getStartDate, Profile::getEndDate)
+      .containsExactlyInAnyOrder(tuple(profileName, languageKey, languageName, newRules, updatedRules, removedRules, startDate, endDate));
   }
 
   @Test

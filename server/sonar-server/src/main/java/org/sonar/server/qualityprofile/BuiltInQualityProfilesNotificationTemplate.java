@@ -23,11 +23,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
+import java.util.Date;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.platform.Server;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
+import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.parse;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender.BUILT_IN_QUALITY_PROFILES;
@@ -61,6 +63,10 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
           .append(profile.getLanguageKey())
           .append("&name=")
           .append(encode(profile.getProfileName()))
+          .append("&since=")
+          .append(formatDate(new Date(profile.getStartDate())))
+          .append("&to=")
+          .append(formatDate(new Date(profile.getEndDate())))
           .append("\n");
         int newRules = profile.getNewRules();
         if (newRules > 0) {

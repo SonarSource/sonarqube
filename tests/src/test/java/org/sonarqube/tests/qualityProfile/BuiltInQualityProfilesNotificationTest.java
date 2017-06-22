@@ -139,7 +139,7 @@ public class BuiltInQualityProfilesNotificationTest {
     assertThat(messages.get(0).getMimeMessage().getContent().toString())
       .containsSequence(
         "Built-in quality profiles have been updated:",
-        "\"Basic\" - Foo " + url + "/profiles/changelog?language=foo&name=Basic",
+        "\"Basic\" - Foo " + url + "/profiles/changelog?language=foo&name=Basic&since=", "&to=",
         " 1 new rules",
         " 3 rules have been updated",
         " 1 rules removed",
