@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import AllProjectsContainer from './AllProjectsContainer';
 import { getCurrentUser } from '../../../store/rootReducer';
-import { isFavoriteSet, isAllSet } from '../utils';
+import { isFavoriteSet, isAllSet } from '../../../helpers/storage';
 import { searchProjects } from '../../../api/components';
 import type { RawQuery } from '../../../helpers/query';
 

@@ -29,6 +29,7 @@ import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
+import { getGraph, saveGraph } from '../../../helpers/storage';
 import { GRAPHS_METRICS, parseQuery, serializeQuery, serializeUrlQuery } from '../utils';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Metric, Paging, Query } from '../types';
@@ -36,7 +37,10 @@ import type { Analysis, MeasureHistory, Metric, Paging, Query } from '../types';
 type Props = {
   location: { pathname: string, query: RawQuery },
   project: { configuration?: { showHistory: boolean }, key: string, leakPeriodDate: string },
-  router: { push: ({ pathname: string, query?: RawQuery }) => void }
+  router: {
+    push: ({ pathname: string, query?: RawQuery }) => void,
+    replace: ({ pathname: string, query?: RawQuery }) => void
+  }
 };
 
 export type State = {
@@ -66,6 +70,13 @@ class ProjectActivityAppContainer extends React.PureComponent {
       metrics: [],
       query: parseQuery(props.location.query)
     };
+
+    if (this.shouldRedirect()) {
+      this.props.router.replace({
+        pathname: props.location.pathname,
+        query: serializeUrlQuery({ ...this.state.query, graph: getGraph() })
+      });
+    }
   }
 
   componentDidMount() {
@@ -225,16 +236,30 @@ class ProjectActivityAppContainer extends React.PureComponent {
   };
 
   updateQuery = (newQuery: Query) => {
+    const query = serializeUrlQuery({
+      ...this.state.query,
+      ...newQuery
+    });
+    saveGraph(query.graph);
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
-        ...serializeUrlQuery({
-          ...this.state.query,
-          ...newQuery
-        }),
+        ...query,
         id: this.props.project.key
       }
     });
+  };
+
+  shouldRedirect = () => {
+    const locationQuery = this.props.location.query;
+    if (locationQuery) {
+      const filtered = Object.keys(locationQuery).some(
+        key => key !== 'id' && locationQuery[key] !== ''
+      );
+
+      // if there is no filter, but there are saved preferences in the localStorage
+      return !filtered && getGraph();
+    }
   };
 
   render() {
