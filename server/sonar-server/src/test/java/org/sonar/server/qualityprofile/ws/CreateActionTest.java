@@ -31,6 +31,8 @@ import org.sonar.api.config.MapSettings;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.util.UuidFactoryFast;
@@ -77,37 +79,49 @@ public class CreateActionTest {
     .setSeverity("MINOR")
     .setLanguage(XOO_LANGUAGE)
     .getDefinition();
-  private System2 system2 = System2.INSTANCE;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession dbSession = dbTester.getSession();
-  private RuleIndex ruleIndex = new RuleIndex(esTester.client());
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
-  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client(), new ActiveRuleIteratorFactory(dbClient));
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private RuleIndex ruleIndex = new RuleIndex(es.client());
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client(), new ActiveRuleIteratorFactory(dbClient));
   private ProfileImporter[] profileImporters = createImporters();
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
     new RuleActivator(mock(System2.class), dbClient, ruleIndex, new RuleActivatorContextFactory(dbClient), null, activeRuleIndexer, userSession),
     profileImporters);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+
+  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer),
+    qProfileExporters, newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider), userSession, activeRuleIndexer, profileImporters);
+
+  private WsActionTester ws = new WsActionTester(underTest);
+
   private OrganizationDto organization;
 
-  private CreateAction underTest = new CreateAction(dbClient, new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), system2, activeRuleIndexer), qProfileExporters,
-    newLanguages(XOO_LANGUAGE), new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
-    userSession, activeRuleIndexer, profileImporters);
-  private WsActionTester wsTester = new WsActionTester(underTest);
-
   @Before
-  public void before() {
-    organization = dbTester.organizations().insert();
+  public void setUp() {
+    organization = db.organizations().insert();
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.params()).extracting(Param::key)
+      .containsExactlyInAnyOrder("language", "organization", "profileName", "backup_with_messages", "backup_with_errors", "backup_xoo_lint");
+    Param profileName = definition.param("profileName");
+    assertThat(profileName.deprecatedKey()).isEqualTo("name");
+    assertThat(profileName.deprecatedKeySince()).isEqualTo("6.1");
   }
 
   @Test
@@ -161,7 +175,7 @@ public class CreateActionTest {
 
     String orgKey = organization.getKey();
 
-    TestRequest request = wsTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("organization", orgKey)
       .setParam("name", "Profile with messages")
       .setParam("language", XOO_LANGUAGE)
@@ -177,18 +191,18 @@ public class CreateActionTest {
     // this name will be used twice
     String profileName = "Profile123";
 
-    OrganizationDto organization1 = dbTester.organizations().insert();
+    OrganizationDto organization1 = db.organizations().insert();
     logInAsQProfileAdministrator(organization1);
-    TestRequest request1 = wsTester.newRequest()
+    TestRequest request1 = ws.newRequest()
       .setParam("organization", organization1.getKey())
       .setParam("name", profileName)
       .setParam("language", XOO_LANGUAGE);
     assertThat(executeRequest(request1).getProfile().getOrganization())
       .isEqualTo(organization1.getKey());
 
-    OrganizationDto organization2 = dbTester.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
     logInAsQProfileAdministrator(organization2);
-    TestRequest request2 = wsTester.newRequest()
+    TestRequest request2 = ws.newRequest()
       .setParam("organization", organization2.getKey())
       .setParam("name", profileName)
       .setParam("language", XOO_LANGUAGE);
@@ -198,15 +212,15 @@ public class CreateActionTest {
 
   @Test
   public void fail_if_unsufficient_privileges() {
-    OrganizationDto organizationX = dbTester.organizations().insert();
-    OrganizationDto organizationY = dbTester.organizations().insert();
+    OrganizationDto organizationX = db.organizations().insert();
+    OrganizationDto organizationY = db.organizations().insert();
 
     logInAsQProfileAdministrator(organizationX);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    executeRequest(wsTester.newRequest()
+    executeRequest(ws.newRequest()
       .setParam("organization", organizationY.getKey())
       .setParam("name", "some Name")
       .setParam("language", XOO_LANGUAGE));
@@ -222,9 +236,9 @@ public class CreateActionTest {
 
   @Test
   public void test_json() throws Exception {
-    logInAsQProfileAdministrator(dbTester.getDefaultOrganization());
+    logInAsQProfileAdministrator(db.getDefaultOrganization());
 
-    TestResponse response = wsTester.newRequest()
+    TestResponse response = ws.newRequest()
       .setMethod("POST")
       .setMediaType(MediaTypes.JSON)
       .setParam("language", XOO_LANGUAGE)
@@ -246,7 +260,7 @@ public class CreateActionTest {
   }
 
   private CreateWsResponse executeRequest(String name, String language, Map<String, String> xmls) {
-    TestRequest request = wsTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setParam("organization", organization.getKey())
       .setParam("name", name)
       .setParam("language", language);
@@ -310,7 +324,7 @@ public class CreateActionTest {
   }
 
   private void logInAsQProfileAdministrator() {
-    logInAsQProfileAdministrator(this.organization);
+    logInAsQProfileAdministrator(organization);
   }
 
   private void logInAsQProfileAdministrator(OrganizationDto organization) {
