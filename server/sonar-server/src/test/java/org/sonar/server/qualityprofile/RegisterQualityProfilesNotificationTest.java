@@ -34,7 +34,9 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -186,6 +188,35 @@ public class RegisterQualityProfilesNotificationTest {
         tuple(newRule2.getId(), ACTIVATED)
       );
   }
+
+  @Test
+  public void do_not_include_inherited_quality_profile_changes() {
+    String language = newLanguageKey();
+
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto builtInQProfileDto = db.qualityProfiles().insert(organization, orgQProfile -> orgQProfile.setIsBuiltIn(true).setLanguage(language));
+    QProfileDto customQProfileDto = db.qualityProfiles().insert(organization, orgQProfile -> orgQProfile.setIsBuiltIn(false).setLanguage(language).setParentKee(builtInQProfileDto.getKee()));
+    db.commit();
+    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
+
+    RulesProfile pluginProfile = RulesProfile.create(builtInQProfileDto.getName(), builtInQProfileDto.getLanguage());
+    pluginProfile.activateRule(create(newRule.getRepositoryKey(), newRule.getRuleKey()), MAJOR);
+    builtInQProfileRepositoryRule.add(newLanguage(builtInQProfileDto.getLanguage()), builtInQProfileDto.getName(), false, pluginProfile.getActiveRules().toArray(new ActiveRule[0]));
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.start();
+
+    ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
+    verify(builtInQualityProfilesNotification).send(captor.capture());
+    Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
+    assertThat(updatedProfiles.keySet())
+      .extracting(QProfileName::getName, QProfileName::getLanguage)
+      .containsExactlyInAnyOrder(tuple(builtInQProfileDto.getName(), builtInQProfileDto.getLanguage()));
+    assertThat(updatedProfiles.values())
+      .extracting(value -> value.getActiveRule().getRuleId(), ActiveRuleChange::getType)
+      .containsExactlyInAnyOrder(tuple(newRule.getId(), ACTIVATED));
+  }
+
 
   private void addPluginProfile(RulesProfileDto dbProfile, RuleDefinitionDto... dbRules) {
     RulesProfile pluginProfile = RulesProfile.create(dbProfile.getName(), dbProfile.getLanguage());

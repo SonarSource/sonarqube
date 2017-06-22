@@ -34,6 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 
 import static java.lang.String.format;
+import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.NONE;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -78,7 +79,9 @@ public class RegisterQualityProfiles {
           register(dbSession, batchDbSession, builtIn);
         } else {
           List<ActiveRuleChange> changes = update(dbSession, builtIn, ruleProfile);
-          changedProfiles.putAll(builtIn.getQProfileName(), changes);
+          changedProfiles.putAll(builtIn.getQProfileName(), changes.stream()
+            .filter(change -> change.getInheritance() == null || NONE.equals(change.getInheritance()))
+            .collect(MoreCollectors.toList()));
         }
       });
       if (!changedProfiles.isEmpty()) {
