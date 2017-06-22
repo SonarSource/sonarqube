@@ -57,8 +57,10 @@ public class QualityProfileWsParameters {
   public static final String PARAM_RESET = "reset";
   public static final String PARAM_RULE = "rule";
   public static final String PARAM_SEVERITY = "severity";
+  public static final String PARAM_SINCE = "since";
   public static final String PARAM_TARGET_PROFILE = "targetProfile";
   public static final String PARAM_TARGET_SEVERITY = "targetSeverity";
+  public static final String PARAM_TO = "to";
   public static final String PARAM_TO_NAME = "toName";
 
   private QualityProfileWsParameters() {
