@@ -22,8 +22,8 @@ import React from 'react';
 import EventInner from './EventInner';
 import ChangeEventForm from './forms/ChangeEventForm';
 import RemoveEventForm from './forms/RemoveEventForm';
-import DeleteIcon from './DeleteIcon';
-import ChangeIcon from './ChangeIcon';
+import DeleteIcon from '../../../components/icons-components/DeleteIcon';
+import ChangeIcon from '../../../components/icons-components/ChangeIcon';
 import type { Event as EventType } from '../types';
 
 type Props = {
@@ -89,7 +89,7 @@ export default class Event extends React.PureComponent {
         <EventInner event={this.props.event} />
 
         {showActions &&
-          <div className="project-activity-event-actions">
+          <div className="project-activity-event-actions spacer-left">
             {canChange &&
               <button className="js-change-event button-clean" onClick={this.startChanging}>
                 <ChangeIcon />

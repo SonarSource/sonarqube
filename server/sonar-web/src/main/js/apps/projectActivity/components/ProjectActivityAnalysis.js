@@ -45,11 +45,23 @@ export default function ProjectActivityAnalysis(props: Props) {
 
   return (
     <li className="project-activity-analysis clearfix">
+      <div className="project-activity-time spacer-right">
+        <FormattedDate date={date} format="LT" tooltipFormat="LTS" />
+      </div>
+      <div
+        className="project-activity-analysis-icon little-spacer-top big-spacer-right"
+        title={translate('project_activity.analysis')}
+      />
+
       {canAdmin &&
-        <div className="project-activity-analysis-actions">
+        <div className="project-activity-analysis-actions spacer-left">
           <div className="dropdown display-inline-block">
-            <button className="js-create button-small" data-toggle="dropdown">
-              {translate('create')} <i className="icon-dropdown" />
+            <button
+              className="js-analysis-actions button-small dropdown-toggle"
+              data-toggle="dropdown">
+              <i className="icon-settings" />
+              {' '}
+              <i className="icon-dropdown" />
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
               {version == null &&
@@ -67,18 +79,17 @@ export default function ProjectActivityAnalysis(props: Props) {
                   addEventButtonText="project_activity.add_custom_event"
                 />
               </li>
+              {!isFirst && <li role="separator" className="divider" />}
+              {!isFirst &&
+                <li>
+                  <RemoveAnalysisForm
+                    analysis={props.analysis}
+                    deleteAnalysis={props.deleteAnalysis}
+                  />
+                </li>}
             </ul>
           </div>
-
-          {!isFirst &&
-            <div className="display-inline-block little-spacer-left">
-              <RemoveAnalysisForm analysis={props.analysis} deleteAnalysis={props.deleteAnalysis} />
-            </div>}
         </div>}
-
-      <div className="project-activity-time">
-        <FormattedDate date={date} format="LT" tooltipFormat="LTS" />
-      </div>
 
       {events.length > 0 &&
         <Events
@@ -89,6 +100,7 @@ export default function ProjectActivityAnalysis(props: Props) {
           events={events}
           isFirst={props.isFirst}
         />}
+
     </li>
   );
 }

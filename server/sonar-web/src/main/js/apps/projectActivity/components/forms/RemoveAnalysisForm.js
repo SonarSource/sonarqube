@@ -49,7 +49,8 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = () => {
+  openForm = (evt: Event) => {
+    evt.preventDefault();
     if (this.mounted) {
       this.setState({ open: true });
     }
@@ -110,17 +111,16 @@ export default class RemoveAnalysisForm extends React.PureComponent {
                 </div>}
           </footer>
         </form>
-
       </Modal>
     );
   }
 
   render() {
     return (
-      <button className="js-delete-analysis button-small button-red" onClick={this.openForm}>
-        {translate('delete')}
+      <a className="js-delete-analysis" href="#" onClick={this.openForm}>
+        {translate('project_activity.delete_analysis')}
         {this.state.open && this.renderModal()}
-      </button>
+      </a>
     );
   }
 }
