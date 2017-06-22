@@ -47,7 +47,7 @@ public class SearchAction implements ProjectTagsWsAction {
       .setHandler(this);
 
     action.addSearchQuery("off", "tags");
-    action.addPageSize(10, 100);
+    action.createPageSize(10, 100);
   }
 
   @Override

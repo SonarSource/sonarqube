@@ -107,15 +107,6 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_projects_action() {
-    WebService.Action projects = controller.action("projects");
-    assertThat(projects).isNotNull();
-    assertThat(projects.isPost()).isFalse();
-    assertThat(projects.params()).hasSize(5);
-    assertThat(projects.responseExampleAsString()).isNotEmpty();
-  }
-
-  @Test
   public void define_create_action() {
     WebService.Action create = controller.action("create");
     assertThat(create).isNotNull();

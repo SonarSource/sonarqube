@@ -374,27 +374,25 @@ public interface WebService extends Definable<WebService.Context> {
      * Note the maximum is a documentation only feature. It does not check anything.
      */
     public NewAction addPagingParams(int defaultPageSize, int maxPageSize) {
-      addPageParam();
-      addPageSize(defaultPageSize, maxPageSize);
+      createPageParam();
+      createPageSize(defaultPageSize, maxPageSize);
       return this;
     }
 
-    public NewAction addPageParam() {
-      createParam(Param.PAGE)
+    public NewParam createPageParam() {
+      return createParam(Param.PAGE)
         .setDescription("1-based page number")
         .setExampleValue("42")
         .setDeprecatedKey("pageIndex", "5.2")
         .setDefaultValue("1");
-      return this;
     }
 
-    public NewAction addPageSize(int defaultPageSize, int maxPageSize) {
-      createParam(Param.PAGE_SIZE)
+    public NewParam createPageSize(int defaultPageSize, int maxPageSize) {
+      return createParam(Param.PAGE_SIZE)
         .setDescription("Page size. Must be greater than 0 and less than " + maxPageSize)
         .setExampleValue("20")
         .setDeprecatedKey("pageSize", "5.2")
         .setDefaultValue(String.valueOf(defaultPageSize));
-      return this;
     }
 
     /**
@@ -421,11 +419,24 @@ public interface WebService extends Definable<WebService.Context> {
      * </p>
      */
     public NewAction addSearchQuery(String exampleValue, String... pluralFields) {
+      createSearchQuery(exampleValue, pluralFields);
+      return this;
+    }
+
+    /**
+     *
+     * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#TEXT_QUERY}, which is
+     * used to search for a subset of fields containing the supplied string.
+     * <p>
+     * The fields must be in the <strong>plural</strong> form (ex: "names", "keys").
+     * </p>
+     */
+    public NewParam createSearchQuery(String exampleValue, String... pluralFields) {
       String actionDescription = format("Limit search to %s that contain the supplied string.", Joiner.on(" or ").join(pluralFields));
-      createParam(Param.TEXT_QUERY)
+
+      return createParam(Param.TEXT_QUERY)
         .setDescription(actionDescription)
         .setExampleValue(exampleValue);
-      return this;
     }
 
     /**
