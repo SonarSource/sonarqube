@@ -28,6 +28,7 @@ import VisualizationsContainer from '../visualizations/VisualizationsContainer';
 import { parseUrlQuery } from '../store/utils';
 import { translate } from '../../../helpers/l10n';
 import * as utils from '../utils';
+import * as storage from '../../../helpers/storage';
 import type { RawQuery } from '../../../helpers/query';
 import '../styles.css';
 
@@ -78,14 +79,14 @@ export default class AllProjects extends React.PureComponent {
 
   getSavedOptions = () => {
     const options = {};
-    if (utils.getSort()) {
-      options.sort = utils.getSort();
+    if (storage.getSort()) {
+      options.sort = storage.getSort();
     }
-    if (utils.getView()) {
-      options.view = utils.getView();
+    if (storage.getView()) {
+      options.view = storage.getView();
     }
-    if (utils.getVisualization()) {
-      options.visualization = utils.getVisualization();
+    if (storage.getVisualization()) {
+      options.visualization = storage.getVisualization();
     }
     return options;
   };
@@ -108,15 +109,15 @@ export default class AllProjects extends React.PureComponent {
       this.updateLocationQuery(query);
     }
 
-    utils.saveSort(query.sort);
-    utils.saveView(query.view);
-    utils.saveVisualization(visualization);
+    storage.saveSort(query.sort);
+    storage.saveView(query.view);
+    storage.saveVisualization(visualization);
   };
 
   handleSortChange = (sort: string, desc: boolean) => {
     const asString = (desc ? '-' : '') + sort;
     this.updateLocationQuery({ sort: asString });
-    utils.saveSort(asString);
+    storage.saveSort(asString);
   };
 
   handleQueryChange(initialMount: boolean) {
