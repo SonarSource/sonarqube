@@ -64,8 +64,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.server.ws.WsTester;
-import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -73,7 +71,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
 
 public class ChangeParentActionTest {
@@ -92,12 +92,11 @@ public class ChangeParentActionTest {
   private RuleIndex ruleIndex;
   private RuleIndexer ruleIndexer;
   private ActiveRuleIndexer activeRuleIndexer;
-  private WsActionTester wsActionTester;
+  private WsActionTester ws;
   private OrganizationDto organization;
   private RuleActivator ruleActivator;
   private Language language = LanguageTesting.newLanguage(randomAlphanumeric(20));
   private String ruleRepository = randomAlphanumeric(5);
-  private ChangeParentAction underTest;
 
   @Before
   public void setUp() {
@@ -105,22 +104,13 @@ public class ChangeParentActionTest {
     dbSession = dbTester.getSession();
     EsClient esClient = esTester.client();
     ruleIndex = new RuleIndex(esClient);
-    ruleIndexer = new RuleIndexer(
-      esClient,
-      dbClient);
-    activeRuleIndexer = new ActiveRuleIndexer(
-      dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
+    ruleIndexer = new RuleIndexer(esClient, dbClient);
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
     RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
-    ruleActivator = new RuleActivator(
-      System2.INSTANCE,
-      dbClient,
-      ruleIndex,
-      ruleActivatorContextFactory,
-      typeValidations,
-      activeRuleIndexer,
-      userSessionRule);
-    underTest = new ChangeParentAction(
+    ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, ruleIndex, ruleActivatorContextFactory, typeValidations, activeRuleIndexer, userSessionRule);
+
+    ChangeParentAction underTest = new ChangeParentAction(
       dbClient,
       new RuleActivator(
         System2.INSTANCE,
@@ -136,20 +126,29 @@ public class ChangeParentActionTest {
         userSessionRule,
         TestDefaultOrganizationProvider.from(dbTester)),
       userSessionRule);
-    wsActionTester = new WsActionTester(underTest);
+
+    ws = new WsActionTester(underTest);
     organization = dbTester.organizations().insert();
     userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
   }
 
   @Test
-  public void define_change_parent_action() {
-    WebService.Action changeParent = new WsTester(new QProfilesWs(underTest))
-      .action(QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES, "change_parent");
-    assertThat(changeParent).isNotNull();
-    assertThat(changeParent.isPost()).isTrue();
-    assertThat(changeParent.params()).extracting("key").containsExactlyInAnyOrder(
-      "organization", "profile", "profileName", "language", "parentKey", "parentName");
-    assertThat(changeParent.param("organization").since()).isEqualTo("6.4");
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder(
+      "organization", "profile", "profileName", "language", "parentProfile", "parentName");
+    assertThat(definition.param("organization").since()).isEqualTo("6.4");
+    WebService.Param profile = definition.param("profile");
+    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
+    WebService.Param parentProfile = definition.param("parentProfile");
+    assertThat(parentProfile.deprecatedKey()).isEqualTo("parentKey");
+    WebService.Param profileName = definition.param("profileName");
+    assertThat(profileName.deprecatedSince()).isEqualTo("6.5");
+    WebService.Param language = definition.param("language");
+    assertThat(language.deprecatedSince()).isEqualTo("6.5");
+    WebService.Param parentName = definition.param("parentName");
+    assertThat(parentName.deprecatedSince()).isEqualTo("6.5");
   }
 
   @Test
@@ -165,10 +164,10 @@ public class ChangeParentActionTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     // Set parent
-    wsActionTester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee())
-      .setParam("parentKey", parent1.getKee())
+      .setParam(PARAM_PROFILE, child.getKee())
+      .setParam(PARAM_PARENT_PROFILE, parent1.getKee())
       .execute();
 
     // Check rule 1 enabled
@@ -196,10 +195,10 @@ public class ChangeParentActionTest {
     ruleActivator.setParent(dbSession, child, parent1);
 
     // Set parent 2 through WS
-    wsActionTester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee())
-      .setParam("parentKey", parent2.getKee())
+      .setParam(PARAM_PROFILE, child.getKee())
+      .setParam(PARAM_PARENT_PROFILE, parent2.getKee())
       .execute();
 
     // Check rule 2 enabled
@@ -224,9 +223,9 @@ public class ChangeParentActionTest {
     ruleActivator.setParent(dbSession, child, parent);
 
     // Remove parent through WS
-    wsActionTester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee())
+      .setParam(PARAM_PROFILE, child.getKee())
       .execute();
 
     // Check no rule enabled
@@ -254,12 +253,12 @@ public class ChangeParentActionTest {
     System.out.println("org key: " + organization.getKey());
 
     // 1. Set parent 1
-    wsActionTester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_PROFILE_NAME, child.getName())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam("parentName", parent1.getName())
+      .setParam(PARAM_PARENT_NAME, parent1.getName())
       .execute();
 
     // 1. check rule 1 enabled
@@ -269,12 +268,12 @@ public class ChangeParentActionTest {
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
 
     // 2. Set parent 2
-    wsActionTester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_PROFILE_NAME, child.getName())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam("parentName", parent2.getName())
+      .setParam(PARAM_PARENT_NAME, parent2.getName())
       .execute();
 
     // 2. check rule 2 enabled
@@ -283,12 +282,12 @@ public class ChangeParentActionTest {
     assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
 
     // 3. Remove parent
-    wsActionTester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_LANGUAGE, child.getLanguage())
       .setParam(PARAM_PROFILE_NAME, child.getName())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam("parentName", "")
+      .setParam(PARAM_PARENT_NAME, "")
       .execute();
 
     // 3. check no rule enabled
@@ -313,10 +312,10 @@ public class ChangeParentActionTest {
     ruleActivator.setParent(dbSession, child, parent);
 
     // Remove parent
-    wsActionTester.newRequest()
+    ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee())
-      .setParam("parentKey", "")
+      .setParam(PARAM_PROFILE, child.getKee())
+      .setParam(PARAM_PARENT_PROFILE, "")
       .execute();
 
     // Check no rule enabled
@@ -333,10 +332,10 @@ public class ChangeParentActionTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
 
-    TestRequest request = wsActionTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee())
-      .setParam("parentKey", "palap");
+      .setParam(PARAM_PROFILE, child.getKee())
+      .setParam(PARAM_PARENT_PROFILE, "palap");
 
     thrown.expect(BadRequestException.class);
 
@@ -350,11 +349,11 @@ public class ChangeParentActionTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
 
-    TestRequest request = wsActionTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee())
-      .setParam("parentName", "polop")
-      .setParam("parentKey", "palap");
+      .setParam(PARAM_PROFILE, child.getKee())
+      .setParam(PARAM_PARENT_NAME, "polop")
+      .setParam(PARAM_PARENT_PROFILE, "palap");
     thrown.expect(IllegalArgumentException.class);
     request
       .execute();
@@ -367,12 +366,12 @@ public class ChangeParentActionTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
     assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).isEmpty();
 
-    TestRequest request = wsActionTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee())
+      .setParam(PARAM_PROFILE, child.getKee())
       .setParam(PARAM_PROFILE_NAME, child.getName())
       .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .setParam("parentKey", "palap");
+      .setParam(PARAM_PARENT_PROFILE, "palap");
 
     thrown.expect(IllegalArgumentException.class);
     request.execute();
@@ -384,9 +383,9 @@ public class ChangeParentActionTest {
 
     QProfileDto child = createProfile();
 
-    TestRequest request = wsActionTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee());
+      .setParam(PARAM_PROFILE, child.getKee());
 
     thrown.expect(ForbiddenException.class);
     thrown.expectMessage("Insufficient privileges");
@@ -400,9 +399,9 @@ public class ChangeParentActionTest {
 
     QProfileDto child = createProfile();
 
-    TestRequest request = wsActionTester.newRequest()
+    TestRequest request = ws.newRequest()
       .setMethod("POST")
-      .setParam(PARAM_PROFILE_KEY, child.getKee());
+      .setParam(PARAM_PROFILE, child.getKee());
 
     thrown.expect(ForbiddenException.class);
     thrown.expectMessage("Insufficient privileges");

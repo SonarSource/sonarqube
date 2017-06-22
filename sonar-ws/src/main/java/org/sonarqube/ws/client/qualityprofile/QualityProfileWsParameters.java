@@ -46,8 +46,8 @@ public class QualityProfileWsParameters {
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LANGUAGE = "language";
   public static final String PARAM_PARAMS = "params";
-  public static final String PARAM_PARENT_KEY = "parentKey";
   public static final String PARAM_PARENT_NAME = "parentName";
+  public static final String PARAM_PARENT_PROFILE = "parentProfile";
   public static final String PARAM_PROFILE = "profile";
   public static final String PARAM_PROFILE_KEY = "profileKey";
   public static final String PARAM_PROFILE_NAME = "profileName";

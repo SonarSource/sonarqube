@@ -24,7 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -33,12 +32,13 @@ import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_PROFILE;
 
 public class ChangeParentAction implements QProfileWsAction {
 
-  private static final String PARAM_PARENT_KEY = "parentKey";
   private static final String PARAM_PARENT_NAME = "parentName";
 
   private DbClient dbClient;
@@ -61,22 +61,25 @@ public class ChangeParentAction implements QProfileWsAction {
     NewAction inheritance = context.createAction("change_parent")
       .setSince("5.2")
       .setPost(true)
-      .setDescription("Change a quality profile's parent.")
+      .setDescription("Change a quality profile's parent.<br>" +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setHandler(this);
 
     QProfileWsSupport.createOrganizationParam(inheritance)
       .setSince("6.4");
     QProfileReference.defineParams(inheritance, languages);
 
-    inheritance.createParam(PARAM_PARENT_KEY)
-      .setDescription("The key of the new parent profile. If this parameter is set, parentName must not be set. " +
-        "If both are left empty, the inheritance link with current parent profile (if any) is broken, which deactivates all rules " +
-        "which come from the parent and are not overridden. Require Administer Quality Profiles permission.")
-      .setExampleValue(Uuids.UUID_EXAMPLE_02);
-    inheritance.createParam(PARAM_PARENT_NAME)
-      .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
-      .setExampleValue("Sonar way");
+    inheritance.createParam(PARAM_PARENT_PROFILE)
+      .setDescription("New parent profile key.<br> " +
+        "If no profile is provided, the inheritance link with current parent profile (if any) is broken, which deactivates all rules " +
+        "which come from the parent and are not overridden.")
+      .setDeprecatedKey("parentKey", "6.5")
+      .setExampleValue(UUID_EXAMPLE_02);
 
+    inheritance.createParam(PARAM_PARENT_NAME)
+      .setDescription("Quality profile name. If this parameter is set, '%s' must not be set and '%s' must be set to disambiguate.", PARAM_PARENT_PROFILE, PARAM_LANGUAGE)
+      .setDeprecatedSince("6.5")
+      .setExampleValue("Sonar way");
   }
 
   @Override
@@ -92,7 +95,7 @@ public class ChangeParentAction implements QProfileWsAction {
       userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
       wsSupport.checkNotBuiltInt(profile);
 
-      String parentKey = request.param(PARAM_PARENT_KEY);
+      String parentKey = request.param(PARAM_PARENT_PROFILE);
       String parentName = request.param(PARAM_PARENT_NAME);
       if (isEmpty(parentKey) && isEmpty(parentName)) {
         ruleActivator.setParent(dbSession, profile, null);
@@ -103,6 +106,7 @@ public class ChangeParentAction implements QProfileWsAction {
         QProfileDto parent = wsSupport.getProfile(dbSession, parentRef);
         ruleActivator.setParent(dbSession, profile, parent);
       }
+
       response.noContent();
     }
   }

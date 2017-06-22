@@ -45,8 +45,8 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
@@ -138,9 +138,9 @@ public class QualityProfilesService extends BaseService {
   public void changeParent(ChangeParentRequest request) {
     call(new PostRequest(path(ACTION_CHANGE_PARENT))
       .setParam(PARAM_LANGUAGE, request.getLanguage())
-      .setParam(PARAM_PARENT_KEY, request.getParentKey())
+      .setParam(PARAM_PARENT_PROFILE, request.getParentKey())
       .setParam(PARAM_PARENT_NAME, request.getParentName())
-      .setParam(PARAM_PROFILE_KEY, request.getProfileKey())
+      .setParam(PARAM_PROFILE, request.getProfileKey())
       .setParam(PARAM_PROFILE_NAME, request.getProfileName())
       .setParam(PARAM_ORGANIZATION, request.getOrganization()));
   }
