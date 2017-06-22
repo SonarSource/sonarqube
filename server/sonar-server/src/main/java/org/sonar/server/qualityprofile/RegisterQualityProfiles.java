@@ -49,12 +49,12 @@ public class RegisterQualityProfiles {
   private final DbClient dbClient;
   private final BuiltInQProfileInsert builtInQProfileInsert;
   private final BuiltInQProfileUpdate builtInQProfileUpdate;
-  private final BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification;
+  private final BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification;
   private final System2 system2;
 
   public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
                                  DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
-                                 BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification, System2 system2) {
+                                 BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification, System2 system2) {
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
     this.builtInQProfileInsert = builtInQProfileInsert;
@@ -90,7 +90,7 @@ public class RegisterQualityProfiles {
       });
       if (!changedProfiles.isEmpty()) {
         long endDate = system2.now();
-        builtInQualityProfilesNotification.send(changedProfiles, startDate, endDate);
+        builtInQualityProfilesNotification.onChange(changedProfiles, startDate, endDate);
       }
     }
     profiler.stopDebug();

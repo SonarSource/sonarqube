@@ -85,7 +85,7 @@ public class RegisterQualityProfilesNotificationTest {
   private RuleActivator ruleActivator = new RuleActivator(system2, dbClient, mock(RuleIndex.class), new RuleActivatorContextFactory(dbClient), typeValidations, activeRuleIndexer,
     userSessionRule);
   private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer);
-  private BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification = mock(BuiltInQualityProfilesNotificationSender.class);
+  private BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification = mock(BuiltInQualityProfilesUpdateListener.class);
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient,
     builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2);
 
@@ -127,7 +127,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
+    verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -149,7 +149,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
+    verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -179,7 +179,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
+    verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -213,7 +213,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
+    verify(builtInQualityProfilesNotification).onChange(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -238,7 +238,7 @@ public class RegisterQualityProfilesNotificationTest {
 
     underTest.start();
 
-    verify(builtInQualityProfilesNotification).send(any(), eq(startDate), eq(endDate));
+    verify(builtInQualityProfilesNotification).onChange(any(), eq(startDate), eq(endDate));
   }
 
   private void addPluginProfile(RulesProfileDto dbProfile, RuleDefinitionDto... dbRules) {
