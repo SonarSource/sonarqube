@@ -163,6 +163,22 @@
   margin-left: 4px;
 }
 
+.project-activity-event-icon.VERSION {
+  color: #4b9fd5;
+}
+
+.project-activity-event-icon.QUALITY_GATE {
+  color: #00aa00;
+}
+
+.project-activity-event-icon.QUALITY_PROFILE {
+  color: #ed7d20;
+}
+
+.project-activity-event-icon.OTHER {
+  color: #9139d4;
+}
+
 .project-activity-version-badge {
   vertical-align: middle;
   padding: 4px 8px;
