@@ -28,6 +28,7 @@ import org.sonar.api.notifications.Notification;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationSender.BUILT_IN_QUALITY_PROFILES;
@@ -41,6 +42,8 @@ public class BuiltInQualityProfilesNotification {
   private static final String NEW_RULES = ".newRules";
   private static final String UPDATED_RULES = ".updatedRules";
   private static final String REMOVED_RULES = ".removedRules";
+  private static final String START_DATE = ".startDate";
+  private static final String END_DATE = ".endDate";
 
   private final List<Profile> profiles = new ArrayList<>();
 
@@ -61,6 +64,8 @@ public class BuiltInQualityProfilesNotification {
       notification.setFieldValue(index + NEW_RULES, String.valueOf(profile.getNewRules()));
       notification.setFieldValue(index + UPDATED_RULES, String.valueOf(profile.getUpdatedRules()));
       notification.setFieldValue(index + REMOVED_RULES, String.valueOf(profile.getRemovedRules()));
+      notification.setFieldValue(index + START_DATE, String.valueOf(profile.getStartDate()));
+      notification.setFieldValue(index + END_DATE, String.valueOf(profile.getEndDate()));
     });
     return notification;
   }
@@ -80,6 +85,8 @@ public class BuiltInQualityProfilesNotification {
         .setNewRules(parseInt(getNonNullFieldValue(notification, index + NEW_RULES)))
         .setUpdatedRules(parseInt(getNonNullFieldValue(notification, index + UPDATED_RULES)))
         .setRemovedRules(parseInt(getNonNullFieldValue(notification, index + REMOVED_RULES)))
+        .setStartDate(parseLong(getNonNullFieldValue(notification, index + START_DATE)))
+        .setEndDate(parseLong(getNonNullFieldValue(notification, index + END_DATE)))
         .build())
       .forEach(notif::addProfile);
     return notif;
@@ -101,6 +108,8 @@ public class BuiltInQualityProfilesNotification {
     private final int newRules;
     private final int updatedRules;
     private final int removedRules;
+    private final long startDate;
+    private final long endDate;
 
     public Profile(Builder builder) {
       this.profileName = builder.profileName;
@@ -109,6 +118,8 @@ public class BuiltInQualityProfilesNotification {
       this.newRules = builder.newRules;
       this.updatedRules = builder.updatedRules;
       this.removedRules = builder.removedRules;
+      this.startDate = builder.startDate;
+      this.endDate = builder.endDate;
     }
 
     public String getProfileName() {
@@ -135,6 +146,14 @@ public class BuiltInQualityProfilesNotification {
       return removedRules;
     }
 
+    public long getStartDate() {
+      return startDate;
+    }
+
+    public long getEndDate() {
+      return endDate;
+    }
+
     public static Builder newBuilder() {
       return new Builder();
     }
@@ -146,6 +165,8 @@ public class BuiltInQualityProfilesNotification {
       private int newRules;
       private int updatedRules;
       private int removedRules;
+      private long startDate;
+      private long endDate;
 
       private Builder() {
       }
@@ -180,6 +201,16 @@ public class BuiltInQualityProfilesNotification {
       public Builder setRemovedRules(int removedRules) {
         checkState(removedRules >= 0, "removedRules should not be negative");
         this.removedRules = removedRules;
+        return this;
+      }
+
+      public Builder setStartDate(long startDate) {
+        this.startDate = startDate;
+        return this;
+      }
+
+      public Builder setEndDate(long endDate) {
+        this.endDate = endDate;
         return this;
       }
 

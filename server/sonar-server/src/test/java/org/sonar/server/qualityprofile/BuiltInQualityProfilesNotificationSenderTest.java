@@ -57,7 +57,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     Tuple expectedTuple = addProfile(profiles, languages, ACTIVATED);
 
     BuiltInQualityProfilesNotificationSender underTest = new BuiltInQualityProfilesNotificationSender(notificationManager, languages);
-    underTest.send(profiles);
+    underTest.send(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
@@ -74,7 +74,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     Tuple expectedTuple = addProfile(profiles, languages, UPDATED);
 
     BuiltInQualityProfilesNotificationSender underTest = new BuiltInQualityProfilesNotificationSender(notificationManager, languages);
-    underTest.send(profiles);
+    underTest.send(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
@@ -91,7 +91,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     Tuple expectedTuple = addProfile(profiles, languages, DEACTIVATED);
 
     BuiltInQualityProfilesNotificationSender underTest = new BuiltInQualityProfilesNotificationSender(notificationManager, languages);
-    underTest.send(profiles);
+    underTest.send(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
@@ -109,7 +109,7 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     Tuple expectedTuple2 = addProfile(profiles, languages, ACTIVATED);
 
     BuiltInQualityProfilesNotificationSender underTest = new BuiltInQualityProfilesNotificationSender(notificationManager, languages);
-    underTest.send(profiles);
+    underTest.send(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
     verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
@@ -117,6 +117,25 @@ public class BuiltInQualityProfilesNotificationSenderTest {
     assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
       .extracting(Profile::getProfileName, Profile::getLanguageKey, Profile::getLanguageName, Profile::getNewRules)
       .containsExactlyInAnyOrder(expectedTuple1, expectedTuple2);
+  }
+
+  @Test
+  public void add_start_and_end_dates_to_notification() throws Exception {
+    Multimap<QProfileName, ActiveRuleChange> profiles = ArrayListMultimap.create();
+    Languages languages = new Languages();
+    addProfile(profiles, languages, ACTIVATED);
+    long startDate = RANDOM.nextInt(5000);
+    long endDate = startDate + RANDOM.nextInt(5000);
+
+    BuiltInQualityProfilesNotificationSender underTest = new BuiltInQualityProfilesNotificationSender(notificationManager, languages);
+    underTest.send(profiles, startDate, endDate);
+
+    ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
+    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    verifyNoMoreInteractions(notificationManager);
+    assertThat(BuiltInQualityProfilesNotification.parse(notificationArgumentCaptor.getValue()).getProfiles())
+      .extracting(Profile::getStartDate, Profile::getEndDate)
+      .containsExactlyInAnyOrder(tuple(startDate, endDate));
   }
 
   private Tuple addProfile(Multimap<QProfileName, ActiveRuleChange> profiles, Languages languages, ActiveRuleChange.Type type) {

@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Multimap;
 import java.util.Arrays;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +30,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -48,9 +48,13 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.Rule.create;
 import static org.sonar.api.rules.RulePriority.MAJOR;
 import static org.sonar.db.qualityprofile.QualityProfileTesting.newRuleProfileDto;
@@ -60,7 +64,9 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 
 public class RegisterQualityProfilesNotificationTest {
 
-  private System2 system2 = new AlwaysIncreasingSystem2();
+  private static final Random RANDOM = new Random();
+
+  private System2 system2 = mock(System2.class);
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
@@ -69,9 +75,9 @@ public class RegisterQualityProfilesNotificationTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public BuiltInQProfileRepositoryRule builtInQProfileRepositoryRule = new BuiltInQProfileRepositoryRule();
+
   @Rule
   public LogTester logTester = new LogTester();
-
   private DbClient dbClient = db.getDbClient();
   private TypeValidations typeValidations = mock(TypeValidations.class);
   private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
@@ -81,7 +87,7 @@ public class RegisterQualityProfilesNotificationTest {
   private BuiltInQProfileUpdate builtInQProfileUpdate = new BuiltInQProfileUpdateImpl(dbClient, ruleActivator, activeRuleIndexer);
   private BuiltInQualityProfilesNotificationSender builtInQualityProfilesNotification = mock(BuiltInQualityProfilesNotificationSender.class);
   private RegisterQualityProfiles underTest = new RegisterQualityProfiles(builtInQProfileRepositoryRule, dbClient,
-    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification);
+    builtInQProfileInsert, builtInQProfileUpdate, builtInQualityProfilesNotification, system2);
 
   @Test
   public void does_not_send_notification_on_new_profile() {
@@ -121,7 +127,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture());
+    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -143,7 +149,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture());
+    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -173,7 +179,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture());
+    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -207,7 +213,7 @@ public class RegisterQualityProfilesNotificationTest {
     underTest.start();
 
     ArgumentCaptor<Multimap> captor = ArgumentCaptor.forClass(Multimap.class);
-    verify(builtInQualityProfilesNotification).send(captor.capture());
+    verify(builtInQualityProfilesNotification).send(captor.capture(), anyLong(), anyLong());
     Multimap<QProfileName, ActiveRuleChange> updatedProfiles = captor.<Multimap<QProfileName, ActiveRuleChange>>getValue();
     assertThat(updatedProfiles.keySet())
       .extracting(QProfileName::getName, QProfileName::getLanguage)
@@ -217,6 +223,23 @@ public class RegisterQualityProfilesNotificationTest {
       .containsExactlyInAnyOrder(tuple(newRule.getId(), ACTIVATED));
   }
 
+  @Test
+  public void send_start_and_end_date() {
+    String language = newLanguageKey();
+    RuleDefinitionDto existingRule = db.rules().insert(r -> r.setLanguage(language));
+    RulesProfileDto dbProfile = insertBuiltInProfile(language);
+    activateRuleInDb(dbProfile, existingRule, MAJOR);
+    RuleDefinitionDto newRule = db.rules().insert(r -> r.setLanguage(language));
+    addPluginProfile(dbProfile, existingRule, newRule);
+    builtInQProfileRepositoryRule.initialize();
+    long startDate = RANDOM.nextInt(5000);
+    long endDate = startDate + RANDOM.nextInt(5000);
+    when(system2.now()).thenReturn(startDate, endDate);
+
+    underTest.start();
+
+    verify(builtInQualityProfilesNotification).send(any(), eq(startDate), eq(endDate));
+  }
 
   private void addPluginProfile(RulesProfileDto dbProfile, RuleDefinitionDto... dbRules) {
     RulesProfile pluginProfile = RulesProfile.create(dbProfile.getName(), dbProfile.getLanguage());

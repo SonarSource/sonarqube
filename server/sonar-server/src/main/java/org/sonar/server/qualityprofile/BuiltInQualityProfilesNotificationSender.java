@@ -43,7 +43,7 @@ public class BuiltInQualityProfilesNotificationSender {
     this.languages = languages;
   }
 
-  void send(Multimap<QProfileName, ActiveRuleChange> changedProfiles) {
+  void send(Multimap<QProfileName, ActiveRuleChange> changedProfiles, long startDate, long endDate) {
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification();
     changedProfiles.keySet().stream()
       .map(changedProfile -> {
@@ -60,6 +60,8 @@ public class BuiltInQualityProfilesNotificationSender {
           .setNewRules(newRules)
           .setUpdatedRules(updatedRules)
           .setRemovedRules(removedRules)
+          .setStartDate(startDate)
+          .setEndDate(endDate)
           .build();
       })
       .forEach(notification::addProfile);
