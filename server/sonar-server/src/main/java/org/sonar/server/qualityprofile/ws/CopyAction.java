@@ -25,16 +25,16 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
 
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_COPY;
 
@@ -61,18 +61,19 @@ public class CopyAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     NewAction action = controller.createAction(ACTION_COPY)
       .setSince("5.2")
-      .setDescription("Copy a quality profile. Require Administer Quality Profiles permission.")
+      .setDescription("Copy a quality profile.<br> " +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setPost(true)
       .setHandler(this);
 
     action.createParam(PARAM_TO_NAME)
-      .setDescription("The name for the new quality profile.")
+      .setDescription("Name for the new quality profile.")
       .setExampleValue("My Sonar way")
       .setRequired(true);
 
     action.createParam(PARAM_FROM_KEY)
-      .setDescription("The key of a quality profile.")
-      .setExampleValue(Uuids.UUID_EXAMPLE_01)
+      .setDescription("Quality profile key")
+      .setExampleValue(UUID_EXAMPLE_01)
       .setRequired(true);
   }
 
@@ -85,26 +86,31 @@ public class CopyAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto sourceProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-      userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, sourceProfile.getOrganizationUuid());
+      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, sourceProfile.getOrganizationUuid());
 
       QProfileDto copiedProfile = profileCopier.copyToName(dbSession, sourceProfile, newName);
       boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, copiedProfile.getOrganizationUuid(), copiedProfile.getKee());
 
-      String languageKey = copiedProfile.getLanguage();
-      Language language = languages.get(copiedProfile.getLanguage());
-      String parentKey = copiedProfile.getParentKee();
+      CopyWsResponse wsResponse = buildResponse(copiedProfile, isDefault);
 
-      QualityProfiles.CopyWsResponse.Builder wsResponse = QualityProfiles.CopyWsResponse.newBuilder();
-
-      wsResponse.setKey(copiedProfile.getKee());
-      wsResponse.setName(copiedProfile.getName());
-      wsResponse.setLanguage(languageKey);
-      setNullable(language, l -> wsResponse.setLanguageName(l.getName()));
-      wsResponse.setIsDefault(isDefault);
-      wsResponse.setIsInherited(parentKey != null);
-      setNullable(parentKey, wsResponse::setParentKey);
-
-      writeProtobuf(wsResponse.build(), request, response);
+      writeProtobuf(wsResponse, request, response);
     }
+  }
+
+  private CopyWsResponse buildResponse(QProfileDto copiedProfile, boolean isDefault) {
+    String languageKey = copiedProfile.getLanguage();
+    Language language = languages.get(copiedProfile.getLanguage());
+    String parentKey = copiedProfile.getParentKee();
+
+    CopyWsResponse.Builder wsResponse = CopyWsResponse.newBuilder();
+
+    wsResponse.setKey(copiedProfile.getKee());
+    wsResponse.setName(copiedProfile.getName());
+    wsResponse.setLanguage(languageKey);
+    setNullable(language, l -> wsResponse.setLanguageName(l.getName()));
+    wsResponse.setIsDefault(isDefault);
+    wsResponse.setIsInherited(parentKey != null);
+    setNullable(parentKey, wsResponse::setParentKey);
+    return wsResponse.build();
   }
 }
