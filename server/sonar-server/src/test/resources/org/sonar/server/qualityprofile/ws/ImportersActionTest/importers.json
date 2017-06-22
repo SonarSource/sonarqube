@@ -1,7 +1,0 @@
-{
-  "importers": [
-    {"key": "findbugs", "name": "FindBugs", "languages": ["java"]},
-    {"key": "jslint", "name": "JS Lint", "languages": ["js"]},
-    {"key": "vaadin", "name": "Vaadin", "languages": ["java", "js"]}
-  ]
-}

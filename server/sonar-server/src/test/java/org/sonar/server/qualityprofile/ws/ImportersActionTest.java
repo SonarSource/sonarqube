@@ -24,16 +24,28 @@ import org.junit.Test;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
+
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ImportersActionTest {
 
-  @Test
-  public void importers_nominal() throws Exception {
-    WsTester wsTester = new WsTester(new QProfilesWs(
-      new ImportersAction(createImporters())));
+  private WsActionTester ws = new WsActionTester(new ImportersAction(createImporters()));
 
-    wsTester.newGetRequest("api/qualityprofiles", "importers").execute().assertJson(getClass(), "importers.json");
+  @Test
+  public void json_example() throws Exception {
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void empty_importers() {
+    ws = new WsActionTester(new ImportersAction());
+
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo("{ \"importers\": [] }");
   }
 
   private ProfileImporter[] createImporters() {
@@ -49,10 +61,12 @@ public class ImportersActionTest {
       }
 
     }
+
     return new ProfileImporter[] {
-      new NoopImporter("findbugs", "FindBugs", "java"),
-      new NoopImporter("jslint", "JS Lint", "js"),
-      new NoopImporter("vaadin", "Vaadin", "java", "js")
+      new NoopImporter("pmd", "PMD", "java"),
+      new NoopImporter("checkstyle", "Checkstyle", "java"),
+      new NoopImporter("js-lint", "JS Lint", "js"),
+      new NoopImporter("android-lint", "Android Lint", "xml", "java")
     };
   }
 }

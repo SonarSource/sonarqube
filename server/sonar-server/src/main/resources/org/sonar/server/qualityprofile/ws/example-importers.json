@@ -1,8 +1,0 @@
-{
-  "importers": [
-    {"key": "pmd", "name": "PMD", "languages": ["java"]},
-    {"key": "checkstyle", "name": "Checkstyle", "languages": ["java"]},
-    {"key": "js-lint", "name": "JS Lint", "languages": ["js"]},
-    {"key": "android-lint", "name": "Android Lint", "languages": ["xml", "java"]}
-  ]
-}
