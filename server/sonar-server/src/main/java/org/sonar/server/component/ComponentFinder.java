@@ -146,6 +146,7 @@ public class ComponentFinder {
   public enum ParamNames {
     PROJECT_ID_AND_KEY("projectId", "projectKey"),
     PROJECT_UUID_AND_KEY("projectUuid", "projectKey"),
+    PROJECT_UUID_AND_PROJECT("projectUuid", "project"),
     UUID_AND_KEY("uuid", "key"),
     ID_AND_KEY("id", "key"),
     COMPONENT_ID_AND_KEY("componentId", "componentKey"),

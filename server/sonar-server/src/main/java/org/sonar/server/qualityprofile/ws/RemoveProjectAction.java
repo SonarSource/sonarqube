@@ -34,9 +34,10 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_09;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
 
 public class RemoveProjectAction implements QProfileWsAction {
@@ -59,23 +60,26 @@ public class RemoveProjectAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     NewAction action = controller.createAction(ACTION_REMOVE_PROJECT)
       .setSince("5.2")
-      .setDescription("Remove a project's association with a quality profile.")
+      .setDescription("Remove a project's association with a quality profile.<br> " +
+        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setPost(true)
       .setHandler(this);
     QProfileReference.defineParams(action, languages);
     QProfileWsSupport.createOrganizationParam(action).setSince("6.4");
 
-    action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("A project UUID. Either this parameter, or projectKey must be set.")
-      .setExampleValue("69e57151-be0d-4157-adff-c06741d88879");
-    action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("A project key. Either this parameter, or projectUuid must be set.")
+    action.createParam(PARAM_PROJECT)
+      .setDescription("Project key")
+      .setDeprecatedKey("projectKey", "6.5")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+    
+    action.createParam(PARAM_PROJECT_UUID)
+      .setDescription("Project ID. Either this parameter, or '%s' must be set.", PARAM_PROJECT)
+      .setDeprecatedSince("6.5")
+      .setExampleValue(UUID_EXAMPLE_09);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    // fail fast if not logged in
     userSession.checkLoggedIn();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -83,7 +87,7 @@ public class RemoveProjectAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
 
       if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
-        throw new IllegalArgumentException("Project and Quality profile must have same organization");
+        throw new IllegalArgumentException("Project and Quality profile must have the same organization");
       }
 
       dbClient.qualityProfileDao().deleteProjectProfileAssociation(dbSession, project, profile);
@@ -94,9 +98,9 @@ public class RemoveProjectAction implements QProfileWsAction {
   }
 
   private ComponentDto loadProject(DbSession dbSession, Request request) {
-    String projectKey = request.param(PARAM_PROJECT_KEY);
+    String projectKey = request.param(PARAM_PROJECT);
     String projectUuid = request.param(PARAM_PROJECT_UUID);
-    ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ComponentFinder.ParamNames.PROJECT_UUID_AND_KEY);
+    ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ComponentFinder.ParamNames.PROJECT_UUID_AND_PROJECT);
     checkAdministrator(project);
     return project;
   }
