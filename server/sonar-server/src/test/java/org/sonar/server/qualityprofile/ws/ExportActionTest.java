@@ -36,6 +36,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -47,6 +48,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
 public class ExportActionTest {
 
@@ -65,29 +68,75 @@ public class ExportActionTest {
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
 
   @Test
-  public void test_definition_without_exporters() {
+  public void definition_without_exporters() {
     WebService.Action definition = newWsActionTester().getDef();
 
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.params()).extracting("key").containsOnly("language", "name", "organization");
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("profile", "language", "name", "organization");
     WebService.Param organizationParam = definition.param("organization");
     assertThat(organizationParam.since()).isEqualTo("6.4");
     assertThat(organizationParam.isInternal()).isTrue();
+    WebService.Param profile = definition.param("profile");
+    assertThat(profile.since()).isEqualTo("6.5");
+    WebService.Param name = definition.param("name");
+    assertThat(name.deprecatedSince()).isEqualTo("6.5");
+    WebService.Param language = definition.param("language");
+    assertThat(language.deprecatedSince()).isEqualTo("6.5");
   }
 
   @Test
-  public void test_definition_with_exporters() {
+  public void definition_with_exporters() {
     WebService.Action definition = newWsActionTester(newExporter("polop"), newExporter("palap")).getDef();
 
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
-    assertThat(definition.params()).extracting("key").containsOnly("language", "name", "organization", "exporterKey");
+    assertThat(definition.params()).extracting("key").containsExactlyInAnyOrder("profile", "language", "name", "organization", "exporterKey");
     WebService.Param exportersParam = definition.param("exporterKey");
     assertThat(exportersParam.possibleValues()).containsOnly("polop", "palap");
     assertThat(exportersParam.deprecatedKey()).isEqualTo("format");
     assertThat(exportersParam.deprecatedKeySince()).isEqualTo("6.3");
     assertThat(exportersParam.isInternal()).isFalse();
+  }
+
+  @Test
+  public void export_profile_with_key() {
+    QProfileDto profile = createProfile(db.getDefaultOrganization(), false);
+
+    WsActionTester tester = newWsActionTester(newExporter("polop"), newExporter("palap"));
+    String result = tester.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam("exporterKey", "polop").execute()
+      .getInput();
+
+    assertThat(result).isEqualTo("Profile " + profile.getLanguage() + "/" + profile.getName() + " exported by polop");
+  }
+
+  @Test
+  public void fail_if_profile_key_is_unknown() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Could not find profile with key 'PROFILE-KEY-404'");
+
+    WsActionTester ws = newWsActionTester(newExporter("polop"), newExporter("palap"));
+    ws.newRequest()
+      .setParam(PARAM_PROFILE, "PROFILE-KEY-404")
+      .setParam("exporterKey", "polop").execute()
+      .getInput();
+  }
+
+  @Test
+  public void fail_if_profile_key_and_language_provided() {
+    QProfileDto profile = createProfile(db.getDefaultOrganization(), false);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Either 'profile' or 'language' must be provided.");
+
+    WsActionTester ws = newWsActionTester(newExporter("polop"), newExporter("palap"));
+    ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam("exporterKey", "polop").execute()
+      .getInput();
   }
 
   @Test
@@ -161,6 +210,8 @@ public class ExportActionTest {
 
   @Test
   public void throw_IAE_if_export_with_specified_key_does_not_exist() throws Exception {
+    QProfileDto profile = createProfile(db.getDefaultOrganization(), true);
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'exporterKey' (unknown) must be one of: [polop, palap]");
 
