@@ -50,6 +50,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 
+/**
+ * @deprecated replaced by {@link org.sonarqube.test.Tester}
+ */
+@Deprecated
 public class UserRule extends ExternalResource implements GroupManagement {
 
   public static final String ADMIN_LOGIN = "admin";

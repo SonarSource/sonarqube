@@ -23,10 +23,13 @@ import com.sonar.orchestrator.Orchestrator;
 import java.io.File;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.sonarqube.test.Tester;
 
 /**
  * Selenium HTML tests, generally written with Selenium IDE
+ * @deprecated replaced by {@link Tester}
  */
+@Deprecated
 public final class Selenese {
 
   private File[] htmlTests;
@@ -39,6 +42,10 @@ public final class Selenese {
     return htmlTests;
   }
 
+  /**
+   * @deprecated replaced by {@link Tester#runHtmlTests(String...)}
+   */
+  @Deprecated
   public static void runSelenese(Orchestrator orchestrator, String... htmlFiles) {
     Selenese selenese = new Builder()
       .setHtmlTests(htmlFiles)

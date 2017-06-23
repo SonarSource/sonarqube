@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
+/**
+ * @deprecated replaced by {@link org.sonarqube.test.Tester}
+ */
+@Deprecated
 public interface GroupManagement {
   void createGroup(String name);
 
