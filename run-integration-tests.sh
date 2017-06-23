@@ -16,9 +16,12 @@ CATEGORY=$1
 ORCHESTRATOR_CONFIG_URL=$2
 shift 2
 
-cd it
+cd tests/plugins
+mvn clean package
+
+cd ..
 mvn verify \
   -Dcategory=$CATEGORY \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
   -Dwith-db-drivers \
-  -Dsource.skip=true -B -e -V $*
+  -B -e -V $*

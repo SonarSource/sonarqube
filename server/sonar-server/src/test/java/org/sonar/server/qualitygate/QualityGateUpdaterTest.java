@@ -29,7 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualityGateUpdaterTest {
 
