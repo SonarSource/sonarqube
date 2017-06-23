@@ -52,6 +52,7 @@ public class OrganizationQualityProfilesUiTest {
   public void setUp() {
     // key and name are overridden for HTML Selenese tests
     organization = tester.organizations().generate(o -> o.setKey("test-org").setName("test-org"));
+    tester.users().generateAdministrator(organization, u -> u.setLogin("admin2").setPassword("admin2"));
     createProfile("xoo", "sample");
     inheritProfile("xoo", "sample", "Basic");
     analyzeProject("shared/xoo-sample");
