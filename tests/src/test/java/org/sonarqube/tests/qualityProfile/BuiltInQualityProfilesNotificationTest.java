@@ -134,7 +134,7 @@ public class BuiltInQualityProfilesNotificationTest {
     String url = orchestrator.getServer().getUrl();
     assertThat(messages.get(0).getMimeMessage().getContent().toString())
       .containsSequence(
-        "Built-in quality profiles have been updated:",
+        "The following built-in profiles have been updated:",
         "\"Basic\" - Foo: " + url + "/profiles/changelog?language=foo&name=Basic&since=", "&to=",
         " 1 new rules",
         " 3 rules have been updated",

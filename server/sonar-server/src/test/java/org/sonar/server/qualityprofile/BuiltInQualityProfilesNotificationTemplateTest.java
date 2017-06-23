@@ -169,7 +169,7 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
 
     EmailMessage emailMessage = underTest.format(notification.serialize());
 
-    assertThat(emailMessage.getMessage()).containsSequence("Built-in quality profiles have been updated:\n",
+    assertThat(emailMessage.getMessage()).containsSequence("The following built-in profiles have been updated:\n",
       profileTitleText(profileName1, languageKey1, languageName1),
         " 2 new rules\n",
         profileTitleText(profileName2, languageKey2, languageName2),
@@ -236,9 +236,9 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
   }
 
   private void assertMessage(EmailMessage emailMessage, String expectedProfileDetails) {
-    assertThat(emailMessage.getMessage()).containsSequence("Built-in quality profiles have been updated:\n",
+    assertThat(emailMessage.getMessage()).containsSequence("The following built-in profiles have been updated:\n\n",
       expectedProfileDetails,
-      "This is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + server.getPublicRootUrl() + "/profiles");
+      "\nThis is a good time to review your quality profiles and update them to benefit from the latest evolutions: " + server.getPublicRootUrl() + "/profiles");
   }
 
   private String profileTitleText(String profileName, String languageKey, String languageName) {
