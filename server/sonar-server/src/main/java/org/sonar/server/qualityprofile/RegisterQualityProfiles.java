@@ -53,8 +53,8 @@ public class RegisterQualityProfiles {
   private final System2 system2;
 
   public RegisterQualityProfiles(BuiltInQProfileRepository builtInQProfileRepository,
-                                 DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
-                                 BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification, System2 system2) {
+    DbClient dbClient, BuiltInQProfileInsert builtInQProfileInsert, BuiltInQProfileUpdate builtInQProfileUpdate,
+    BuiltInQualityProfilesUpdateListener builtInQualityProfilesNotification, System2 system2) {
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.dbClient = dbClient;
     this.builtInQProfileInsert = builtInQProfileInsert;
@@ -84,7 +84,10 @@ public class RegisterQualityProfiles {
         } else {
           List<ActiveRuleChange> changes = update(dbSession, builtIn, ruleProfile);
           changedProfiles.putAll(builtIn.getQProfileName(), changes.stream()
-            .filter(change -> change.getInheritance() == null || NONE.equals(change.getInheritance()))
+            .filter(change -> {
+              String inheritance = change.getActiveRule().getInheritance();
+              return inheritance == null || NONE.name().equals(inheritance);
+            })
             .collect(MoreCollectors.toList()));
         }
       });

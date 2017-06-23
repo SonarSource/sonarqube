@@ -33,6 +33,8 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
+import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.ItUtils;
@@ -72,20 +74,10 @@ public class BuiltInQualityProfilesNotificationTest {
       .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
       .build();
     orchestrator.start();
-
     userRule = UserRule.from(orchestrator);
-
     WsUsers.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
     wsClient.permissions().addUser(new AddUserWsRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
-
-    WsUsers.CreateWsResponse.User profileAdmin2 = userRule.generate();
-    String groupName = randomAlphanumeric(20);
-    wsClient.wsConnector().call(new PostRequest("api/user_groups/create").setParam("name", groupName)).failIfNotSuccessful();
-    wsClient.permissions().addGroup(new AddGroupWsRequest().setPermission("profileadmin").setGroupName(groupName));
-    wsClient.wsConnector().call(new PostRequest("api/user_groups/add_user").setParam("name", groupName).setParam("login", profileAdmin2.getLogin())).failIfNotSuccessful();
-
-    WsUsers.CreateWsResponse.User noProfileAdmin = userRule.generate();
 
     orchestrator.restartServer();
 
@@ -104,21 +96,25 @@ public class BuiltInQualityProfilesNotificationTest {
 
     userRule = UserRule.from(orchestrator);
 
+    // Create a quality profile administrator (user having direct permission)
     WsUsers.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
     wsClient.permissions().addUser(new AddUserWsRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
-
+    // Create a quality profile administrator (user having permission from a group)
     WsUsers.CreateWsResponse.User profileAdmin2 = userRule.generate();
     String groupName = randomAlphanumeric(20);
     wsClient.wsConnector().call(new PostRequest("api/user_groups/create").setParam("name", groupName)).failIfNotSuccessful();
     wsClient.permissions().addGroup(new AddGroupWsRequest().setPermission("profileadmin").setGroupName(groupName));
     wsClient.wsConnector().call(new PostRequest("api/user_groups/add_user").setParam("name", groupName).setParam("login", profileAdmin2.getLogin())).failIfNotSuccessful();
-
+    // Create a user not being quality profile administrator
     WsUsers.CreateWsResponse.User noProfileAdmin = userRule.generate();
+
+    // Create a child profile on the built-in profile => The notification should not take into account updates of this profile
+    wsClient.qualityProfiles().create(CreateRequest.builder().setLanguage("foo").setProfileName("child").build());
+    wsClient.qualityProfiles().changeParent(ChangeParentRequest.builder().setProfileName("child").setParentName("Basic").setLanguage("foo").build());
 
     // uninstall plugin V1
     wsClient.wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
-
     // install plugin V2
     File pluginsDir = new File(orchestrator.getServer().getHome() + "/extensions/plugins");
     orchestrator.getConfiguration().fileSystem().copyToDirectory(pluginArtifact("foo-plugin-v2"), pluginsDir);
@@ -156,24 +152,13 @@ public class BuiltInQualityProfilesNotificationTest {
       .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
       .build();
     orchestrator.start();
-
     userRule = UserRule.from(orchestrator);
-
     WsUsers.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
     wsClient.permissions().addUser(new AddUserWsRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
 
-    WsUsers.CreateWsResponse.User profileAdmin2 = userRule.generate();
-    String groupName = randomAlphanumeric(20);
-    wsClient.wsConnector().call(new PostRequest("api/user_groups/create").setParam("name", groupName)).failIfNotSuccessful();
-    wsClient.permissions().addGroup(new AddGroupWsRequest().setPermission("profileadmin").setGroupName(groupName));
-    wsClient.wsConnector().call(new PostRequest("api/user_groups/add_user").setParam("name", groupName).setParam("login", profileAdmin2.getLogin())).failIfNotSuccessful();
-
-    WsUsers.CreateWsResponse.User noProfileAdmin = userRule.generate();
-
     // uninstall plugin V1
     wsClient.wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
-
     // install plugin V2
     File pluginsDir = new File(orchestrator.getServer().getHome() + "/extensions/plugins");
     orchestrator.getConfiguration().fileSystem().copyToDirectory(pluginArtifact("foo-plugin-v2"), pluginsDir);
