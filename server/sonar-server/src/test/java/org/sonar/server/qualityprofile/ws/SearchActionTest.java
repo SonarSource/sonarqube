@@ -77,7 +77,6 @@ public class SearchActionTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
@@ -94,10 +93,7 @@ public class SearchActionTest {
 
     Languages languages = new Languages(xoo1, xoo2);
     underTest = new SearchAction(
-      new SearchDataLoader(
-        languages,
-        new QProfileLookup(dbClient),
-        dbClient),
+      new SearchDataLoader(languages, new QProfileLookup(dbClient), dbClient),
       languages,
       dbClient,
       qProfileWsSupport);
@@ -120,10 +116,11 @@ public class SearchActionTest {
 
     WebService.Param defaults = action.param("defaults");
     assertThat(defaults.description()).isEqualTo("If set to true, return only the quality profile marked as default for each language, " +
-      "the 'projectKey' parameter must not be set.");
+      "the 'project' parameter must not be set.");
 
-    WebService.Param projectKey = action.param("projectKey");
+    WebService.Param projectKey = action.param("project");
     assertThat(projectKey.description()).isEqualTo("Project or module key. If provided, the 'defaults' parameter should not be provided.");
+    assertThat(projectKey.deprecatedKey()).isEqualTo("projectKey");
 
     WebService.Param language = action.param("language");
     assertThat(language.possibleValues()).containsExactly("xoo1", "xoo2");
@@ -133,7 +130,7 @@ public class SearchActionTest {
 
     WebService.Param profileName = action.param("profileName");
     assertThat(profileName.deprecatedSince()).isEqualTo("6.4");
-    assertThat(profileName.description()).isEqualTo("Profile name. It should be always used with the 'projectKey' or 'defaults' parameter.");
+    assertThat(profileName.description()).isEqualTo("Profile name. It should be always used with the 'project' or 'defaults' parameter.");
   }
 
   @Test

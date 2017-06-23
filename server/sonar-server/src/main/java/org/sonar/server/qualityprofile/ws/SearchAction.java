@@ -55,6 +55,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 
 public class SearchAction implements QProfileWsAction {
@@ -75,7 +76,7 @@ public class SearchAction implements QProfileWsAction {
   public void define(WebService.NewController controller) {
     NewAction action = controller.createAction(ACTION_SEARCH)
       .setSince("5.2")
-      .setDescription("List quality profiles.")
+      .setDescription("Search quality profiles")
       .setHandler(this)
       .setResponseExample(getClass().getResource("search-example.json"));
 
@@ -90,12 +91,13 @@ public class SearchAction implements QProfileWsAction {
 
     action
       .createParam(PARAM_DEFAULTS)
-      .setDescription(format("If set to true, return only the quality profile marked as default for each language, the '%s' parameter must not be set.", PARAM_PROJECT_KEY))
+      .setDescription(format("If set to true, return only the quality profile marked as default for each language, the '%s' parameter must not be set.", PARAM_PROJECT))
       .setDefaultValue(false)
       .setBooleanPossibleValues();
 
-    action.createParam(PARAM_PROJECT_KEY)
+    action.createParam(PARAM_PROJECT)
       .setDescription(format("Project or module key. If provided, the '%s' parameter should not be provided.", PARAM_DEFAULTS))
+      .setDeprecatedKey("projectKey", "6.5")
       .setExampleValue("my-project-key");
 
     action
@@ -108,7 +110,7 @@ public class SearchAction implements QProfileWsAction {
 
     action.createParam(PARAM_PROFILE_NAME)
       .setDeprecatedSince("6.4")
-      .setDescription(format("Profile name. It should be always used with the '%s' or '%s' parameter.", PARAM_PROJECT_KEY, PARAM_DEFAULTS))
+      .setDescription(format("Profile name. It should be always used with the '%s' or '%s' parameter.", PARAM_PROJECT, PARAM_DEFAULTS))
       .setExampleValue("SonarQube Way");
   }
 
@@ -121,7 +123,7 @@ public class SearchAction implements QProfileWsAction {
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return new SearchWsRequest()
       .setOrganizationKey(request.param(PARAM_ORGANIZATION))
-      .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setProjectKey(request.param(PARAM_PROJECT))
       .setProfileName(request.param(PARAM_PROFILE_NAME))
       .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
       .setLanguage(request.param(PARAM_LANGUAGE));
