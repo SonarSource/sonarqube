@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+import moment from 'moment';
 import {
   cleanQuery,
   parseAsDate,
@@ -26,7 +27,7 @@ import {
   serializeString
 } from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
-import type { MeasureHistory, Query } from './types';
+import type { Analysis, MeasureHistory, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
@@ -67,6 +68,30 @@ export const generateCoveredLinesMetric = (
     translatedName: translate('project_activity.custom_metric.covered_lines')
   };
 };
+
+export const getAnalysesByVersionByDay = (
+  analyses: Array<Analysis>
+): Array<{
+  version: ?string,
+  byDay: { [string]: Array<Analysis> }
+}> =>
+  analyses.reduce((acc, analysis) => {
+    if (acc.length === 0) {
+      acc.push({ version: undefined, byDay: {} });
+    }
+    const currentVersion = acc[acc.length - 1];
+    const day = moment(analysis.date).startOf('day').valueOf().toString();
+    if (!currentVersion.byDay[day]) {
+      currentVersion.byDay[day] = [];
+    }
+    currentVersion.byDay[day].push(analysis);
+    const versionEvent = analysis.events.find(event => event.category === 'VERSION');
+    if (versionEvent) {
+      currentVersion.version = versionEvent.name;
+      acc.push({ version: undefined, byDay: {} });
+    }
+    return acc;
+  }, []);
 
 const parseGraph = (value?: string): string => {
   const graph = parseAsString(value);

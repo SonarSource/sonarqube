@@ -136,7 +136,7 @@ export default class AddEventForm extends React.PureComponent {
 
   render() {
     return (
-      <a className="js-add-event button-small" href="#" onClick={this.openForm}>
+      <a className="js-add-event" href="#" onClick={this.openForm}>
         {translate(this.props.addEventButtonText)}
         {this.state.open && this.renderModal()}
       </a>
