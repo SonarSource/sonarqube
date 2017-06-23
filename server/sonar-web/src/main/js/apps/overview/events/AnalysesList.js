@@ -21,18 +21,23 @@
 import React from 'react';
 import { Link } from 'react-router';
 import Analysis from './Analysis';
+import PreviewGraph from './PreviewGraph';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
+import { getMetrics } from '../../../api/metrics';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { translate } from '../../../helpers/l10n';
 import type { Analysis as AnalysisType } from '../../projectActivity/types';
+import type { History, Metric } from '../types';
 
 type Props = {
+  history: History,
   project: string
 };
 
 type State = {
   analyses: Array<AnalysisType>,
-  loading: boolean
+  loading: boolean,
+  metrics: Array<Metric>
 };
 
 const PAGE_SIZE = 5;
@@ -40,7 +45,7 @@ const PAGE_SIZE = 5;
 export default class AnalysesList extends React.PureComponent {
   mounted: boolean;
   props: Props;
-  state: State = { analyses: [], loading: true };
+  state: State = { analyses: [], loading: true, metrics: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -59,9 +64,12 @@ export default class AnalysesList extends React.PureComponent {
 
   fetchData() {
     this.setState({ loading: true });
-    getProjectActivity({ project: this.props.project, ps: PAGE_SIZE }).then(({ analyses }) => {
+    Promise.all([
+      getProjectActivity({ project: this.props.project, ps: PAGE_SIZE }),
+      getMetrics()
+    ]).then(response => {
       if (this.mounted) {
-        this.setState({ analyses, loading: false });
+        this.setState({ analyses: response[0].analyses, metrics: response[1], loading: false });
       }
     }, throwGlobalError);
   }
@@ -94,6 +102,12 @@ export default class AnalysesList extends React.PureComponent {
         <h4 className="overview-meta-header">
           {translate('project_activity.page')}
         </h4>
+
+        <PreviewGraph
+          history={this.props.history}
+          project={this.props.project}
+          metrics={this.state.metrics}
+        />
 
         {this.renderList(analyses)}
 

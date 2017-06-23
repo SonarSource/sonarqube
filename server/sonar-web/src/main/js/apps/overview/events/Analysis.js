@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import Events from '../../projectActivity/components/Events';
+import { sortBy } from 'lodash';
+import Event from './Event';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis as AnalysisType } from '../../projectActivity/types';
+import type { Analysis as AnalysisType, Event as EventType } from '../../projectActivity/types';
 
 export default function Analysis(props: { analysis: AnalysisType }) {
   const { analysis } = props;
+  const sortedEvents: Array<EventType> = sortBy(
+    analysis.events,
+    // versions first
+    (event: EventType) => (event.category === 'VERSION' ? 0 : 1),
+    // then the rest sorted by category
+    'category'
+  );
 
   return (
     <TooltipsContainer>
@@ -36,8 +45,10 @@ export default function Analysis(props: { analysis: AnalysisType }) {
           </strong>
         </div>
 
-        {analysis.events.length > 0
-          ? <Events events={analysis.events} canAdmin={false} />
+        {sortedEvents.length > 0
+          ? <div className="project-activity-events">
+              {sortedEvents.map(event => <Event event={event} key={event.key} />)}
+            </div>
           : <span className="note">{translate('project_activity.project_analyzed')}</span>}
       </li>
     </TooltipsContainer>

@@ -47,8 +47,6 @@ export default class StaticGraphs extends React.PureComponent {
 
   formatYTick = tick => formatMeasure(tick, getShortType(this.props.metricsType));
 
-  formatValue = value => formatMeasure(value, this.props.metricsType);
-
   getEvents = () => {
     const { analyses, eventFilter } = this.props;
     const filteredEvents = analyses.reduce((acc, analysis) => {
@@ -73,7 +71,7 @@ export default class StaticGraphs extends React.PureComponent {
     return sortBy(filteredEvents, 'date');
   };
 
-  hasHistoryData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
+  hasSeriesData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
 
   render() {
     const { loading } = this.props;
@@ -88,7 +86,7 @@ export default class StaticGraphs extends React.PureComponent {
       );
     }
 
-    if (!this.hasHistoryData()) {
+    if (!this.hasSeriesData()) {
       return (
         <div className="project-activity-graph-container">
           <div className="note text-center">
@@ -111,7 +109,6 @@ export default class StaticGraphs extends React.PureComponent {
                 height={height}
                 width={width}
                 interpolate="linear"
-                formatValue={this.formatValue}
                 formatYTick={this.formatYTick}
                 leakPeriodDate={this.props.leakPeriodDate}
                 metricType={this.props.metricsType}

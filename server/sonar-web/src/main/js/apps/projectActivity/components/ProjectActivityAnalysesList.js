@@ -83,6 +83,7 @@ export default function ProjectActivityAnalysesList(props: Props) {
                           deleteEvent={props.deleteEvent}
                           isFirst={analysis.key === firstAnalysisKey}
                           key={analysis.key}
+                          version={version.version}
                         />
                       ))}
                   </ul>

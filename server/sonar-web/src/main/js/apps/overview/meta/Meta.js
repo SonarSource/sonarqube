@@ -29,7 +29,7 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import { areThereCustomOrganizations } from '../../../store/rootReducer';
 
-const Meta = ({ component, measures, areThereCustomOrganizations }) => {
+const Meta = ({ component, history, measures, areThereCustomOrganizations }) => {
   const { qualifier, description, qualityProfiles, qualityGate } = component;
 
   const isProject = qualifier === 'TRK';
@@ -70,7 +70,7 @@ const Meta = ({ component, measures, areThereCustomOrganizations }) => {
 
       {shouldShowOrganizationKey && <MetaOrganizationKey component={component} />}
 
-      {isProject && <AnalysesList project={component.key} />}
+      {isProject && <AnalysesList project={component.key} history={history} />}
     </div>
   );
 };

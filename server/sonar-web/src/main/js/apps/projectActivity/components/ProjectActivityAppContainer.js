@@ -258,7 +258,8 @@ class ProjectActivityAppContainer extends React.PureComponent {
       );
 
       // if there is no filter, but there are saved preferences in the localStorage
-      return !filtered && getGraph();
+      const graph = getGraph();
+      return !filtered && graph != null && graph !== 'overview';
     }
   };
 

@@ -18,11 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 //@flow
+
 export type Component = {
   id: string,
   key: string,
   qualifier: string
 };
+
+export type History = { [string]: Array<{ date: Date, value: string }> };
 
 export type Metric = {
   key: string,
