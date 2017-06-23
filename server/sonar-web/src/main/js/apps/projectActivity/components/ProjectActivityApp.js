@@ -63,9 +63,7 @@ export default class ProjectActivityApp extends React.PureComponent {
       nextProps.analyses !== this.props.analyses ||
       activityQueryChanged(this.props.query, nextProps.query)
     ) {
-      this.setState({
-        filteredAnalyses: this.filterAnalyses(nextProps.analyses, nextProps.query)
-      });
+      this.setState({ filteredAnalyses: this.filterAnalyses(nextProps.analyses, nextProps.query) });
     }
   }
 
