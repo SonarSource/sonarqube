@@ -61,6 +61,7 @@ import org.junit.Assert;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.test.Tester;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
@@ -100,14 +101,26 @@ public class ItUtils {
     return issueClient.find(IssueQuery.create()).list();
   }
 
+  /**
+   * @deprecated replaced by {@link Tester#wsClient()}
+   */
+  @Deprecated
   public static WsClient newAdminWsClient(Orchestrator orchestrator) {
     return newUserWsClient(orchestrator, ADMIN_LOGIN, ADMIN_PASSWORD);
   }
 
+  /**
+   * @deprecated replaced by {@link Tester#wsClient()}
+   */
+  @Deprecated
   public static WsClient newWsClient(Orchestrator orchestrator) {
     return newUserWsClient(orchestrator, null, null);
   }
 
+  /**
+   * @deprecated replaced by {@link Tester#wsClient()}
+   */
+  @Deprecated
   public static WsClient newUserWsClient(Orchestrator orchestrator, @Nullable String login, @Nullable String password) {
     Server server = orchestrator.getServer();
     return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()

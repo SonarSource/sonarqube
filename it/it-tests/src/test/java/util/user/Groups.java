@@ -22,6 +22,11 @@ package util.user;
 import com.google.gson.Gson;
 import java.util.List;
 
+/**
+ * @deprecated replaced by {@link org.sonarqube.test.Tester}
+ */
+@Deprecated
+
 public class Groups {
 
   private List<Group> groups;

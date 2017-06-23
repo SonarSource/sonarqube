@@ -23,19 +23,32 @@ import com.sonar.orchestrator.Orchestrator;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.setting.SetRequest;
 import pageobjects.Navigation;
 import util.selenium.Selenese;
 
 import static util.ItUtils.newUserWsClient;
 
+/**
+ * This JUnit rule wraps an {@link Orchestrator} instance and provides :
+ * <ul>
+ *   <li>enabling the organization feature by default</li>
+ *   <li>clean-up of organizations between tests</li>
+ *   <li>clean-up of users between tests</li>
+ *   <li>clean-up of session when opening a browser (cookies, local storage)</li>
+ *   <li>quick access to {@link WsClient} instances</li>
+ *   <li>helpers to generate organizations and users</li>
+ * </ul>
+ *
+ * Recommendation is to define a {@code @Rule} instance. If not possible, then
+ * {@code @ClassRule} must be used through a {@link org.junit.rules.RuleChain}
+ * around {@link Orchestrator}.
+ */
 public class Tester extends ExternalResource implements Session {
 
   private final Orchestrator orchestrator;
 
   // configuration before startup
   private boolean disableOrganizations = false;
-  private boolean enableOnBoardingTutorials = false;
 
   // initialized in #before()
   private boolean beforeCalled = false;
@@ -51,12 +64,6 @@ public class Tester extends ExternalResource implements Session {
     return this;
   }
 
-  public Tester enableOnBoardingTutorials() {
-    verifyNotStarted();
-    enableOnBoardingTutorials = true;
-    return this;
-  }
-
   @Override
   protected void before() {
     verifyNotStarted();
@@ -64,14 +71,6 @@ public class Tester extends ExternalResource implements Session {
 
     if (!disableOrganizations) {
       organizations().enableSupport();
-    }
-
-    if (!enableOnBoardingTutorials) {
-      rootSession.wsClient().settings().set(SetRequest.builder()
-        .setKey("sonar.onboardingTutorial.showToNewUsers")
-        .setValue("false")
-        .build());
-      rootSession.wsClient().users().skipOnboardingTutorial();
     }
 
     beforeCalled = true;
