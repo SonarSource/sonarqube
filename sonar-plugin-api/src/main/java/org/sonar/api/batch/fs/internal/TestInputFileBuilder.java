@@ -209,6 +209,11 @@ public class TestInputFileBuilder {
   public static DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
     ImmutableProjectDefinition definition = ProjectDefinition.create()
       .setKey(moduleKey).setBaseDir(baseDir).build();
-    return new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
+    return newDefaultInputModule(definition);
+  }
+  
+  
+  public static DefaultInputModule newDefaultInputModule(ImmutableProjectDefinition projectDefinition) {
+    return new DefaultInputModule(projectDefinition, TestInputFileBuilder.nextBatchId());
   }
 }

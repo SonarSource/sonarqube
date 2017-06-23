@@ -40,6 +40,10 @@ import org.sonar.api.scan.filesystem.PathResolver;
 public class Project extends Resource implements Component {
   private final ImmutableProjectDefinition definition;
 
+  public Project(ProjectDefinition definition) {
+    this(definition.build());
+  }
+  
   public Project(ImmutableProjectDefinition definition) {
     this.definition = definition;
     this.setKey(definition.getKey());

@@ -25,6 +25,8 @@ import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.resources.Project;
@@ -78,11 +80,15 @@ public class SensorsExecutorTest {
     when(selector.selectSensors(any(DefaultInputModule.class), eq(false))).thenReturn(Collections.singleton(perModuleSensor));
     when(selector.selectSensors(any(DefaultInputModule.class), eq(true))).thenReturn(Collections.singleton(globalSensor));
 
-    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder());
-    rootModuleExecutor = new SensorsExecutor(selector, rootModule, mock(EventBus.class), strategy);
+    ProjectDefinition childDef = ProjectDefinition.create().setKey("sub").setBaseDir(temp.newFolder());
+    ProjectDefinition rootDef = ProjectDefinition.create().setKey("root").setBaseDir(temp.newFolder()).addSubProject(childDef);
 
-    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule("sub", temp.newFolder());
-    rootModule.definition().addSubProject(subModule.definition());
+    ImmutableProjectDefinition root = rootDef.build();
+
+    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(root);
+    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(root.getSubProjects().get(0));
+
+    rootModuleExecutor = new SensorsExecutor(selector, rootModule, mock(EventBus.class), strategy);
     subModuleExecutor = new SensorsExecutor(selector, subModule, mock(EventBus.class), strategy);
   }
 

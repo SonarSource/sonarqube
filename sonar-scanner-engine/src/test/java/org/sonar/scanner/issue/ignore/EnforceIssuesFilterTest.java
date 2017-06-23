@@ -55,12 +55,11 @@ public class EnforceIssuesFilterTest {
     issue = mock(FilterableIssue.class);
     chain = mock(IssueFilterChain.class);
     when(chain.accept(issue)).thenReturn(true);
-
-    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, inputComponentStore);
   }
 
   @Test
   public void shouldPassToChainIfNoConfiguredPatterns() {
+    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, inputComponentStore);
     assertThat(ignoreFilter.accept(issue, chain)).isTrue();
     verify(chain).accept(issue);
   }
@@ -78,6 +77,7 @@ public class EnforceIssuesFilterTest {
     when(rulePattern.match(rule)).thenReturn(false);
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(ImmutableList.of(matching));
 
+    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, inputComponentStore);
     assertThat(ignoreFilter.accept(issue, chain)).isTrue();
     verify(chain).accept(issue);
   }
@@ -102,6 +102,7 @@ public class EnforceIssuesFilterTest {
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(ImmutableList.of(matching));
     when(inputComponentStore.getByKey(componentKey)).thenReturn(createComponentWithPath(path));
 
+    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, inputComponentStore);
     assertThat(ignoreFilter.accept(issue, chain)).isTrue();
     verifyZeroInteractions(chain);
   }
@@ -130,6 +131,7 @@ public class EnforceIssuesFilterTest {
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(ImmutableList.of(matching));
     when(inputComponentStore.getByKey(componentKey)).thenReturn(createComponentWithPath(path));
 
+    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, inputComponentStore);
     assertThat(ignoreFilter.accept(issue, chain)).isFalse();
     verifyZeroInteractions(chain);
   }
@@ -154,6 +156,7 @@ public class EnforceIssuesFilterTest {
     when(exclusionPatternInitializer.getMulticriteriaPatterns()).thenReturn(ImmutableList.of(matching));
     when(inputComponentStore.getByKey(componentKey)).thenReturn(null);
 
+    ignoreFilter = new EnforceIssuesFilter(exclusionPatternInitializer, inputComponentStore);
     assertThat(ignoreFilter.accept(issue, chain)).isFalse();
     verifyZeroInteractions(chain);
   }

@@ -19,19 +19,16 @@
  */
 package org.sonar.scanner.cpd;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.ImmutableSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.scanner.scan.ImmutableProjectReactor;
 
-@Immutable
 public class CpdSettings {
-  private final ImmutableSettings settings;
+  private final Settings settings;
   private final ImmutableProjectReactor projectReactor;
 
-  public CpdSettings(ImmutableSettings settings, ImmutableProjectReactor projectReactor) {
+  public CpdSettings(Settings settings, ImmutableProjectReactor projectReactor) {
     this.settings = settings;
     this.projectReactor = projectReactor;
   }

@@ -27,6 +27,7 @@ import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -47,13 +48,19 @@ public class InputComponentStoreTest {
     InputComponentStore cache = new InputComponentStore(new PathResolver());
 
     String rootModuleKey = "struts";
-    File rootBaseDir = temp.newFolder();
-    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootModuleKey, rootBaseDir);
-    cache.put(rootModule);
-
     String subModuleKey = "struts-core";
-    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(subModuleKey, temp.newFolder());
-    rootModule.definition().addSubProject(subModule.definition());
+
+    File rootBaseDir = temp.newFolder();
+
+    ProjectDefinition moduleDef = ProjectDefinition.create()
+      .setKey(subModuleKey).setBaseDir(rootBaseDir);
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey(rootModuleKey).setBaseDir(rootBaseDir).addSubProject(moduleDef);
+
+    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef.build());
+    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef.build());
+
+    cache.put(rootModule);
     cache.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")

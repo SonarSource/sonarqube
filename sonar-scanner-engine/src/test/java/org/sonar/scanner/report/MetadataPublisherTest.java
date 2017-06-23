@@ -34,6 +34,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -51,25 +52,29 @@ public class MetadataPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ImmutableProjectDefinition projectDef;
   private DefaultInputModule rootModule;
   private MetadataPublisher underTest;
   private Settings settings;
   private ModuleQProfiles qProfiles;
   private ProjectAnalysisInfo projectAnalysisInfo;
+  private CpdSettings cpdSettings;
   private InputModuleHierarchy inputModuleHierarchy;
 
   @Before
   public void prepare() {
-    projectDef = ProjectDefinition.create().setKey("foo").build();
-    rootModule = new DefaultInputModule(projectDef, TestInputFileBuilder.nextBatchId());
     projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    cpdSettings = mock(CpdSettings.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
-    inputModuleHierarchy = mock(InputModuleHierarchy.class);
-    when(inputModuleHierarchy.root()).thenReturn(rootModule);
     settings = new MapSettings();
     qProfiles = mock(ModuleQProfiles.class);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings, qProfiles);
+    createPublisher(ProjectDefinition.create().setKey("foo").build());
+  }
+  
+  private void createPublisher(ImmutableProjectDefinition def) {
+    rootModule = new DefaultInputModule(def, TestInputFileBuilder.nextBatchId());
+    inputModuleHierarchy = mock(InputModuleHierarchy.class);
+    when(inputModuleHierarchy.root()).thenReturn(rootModule);
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings, qProfiles, cpdSettings);
   }
 
   @Test
@@ -87,7 +92,6 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getCrossProjectDuplicationActivated()).isTrue();
     assertThat(metadata.getQprofilesPerLanguage()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
       .setKey("q1")
       .setName("Q1")
@@ -98,14 +102,15 @@ public class MetadataPublisherTest {
 
   @Test
   public void write_project_branch() throws Exception {
+    when(cpdSettings.isCrossProjectDuplicationEnabled()).thenReturn(false);
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
 
-    projectDef = ProjectDefinition.create()
+    ImmutableProjectDefinition projectDef = ProjectDefinition.create()
       .setKey("foo")
       .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch")
       .build();
-    rootModule = new DefaultInputModule(projectDef, TestInputFileBuilder.nextBatchId());
+    createPublisher(projectDef);
 
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
@@ -117,7 +122,6 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getBranch()).isEqualTo("myBranch");
-    // Cross project duplication disabled on branches
     assertThat(metadata.getCrossProjectDuplicationActivated()).isFalse();
   }
 

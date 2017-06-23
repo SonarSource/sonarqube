@@ -20,14 +20,14 @@
 package org.sonar.scanner.bootstrap;
 
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.config.ImmutableSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.home.cache.FileCache;
 import org.sonar.home.cache.FileCacheBuilder;
 
 public class FileCacheProvider extends ProviderAdapter {
   private FileCache cache;
 
-  public FileCache provide(ImmutableSettings settings) {
+  public FileCache provide(Settings settings) {
     if (cache == null) {
       String home = settings.getString("sonar.userHome");
       cache = new FileCacheBuilder(new Slf4jLogger()).setUserHome(home).build();

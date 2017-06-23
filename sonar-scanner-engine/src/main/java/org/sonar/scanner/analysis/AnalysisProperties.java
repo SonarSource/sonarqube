@@ -21,7 +21,6 @@ package org.sonar.scanner.analysis;
 
 import java.util.Map;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
 import org.sonar.scanner.bootstrap.UserProperties;
 
@@ -29,7 +28,6 @@ import org.sonar.scanner.bootstrap.UserProperties;
  * Batch properties that are specific to an analysis (for example
  * coming from sonar-project.properties).
  */
-@Immutable
 public class AnalysisProperties extends UserProperties {
   public AnalysisProperties(Map<String, String> properties) {
     this(properties, null);

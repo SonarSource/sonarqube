@@ -22,7 +22,7 @@ package org.sonar.scanner.issue.ignore.pattern;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.ImmutableSettings;
+import org.sonar.api.config.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,15 +32,15 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 @ScannerSide
 public abstract class AbstractPatternInitializer {
-  private ImmutableSettings settings;
+  private Settings settings;
   private List<IssuePattern> multicriteriaPatterns;
 
-  protected AbstractPatternInitializer(ImmutableSettings settings) {
+  protected AbstractPatternInitializer(Settings settings) {
     this.settings = settings;
     initPatterns();
   }
 
-  protected ImmutableSettings getSettings() {
+  protected Settings getSettings() {
     return settings;
   }
 

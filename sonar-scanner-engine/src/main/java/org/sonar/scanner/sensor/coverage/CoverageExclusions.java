@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.config.ImmutableSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.WildcardPattern;
 
 @Immutable
@@ -40,7 +40,7 @@ public class CoverageExclusions implements Startable {
 
   private final Collection<WildcardPattern> exclusionPatterns;
 
-  public CoverageExclusions(ImmutableSettings settings) {
+  public CoverageExclusions(Settings settings) {
     Builder<WildcardPattern> builder = ImmutableList.builder();
     for (String pattern : settings.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)) {
       builder.add(WildcardPattern.create(pattern));

@@ -33,8 +33,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -57,7 +55,7 @@ import static org.mockito.Mockito.when;
 
 public class CpdExecutorTest {
   private CpdExecutor executor;
-  private Settings settings;
+  private CpdSettings settings;
   private SonarCpdBlockIndex index;
   private ReportPublisher publisher;
 
@@ -82,7 +80,7 @@ public class CpdExecutorTest {
     File outputDir = temp.newFolder();
     baseDir = temp.newFolder();
 
-    settings = new MapSettings();
+    settings = mock(CpdSettings.class);
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
     index = new SonarCpdBlockIndex(publisher, settings);
@@ -104,22 +102,6 @@ public class CpdExecutorTest {
       .build();
     componentStore.put(file);
     return file;
-  }
-
-  @Test
-  public void defaultMinimumTokens() {
-    assertThat(executor.getMinimumTokens("java")).isEqualTo(100);
-  }
-
-  @Test
-  public void minimumTokensByLanguage() {
-    settings.setProperty("sonar.cpd.java.minimumTokens", "42");
-    settings.setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(executor.getMinimumTokens("java")).isEqualTo(42);
-
-    settings.setProperty("sonar.cpd.java.minimumTokens", "42");
-    settings.setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(executor.getMinimumTokens("php")).isEqualTo(33);
   }
 
   @Test

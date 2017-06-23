@@ -44,7 +44,6 @@ public class DefaultActiveRules implements ActiveRules {
     for (NewActiveRule newAR : newActiveRules) {
       DefaultActiveRule ar = new DefaultActiveRule(newAR);
       String repo = ar.ruleKey().repository();
-
       repoBuilder.put(repo, ar);
       if (ar.language() != null) {
         langBuilder.put(ar.language(), ar);
@@ -63,7 +62,7 @@ public class DefaultActiveRules implements ActiveRules {
   @Override
   public ActiveRule find(RuleKey ruleKey) {
     return activeRulesByRepositoryAndKey.getOrDefault(ruleKey.repository(), Collections.emptyMap())
-      .get(ruleKey.repository());
+      .get(ruleKey.rule());
   }
 
   @Override

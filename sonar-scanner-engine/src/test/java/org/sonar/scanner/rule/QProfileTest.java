@@ -26,7 +26,7 @@ public class QProfileTest {
   @Test
   public void testEquals() {
     QProfile q1 = new QProfile("k1", "name1", null, null);
-    QProfile q2 = new QProfile("k2", "name2", null, null);
+    QProfile q2 = new QProfile("k1", "name2", null, null);
     QProfile q3 = new QProfile("k3", "name3", null, null);
 
     assertThat(q1).isEqualTo(q2);

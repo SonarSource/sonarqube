@@ -22,16 +22,13 @@ package org.sonar.scanner.bootstrap;
 import org.sonar.api.config.Encryption;
 
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Properties that are coming from bootstrapper.
  */
-@Immutable
 public abstract class UserProperties {
 
   private final Map<String, String> properties;
@@ -51,7 +48,7 @@ public abstract class UserProperties {
       }
       decryptedProps.put(entry.getKey(), value);
     }
-    this.properties = Collections.unmodifiableMap(decryptedProps);
+    this.properties = decryptedProps;
   }
 
   public Map<String, String> properties() {

@@ -20,25 +20,19 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.ImmutableMap;
-
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.annotation.concurrent.Immutable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Encryption;
-import org.sonar.api.config.ImmutableSettings;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
-@Immutable
-public class GlobalSettings extends ImmutableSettings {
+public class GlobalSettings extends Settings {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalSettings.class);
 
@@ -56,7 +50,7 @@ public class GlobalSettings extends ImmutableSettings {
 
   private final GlobalProperties bootstrapProps;
   private final GlobalMode mode;
-  private final Map<String, String> properties;
+  private final Map<String, String> properties = new HashMap<>();
 
   public GlobalSettings(GlobalProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
     SettingsLoader settingsLoader, GlobalMode mode) {
@@ -65,20 +59,17 @@ public class GlobalSettings extends ImmutableSettings {
     this.mode = mode;
     this.bootstrapProps = bootstrapProps;
     this.serverSideSettings = ImmutableMap.copyOf(settingsLoader.load(null));
-    Map<String, String> props = init();
-    new DroppedPropertyChecker(props, DROPPED_PROPERTIES).checkDroppedProperties();
-    this.properties = Collections.unmodifiableMap(props);
+    init();
+    new DroppedPropertyChecker(this.getProperties(), DROPPED_PROPERTIES).checkDroppedProperties();
   }
 
-  private Map<String, String> init() {
-    Map<String, String> props = new HashMap<>();
-    addProperties(serverSideSettings, props);
-    addProperties(bootstrapProps.properties(), props);
+  private void init() {
+    addProperties(serverSideSettings);
+    addProperties(bootstrapProps.properties());
 
     if (hasKey(CoreProperties.PERMANENT_SERVER_ID)) {
       LOG.info("Server id: " + getString(CoreProperties.PERMANENT_SERVER_ID));
     }
-    return props;
   }
 
   public Map<String, String> getServerSideSettings() {
@@ -97,5 +88,15 @@ public class GlobalSettings extends ImmutableSettings {
   @Override
   public Map<String, String> getProperties() {
     return properties;
+  }
+
+  @Override
+  protected void set(String key, String value) {
+    properties.put(key, value);
+  }
+
+  @Override
+  protected void remove(String key) {
+    properties.remove(key);
   }
 }

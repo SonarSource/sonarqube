@@ -79,7 +79,7 @@ public class ImmutableProjectDefinition {
       subProjects = Collections.unmodifiableList(builder.getSubProjects().stream()
         .map(proj -> createSubProject(proj, this))
         .collect(Collectors.toList()));
-      parent = createParent(builder.getParent(), this);
+      parent = createParent(builder.getParent(), builder, this);
     }
   }
 
@@ -93,7 +93,7 @@ public class ImmutableProjectDefinition {
   }
 
   @CheckForNull
-  private static ImmutableProjectDefinition createParent(@Nullable ProjectDefinition parent, ImmutableProjectDefinition immutableSubProject) {
+  private static ImmutableProjectDefinition createParent(@Nullable ProjectDefinition parent, ProjectDefinition subProject, ImmutableProjectDefinition immutableSubProject) {
     if (parent == null) {
       return null;
     }
@@ -101,11 +101,11 @@ public class ImmutableProjectDefinition {
     immutableParent.subProjects = new ArrayList<>();
     immutableParent.subProjects.add(immutableSubProject);
     immutableParent.subProjects.addAll(parent.getSubProjects().stream()
-      .filter(proj -> !proj.getKey().equals(immutableSubProject.getKey()))
+      .filter(proj -> subProject != proj)
       .map(proj -> createSubProject(proj, immutableParent))
       .collect(Collectors.toList()));
     immutableParent.subProjects = Collections.unmodifiableList(immutableParent.subProjects);
-    immutableParent.parent = createParent(parent.getParent(), immutableParent);
+    immutableParent.parent = createParent(parent.getParent(), parent, immutableParent);
     return immutableParent;
   }
 

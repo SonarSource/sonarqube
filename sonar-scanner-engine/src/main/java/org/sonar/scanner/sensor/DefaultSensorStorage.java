@@ -93,7 +93,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
-import org.sonar.api.config.ImmutableSettings;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Logger;
@@ -149,14 +149,14 @@ public class DefaultSensorStorage implements SensorStorage {
   private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
   private final ContextPropertiesCache contextPropertiesCache;
-  private final ImmutableSettings settings;
+  private final Settings settings;
   private final ScannerMetrics scannerMetrics;
   private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new HashMap<>();
   private final Set<Metric<?>> coverageMetrics = new HashSet<>();
   private final Set<Metric<?>> byLineMetrics = new HashSet<>();
   private final Set<String> alreadyLogged = Collections.synchronizedSet(new HashSet<>());
 
-  public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues, ImmutableSettings settings, CoverageExclusions coverageExclusions,
+  public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues, Settings settings, CoverageExclusions coverageExclusions,
     ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index,
     ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics) {
     this.metricFinder = metricFinder;
@@ -471,8 +471,8 @@ public class DefaultSensorStorage implements SensorStorage {
     inputFile.setPublish(true);
     PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
     List<Block> blocks = blockChunker.chunk(inputFile.key(), defaultCpdTokens.getTokenLines());
-    synchronized(index) {
-    index.insert(inputFile, blocks);
+    synchronized (index) {
+      index.insert(inputFile, blocks);
     }
   }
 
