@@ -24,6 +24,7 @@ import org.picocontainer.Startable;
 import org.sonar.api.resources.Languages;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import java.util.Collection;
  * Languages repository using {@link Languages}
  * @since 4.4
  */
+@Immutable
 public class DefaultLanguagesRepository implements LanguagesRepository, Startable {
 
   private Languages languages;

@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.ImmutableSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
@@ -36,11 +36,11 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 @ScannerSide
 public class DefaultServer extends Server {
 
-  private final Settings settings;
+  private final ImmutableSettings settings;
   private final ScannerWsClient client;
   private final SonarRuntime runtime;
 
-  public DefaultServer(Settings settings, ScannerWsClient client, SonarRuntime runtime) {
+  public DefaultServer(ImmutableSettings settings, ScannerWsClient client, SonarRuntime runtime) {
     this.settings = settings;
     this.client = client;
     this.runtime = runtime;

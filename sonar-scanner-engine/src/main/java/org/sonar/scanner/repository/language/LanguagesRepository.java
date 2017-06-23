@@ -22,6 +22,7 @@ package org.sonar.scanner.repository.language;
 import org.sonar.api.batch.ScannerSide;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
 import java.util.Collection;
 
@@ -30,6 +31,7 @@ import java.util.Collection;
  * @since 4.4
  */
 @ScannerSide
+@Immutable
 public interface LanguagesRepository {
 
   /**

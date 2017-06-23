@@ -19,37 +19,42 @@
  */
 package org.sonar.scanner.scan;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.ImmutableSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalSettings;
 import org.sonar.scanner.repository.ProjectRepositories;
 
-public class ProjectSettings extends Settings {
+@Immutable
+public class ProjectSettings extends ImmutableSettings {
 
   private final GlobalSettings globalSettings;
   private final ProjectRepositories projectRepositories;
   private final DefaultAnalysisMode mode;
-  private final Map<String, String> properties = new HashMap<>();
+  private final Map<String, String> properties;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
     super(globalSettings.getDefinitions(), globalSettings.getEncryption());
     this.mode = mode;
     this.globalSettings = globalSettings;
     this.projectRepositories = projectRepositories;
-    init(reactor);
+    this.properties = Collections.unmodifiableMap(init(reactor));
   }
 
-  private void init(ProjectReactor reactor) {
-    addProperties(globalSettings.getProperties());
-
-    addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
-
-    addProperties(reactor.getRoot().properties());
+  private Map<String, String> init(ProjectReactor reactor) {
+    Map<String, String> props = new HashMap<>();
+    addProperties(globalSettings.getProperties(), props);
+    addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()), props);
+    addProperties(reactor.getRoot().properties(), props);
+    return props;
   }
 
   @Override
@@ -59,16 +64,6 @@ public class ProjectSettings extends Settings {
         + "' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     }
     return Optional.ofNullable(properties.get(key));
-  }
-
-  @Override
-  protected void set(String key, String value) {
-    properties.put(key, value);
-  }
-
-  @Override
-  protected void remove(String key) {
-    properties.remove(key);
   }
 
   @Override

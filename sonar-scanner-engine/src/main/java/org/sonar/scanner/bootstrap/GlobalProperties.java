@@ -23,10 +23,13 @@ import org.sonar.api.CoreProperties;
 
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
  * Immutable batch properties that are not specific to a task (for example
  * coming from global configuration file of sonar-runner).
  */
+@Immutable
 public class GlobalProperties extends UserProperties {
 
   public GlobalProperties(Map<String, String> properties) {

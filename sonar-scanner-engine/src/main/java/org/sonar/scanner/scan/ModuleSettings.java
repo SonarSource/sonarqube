@@ -20,13 +20,16 @@
 package org.sonar.scanner.scan;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.ImmutableSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalSettings;
@@ -36,11 +39,12 @@ import org.sonar.scanner.repository.ProjectRepositories;
 /**
  * @since 2.12
  */
-public class ModuleSettings extends Settings {
+@Immutable
+public class ModuleSettings extends ImmutableSettings {
 
   private final ProjectRepositories projectRepos;
   private final DefaultAnalysisMode analysisMode;
-  private final Map<String, String> properties = new HashMap<>();
+  private final Map<String, String> properties;
 
   public ModuleSettings(GlobalSettings batchSettings, ImmutableProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
@@ -48,31 +52,33 @@ public class ModuleSettings extends Settings {
     this.projectRepos = projectSettingsRepo;
     this.analysisMode = analysisMode;
 
-    init(moduleDefinition, batchSettings);
+    Map<String, String> props = init(moduleDefinition, batchSettings);
     contextReportPublisher.dumpModuleSettings(moduleDefinition);
+    this.properties = Collections.unmodifiableMap(props);
   }
 
-  private ModuleSettings init(ImmutableProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
-    addProjectProperties(moduleDefinition, batchSettings);
-    addBuildProperties(moduleDefinition);
-    return this;
+  private Map<String, String> init(ImmutableProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
+    Map<String, String> props = new HashMap<>();
+    addProjectProperties(moduleDefinition, batchSettings, props);
+    addBuildProperties(moduleDefinition, props);
+    return props;
   }
 
-  private void addProjectProperties(ImmutableProjectDefinition def, GlobalSettings batchSettings) {
-    addProperties(batchSettings.getProperties());
+  private void addProjectProperties(ImmutableProjectDefinition def, GlobalSettings batchSettings, Map<String, String> props) {
+    addProperties(batchSettings.getProperties(), props);
     do {
       if (projectRepos.moduleExists(def.getKeyWithBranch())) {
-        addProperties(projectRepos.settings(def.getKeyWithBranch()));
+        addProperties(projectRepos.settings(def.getKeyWithBranch()), props);
         break;
       }
       def = def.getParent();
     } while (def != null);
   }
 
-  private void addBuildProperties(ImmutableProjectDefinition project) {
+  private void addBuildProperties(ImmutableProjectDefinition project, Map<String, String> props) {
     List<ImmutableProjectDefinition> orderedProjects = getTopDownParentProjects(project);
     for (ImmutableProjectDefinition p : orderedProjects) {
-      addProperties(p.properties());
+      addProperties(p.properties(), props);
     }
   }
 
@@ -96,16 +102,6 @@ public class ModuleSettings extends Settings {
         + "' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     }
     return Optional.ofNullable(properties.get(key));
-  }
-
-  @Override
-  protected void set(String key, String value) {
-    properties.put(key, value);
-  }
-
-  @Override
-  protected void remove(String key) {
-    properties.remove(key);
   }
 
   @Override

@@ -37,7 +37,6 @@ public class ImmutableProjectReactorProvider extends ProviderAdapter {
       validator.validate(reactor);
 
       // 3 Create immutable project definitions
-
       ProjectDefinition mutableRoot = reactor.getRoot();
       ImmutableProjectDefinition root = new ImmutableProjectDefinition(mutableRoot);
       singleton = new ImmutableProjectReactor(root);

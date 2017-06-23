@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
@@ -26,6 +28,7 @@ import org.sonar.api.batch.fs.InputModule;
 /**
  * @since 5.2
  */
+@Immutable
 public class DefaultInputModule extends DefaultInputComponent implements InputModule {
 
   private final String moduleKey;

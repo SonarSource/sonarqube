@@ -19,7 +19,7 @@
  */
 package org.sonar.api;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.concurrent.Immutable;
 
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.Sensor;
@@ -143,7 +143,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ServerSide
 @ComputeEngineSide
 @SonarLintSide
-@ThreadSafe
+@Immutable
 public interface SonarRuntime {
 
   /**

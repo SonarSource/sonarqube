@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.fs;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.batch.sensor.SensorContext;
 
 /**
@@ -26,5 +28,6 @@ import org.sonar.api.batch.sensor.SensorContext;
  *
  * @since 5.2
  */
+@Immutable
 public interface InputModule extends InputComponent {
 }

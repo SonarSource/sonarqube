@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.config.ImmutableSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.duplications.internal.pmd.TokensLine;
 
@@ -37,7 +38,7 @@ import static java.util.Objects.requireNonNull;
 
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
-  private final Settings settings;
+  private final ImmutableSettings settings;
   private final ArrayList<TokensLine> result = new ArrayList<>();
   private InputFile inputFile;
   private int startLine = Integer.MIN_VALUE;
@@ -47,7 +48,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   private TextRange lastRange;
   private boolean excluded;
 
-  public DefaultCpdTokens(Settings settings, SensorStorage storage) {
+  public DefaultCpdTokens(ImmutableSettings settings, SensorStorage storage) {
     super(storage);
     this.settings = settings;
   }
