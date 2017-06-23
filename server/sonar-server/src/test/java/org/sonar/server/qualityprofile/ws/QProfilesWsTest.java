@@ -183,13 +183,4 @@ public class QProfilesWsTest {
       "organization", "profile", "language", "profileName");
     assertThat(inheritance.responseExampleAsString()).isNotEmpty();
   }
-
-  @Test
-  public void define_rename_action() {
-    WebService.Action rename = controller.action("rename");
-    assertThat(rename).isNotNull();
-    assertThat(rename.isPost()).isTrue();
-    assertThat(rename.params()).hasSize(2).extracting("key").containsOnly(
-      "key", "name");
-  }
 }

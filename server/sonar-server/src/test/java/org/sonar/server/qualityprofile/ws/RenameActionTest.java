@@ -19,10 +19,13 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
@@ -34,12 +37,12 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 public class RenameActionTest {
@@ -51,26 +54,22 @@ public class RenameActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private DbClient dbClient = db.getDbClient();
+
+  private WsActionTester ws;
+
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
-  private DbClient dbClient;
-  private WsTester tester;
   private OrganizationDto organization;
-  private RenameAction underTest;
-  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
 
   @Before
   public void setUp() {
-    dbClient = db.getDbClient();
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
-    underTest = new RenameAction(
-      dbClient,
-      userSessionRule, wsSupport);
-    tester = new WsTester(new QProfilesWs(
-      underTest));
-    organization = db.organizations().insert();
+    RenameAction underTest = new RenameAction(dbClient, userSessionRule, wsSupport);
+    ws = new WsActionTester(underTest);
 
+    organization = db.organizations().insert();
     createProfiles();
   }
 
@@ -79,7 +78,7 @@ public class RenameActionTest {
     logInAsQProfileAdministrator();
     String qualityProfileKey = createNewValidQualityProfileKey();
 
-    underTest.doHandle("the new name", qualityProfileKey);
+    call(qualityProfileKey, "the new name");
 
     QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), qualityProfileKey);
     assertThat(reloaded.getName()).isEqualTo("the new name");
@@ -106,7 +105,7 @@ public class RenameActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Quality profile already exists: Invalid, duplicated name");
 
-    underTest.doHandle("Invalid, duplicated name", qualityProfileKey1);
+    call(qualityProfileKey1, "Invalid, duplicated name");
   }
 
   @Test
@@ -130,22 +129,20 @@ public class RenameActionTest {
     db.qualityProfiles().insert(qualityProfile2);
     String qualityProfileKey2 = qualityProfile2.getKee();
 
-    underTest.doHandle("Duplicated name", qualityProfileKey1);
+    call(qualityProfileKey1, "Duplicated name");
 
     QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), qualityProfileKey1);
     assertThat(reloaded.getName()).isEqualTo("Duplicated name");
   }
 
   @Test
-  public void fail_if_parameter_key_is_missing() throws Exception {
+  public void fail_if_parameter_profile_is_missing() throws Exception {
     logInAsQProfileAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'key' parameter is missing");
+    expectedException.expectMessage("The 'profile' parameter is missing");
 
-    tester.newPostRequest("api/qualityprofiles", "rename")
-      .setParam("name", "Other Sonar Way")
-      .execute();
+    call(null, "Other Sonar Way");
   }
 
   @Test
@@ -155,9 +152,7 @@ public class RenameActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
-    tester.newPostRequest("api/qualityprofiles", "rename")
-      .setParam("key", "sonar-way-xoo1-13245")
-      .execute();
+    call("sonar-way-xoo1-13245", null);
   }
 
   @Test
@@ -175,7 +170,7 @@ public class RenameActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    underTest.doHandle("Hey look I am not quality profile admin!", qualityProfileKey);
+    call(qualityProfileKey, "Hey look I am not quality profile admin!");
   }
 
   @Test
@@ -183,10 +178,7 @@ public class RenameActionTest {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    tester.newPostRequest("api/qualityprofiles", "rename")
-      .setParam("key", "sonar-way-xoo1-13245")
-      .setParam("name", "Not logged in")
-      .execute();
+    call("sonar-way-xoo1-13245", "Not logged in");
   }
 
   @Test
@@ -196,10 +188,7 @@ public class RenameActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'polop' does not exist");
 
-    tester.newPostRequest("api/qualityprofiles", "rename")
-      .setParam("key", "polop")
-      .setParam("name", "Uh oh, I don't know this profile")
-      .execute();
+    call("polop", "Uh oh, I don't know this profile");
   }
 
   @Test
@@ -209,7 +198,7 @@ public class RenameActionTest {
 
     expectedException.expect(BadRequestException.class);
 
-    underTest.doHandle("the new name", qualityProfileKey);
+    call(qualityProfileKey, "the new name");
   }
 
   @Test
@@ -218,13 +207,13 @@ public class RenameActionTest {
     String qualityProfileKey = createNewValidQualityProfileKey();
 
     String a100charName = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
-    underTest.doHandle(a100charName, qualityProfileKey);
+    call(qualityProfileKey, a100charName);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name is too long (>100 characters)");
 
     String a101charName = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
-    underTest.doHandle(a101charName, qualityProfileKey);
+    call(qualityProfileKey, a101charName);
   }
 
   @Test
@@ -234,7 +223,7 @@ public class RenameActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name must be set");
 
-    underTest.doHandle(" ", qualityProfileKey);
+    call(qualityProfileKey, " ");
   }
 
   @Test
@@ -244,7 +233,18 @@ public class RenameActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'unknown' does not exist");
 
-    underTest.doHandle("the new name", "unknown");
+    call("unknown", "the new name");
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition.key()).isEqualTo("rename");
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "name");
+    Param profile = definition.param("profile");
+    assertThat(profile.deprecatedKey()).isEqualTo("key");
   }
 
   private String createNewValidQualityProfileKey() {
@@ -255,19 +255,26 @@ public class RenameActionTest {
   }
 
   private void createProfiles() {
-    db.qualityProfiles().insert(organization, p ->
-      p.setKee("sonar-way-xoo1-12345").setLanguage(xoo1Key).setName("Sonar way"));
+    db.qualityProfiles().insert(organization, p -> p.setKee("sonar-way-xoo1-12345").setLanguage(xoo1Key).setName("Sonar way"));
 
-    QProfileDto parentXoo2 = db.qualityProfiles().insert(organization, p ->
-      p.setKee("sonar-way-xoo2-23456").setLanguage(xoo2Key).setName("Sonar way"));
+    QProfileDto parentXoo2 = db.qualityProfiles().insert(organization, p -> p.setKee("sonar-way-xoo2-23456").setLanguage(xoo2Key).setName("Sonar way"));
 
-    db.qualityProfiles().insert(organization, p ->
-      p.setKee("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee(parentXoo2.getKee()));
+    db.qualityProfiles().insert(organization, p -> p.setKee("my-sonar-way-xoo2-34567").setLanguage(xoo2Key).setName("My Sonar way").setParentKee(parentXoo2.getKee()));
   }
 
   private void logInAsQProfileAdministrator() {
     userSessionRule
       .logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+  }
+
+  private void call(@Nullable String key, @Nullable String name) {
+    TestRequest request = ws.newRequest()
+      .setMethod("POST");
+
+    setNullable(key, k -> request.setParam("profile", k));
+    setNullable(name, n -> request.setParam("name", n));
+
+    request.execute();
   }
 }

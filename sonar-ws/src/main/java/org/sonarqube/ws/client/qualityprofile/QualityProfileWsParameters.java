@@ -22,12 +22,12 @@ package org.sonarqube.ws.client.qualityprofile;
 public class QualityProfileWsParameters {
 
   public static final String CONTROLLER_QUALITY_PROFILES = "api/qualityprofiles";
-
   public interface RestoreActionParameters {
+
     String PARAM_BACKUP = "backup";
   }
-
   public static final String ACTION_ACTIVATE_RULE = "activate_rule";
+
   public static final String ACTION_ACTIVATE_RULES = "activate_rules";
   public static final String ACTION_ADD_PROJECT = "add_project";
   public static final String ACTION_CHANGE_PARENT = "change_parent";
@@ -40,11 +40,12 @@ public class QualityProfileWsParameters {
   public static final String ACTION_RESTORE = "restore";
   public static final String ACTION_SEARCH = "search";
   public static final String ACTION_SET_DEFAULT = "set_default";
-
   public static final String PARAM_DEFAULTS = "defaults";
+
   public static final String PARAM_FROM_KEY = "fromKey";
   public static final String PARAM_ORGANIZATION = "organization";
   public static final String PARAM_LANGUAGE = "language";
+  public static final String PARAM_NAME = "name";
   public static final String PARAM_PARAMS = "params";
   public static final String PARAM_PARENT_NAME = "parentName";
   public static final String PARAM_PARENT_PROFILE = "parentProfile";
