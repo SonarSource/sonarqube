@@ -64,4 +64,4 @@ export const saveSort = (sort: ?string) => save(PROJECTS_SORT, sort);
 export const getSort = () => window.localStorage.getItem(PROJECTS_SORT);
 
 export const saveGraph = (graph: ?string) => save(PROJECT_ACTIVITY_GRAPH, graph);
-export const getGraph = () => window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH);
+export const getGraph = () => window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'overview';

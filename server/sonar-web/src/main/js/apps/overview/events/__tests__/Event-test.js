@@ -17,35 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
-import Event from './Event';
-import './projectActivity.css';
-import type { Event as EventType } from '../types';
+import { shallow } from 'enzyme';
+import Event from '../Event';
 
-type Props = {
-  analysis?: string,
-  canAdmin?: boolean,
-  changeEvent?: (event: string, name: string) => Promise<*>,
-  deleteEvent?: (analysis: string, event: string) => Promise<*>,
-  events: Array<EventType>,
-  isFirst?: boolean
-};
+const EVENT = { key: '1', category: 'OTHER', name: 'test' };
+const VERSION = { key: '2', category: 'VERSION', name: '6.5-SNAPSHOT' };
 
-export default function Events(props: Props) {
-  return (
-    <div className="project-activity-events">
-      {props.events.map(event => (
-        <Event
-          analysis={props.analysis}
-          canAdmin={props.canAdmin}
-          changeEvent={props.changeEvent}
-          deleteEvent={props.deleteEvent}
-          event={event}
-          isFirst={props.isFirst}
-          key={event.key}
-        />
-      ))}
-    </div>
-  );
-}
+it('should render an event correctly', () => {
+  expect(shallow(<Event event={EVENT} />)).toMatchSnapshot();
+});
+
+it('should render a version correctly', () => {
+  expect(shallow(<Event event={VERSION} />)).toMatchSnapshot();
+});

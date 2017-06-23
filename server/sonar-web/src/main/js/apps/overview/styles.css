@@ -345,6 +345,27 @@
   border-top: 1px solid #e6e6e6;
 }
 
+.overview-analysis-graph {
+  display: block;
+  outline: none;
+  border: none;
+}
+
+.overview-analysis-event {}
+
+.overview-analysis-event.badge {
+  vertical-align: middle;
+  padding: 4px 14px;
+  border-radius: 2px;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.overview-analysis-event + .overview-analysis-event {
+  margin-top: 4px;
+}
+
 /*
  * Other
  */

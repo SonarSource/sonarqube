@@ -17,35 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import Event from './Event';
-import './projectActivity.css';
-import type { Event as EventType } from '../types';
+//@flow
 
-type Props = {
-  analysis?: string,
-  canAdmin?: boolean,
-  changeEvent?: (event: string, name: string) => Promise<*>,
-  deleteEvent?: (analysis: string, event: string) => Promise<*>,
-  events: Array<EventType>,
-  isFirst?: boolean
-};
+export const METRICS = [
+  // quality gate
+  'alert_status',
+  'quality_gate_details',
 
-export default function Events(props: Props) {
-  return (
-    <div className="project-activity-events">
-      {props.events.map(event => (
-        <Event
-          analysis={props.analysis}
-          canAdmin={props.canAdmin}
-          changeEvent={props.changeEvent}
-          deleteEvent={props.deleteEvent}
-          event={event}
-          isFirst={props.isFirst}
-          key={event.key}
-        />
-      ))}
-    </div>
-  );
-}
+  // bugs
+  'bugs',
+  'new_bugs',
+  'reliability_rating',
+  'new_reliability_rating',
+
+  // vulnerabilities
+  'vulnerabilities',
+  'new_vulnerabilities',
+  'security_rating',
+  'new_security_rating',
+
+  // code smells
+  'code_smells',
+  'new_code_smells',
+  'sqale_rating',
+  'new_maintainability_rating',
+  'sqale_index',
+  'new_technical_debt',
+
+  // coverage
+  'coverage',
+  'new_coverage',
+  'new_lines_to_cover',
+  'tests',
+
+  // duplications
+  'duplicated_lines_density',
+  'new_duplicated_lines_density',
+  'duplicated_blocks',
+
+  // size
+  'ncloc',
+  'ncloc_language_distribution',
+  'new_lines'
+];
+
+export const HISTORY_METRICS_LIST = [
+  'sqale_index',
+  'duplicated_lines_density',
+  'ncloc',
+  'coverage'
+];

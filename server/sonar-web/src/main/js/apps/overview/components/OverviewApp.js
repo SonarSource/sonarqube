@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import moment from 'moment';
 import QualityGate from '../qualityGate/QualityGate';
@@ -26,73 +27,46 @@ import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
 import Meta from './../meta/Meta';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getTimeMachineData } from '../../../api/time-machine';
+import { getAllTimeMachineData } from '../../../api/time-machine';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
 import { getLeakPeriod } from '../../../helpers/periods';
-import { ComponentType } from '../propTypes';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import { getGraph } from '../../../helpers/storage';
+import { METRICS, HISTORY_METRICS_LIST } from '../utils';
+import { GRAPHS_METRICS } from '../../projectActivity/utils';
+import type { Component, History, MeasuresList, Period } from '../types';
 import '../styles.css';
 
-const METRICS = [
-  // quality gate
-  'alert_status',
-  'quality_gate_details',
+type Props = {
+  component: Component
+};
 
-  // bugs
-  'bugs',
-  'new_bugs',
-  'reliability_rating',
-  'new_reliability_rating',
-
-  // vulnerabilities
-  'vulnerabilities',
-  'new_vulnerabilities',
-  'security_rating',
-  'new_security_rating',
-
-  // code smells
-  'code_smells',
-  'new_code_smells',
-  'sqale_rating',
-  'new_maintainability_rating',
-  'sqale_index',
-  'new_technical_debt',
-
-  // coverage
-  'coverage',
-  'new_coverage',
-  'new_lines_to_cover',
-  'tests',
-
-  // duplications
-  'duplicated_lines_density',
-  'new_duplicated_lines_density',
-  'duplicated_blocks',
-
-  // size
-  'ncloc',
-  'ncloc_language_distribution',
-  'new_lines'
-];
-
-const HISTORY_METRICS_LIST = ['sqale_index', 'duplicated_lines_density', 'ncloc', 'coverage'];
+type State = {
+  history?: History,
+  historyStartDate?: Date,
+  loading: boolean,
+  measures: MeasuresList,
+  periods?: Array<Period>
+};
 
 export default class OverviewApp extends React.PureComponent {
-  static propTypes = {
-    component: ComponentType.isRequired
-  };
-
-  state = {
-    loading: true
+  mounted: boolean;
+  props: Props;
+  state: State = {
+    loading: true,
+    measures: []
   };
 
   componentDidMount() {
     this.mounted = true;
-    document.querySelector('html').classList.add('dashboard-page');
+    const domElement = document.querySelector('html');
+    if (domElement) {
+      domElement.classList.add('dashboard-page');
+    }
     this.loadMeasures(this.props.component.key).then(() => this.loadHistory(this.props.component));
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (this.props.component.key !== prevProps.component.key) {
       this.loadMeasures(this.props.component.key).then(() =>
         this.loadHistory(this.props.component)
@@ -102,10 +76,13 @@ export default class OverviewApp extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
-    document.querySelector('html').classList.remove('dashboard-page');
+    const domElement = document.querySelector('html');
+    if (domElement) {
+      domElement.classList.remove('dashboard-page');
+    }
   }
 
-  loadMeasures(componentKey) {
+  loadMeasures(componentKey: string) {
     this.setState({ loading: true });
 
     return getMeasuresAndMeta(componentKey, METRICS, {
@@ -121,10 +98,11 @@ export default class OverviewApp extends React.PureComponent {
     });
   }
 
-  loadHistory(component) {
-    return getTimeMachineData(component.key, HISTORY_METRICS_LIST).then(r => {
+  loadHistory(component: Component) {
+    const metrics = HISTORY_METRICS_LIST.concat(GRAPHS_METRICS[getGraph()]);
+    return getAllTimeMachineData(component.key, metrics).then(r => {
       if (this.mounted) {
-        const history = {};
+        const history: History = {};
         r.measures.forEach(measure => {
           const measureHistory = measure.history.map(analysis => ({
             date: moment(analysis.date).toDate(),
@@ -174,7 +152,7 @@ export default class OverviewApp extends React.PureComponent {
           </div>
 
           <div className="page-sidebar-fixed">
-            <Meta component={component} measures={measures} />
+            <Meta component={component} history={history} measures={measures} />
           </div>
         </div>
       </div>

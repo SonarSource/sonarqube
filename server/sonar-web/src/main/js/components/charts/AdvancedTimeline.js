@@ -35,17 +35,19 @@ type Props = {
   endDate: ?Date,
   events?: Array<Event>,
   eventSize?: number,
-  formatYTick: number => string,
-  formatValue: number => string,
+  disableZoom?: boolean,
+  formatYTick?: number => string,
+  hideGrid?: boolean,
+  hideXAxis?: boolean,
   height: number,
   width: number,
-  leakPeriodDate: Date,
+  leakPeriodDate?: Date,
   padding: Array<number>,
   series: Array<Serie>,
   showAreas?: boolean,
   showEventMarkers?: boolean,
   startDate: ?Date,
-  updateZoom: (start: ?Date, endDate: ?Date) => void,
+  updateZoom?: (start: ?Date, endDate: ?Date) => void,
   zoomSpeed: number
 };
 
@@ -112,10 +114,12 @@ export default class AdvancedTimeline extends React.PureComponent {
     const rightPos = xRange[1] + Math.round(speed * evt.deltaY * (1 - mouseXPos));
     const startDate = leftPos > maxXRange[0] ? xScale.invert(leftPos) : null;
     const endDate = rightPos < maxXRange[1] ? xScale.invert(rightPos) : null;
+    // $FlowFixMe updateZoom can't be undefined at this point
     this.props.updateZoom(startDate, endDate);
   };
 
   renderHorizontalGrid = (xScale: Scale, yScale: Scale) => {
+    const { formatYTick } = this.props;
     const hasTicks = typeof yScale.ticks === 'function';
     const ticks = hasTicks ? yScale.ticks(4) : yScale.domain();
 
@@ -127,15 +131,16 @@ export default class AdvancedTimeline extends React.PureComponent {
       <g>
         {ticks.map(tick => (
           <g key={tick}>
-            <text
-              className="line-chart-tick line-chart-tick-x"
-              dx="-1em"
-              dy="0.3em"
-              textAnchor="end"
-              x={xScale.range()[0]}
-              y={yScale(tick)}>
-              {this.props.formatYTick(tick)}
-            </text>
+            {formatYTick != null &&
+              <text
+                className="line-chart-tick line-chart-tick-x"
+                dx="-1em"
+                dy="0.3em"
+                textAnchor="end"
+                x={xScale.range()[0]}
+                y={yScale(tick)}>
+                {formatYTick(tick)}
+              </text>}
             <line
               className="line-chart-grid"
               x1={xScale.range()[0]}
@@ -149,7 +154,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderTicks = (xScale: Scale, yScale: Scale) => {
+  renderXAxisTicks = (xScale: Scale, yScale: Scale) => {
     const format = xScale.tickFormat(7);
     const ticks = xScale.ticks(7);
     const y = yScale.range()[0];
@@ -169,9 +174,6 @@ export default class AdvancedTimeline extends React.PureComponent {
   };
 
   renderLeak = (xScale: Scale, yScale: Scale) => {
-    if (!this.props.leakPeriodDate) {
-      return null;
-    }
     const yRange = yScale.range();
     const xRange = xScale.range();
     const leakWidth = xRange[xRange.length - 1] - xScale(this.props.leakPeriodDate);
@@ -282,20 +284,21 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
 
     const { maxXRange, xScale, yScale } = this.getScales();
+    const zoomEnabled = !this.props.disableZoom && this.props.updateZoom != null;
     const isZoomed = this.props.startDate || this.props.endDate;
     return (
       <svg
         className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
         width={this.props.width}
         height={this.props.height}>
-        {this.renderClipPath(xScale, yScale)}
+        {zoomEnabled && this.renderClipPath(xScale, yScale)}
         <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-          {this.renderLeak(xScale, yScale)}
-          {this.renderHorizontalGrid(xScale, yScale)}
-          {this.renderTicks(xScale, yScale)}
+          {this.props.leakPeriodDate != null && this.renderLeak(xScale, yScale)}
+          {!this.props.hideGrid && this.renderHorizontalGrid(xScale, yScale)}
+          {!this.props.hideXAxis && this.renderXAxisTicks(xScale, yScale)}
           {this.props.showAreas && this.renderAreas(xScale, yScale)}
           {this.renderLines(xScale, yScale)}
-          {this.renderZoomOverlay(xScale, yScale, maxXRange)}
+          {zoomEnabled && this.renderZoomOverlay(xScale, yScale, maxXRange)}
           {this.props.showEventMarkers && this.renderEvents(xScale, yScale)}
         </g>
       </svg>
