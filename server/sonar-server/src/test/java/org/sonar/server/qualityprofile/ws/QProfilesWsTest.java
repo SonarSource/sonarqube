@@ -98,15 +98,6 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_set_default_action() {
-    WebService.Action setDefault = controller.action("set_default");
-    assertThat(setDefault).isNotNull();
-    assertThat(setDefault.isPost()).isTrue();
-    assertThat(setDefault.params()).hasSize(4);
-    assertThat(setDefault.param("organization").since()).isEqualTo("6.4");
-  }
-
-  @Test
   public void define_create_action() {
     WebService.Action create = controller.action("create");
     assertThat(create).isNotNull();

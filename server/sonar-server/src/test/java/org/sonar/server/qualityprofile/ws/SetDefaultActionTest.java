@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -42,8 +44,12 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
 public class SetDefaultActionTest {
+
+  private static final String XOO_1_KEY = "xoo1";
+  private static final String XOO_2_KEY = "xoo2";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -52,15 +58,14 @@ public class SetDefaultActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private String xoo1Key = "xoo1";
-  private String xoo2Key = "xoo2";
-  private WsActionTester tester;
   private DefaultOrganizationProvider defaultOrganizationProvider;
   private DbClient dbClient;
   private QProfileWsSupport wsSupport;
-  private OrganizationDto organization;
-  private SetDefaultAction underTest;
 
+  private SetDefaultAction underTest;
+  private WsActionTester ws;
+
+  private OrganizationDto organization;
   /** Single, default quality profile for language xoo1 */
   private QProfileDto xoo1Profile;
   /** Parent quality profile for language xoo2 (not a default) */
@@ -75,60 +80,74 @@ public class SetDefaultActionTest {
     wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
     organization = OrganizationTesting.newOrganizationDto();
     db.organizations().insert(organization);
-    underTest = new SetDefaultAction(LanguageTesting.newLanguages(xoo1Key, xoo2Key), dbClient, userSessionRule, wsSupport);
+    underTest = new SetDefaultAction(LanguageTesting.newLanguages(XOO_1_KEY, XOO_2_KEY), dbClient, userSessionRule, wsSupport);
 
     String organizationUuid = organization.getUuid();
     xoo1Profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationUuid)
-      .setLanguage(xoo1Key);
+      .setLanguage(XOO_1_KEY);
     xoo2Profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationUuid)
-      .setLanguage(xoo2Key);
+      .setLanguage(XOO_2_KEY);
     xoo2Profile2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organizationUuid)
-      .setLanguage(xoo2Key)
+      .setLanguage(XOO_2_KEY)
       .setParentKee(xoo2Profile.getKee());
     dbClient.qualityProfileDao().insert(db.getSession(), xoo1Profile, xoo2Profile, xoo2Profile2);
     db.commit();
     db.qualityProfiles().setAsDefault(xoo1Profile, xoo2Profile2);
 
-    tester = new WsActionTester(underTest);
+    ws = new WsActionTester(underTest);
+  }
+
+  @Test
+  public void definition() {
+    WebService.Action definition = ws.getDef();
+
+    assertThat(definition).isNotNull();
+    assertThat(definition.isPost()).isTrue();
+    assertThat(definition.params()).extracting(Param::key).containsExactlyInAnyOrder("profile", "profileName", "language", "organization");
+    assertThat(definition.param("organization").since()).isEqualTo("6.4");
+    Param profile = definition.param("profile");
+    assertThat(profile.deprecatedKey()).isEqualTo("profileKey");
+    assertThat(definition.param("profileName").deprecatedSince()).isEqualTo("6.5");
+    assertThat(definition.param("language").deprecatedSince()).isEqualTo("6.5");
   }
 
   @Test
   public void set_default_profile_using_key() throws Exception {
     logInAsQProfileAdministrator();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
+    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
+    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile2.getKee());
 
-    TestResponse response = tester.newRequest()
+    TestResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", xoo2Profile.getKee()).execute();
+      .setParam(PARAM_PROFILE, xoo2Profile.getKee()).execute();
 
     assertThat(response.getInput()).isEmpty();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile.getKee());
+    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
+    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile.getKee());
 
     // One more time!
-    TestResponse response2 = tester.newRequest()
+    TestResponse response2 = ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", xoo2Profile.getKee()).execute();
+      .setParam(PARAM_PROFILE, xoo2Profile.getKee()).execute();
 
     assertThat(response2.getInput()).isEmpty();
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile.getKee());
+    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
+    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile.getKee());
   }
 
   @Test
   public void set_default_profile_using_language_and_name() throws Exception {
     logInAsQProfileAdministrator();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
+    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
+    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile2.getKee());
 
-    TestResponse response = tester.newRequest().setMethod("POST")
+    TestResponse response = ws.newRequest().setMethod("POST")
       .setParam("language", xoo2Profile.getLanguage())
       .setParam("profileName", xoo2Profile.getName())
       .setParam("organization", organization.getKey())
@@ -136,8 +155,8 @@ public class SetDefaultActionTest {
 
     assertThat(response.getInput()).isEmpty();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile.getKee());
+    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
+    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile.getKee());
   }
 
   @Test
@@ -151,20 +170,20 @@ public class SetDefaultActionTest {
 
     QProfileDto profileOrg1Old = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization1.getUuid())
-      .setLanguage(xoo1Key);
+      .setLanguage(XOO_1_KEY);
     QProfileDto profileOrg1New = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization1.getUuid())
-      .setLanguage(xoo1Key);
+      .setLanguage(XOO_1_KEY);
     QProfileDto profileOrg2 = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization2.getUuid())
-      .setLanguage(xoo1Key);
+      .setLanguage(XOO_1_KEY);
     db.qualityProfiles().insert(profileOrg1Old, profileOrg1New, profileOrg2);
     db.qualityProfiles().setAsDefault(profileOrg1Old, profileOrg2);
 
-    checkDefaultProfile(organization1, xoo1Key, profileOrg1Old.getKee());
-    checkDefaultProfile(organization2, xoo1Key, profileOrg2.getKee());
+    checkDefaultProfile(organization1, XOO_1_KEY, profileOrg1Old.getKee());
+    checkDefaultProfile(organization2, XOO_1_KEY, profileOrg2.getKee());
 
-    TestResponse response = tester.newRequest().setMethod("POST")
+    TestResponse response = ws.newRequest().setMethod("POST")
       .setParam("language", profileOrg1New.getLanguage())
       .setParam("profileName", profileOrg1New.getName())
       .setParam("organization", organization1.getKey())
@@ -173,8 +192,8 @@ public class SetDefaultActionTest {
     assertThat(response.getInput()).isEmpty();
     assertThat(response.getStatus()).isEqualTo(204);
 
-    checkDefaultProfile(organization1, xoo1Key, profileOrg1New.getKee());
-    checkDefaultProfile(organization2, xoo1Key, profileOrg2.getKee());
+    checkDefaultProfile(organization1, XOO_1_KEY, profileOrg1New.getKee());
+    checkDefaultProfile(organization2, XOO_1_KEY, profileOrg2.getKee());
   }
 
   @Test
@@ -184,12 +203,12 @@ public class SetDefaultActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'unknown-profile-666' does not exist");
 
-    tester.newRequest().setMethod("POST")
-      .setParam("profileKey", "unknown-profile-666")
+    ws.newRequest().setMethod("POST")
+      .setParam(PARAM_PROFILE, "unknown-profile-666")
       .execute();
 
-    checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
-    checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
+    checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
+    checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile2.getKee());
   }
 
   @Test
@@ -197,15 +216,15 @@ public class SetDefaultActionTest {
     logInAsQProfileAdministrator();
 
     try {
-      TestResponse response = tester.newRequest().setMethod("POST")
-        .setParam("language", xoo2Key)
+      TestResponse response = ws.newRequest().setMethod("POST")
+        .setParam("language", XOO_2_KEY)
         .setParam("profileName", "Unknown")
         .execute();
       Fail.failBecauseExceptionWasNotThrown(NotFoundException.class);
     } catch (NotFoundException nfe) {
       assertThat(nfe).hasMessage("Quality Profile for language 'xoo2' and name 'Unknown' does not exist");
-      checkDefaultProfile(organization, xoo1Key, xoo1Profile.getKee());
-      checkDefaultProfile(organization, xoo2Key, xoo2Profile2.getKee());
+      checkDefaultProfile(organization, XOO_1_KEY, xoo1Profile.getKee());
+      checkDefaultProfile(organization, XOO_2_KEY, xoo2Profile2.getKee());
     }
   }
 
@@ -216,8 +235,8 @@ public class SetDefaultActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("When providing a quality profile key, neither of organization/language/name must be set");
 
-    tester.newRequest().setMethod("POST")
-      .setParam("profileKey", xoo2Profile.getKee())
+    ws.newRequest().setMethod("POST")
+      .setParam(PARAM_PROFILE, xoo2Profile.getKee())
       .setParam("organization", organization.getKey())
       .execute();
   }
@@ -229,8 +248,8 @@ public class SetDefaultActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    tester.newRequest().setMethod("POST")
-      .setParam("profileKey", xoo2Profile.getKee())
+    ws.newRequest().setMethod("POST")
+      .setParam(PARAM_PROFILE, xoo2Profile.getKee())
       .execute();
   }
 
@@ -239,8 +258,8 @@ public class SetDefaultActionTest {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
-    tester.newRequest().setMethod("POST")
-      .setParam("profileKey", xoo2Profile.getKee())
+    ws.newRequest().setMethod("POST")
+      .setParam(PARAM_PROFILE, xoo2Profile.getKee())
       .execute();
   }
 
