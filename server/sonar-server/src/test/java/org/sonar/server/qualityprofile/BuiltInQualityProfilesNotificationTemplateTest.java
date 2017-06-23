@@ -45,6 +45,24 @@ public class BuiltInQualityProfilesNotificationTemplateTest {
   }
 
   @Test
+  public void notification_contains_a_subject() {
+    String profileName = newProfileName();
+    String languageKey = newLanguageKey();
+    String languageName = newLanguageName();
+    BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification()
+      .addProfile(Profile.newBuilder()
+        .setProfileName(profileName)
+        .setLanguageKey(languageKey)
+        .setLanguageName(languageName)
+        .setNewRules(2)
+        .build());
+
+    EmailMessage emailMessage = underTest.format(notification.serialize());
+
+    assertThat(emailMessage.getSubject()).isEqualTo("Built-in quality profiles have been updated");
+  }
+
+  @Test
   public void notification_contains_list_of_new_rules() {
     String profileName = newProfileName();
     String languageKey = newLanguageKey();

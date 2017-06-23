@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.Date;
 import org.sonar.api.notifications.Notification;
@@ -29,6 +28,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 import static org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.parse;
@@ -88,13 +88,13 @@ public class BuiltInQualityProfilesNotificationTemplate extends EmailTemplate {
     // And finally return the email that will be sent
     return new EmailMessage()
       .setMessageId(BUILT_IN_QUALITY_PROFILES)
-      .setSubject("empty")
+      .setSubject("Built-in quality profiles have been updated")
       .setMessage(message.toString());
   }
 
   public String encode(String text) {
     try {
-      return URLEncoder.encode(text, StandardCharsets.UTF_8.name());
+      return URLEncoder.encode(text, UTF_8.name());
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException(String.format("Cannot encode %s", text), e);
     }

@@ -131,6 +131,10 @@ public class BuiltInQualityProfilesNotificationTest {
       .extracting(this::getMimeMessage)
       .extracting(this::getAllRecipients)
       .containsOnly("<" + profileAdmin1.getEmail() + ">", "<" + profileAdmin2.getEmail() + ">");
+    assertThat(messages)
+      .extracting(this::getMimeMessage)
+      .extracting(this::getSubject)
+      .containsOnly("[SONARQUBE] Built-in quality profiles have been updated");
     String url = orchestrator.getServer().getUrl();
     assertThat(messages.get(0).getMimeMessage().getContent().toString())
       .containsSequence(
@@ -191,6 +195,14 @@ public class BuiltInQualityProfilesNotificationTest {
   private String getAllRecipients(MimeMessage mimeMessage) {
     try {
       return mimeMessage.getHeader("To", null);
+    } catch (MessagingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String getSubject(MimeMessage mimeMessage) {
+    try {
+      return mimeMessage.getSubject();
     } catch (MessagingException e) {
       throw new RuntimeException(e);
     }
