@@ -33,7 +33,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.process.AllProcessesCommands;
 import org.sonar.process.ProcessId;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;

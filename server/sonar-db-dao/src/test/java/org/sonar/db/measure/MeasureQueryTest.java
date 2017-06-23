@@ -19,13 +19,12 @@
  */
 package org.sonar.db.measure;
 
-import java.util.Collections;
-import org.assertj.core.api.Java6Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasureQueryTest {
@@ -34,7 +33,7 @@ public class MeasureQueryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void create_query_from_projects() throws Exception {
+  public void create_query_from_projects() {
     MeasureQuery query = MeasureQuery.builder().setProjectUuids(asList("PROJECT_1", "PROJECT_2")).build();
 
     assertThat(query.getProjectUuids()).containsOnly("PROJECT_1", "PROJECT_2");
@@ -44,7 +43,7 @@ public class MeasureQueryTest {
   }
 
   @Test
-  public void create_query_from_project_and_components() throws Exception {
+  public void create_query_from_project_and_components() {
     MeasureQuery query = MeasureQuery.builder().setComponentUuids("PROJECT_1", asList("FILE_1", "FILE_2")).build();
 
     assertThat(query.getProjectUuids()).containsOnly("PROJECT_1");
@@ -56,7 +55,7 @@ public class MeasureQueryTest {
   }
 
   @Test
-  public void create_query_from_single_component_uuid() throws Exception {
+  public void create_query_from_single_component_uuid() {
     MeasureQuery query = MeasureQuery.builder().setComponentUuid("FILE_1").build();
 
     assertThat(query.getComponentUuids()).containsOnly("FILE_1");
@@ -67,7 +66,7 @@ public class MeasureQueryTest {
   }
 
   @Test
-  public void create_query_from_metric_ids() throws Exception {
+  public void create_query_from_metric_ids() {
     MeasureQuery query = MeasureQuery.builder().setProjectUuids(asList("PROJECT_1", "PROJECT_2")).setMetricIds(asList(10, 11)).build();
 
     assertThat(query.getMetricIds()).containsOnly(10, 11);
@@ -75,7 +74,7 @@ public class MeasureQueryTest {
   }
 
   @Test
-  public void create_query_from_metric_keys() throws Exception {
+  public void create_query_from_metric_keys() {
     MeasureQuery query = MeasureQuery.builder().setProjectUuids(asList("PROJECT_1", "PROJECT_2")).setMetricKeys(asList("M1", "M2")).build();
 
     assertThat(query.getMetricKeys()).containsOnly("M1", "M2");
@@ -83,54 +82,54 @@ public class MeasureQueryTest {
   }
 
   @Test
-  public void create_query_from_person_id() throws Exception {
+  public void create_query_from_person_id() {
     MeasureQuery query = MeasureQuery.builder().setProjectUuids(asList("PROJECT_1", "PROJECT_2")).setPersonId(100L).build();
 
     assertThat(query.getPersonId()).isEqualTo(100L);
   }
 
   @Test
-  public void return_empty_when_metrics_are_empty() throws Exception {
-    Java6Assertions.assertThat(MeasureQuery.builder()
+  public void return_empty_when_metrics_are_empty() {
+    assertThat(MeasureQuery.builder()
       .setProjectUuids(asList("PROJECT_1", "PROJECT_2"))
-      .setMetricKeys(Collections.emptyList())
+      .setMetricKeys(emptyList())
       .build().returnsEmpty()).isTrue();
 
-    Java6Assertions.assertThat(MeasureQuery.builder()
+    assertThat(MeasureQuery.builder()
       .setProjectUuids(asList("PROJECT_1", "PROJECT_2"))
-      .setMetricIds(Collections.emptyList())
+      .setMetricIds(emptyList())
       .build().returnsEmpty()).isTrue();
   }
 
   @Test
-  public void return_empty_when_projects_are_empty() throws Exception {
-    Java6Assertions.assertThat(MeasureQuery.builder()
-      .setProjectUuids(Collections.emptyList())
+  public void return_empty_when_projects_are_empty() {
+    assertThat(MeasureQuery.builder()
+      .setProjectUuids(emptyList())
       .build().returnsEmpty()).isTrue();
   }
 
   @Test
-  public void return_empty_when_components_are_empty() throws Exception {
-    Java6Assertions.assertThat(MeasureQuery.builder()
-      .setComponentUuids("PROJECT", Collections.emptyList())
+  public void return_empty_when_components_are_empty() {
+    assertThat(MeasureQuery.builder()
+      .setComponentUuids("PROJECT", emptyList())
       .build().returnsEmpty()).isTrue();
   }
 
   @Test
-  public void fail_when_no_component_uuid_filter() throws Exception {
+  public void fail_when_no_component_uuid_filter() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("At least one filter on component UUID is expected");
     MeasureQuery.builder().build();
   }
 
   @Test
-  public void fail_when_component_uuids_without_project_uuid() throws Exception {
+  public void fail_when_component_uuids_without_project_uuid() {
     expectedException.expect(NullPointerException.class);
     MeasureQuery.builder().setComponentUuids(null, asList("FILE_1", "FILE_2")).build();
   }
 
   @Test
-  public void fail_when_using_metric_ids_and_metric_keys() throws Exception {
+  public void fail_when_using_metric_ids_and_metric_keys() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Metric IDs and keys must not be set both");
     MeasureQuery.builder().setMetricIds(asList(10, 11)).setMetricKeys(asList("M1", "M2")).setProjectUuids(asList("PROJECT_1", "PROJECT_2")).build();

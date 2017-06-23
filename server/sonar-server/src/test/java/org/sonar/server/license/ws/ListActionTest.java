@@ -43,7 +43,7 @@ import org.sonarqube.ws.Licenses;
 import org.sonarqube.ws.Licenses.ListWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.entry;
+import static org.assertj.core.api.Assertions.entry;
 import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.db.property.PropertyTesting.newGlobalPropertyDto;

@@ -1380,11 +1380,11 @@
     </profile>
 
     <profile>
-      <!-- integration, performance and upgrade tests -->
+      <!-- integration tests -->
       <id>tests</id>
       <modules>
-        <module>it</module>
         <module>tests</module>
+        <module>tests/plugins</module>
       </modules>
     </profile>
   </profiles>

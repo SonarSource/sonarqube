@@ -45,7 +45,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;

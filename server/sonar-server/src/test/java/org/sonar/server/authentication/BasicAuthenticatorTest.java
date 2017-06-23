@@ -35,7 +35,7 @@ import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.usertoken.UserTokenAuthenticator;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

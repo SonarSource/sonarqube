@@ -13,8 +13,8 @@ set -euo pipefail
 ORCHESTRATOR_CONFIG_URL=$1
 shift 1
 
-cd tests/upgrade
+cd tests
 mvn verify \
   -Pwith-db-drivers \
   -Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL \
-  -B -e -V $*
+  -Dcategory=Upgrade -B -e -V $*

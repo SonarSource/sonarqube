@@ -50,7 +50,7 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.util.Arrays.stream;
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
