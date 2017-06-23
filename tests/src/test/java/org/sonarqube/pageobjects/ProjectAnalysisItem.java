@@ -39,16 +39,19 @@ public class ProjectAnalysisItem {
   }
 
   public ProjectAnalysisItem shouldHaveDeleteButton() {
+    elt.find(".js-analysis-actions").click();
     elt.find(".js-delete-analysis").shouldBe(visible);
     return this;
   }
 
   public ProjectAnalysisItem shouldNotHaveDeleteButton() {
+    elt.find(".js-analysis-actions").click();
     elt.find(".js-delete-analysis").shouldNotBe(visible);
     return this;
   }
 
   public void delete() {
+    elt.find(".js-analysis-actions").click();
     elt.find(".js-delete-analysis").click();
 
     SelenideElement modal = $(".modal");
@@ -59,7 +62,7 @@ public class ProjectAnalysisItem {
   }
 
   public ProjectAnalysisItem addCustomEvent(String name) {
-    elt.find(".js-create").click();
+    elt.find(".js-analysis-actions").click();
     elt.find(".js-add-event").click();
 
     SelenideElement modal = $(".modal");
@@ -67,30 +70,28 @@ public class ProjectAnalysisItem {
     modal.find("input").setValue(name);
     modal.find("button[type=\"submit\"]").click();
 
-    elt.find(".project-activity-event:last-child").shouldHave(text(name));
-
+    elt.find(".project-activity-event:first-child").shouldHave(text(name));
     return this;
   }
 
-  public ProjectAnalysisItem changeLastEvent(String newName) {
-    SelenideElement lastEvent = elt.find(".project-activity-event:last-child");
-    lastEvent.find(".js-change-event").click();
+  public ProjectAnalysisItem changeFirstEvent(String newName) {
+    SelenideElement firstEvent = elt.find(".project-activity-event:first-child");
+    firstEvent.find(".js-change-event").click();
 
     SelenideElement modal = $(".modal");
     modal.shouldBe(visible);
     modal.find("input").setValue(newName);
     modal.find("button[type=\"submit\"]").click();
 
-    lastEvent.shouldHave(text(newName));
-
+    firstEvent.shouldHave(text(newName));
     return this;
   }
 
-  public ProjectAnalysisItem deleteLastEvent() {
+  public ProjectAnalysisItem deleteFirstEvent() {
     int eventsCount = elt.findAll(".project-activity-event").size();
 
-    SelenideElement lastEvent = elt.find(".project-activity-event:last-child");
-    lastEvent.find(".js-delete-event").click();
+    SelenideElement firstEvent = elt.find(".project-activity-event:first-child");
+    firstEvent.find(".js-delete-event").click();
 
     SelenideElement modal = $(".modal");
     modal.shouldBe(visible);

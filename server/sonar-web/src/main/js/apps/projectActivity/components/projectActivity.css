@@ -46,7 +46,6 @@
 
 .project-activity-graph {
   flex: 1;
-  max-height: 500px;
 }
 
 .project-activity-graph-legends {
@@ -171,7 +170,8 @@
 
 .project-activity-version-badge {
   vertical-align: middle;
-  padding: 4px 8px;
+  padding: 4px 14px 4px 16px;
+  margin-left: -14px;
   border-radius: 2px;
   font-weight: bold;
   font-size: 12px;

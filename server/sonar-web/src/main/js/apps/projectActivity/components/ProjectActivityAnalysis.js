@@ -57,7 +57,7 @@ export default function ProjectActivityAnalysis(props: Props) {
         <div className="project-activity-analysis-actions spacer-left">
           <div className="dropdown display-inline-block">
             <button
-              className="js-analysis-actions button-small dropdown-toggle"
+              className="js-analysis-actions button-small button-compact dropdown-toggle"
               data-toggle="dropdown">
               <i className="icon-settings" />
               {' '}

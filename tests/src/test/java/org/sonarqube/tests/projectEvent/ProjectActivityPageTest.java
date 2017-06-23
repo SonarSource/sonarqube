@@ -72,8 +72,8 @@ public class ProjectActivityPageTest {
     analyzeProject();
     openPage().getLastAnalysis()
       .addCustomEvent("foo")
-      .changeLastEvent("bar")
-      .deleteLastEvent();
+      .changeFirstEvent("bar")
+      .deleteFirstEvent();
   }
 
   @Test
