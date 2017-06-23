@@ -19,33 +19,38 @@
  */
 package org.sonar.scanner.sensor.coverage;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.util.Collection;
 import java.util.Iterator;
+
+import javax.annotation.concurrent.Immutable;
+
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.ImmutableSettings;
 import org.sonar.api.utils.WildcardPattern;
 
+@Immutable
 public class CoverageExclusions implements Startable {
-
   private static final Logger LOG = LoggerFactory.getLogger(CoverageExclusions.class);
 
-  private final Settings settings;
-  private Collection<WildcardPattern> exclusionPatterns;
+  private final Collection<WildcardPattern> exclusionPatterns;
 
-  public CoverageExclusions(Settings settings) {
-    this.settings = settings;
+  public CoverageExclusions(ImmutableSettings settings) {
+    Builder<WildcardPattern> builder = ImmutableList.builder();
+    for (String pattern : settings.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)) {
+      builder.add(WildcardPattern.create(pattern));
+    }
+    exclusionPatterns = builder.build();
   }
 
   @Override
   public void start() {
-    initPatterns();
+    log("Excluded sources for coverage: ", exclusionPatterns);
   }
 
   @Override
@@ -53,9 +58,6 @@ public class CoverageExclusions implements Startable {
     // Nothing to do
   }
 
-  /**
-   * Thread safe
-   */
   public boolean isExcluded(InputFile file) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = exclusionPatterns.iterator();
@@ -63,16 +65,6 @@ public class CoverageExclusions implements Startable {
       found = iterator.next().match(file.relativePath());
     }
     return found;
-  }
-
-  @VisibleForTesting
-  final void initPatterns() {
-    Builder<WildcardPattern> builder = ImmutableList.builder();
-    for (String pattern : settings.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)) {
-      builder.add(WildcardPattern.create(pattern));
-    }
-    exclusionPatterns = builder.build();
-    log("Excluded sources for coverage: ", exclusionPatterns);
   }
 
   private static void log(String title, Collection<WildcardPattern> patterns) {

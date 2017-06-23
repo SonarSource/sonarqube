@@ -20,7 +20,7 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.ImmutableSettings;
 import org.sonar.core.config.IssueExclusionProperties;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
   private List<BlockIssuePattern> blockPatterns;
   private List<String> allFilePatterns;
 
-  public IssueExclusionPatternInitializer(Settings settings) {
+  public IssueExclusionPatternInitializer(ImmutableSettings settings) {
     super(settings);
     loadFileContentPatterns();
   }

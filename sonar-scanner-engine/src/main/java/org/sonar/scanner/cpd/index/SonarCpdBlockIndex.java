@@ -24,11 +24,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -37,6 +34,7 @@ import org.sonar.duplications.index.AbstractCloneIndex;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
+import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.report.ReportPublisher;
@@ -45,17 +43,17 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
   private static final Logger LOG = Loggers.get(SonarCpdBlockIndex.class);
   private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final ReportPublisher publisher;
-  private final Settings settings;
   // Files already tokenized
   private final Set<InputFile> indexedFiles = new HashSet<>();
+  private final CpdSettings settings;
 
-  public SonarCpdBlockIndex(ReportPublisher publisher, Settings settings) {
+  public SonarCpdBlockIndex(ReportPublisher publisher, CpdSettings settings) {
     this.publisher = publisher;
     this.settings = settings;
   }
 
   public void insert(InputFile inputFile, Collection<Block> blocks) {
-    if (isCrossProjectDuplicationEnabled(settings)) {
+    if (settings.isCrossProjectDuplicationEnabled()) {
       int id = ((DefaultInputFile) inputFile).batchId();
       if (publisher.getWriter().hasComponentData(FileStructure.Domain.CPD_TEXT_BLOCKS, id)) {
         throw new UnsupportedOperationException("Trying to save CPD tokens twice for the same file is not supported: " + inputFile.absolutePath());
@@ -86,12 +84,6 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
 
   public boolean isIndexed(InputFile inputFile) {
     return indexedFiles.contains(inputFile);
-  }
-
-  public static boolean isCrossProjectDuplicationEnabled(Settings settings) {
-    return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)
-      // No cross project duplication for branches
-      && StringUtils.isBlank(settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
   }
 
   public Collection<Block> getByInputFile(String resourceKey) {

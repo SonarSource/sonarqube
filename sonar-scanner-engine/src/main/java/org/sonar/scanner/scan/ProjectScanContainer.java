@@ -43,6 +43,7 @@ import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.cpd.CpdExecutor;
+import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
@@ -197,6 +198,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Cpd
       CpdExecutor.class,
+      CpdSettings.class,
       SonarCpdBlockIndex.class,
 
       ScanTaskObservers.class);

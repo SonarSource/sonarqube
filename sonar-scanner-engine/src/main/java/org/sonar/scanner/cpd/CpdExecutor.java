@@ -19,9 +19,8 @@
  */
 package org.sonar.scanner.cpd;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
+import static com.google.common.collect.FluentIterable.from;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +33,6 @@ import java.util.concurrent.TimeoutException;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -50,7 +48,9 @@ import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
 
-import static com.google.common.collect.FluentIterable.from;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 
 /**
  * Runs on the root module, at the end of the project analysis.
@@ -67,12 +67,12 @@ public class CpdExecutor {
   private final SonarCpdBlockIndex index;
   private final ReportPublisher publisher;
   private final InputComponentStore componentStore;
-  private final Settings settings;
   private final ProgressReport progressReport;
+  private final CpdSettings settings;
   private int count;
   private int total;
 
-  public CpdExecutor(Settings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
+  public CpdExecutor(CpdSettings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
@@ -140,29 +140,14 @@ public class CpdExecutor {
 
     List<CloneGroup> filtered;
     if (!"java".equalsIgnoreCase(inputFile.language())) {
-      Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(inputFile.language()));
+      int minTokens = settings.getMinimumTokens(inputFile.language());
+      Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(minTokens);
       filtered = from(duplications).filter(minimumTokensPredicate).toList();
     } else {
       filtered = duplications;
     }
 
     saveDuplications(component, filtered);
-  }
-
-  @VisibleForTesting
-  /**
-   * Not applicable to Java, as the {@link BlockChunker} that it uses does not record start and end units of each block. 
-   * Also, it uses statements instead of tokens. 
-   * @param languageKey
-   * @return
-   */
-  int getMinimumTokens(String languageKey) {
-    int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
-    if (minimumTokens == 0) {
-      minimumTokens = 100;
-    }
-
-    return minimumTokens;
   }
 
   @VisibleForTesting
