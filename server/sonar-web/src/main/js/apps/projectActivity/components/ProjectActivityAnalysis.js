@@ -30,18 +30,17 @@ type Props = {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<*>,
   addVersion: (analysis: string, version: string) => Promise<*>,
   analysis: Analysis,
+  canAdmin: boolean,
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
   isFirst: boolean,
-  canAdmin: boolean
+  version: ?string
 };
 
 export default function ProjectActivityAnalysis(props: Props) {
   const { date, events } = props.analysis;
   const { isFirst, canAdmin } = props;
-
-  const version = events.find(event => event.category === 'VERSION');
 
   return (
     <li className="project-activity-analysis clearfix">
@@ -64,7 +63,7 @@ export default function ProjectActivityAnalysis(props: Props) {
               <i className="icon-dropdown" />
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
-              {version == null &&
+              {props.version == null &&
                 <li>
                   <AddEventForm
                     addEvent={props.addVersion}

@@ -23,13 +23,7 @@ import { debounce, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import StaticGraphs from './StaticGraphs';
-import {
-  GRAPHS_METRICS,
-  datesQueryChanged,
-  generateCoveredLinesMetric,
-  historyQueryChanged
-} from '../utils';
-import { translate } from '../../../helpers/l10n';
+import { datesQueryChanged, generateSeries, historyQueryChanged } from '../utils';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Query } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -57,7 +51,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    const series = this.getSeries(props.measuresHistory);
+    const series = generateSeries(props.measuresHistory, props.query.graph, props.metricsType);
     this.state = {
       graphStartDate: props.query.from || null,
       graphEndDate: props.query.to || null,
@@ -71,8 +65,13 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       nextProps.measuresHistory !== this.props.measuresHistory ||
       historyQueryChanged(this.props.query, nextProps.query)
     ) {
-      const series = this.getSeries(nextProps.measuresHistory);
-      this.setState({ series });
+      this.setState({
+        series: generateSeries(
+          nextProps.measuresHistory,
+          nextProps.query.graph,
+          nextProps.metricsType
+        )
+      });
     }
     if (
       nextProps.query !== this.props.query &&
@@ -81,26 +80,6 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       this.setState({ graphStartDate: nextProps.query.from, graphEndDate: nextProps.query.to });
     }
   }
-
-  getSeries = (measuresHistory: Array<MeasureHistory>): Array<Serie> =>
-    measuresHistory.map(measure => {
-      if (measure.metric === 'uncovered_lines') {
-        return generateCoveredLinesMetric(
-          measure,
-          measuresHistory,
-          GRAPHS_METRICS[this.props.query.graph].indexOf(measure.metric)
-        );
-      }
-      return {
-        name: measure.metric,
-        translatedName: translate('metric', measure.metric, 'name'),
-        style: GRAPHS_METRICS[this.props.query.graph].indexOf(measure.metric),
-        data: measure.history.map(analysis => ({
-          x: analysis.date,
-          y: this.props.metricsType === 'LEVEL' ? analysis.value : Number(analysis.value)
-        }))
-      };
-    });
 
   updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) => {
     if (graphEndDate != null && graphStartDate != null) {

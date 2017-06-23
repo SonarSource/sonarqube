@@ -19,6 +19,7 @@
  */
 // @flow
 import moment from 'moment';
+import { sortBy } from 'lodash';
 import {
   cleanQuery,
   parseAsDate,
@@ -29,6 +30,7 @@ import {
 import { translate } from '../../helpers/l10n';
 import type { Analysis, MeasureHistory, Query } from './types';
 import type { RawQuery } from '../../helpers/query';
+import type { Serie } from '../../components/charts/AdvancedTimeline';
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
 export const GRAPH_TYPES = ['overview', 'coverage', 'duplications', 'remediation'];
@@ -69,6 +71,30 @@ export const generateCoveredLinesMetric = (
   };
 };
 
+export const generateSeries = (
+  measuresHistory: Array<MeasureHistory>,
+  graph: string,
+  dataType: string
+): Array<Serie> =>
+  measuresHistory.map(measure => {
+    if (measure.metric === 'uncovered_lines') {
+      return generateCoveredLinesMetric(
+        measure,
+        measuresHistory,
+        GRAPHS_METRICS[graph].indexOf(measure.metric)
+      );
+    }
+    return {
+      name: measure.metric,
+      translatedName: translate('metric', measure.metric, 'name'),
+      style: GRAPHS_METRICS[graph].indexOf(measure.metric),
+      data: measure.history.map(analysis => ({
+        x: analysis.date,
+        y: dataType === 'LEVEL' ? analysis.value : Number(analysis.value)
+      }))
+    };
+  });
+
 export const getAnalysesByVersionByDay = (
   analyses: Array<Analysis>
 ): Array<{
@@ -84,10 +110,18 @@ export const getAnalysesByVersionByDay = (
     if (!currentVersion.byDay[day]) {
       currentVersion.byDay[day] = [];
     }
-    currentVersion.byDay[day].push(analysis);
-    const versionEvent = analysis.events.find(event => event.category === 'VERSION');
-    if (versionEvent) {
-      currentVersion.version = versionEvent.name;
+    const sortedEvents = sortBy(
+      analysis.events,
+      // versions last
+      event => (event.category === 'VERSION' ? 1 : 0),
+      // then the rest sorted by category
+      'category'
+    );
+    currentVersion.byDay[day].push({ ...analysis, events: sortedEvents });
+
+    const lastEvent = sortedEvents[sortedEvents.length - 1];
+    if (lastEvent && lastEvent.category === 'VERSION') {
+      currentVersion.version = lastEvent.name;
       acc.push({ version: undefined, byDay: {} });
     }
     return acc;

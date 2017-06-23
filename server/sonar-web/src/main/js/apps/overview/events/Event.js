@@ -19,33 +19,26 @@
  */
 // @flow
 import React from 'react';
-import Event from './Event';
-import './projectActivity.css';
-import type { Event as EventType } from '../types';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import type { Event as EventType } from '../../projectActivity/types';
+import { translate } from '../../../helpers/l10n';
 
-type Props = {
-  analysis?: string,
-  canAdmin?: boolean,
-  changeEvent?: (event: string, name: string) => Promise<*>,
-  deleteEvent?: (analysis: string, event: string) => Promise<*>,
-  events: Array<EventType>,
-  isFirst?: boolean
-};
+export default function Event(props: { event: EventType }) {
+  const { event } = props;
 
-export default function Events(props: Props) {
+  if (event.category === 'VERSION') {
+    return <span className="overview-analysis-event badge">{props.event.name}</span>;
+  }
+
   return (
-    <div className="project-activity-events">
-      {props.events.map(event => (
-        <Event
-          analysis={props.analysis}
-          canAdmin={props.canAdmin}
-          changeEvent={props.changeEvent}
-          deleteEvent={props.deleteEvent}
-          event={event}
-          isFirst={props.isFirst}
-          key={event.key}
-        />
-      ))}
+    <div className="overview-analysis-event">
+      <TooltipsContainer>
+        <span>
+          <span className="note">{translate('event.category', event.category)}:</span>
+          {' '}
+          <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
+        </span>
+      </TooltipsContainer>
     </div>
   );
 }
