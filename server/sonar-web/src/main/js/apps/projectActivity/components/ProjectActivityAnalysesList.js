@@ -19,11 +19,11 @@
  */
 // @flow
 import React from 'react';
-import { groupBy } from 'lodash';
 import moment from 'moment';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { translate } from '../../../helpers/l10n';
+import { getAnalysesByVersionByDay } from '../utils';
 import type { Analysis } from '../types';
 
 type Props = {
@@ -50,35 +50,44 @@ export default function ProjectActivityAnalysesList(props: Props) {
     );
   }
 
-  const firstAnalysis = props.analyses[0];
-  const byDay = groupBy(props.analyses, analysis => moment(analysis.date).startOf('day').valueOf());
+  const firstAnalysisKey = props.analyses[0].key;
+  const byVersionByDay = getAnalysesByVersionByDay(props.analyses);
   return (
     <div className={props.className}>
-      <ul className="project-activity-days-list">
-        {Object.keys(byDay).map(day => (
-          <li
-            key={day}
-            className="project-activity-day"
-            data-day={moment(Number(day)).format('YYYY-MM-DD')}>
-            <div className="project-activity-date">
-              <FormattedDate date={Number(day)} format="LL" />
-            </div>
-
-            <ul className="project-activity-analyses-list">
-              {byDay[day] != null &&
-                byDay[day].map(analysis => (
-                  <ProjectActivityAnalysis
-                    addCustomEvent={props.addCustomEvent}
-                    addVersion={props.addVersion}
-                    analysis={analysis}
-                    canAdmin={props.canAdmin}
-                    changeEvent={props.changeEvent}
-                    deleteAnalysis={props.deleteAnalysis}
-                    deleteEvent={props.deleteEvent}
-                    isFirst={analysis === firstAnalysis}
-                    key={analysis.key}
-                  />
-                ))}
+      <ul className="project-activity-versions-list">
+        {byVersionByDay.map((version, idx) => (
+          <li key={idx + version.version}>
+            {version.version &&
+              <span className="badge project-activity-version-badge spacer-top big-spacer-bottom">
+                {version.version}
+              </span>}
+            <ul className="project-activity-days-list">
+              {Object.keys(version.byDay).map(day => (
+                <li
+                  key={day}
+                  className="project-activity-day"
+                  data-day={moment(Number(day)).format('YYYY-MM-DD')}>
+                  <div className="project-activity-date">
+                    <FormattedDate date={Number(day)} format="LL" />
+                  </div>
+                  <ul className="project-activity-analyses-list">
+                    {version.byDay[day] != null &&
+                      version.byDay[day].map(analysis => (
+                        <ProjectActivityAnalysis
+                          addCustomEvent={props.addCustomEvent}
+                          addVersion={props.addVersion}
+                          analysis={analysis}
+                          canAdmin={props.canAdmin}
+                          changeEvent={props.changeEvent}
+                          deleteAnalysis={props.deleteAnalysis}
+                          deleteEvent={props.deleteEvent}
+                          isFirst={analysis.key === firstAnalysisKey}
+                          key={analysis.key}
+                        />
+                      ))}
+                  </ul>
+                </li>
+              ))}
             </ul>
           </li>
         ))}

@@ -72,15 +72,17 @@ public class ProjectActivityPageTest {
     analyzeProject();
     openPage().getLastAnalysis()
       .addCustomEvent("foo")
-      .changeLastEvent("bar")
-      .deleteLastEvent();
+      .changeFirstEvent("bar")
+      .deleteFirstEvent();
   }
 
   @Test
   public void delete_analysis() {
     analyzeProject();
     analyzeProject();
-    openPage().getFirstAnalysis().delete();
+    ProjectActivityPage page = openPage();
+    page.getAnalyses().shouldHaveSize(2);
+    page.getFirstAnalysis().delete();
   }
 
   private ProjectActivityPage openPage() {
