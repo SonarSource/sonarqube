@@ -111,7 +111,9 @@ export const parseQuery = (urlQuery: RawQuery): Query => ({
 export const serializeQuery = (query: Query): RawQuery =>
   cleanQuery({
     category: serializeString(query.category),
-    project: serializeString(query.project)
+    from: serializeDate(query.from),
+    project: serializeString(query.project),
+    to: serializeDate(query.to)
   });
 
 export const serializeUrlQuery = (query: Query): RawQuery => {
