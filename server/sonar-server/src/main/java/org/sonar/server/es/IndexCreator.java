@@ -29,6 +29,9 @@ import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.es.IndexDefinitions.Index;
+import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
 /**
  * Creates/deletes all indices in Elasticsearch during server startup.
@@ -38,32 +41,39 @@ public class IndexCreator implements Startable {
 
   private static final Logger LOGGER = Loggers.get(IndexCreator.class);
 
-  /**
-   * Internal setting stored on index to know its version. It's used to re-create index
-   * when something changed between versions.
-   */
-  private static final String SETTING_HASH = "sonar_hash";
-
+  private final MetadataIndexDefinition metadataIndexDefinition;
+  private final MetadataIndex metadataIndex;
   private final EsClient client;
   private final IndexDefinitions definitions;
 
-  public IndexCreator(EsClient client, IndexDefinitions definitions) {
+  public IndexCreator(EsClient client, IndexDefinitions definitions, MetadataIndexDefinition metadataIndexDefinition, MetadataIndex metadataIndex) {
     this.client = client;
     this.definitions = definitions;
+    this.metadataIndexDefinition = metadataIndexDefinition;
+    this.metadataIndex = metadataIndex;
   }
 
   @Override
   public void start() {
+
+    // create the "metadata" index first
+    if (!client.prepareIndicesExist(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()).get().isExists()) {
+      IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+      metadataIndexDefinition.define(context);
+      NewIndex index = context.getIndices().values().iterator().next();
+      createIndex(new Index(index), false);
+    }
+
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
-    for (IndexDefinitions.Index index : definitions.getIndices().values()) {
+    for (Index index : definitions.getIndices().values()) {
       boolean exists = client.prepareIndicesExist(index.getName()).get().isExists();
-      if (exists && needsToDeleteIndex(index)) {
+      if (exists && !index.getName().equals(MetadataIndexDefinition.INDEX_TYPE_METADATA.getIndex()) && needsToDeleteIndex(index)) {
         LOGGER.info(String.format("Delete index %s (settings changed)", index.getName()));
         deleteIndex(index.getName());
         exists = false;
       }
       if (!exists) {
-        createIndex(index);
+        createIndex(index, true);
       }
     }
   }
@@ -73,11 +83,16 @@ public class IndexCreator implements Startable {
     // nothing to do
   }
 
-  private void createIndex(IndexDefinitions.Index index) {
+  private void createIndex(Index index, boolean useMetadata) {
     LOGGER.info(String.format("Create index %s", index.getName()));
     Settings.Builder settings = Settings.builder();
     settings.put(index.getSettings());
-    settings.put(SETTING_HASH, new IndexDefinitionHash().of(index));
+    if (useMetadata) {
+      metadataIndex.setHash(index.getName(), IndexDefinitionHash.of(index));
+      for (IndexDefinitions.IndexType type : index.getTypes().values()) {
+        metadataIndex.setInitialized(new IndexType(index.getName(), type.getName()), false);
+      }
+    }
     CreateIndexResponse indexResponse = client
       .prepareCreate(index.getName())
       .setSettings(settings)
@@ -105,13 +120,11 @@ public class IndexCreator implements Startable {
     client.nativeClient().admin().indices().prepareDelete(indexName).get();
   }
 
-  private boolean needsToDeleteIndex(IndexDefinitions.Index index) {
-    boolean toBeDeleted = false;
-    String hash = client.nativeClient().admin().indices().prepareGetSettings(index.getName()).get().getSetting(index.getName(), "index." + SETTING_HASH);
-    if (hash != null) {
-      String defHash = new IndexDefinitionHash().of(index);
-      toBeDeleted = !StringUtils.equals(hash, defHash);
-    }
-    return toBeDeleted;
+  private boolean needsToDeleteIndex(Index index) {
+    return metadataIndex.getHash(index.getName())
+      .map(hash -> {
+        String defHash = IndexDefinitionHash.of(index);
+        return !StringUtils.equals(hash, defHash);
+      }).orElse(true);
   }
 }

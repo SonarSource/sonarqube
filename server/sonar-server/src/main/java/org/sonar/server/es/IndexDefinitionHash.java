@@ -37,11 +37,14 @@ class IndexDefinitionHash {
 
   private static final char DELIMITER = ',';
 
-  String of(IndexDefinitions.Index index) {
+  private IndexDefinitionHash() {
+  }
+
+  static String of(IndexDefinitions.Index index) {
     return of(index.getSettings().getAsMap(), index.getTypes());
   }
 
-  String of(Map... maps) {
+  private static String of(Map... maps) {
     StringBuilder sb = new StringBuilder();
     for (Map map : maps) {
       appendMap(sb, map);
@@ -49,7 +52,7 @@ class IndexDefinitionHash {
     return DigestUtils.sha256Hex(sb.toString());
   }
 
-  private void appendObject(StringBuilder sb, Object value) {
+  private static void appendObject(StringBuilder sb, Object value) {
     if (value instanceof IndexDefinitions.IndexType) {
       appendIndexType(sb, (IndexDefinitions.IndexType) value);
     } else if (value instanceof Map) {
@@ -61,11 +64,11 @@ class IndexDefinitionHash {
     }
   }
 
-  private void appendIndexType(StringBuilder sb, IndexDefinitions.IndexType type) {
+  private static void appendIndexType(StringBuilder sb, IndexDefinitions.IndexType type) {
     appendMap(sb, type.getAttributes());
   }
 
-  private void appendMap(StringBuilder sb, Map attributes) {
+  private static void appendMap(StringBuilder sb, Map attributes) {
     for (Object entry : sort(attributes).entrySet()) {
       sb.append(((Map.Entry) entry).getKey());
       sb.append(DELIMITER);
@@ -74,7 +77,7 @@ class IndexDefinitionHash {
     }
   }
 
-  private void appendIterable(StringBuilder sb, Iterable value) {
+  private static void appendIterable(StringBuilder sb, Iterable value) {
     List sorted = Lists.newArrayList(value);
     Collections.sort(sorted);
     for (Object o : sorted) {
@@ -83,7 +86,7 @@ class IndexDefinitionHash {
     }
   }
 
-  private SortedMap sort(Map map) {
+  private static SortedMap sort(Map map) {
     return ImmutableSortedMap.copyOf(map);
   }
 }
