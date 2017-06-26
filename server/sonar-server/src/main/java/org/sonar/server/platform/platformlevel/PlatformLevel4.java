@@ -47,12 +47,14 @@ import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
+import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
+import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.issue.AddTagsAction;
@@ -230,7 +232,11 @@ public class PlatformLevel4 extends PlatformLevel {
 
   @Override
   protected void configureLevel() {
-    addIfStartupLeader(IndexCreator.class);
+    addIfStartupLeader(
+      IndexCreator.class,
+      MetadataIndexDefinition.class,
+      MetadataIndex.class
+    );
 
     add(
       PluginDownloader.class,
