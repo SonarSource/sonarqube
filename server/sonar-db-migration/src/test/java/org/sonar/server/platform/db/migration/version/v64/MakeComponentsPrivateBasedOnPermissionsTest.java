@@ -46,8 +46,6 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   private final String randomPublicConditionRole = random.nextBoolean() ? ROLE_CODEVIEWER : ROLE_USER;
   private final String randomQualifier = random.nextBoolean() ? PROJECT_QUALIFIER : VIEW_QUALIFIER;
   private final String randomRole = "role_" + random.nextInt(12);
-  private final int randomUserId = random.nextInt(500);
-  private final int randomGroupId = random.nextInt(500);
   private MakeComponentsPrivateBasedOnPermissions underTest = new MakeComponentsPrivateBasedOnPermissions(db.database());
 
   @Test
@@ -56,31 +54,10 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   }
 
   @Test
-  public void execute_makes_project_private_if_group_AnyOne_has_global_permission_USER() throws SQLException {
-    long pId = insertRootComponent("p1", false);
-    insertGroupPermission(ROLE_USER, null, null);
-    insertGroupPermission(randomRole, pId, randomGroupId);
-
-    underTest.execute();
-
-    assertThat(isPrivate("p1")).isTrue();
-  }
-
-  @Test
-  public void execute_makes_project_private_if_group_AnyOne_has_global_permission_BROWSE() throws SQLException {
-    long pId = insertRootComponent("p1", false);
-    insertGroupPermission(ROLE_CODEVIEWER, null, null);
-    insertUserPermission(randomRole, pId, randomUserId);
-
-    underTest.execute();
-
-    assertThat(isPrivate("p1")).isTrue();
-  }
-
-  @Test
-  public void execute_makes_project_private_if_group_other_than_AnyOne_has_permission_BROWSE_on_other_project() throws SQLException {
+  public void execute_makes_project_private_if_Anyone_has_only_user_permission_and_project_has_at_least_one_other_group_permission() throws SQLException {
     long pId1 = insertRootComponent("p1", false);
-    insertGroupPermission(ROLE_CODEVIEWER, pId1, random.nextInt(30));
+    insertGroupPermission(ROLE_USER, pId1, null);
+    insertGroupPermission("foo", pId1, random.nextInt(10));
 
     underTest.execute();
 
@@ -88,9 +65,10 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   }
 
   @Test
-  public void execute_makes_project_private_if_group_other_than_AnyOne_has_permission_USER_on_other_project() throws SQLException {
+  public void execute_makes_project_private_if_Anyone_has_only_user_permission_and_project_has_one_user_permission() throws SQLException {
     long pId1 = insertRootComponent("p1", false);
-    insertGroupPermission(ROLE_USER, pId1, random.nextInt(30));
+    insertGroupPermission(ROLE_USER, pId1, null);
+    insertUserPermission("foo", pId1, random.nextInt(10));
 
     underTest.execute();
 
@@ -98,7 +76,7 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   }
 
   @Test
-  public void execute_keeps_project_public_if_group_AnyOne_has_permission_USER_on_it() throws SQLException {
+  public void execute_keeps_project_public_if_Anyone_has_only_user_permission_and_project_has_no_user_nor_other_group_permission() throws SQLException {
     long pId1 = insertRootComponent("p1", false);
     insertGroupPermission(ROLE_USER, pId1, null);
 
@@ -108,7 +86,29 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   }
 
   @Test
-  public void execute_keeps_project_public_if_group_AnyOne_has_permission_BROWSE_on_it() throws SQLException {
+  public void execute_makes_project_private_if_Anyone_has_only_codeviewer_permission_and_project_has_one_other_group_permission() throws SQLException {
+    long pId1 = insertRootComponent("p1", false);
+    insertGroupPermission(ROLE_CODEVIEWER, pId1, null);
+    insertGroupPermission("foo", pId1, random.nextInt(10));
+
+    underTest.execute();
+
+    assertThat(isPrivate("p1")).isTrue();
+  }
+
+  @Test
+  public void execute_makes_project_private_if_Anyone_has_only_codeviewer_permission_and_project_has_one_user_permission() throws SQLException {
+    long pId1 = insertRootComponent("p1", false);
+    insertGroupPermission(ROLE_CODEVIEWER, pId1, null);
+    insertUserPermission("foo", pId1, random.nextInt(10));
+
+    underTest.execute();
+
+    assertThat(isPrivate("p1")).isTrue();
+  }
+
+  @Test
+  public void execute_keeps_project_public_if_Anyone_has_only_codeviewer_permission_and_project_has_no_user_nor_other_group_permission() throws SQLException {
     long pId1 = insertRootComponent("p1", false);
     insertGroupPermission(ROLE_CODEVIEWER, pId1, null);
 
@@ -118,9 +118,31 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   }
 
   @Test
-  public void execute_keeps_project_public_if_only_group_AnyOne_has_permission_on_it() throws SQLException {
+  public void execute_makes_project_private_if_Anyone_has_neither_user_nor_codeviewer_permission_and_project_has_one_other_group_permission() throws SQLException {
     long pId1 = insertRootComponent("p1", false);
     insertGroupPermission(randomRole, pId1, null);
+    insertGroupPermission("foo", pId1, random.nextInt(10));
+
+    underTest.execute();
+
+    assertThat(isPrivate("p1")).isTrue();
+  }
+
+  @Test
+  public void execute_makes_project_private_if_Anyone_has_neither_user_nor_codeviewer_permission_and_project_has_one_user_permission() throws SQLException {
+    long pId1 = insertRootComponent("p1", false);
+    insertGroupPermission(randomRole, pId1, null);
+    insertUserPermission("foo", pId1, random.nextInt(10));
+
+    underTest.execute();
+
+    assertThat(isPrivate("p1")).isTrue();
+  }
+
+  @Test
+  public void execute_keeps_project_public_if_Anyone_has_neither_user_nor_codeviewer_permission_and_project_has_no_user_nor_other_group_permission() throws SQLException {
+    long pId1 = insertRootComponent("p1", false);
+    insertGroupPermission("foo", pId1, null);
 
     underTest.execute();
 
@@ -128,7 +150,42 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   }
 
   @Test
-  public void execute_keeps_project_public_if_project_has_no_permission() throws SQLException {
+  public void execute_keeps_project_public_if_Anyone_has_both_user_and_codeviewer_permission_and_project_has_one_other_group_permission() throws SQLException {
+    long pId1 = insertRootComponent("p1", false);
+    insertGroupPermission(ROLE_USER, pId1, null);
+    insertGroupPermission(ROLE_CODEVIEWER, pId1, null);
+    insertGroupPermission("foo", pId1, random.nextInt(10));
+
+    underTest.execute();
+
+    assertThat(isPrivate("p1")).isFalse();
+  }
+
+  @Test
+  public void execute_keeps_project_public_if_Anyone_has_both_user_and_codeviewer_permission_and_project_has_user_permission() throws SQLException {
+    long pId1 = insertRootComponent("p1", false);
+    insertGroupPermission(ROLE_USER, pId1, null);
+    insertGroupPermission(ROLE_CODEVIEWER, pId1, null);
+    insertUserPermission("foo", pId1, random.nextInt(10));
+
+    underTest.execute();
+
+    assertThat(isPrivate("p1")).isFalse();
+  }
+
+  @Test
+  public void execute_keeps_project_public_if_Anyone_has_both_user_and_codeviewer_permission_and_project_has_no_user_nor_other_group_permission() throws SQLException {
+    long pId1 = insertRootComponent("p1", false);
+    insertGroupPermission(ROLE_USER, pId1, null);
+    insertGroupPermission(ROLE_CODEVIEWER, pId1, null);
+
+    underTest.execute();
+
+    assertThat(isPrivate("p1")).isFalse();
+  }
+
+  @Test
+  public void execute_keeps_project_public_if_it_has_no_user_nor_group_permission_at_all() throws SQLException {
     insertRootComponent("p1", false);
 
     underTest.execute();
@@ -137,20 +194,23 @@ public class MakeComponentsPrivateBasedOnPermissionsTest {
   }
 
   @Test
-  public void execute_does_not_change_private_projects_to_public_when_they_actually_should_be_because_they_have_USER_or_BROWSE_on_group_Anyone() throws SQLException {
-    long p1Id = insertRootComponent("p1", true);
-    long p2Id = insertRootComponent("p2", true);
-    long p3Id = insertRootComponent("p3", true);
+  public void execute_does_not_change_private_projects_to_public_when_they_actually_should_be() throws SQLException {
+    long p1Id = insertRootComponent("p1", true); // both user and codeviewer
+    long p2Id = insertRootComponent("p2", true); // only user but no other permission
+    long p3Id = insertRootComponent("p3", true); // only codeviewer but no other permission
+    long p4Id = insertRootComponent("p4", true); // neither codeviewer nor user but no other permission
     insertGroupPermission(ROLE_CODEVIEWER, p1Id, null);
     insertGroupPermission(ROLE_USER, p1Id, null);
     insertGroupPermission(ROLE_CODEVIEWER, p2Id, null);
     insertGroupPermission(ROLE_USER, p3Id, null);
+    insertGroupPermission(randomRole, p4Id, null);
 
     underTest.execute();
 
     assertThat(isPrivate("p1")).isTrue();
     assertThat(isPrivate("p2")).isTrue();
     assertThat(isPrivate("p3")).isTrue();
+    assertThat(isPrivate("p4")).isTrue();
   }
 
   @Test

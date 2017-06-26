@@ -68,14 +68,25 @@ public class MakeComponentsPrivateBasedOnPermissions extends DataChange {
       " p.scope = ?" +
       " and p.qualifier in (?, ?)" +
       " and p.private = ?" +
-      " and not exists (" +
-      "   select" +
-      "     1" +
-      "   from group_roles gr" +
-      "   where " +
-      "     gr.resource_id = p.id" +
-      "     and gr.group_id is null" +
-      "     and gr.role in (?, ?)" +
+      " and (" +
+      "   not exists (" +
+      "     select" +
+      "       1" +
+      "     from group_roles gr" +
+      "     where " +
+      "       gr.resource_id = p.id" +
+      "       and gr.group_id is null" +
+      "       and gr.role = ?" +
+      "   ) " +
+      "   or not exists (" +
+      "     select" +
+      "       1" +
+      "     from group_roles gr" +
+      "     where " +
+      "       gr.resource_id = p.id" +
+      "       and gr.group_id is null" +
+      "       and gr.role = ?" +
+      "   )" +
       " )" +
       // trees with only permissions to group must not be made private
       " and (" +
