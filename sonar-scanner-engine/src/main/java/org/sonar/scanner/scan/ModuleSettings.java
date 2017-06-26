@@ -19,13 +19,14 @@
  */
 package org.sonar.scanner.scan;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
@@ -41,50 +42,57 @@ public class ModuleSettings extends Settings {
   private final ProjectRepositories projectRepos;
   private final DefaultAnalysisMode analysisMode;
   private final Map<String, String> properties = new HashMap<>();
+  private final InputModuleHierarchy hierarchy;
+  private final DefaultInputModule module;
+  private final GlobalSettings batchSettings;
 
-  public ModuleSettings(GlobalSettings batchSettings, ImmutableProjectDefinition moduleDefinition, ProjectRepositories projectSettingsRepo,
+  public ModuleSettings(GlobalSettings batchSettings, DefaultInputModule module, InputModuleHierarchy hierarchy, ProjectRepositories projectSettingsRepo,
     DefaultAnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     super(batchSettings.getDefinitions(), batchSettings.getEncryption());
+    this.batchSettings = batchSettings;
+    this.module = module;
+    this.hierarchy = hierarchy;
     this.projectRepos = projectSettingsRepo;
     this.analysisMode = analysisMode;
 
-    init(moduleDefinition, batchSettings);
-    contextReportPublisher.dumpModuleSettings(moduleDefinition);
+    init();
+    contextReportPublisher.dumpModuleSettings(module);
   }
 
-  private ModuleSettings init(ImmutableProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
-    addProjectProperties(moduleDefinition, batchSettings);
-    addBuildProperties(moduleDefinition);
+  private ModuleSettings init() {
+    addProjectProperties();
+    addBuildProperties();
     return this;
   }
 
-  private void addProjectProperties(ImmutableProjectDefinition def, GlobalSettings batchSettings) {
+  private void addProjectProperties() {
+    DefaultInputModule m = module;
     addProperties(batchSettings.getProperties());
     do {
-      if (projectRepos.moduleExists(def.getKeyWithBranch())) {
-        addProperties(projectRepos.settings(def.getKeyWithBranch()));
+      if (projectRepos.moduleExists(m.getKeyWithBranch())) {
+        addProperties(projectRepos.settings(m.getKeyWithBranch()));
         break;
       }
-      def = def.getParent();
-    } while (def != null);
+      m = hierarchy.parent(m);
+    } while (m != null);
   }
 
-  private void addBuildProperties(ImmutableProjectDefinition project) {
-    List<ImmutableProjectDefinition> orderedProjects = getTopDownParentProjects(project);
-    for (ImmutableProjectDefinition p : orderedProjects) {
+  private void addBuildProperties() {
+    List<DefaultInputModule> orderedProjects = getTopDownParentProjects();
+    for (DefaultInputModule p : orderedProjects) {
       addProperties(p.properties());
     }
   }
 
   /**
-   * From root to given project
+   * From root to current project
    */
-  static List<ImmutableProjectDefinition> getTopDownParentProjects(ImmutableProjectDefinition project) {
-    List<ImmutableProjectDefinition> result = new ArrayList<>();
-    ImmutableProjectDefinition p = project;
-    while (p != null) {
-      result.add(0, p);
-      p = p.getParent();
+  List<DefaultInputModule> getTopDownParentProjects() {
+    LinkedList<DefaultInputModule> result = new LinkedList<>();
+    DefaultInputModule m = module;
+    while (m != null) {
+      result.addFirst(m);
+      m = hierarchy.parent(m);
     }
     return result;
   }

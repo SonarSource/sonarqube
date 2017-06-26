@@ -21,17 +21,14 @@ package org.sonar.scanner.scan;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 
 public class DefaultInputModuleHierarchyTest {
   private DefaultInputModuleHierarchy moduleHierarchy;
-
-  @Before
-  public void setUp() {
-    moduleHierarchy = new DefaultInputModuleHierarchy();
-  }
 
   @Test
   public void test() {
@@ -41,11 +38,14 @@ public class DefaultInputModuleHierarchyTest {
     DefaultInputModule mod3 = new DefaultInputModule("mod3");
     DefaultInputModule mod4 = new DefaultInputModule("mod4");
 
-    moduleHierarchy.setRoot(root);
-    moduleHierarchy.index(mod1, root);
-    moduleHierarchy.index(mod2, mod1);
-    moduleHierarchy.index(mod3, root);
-    moduleHierarchy.index(mod4, root);
+    Map<DefaultInputModule, DefaultInputModule> parents = new HashMap<>();
+
+    parents.put(mod1, root);
+    parents.put(mod2, mod1);
+    parents.put(mod3, root);
+    parents.put(mod4, root);
+
+    moduleHierarchy = new DefaultInputModuleHierarchy(parents);
 
     assertThat(moduleHierarchy.children(root)).containsOnly(mod1, mod3, mod4);
     assertThat(moduleHierarchy.children(mod4)).isEmpty();
@@ -56,6 +56,30 @@ public class DefaultInputModuleHierarchyTest {
     assertThat(moduleHierarchy.parent(mod1)).isEqualTo(root);
     assertThat(moduleHierarchy.parent(root)).isNull();
 
+    assertThat(moduleHierarchy.root()).isEqualTo(root);
+  }
+
+  @Test
+  public void testOnlyRoot() {
+    DefaultInputModule root = new DefaultInputModule("root");
+    moduleHierarchy = new DefaultInputModuleHierarchy(root);
+
+    assertThat(moduleHierarchy.children(root)).isEmpty();
+    assertThat(moduleHierarchy.parent(root)).isNull();
+    assertThat(moduleHierarchy.root()).isEqualTo(root);
+  }
+
+  @Test
+  public void testParentChild() {
+    DefaultInputModule root = new DefaultInputModule("root");
+    DefaultInputModule mod1 = new DefaultInputModule("mod1");
+    moduleHierarchy = new DefaultInputModuleHierarchy(root, mod1);
+
+    assertThat(moduleHierarchy.children(root)).containsOnly(mod1);
+    assertThat(moduleHierarchy.children(mod1)).isEmpty();
+
+    assertThat(moduleHierarchy.parent(mod1)).isEqualTo(root);
+    assertThat(moduleHierarchy.parent(root)).isNull();
     assertThat(moduleHierarchy.root()).isEqualTo(root);
   }
 }

@@ -27,7 +27,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 /**
  * Immutable copy of project reactor after all modifications have been applied (see {@link ImmutableProjectReactorProvider}).
@@ -36,41 +36,41 @@ import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 @ScannerSide
 public class ImmutableProjectReactor {
 
-  private final ImmutableProjectDefinition root;
-  private final Map<String, ImmutableProjectDefinition> byKey;
+  private final ProjectDefinition root;
+  private final Map<String, ProjectDefinition> byKey;
 
-  public ImmutableProjectReactor(ImmutableProjectDefinition root) {
+  public ImmutableProjectReactor(ProjectDefinition root) {
     if (root.getParent() != null) {
       throw new IllegalArgumentException("Not a root project: " + root);
     }
     this.root = root;
-    Map<String, ImmutableProjectDefinition> map = new LinkedHashMap<>();
+    Map<String, ProjectDefinition> map = new LinkedHashMap<>();
     collectProjects(root, map);
     this.byKey = Collections.unmodifiableMap(map);
   }
 
-  public Collection<ImmutableProjectDefinition> getProjects() {
+  public Collection<ProjectDefinition> getProjects() {
     return byKey.values();
   }
 
   /**
    * Populates list of projects from hierarchy.
    */
-  private void collectProjects(ImmutableProjectDefinition def, Map<String, ImmutableProjectDefinition> map) {
+  private void collectProjects(ProjectDefinition def, Map<String, ProjectDefinition> map) {
     if (map.put(def.getKeyWithBranch(), def) != null) {
       throw new IllegalStateException("Duplicate module key in reactor: " + def.getKeyWithBranch());
     }
-    for (ImmutableProjectDefinition child : def.getSubProjects()) {
+    for (ProjectDefinition child : def.getSubProjects()) {
       collectProjects(child, map);
     }
   }
 
-  public ImmutableProjectDefinition getRoot() {
+  public ProjectDefinition getRoot() {
     return root;
   }
 
   @CheckForNull
-  public ImmutableProjectDefinition getProjectDefinition(String keyWithBranch) {
+  public ProjectDefinition getProjectDefinition(String keyWithBranch) {
     return byKey.get(keyWithBranch);
   }
 }

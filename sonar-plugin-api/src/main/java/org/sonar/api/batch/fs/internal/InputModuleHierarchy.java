@@ -22,11 +22,11 @@ package org.sonar.api.batch.fs.internal;
 import java.util.Collection;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 
+@Immutable
 public interface InputModuleHierarchy {
   DefaultInputModule root();
   
@@ -39,6 +39,4 @@ public interface InputModuleHierarchy {
   
   @CheckForNull
   String relativePath(InputModule module);
-
-  ProjectDefinition definition(InputModule module);
 }

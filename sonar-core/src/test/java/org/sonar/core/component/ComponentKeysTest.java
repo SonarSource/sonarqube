@@ -37,7 +37,7 @@ public class ComponentKeysTest {
 
   @Test
   public void create_effective_key() {
-    Project project = new Project(ProjectDefinition.create().setKey("my_project").build());
+    Project project = new Project(ProjectDefinition.create().setKey("my_project"));
     assertThat(ComponentKeys.createEffectiveKey("my_project", project)).isEqualTo("my_project");
 
     Directory dir = Directory.create("src/org/foo");

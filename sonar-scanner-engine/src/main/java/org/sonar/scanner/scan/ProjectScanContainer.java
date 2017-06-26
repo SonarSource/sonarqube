@@ -24,7 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Settings;
@@ -129,7 +128,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectReactorBuilder.class,
       WorkDirectoryCleaner.class,
       new MutableProjectReactorProvider(),
-      new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
       ProjectLock.class,
       EventBus.class,
@@ -150,7 +148,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ModuleIndexer.class,
       InputComponentStore.class,
       PathResolver.class,
-      DefaultInputModuleHierarchy.class,
+      new InputModuleHierarchyProvider(),
       DefaultComponentTree.class,
       BatchIdGenerator.class,
 
@@ -254,12 +252,12 @@ public class ProjectScanContainer extends ComponentContainer {
     for (DefaultInputModule child : tree.children(module)) {
       scanRecursively(tree, child);
     }
-    scan(module, tree.definition(module));
+    scan(module);
   }
 
   @VisibleForTesting
-  void scan(DefaultInputModule module, ProjectDefinition definition) {
-    new ModuleScanContainer(this, module, definition).execute();
+  void scan(DefaultInputModule module) {
+    new ModuleScanContainer(this, module).execute();
   }
 
   static class BatchExtensionFilter implements ExtensionMatcher {

@@ -21,26 +21,22 @@ package org.sonar.scanner.cpd;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 public class CpdSettingsTest {
   private CpdSettings cpdSettings;
   private Settings settings;
-  private ImmutableProjectDefinition projectDefinition;
   
   @Before
   public void setUp() {
-    ImmutableProjectReactor projectReactor = mock(ImmutableProjectReactor.class);
-    when(projectReactor.getRoot()).thenReturn(projectDefinition);
+    DefaultInputModule module = mock(DefaultInputModule.class);
     settings = new MapSettings();
-    cpdSettings = new CpdSettings(settings, projectReactor);
+    cpdSettings = new CpdSettings(settings, module);
   }
   
   @Test

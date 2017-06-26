@@ -19,10 +19,10 @@
  */
 package org.sonar.api.resources;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualifiersTest {
 
@@ -49,7 +49,7 @@ public class QualifiersTest {
     ProjectDefinition rootDef = ProjectDefinition.create();
     ProjectDefinition moduleDef = ProjectDefinition.create();
     rootDef.addSubProject(moduleDef);
-    Resource root = new Project(rootDef.build());
+    Resource root = new Project(rootDef);
     assertThat(Qualifiers.isView(root, true)).isFalse();
     assertThat(Qualifiers.isView(root, false)).isFalse();
     assertThat(Qualifiers.isProject(root, true)).isTrue();
@@ -61,7 +61,7 @@ public class QualifiersTest {
     ProjectDefinition rootDef = ProjectDefinition.create();
     ProjectDefinition moduleDef = ProjectDefinition.create();
     rootDef.addSubProject(moduleDef);
-    Resource sub = new Project(moduleDef.build());
+    Resource sub = new Project(moduleDef);
     assertThat(Qualifiers.isView(sub, true)).isFalse();
     assertThat(Qualifiers.isView(sub, false)).isFalse();
     assertThat(Qualifiers.isProject(sub, true)).isTrue();

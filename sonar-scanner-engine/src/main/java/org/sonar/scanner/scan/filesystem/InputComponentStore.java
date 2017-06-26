@@ -187,16 +187,18 @@ public class InputComponentStore {
 
   public void put(DefaultInputModule inputModule) {
     String key = inputModule.key();
+    Preconditions.checkNotNull(inputModule);
     Preconditions.checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
     Preconditions.checkState(!inputModuleCache.containsKey(key), "Module '%s' already indexed", key);
     inputComponents.put(key, inputModule);
     inputModuleCache.put(key, inputModule);
-    if (inputModule.definition().getParent() == null) {
-      if (root != null) {
-        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + key + "'");
-      }
-      root = inputModule;
+  }
+
+  public void setRoot(DefaultInputModule r) {
+    if (root != null) {
+      throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + r.key() + "'");
     }
+    this.root = r;
   }
 
   public Iterable<InputFile> getFilesByName(String filename) {

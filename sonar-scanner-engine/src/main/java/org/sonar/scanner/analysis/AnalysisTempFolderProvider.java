@@ -22,9 +22,9 @@ package org.sonar.scanner.analysis;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.ComponentLifecycle;
 import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.internal.DefaultTempFolder;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,9 +35,9 @@ public class AnalysisTempFolderProvider extends ProviderAdapter implements Compo
   private DefaultTempFolder projectTempFolder;
   private boolean started = false;
 
-  public TempFolder provide(ImmutableProjectReactor projectReactor) {
+  public TempFolder provide(InputModuleHierarchy moduleHierarchy) {
     if (projectTempFolder == null) {
-      Path workingDir = projectReactor.getRoot().getWorkDir().toPath();
+      Path workingDir = moduleHierarchy.root().getWorkDir().toPath();
       Path tempDir = workingDir.normalize().resolve(TMP_NAME);
       try {
         Files.deleteIfExists(tempDir);
@@ -65,7 +65,7 @@ public class AnalysisTempFolderProvider extends ProviderAdapter implements Compo
 
   @Override
   public void dispose(PicoContainer container) {
-    //nothing to do
+    // nothing to do
   }
 
   @Override

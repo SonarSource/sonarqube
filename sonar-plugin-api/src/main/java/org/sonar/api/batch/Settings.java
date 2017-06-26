@@ -17,34 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.phases;
+package org.sonar.api.batch;
 
-import org.sonar.api.batch.events.ProjectAnalysisHandler;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.resources.Project;
-
-class ProjectAnalysisEvent extends AbstractPhaseEvent<ProjectAnalysisHandler>
-  implements ProjectAnalysisHandler.ProjectAnalysisEvent {
-  private DefaultInputModule module;
-
-  ProjectAnalysisEvent(DefaultInputModule module, boolean start) {
-    super(start);
-    this.module = module;
-  }
-
-  @Override
-  public Project getProject() {
-    return new Project(module);
-  }
-
-  @Override
-  protected void dispatch(ProjectAnalysisHandler handler) {
-    handler.onProjectAnalysis(this);
-  }
-
-  @Override
-  protected Class getType() {
-    return ProjectAnalysisHandler.class;
-  }
+@ScannerSide
+public class Settings {
 
 }

@@ -26,9 +26,9 @@ import javax.annotation.CheckForNull;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.filesystem.PathResolver;
 
@@ -38,13 +38,13 @@ import org.sonar.api.scan.filesystem.PathResolver;
  */
 @Deprecated
 public class Project extends Resource implements Component {
-  private final ImmutableProjectDefinition definition;
+  private final ProjectDefinition definition;
+
+  public Project(DefaultInputModule module) {
+    this(module.definition());
+  }
 
   public Project(ProjectDefinition definition) {
-    this(definition.build());
-  }
-  
-  public Project(ImmutableProjectDefinition definition) {
     this.definition = definition;
     this.setKey(definition.getKey());
     this.setEffectiveKey(definition.getKeyWithBranch());
@@ -64,7 +64,7 @@ public class Project extends Resource implements Component {
 
   @Override
   public String path() {
-    ImmutableProjectDefinition parent = definition.getParent();
+    ProjectDefinition parent = definition.getParent();
     if (parent == null) {
       return null;
     }
@@ -157,7 +157,7 @@ public class Project extends Resource implements Component {
 
   @Override
   public Project getParent() {
-    ImmutableProjectDefinition parent = definition.getParent();
+    ProjectDefinition parent = definition.getParent();
     if (parent == null) {
       return null;
     }

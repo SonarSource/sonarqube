@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -31,9 +30,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
 import org.sonar.scanner.events.EventBus;
@@ -79,12 +78,10 @@ import org.sonar.scanner.source.SymbolizableBuilder;
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
   private final DefaultInputModule module;
-  private final ProjectDefinition definition;
 
-  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module, ProjectDefinition definition) {
+  public ModuleScanContainer(ProjectScanContainer parent, DefaultInputModule module) {
     super(parent);
     this.module = module;
-    this.definition = definition;
   }
 
   @Override
@@ -96,10 +93,9 @@ public class ModuleScanContainer extends ComponentContainer {
 
   private void addCoreComponents() {
     add(
-      definition,
       module.definition(),
       // still injected by some plugins
-      new Project(module.definition()),
+      new Project(module),
       module,
       ModuleSettings.class);
 

@@ -21,22 +21,22 @@ package org.sonar.scanner.cpd;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.config.Settings;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
 
 public class CpdSettings {
   private final Settings settings;
-  private final ImmutableProjectReactor projectReactor;
+  private final DefaultInputModule module;
 
-  public CpdSettings(Settings settings, ImmutableProjectReactor projectReactor) {
+  public CpdSettings(Settings settings, DefaultInputModule module) {
     this.settings = settings;
-    this.projectReactor = projectReactor;
+    this.module = module;
   }
 
   public boolean isCrossProjectDuplicationEnabled() {
     return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)
       // No cross project duplication for branches
-      && StringUtils.isBlank(projectReactor.getRoot().getBranch());
+      && StringUtils.isBlank(module.getBranch());
   }
   
   /**

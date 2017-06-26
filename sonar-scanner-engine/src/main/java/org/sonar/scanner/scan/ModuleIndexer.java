@@ -20,9 +20,7 @@
 package org.sonar.scanner.scan;
 
 import org.picocontainer.Startable;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 /**
@@ -30,36 +28,29 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
  * project definitions provided by the {@link ImmutableProjectReactor}.
  */
 public class ModuleIndexer implements Startable {
-  private final ImmutableProjectReactor projectReactor;
   private final DefaultComponentTree componentTree;
   private final DefaultInputModuleHierarchy moduleHierarchy;
-  private final BatchIdGenerator batchIdGenerator;
   private final InputComponentStore componentStore;
 
-  public ModuleIndexer(ImmutableProjectReactor projectReactor, DefaultComponentTree componentTree,
-    InputComponentStore componentStore, BatchIdGenerator batchIdGenerator, DefaultInputModuleHierarchy moduleHierarchy) {
-    this.projectReactor = projectReactor;
+  public ModuleIndexer(DefaultComponentTree componentTree, InputComponentStore componentStore, DefaultInputModuleHierarchy moduleHierarchy) {
     this.componentTree = componentTree;
     this.componentStore = componentStore;
     this.moduleHierarchy = moduleHierarchy;
-    this.batchIdGenerator = batchIdGenerator;
   }
 
   @Override
   public void start() {
-    DefaultInputModule root = new DefaultInputModule(projectReactor.getRoot(), batchIdGenerator.get());
-    moduleHierarchy.setRoot(root);
+    DefaultInputModule root = moduleHierarchy.root();
     componentStore.put(root);
-    createChildren(root);
+    componentStore.setRoot(root);
+    indexChildren(root);
   }
 
-  private void createChildren(DefaultInputModule parent) {
-    for (ImmutableProjectDefinition def : parent.definition().getSubProjects()) {
-      DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.get());
-      moduleHierarchy.index(child, parent);
-      componentTree.index(child, parent);
-      componentStore.put(child);
-      createChildren(child);
+  private void indexChildren(DefaultInputModule parent) {
+    for (DefaultInputModule module : moduleHierarchy.children(parent)) {
+      componentTree.index(module, parent);
+      componentStore.put(module);
+      indexChildren(module);
     }
   }
 

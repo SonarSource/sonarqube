@@ -19,21 +19,21 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.home.cache.DirectoryLock;
-import org.sonar.scanner.bootstrap.Slf4jLogger;
-import org.picocontainer.Startable;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-
 import java.io.IOException;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.picocontainer.Startable;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.home.cache.DirectoryLock;
+import org.sonar.scanner.bootstrap.Slf4jLogger;
+
 public class ProjectLock implements Startable {
   private final DirectoryLock lock;
 
-  public ProjectLock(ProjectReactor projectReactor) {
-    Path directory = projectReactor.getRoot().getWorkDir().toPath();
+  public ProjectLock(InputModuleHierarchy moduleHierarchy) {
+    Path directory = moduleHierarchy.root().getWorkDir().toPath();
     try {
       if (!directory.toFile().exists()) {
         Files.createDirectories(directory);

@@ -23,9 +23,10 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,11 +39,11 @@ import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 /**
@@ -146,7 +147,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private static void writeVersion(DefaultInputModule module, ScannerReport.Component.Builder builder) {
-    ImmutableProjectDefinition def = module.definition();
+    ProjectDefinition def = module.definition();
     String version = getVersion(def);
     if (version != null) {
       builder.setVersion(version);
@@ -169,7 +170,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     throw new IllegalStateException("Unkown component: " + component.getClass());
   }
 
-  private static String getVersion(ImmutableProjectDefinition def) {
+  private static String getVersion(ProjectDefinition def) {
     String version = def.getOriginalVersion();
     if (StringUtils.isNotBlank(version)) {
       return version;
@@ -181,7 +182,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   private static void writeLinks(InputComponent c, ScannerReport.Component.Builder builder) {
     if (c instanceof InputModule) {
       DefaultInputModule inputModule = (DefaultInputModule) c;
-      ImmutableProjectDefinition def = inputModule.definition();
+      ProjectDefinition def = inputModule.definition();
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_HOME_PAGE, ComponentLinkType.HOME);
@@ -192,7 +193,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
   }
 
-  private static void writeProjectLink(ScannerReport.Component.Builder componentBuilder, ImmutableProjectDefinition def, ComponentLink.Builder linkBuilder, String linkProp,
+  private static void writeProjectLink(ScannerReport.Component.Builder componentBuilder, ProjectDefinition def, ComponentLink.Builder linkBuilder, String linkProp,
     ComponentLinkType linkType) {
     String link = def.properties().get(linkProp);
     if (StringUtils.isNotBlank(link)) {

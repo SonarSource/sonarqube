@@ -23,28 +23,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 public class ProjectTest {
   @Test
   public void effectiveKeyShouldEqualKeyWithBranch() {
 
-    ImmutableProjectDefinition definition = ProjectDefinition.create()
+    ProjectDefinition definition = ProjectDefinition.create()
       .setKey("mykey")
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch")
-      .build();
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch");
     assertThat(new Project(definition).getEffectiveKey()).isEqualTo("mykey:branch");
     assertThat(new Project(definition).getKey()).isEqualTo("mykey");
   }
 
   @Test
   public void setNameWithBranch() {
-    ImmutableProjectDefinition definition = ProjectDefinition.create()
+    ProjectDefinition definition = ProjectDefinition.create()
       .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "branch")
       .setKey("key")
-      .setName("name")
-      .build();
+      .setName("name");
     Project project = new Project(definition);
     assertThat(project.getName()).isEqualTo("name branch");
     assertThat(project.getOriginalName()).isEqualTo("name branch");
@@ -52,10 +49,9 @@ public class ProjectTest {
 
   @Test
   public void setNameWithoutBranch() {
-    ImmutableProjectDefinition definition = ProjectDefinition.create()
+    ProjectDefinition definition = ProjectDefinition.create()
       .setKey("key")
-      .setName("name")
-      .build();
+      .setName("name");
     Project project = new Project(definition);
     assertThat(project.getName()).isEqualTo("name");
     assertThat(project.getOriginalName()).isEqualTo("name");

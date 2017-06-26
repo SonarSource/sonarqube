@@ -19,6 +19,12 @@
  */
 package org.sonar.scanner.issue.tracking;
 
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -31,16 +37,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-
-import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class SourceHashHolderTest {
 
@@ -53,11 +53,11 @@ public class SourceHashHolderTest {
   DefaultInputFile file;
 
   private File ioFile;
-  private ImmutableProjectDefinition def;
+  private ProjectDefinition def;
 
   @Before
   public void setUp() throws Exception {
-    def = mock(ImmutableProjectDefinition.class);
+    def = mock(ProjectDefinition.class);
     lastSnapshots = mock(ServerLineHashesLoader.class);
     file = mock(DefaultInputFile.class);
     ioFile = temp.newFile();

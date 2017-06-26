@@ -29,7 +29,6 @@ import java.nio.file.Paths;
 
 import javax.annotation.Nullable;
 
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
@@ -207,13 +206,11 @@ public class TestInputFileBuilder {
   }
 
   public static DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
-    ImmutableProjectDefinition definition = ProjectDefinition.create()
-      .setKey(moduleKey).setBaseDir(baseDir).build();
+    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey).setBaseDir(baseDir);
     return newDefaultInputModule(definition);
   }
-  
-  
-  public static DefaultInputModule newDefaultInputModule(ImmutableProjectDefinition projectDefinition) {
+
+  public static DefaultInputModule newDefaultInputModule(ProjectDefinition projectDefinition) {
     return new DefaultInputModule(projectDefinition, TestInputFileBuilder.nextBatchId());
   }
 }

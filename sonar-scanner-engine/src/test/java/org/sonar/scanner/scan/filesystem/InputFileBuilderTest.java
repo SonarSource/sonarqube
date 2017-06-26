@@ -50,8 +50,7 @@ public class InputFileBuilderTest {
     baseDir = temp.newFolder().toPath();
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
       .setKey("module1")
-      .setBaseDir(baseDir.toFile())
-      .build(), 0);
+      .setBaseDir(baseDir.toFile()), 0);
 
     PathResolver pathResolver = new PathResolver();
     LanguageDetection langDetection = mock(LanguageDetection.class);

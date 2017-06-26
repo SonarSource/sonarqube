@@ -38,7 +38,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -85,7 +84,7 @@ public class JSONReportTest {
 
     InputComponentStore inputComponentStore = new InputComponentStore(new PathResolver());
     DefaultComponentTree inputComponentTree = new DefaultComponentTree();
-    ImmutableProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setKey("struts").build();
+    ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setKey("struts");
     DefaultInputModule rootModule = new DefaultInputModule(def, 1);
     inputComponentStore.put(rootModule);
     DefaultInputModule moduleA = new DefaultInputModule("struts-core");

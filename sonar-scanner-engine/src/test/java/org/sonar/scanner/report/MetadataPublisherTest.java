@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
@@ -67,10 +66,10 @@ public class MetadataPublisherTest {
     when(projectAnalysisInfo.analysisDate()).thenReturn(new Date(1234567L));
     settings = new MapSettings();
     qProfiles = mock(ModuleQProfiles.class);
-    createPublisher(ProjectDefinition.create().setKey("foo").build());
+    createPublisher(ProjectDefinition.create().setKey("foo"));
   }
   
-  private void createPublisher(ImmutableProjectDefinition def) {
+  private void createPublisher(ProjectDefinition def) {
     rootModule = new DefaultInputModule(def, TestInputFileBuilder.nextBatchId());
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
@@ -106,10 +105,9 @@ public class MetadataPublisherTest {
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
 
-    ImmutableProjectDefinition projectDef = ProjectDefinition.create()
+    ProjectDefinition projectDef = ProjectDefinition.create()
       .setKey("foo")
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch")
-      .build();
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
     createPublisher(projectDef);
 
     File outputDir = temp.newFolder();

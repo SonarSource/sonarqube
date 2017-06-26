@@ -20,7 +20,7 @@
 package org.sonar.scanner.report;
 
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Settings;
@@ -50,7 +50,7 @@ public class MetadataPublisher implements ReportPublisherStep {
   @Override
   public void publish(ScannerReportWriter writer) {
     DefaultInputModule rootProject = moduleHierarchy.root();
-    ImmutableProjectDefinition rootDef = rootProject.definition();
+    ProjectDefinition rootDef = rootProject.definition();
     ScannerReport.Metadata.Builder builder = ScannerReport.Metadata.newBuilder()
       .setAnalysisDate(projectAnalysisInfo.analysisDate().getTime())
       // Here we want key without branch

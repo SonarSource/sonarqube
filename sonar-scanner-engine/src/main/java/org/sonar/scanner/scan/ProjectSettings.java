@@ -22,7 +22,8 @@ package org.sonar.scanner.scan;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
@@ -36,20 +37,18 @@ public class ProjectSettings extends Settings {
   private final DefaultAnalysisMode mode;
   private final Map<String, String> properties = new HashMap<>();
 
-  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
+  public ProjectSettings(InputModuleHierarchy hierarchy, GlobalSettings globalSettings, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
     super(globalSettings.getDefinitions(), globalSettings.getEncryption());
     this.mode = mode;
     this.globalSettings = globalSettings;
     this.projectRepositories = projectRepositories;
-    init(reactor);
+    init(hierarchy);
   }
 
-  private void init(ProjectReactor reactor) {
+  private void init(InputModuleHierarchy hierarchy) {
     addProperties(globalSettings.getProperties());
-
-    addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
-
-    addProperties(reactor.getRoot().properties());
+    addProperties(projectRepositories.settings(hierarchy.root().getKeyWithBranch()));
+    addProperties(hierarchy.root().properties());
   }
 
   @Override

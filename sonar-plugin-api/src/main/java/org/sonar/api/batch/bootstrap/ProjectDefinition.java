@@ -70,10 +70,6 @@ public class ProjectDefinition {
     return new ProjectDefinition(new Properties());
   }
 
-  public ImmutableProjectDefinition build() {
-    return new ImmutableProjectDefinition(this);
-  }
-
   public ProjectDefinition setBaseDir(File baseDir) {
     this.baseDir = baseDir;
     return this;

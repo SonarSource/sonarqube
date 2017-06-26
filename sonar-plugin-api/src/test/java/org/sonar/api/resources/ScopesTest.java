@@ -28,7 +28,7 @@ public class ScopesTest {
 
   @Test
   public void testProject() {
-    Project resource = new Project(ProjectDefinition.create().build());
+    Project resource = new Project(ProjectDefinition.create());
     assertThat(Scopes.isProject(resource)).isTrue();
     assertThat(Scopes.isDirectory(resource)).isFalse();
     assertThat(Scopes.isFile(resource)).isFalse();

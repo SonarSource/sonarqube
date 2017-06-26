@@ -32,7 +32,8 @@ import java.util.TreeSet;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -56,16 +57,19 @@ public class AnalysisContextReportPublisher {
   private final System2 system;
   private final ProjectRepositories projectRepos;
   private final GlobalSettings globalSettings;
+  private final InputModuleHierarchy hierarchy;
 
   private ScannerReportWriter writer;
 
+
   public AnalysisContextReportPublisher(AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
-    ProjectRepositories projectRepos, GlobalSettings globalSettings) {
+    ProjectRepositories projectRepos, GlobalSettings globalSettings, InputModuleHierarchy hierarchy) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
     this.projectRepos = projectRepos;
     this.globalSettings = globalSettings;
+    this.hierarchy = hierarchy;
   }
 
   public void init(ScannerReportWriter writer) {
@@ -120,15 +124,15 @@ public class AnalysisContextReportPublisher {
     }
   }
 
-  public void dumpModuleSettings(ImmutableProjectDefinition moduleDefinition) {
+  public void dumpModuleSettings(DefaultInputModule module) {
     if (mode.isIssues()) {
       return;
     }
 
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
-      Map<String, String> moduleSpecificProps = collectModuleSpecificProps(moduleDefinition);
-      fileWriter.append(String.format("Settings for module: %s", moduleDefinition.getKey())).append('\n');
+      Map<String, String> moduleSpecificProps = collectModuleSpecificProps(module);
+      fileWriter.append(String.format("Settings for module: %s", module.key())).append('\n');
       for (String prop : new TreeSet<>(moduleSpecificProps.keySet())) {
         if (isSystemProp(prop) || isEnvVariable(prop) || !isSqProp(prop)) {
           continue;
@@ -147,17 +151,17 @@ public class AnalysisContextReportPublisher {
   /**
    * Only keep props that are not in parent
    */
-  private Map<String, String> collectModuleSpecificProps(ImmutableProjectDefinition moduleDefinition) {
+  private Map<String, String> collectModuleSpecificProps(DefaultInputModule module) {
     Map<String, String> moduleSpecificProps = new HashMap<>();
-    if (projectRepos.moduleExists(moduleDefinition.getKeyWithBranch())) {
-      moduleSpecificProps.putAll(projectRepos.settings(moduleDefinition.getKeyWithBranch()));
+    if (projectRepos.moduleExists(module.getKeyWithBranch())) {
+      moduleSpecificProps.putAll(projectRepos.settings(module.getKeyWithBranch()));
     }
-    ImmutableProjectDefinition parent = moduleDefinition.getParent();
+    DefaultInputModule parent = hierarchy.parent(module);
     if (parent == null) {
-      moduleSpecificProps.putAll(moduleDefinition.properties());
+      moduleSpecificProps.putAll(module.properties());
     } else {
       Map<String, String> parentProps = parent.properties();
-      for (Map.Entry<String, String> entry : moduleDefinition.properties().entrySet()) {
+      for (Map.Entry<String, String> entry : module.properties().entrySet()) {
         if (!parentProps.containsKey(entry.getKey()) || !parentProps.get(entry.getKey()).equals(entry.getValue())) {
           moduleSpecificProps.put(entry.getKey(), entry.getValue());
         }

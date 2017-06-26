@@ -22,6 +22,7 @@ package org.sonar.scanner.phases;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
@@ -40,9 +41,10 @@ public abstract class AbstractPhaseExecutor {
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
+  private final InputModuleHierarchy hierarchy;
 
   public AbstractPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-    SensorContext sensorContext, EventBus eventBus, FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    SensorContext sensorContext, InputModuleHierarchy hierarchy, EventBus eventBus, FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader) {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
@@ -53,6 +55,7 @@ public abstract class AbstractPhaseExecutor {
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
+    this.hierarchy = hierarchy;
   }
 
   /**
@@ -76,7 +79,7 @@ public abstract class AbstractPhaseExecutor {
 
     afterSensors();
 
-    if (module.definition().getParent() == null) {
+    if (hierarchy.isRoot(module)) {
       executeOnRoot();
       postJobsExecutor.execute(sensorContext);
     }

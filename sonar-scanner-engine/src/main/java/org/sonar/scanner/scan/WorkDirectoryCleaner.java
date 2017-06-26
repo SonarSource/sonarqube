@@ -19,7 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.core.util.FileUtils;
 import org.sonar.home.cache.DirectoryLock;
 
@@ -32,8 +32,8 @@ import java.util.Iterator;
 public class WorkDirectoryCleaner {
   private final Path workDir;
 
-  public WorkDirectoryCleaner(ProjectReactor projectReactor) {
-    workDir = projectReactor.getRoot().getWorkDir().toPath();
+  public WorkDirectoryCleaner(InputModuleHierarchy moduleHierarchy) {
+    workDir = moduleHierarchy.root().getWorkDir().toPath();
   }
 
   public void execute() {
