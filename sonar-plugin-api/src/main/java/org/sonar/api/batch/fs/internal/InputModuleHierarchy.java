@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import javax.annotation.CheckForNull;
 
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 
@@ -38,4 +39,6 @@ public interface InputModuleHierarchy {
   
   @CheckForNull
   String relativePath(InputModule module);
+
+  ProjectDefinition definition(InputModule module);
 }

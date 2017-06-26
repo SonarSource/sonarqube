@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 
 import org.sonar.api.batch.bootstrap.ImmutableProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
@@ -41,6 +42,7 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   private DefaultInputModule root;
   private final Map<DefaultInputModule, DefaultInputModule> parents = new HashMap<>();
   private final Multimap<DefaultInputModule, DefaultInputModule> children = HashMultimap.create();
+  private final Map<DefaultInputModule, ProjectDefinition> definitions = new HashMap<>();
 
   public void setRoot(DefaultInputModule root) {
     this.root = root;
@@ -51,6 +53,11 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
     Preconditions.checkNotNull(parent);
     parents.put(child, parent);
     children.put(parent, child);
+  }
+  
+  @Override
+  public ProjectDefinition definition(InputModule module) {
+    return definitions.get(module);
   }
 
   @Override

@@ -84,10 +84,10 @@ public class DefaultIndexTest {
     rootDef.addSubProject(moduleBDef);
     moduleBDef.addSubProject(moduleB1Def);
 
-    project = new Project(rootDef.build());
-    moduleA = new Project(moduleADef.build());
-    moduleB = new Project(moduleBDef.build());
-    moduleB1 = new Project(moduleB1Def.build());
+    project = new Project(rootDef);
+    moduleA = new Project(moduleADef);
+    moduleB = new Project(moduleBDef);
+    moduleB1 = new Project(moduleB1Def);
 
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.fs;
 
+
 import javax.annotation.concurrent.Immutable;
 
 import org.sonar.api.batch.sensor.SensorContext;

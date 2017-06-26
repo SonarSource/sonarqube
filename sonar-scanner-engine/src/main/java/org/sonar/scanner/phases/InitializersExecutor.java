@@ -22,6 +22,7 @@ package org.sonar.scanner.phases;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Initializer;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.Logger;
@@ -38,10 +39,12 @@ public class InitializersExecutor {
   private final DefaultInputModule module;
   private final ScannerExtensionDictionnary selector;
   private final EventBus eventBus;
+  private final ProjectDefinition definition;
 
-  public InitializersExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus) {
+  public InitializersExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, ProjectDefinition definition, EventBus eventBus) {
     this.selector = selector;
     this.module = module;
+    this.definition = definition;
     this.eventBus = eventBus;
   }
 
@@ -52,7 +55,7 @@ public class InitializersExecutor {
       LOG.debug("Initializers : {}", StringUtils.join(initializers, " -> "));
     }
 
-    Project project = new Project(module.definition());
+    Project project = new Project(definition);
     for (Initializer initializer : initializers) {
       eventBus.fireEvent(new InitializerExecutionEvent(initializer, true));
 
