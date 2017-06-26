@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 
@@ -86,8 +87,8 @@ public class SearchData {
     return defaultProfileKeys.contains(profile.getKee());
   }
 
-  SearchData setDefaultProfileKeys(Set<String> s) {
-    this.defaultProfileKeys = s;
+  SearchData setDefaultProfileKeys(List<QProfileDto> s) {
+    this.defaultProfileKeys = s.stream().map(QProfileDto::getKee).collect(MoreCollectors.toSet());
     return this;
   }
 }

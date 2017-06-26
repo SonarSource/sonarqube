@@ -60,7 +60,7 @@ public class QProfilesWsTest {
     controller = new WsTester(new QProfilesWs(
       new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
       new ImportersAction(importers),
-      new SearchAction(null, languages, dbClient, wsSupport),
+      new SearchAction(languages, dbClient, wsSupport, null),
       new SetDefaultAction(languages, null, null, wsSupport),
       new ProjectsAction(null, userSessionRule, wsSupport),
       new ChangelogAction(null, wsSupport, languages, dbClient),
