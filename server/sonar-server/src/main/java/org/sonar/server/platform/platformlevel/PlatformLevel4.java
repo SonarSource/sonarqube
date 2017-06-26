@@ -54,6 +54,8 @@ import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.es.RecoveryIndexer;
+import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.favorite.FavoriteModule;
 import org.sonar.server.issue.AddTagsAction;
@@ -229,7 +231,10 @@ public class PlatformLevel4 extends PlatformLevel {
 
   @Override
   protected void configureLevel() {
-    addIfStartupLeader(IndexCreator.class);
+    addIfStartupLeader(
+      IndexCreator.class,
+      MetadataIndexDefinition.class,
+      MetadataIndex.class);
 
     add(
       PluginDownloader.class,

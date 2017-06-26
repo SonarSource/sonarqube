@@ -20,13 +20,14 @@
 package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableSet;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.server.es.metadata.MetadataIndex;
 
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,58 +36,56 @@ import static org.sonar.server.es.FakeIndexDefinition.INDEX_TYPE_FAKE;
 
 public class IndexerStartupTaskTest {
 
-  private System2 system2 = System2.INSTANCE;
-  private MapSettings settings = new MapSettings();
-
-  @Rule
-  public DbTester db = DbTester.create(system2);
-
   @Rule
   public EsTester es = new EsTester(new FakeIndexDefinition());
 
+  private final MapSettings settings = new MapSettings();
+  private final MetadataIndex metadataIndex = mock(MetadataIndex.class);
+  private final StartupIndexer indexer = mock(StartupIndexer.class);
+  private final IndexerStartupTask underTest = new IndexerStartupTask(es.client(), settings.asConfig(), metadataIndex, indexer);
+
+  @Before
+  public void setUp() throws Exception {
+    doReturn(ImmutableSet.of(INDEX_TYPE_FAKE)).when(indexer).getIndexTypes();
+  }
+
   @Test
-  public void only_index_once() throws Exception {
-    insertDocumentIntoIndex();
+  public void index_if_not_initialized() throws Exception {
+    doReturn(false).when(metadataIndex).getInitialized(INDEX_TYPE_FAKE);
 
-    StartupIndexer indexer1 = createIndexer();
-    emulateStartup(indexer1);
+    underTest.execute();
 
-    // do index on first run
-    verify(indexer1).getIndexTypes();
-    verify(indexer1).indexOnStartup(Mockito.eq(ImmutableSet.of(INDEX_TYPE_FAKE)));
+    verify(indexer).getIndexTypes();
+    verify(indexer).indexOnStartup(Mockito.eq(ImmutableSet.of(INDEX_TYPE_FAKE)));
+  }
 
-    StartupIndexer indexer2 = createIndexer();
-    emulateStartup(indexer2);
+  @Test
+  public void set_initialized_after_indexation() throws Exception {
+    doReturn(false).when(metadataIndex).getInitialized(INDEX_TYPE_FAKE);
 
-    // do not index on second run
-    verify(indexer2).getIndexTypes();
-    verifyNoMoreInteractions(indexer2);
+    underTest.execute();
+
+    verify(metadataIndex).setInitialized(eq(INDEX_TYPE_FAKE), eq(true));
+  }
+
+  @Test
+  public void do_not_index_if_already_initialized() throws Exception {
+    doReturn(true).when(metadataIndex).getInitialized(INDEX_TYPE_FAKE);
+
+    underTest.execute();
+
+    verify(indexer).getIndexTypes();
+    verifyNoMoreInteractions(indexer);
   }
 
   @Test
   public void do_not_index_if_indexes_are_disabled() throws Exception {
     settings.setProperty("sonar.internal.es.disableIndexes", "true");
+    es.putDocuments(INDEX_TYPE_FAKE, new FakeDoc());
 
-    insertDocumentIntoIndex();
-
-    StartupIndexer indexer = createIndexer();
-    emulateStartup(indexer);
+    underTest.execute();
 
     // do not index
     verifyNoMoreInteractions(indexer);
-  }
-
-  private void insertDocumentIntoIndex() {
-    es.putDocuments(INDEX_TYPE_FAKE, new FakeDoc());
-  }
-
-  private StartupIndexer createIndexer() {
-    StartupIndexer indexer = mock(StartupIndexer.class);
-    doReturn(ImmutableSet.of(INDEX_TYPE_FAKE)).when(indexer).getIndexTypes();
-    return indexer;
-  }
-
-  private void emulateStartup(StartupIndexer indexer) {
-    new IndexerStartupTask(es.client(), settings.asConfig(), indexer).execute();
   }
 }

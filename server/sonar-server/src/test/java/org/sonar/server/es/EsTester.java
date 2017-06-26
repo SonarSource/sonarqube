@@ -48,6 +48,8 @@ import org.junit.rules.ExternalResource;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.ConfigurationProvider;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.es.metadata.MetadataIndex;
+import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
@@ -75,6 +77,8 @@ public class EsTester extends ExternalResource {
       container.addSingleton(client);
       container.addSingleton(IndexDefinitions.class);
       container.addSingleton(IndexCreator.class);
+      container.addSingleton(MetadataIndex.class);
+      container.addSingleton(MetadataIndexDefinition.class);
       container.startComponents();
     }
   }
