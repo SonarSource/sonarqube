@@ -154,7 +154,6 @@ public class SSLTest {
     startSSLTransparentReverseProxy(true);
 
     SonarScanner sonarScanner = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
-      .setScannerVersion("2.7")
       .setProperty("sonar.host.url", "https://localhost:" + httpsPort);
 
     BuildResult buildResult = orchestrator.executeBuildQuietly(sonarScanner);
@@ -179,7 +178,6 @@ public class SSLTest {
     startSSLTransparentReverseProxy(false);
 
     SonarScanner sonarScanner = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
-      .setScannerVersion("2.7")
       .setProperty("sonar.host.url", "https://localhost:" + httpsPort);
 
     BuildResult buildResult = orchestrator.executeBuildQuietly(sonarScanner);
