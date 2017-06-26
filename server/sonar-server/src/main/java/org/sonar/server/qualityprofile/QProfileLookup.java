@@ -32,35 +32,41 @@ import static com.google.common.collect.Lists.newArrayList;
 @ServerSide
 public class QProfileLookup {
 
-  private final DbClient db;
+  private final DbClient dbClient;
 
-  public QProfileLookup(DbClient db) {
-    this.db = db;
+  public QProfileLookup(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   public List<QProfileDto> allProfiles(DbSession dbSession, OrganizationDto organization) {
-    return db.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
+    return dbClient.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
   }
 
   public Collection<QProfileDto> profiles(DbSession dbSession, String language, OrganizationDto organization) {
-    return db.qualityProfileDao().selectByLanguage(dbSession, organization, language);
+    return dbClient.qualityProfileDao().selectByLanguage(dbSession, organization, language);
   }
 
-  public List<QProfileDto> ancestors(QProfileDto profile, DbSession session) {
+  public List<QProfileDto> ancestors(QProfileDto profile, DbSession dbSession) {
     List<QProfileDto> ancestors = newArrayList();
-    incrementAncestors(profile, ancestors, session);
+    collectAncestors(profile, ancestors, dbSession);
     return ancestors;
   }
 
-  private void incrementAncestors(QProfileDto profile, List<QProfileDto> ancestors, DbSession session) {
-    if (profile.getParentKee() != null) {
-      QProfileDto parentDto = db.qualityProfileDao().selectByUuid(session, profile.getParentKee());
-      if (parentDto == null) {
-        throw new IllegalStateException("Cannot find parent of profile : " + profile.getId());
-      }
-      ancestors.add(parentDto);
-      incrementAncestors(parentDto, ancestors, session);
+  private void collectAncestors(QProfileDto profile, List<QProfileDto> ancestors, DbSession session) {
+    if (profile.getParentKee() == null) {
+      return;
     }
+
+    QProfileDto parent = getParent(session, profile);
+    ancestors.add(parent);
+    collectAncestors(parent, ancestors, session);
   }
 
+  private QProfileDto getParent(DbSession dbSession, QProfileDto profile) {
+    QProfileDto parent = dbClient.qualityProfileDao().selectByUuid(dbSession, profile.getParentKee());
+    if (parent == null) {
+      throw new IllegalStateException("Cannot find parent of profile: " + profile.getKee());
+    }
+    return parent;
+  }
 }
