@@ -19,6 +19,7 @@
  */
 // @flow
 import React from 'react';
+import classNames from 'classnames';
 import moment from 'moment';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import FormattedDate from '../../../components/ui/FormattedDate';
@@ -39,28 +40,80 @@ type Props = {
   loading: boolean
 };
 
-export default function ProjectActivityAnalysesList(props: Props) {
-  if (props.analyses.length === 0) {
-    return (
-      <div className={props.className}>
-        {props.loading
-          ? <div className="text-center"><i className="spinner" /></div>
-          : <span className="note">{translate('no_results')}</span>}
-      </div>
-    );
+export default class ProjectActivityAnalysesList extends React.PureComponent {
+  scrollContainer: HTMLElement;
+  badges: HTMLCollection<HTMLElement>;
+  props: Props;
+
+  componentDidMount() {
+    this.badges = document.getElementsByClassName('project-activity-version-badge');
   }
 
-  const firstAnalysisKey = props.analyses[0].key;
-  const byVersionByDay = getAnalysesByVersionByDay(props.analyses);
-  return (
-    <div className={props.className}>
-      <ul className="project-activity-versions-list">
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.analysis !== this.props.analyses && this.scrollContainer) {
+      this.scrollContainer.scrollTop = 0;
+      for (let i = 1; i < this.badges.length; i++) {
+        this.badges[i].removeAttribute('originOffsetTop');
+        this.badges[i].classList.remove('sticky');
+      }
+      this.handleScroll();
+    }
+  }
+
+  handleScroll = () => {
+    if (this.scrollContainer && this.badges) {
+      const scrollTop = this.scrollContainer.scrollTop;
+      if (scrollTop != null) {
+        let newScrollTop;
+        for (let i = 1; i < this.badges.length; i++) {
+          const badge = this.badges[i];
+          let originOffsetTop = badge.getAttribute('originOffsetTop');
+          if (originOffsetTop == null) {
+            originOffsetTop = badge.offsetTop;
+            badge.setAttribute('originOffsetTop', originOffsetTop.toString());
+          }
+          if (Number(originOffsetTop) < scrollTop + 18 + i * 2) {
+            if (!badge.classList.contains('sticky')) {
+              newScrollTop = originOffsetTop;
+            }
+            badge.classList.add('sticky');
+          } else {
+            badge.classList.remove('sticky');
+          }
+        }
+        if (newScrollTop != null) {
+          this.scrollContainer.scrollTop = newScrollTop - 6;
+        }
+      }
+    }
+  };
+
+  render() {
+    if (this.props.analyses.length === 0) {
+      return (
+        <div className={this.props.className}>
+          {this.props.loading
+            ? <div className="text-center"><i className="spinner" /></div>
+            : <span className="note">{translate('no_results')}</span>}
+        </div>
+      );
+    }
+
+    const firstAnalysisKey = this.props.analyses[0].key;
+    const byVersionByDay = getAnalysesByVersionByDay(this.props.analyses);
+    return (
+      <ul
+        className={classNames('project-activity-versions-list', this.props.className)}
+        onScroll={this.handleScroll}
+        ref={element => (this.scrollContainer = element)}>
         {byVersionByDay.map((version, idx) => (
           <li key={idx + version.version}>
             {version.version &&
-              <span className="badge project-activity-version-badge spacer-top big-spacer-bottom">
-                {version.version}
-              </span>}
+              <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
+                <span className="badge">
+                  {version.version}
+                </span>
+              </div>}
             <ul className="project-activity-days-list">
               {Object.keys(version.byDay).map(day => (
                 <li
@@ -74,13 +127,13 @@ export default function ProjectActivityAnalysesList(props: Props) {
                     {version.byDay[day] != null &&
                       version.byDay[day].map(analysis => (
                         <ProjectActivityAnalysis
-                          addCustomEvent={props.addCustomEvent}
-                          addVersion={props.addVersion}
+                          addCustomEvent={this.props.addCustomEvent}
+                          addVersion={this.props.addVersion}
                           analysis={analysis}
-                          canAdmin={props.canAdmin}
-                          changeEvent={props.changeEvent}
-                          deleteAnalysis={props.deleteAnalysis}
-                          deleteEvent={props.deleteEvent}
+                          canAdmin={this.props.canAdmin}
+                          changeEvent={this.props.changeEvent}
+                          deleteAnalysis={this.props.deleteAnalysis}
+                          deleteEvent={this.props.deleteEvent}
                           isFirst={analysis.key === firstAnalysisKey}
                           key={analysis.key}
                           version={version.version}
@@ -92,8 +145,8 @@ export default function ProjectActivityAnalysesList(props: Props) {
             </ul>
           </li>
         ))}
-        {props.analysesLoading && <li className="text-center"><i className="spinner" /></li>}
+        {this.props.analysesLoading && <li className="text-center"><i className="spinner" /></li>}
       </ul>
-    </div>
-  );
+    );
+  }
 }
