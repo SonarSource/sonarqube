@@ -102,7 +102,10 @@ public class RuleIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX_TYPE_RULE.getIndex());
 
     index.refreshHandledByIndexer();
-    index.configureShards(settings, 1);
+    // Default nb of shards should be greater than 1 in order to
+    // easily detect routing misconfiguration.
+    // See https://jira.sonarsource.com/browse/SONAR-9489
+    index.configureShards(settings, 2);
 
     // Active rule type
     NewIndex.NewIndexType activeRuleMapping = index.createType(INDEX_TYPE_ACTIVE_RULE.getType());

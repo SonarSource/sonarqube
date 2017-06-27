@@ -57,7 +57,7 @@ public class RuleIndexDefinitionTest {
     assertThat(ruleIndex.getTypes().keySet()).containsOnly("activeRule", "ruleExtension", "rule");
 
     // no cluster by default
-    assertThat(ruleIndex.getSettings().get("index.number_of_shards")).isEqualTo("1");
+    assertThat(ruleIndex.getSettings().get("index.number_of_shards")).isEqualTo("2");
     assertThat(ruleIndex.getSettings().get("index.number_of_replicas")).isEqualTo("0");
   }
 
