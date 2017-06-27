@@ -20,22 +20,26 @@
 package org.sonar.server.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.platform.PluginRepository;
-import org.sonar.server.platform.Platform;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.apache.catalina.connector.ClientAbortException;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginRepository;
+import org.sonar.server.platform.Platform;
 import org.sonarqube.ws.MediaTypes;
+
+import static java.lang.String.format;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 public class StaticResourcesServlet extends HttpServlet {
 
@@ -49,9 +53,9 @@ public class StaticResourcesServlet extends HttpServlet {
     InputStream in = null;
     OutputStream out = null;
     try {
-      PluginRepository pluginRepository = Platform.getInstance().getContainer().getComponentByType(PluginRepository.class);
+      PluginRepository pluginRepository = getContainer().getComponentByType(PluginRepository.class);
       if (!pluginRepository.hasPlugin(pluginKey)) {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        silentlySendError(response, SC_NOT_FOUND);
         return;
       }
 
@@ -62,24 +66,42 @@ public class StaticResourcesServlet extends HttpServlet {
         out = response.getOutputStream();
         IOUtils.copy(in, out);
       } else {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        silentlySendError(response, SC_NOT_FOUND);
       }
     } catch (Exception e) {
-      LOG.error(String.format("Unable to load resource [%s] from plugin [%s]", resource, pluginKey), e);
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      LOG.error(format("Unable to load resource [%s] from plugin [%s]", resource, pluginKey), e);
+      silentlySendError(response, SC_INTERNAL_SERVER_ERROR);
     } finally {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(out);
     }
   }
 
+  @VisibleForTesting
+  protected ComponentContainer getContainer() {
+    return Platform.getInstance().getContainer();
+  }
+
+  private static void silentlySendError(HttpServletResponse response, int error) {
+    if (response.isCommitted()) {
+      LOG.trace("Response is committed. Cannot send error response code {}", error);
+      return;
+    }
+    try {
+      response.sendError(error);
+    } catch (IOException e) {
+      LOG.trace(format("Failed to send error code %s", error), e);
+    }
+  }
+
   /**
    * @return part of request URL after servlet path
    */
-  protected String getPluginKeyAndResourcePath(HttpServletRequest request) {
+  private String getPluginKeyAndResourcePath(HttpServletRequest request) {
     return StringUtils.substringAfter(request.getRequestURI(), request.getContextPath() + request.getServletPath() + "/");
   }
 
+  @VisibleForTesting
   protected String getPluginKey(HttpServletRequest request) {
     return StringUtils.substringBefore(getPluginKeyAndResourcePath(request), "/");
   }
