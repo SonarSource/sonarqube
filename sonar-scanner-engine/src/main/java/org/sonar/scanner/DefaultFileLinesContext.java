@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -41,7 +39,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
-@ThreadSafe
 public class DefaultFileLinesContext implements FileLinesContext {
   private final SensorContext context;
   private final InputFile inputFile;
@@ -77,10 +74,8 @@ public class DefaultFileLinesContext implements FileLinesContext {
   public Integer getIntValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
-    synchronized (this) {
-      Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newIntegerConverter()));
-      return (Integer) lines.get(line);
-    }
+    Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newIntegerConverter()));
+    return (Integer) lines.get(line);
   }
 
   @Override
@@ -96,19 +91,17 @@ public class DefaultFileLinesContext implements FileLinesContext {
   public String getStringValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
-    synchronized (this) {
-      Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newStringConverter()));
-      return (String) lines.get(line);
-    }
+    Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newStringConverter()));
+    return (String) lines.get(line);
   }
 
-  private synchronized void setValue(String metricKey, int line, Object value) {
+  private void setValue(String metricKey, int line, Object value) {
     map.computeIfAbsent(metricKey, k -> new HashMap<>())
       .put(line, value);
   }
 
   @Override
-  public synchronized void save() {
+  public void save() {
     for (Map.Entry<String, Map<Integer, Object>> entry : map.entrySet()) {
       String metricKey = entry.getKey();
       Map<Integer, Object> lines = entry.getValue();

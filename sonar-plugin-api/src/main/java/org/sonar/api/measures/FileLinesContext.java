@@ -19,8 +19,6 @@
  */
 package org.sonar.api.measures;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 /**
  * Provides facility to store measures for the lines of file.
  * Examples:
@@ -39,7 +37,6 @@ import javax.annotation.concurrent.ThreadSafe;
  *
  * @since 2.14
  */
-@ThreadSafe
 public interface FileLinesContext {
 
   /**
