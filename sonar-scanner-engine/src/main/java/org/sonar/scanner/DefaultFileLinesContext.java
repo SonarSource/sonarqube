@@ -19,12 +19,14 @@
  */
 package org.sonar.scanner;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -35,10 +37,12 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
-import static java.util.stream.Collectors.toMap;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 
+@ThreadSafe
 public class DefaultFileLinesContext implements FileLinesContext {
-
   private final SensorContext context;
   private final InputFile inputFile;
   private final MetricFinder metricFinder;
@@ -47,7 +51,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   /**
    * metric key -> line -> value
    */
-  private final Map<String, Map<Integer, Object>> map = Maps.newHashMap();
+  private final Map<String, Map<Integer, Object>> map = new HashMap<>();
 
   public DefaultFileLinesContext(SensorContext context, InputFile inputFile, MetricFinder metricFinder, MeasureCache measureCache) {
     this.context = context;
@@ -73,14 +77,10 @@ public class DefaultFileLinesContext implements FileLinesContext {
   public Integer getIntValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
-
-    Map<Integer, Object> lines = map.get(metricKey);
-    if (lines == null) {
-      // not in memory, so load
-      lines = loadData(metricKey, KeyValueFormat.newIntegerConverter());
-      map.put(metricKey, lines);
+    synchronized (this) {
+      Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newIntegerConverter()));
+      return (Integer) lines.get(line);
     }
-    return (Integer) lines.get(line);
   }
 
   @Override
@@ -96,31 +96,19 @@ public class DefaultFileLinesContext implements FileLinesContext {
   public String getStringValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
-
-    Map<Integer, Object> lines = map.get(metricKey);
-    if (lines == null) {
-      // not in memory, so load
-      lines = loadData(metricKey, KeyValueFormat.newStringConverter());
-      map.put(metricKey, lines);
+    synchronized (this) {
+      Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newStringConverter()));
+      return (String) lines.get(line);
     }
-    return (String) lines.get(line);
   }
 
-  private Map<Integer, Object> getOrCreateLines(String metricKey) {
-    Map<Integer, Object> lines = map.get(metricKey);
-    if (lines == null) {
-      lines = Maps.newHashMap();
-      map.put(metricKey, lines);
-    }
-    return lines;
-  }
-
-  private void setValue(String metricKey, int line, Object value) {
-    getOrCreateLines(metricKey).put(line, value);
+  private synchronized void setValue(String metricKey, int line, Object value) {
+    map.computeIfAbsent(metricKey, k -> new HashMap<>())
+      .put(line, value);
   }
 
   @Override
-  public void save() {
+  public synchronized void save() {
     for (Map.Entry<String, Map<Integer, Object>> entry : map.entrySet()) {
       String metricKey = entry.getKey();
       Map<Integer, Object> lines = entry.getValue();
@@ -147,7 +135,10 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   private Map<Integer, Object> loadData(String metricKey, Converter<? extends Object> converter) {
-    DefaultMeasure<?> measure = measureCache.byMetric(inputFile.key(), metricKey);
+    DefaultMeasure<?> measure;
+    synchronized (measureCache) {
+      measure = measureCache.byMetric(inputFile.key(), metricKey);
+    }
     String data = measure != null ? (String) measure.value() : null;
     if (data != null) {
       return ImmutableMap.copyOf(KeyValueFormat.parse(data, KeyValueFormat.newIntegerConverter(), converter));
