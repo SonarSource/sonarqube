@@ -58,6 +58,7 @@ public class InputComponentStore {
   private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();
   private final Map<String, InputDir> globalInputDirCache = new HashMap<>();
   private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
+  // indexed by key with branch
   private final Map<String, InputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
@@ -190,7 +191,7 @@ public class InputComponentStore {
     String keyWithBranch = inputModule.getKeyWithBranch();
     Preconditions.checkNotNull(inputModule);
     Preconditions.checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
-    Preconditions.checkState(!inputModuleCache.containsKey(keyWithBranch), "Module '%s' already indexed", key);
+    Preconditions.checkState(!inputModuleCache.containsKey(keyWithBranch), "Module '%s' already indexed", keyWithBranch);
     inputComponents.put(key, inputModule);
     inputModuleCache.put(keyWithBranch, inputModule);
     if (inputModule.definition().getParent() == null) {
