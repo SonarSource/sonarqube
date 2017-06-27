@@ -1,0 +1,23 @@
+{
+  "profile": {
+    "key": "AU-TpxcA-iU5OvuD2FL3",
+    "name": "My Company Profile",
+    "language": "cs",
+    "languageName": "C#",
+    "isInherited": true,
+    "isBuiltIn": false,
+    "isDefault": false,
+    "parentKey": "AU-TpxcA-iU5OvuD2FL1",
+    "parentName": "Parent Company Profile",
+    "activeRuleCount": 10,
+    "activeDeprecatedRuleCount": 0,
+    "projectCount": 7,
+    "ruleUpdatedAt": "2016-12-22T19:10:03+0100",
+    "lastUsed": "2016-12-01T19:10:03+0100"
+  },
+  "compareToSonarWay": {
+    "profile": "iU5OvuD2FLz",
+    "profileName": "Sonar way",
+    "missingRuleCount": 4
+  }
+}

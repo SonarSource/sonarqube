@@ -50,7 +50,8 @@ public class QProfilesWsModule extends Module {
       ActivateRuleAction.class,
       DeactivateRuleAction.class,
       SearchAction.class,
-      SetDefaultAction.class
+      SetDefaultAction.class,
+      ShowAction.class
       );
   }
 }
