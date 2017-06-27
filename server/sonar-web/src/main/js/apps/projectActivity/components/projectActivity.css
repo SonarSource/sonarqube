@@ -4,9 +4,11 @@
 }
 
 .project-activity-page-side-outer {
+  position: relative;
   width: 400px;
-  overflow: auto;
   margin-bottom: 0;
+  display: flex;
+  align-items: stretch;
 }
 
 .project-activity-page-side-outer > .boxed-group-inner {
@@ -31,8 +33,13 @@
   align-items: stretch;
 }
 
-.project-activity-list {
+.project-activity-versions-list {
   max-width: 400px;
+  box-sizing: border-box;
+  overflow: auto;
+  flex-grow: 0;
+  flex-shrink: 0;
+  padding-top: 52px;
 }
 
 .project-activity-graph-container {
@@ -57,7 +64,8 @@
 .project-activity-days-list {}
 
 .project-activity-day {
-  margin-bottom: 32px;
+  margin-top: 8px;
+  margin-bottom: 24px;
 }
 
 .project-activity-day:last-child {
@@ -169,9 +177,28 @@
 }
 
 .project-activity-version-badge {
+  margin-left: -12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  background-color: white;
+}
+
+.project-activity-version-badge.sticky, .project-activity-version-badge.first {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  right: 20px;
+  padding-top: 24px;
+  z-index: 100;
+}
+
+.project-activity-version-badge.sticky + .project-activity-days-list {
+  padding-top: 36px;
+}
+
+.project-activity-version-badge .badge {
   vertical-align: middle;
-  padding: 4px 14px 4px 16px;
-  margin-left: -14px;
+  padding: 4px 14px 4px 14px;
   border-radius: 2px;
   font-weight: bold;
   font-size: 12px;
