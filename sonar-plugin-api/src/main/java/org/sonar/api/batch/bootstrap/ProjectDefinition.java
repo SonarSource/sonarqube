@@ -36,11 +36,8 @@ import org.sonar.api.CoreProperties;
  * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point} and must not be used
  * by other standard extensions.
  *
- * Since 6.5, this object represents a builder and should only be used while the project hierarchy is being defined.
- * Plugins can access it in the {@link ProjectBuilder} extension point. After the project is initialized, 
- * use {@link ImmutableProjectDefinition} instead.
+ * Since 6.5, plugins should no longer manipulate the project's structure.
  *
- * @see ImmutableProjectDefinition
  * @since 2.9
  */
 public class ProjectDefinition {
