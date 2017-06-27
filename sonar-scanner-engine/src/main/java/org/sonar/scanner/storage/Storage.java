@@ -19,12 +19,12 @@
  */
 package org.sonar.scanner.storage;
 
-import com.google.common.collect.Sets;
 import com.persistit.Exchange;
 import com.persistit.Key;
 import com.persistit.KeyFilter;
 import com.persistit.exception.PersistitException;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -242,7 +242,7 @@ public class Storage<V> {
   @SuppressWarnings("rawtypes")
   public Set keySet(Object key) {
     try {
-      Set<Object> keys = Sets.newLinkedHashSet();
+      Set<Object> keys = new LinkedHashSet<>();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
       iteratorExchange.append(key);
@@ -259,7 +259,7 @@ public class Storage<V> {
   @SuppressWarnings("rawtypes")
   public Set keySet(Object firstKey, Object secondKey) {
     try {
-      Set<Object> keys = Sets.newLinkedHashSet();
+      Set<Object> keys = new LinkedHashSet<>();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
       iteratorExchange.append(firstKey);
@@ -281,7 +281,7 @@ public class Storage<V> {
    */
   public Set<Object> keySet() {
     try {
-      Set<Object> keys = Sets.newLinkedHashSet();
+      Set<Object> keys = new LinkedHashSet<>();
       exchange.clear();
       Exchange iteratorExchange = new Exchange(exchange);
       iteratorExchange.append(Key.BEFORE);
