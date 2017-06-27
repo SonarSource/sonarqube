@@ -123,11 +123,16 @@ public class RuleIndexer implements StartupIndexer {
   }
 
   private static IndexRequest newIndexRequest(RuleDoc rule) {
-    return new IndexRequest(INDEX_TYPE_RULE.getIndex(), INDEX_TYPE_RULE.getType(), rule.key().toString()).source(rule.getFields());
+    return new IndexRequest(INDEX_TYPE_RULE.getIndex(), INDEX_TYPE_RULE.getType())
+      .id(rule.getId())
+      .routing(rule.getRouting())
+      .source(rule.getFields());
   }
 
   private static IndexRequest newIndexRequest(RuleExtensionDoc ruleExtension) {
-    return new IndexRequest(INDEX_TYPE_RULE_EXTENSION.getIndex(), INDEX_TYPE_RULE_EXTENSION.getType(), ruleExtension.getId())
+    return new IndexRequest(INDEX_TYPE_RULE_EXTENSION.getIndex(), INDEX_TYPE_RULE_EXTENSION.getType())
+      .id(ruleExtension.getId())
+      .routing(ruleExtension.getRouting())
       .source(ruleExtension.getFields())
       .parent(ruleExtension.getParent());
   }

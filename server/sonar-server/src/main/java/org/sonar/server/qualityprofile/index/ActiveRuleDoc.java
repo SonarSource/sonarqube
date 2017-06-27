@@ -51,7 +51,7 @@ public class ActiveRuleDoc extends BaseDoc {
 
   @Override
   public String getRouting() {
-    return null;
+    return getRuleKeyAsString();
   }
 
   @Override
@@ -60,7 +60,11 @@ public class ActiveRuleDoc extends BaseDoc {
   }
 
   RuleKey getRuleKey() {
-    return RuleKey.parse(getField(FIELD_ACTIVE_RULE_RULE_KEY));
+    return RuleKey.parse(getRuleKeyAsString());
+  }
+
+  private String getRuleKeyAsString() {
+    return getField(FIELD_ACTIVE_RULE_RULE_KEY);
   }
 
   String getRuleRepository() {

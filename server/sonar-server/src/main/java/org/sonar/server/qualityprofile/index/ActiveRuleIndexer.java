@@ -88,7 +88,7 @@ public class ActiveRuleIndexer implements StartupIndexer {
       .filter(c -> c.getActiveRule() != null)
       .forEach(c -> {
         if (c.getType().equals(ActiveRuleChange.Type.DEACTIVATED)) {
-          bulk.addDeletion(INDEX_TYPE_ACTIVE_RULE, String.valueOf(c.getActiveRule().getId()));
+          bulk.addDeletion(INDEX_TYPE_ACTIVE_RULE, String.valueOf(c.getActiveRule().getId()), c.getKey().getRuleKey().toString());
         } else {
           idsOfTouchedActiveRules.add(c.getActiveRule().getId());
         }
@@ -129,7 +129,9 @@ public class ActiveRuleIndexer implements StartupIndexer {
   }
 
   private static IndexRequest newIndexRequest(ActiveRuleDoc doc) {
-    return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType(), doc.getId())
+    return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType())
+      .id(doc.getId())
+      .routing(doc.getRouting())
       .parent(doc.getRuleKey().toString())
       .source(doc.getFields());
   }
