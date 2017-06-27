@@ -49,7 +49,7 @@ public class RuleDoc extends BaseDoc {
 
   @Override
   public String getRouting() {
-    return null;
+    return keyAsString();
   }
 
   @Override
@@ -58,7 +58,11 @@ public class RuleDoc extends BaseDoc {
   }
 
   public RuleKey key() {
-    return RuleKey.parse(this.getField(RuleIndexDefinition.FIELD_RULE_KEY));
+    return RuleKey.parse(keyAsString());
+  }
+
+  private String keyAsString() {
+    return getField(RuleIndexDefinition.FIELD_RULE_KEY);
   }
 
   public RuleDoc setKey(@Nullable String s) {

@@ -44,7 +44,7 @@ public class RuleExtensionDoc extends BaseDoc {
 
   @Override
   public String getRouting() {
-    return null;
+    return getRuleKey().toString();
   }
 
   @Override
