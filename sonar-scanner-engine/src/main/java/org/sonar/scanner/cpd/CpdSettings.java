@@ -21,24 +21,25 @@ package org.sonar.scanner.cpd;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Settings;
+import org.sonar.duplications.block.BlockChunker;
 
 public class CpdSettings {
   private final Settings settings;
-  private final DefaultInputModule module;
+  private final String branch;
 
-  public CpdSettings(Settings settings, DefaultInputModule module) {
+  public CpdSettings(Settings settings, InputModuleHierarchy hierarchy) {
     this.settings = settings;
-    this.module = module;
+    this.branch = hierarchy.root().getBranch();
   }
 
   public boolean isCrossProjectDuplicationEnabled() {
     return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)
       // No cross project duplication for branches
-      && StringUtils.isBlank(module.getBranch());
+      && StringUtils.isBlank(branch);
   }
-  
+
   /**
    * Not applicable to Java, as the {@link BlockChunker} that it uses does not record start and end units of each block. 
    * Also, it uses statements instead of tokens. 

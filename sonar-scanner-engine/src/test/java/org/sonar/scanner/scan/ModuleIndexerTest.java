@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -48,6 +49,11 @@ public class ModuleIndexerTest {
 
   @Test
   public void testIndex() {
+    ProjectDefinition rootDef = mock(ProjectDefinition.class);
+    ProjectDefinition def = mock(ProjectDefinition.class);
+    when(rootDef.getParent()).thenReturn(null);
+    when(def.getParent()).thenReturn(rootDef);
+    
     DefaultInputModule root = mock(DefaultInputModule.class);
     DefaultInputModule mod1 = mock(DefaultInputModule.class);
     DefaultInputModule mod2 = mock(DefaultInputModule.class);
@@ -57,9 +63,19 @@ public class ModuleIndexerTest {
     when(mod1.key()).thenReturn("mod1");
     when(mod2.key()).thenReturn("mod2");
     when(mod3.key()).thenReturn("mod3");
+    
+    when(root.getKeyWithBranch()).thenReturn("root");
+    when(mod1.getKeyWithBranch()).thenReturn("mod1");
+    when(mod2.getKeyWithBranch()).thenReturn("mod2");
+    when(mod3.getKeyWithBranch()).thenReturn("mod3");
 
-    when(moduleHierarchy.children(root)).thenReturn(Arrays.asList(mod1, mod2, mod3));
+    when(root.definition()).thenReturn(rootDef);
+    when(mod1.definition()).thenReturn(def);
+    when(mod2.definition()).thenReturn(def);
+    when(mod3.definition()).thenReturn(def);
+
     when(moduleHierarchy.root()).thenReturn(root);
+    when(moduleHierarchy.children(root)).thenReturn(Arrays.asList(mod1, mod2, mod3));
 
     indexer.start();
 

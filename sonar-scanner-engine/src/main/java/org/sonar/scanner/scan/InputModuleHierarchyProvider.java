@@ -43,7 +43,7 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
 
       // 3 Create module and its hierarchy
       DefaultInputModule root = new DefaultInputModule(projectReactor.getRoot(), batchIdGenerator.get());
-      Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, batchIdGenerator);
+      Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, batchIdGenerator, new HashMap<>());
       if (parents.isEmpty()) {
         hierarchy = new DefaultInputModuleHierarchy(root);
       } else {
@@ -53,12 +53,12 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
     return hierarchy;
   }
 
-  private Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, BatchIdGenerator batchIdGenerator) {
-    Map<DefaultInputModule, DefaultInputModule> parents = new HashMap<>();
-
+  private Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, BatchIdGenerator batchIdGenerator,
+    Map<DefaultInputModule, DefaultInputModule> parents) {
     for (ProjectDefinition def : parent.definition().getSubProjects()) {
       DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.get());
       parents.put(child, parent);
+      createChildren(child, batchIdGenerator, parents);
     }
     return parents;
   }

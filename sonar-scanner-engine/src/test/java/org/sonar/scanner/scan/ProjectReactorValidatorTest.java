@@ -19,6 +19,9 @@
  */
 package org.sonar.scanner.scan;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,13 +29,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ProjectReactorValidatorTest {
 
@@ -40,14 +38,12 @@ public class ProjectReactorValidatorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private ProjectReactorValidator validator;
-  private Settings settings;
   private DefaultAnalysisMode mode;
 
   @Before
   public void prepare() {
     mode = mock(DefaultAnalysisMode.class);
-    settings = new MapSettings();
-    validator = new ProjectReactorValidator(settings, mode);
+    validator = new ProjectReactorValidator(mode);
   }
 
   @Test
@@ -62,12 +58,12 @@ public class ProjectReactorValidatorTest {
     validator.validate(createProjectReactor("3-3"));
     validator.validate(createProjectReactor("-:"));
   }
-  
+
   @Test
   public void allow_slash_issues_mode() {
     when(mode.isIssues()).thenReturn(true);
     validator.validate(createProjectReactor("project/key"));
-    
+
     when(mode.isIssues()).thenReturn(false);
     thrown.expect(MessageException.class);
     thrown.expectMessage("is not a valid project or module key");
@@ -157,16 +153,6 @@ public class ProjectReactorValidatorTest {
     validator.validate(reactor);
   }
 
-  @Test
-  public void fail_with_deprecated_sonar_phase() {
-    ProjectReactor reactor = createProjectReactor("foo");
-    settings.setProperty("sonar.phase", "phase");
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("\"sonar.phase\" is deprecated");
-    validator.validate(reactor);
-  }
-
   private ProjectReactor createProjectReactor(String projectKey) {
     ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
     ProjectReactor reactor = new ProjectReactor(def);
@@ -177,9 +163,7 @@ public class ProjectReactorValidatorTest {
     ProjectDefinition def = ProjectDefinition.create()
       .setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey)
       .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch);
-    ProjectReactor reactor = new ProjectReactor(def);
-    settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch);
-    return reactor;
+    return new ProjectReactor(def);
   }
 
 }

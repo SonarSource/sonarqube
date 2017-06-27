@@ -108,10 +108,10 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     addBatchComponents();
+    addBatchExtensions();
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoryCleaner.class).execute();
-    addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       add(PhasesSumUpTimeProfiler.class);

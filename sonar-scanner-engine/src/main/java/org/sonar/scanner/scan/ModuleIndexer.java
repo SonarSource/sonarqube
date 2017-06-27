@@ -21,6 +21,7 @@ package org.sonar.scanner.scan;
 
 import org.picocontainer.Startable;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 /**
@@ -29,10 +30,10 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
  */
 public class ModuleIndexer implements Startable {
   private final DefaultComponentTree componentTree;
-  private final DefaultInputModuleHierarchy moduleHierarchy;
+  private final InputModuleHierarchy moduleHierarchy;
   private final InputComponentStore componentStore;
 
-  public ModuleIndexer(DefaultComponentTree componentTree, InputComponentStore componentStore, DefaultInputModuleHierarchy moduleHierarchy) {
+  public ModuleIndexer(DefaultComponentTree componentTree, InputComponentStore componentStore, InputModuleHierarchy moduleHierarchy) {
     this.componentTree = componentTree;
     this.componentStore = componentStore;
     this.moduleHierarchy = moduleHierarchy;
@@ -42,7 +43,6 @@ public class ModuleIndexer implements Startable {
   public void start() {
     DefaultInputModule root = moduleHierarchy.root();
     componentStore.put(root);
-    componentStore.setRoot(root);
     indexChildren(root);
   }
 

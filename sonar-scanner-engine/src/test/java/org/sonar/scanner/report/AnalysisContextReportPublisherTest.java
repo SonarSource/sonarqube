@@ -225,16 +225,17 @@ public class AnalysisContextReportPublisherTest {
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     publisher.init(writer);
 
-    ProjectDefinition module = ProjectDefinition.create()
+    DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create()
       .setProperty("sonar.projectKey", "foo")
-      .setProperty(SONAR_SKIP, "true");
+      .setProperty(SONAR_SKIP, "true"));
 
-    ProjectDefinition.create()
+    DefaultInputModule parent = new DefaultInputModule(ProjectDefinition.create()
       .setProperty("sonar.projectKey", "parent")
-      .setProperty(SONAR_SKIP, "true")
-      .addSubProject(module);
+      .setProperty(SONAR_SKIP, "true"));
 
-    publisher.dumpModuleSettings(new DefaultInputModule(module));
+    when(hierarchy.parent(module)).thenReturn(parent);
+
+    publisher.dumpModuleSettings(module);
 
     String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).doesNotContain(SONAR_SKIP);

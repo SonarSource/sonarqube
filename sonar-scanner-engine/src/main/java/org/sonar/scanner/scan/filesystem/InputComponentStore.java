@@ -157,7 +157,7 @@ public class InputComponentStore {
   }
 
   private Path getProjectBaseDir() {
-    return ((DefaultInputModule) root).definition().getBaseDir().toPath();
+    return ((DefaultInputModule) root).getBaseDir().toPath();
   }
 
   @CheckForNull
@@ -181,24 +181,24 @@ public class InputComponentStore {
   }
 
   @CheckForNull
-  public InputModule getModule(String moduleKey) {
-    return inputModuleCache.get(moduleKey);
+  public InputModule getModule(String moduleKeyWithBranch) {
+    return inputModuleCache.get(moduleKeyWithBranch);
   }
 
   public void put(DefaultInputModule inputModule) {
     String key = inputModule.key();
+    String keyWithBranch = inputModule.getKeyWithBranch();
     Preconditions.checkNotNull(inputModule);
     Preconditions.checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
-    Preconditions.checkState(!inputModuleCache.containsKey(key), "Module '%s' already indexed", key);
+    Preconditions.checkState(!inputModuleCache.containsKey(keyWithBranch), "Module '%s' already indexed", key);
     inputComponents.put(key, inputModule);
-    inputModuleCache.put(key, inputModule);
-  }
-
-  public void setRoot(DefaultInputModule r) {
-    if (root != null) {
-      throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + r.key() + "'");
+    inputModuleCache.put(keyWithBranch, inputModule);
+    if (inputModule.definition().getParent() == null) {
+      if (root != null) {
+        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + key + "'");
+      }
+      root = inputModule;
     }
-    this.root = r;
   }
 
   public Iterable<InputFile> getFilesByName(String filename) {

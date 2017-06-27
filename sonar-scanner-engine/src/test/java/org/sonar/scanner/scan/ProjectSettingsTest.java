@@ -19,19 +19,17 @@
  */
 package org.sonar.scanner.scan;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
@@ -43,9 +41,9 @@ import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
 import org.sonar.scanner.repository.settings.SettingsLoader;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Table;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectSettingsTest {
 
@@ -55,11 +53,10 @@ public class ProjectSettingsTest {
   public LogTester logTester = new LogTester();
 
   private ProjectRepositories projectRef;
-  private DefaultInputModule project;
+  private ProjectDefinition project;
   private GlobalSettings bootstrapProps;
   private Table<String, String, FileData> emptyFileData;
   private Table<String, String, String> emptySettings;
-  private InputModuleHierarchy hierarchy;
 
   private GlobalMode globalMode;
   private DefaultAnalysisMode mode;
@@ -68,61 +65,56 @@ public class ProjectSettingsTest {
   public void prepare() {
     emptyFileData = ImmutableTable.of();
     emptySettings = ImmutableTable.of();
-    project = mock(DefaultInputModule.class);
-    hierarchy = mock(InputModuleHierarchy.class);
+    project = ProjectDefinition.create().setKey("struts");
     globalMode = mock(GlobalMode.class);
     mode = mock(DefaultAnalysisMode.class);
-    when(hierarchy.root()).thenReturn(project);
     bootstrapProps = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), mock(SettingsLoader.class), globalMode);
   }
 
   @Test
   public void should_load_project_props() {
-    when(project.getKeyWithBranch()).thenReturn("struts");
-    when(project.properties()).thenReturn(Collections.singletonMap("project.prop", "project"));
+    project.setProperty("project.prop", "project");
 
     projectRef = new ProjectRepositories(emptySettings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(hierarchy, bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
   }
 
   @Test
   public void should_load_project_root_settings() {
-    when(project.getKeyWithBranch()).thenReturn("struts");
     Table<String, String, String> settings = HashBasedTable.create();
     settings.put("struts", "sonar.cpd.cross", "true");
     settings.put("struts", "sonar.java.coveragePlugin", "jacoco");
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(hierarchy, bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
   @Test
   public void should_load_project_root_settings_on_branch() {
-    when(project.properties()).thenReturn(Collections.singletonMap(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch"));
-    when(project.getKeyWithBranch()).thenReturn("struts:mybranch");
+    project.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
+
     Table<String, String, String> settings = HashBasedTable.create();
     settings.put("struts:mybranch", "sonar.cpd.cross", "true");
     settings.put("struts:mybranch", "sonar.java.coveragePlugin", "jacoco");
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
 
-    ProjectSettings batchSettings = new ProjectSettings(hierarchy, bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    when(project.getKeyWithBranch()).thenReturn("struts");
     Table<String, String, String> settings = HashBasedTable.create();
     settings.put("struts", "sonar.foo.secured", "bar");
     settings.put("struts", "sonar.foo.license.secured", "bar2");
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(hierarchy, bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(batchSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -130,7 +122,6 @@ public class ProjectSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_issues_mode() {
-    when(project.getKeyWithBranch()).thenReturn("struts");
     Table<String, String, String> settings = HashBasedTable.create();
     settings.put("struts", "sonar.foo.secured", "bar");
     settings.put("struts", "sonar.foo.license.secured", "bar2");
@@ -138,7 +129,7 @@ public class ProjectSettingsTest {
     when(mode.isIssues()).thenReturn(true);
 
     projectRef = new ProjectRepositories(settings, emptyFileData, null);
-    ProjectSettings batchSettings = new ProjectSettings(hierarchy, bootstrapProps, projectRef, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);
