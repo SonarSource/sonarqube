@@ -41,7 +41,7 @@ type Props = {
 export default function ProjectActivityAnalysis(props: Props) {
   const { date, events } = props.analysis;
   const { isFirst, canAdmin } = props;
-
+  const analysisTitle = translate('project_activity.analysis');
   return (
     <li className="project-activity-analysis clearfix">
       <div className="project-activity-time spacer-right">
@@ -49,7 +49,7 @@ export default function ProjectActivityAnalysis(props: Props) {
       </div>
       <div
         className="project-activity-analysis-icon little-spacer-top big-spacer-right"
-        title={translate('project_activity.analysis')}
+        title={analysisTitle}
       />
 
       {canAdmin &&

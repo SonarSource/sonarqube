@@ -20,7 +20,6 @@
 // @flow
 import React from 'react';
 import Event from './Event';
-import './projectActivity.css';
 import type { Event as EventType } from '../types';
 
 type Props = {
