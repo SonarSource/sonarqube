@@ -44,16 +44,17 @@ public class DefaultIndexSettings {
   public static final String TYPE = "type";
   public static final String INDEX = "index";
   public static final String ANALYZED = "analyzed";
-  public static final String STRING = "string";
+  public static final String FIELD_TYPE_TEXT = "string";  // ES 5: change to text
+  public static final String FIELD_TYPE_KEYWORD = "string";  // ES 5: change to keyword
   public static final String STANDARD = "standard";
   public static final String PATTERN = "pattern";
   public static final String CUSTOM = "custom";
   public static final String KEYWORD = "keyword";
   public static final String CLASSIC = "classic";
+
   public static final String TRUNCATE = "truncate";
 
   public static final String SUB_FIELD_DELIMITER = ".";
-
   public static final String TRIM = "trim";
   public static final String LOWERCASE = "lowercase";
   public static final String WHITESPACE = "whitespace";

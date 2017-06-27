@@ -160,7 +160,7 @@ public class IndexCreatorTest {
     public void define(IndexDefinitionContext context) {
       NewIndex index = context.create("fakes");
       NewIndex.NewIndexType mapping = index.createType("fake");
-      mapping.stringFieldBuilder("key").build();
+      mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
     }
   }
@@ -170,7 +170,7 @@ public class IndexCreatorTest {
     public void define(IndexDefinitionContext context) {
       NewIndex index = context.create("fakes");
       NewIndex.NewIndexType mapping = index.createType("fake");
-      mapping.stringFieldBuilder("key").build();
+      mapping.keywordFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
       mapping.createIntegerField("newField");
     }
