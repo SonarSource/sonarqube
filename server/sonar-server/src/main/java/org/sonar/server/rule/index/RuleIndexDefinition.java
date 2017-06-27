@@ -114,44 +114,44 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.setEnableSource(enableSource);
     activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
 
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).build();
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
-    activeRuleMapping.stringFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
 
     // Rule extension type
     NewIndex.NewIndexType ruleExtensionType = index.createType(INDEX_TYPE_RULE_EXTENSION.getType());
     ruleExtensionType.setEnableSource(enableSource);
     ruleExtensionType.setAttribute("_parent", ImmutableMap.of("type", INDEX_TYPE_RULE.getType()));
 
-    ruleExtensionType.stringFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build();
-    ruleExtensionType.stringFieldBuilder(FIELD_RULE_EXTENSION_RULE_KEY).disableNorms().build();
-    ruleExtensionType.stringFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
+    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build();
+    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_RULE_KEY).disableNorms().build();
+    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
 
     // Rule type
     NewIndex.NewIndexType ruleMapping = index.createType(INDEX_TYPE_RULE.getType());
     ruleMapping.setEnableSource(enableSource);
 
-    ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
 
-    ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_WORDS_ANALYZER).build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_WORDS_ANALYZER).build();
     ruleMapping.setProperty(FIELD_RULE_HTML_DESCRIPTION, ImmutableSortedMap.of(
-      DefaultIndexSettings.TYPE, DefaultIndexSettings.STRING,
+      DefaultIndexSettings.TYPE, DefaultIndexSettings.FIELD_TYPE_TEXT,
       DefaultIndexSettings.INDEX, DefaultIndexSettings.ANALYZED,
       DefaultIndexSettings.ANALYZER, ENGLISH_HTML_ANALYZER.getName(),
       DefaultIndexSettings.SEARCH_ANALYZER, ENGLISH_HTML_ANALYZER.getName()));
-    ruleMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();
 
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
-    ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().build();
 
-    ruleMapping.stringFieldBuilder(FIELD_RULE_TYPE).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_TYPE).disableNorms().build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);

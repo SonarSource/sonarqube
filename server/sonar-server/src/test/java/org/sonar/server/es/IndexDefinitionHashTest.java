@@ -45,7 +45,7 @@ public class IndexDefinitionHashTest {
     NewIndex newIndex = new NewIndex("fakes");
     NewIndex.NewIndexType mapping = newIndex.createType("fake");
     mapping.setAttribute("list_attr", Arrays.asList("foo", "bar"));
-    mapping.stringFieldBuilder("key").build();
+    mapping.keywordFieldBuilder("key").build();
     mapping.createDateTimeField("updatedAt");
     return newIndex;
   }

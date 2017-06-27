@@ -47,7 +47,7 @@ public class ViewIndexDefinition implements IndexDefinition {
 
     // type "view"
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_VIEW.getType());
-    mapping.stringFieldBuilder(FIELD_UUID).disableNorms().build();
-    mapping.stringFieldBuilder(FIELD_PROJECTS).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_UUID).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_PROJECTS).disableNorms().build();
   }
 }

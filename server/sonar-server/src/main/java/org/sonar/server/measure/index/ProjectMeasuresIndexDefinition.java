@@ -56,14 +56,14 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_PROJECT_MEASURES.getType())
       .requireProjectAuthorization();
 
-    mapping.stringFieldBuilder(FIELD_ORGANIZATION_UUID).build();
-    mapping.stringFieldBuilder(FIELD_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_QUALITY_GATE_STATUS).build();
-    mapping.stringFieldBuilder(FIELD_TAGS).build();
-    mapping.stringFieldBuilder(FIELD_LANGUAGES).build();
+    mapping.keywordFieldBuilder(FIELD_ORGANIZATION_UUID).build();
+    mapping.keywordFieldBuilder(FIELD_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_QUALITY_GATE_STATUS).build();
+    mapping.keywordFieldBuilder(FIELD_TAGS).build();
+    mapping.keywordFieldBuilder(FIELD_LANGUAGES).build();
     mapping.nestedFieldBuilder(FIELD_MEASURES)
-      .addStringField(FIELD_MEASURES_KEY)
+      .addKeywordField(FIELD_MEASURES_KEY)
       .addDoubleField(FIELD_MEASURES_VALUE)
       .build();
     mapping.createDateTimeField(FIELD_ANALYSED_AT);
