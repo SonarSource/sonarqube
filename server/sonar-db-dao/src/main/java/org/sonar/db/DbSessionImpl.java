@@ -22,6 +22,7 @@ package org.sonar.db;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
@@ -50,6 +51,21 @@ public class DbSessionImpl implements DbSession {
    * We only care about the the commit section.
    * The rest is simply passed to its parent.
    */
+
+  @Override
+  public <T> Cursor<T> selectCursor(String statement) {
+    return session.selectCursor(statement);
+  }
+
+  @Override
+  public <T> Cursor<T> selectCursor(String statement, Object parameter) {
+    return session.selectCursor(statement, parameter);
+  }
+
+  @Override
+  public <T> Cursor<T> selectCursor(String statement, Object parameter, RowBounds rowBounds) {
+    return session.selectCursor(statement, parameter, rowBounds);
+  }
 
   @Override
   public <T> T selectOne(String statement) {

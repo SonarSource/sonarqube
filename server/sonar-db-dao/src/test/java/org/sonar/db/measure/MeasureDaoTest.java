@@ -390,7 +390,7 @@ public class MeasureDaoTest {
 
   private void verifyMeasures(ComponentDto baseComponent, MeasureTreeQuery.Builder measureQuery, String... expectedIds) {
     List<MeasureDto> measures = new ArrayList<>();
-    underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build(), result -> measures.add((MeasureDto) result.getResultObject()));
+    underTest.selectTreeByQuery(db.getSession(), baseComponent, measureQuery.build(), result -> measures.add(result.getResultObject()));
     assertThat(measures).extracting(MeasureDto::getData).containsOnly(expectedIds);
   }
 

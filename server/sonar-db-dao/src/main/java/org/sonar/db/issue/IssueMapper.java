@@ -28,7 +28,7 @@ public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  void selectNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler resultHandler);
+  void selectNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler<IssueDto> resultHandler);
 
   Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 

@@ -80,9 +80,9 @@ public interface PermissionTemplateMapper {
 
   List<PermissionTemplateDto> selectAll(@Param("organizationUuid") String organizationUuid, @Nullable @Param("upperCaseNameLikeSql") String upperCaseNameLikeSql);
 
-  void usersCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
+  void usersCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 
-  void groupsCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
+  void groupsCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler<CountByTemplateAndPermissionDto> resultHandler);
 
   List<String> selectPotentialPermissionsByUserIdAndTemplateId(@Param("userId") @Nullable Integer currentUserId, @Param("templateId") long templateId);
 

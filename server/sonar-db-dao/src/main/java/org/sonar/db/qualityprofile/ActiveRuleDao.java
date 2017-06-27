@@ -174,7 +174,7 @@ public class ActiveRuleDao implements Dao {
 
   public void scrollAllForIndexing(DbSession dbSession, Consumer<IndexedActiveRuleDto> consumer) {
     mapper(dbSession).scrollAllForIndexing(context -> {
-      IndexedActiveRuleDto dto = (IndexedActiveRuleDto) context.getResultObject();
+      IndexedActiveRuleDto dto = context.getResultObject();
       consumer.accept(dto);
     });
   }
@@ -184,14 +184,14 @@ public class ActiveRuleDao implements Dao {
     executeLargeInputsWithoutOutput(ids,
       pageOfIds -> mapper
         .scrollByIdsForIndexing(pageOfIds, context -> {
-          IndexedActiveRuleDto dto = (IndexedActiveRuleDto) context.getResultObject();
+          IndexedActiveRuleDto dto = context.getResultObject();
           consumer.accept(dto);
         }));
   }
 
   public void scrollByRuleProfileForIndexing(DbSession dbSession, String ruleProfileUuid, Consumer<IndexedActiveRuleDto> consumer) {
     mapper(dbSession).scrollByRuleProfileUuidForIndexing(ruleProfileUuid, context -> {
-      IndexedActiveRuleDto dto = (IndexedActiveRuleDto) context.getResultObject();
+      IndexedActiveRuleDto dto = context.getResultObject();
       consumer.accept(dto);
     });
   }

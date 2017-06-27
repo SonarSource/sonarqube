@@ -296,7 +296,7 @@ public class PermissionTemplateDaoTest {
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
     underTest.groupsCountByTemplateIdAndPermission(dbSession, asList(template1.getId(), template2.getId(), template3.getId()),
-      context -> result.add((CountByTemplateAndPermissionDto) context.getResultObject()));
+      context -> result.add(context.getResultObject()));
 
     assertThat(result).extracting(CountByTemplateAndPermissionDto::getPermission, CountByTemplateAndPermissionDto::getTemplateId, CountByTemplateAndPermissionDto::getCount)
       .containsOnly(tuple(ADMIN, template1.getId(), 1), tuple(CODEVIEWER, template1.getId(), 4), tuple(ADMIN, template2.getId(), 1));
@@ -321,7 +321,7 @@ public class PermissionTemplateDaoTest {
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
     underTest.usersCountByTemplateIdAndPermission(dbSession, asList(template1.getId(), template2.getId(), template3.getId()),
-      context -> result.add((CountByTemplateAndPermissionDto) context.getResultObject()));
+      context -> result.add(context.getResultObject()));
     assertThat(result).hasSize(3);
     assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
     assertThat(result).extracting("templateId").containsOnly(template1.getId(), template2.getId());

@@ -193,7 +193,7 @@ public class ComponentTreeDataLoader {
 
     Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), metrics.size());
     dbClient.measureDao().selectTreeByQuery(dbSession, baseComponent, measureQuery, result -> {
-      MeasureDto measureDto = (MeasureDto) result.getResultObject();
+      MeasureDto measureDto = result.getResultObject();
       measuresByComponentUuidAndMetric.put(
         measureDto.getComponentUuid(),
         metricsById.get(measureDto.getMetricId()),

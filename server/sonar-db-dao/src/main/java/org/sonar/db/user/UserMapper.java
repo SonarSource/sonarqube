@@ -52,7 +52,7 @@ public interface UserMapper {
 
   List<UserDto> selectByIds(@Param("ids") List<Integer> ids);
 
-  void scrollAll(ResultHandler handler);
+  void scrollAll(ResultHandler<UserDto> handler);
 
   long countByEmail(String email);
 

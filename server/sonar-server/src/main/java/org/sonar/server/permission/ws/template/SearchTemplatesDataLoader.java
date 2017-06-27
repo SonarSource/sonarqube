@@ -71,7 +71,7 @@ public class SearchTemplatesDataLoader {
     final Table<Long, String, Integer> userCountByTemplateIdAndPermission = TreeBasedTable.create();
 
     dbClient.permissionTemplateDao().usersCountByTemplateIdAndPermission(dbSession, templateIds, context -> {
-      CountByTemplateAndPermissionDto row = (CountByTemplateAndPermissionDto) context.getResultObject();
+      CountByTemplateAndPermissionDto row = context.getResultObject();
       userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
     });
 
@@ -82,7 +82,7 @@ public class SearchTemplatesDataLoader {
     final Table<Long, String, Integer> userCountByTemplateIdAndPermission = TreeBasedTable.create();
 
     dbClient.permissionTemplateDao().groupsCountByTemplateIdAndPermission(dbSession, templateIds, context -> {
-      CountByTemplateAndPermissionDto row = (CountByTemplateAndPermissionDto) context.getResultObject();
+      CountByTemplateAndPermissionDto row = context.getResultObject();
       userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
     });
 
