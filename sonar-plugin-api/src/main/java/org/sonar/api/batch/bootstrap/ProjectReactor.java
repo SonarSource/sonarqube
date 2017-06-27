@@ -41,7 +41,7 @@ public class ProjectReactor implements ProjectKey {
   }
 
   public List<ProjectDefinition> getProjects() {
-    return collectProjects(root, new ArrayList<ProjectDefinition>());
+    return collectProjects(root, new ArrayList<>());
   }
 
   /**

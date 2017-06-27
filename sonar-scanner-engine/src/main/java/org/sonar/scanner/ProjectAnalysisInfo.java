@@ -64,7 +64,6 @@ public class ProjectAnalysisInfo implements Startable {
     }
     if (date == null) {
       date = new Date(system2.now());
-      settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, date, true);
     }
     return date;
   }

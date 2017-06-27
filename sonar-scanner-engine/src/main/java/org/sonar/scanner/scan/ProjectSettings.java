@@ -47,6 +47,7 @@ public class ProjectSettings extends Settings {
 
   private void init(InputModuleHierarchy hierarchy) {
     addProperties(globalSettings.getProperties());
+
     addProperties(projectRepositories.settings(hierarchy.root().getKeyWithBranch()));
     addProperties(hierarchy.root().properties());
   }
