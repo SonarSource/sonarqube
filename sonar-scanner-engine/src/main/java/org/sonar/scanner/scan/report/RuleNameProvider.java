@@ -27,8 +27,10 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
 @ScannerSide
+@Immutable
 public class RuleNameProvider {
   private Rules rules;
 

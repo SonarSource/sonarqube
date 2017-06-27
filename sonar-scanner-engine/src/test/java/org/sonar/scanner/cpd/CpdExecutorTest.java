@@ -85,12 +85,10 @@ public class CpdExecutorTest {
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
     index = new SonarCpdBlockIndex(publisher, settings);
-    componentStore = new InputComponentStore(new PathResolver());
+    DefaultInputModule inputModule = TestInputFileBuilder.newDefaultInputModule("foo", baseDir);
+    componentStore = new InputComponentStore(new PathResolver(), inputModule);
     executor = new CpdExecutor(settings, index, publisher, componentStore);
     reader = new ScannerReportReader(outputDir);
-
-    DefaultInputModule inputModule = TestInputFileBuilder.newDefaultInputModule("foo", baseDir);
-    componentStore.put(inputModule);
 
     batchComponent1 = createComponent("src/Foo.php", 5);
     batchComponent2 = createComponent("src/Foo2.php", 5);

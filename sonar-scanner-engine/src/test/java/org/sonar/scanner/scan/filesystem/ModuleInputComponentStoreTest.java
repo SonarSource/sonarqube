@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.sensor.SensorStrategy;
@@ -46,8 +47,8 @@ public class ModuleInputComponentStoreTest {
 
   @Before
   public void setUp() throws IOException {
-    componentStore = new InputComponentStore(new PathResolver());
-    componentStore.put(TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder()));
+    DefaultInputModule root = TestInputFileBuilder.newDefaultInputModule(moduleKey, temp.newFolder());
+    componentStore = new InputComponentStore(new PathResolver(), root);
   }
 
   @Test

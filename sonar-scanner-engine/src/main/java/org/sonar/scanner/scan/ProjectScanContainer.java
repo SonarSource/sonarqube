@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -88,11 +86,13 @@ import org.sonar.scanner.rule.DefaultRulesLoader;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.rule.RulesProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
-import org.sonar.scanner.scan.filesystem.InputComponentStore;
+import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.storage.Storages;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public class ProjectScanContainer extends ComponentContainer {
 
@@ -146,7 +146,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // file system
       ModuleIndexer.class,
-      InputComponentStore.class,
+      new InputComponentStoreProvider(),
       PathResolver.class,
       new InputModuleHierarchyProvider(),
       DefaultComponentTree.class,

@@ -41,7 +41,7 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
       // 2 Validate final reactor
       validator.validate(projectReactor);
 
-      // 3 Create module and its hierarchy
+      // 3 Create modules and the hierarchy
       DefaultInputModule root = new DefaultInputModule(projectReactor.getRoot(), batchIdGenerator.get());
       Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, batchIdGenerator, new HashMap<>());
       if (parents.isEmpty()) {
@@ -53,7 +53,7 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
     return hierarchy;
   }
 
-  private Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, BatchIdGenerator batchIdGenerator,
+  private static Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, BatchIdGenerator batchIdGenerator,
     Map<DefaultInputModule, DefaultInputModule> parents) {
     for (ProjectDefinition def : parent.definition().getSubProjects()) {
       DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.get());

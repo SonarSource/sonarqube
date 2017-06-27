@@ -42,7 +42,6 @@ public class ModuleIndexer implements Startable {
   @Override
   public void start() {
     DefaultInputModule root = moduleHierarchy.root();
-    componentStore.put(root);
     indexChildren(root);
   }
 

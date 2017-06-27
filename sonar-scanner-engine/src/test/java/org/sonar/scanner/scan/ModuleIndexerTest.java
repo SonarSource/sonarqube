@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
@@ -39,14 +38,13 @@ public class ModuleIndexerTest {
   private DefaultInputModuleHierarchy moduleHierarchy;
   private InputComponentStore componentStore;
 
-  @Before
-  public void setUp() {
-    componentStore = new InputComponentStore(new PathResolver());
+  public void createIndexer(DefaultInputModule rootModule) {
+    componentStore = new InputComponentStore(new PathResolver(), rootModule);
     tree = new DefaultComponentTree();
     moduleHierarchy = mock(DefaultInputModuleHierarchy.class);
     indexer = new ModuleIndexer(tree, componentStore, moduleHierarchy);
   }
-
+  
   @Test
   public void testIndex() {
     ProjectDefinition rootDef = mock(ProjectDefinition.class);
@@ -74,6 +72,7 @@ public class ModuleIndexerTest {
     when(mod2.definition()).thenReturn(def);
     when(mod3.definition()).thenReturn(def);
 
+    createIndexer(root);
     when(moduleHierarchy.root()).thenReturn(root);
     when(moduleHierarchy.children(root)).thenReturn(Arrays.asList(mod1, mod2, mod3));
 

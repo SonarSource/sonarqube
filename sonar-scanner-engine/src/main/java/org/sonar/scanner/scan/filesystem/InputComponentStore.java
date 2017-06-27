@@ -63,10 +63,12 @@ public class InputComponentStore {
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
-  private InputModule root;
+  private final InputModule root;
 
-  public InputComponentStore(PathResolver pathResolver) {
+  public InputComponentStore(PathResolver pathResolver, DefaultInputModule root) {
     this.pathResolver = pathResolver;
+    this.root = root;
+    this.put(root);
   }
 
   public Collection<InputComponent> all() {
@@ -91,7 +93,6 @@ public class InputComponentStore {
     return inputComponents.get(key);
   }
 
-  @CheckForNull
   public InputModule root() {
     return root;
   }
@@ -194,12 +195,6 @@ public class InputComponentStore {
     Preconditions.checkState(!inputModuleCache.containsKey(keyWithBranch), "Module '%s' already indexed", keyWithBranch);
     inputComponents.put(key, inputModule);
     inputModuleCache.put(keyWithBranch, inputModule);
-    if (inputModule.definition().getParent() == null) {
-      if (root != null) {
-        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + key + "'");
-      }
-      root = inputModule;
-    }
   }
 
   public Iterable<InputFile> getFilesByName(String filename) {

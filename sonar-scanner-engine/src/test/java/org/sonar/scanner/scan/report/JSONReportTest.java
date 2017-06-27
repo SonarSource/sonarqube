@@ -82,11 +82,11 @@ public class JSONReportTest {
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(server.getVersion()).thenReturn("3.6");
 
-    InputComponentStore inputComponentStore = new InputComponentStore(new PathResolver());
     DefaultComponentTree inputComponentTree = new DefaultComponentTree();
     ProjectDefinition def = ProjectDefinition.create().setBaseDir(projectBaseDir).setKey("struts");
     DefaultInputModule rootModule = new DefaultInputModule(def, 1);
-    inputComponentStore.put(rootModule);
+    InputComponentStore inputComponentStore = new InputComponentStore(new PathResolver(), rootModule);
+
     DefaultInputModule moduleA = new DefaultInputModule("struts-core");
     inputComponentTree.index(moduleA, rootModule);
     DefaultInputModule moduleB = new DefaultInputModule("struts-ui");

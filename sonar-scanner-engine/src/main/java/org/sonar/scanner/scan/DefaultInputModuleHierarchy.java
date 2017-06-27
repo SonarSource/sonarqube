@@ -59,9 +59,7 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
     ImmutableMultimap.Builder<DefaultInputModule, DefaultInputModule> childrenBuilder = new ImmutableMultimap.Builder<>();
 
     for (Map.Entry<DefaultInputModule, DefaultInputModule> e : parents.entrySet()) {
-      if (e.getValue() != null) {
-        childrenBuilder.put(e.getValue(), e.getKey());
-      }
+      childrenBuilder.put(e.getValue(), e.getKey());
     }
 
     this.children = childrenBuilder.build();
@@ -74,7 +72,7 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
     for (DefaultInputModule parent : parents.values()) {
       if (!parents.containsKey(parent)) {
         if (r != null && r != parent) {
-          throw new IllegalStateException("Found two modules without parent");
+          throw new IllegalStateException(String.format("Found two modules without parent: '%s' and '%s'", r.key(), parent.key()));
         }
         r = parent;
       }

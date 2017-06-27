@@ -45,8 +45,6 @@ public class InputComponentStoreTest {
 
   @Test
   public void should_add_input_file() throws Exception {
-    InputComponentStore cache = new InputComponentStore(new PathResolver());
-
     String rootModuleKey = "struts";
     String subModuleKey = "struts-core";
 
@@ -60,7 +58,7 @@ public class InputComponentStoreTest {
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    cache.put(rootModule);
+    InputComponentStore cache = new InputComponentStore(new PathResolver(), rootModule);
     cache.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -104,9 +102,7 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
-      super(new PathResolver());
-      DefaultInputModule root = TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder());
-      put(root);
+      super(new PathResolver(), TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()));
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {
