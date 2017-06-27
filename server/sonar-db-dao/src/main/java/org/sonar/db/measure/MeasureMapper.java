@@ -33,7 +33,7 @@ public interface MeasureMapper {
   List<MeasureDto> selectByQueryOnSingleComponent(@Param("query") MeasureQuery query);
 
   void selectTreeByQuery(@Param("query") MeasureTreeQuery measureQuery, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath,
-                         ResultHandler resultHandler);
+                         ResultHandler<MeasureDto> resultHandler);
 
 
   List<PastMeasureDto> selectPastMeasuresOnSingleAnalysis(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid,

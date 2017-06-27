@@ -161,7 +161,7 @@ public class UserDao implements Dao {
 
   public void scrollAll(DbSession dbSession, Consumer<UserDto> consumer) {
     mapper(dbSession).scrollAll(context -> {
-      UserDto user = (UserDto) context.getResultObject();
+      UserDto user = context.getResultObject();
       consumer.accept(user);
     });
   }

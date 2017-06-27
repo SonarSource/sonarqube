@@ -74,9 +74,9 @@ public interface ActiveRuleMapper {
   List<KeyLongValue> countActiveRulesByQuery(@Param("organizationUuid") String organizationUuid, @Param("profileUuids") List<String> profileUuids,
     @Nullable @Param("ruleStatus") RuleStatus ruleStatus, @Param("inheritance") String inheritance);
 
-  void scrollAllForIndexing(ResultHandler handler);
+  void scrollAllForIndexing(ResultHandler<IndexedActiveRuleDto> handler);
 
-  void scrollByIdsForIndexing(@Param("ids") Collection<Long> ids, ResultHandler handler);
+  void scrollByIdsForIndexing(@Param("ids") Collection<Long> ids, ResultHandler<IndexedActiveRuleDto> handler);
 
-  void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler handler);
+  void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler<IndexedActiveRuleDto> handler);
 }

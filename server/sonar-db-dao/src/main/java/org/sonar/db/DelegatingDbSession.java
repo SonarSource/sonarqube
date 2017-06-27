@@ -22,12 +22,12 @@ package org.sonar.db;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.db.DbSession;
 
 /**
  * A wrapper of a {@link DbSession} instance which does not call the wrapped {@link DbSession}'s
@@ -57,6 +57,22 @@ abstract class DelegatingDbSession implements DbSession {
   ///////////////////////
   // overridden with NO change of behavior
   ///////////////////////
+
+  @Override
+  public <T> Cursor<T> selectCursor(String statement) {
+    return delegate.selectCursor(statement);
+  }
+
+  @Override
+  public <T> Cursor<T> selectCursor(String statement, Object parameter) {
+    return delegate.selectCursor(statement, parameter);
+  }
+
+  @Override
+  public <T> Cursor<T> selectCursor(String statement, Object parameter, RowBounds rowBounds) {
+    return delegate.selectCursor(statement, parameter, rowBounds);
+  }
+
   @Override
   public <T> T selectOne(String statement) {
     return delegate.selectOne(statement);

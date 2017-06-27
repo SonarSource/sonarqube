@@ -269,7 +269,7 @@ public class RuleDaoTest {
     db.prepareDbUnit(getClass(), "selectEnabled.xml");
 
     final List<RuleDefinitionDto> rules = new ArrayList<>();
-    ResultHandler resultHandler = resultContext -> rules.add((RuleDefinitionDto) resultContext.getResultObject());
+    ResultHandler<RuleDefinitionDto> resultHandler = resultContext -> rules.add(resultContext.getResultObject());
     underTest.selectEnabled(db.getSession(), resultHandler);
 
     assertThat(rules.size()).isEqualTo(1);

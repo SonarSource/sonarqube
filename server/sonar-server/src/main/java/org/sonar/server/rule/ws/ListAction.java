@@ -55,7 +55,7 @@ public class ListAction implements RulesWsAction {
     final ListResponse.Rule.Builder ruleBuilder = ListResponse.Rule.newBuilder();
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.ruleDao().selectEnabled(dbSession, resultContext -> {
-        RuleDefinitionDto dto = (RuleDefinitionDto) resultContext.getResultObject();
+        RuleDefinitionDto dto = resultContext.getResultObject();
         ruleBuilder
           .clear()
           .setRepository(dto.getRepositoryKey())

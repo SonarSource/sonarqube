@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
@@ -670,13 +668,7 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "selectForIndexing.xml");
 
     List<ComponentDto> components = new ArrayList<>();
-    underTest.selectForIndexing(dbSession, projectUuid, new ResultHandler() {
-
-      @Override
-      public void handleResult(ResultContext context) {
-        components.add((ComponentDto) context.getResultObject());
-      }
-    });
+    underTest.selectForIndexing(dbSession, projectUuid, context -> components.add(context.getResultObject()));
     return assertThat(components).extracting(ComponentDto::uuid);
   }
 

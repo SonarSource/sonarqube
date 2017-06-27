@@ -21,7 +21,6 @@ package org.sonar.db;
 
 import com.google.common.io.Closeables;
 import java.io.InputStream;
-import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.LocalCacheScope;
@@ -34,10 +33,10 @@ import org.sonar.db.dialect.Dialect;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 
-public final class MyBatisConfBuilder {
+class MyBatisConfBuilder {
   private final Configuration conf;
 
-  public MyBatisConfBuilder(Database database) {
+  MyBatisConfBuilder(Database database) {
     this.conf = new Configuration();
     this.conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
     this.conf.setUseGeneratedKeys(true);
@@ -51,26 +50,11 @@ public final class MyBatisConfBuilder {
     this.conf.setLocalCacheScope(LocalCacheScope.STATEMENT);
   }
 
-  public void loadAlias(String alias, Class dtoClass) {
+  void loadAlias(String alias, Class dtoClass) {
     conf.getTypeAliasRegistry().registerAlias(alias, dtoClass);
   }
 
-  public void loadMapper(String mapperName) {
-    String configFile = configFilePath(mapperName);
-    InputStream input = null;
-    try {
-      input = getClass().getResourceAsStream(configFile);
-      checkArgument(input != null, format("Can not find mapper XML file %s", configFile));
-      new XMLMapperBuilder(input, conf, mapperName, conf.getSqlFragments()).parse();
-      loadAndConfigureLogger(mapperName);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Unable to load mapper " + mapperName, e);
-    } finally {
-      Closeables.closeQuietly(input);
-    }
-  }
-
-  public void loadMapper(Class mapperClass) {
+  void loadMapper(Class mapperClass) {
     String configFile = configFilePath(mapperClass);
     InputStream input = null;
     try {
@@ -98,7 +82,7 @@ public final class MyBatisConfBuilder {
     Loggers.get(mapperName).setLevel(LoggerLevel.INFO);
   }
 
-  public void loadMappers(Class<?>... mapperClasses) {
+  void loadMappers(Class<?>... mapperClasses) {
     for (Class mapperClass : mapperClasses) {
       loadMapper(mapperClass);
     }

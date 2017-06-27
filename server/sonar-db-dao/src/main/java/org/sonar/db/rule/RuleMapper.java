@@ -32,7 +32,7 @@ public interface RuleMapper {
 
   List<RuleDefinitionDto> selectAllDefinitions();
 
-  void selectEnabled(ResultHandler resultHandler);
+  void selectEnabled(ResultHandler<RuleDefinitionDto> resultHandler);
 
   RuleDto selectById(@Param("organizationUuid") String organizationUuid, @Param("id") long id);
 
@@ -52,11 +52,11 @@ public interface RuleMapper {
 
   List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
-  void scrollIndexingRules(ResultHandler handler);
+  void scrollIndexingRules(ResultHandler<RuleForIndexingDto> handler);
 
   List<RuleForIndexingDto> selectIndexingRulesByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
-  void scrollIndexingRuleExtensions(ResultHandler handler);
+  void scrollIndexingRuleExtensions(ResultHandler<RuleExtensionForIndexingDto> handler);
 
   List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<RuleExtensionId> ruleExtensionIds);
 

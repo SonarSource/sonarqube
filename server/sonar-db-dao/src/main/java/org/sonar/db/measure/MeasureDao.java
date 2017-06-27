@@ -78,7 +78,7 @@ public class MeasureDao implements Dao {
     return mapper(dbSession).selectByQueryOnSingleComponent(query);
   }
 
-  public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query, ResultHandler resultHandler) {
+  public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query, ResultHandler<MeasureDto> resultHandler) {
     if (query.returnsEmpty()) {
       return;
     }

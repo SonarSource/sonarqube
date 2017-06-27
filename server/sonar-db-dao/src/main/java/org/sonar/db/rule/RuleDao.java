@@ -105,7 +105,7 @@ public class RuleDao implements Dao {
     return executeLargeInputs(keys, mapper(session)::selectDefinitionByKeys);
   }
 
-  public void selectEnabled(DbSession session, ResultHandler resultHandler) {
+  public void selectEnabled(DbSession session, ResultHandler<RuleDefinitionDto> resultHandler) {
     mapper(session).selectEnabled(resultHandler);
   }
 
@@ -163,7 +163,7 @@ public class RuleDao implements Dao {
 
   public void scrollIndexingRuleExtensions(DbSession dbSession, Consumer<RuleExtensionForIndexingDto> consumer) {
     mapper(dbSession).scrollIndexingRuleExtensions(context -> {
-      RuleExtensionForIndexingDto dto = (RuleExtensionForIndexingDto) context.getResultObject();
+      RuleExtensionForIndexingDto dto = context.getResultObject();
       consumer.accept(dto);
     });
   }
@@ -179,7 +179,7 @@ public class RuleDao implements Dao {
 
   public void scrollIndexingRules(DbSession dbSession, Consumer<RuleForIndexingDto> consumer) {
     mapper(dbSession).scrollIndexingRules(context -> {
-      RuleForIndexingDto dto = (RuleForIndexingDto) context.getResultObject();
+      RuleForIndexingDto dto = context.getResultObject();
       consumer.accept(dto);
     });
   }

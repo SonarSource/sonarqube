@@ -27,7 +27,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolder;
@@ -55,7 +54,7 @@ public class BaseIssuesLoader {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<DefaultIssue> result = new ArrayList<>();
       dbSession.getMapper(IssueMapper.class).selectNonClosedByComponentUuid(componentUuid, resultContext -> {
-        DefaultIssue issue = ((IssueDto) resultContext.getResultObject()).toDefaultIssue();
+        DefaultIssue issue = (resultContext.getResultObject()).toDefaultIssue();
 
         // TODO this field should be set outside this class
         if (!isActive(issue.ruleKey()) || ruleRepository.getByKey(issue.ruleKey()).getStatus() == RuleStatus.REMOVED) {

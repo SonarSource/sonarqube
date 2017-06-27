@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.db.issue.IssueMapper">
 
@@ -150,7 +150,7 @@
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectNonClosedByComponentUuid" parameterType="String" resultType="Issue">
+  <select id="selectNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="issueColumns"/>
     from issues i

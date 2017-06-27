@@ -115,7 +115,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Each row returns a #{@link CountPerProjectPermission}
    */
-  public void usersCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler resultHandler) {
+  public void usersCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
     Map<String, Object> parameters = new HashMap<>(1);
 
     executeLargeInputsWithoutOutput(
@@ -129,7 +129,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Each row returns a #{@link CountPerProjectPermission}
    */
-  public void groupsCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler resultHandler) {
+  public void groupsCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler<CountByTemplateAndPermissionDto> resultHandler) {
     Map<String, Object> parameters = new HashMap<>(2);
     parameters.put(ANYONE_GROUP_PARAMETER, ANYONE);
 

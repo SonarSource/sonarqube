@@ -95,7 +95,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.componentDao()
         .selectForIndexing(dbSession, projectUuid, context -> {
-          ComponentDto dto = (ComponentDto) context.getResultObject();
+          ComponentDto dto = context.getResultObject();
           bulk.add(newIndexRequest(toDocument(dto)));
         });
     }

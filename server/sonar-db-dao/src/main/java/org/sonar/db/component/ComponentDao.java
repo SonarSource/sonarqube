@@ -279,7 +279,7 @@ public class ComponentDao implements Dao {
    * @param projectUuid the project uuid, which is selected with all of its children
    * @param handler the action to be applied to every result
    */
-  public void selectForIndexing(DbSession session, @Nullable String projectUuid, ResultHandler handler) {
+  public void selectForIndexing(DbSession session, @Nullable String projectUuid, ResultHandler<ComponentDto> handler) {
     requireNonNull(handler);
     mapper(session).selectForIndexing(projectUuid, handler);
   }
