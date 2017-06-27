@@ -75,15 +75,17 @@ public class DefaultIndex {
   @CheckForNull
   public <M> M getMeasures(String key, MeasuresFilter<M> filter) {
     Collection<DefaultMeasure<?>> unfiltered = new ArrayList<>();
-    if (filter instanceof MeasuresFilters.MetricFilter) {
-      // optimization
-      DefaultMeasure<?> byMetric = measureCache.byMetric(key, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
-      if (byMetric != null) {
-        unfiltered.add(byMetric);
-      }
-    } else {
-      for (DefaultMeasure<?> measure : measureCache.byComponentKey(key)) {
-        unfiltered.add(measure);
+    synchronized (measureCache) {
+      if (filter instanceof MeasuresFilters.MetricFilter) {
+        // optimization
+        DefaultMeasure<?> byMetric = measureCache.byMetric(key, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+        if (byMetric != null) {
+          unfiltered.add(byMetric);
+        }
+      } else {
+        for (DefaultMeasure<?> measure : measureCache.byComponentKey(key)) {
+          unfiltered.add(measure);
+        }
       }
     }
     return filter.filter(unfiltered.stream().map(DefaultIndex::toDeprecated).collect(Collectors.toList()));
