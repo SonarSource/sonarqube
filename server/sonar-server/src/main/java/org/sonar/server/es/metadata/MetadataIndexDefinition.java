@@ -44,6 +44,6 @@ public class MetadataIndexDefinition {
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_METADATA.getType());
 
-    mapping.stringFieldBuilder(FIELD_VALUE).disableSearch().build();
+    mapping.keywordFieldBuilder(FIELD_VALUE).disableSearch().build();
   }
 }

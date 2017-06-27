@@ -63,7 +63,7 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.setAttribute("dynamic", "true");
-    mapping.setProperty("foo_field", ImmutableMap.of("type", "string"));
+    mapping.setProperty("foo_field", ImmutableMap.of("type", "string"));// ES 5: change to keyword
     mapping.createBooleanField("boolean_field");
     mapping.createByteField("byte_field");
     mapping.createDateTimeField("dt_field");
@@ -77,7 +77,7 @@ public class NewIndexTest {
     assertThat(mapping).isNotNull();
     assertThat(mapping.getAttributes().get("dynamic")).isEqualTo("true");
     assertThat(mapping.getProperty("foo_field")).isInstanceOf(Map.class);
-    assertThat((Map) mapping.getProperty("foo_field")).containsEntry("type", "string");
+    assertThat((Map) mapping.getProperty("foo_field")).containsEntry("type", "string");// ES 5: change to keyword
     assertThat((Map) mapping.getProperty("byte_field")).isNotEmpty();
     assertThat((Map) mapping.getProperty("double_field")).isNotEmpty();
     assertThat((Map) mapping.getProperty("dt_field")).isNotEmpty();
@@ -92,9 +92,9 @@ public class NewIndexTest {
   public void define_string_field() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
-    mapping.stringFieldBuilder("basic_field").build();
-    mapping.stringFieldBuilder("not_searchable_field").disableSearch().build();
-    mapping.stringFieldBuilder("all_capabilities_field")
+    mapping.keywordFieldBuilder("basic_field").build();
+    mapping.keywordFieldBuilder("not_searchable_field").disableSearch().build();
+    mapping.keywordFieldBuilder("all_capabilities_field")
       .addSubFields(
         DefaultIndexSettingsElement.SEARCH_GRAMS_ANALYZER,
         DefaultIndexSettingsElement.SEARCH_WORDS_ANALYZER,
@@ -102,12 +102,12 @@ public class NewIndexTest {
       .build();
 
     Map<String, Object> props = (Map) mapping.getProperty("basic_field");
-    assertThat(props.get("type")).isEqualTo("string");
+    assertThat(props.get("type")).isEqualTo("string");// ES 5: change to keyword
     assertThat(props.get("index")).isEqualTo("not_analyzed");
     assertThat(props.get("fields")).isNull();
 
     props = (Map) mapping.getProperty("not_searchable_field");
-    assertThat(props.get("type")).isEqualTo("string");
+    assertThat(props.get("type")).isEqualTo("string");// ES 5: change to keyword
     assertThat(props.get("index")).isEqualTo("no");
     assertThat(props.get("fields")).isNull();
 
@@ -123,14 +123,14 @@ public class NewIndexTest {
     NewIndex.NewIndexType mapping = index.createType("projectmeasures");
 
     mapping.nestedFieldBuilder("measures")
-      .addStringField("key")
+      .addKeywordField("key")
       .addDoubleField("value")
       .build();
     Map<String, Object> result = (Map) mapping.getProperty("measures");
 
     assertThat(result.get("type")).isEqualTo("nested");
     Map<String, Map<String, Object>> subProperties = (Map) result.get("properties");
-    assertThat(subProperties.get("key").get("type")).isEqualTo("string");
+    assertThat(subProperties.get("key").get("type")).isEqualTo("string"); // ES 5: change to "keyword
     assertThat(subProperties.get("value").get("type")).isEqualTo("double");
   }
 
@@ -149,10 +149,10 @@ public class NewIndexTest {
   public void use_default_doc_values() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
-    mapping.stringFieldBuilder("the_doc_value").build();
+    mapping.keywordFieldBuilder("the_doc_value").build();
 
     Map<String, Object> props = (Map) mapping.getProperty("the_doc_value");
-    assertThat(props.get("type")).isEqualTo("string");
+    assertThat(props.get("type")).isEqualTo("string");// ES 5: change to keyword
     assertThat(props.get("doc_values")).isNull();
   }
 

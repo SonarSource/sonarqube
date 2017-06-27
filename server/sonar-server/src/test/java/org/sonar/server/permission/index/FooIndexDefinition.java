@@ -39,7 +39,7 @@ public class FooIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType type = index.createType(FOO_TYPE)
       .requireProjectAuthorization();
 
-    type.stringFieldBuilder(FIELD_NAME).build();
-    type.stringFieldBuilder(FIELD_PROJECT_UUID).build();
+    type.keywordFieldBuilder(FIELD_NAME).build();
+    type.keywordFieldBuilder(FIELD_PROJECT_UUID).build();
   }
 }
