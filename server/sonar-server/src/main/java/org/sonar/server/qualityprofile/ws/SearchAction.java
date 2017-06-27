@@ -59,7 +59,6 @@ import static java.util.function.Function.identity;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
@@ -229,14 +228,6 @@ public class SearchAction implements QProfileWsAction {
 
   private Set<String> getLanguageKeys() {
     return Arrays.stream(languages.all()).map(Language::getKey).collect(MoreCollectors.toSet());
-  }
-
-  private ComponentDto getProject(String moduleKey, DbSession dbSession) {
-    ComponentDto module = checkFoundWithOptional(dbClient.componentDao().selectByKey(dbSession, moduleKey), "Component key '%s' not found", moduleKey);
-    if (module.isRootProject()) {
-      return module;
-    }
-    return dbClient.componentDao().selectOrFailByUuid(dbSession, module.projectUuid());
   }
 
   private SearchWsResponse buildResponse(SearchData data) {

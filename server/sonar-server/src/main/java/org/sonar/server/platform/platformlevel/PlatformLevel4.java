@@ -47,9 +47,9 @@ import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
+import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
@@ -147,7 +147,6 @@ import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
-import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileResetImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
@@ -156,7 +155,6 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.qualityprofile.ws.OldRestoreAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
-import org.sonar.server.qualityprofile.ws.SearchDataLoader;
 import org.sonar.server.root.ws.RootWsModule;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
@@ -265,9 +263,7 @@ public class PlatformLevel4 extends PlatformLevel {
       XMLProfileParser.class,
       XMLProfileSerializer.class,
       AnnotationProfileParser.class,
-      QProfileLookup.class,
       QProfileComparison.class,
-      SearchDataLoader.class,
       ProfilesWs.class,
       OldRestoreAction.class,
       RuleActivator.class,
