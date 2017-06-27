@@ -21,8 +21,12 @@ package org.sonar.scanner.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Settings;
@@ -32,6 +36,8 @@ import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.client.GetRequest;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.scanner.util.ScannerUtils.encodeForUrl;
 
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
@@ -48,28 +54,37 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   @Override
   public List<QualityProfile> loadDefault(@Nullable String profileName) {
     StringBuilder url = new StringBuilder(WS_URL + "?defaults=true");
-    if (profileName != null) {
-      url.append("&profileName=").append(encodeForUrl(profileName));
-    }
-    getOrganizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
-    return call(url.toString());
+    return loadAndOverrideIfNeeded(profileName, url);
   }
 
   @Override
   public List<QualityProfile> load(String projectKey, @Nullable String profileName) {
     StringBuilder url = new StringBuilder(WS_URL + "?projectKey=").append(encodeForUrl(projectKey));
-    if (profileName != null) {
-      url.append("&profileName=").append(encodeForUrl(profileName));
-    }
+    return loadAndOverrideIfNeeded(profileName, url);
+  }
+
+  private List<QualityProfile> loadAndOverrideIfNeeded(@Nullable String profileName, StringBuilder url) {
     getOrganizationKey().ifPresent(k -> url.append("&organization=").append(encodeForUrl(k)));
-    return call(url.toString());
+    Map<String, QualityProfile> result = call(url.toString());
+
+    if (profileName != null) {
+      StringBuilder urlForName = new StringBuilder(WS_URL + "?profileName=");
+      urlForName.append(encodeForUrl(profileName));
+      getOrganizationKey().ifPresent(k -> urlForName.append("&organization=").append(encodeForUrl(k)));
+      result.putAll(call(urlForName.toString()));
+    }
+    if (result.isEmpty()) {
+      throw MessageException.of("No quality profiles have been found, you probably don't have any language plugin installed.");
+    }
+
+    return new ArrayList<>(result.values());
   }
 
   private Optional<String> getOrganizationKey() {
     return Optional.ofNullable(settings.getString("sonar.organization"));
   }
 
-  private List<QualityProfile> call(String url) {
+  private Map<String, QualityProfile> call(String url) {
     GetRequest getRequest = new GetRequest(url);
     InputStream is = wsClient.call(getRequest).contentStream();
     SearchWsResponse profiles;
@@ -83,10 +98,14 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
     }
 
     List<QualityProfile> profilesList = profiles.getProfilesList();
-    if (profilesList == null || profilesList.isEmpty()) {
-      throw MessageException.of("No quality profiles have been found, you probably don't have any language plugin installed.");
-    }
-    return profilesList;
+    return profilesList.stream()
+      .collect(toMap(QualityProfile::getLanguage, identity(), throwingMerger(), LinkedHashMap::new));
+  }
+
+  private static <T> BinaryOperator<T> throwingMerger() {
+    return (u, v) -> {
+      throw new IllegalStateException(String.format("Duplicate key %s", u));
+    };
   }
 
 }
