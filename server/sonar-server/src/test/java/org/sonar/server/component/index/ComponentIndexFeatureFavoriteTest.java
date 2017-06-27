@@ -30,6 +30,7 @@ import static java.util.Collections.singletonList;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_KEY;
 
 public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
 
@@ -60,7 +61,7 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
 
   @Test
   public void irrelevant_favorites_are_not_returned() {
-    features.set(q -> termQuery("non-existing-field", "non-existing-value"), ComponentTextSearchFeatureRepertoire.FAVORITE);
+    features.set(q -> termQuery(FIELD_KEY, "non-existing-value"), ComponentTextSearchFeatureRepertoire.FAVORITE);
     ComponentDto project1 = indexProject("foo", "foo");
 
     ComponentIndexQuery query1 = ComponentIndexQuery.builder()
