@@ -29,6 +29,6 @@ public class QProfilesWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new QProfilesWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(26 + 2);
+    assertThat(container.size()).isEqualTo(27 + 2);
   }
 }
