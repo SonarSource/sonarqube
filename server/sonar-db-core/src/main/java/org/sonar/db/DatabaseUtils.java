@@ -236,6 +236,10 @@ public class DatabaseUtils {
     }
   }
 
+  /**
+   * @deprecated replaced by Commons Land {@code StringUtils.repeat(sql, separator, count)
+   */
+  @Deprecated
   public static String repeatCondition(String sql, int count, String separator) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < count; i++) {
