@@ -23,6 +23,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.catalina.connector.ClientAbortException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.Plugin;
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -142,6 +144,22 @@ public class StaticResourcesServletTest {
     when(pluginRepository.hasPlugin(pluginKey)).thenReturn(true);
     when(pluginRepository.getPluginInstance(pluginKey)).thenReturn(mock(Plugin.class));
     when(componentContainer.getComponentByType(PluginRepository.class)).thenReturn(pluginRepository);
+  }
+
+  @Test
+  public void does_not_fail_nor_log_not_attempt_to_send_error_if_ClientAbortException_is_raised() throws ServletException, IOException {
+    String pluginKey = "myplugin";
+    mockRequest(pluginKey, "foo.txt");
+    when(pluginRepository.hasPlugin(pluginKey)).thenReturn(true);
+    when(pluginRepository.getPluginInstance(pluginKey)).thenReturn(new TestPluginA());
+    when(componentContainer.getComponentByType(PluginRepository.class)).thenReturn(pluginRepository);
+    when(response.getOutputStream()).thenThrow(new ClientAbortException("Simulating ClientAbortException"));
+
+    underTest.doGet(request, response);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Client canceled loading resource [static/foo.txt] from plugin [myplugin]");
+    verify(response, times(0)).sendError(anyInt());
   }
 
   @Test

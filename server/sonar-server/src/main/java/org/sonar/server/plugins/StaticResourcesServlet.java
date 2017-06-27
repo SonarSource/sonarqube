@@ -68,6 +68,8 @@ public class StaticResourcesServlet extends HttpServlet {
       } else {
         silentlySendError(response, SC_NOT_FOUND);
       }
+    } catch (ClientAbortException e) {
+      LOG.trace(format("Client canceled loading resource [%s] from plugin [%s]", resource, pluginKey), e);
     } catch (Exception e) {
       LOG.error(format("Unable to load resource [%s] from plugin [%s]", resource, pluginKey), e);
       silentlySendError(response, SC_INTERNAL_SERVER_ERROR);
@@ -97,7 +99,7 @@ public class StaticResourcesServlet extends HttpServlet {
   /**
    * @return part of request URL after servlet path
    */
-  private String getPluginKeyAndResourcePath(HttpServletRequest request) {
+  private static String getPluginKeyAndResourcePath(HttpServletRequest request) {
     return StringUtils.substringAfter(request.getRequestURI(), request.getContextPath() + request.getServletPath() + "/");
   }
 
