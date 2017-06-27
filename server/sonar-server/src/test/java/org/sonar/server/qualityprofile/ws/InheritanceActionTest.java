@@ -45,7 +45,6 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -96,7 +95,6 @@ public class InheritanceActionTest {
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
     underTest = new InheritanceAction(
       dbClient,
-      new QProfileLookup(dbClient),
       new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider),
       new Languages());
     ws = new WsActionTester(underTest);
