@@ -19,19 +19,42 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Map;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonarqube.ws.QualityProfiles.ShowWsResponse;
-import org.sonarqube.ws.QualityProfiles.ShowWsResponse.CompareToSonarWay;
+import org.sonarqube.ws.QualityProfiles.ShowWsResponse.QualityProfile;
 
+import static java.util.Collections.singletonList;
+import static org.sonar.api.rule.RuleStatus.DEPRECATED;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
 public class ShowAction implements QProfileWsAction {
+
+  private final DbClient dbClient;
+  private final QProfileWsSupport qProfileWsSupport;
+  private final Languages languages;
+
+  public ShowAction(DbClient dbClient, QProfileWsSupport qProfileWsSupport, Languages languages) {
+    this.dbClient = dbClient;
+    this.qProfileWsSupport = qProfileWsSupport;
+    this.languages = languages;
+  }
 
   @Override
   public void define(WebService.NewController controller) {
@@ -55,29 +78,50 @@ public class ShowAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    ShowWsResponse showWsResponse = ShowWsResponse.newBuilder()
-      .setProfile(ShowWsResponse.QualityProfile.newBuilder()
-        .setKey("AU-TpxcA-iU5OvuD2FL3")
-        .setName("My Company Profile")
-        .setLanguage("cs")
-        .setLanguageName("C#")
-        .setIsInherited(true)
-        .setIsBuiltIn(false)
-        .setIsDefault(false)
-        .setParentKey("AU-TpxcA-iU5OvuD2FL1")
-        .setParentName("Parent Company Profile")
-        .setActiveRuleCount(10)
-        .setActiveDeprecatedRuleCount(0)
-        .setProjectCount(7)
-        .setRuleUpdatedAt("2016-12-22T19:10:03+0100")
-        .setLastUsed("2016-12-01T19:10:03+0100"))
-      .setCompareToSonarWay(CompareToSonarWay.newBuilder()
-        .setProfile("iU5OvuD2FLz")
-        .setProfileName("Sonar way")
-        .setMissingRuleCount(4)
-        .build())
-      .build();
-    writeProtobuf(showWsResponse, request, response);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QProfileDto profile = qProfileWsSupport.getProfile(dbSession, QProfileReference.fromKey(request.mandatoryParam(PARAM_PROFILE)));
+      OrganizationDto organization = qProfileWsSupport.getOrganization(dbSession, profile);
+      boolean isDefault = dbClient.defaultQProfileDao().isDefault(dbSession, profile.getOrganizationUuid(), profile.getKee());
+      ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
+      long activeRuleCount = countActiveRulesByQuery(dbSession, profile, builder);
+      long deprecatedActiveRuleCount = countActiveRulesByQuery(dbSession, profile, builder.setRuleStatus(DEPRECATED));
+      long projectCount = countProjectsByOrganizationAndProfiles(dbSession, organization, profile);
+      writeProtobuf(buildResponse(profile, isDefault, getLanguage(profile), activeRuleCount, deprecatedActiveRuleCount, projectCount), request, response);
+    }
+  }
+
+  private long countActiveRulesByQuery(DbSession dbSession, QProfileDto profile, ActiveRuleCountQuery.Builder queryBuilder) {
+    Map<String, Long> result = dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, queryBuilder.setProfiles(singletonList(profile)).build());
+    return result.getOrDefault(profile.getKee(), 0L);
+  }
+
+  private long countProjectsByOrganizationAndProfiles(DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
+    Map<String, Long> projects = dbClient.qualityProfileDao().countProjectsByOrganizationAndProfiles(dbSession, organization, singletonList(profile));
+    return projects.getOrDefault(profile.getKee(), 0L);
+  }
+
+  public Language getLanguage(QProfileDto profile) {
+    Language language = languages.get(profile.getLanguage());
+    checkFound(language, "Quality Profile with key '%s' does not exist", profile.getKee());
+    return language;
+  }
+
+  private static ShowWsResponse buildResponse(QProfileDto profile, boolean isDefault, Language language, long activeRules, long deprecatedActiveRules, long projects) {
+    QualityProfile.Builder profileBuilder = QualityProfile.newBuilder()
+      .setKey(profile.getKee())
+      .setName(profile.getName())
+      .setLanguage(profile.getLanguage())
+      .setLanguageName(language.getName())
+      .setIsBuiltIn(profile.isBuiltIn())
+      .setIsDefault(isDefault)
+      .setIsInherited(profile.getParentKee() != null)
+      .setActiveRuleCount(activeRules)
+      .setActiveDeprecatedRuleCount(deprecatedActiveRules)
+      .setProjectCount(projects);
+    setNullable(profile.getRulesUpdatedAt(), profileBuilder::setRulesUpdatedAt);
+    setNullable(profile.getLastUsed(), last -> profileBuilder.setLastUsed(formatDateTime(last)));
+    setNullable(profile.getUserUpdatedAt(), userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));
+    return ShowWsResponse.newBuilder().setProfile(profileBuilder).build();
   }
 
 }
