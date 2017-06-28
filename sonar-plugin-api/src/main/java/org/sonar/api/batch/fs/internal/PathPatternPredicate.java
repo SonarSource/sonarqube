@@ -34,7 +34,7 @@ class PathPatternPredicate extends AbstractFilePredicate {
 
   @Override
   public boolean apply(InputFile f) {
-    return pattern.match(f);
+    return pattern.match(f.absolutePath(), f.relativePath());
   }
 
 }
