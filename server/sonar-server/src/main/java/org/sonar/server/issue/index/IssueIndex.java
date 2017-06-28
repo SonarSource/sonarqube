@@ -39,7 +39,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -79,6 +78,7 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
+import static org.sonar.server.es.EsUtils.optimizeScrollRequest;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
@@ -665,9 +665,9 @@ public class IssueIndex {
         throw new IllegalStateException(format("Component of scope '%s' is not allowed", component.scope()));
     }
 
-    SearchRequestBuilder requestBuilder = client
-      .prepareSearch(INDEX_TYPE_ISSUE)
-      .setSearchType(SearchType.SCAN)
+    SearchRequestBuilder search = client.prepareSearch(INDEX_TYPE_ISSUE);
+    optimizeScrollRequest(search);
+    SearchRequestBuilder requestBuilder = search
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
       .setSize(10_000)
       .setFetchSource(
@@ -680,6 +680,6 @@ public class IssueIndex {
       .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
     SearchResponse response = requestBuilder.get();
 
-    return EsUtils.scroll(client, response.getScrollId(), IssueDoc::new);
+    return EsUtils.scroll(client, response, IssueDoc::new);
   }
 }
