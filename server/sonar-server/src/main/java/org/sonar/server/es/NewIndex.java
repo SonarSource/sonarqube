@@ -269,7 +269,9 @@ public class NewIndex {
         hash.putAll(ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
             "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE_FOR_KEYWORD,
-            "norms", ImmutableMap.of("enabled", String.valueOf(!disableNorms))));
+            "norms",
+            ImmutableMap.of("enabled", String.valueOf(!disableNorms)) // ES 5: replace with String.valueOf(!disableNorms)
+        ));
       } else {
         hash.put("type", "multi_field");
 
@@ -291,7 +293,9 @@ public class NewIndex {
             "type", FIELD_TYPE_KEYWORD,
             "index", INDEX_SEARCHABLE_FOR_KEYWORD,
             "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
-            "norms", ImmutableMap.of("enabled", "false")));
+            "norms",
+            ImmutableMap.of("enabled", "false") // ES 5: replace with "false"
+        ));
 
         hash.put("fields", multiFields);
       }
