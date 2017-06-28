@@ -141,7 +141,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_WORDS_ANALYZER).build();
     ruleMapping.setProperty(FIELD_RULE_HTML_DESCRIPTION, ImmutableSortedMap.of(
       DefaultIndexSettings.TYPE, DefaultIndexSettings.FIELD_TYPE_TEXT,
-      DefaultIndexSettings.INDEX, DefaultIndexSettings.ANALYZED,
+      DefaultIndexSettings.INDEX, DefaultIndexSettings.INDEX_SEARCHABLE_FOR_TEXT,
       DefaultIndexSettings.ANALYZER, ENGLISH_HTML_ANALYZER.getName(),
       DefaultIndexSettings.SEARCH_ANALYZER, ENGLISH_HTML_ANALYZER.getName()));
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
