@@ -89,6 +89,7 @@ public class SearchServerTest {
     Logger logger = mock(Logger.class);
     underTest.LOGGER = logger;
     underTest.start();
+    System.out.println(org.apache.logging.log4j.Logger.class);
     verify(logger).info(eq("Elasticsearch is waiting {} for {} node(s) to be up to start."), eq("1s"), eq("2"));
   }
 
