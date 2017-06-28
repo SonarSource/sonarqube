@@ -46,8 +46,8 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     eventFilter=""
-    graphEndDate={null}
-    graphStartDate={null}
+    graphEndDate={2016-10-27T14:33:50.000Z}
+    graphStartDate={2016-10-26T10:17:29.000Z}
     leakPeriodDate="2017-05-16T13:50:02+0200"
     loading={false}
     metricsType="INT"
@@ -79,8 +79,8 @@ exports[`should render correctly the graph and legends 1`] = `
     updateGraphZoom={[Function]}
   />
   <GraphsZoom
-    graphEndDate={null}
-    graphStartDate={null}
+    graphEndDate={2016-10-27T14:33:50.000Z}
+    graphStartDate={2016-10-26T10:17:29.000Z}
     leakPeriodDate="2017-05-16T13:50:02+0200"
     loading={false}
     metricsType="INT"
@@ -115,8 +115,6 @@ exports[`should render correctly the graph and legends 1`] = `
 
 exports[`should render correctly with filter history on dates 1`] = `
 Object {
-  "graphEndDate": null,
-  "graphStartDate": "2016-10-27T12:21:15+0200",
   "series": Array [
     Object {
       "data": Array [

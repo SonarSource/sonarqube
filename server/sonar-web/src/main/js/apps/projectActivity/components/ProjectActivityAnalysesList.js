@@ -21,6 +21,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
+import { throttle } from 'lodash';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { translate } from '../../../helpers/l10n';
@@ -44,6 +45,11 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
   scrollContainer: HTMLElement;
   badges: HTMLCollection<HTMLElement>;
   props: Props;
+
+  constructor(props: Props) {
+    super(props);
+    this.handleScroll = throttle(this.handleScroll, 20);
+  }
 
   componentDidMount() {
     this.badges = document.getElementsByClassName('project-activity-version-badge');
@@ -107,7 +113,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
         onScroll={this.handleScroll}
         ref={element => (this.scrollContainer = element)}>
         {byVersionByDay.map((version, idx) => (
-          <li key={idx + version.version}>
+          <li key={version.key || 'noversion'}>
             {version.version &&
               <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
                 <span className="badge">

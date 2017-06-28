@@ -99,11 +99,12 @@ export const getAnalysesByVersionByDay = (
   analyses: Array<Analysis>
 ): Array<{
   version: ?string,
+  key: ?string,
   byDay: { [string]: Array<Analysis> }
 }> =>
   analyses.reduce((acc, analysis) => {
     if (acc.length === 0) {
-      acc.push({ version: undefined, byDay: {} });
+      acc.push({ version: undefined, key: undefined, byDay: {} });
     }
     const currentVersion = acc[acc.length - 1];
     const day = moment(analysis.date).startOf('day').valueOf().toString();
@@ -122,7 +123,8 @@ export const getAnalysesByVersionByDay = (
     const lastEvent = sortedEvents[sortedEvents.length - 1];
     if (lastEvent && lastEvent.category === 'VERSION') {
       currentVersion.version = lastEvent.name;
-      acc.push({ version: undefined, byDay: {} });
+      currentVersion.key = lastEvent.key;
+      acc.push({ version: undefined, key: undefined, byDay: {} });
     }
     return acc;
   }, []);
