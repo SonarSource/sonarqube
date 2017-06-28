@@ -68,7 +68,7 @@
     <logback.version>1.1.7</logback.version>
     <slf4j.version>1.7.21</slf4j.version>
     <tomcat.version>8.5.11</tomcat.version>
-    <elasticsearch.version>2.4.4</elasticsearch.version>
+    <elasticsearch.version>5.0.0</elasticsearch.version>
     <orchestrator.version>3.15.0.1090</orchestrator.version>
     <okhttp.version>3.7.0</okhttp.version>
     <jackson.version>2.6.6</jackson.version>
@@ -700,6 +700,11 @@
       <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
+        <version>${elasticsearch.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.elasticsearch.test</groupId>
+        <artifactId>framework</artifactId>
         <version>${elasticsearch.version}</version>
       </dependency>
       <dependency>

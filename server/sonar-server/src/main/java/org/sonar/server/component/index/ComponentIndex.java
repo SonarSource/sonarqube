@@ -33,10 +33,10 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filters.FiltersAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters;
-import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.Bucket;
+import org.elasticsearch.search.aggregations.bucket.filters.InternalFilters.InternalBucket;
 import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsBuilder;
-import org.elasticsearch.search.highlight.HighlightBuilder;
+import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.sonar.server.es.EsClient;
@@ -105,14 +105,14 @@ public class ComponentIndex {
   }
 
   private static FiltersAggregationBuilder createAggregation(ComponentIndexQuery query) {
-    FiltersAggregationBuilder filtersAggregation = AggregationBuilders.filters(FILTERS_AGGREGATION_NAME)
+    return AggregationBuilders.filters(
+      FILTERS_AGGREGATION_NAME,
+      query.getQualifiers().stream().map(q -> termQuery(FIELD_QUALIFIER, q)).toArray(QueryBuilder[]::new))
       .subAggregation(createSubAggregation(query));
-    query.getQualifiers().forEach(q -> filtersAggregation.filter(q, termQuery(FIELD_QUALIFIER, q)));
-    return filtersAggregation;
   }
 
-  private static TopHitsBuilder createSubAggregation(ComponentIndexQuery query) {
-    TopHitsBuilder sub = AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
+  private static TopHitsAggregationBuilder createSubAggregation(ComponentIndexQuery query) {
+    TopHitsAggregationBuilder sub = AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
       .setHighlighterEncoder("html")
       .setHighlighterPreTags("<mark>")
       .setHighlighterPostTags("</mark>")
@@ -139,14 +139,14 @@ public class ComponentIndex {
 
   private static ComponentIndexResults aggregationsToQualifiers(SearchResponse response) {
     InternalFilters filtersAgg = response.getAggregations().get(FILTERS_AGGREGATION_NAME);
-    List<Bucket> buckets = filtersAgg.getBuckets();
+    List<InternalBucket> buckets = filtersAgg.getBuckets();
     return ComponentIndexResults.newBuilder()
       .setQualifiers(
         buckets.stream().map(ComponentIndex::bucketToQualifier))
       .build();
   }
 
-  private static ComponentHitsPerQualifier bucketToQualifier(Bucket bucket) {
+  private static ComponentHitsPerQualifier bucketToQualifier(InternalBucket bucket) {
     InternalTopHits docs = bucket.getAggregations().get(DOCS_AGGREGATION_NAME);
 
     SearchHits hitList = docs.getHits();

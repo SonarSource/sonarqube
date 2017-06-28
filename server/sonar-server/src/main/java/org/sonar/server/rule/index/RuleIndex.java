@@ -47,7 +47,8 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -370,9 +371,10 @@ public class RuleIndex {
       Collection<String> tags = query.getTags();
       checkArgument(query.getOrganization() != null, "Cannot use tags facet, if no organization is specified.", query.getTags());
 
-      Function<TermsBuilder, AggregationBuilder<?>> childFeature = termsAggregation -> {
+      Function<TermsAggregationBuilder, AggregationBuilder> childFeature = termsAggregation -> {
 
-        FilterAggregationBuilder scopeAggregation = AggregationBuilders.filter("scope_filter_for_" + FACET_TAGS).filter(
+        FilterAggregationBuilder scopeAggregation = AggregationBuilders.filter(
+          "scope_filter_for_" + FACET_TAGS,
           termsQuery(FIELD_RULE_EXTENSION_SCOPE,
             RuleExtensionScope.system().getScope(),
             RuleExtensionScope.organization(query.getOrganization()).getScope()))
@@ -404,14 +406,12 @@ public class RuleIndex {
   private static void addStatusFacetIfNeeded(SearchOptions options, Map<String, AbstractAggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_STATUSES)) {
       BoolQueryBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(FIELD_RULE_STATUS);
-      AbstractAggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
-        .filter(facetFilter)
+      AbstractAggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter", facetFilter)
         .subAggregation(
           AggregationBuilders
             .terms(FACET_STATUSES)
             .field(FIELD_RULE_STATUS)
-            .include(Joiner.on('|').join(ALL_STATUSES_EXCEPT_REMOVED))
-            .exclude(RuleStatus.REMOVED.toString())
+            .includeExclude(new IncludeExclude(Joiner.on('|').join(ALL_STATUSES_EXCEPT_REMOVED), RuleStatus.REMOVED.toString()))
             .size(ALL_STATUSES_EXCEPT_REMOVED.size()));
 
       aggregations.put(FACET_STATUSES, AggregationBuilders.global(FACET_STATUSES).subAggregation(statuses));
@@ -437,14 +437,14 @@ public class RuleIndex {
 
       AbstractAggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
         .childType(INDEX_TYPE_ACTIVE_RULE.getType())
-        .subAggregation(AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter")
-          .filter(activeRuleFilter)
-          .subAggregation(
-            AggregationBuilders
-              .terms(FACET_ACTIVE_SEVERITIES)
-              .field(FIELD_ACTIVE_RULE_SEVERITY)
-              .include(Joiner.on('|').join(Severity.ALL))
-              .size(Severity.ALL.size())));
+        .subAggregation(
+          AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter", activeRuleFilter)
+            .subAggregation(
+              AggregationBuilders
+                .terms(FACET_ACTIVE_SEVERITIES)
+                .field(FIELD_ACTIVE_RULE_SEVERITY)
+                .includeExclude(new IncludeExclude(Joiner.on('|').join(Severity.ALL), null))
+                .size(Severity.ALL.size())));
 
       aggregations.put(FACET_ACTIVE_SEVERITIES, AggregationBuilders.global(FACET_ACTIVE_SEVERITIES).subAggregation(activeSeverities));
     }
@@ -491,12 +491,12 @@ public class RuleIndex {
   }
 
   public List<String> terms(String fields, @Nullable String query, int size) {
-    TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME)
+    TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME)
       .field(fields)
       .size(size)
       .minDocCount(1);
     if (query != null) {
-      termsAggregation.include(".*" + escapeSpecialRegexChars(query) + ".*");
+      termsAggregation.includeExclude(new IncludeExclude(".*" + escapeSpecialRegexChars(query) + ".*", null));
     }
     SearchRequestBuilder request = client
       .prepareSearch(INDEX_TYPE_RULE, INDEX_TYPE_ACTIVE_RULE)
@@ -514,7 +514,7 @@ public class RuleIndex {
       RuleExtensionScope.system().getScope(),
       RuleExtensionScope.organization(organization).getScope());
 
-    TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
+    TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
       .field(FIELD_RULE_EXTENSION_TAGS)
       .size(size)
       .order(Terms.Order.term(true))
