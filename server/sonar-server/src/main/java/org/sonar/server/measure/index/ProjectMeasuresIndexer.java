@@ -39,6 +39,7 @@ import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
 
 public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
@@ -90,7 +91,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     esClient
       .prepareDelete(INDEX_TYPE_PROJECT_MEASURES, uuid)
       .setRouting(uuid)
-      .setRefresh(true)
+      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
       .get();
   }
 

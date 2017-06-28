@@ -36,6 +36,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class IndexCreatorTest {
 
@@ -97,7 +98,9 @@ public class IndexCreatorTest {
 
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
-    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefresh(true).get();
+    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields())
+      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
     // v2
@@ -128,7 +131,9 @@ public class IndexCreatorTest {
 
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
-    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefresh(true).get();
+    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields())
+      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
     // v1

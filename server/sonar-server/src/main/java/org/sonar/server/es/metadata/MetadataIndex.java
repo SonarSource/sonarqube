@@ -26,6 +26,8 @@ import org.elasticsearch.index.get.GetField;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
+
 public class MetadataIndex {
 
   private final EsClient esClient;
@@ -73,7 +75,7 @@ public class MetadataIndex {
     esClient.prepareIndex(MetadataIndexDefinition.INDEX_TYPE_METADATA)
       .setId(id)
       .setSource(MetadataIndexDefinition.FIELD_VALUE, hash)
-      .setRefresh(true)
+      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
       .get();
   }
 }

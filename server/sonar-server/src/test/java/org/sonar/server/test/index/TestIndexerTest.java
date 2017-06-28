@@ -47,6 +47,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_MESSAGE;
@@ -183,7 +184,7 @@ public class TestIndexerTest {
       .setId(uuid)
       .setRouting(projectUuid)
       .setSource(IOUtils.toString(getClass().getResource(format("%s/%s_%s_%s.json", getClass().getSimpleName(), projectUuid, fileUuid, testName))))
-      .setRefresh(true)
+      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
       .get();
   }
 
