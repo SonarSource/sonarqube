@@ -41,6 +41,7 @@ import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_NONE;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 
@@ -143,7 +144,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
     BulkRequestBuilder builder = esClient.prepareBulk();
     for (String issueKey : issueKeys) {
       builder.add(esClient.prepareDelete(INDEX_TYPE_ISSUE, issueKey)
-        .setRefresh(false)
+        .setRefresh(REFRESH_NONE) // ES 5: change to setRefreshPolicy
         .setRouting(projectUuid));
       count++;
       if (count >= MAX_BATCH_SIZE) {

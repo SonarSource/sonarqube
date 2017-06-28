@@ -54,6 +54,7 @@ import org.sonar.server.es.metadata.MetadataIndexDefinition;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class EsTester extends ExternalResource {
 
@@ -107,7 +108,8 @@ public class EsTester extends ExternalResource {
 
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
     try {
-      BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
+      BulkRequestBuilder bulk = client.prepareBulk()
+        .setRefresh(REFRESH_IMMEDIATE); // ES 5: change to setRefreshPolicy
       for (BaseDoc doc : docs) {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
           .parent(doc.getParent())
