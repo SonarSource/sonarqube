@@ -103,12 +103,12 @@ public class NewIndexTest {
 
     Map<String, Object> props = (Map) mapping.getProperty("basic_field");
     assertThat(props.get("type")).isEqualTo("string");// ES 5: change to keyword
-    assertThat(props.get("index")).isEqualTo("not_analyzed");
+    assertThat(props.get("index")).isEqualTo("not_analyzed");// ES 5: change to true
     assertThat(props.get("fields")).isNull();
 
     props = (Map) mapping.getProperty("not_searchable_field");
     assertThat(props.get("type")).isEqualTo("string");// ES 5: change to keyword
-    assertThat(props.get("index")).isEqualTo("no");
+    assertThat(props.get("index")).isEqualTo("no");// ES 5: change to false
     assertThat(props.get("fields")).isNull();
 
     props = (Map) mapping.getProperty("all_capabilities_field");
