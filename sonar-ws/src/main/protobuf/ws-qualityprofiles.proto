@@ -111,17 +111,15 @@ message ShowWsResponse {
     optional string language = 3;
     optional string languageName = 4;
     optional bool isInherited = 5;
-    optional string parentKey = 6;
-    optional string parentName = 7;
-    optional bool isDefault = 8;
-    optional int64 activeRuleCount = 9;
-    optional int64 activeDeprecatedRuleCount = 12;
-    optional int64 projectCount = 10;
-    optional string ruleUpdatedAt = 11;
-    optional string lastUsed = 13;
-    optional string userUpdatedAt = 14;
-    optional string organization = 15;
-    optional bool isBuiltIn = 16;
+    optional bool isDefault = 6;
+    optional int64 activeRuleCount = 7;
+    optional int64 activeDeprecatedRuleCount = 8;
+    optional int64 projectCount = 9;
+    optional string rulesUpdatedAt = 10;
+    optional string lastUsed = 11;
+    optional string userUpdatedAt = 12;
+    optional string organization = 13;
+    optional bool isBuiltIn = 14;
   }
 
   message CompareToSonarWay {
