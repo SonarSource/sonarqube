@@ -43,7 +43,9 @@ public class DefaultIndexSettings {
 
   public static final String TYPE = "type";
   public static final String INDEX = "index";
-  public static final String ANALYZED = "analyzed";
+  public static final String INDEX_SEARCHABLE_FOR_TEXT = "analyzed"; // ES 5: remove this constant and replace usages with INDEX_SEARCHABLE
+  public static final String INDEX_SEARCHABLE_FOR_KEYWORD = "not_analyzed"; // ES 5: change to true and rename to INDEX_SEARCHABLE
+  public static final String INDEX_NOT_SEARCHABLE = "no"; // ES 5: change to false
   public static final String FIELD_TYPE_TEXT = "string";  // ES 5: change to text
   public static final String FIELD_TYPE_KEYWORD = "string";  // ES 5: change to keyword
   public static final String STANDARD = "standard";
