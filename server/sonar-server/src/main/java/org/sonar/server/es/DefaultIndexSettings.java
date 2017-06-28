@@ -53,6 +53,8 @@ public class DefaultIndexSettings {
   public static final String CUSTOM = "custom";
   public static final String KEYWORD = "keyword";
   public static final String CLASSIC = "classic";
+  public static final boolean REFRESH_IMMEDIATE = true; // ES 5: replace with org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE
+  public static final boolean REFRESH_NONE = false; // ES 5: replace with org.elasticsearch.action.support.WriteRequest.RefreshPolicy.NONE
 
   public static final String TRUNCATE = "truncate";
 
