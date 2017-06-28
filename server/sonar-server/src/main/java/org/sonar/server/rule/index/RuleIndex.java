@@ -164,7 +164,6 @@ public class RuleIndex {
 
     QueryBuilder qb = buildQuery(query);
     Map<String, QueryBuilder> filters = buildFilters(query);
-    setSorting(query, esSearch);
 
     BoolQueryBuilder fb = boolQuery();
     for (QueryBuilder filterBuilder : filters.values()) {
