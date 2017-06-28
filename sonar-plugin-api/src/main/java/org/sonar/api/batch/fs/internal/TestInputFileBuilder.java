@@ -66,7 +66,7 @@ public class TestInputFileBuilder {
   private int lastValidOffset = -1;
   private String hash;
   private int nonBlankLines;
-  private int[] originalLineOffsets;
+  private int[] originalLineOffsets = new int[0];
   private boolean publish = true;
   private String contents;
 
