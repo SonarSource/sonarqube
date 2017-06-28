@@ -102,7 +102,7 @@ public class EsTester extends ExternalResource {
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
     try {
       BulkRequestBuilder bulk = client.prepareBulk()
-        .setRefresh(REFRESH_IMMEDIATE); // ES 5: change to setRefreshPolicy
+        .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (BaseDoc doc : docs) {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
           .parent(doc.getParent())

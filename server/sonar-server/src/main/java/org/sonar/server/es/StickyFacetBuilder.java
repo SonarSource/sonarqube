@@ -147,7 +147,7 @@ public class StickyFacetBuilder {
 
     TermsAggregationBuilder selectedTerms = AggregationBuilders.terms(facetName + "_selected")
       .field(fieldName)
-      .includeExclude(new IncludeExclude(includes, null);
+      .includeExclude(new IncludeExclude(includes, null));
     if (subAggregation != null) {
       selectedTerms = selectedTerms.subAggregation(subAggregation);
     }

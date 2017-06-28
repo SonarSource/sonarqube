@@ -67,7 +67,7 @@ public class ComponentIndex {
     this.authorizationTypeSupport = authorizationTypeSupport;
   }
 
-  private static HighlightBuilder.Field createHighlighter() {
+  private static HighlightBuilder.Field createHighlighterField() {
     HighlightBuilder.Field field = new HighlightBuilder.Field(FIELD_NAME);
     field.highlighterType("fvh");
     field.matchedFields(
@@ -112,16 +112,18 @@ public class ComponentIndex {
   }
 
   private static TopHitsAggregationBuilder createSubAggregation(ComponentIndexQuery query) {
-    TopHitsAggregationBuilder sub = AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
-      .setHighlighterEncoder("html")
-      .setHighlighterPreTags("<mark>")
-      .setHighlighterPostTags("</mark>")
-      .addHighlightedField(createHighlighter())
-      .setFrom(query.getSkip())
-      .setSize(query.getLimit())
-      .addSort(new ScoreSortBuilder())
-      .addSort(new FieldSortBuilder(ComponentIndexDefinition.FIELD_NAME));
-    return sub.setFetchSource(false);
+    return AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
+      .highlighter(new HighlightBuilder()
+        .encoder("html")
+        .preTags("<mark>")
+        .postTags("</mark>")
+        .field(createHighlighterField())
+      )
+      .from(query.getSkip())
+      .size(query.getLimit())
+      .sort(new ScoreSortBuilder())
+      .sort(new FieldSortBuilder(ComponentIndexDefinition.FIELD_NAME))
+      .fetchSource(false);
   }
 
   private QueryBuilder createQuery(ComponentIndexQuery query, ComponentTextSearchFeature... features) {

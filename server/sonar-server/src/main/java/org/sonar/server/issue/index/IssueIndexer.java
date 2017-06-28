@@ -144,7 +144,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
     BulkRequestBuilder builder = esClient.prepareBulk();
     for (String issueKey : issueKeys) {
       builder.add(esClient.prepareDelete(INDEX_TYPE_ISSUE, issueKey)
-        .setRefresh(REFRESH_NONE) // ES 5: change to setRefreshPolicy
+        .setRefreshPolicy(REFRESH_NONE)
         .setRouting(projectUuid));
       count++;
       if (count >= MAX_BATCH_SIZE) {

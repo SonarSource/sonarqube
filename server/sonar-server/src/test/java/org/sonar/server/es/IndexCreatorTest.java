@@ -99,7 +99,7 @@ public class IndexCreatorTest {
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
     es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields())
-      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
@@ -132,7 +132,7 @@ public class IndexCreatorTest {
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
     es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields())
-      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 

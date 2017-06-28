@@ -91,7 +91,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     esClient
       .prepareDelete(INDEX_TYPE_PROJECT_MEASURES, uuid)
       .setRouting(uuid)
-      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get();
   }
 

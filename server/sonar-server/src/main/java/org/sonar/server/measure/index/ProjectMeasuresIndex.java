@@ -40,6 +40,7 @@ import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation.Buck
 import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.DefaultIndexSettingsElement;
@@ -365,7 +366,7 @@ public class ProjectMeasuresIndex {
       .minDocCount(1)
       .order(Terms.Order.term(true));
     if (textQuery != null) {
-      tagFacet.includeExclude(".*" + escapeSpecialRegexChars(textQuery) + ".*");
+      tagFacet.includeExclude(new IncludeExclude(".*" + escapeSpecialRegexChars(textQuery) + ".*", null));
     }
 
     SearchRequestBuilder searchQuery = client
