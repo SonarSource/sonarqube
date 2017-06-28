@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.HasParentQueryBuilder;
@@ -76,6 +75,7 @@ import static org.sonar.server.es.DefaultIndexSettingsElement.SEARCH_WORDS_ANALY
 import static org.sonar.server.es.DefaultIndexSettingsElement.SORTABLE_ANALYZER;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
+import static org.sonar.server.es.EsUtils.optimizeScrollRequest;
 import static org.sonar.server.es.EsUtils.scrollIds;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_UUID;
@@ -159,9 +159,9 @@ public class RuleIndex {
   public Iterator<RuleKey> searchAll(RuleQuery query) {
     SearchRequestBuilder esSearch = client
       .prepareSearch(INDEX_TYPE_RULE)
-      .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
 
+    optimizeScrollRequest(esSearch);
     QueryBuilder qb = buildQuery(query);
     Map<String, QueryBuilder> filters = buildFilters(query);
 
@@ -172,7 +172,7 @@ public class RuleIndex {
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
     SearchResponse response = esSearch.get();
-    return scrollIds(client, response.getScrollId(), RuleKey::parse);
+    return scrollIds(client, response, RuleKey::parse);
   }
 
   /* Build main query (search based) */

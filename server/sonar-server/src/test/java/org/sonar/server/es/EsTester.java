@@ -36,7 +36,6 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.unit.TimeValue;
@@ -150,8 +149,8 @@ public class EsTester extends ExternalResource {
    */
   public List<SearchHit> getDocuments(IndexType indexType) {
     SearchRequestBuilder req = client.nativeClient().prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(QueryBuilders.matchAllQuery());
-    req.setSearchType(SearchType.SCAN)
-      .setScroll(new TimeValue(60000))
+    EsUtils.optimizeScrollRequest(req);
+    req.setScroll(new TimeValue(60000))
       .setSize(100);
 
     SearchResponse response = req.get();
