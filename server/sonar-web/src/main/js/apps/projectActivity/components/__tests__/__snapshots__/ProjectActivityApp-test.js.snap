@@ -103,6 +103,7 @@ exports[`should render correctly 1`] = `
             },
           ]
         }
+        analysesLoading={false}
         canAdmin={false}
         changeEvent={[Function]}
         className="boxed-group-inner"

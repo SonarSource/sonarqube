@@ -32,7 +32,7 @@ export default function ProjectEventIcon({ className, size = 14 }: Props) {
       width={size}
       height={size}>
       <path
-        style={{ fill: '#fff', stroke: 'currentColor', strokeWidth: '3px' }}
+        style={{ fill: '#fff', stroke: 'currentColor', strokeWidth: '2px' }}
         d="M8 2 L14 8 L8 14 L2 8 L8 2 L14 8"
       />
     </svg>

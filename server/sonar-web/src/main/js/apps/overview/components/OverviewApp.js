@@ -19,13 +19,15 @@
  */
 // @flow
 import React from 'react';
+import { uniq } from 'lodash';
 import moment from 'moment';
 import QualityGate from '../qualityGate/QualityGate';
 import BugsAndVulnerabilities from '../main/BugsAndVulnerabilities';
 import CodeSmells from '../main/CodeSmells';
 import Coverage from '../main/Coverage';
 import Duplications from '../main/Duplications';
-import Meta from './../meta/Meta';
+import Meta from '../meta/Meta';
+import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getMeasuresAndMeta } from '../../../api/measures';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { enhanceMeasuresWithMetrics } from '../../../helpers/measures';
@@ -95,11 +97,11 @@ export default class OverviewApp extends React.PureComponent {
           periods: r.periods
         });
       }
-    });
+    }, throwGlobalError);
   }
 
   loadHistory(component: Component) {
-    const metrics = HISTORY_METRICS_LIST.concat(GRAPHS_METRICS[getGraph()]);
+    const metrics = uniq(HISTORY_METRICS_LIST.concat(GRAPHS_METRICS[getGraph()]));
     return getAllTimeMachineData(component.key, metrics).then(r => {
       if (this.mounted) {
         const history: History = {};
@@ -113,7 +115,7 @@ export default class OverviewApp extends React.PureComponent {
         const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
         this.setState({ history, historyStartDate });
       }
-    });
+    }, throwGlobalError);
   }
 
   renderLoading() {

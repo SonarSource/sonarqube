@@ -37,6 +37,7 @@ type Props = {
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
+  graphLoading: boolean,
   loading: boolean,
   project: { configuration?: { showHistory: boolean }, key: string, leakPeriodDate: string },
   metrics: Array<Metric>,
@@ -87,7 +88,7 @@ export default class ProjectActivityApp extends React.PureComponent {
   };
 
   render() {
-    const { loading, measuresHistory, query } = this.props;
+    const { measuresHistory, query } = this.props;
     const { filteredAnalyses } = this.state;
     const { configuration } = this.props.project;
     const canAdmin = configuration ? configuration.showHistory : false;
@@ -109,14 +110,14 @@ export default class ProjectActivityApp extends React.PureComponent {
               changeEvent={this.props.changeEvent}
               deleteAnalysis={this.props.deleteAnalysis}
               deleteEvent={this.props.deleteEvent}
-              loading={loading}
+              loading={this.props.loading}
             />
           </div>
           <div className="project-activity-layout-page-main">
             <ProjectActivityGraphs
               analyses={filteredAnalyses}
               leakPeriodDate={moment(this.props.project.leakPeriodDate).toDate()}
-              loading={loading}
+              loading={this.props.graphLoading}
               measuresHistory={measuresHistory}
               metricsType={this.getMetricType()}
               project={this.props.project.key}
