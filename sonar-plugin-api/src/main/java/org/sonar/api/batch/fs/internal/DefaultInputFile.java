@@ -50,7 +50,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private final Consumer<DefaultInputFile> metadataGenerator;
   private Status status;
   private Charset charset;
-  private Metadata metadata;
+  private volatile Metadata metadata;
   private boolean publish;
   private String contents;
 
@@ -69,8 +69,13 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   }
 
   public void checkMetadata() {
+    // double check lock should be ok with volatile
     if (metadata == null) {
-      metadataGenerator.accept(this);
+      synchronized (this) {
+        if (metadata == null) {
+          metadataGenerator.accept(this);
+        }
+      }
     }
   }
 

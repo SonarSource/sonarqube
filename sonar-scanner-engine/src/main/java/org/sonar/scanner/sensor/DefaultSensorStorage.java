@@ -275,9 +275,9 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   private void saveCoverageMetricInternal(InputFile file, Metric<?> metric, DefaultMeasure<?> measure) {
-    synchronized (measureCache) {
-      if (isLineMetrics(metric)) {
-        validateCoverageMeasure((String) measure.value(), file);
+    if (isLineMetrics(metric)) {
+      validateCoverageMeasure((String) measure.value(), file);
+      synchronized (measureCache) {
         DefaultMeasure<?> previousMeasure = measureCache.byMetric(file.key(), metric.key());
         if (previousMeasure != null) {
           measureCache.put(file.key(), metric.key(), new DefaultMeasure<String>()
@@ -286,7 +286,9 @@ public class DefaultSensorStorage implements SensorStorage {
         } else {
           measureCache.put(file.key(), metric.key(), measure);
         }
-      } else {
+      }
+    } else {
+      synchronized (measureCache) {
         // Other coverage metrics are all integer values. Just erase value, it will be recomputed at the end anyway
         measureCache.put(file.key(), metric.key(), measure);
       }

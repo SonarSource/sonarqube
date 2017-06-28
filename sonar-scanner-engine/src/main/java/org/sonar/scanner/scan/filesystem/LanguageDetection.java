@@ -22,6 +22,7 @@ package org.sonar.scanner.scan.filesystem;
 import com.google.common.base.Joiner;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class LanguageDetection {
    * Lower-case extension -> languages
    */
   private final Map<String, PathPattern[]> patternsByLanguage = new LinkedHashMap<>();
-  private final List<String> languagesToConsider = new ArrayList<>();
+  private final List<String> languagesToConsider;
   private final String forcedLanguage;
 
   public LanguageDetection(Settings settings, LanguagesRepository languages) {
@@ -80,9 +81,9 @@ public class LanguageDetection {
         throw MessageException.of("You must install a plugin that supports the language '" + forcedLanguage + "'");
       }
       LOG.info("Language is forced to {}", forcedLanguage);
-      languagesToConsider.add(forcedLanguage);
+      languagesToConsider = Collections.singletonList(forcedLanguage);
     } else {
-      languagesToConsider.addAll(patternsByLanguage.keySet());
+      languagesToConsider = Collections.unmodifiableList(new ArrayList<>(patternsByLanguage.keySet()));
     }
   }
 

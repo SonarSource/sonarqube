@@ -127,7 +127,7 @@ public class DefaultIndex {
     if (component == null) {
       throw new IllegalStateException("Invalid component key: " + key);
     }
-    if (sensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
+    if (DefaultSensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
       // Ignore deprecated metrics
       return measure;
     }

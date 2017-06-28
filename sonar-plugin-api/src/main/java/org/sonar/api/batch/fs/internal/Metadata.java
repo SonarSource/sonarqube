@@ -19,6 +19,11 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.util.Arrays;
+
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class Metadata {
   private final int lines;
   private final int nonBlankLines;
@@ -30,7 +35,7 @@ public class Metadata {
     this.lines = lines;
     this.nonBlankLines = nonBlankLines;
     this.hash = hash;
-    this.originalLineOffsets = originalLineOffsets;
+    this.originalLineOffsets = Arrays.copyOf(originalLineOffsets, originalLineOffsets.length);
     this.lastValidOffset = lastValidOffset;
   }
 

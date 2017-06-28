@@ -39,6 +39,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
   private final Path moduleBaseDir;
   private String language;
   private final Type type;
+  private final Path path;
 
   /**
    * Testing purposes only!
@@ -57,6 +58,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
     this.relativePath = PathUtils.sanitize(relativePath);
     this.moduleBaseDir = moduleBaseDir.normalize();
     this.type = type;
+    this.path = this.moduleBaseDir.resolve(this.relativePath);
   }
 
   public DefaultIndexedFile setLanguage(@Nullable String language) {
@@ -81,7 +83,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
 
   @Override
   public Path path() {
-    return moduleBaseDir.resolve(relativePath);
+    return path;
   }
 
   @Override

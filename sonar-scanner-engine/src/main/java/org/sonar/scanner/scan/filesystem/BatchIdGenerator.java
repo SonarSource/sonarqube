@@ -22,6 +22,8 @@ package org.sonar.scanner.scan.filesystem;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.batch.fs.InputComponent;
 
 /**
@@ -29,6 +31,7 @@ import org.sonar.api.batch.fs.InputComponent;
  * The IDs must be unique among all types of components and for all modules in the project.
  * The ID should never be 0, as it is sometimes used to indicate invalid components. 
  */
+@ThreadSafe
 public class BatchIdGenerator implements Supplier<Integer> {
   private AtomicInteger nextBatchId = new AtomicInteger(1);
 
