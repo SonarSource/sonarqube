@@ -38,11 +38,13 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static org.sonar.server.es.DefaultIndexSettings.ANALYZED;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_KEYWORD;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_NOT_SEARCHABLE;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_KEYWORD;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.DefaultIndexSettingsElement.UUID_MODULE_ANALYZER;
 
@@ -178,7 +180,7 @@ public class NewIndex {
     public NewIndexType createUuidPathField(String fieldName) {
       return setProperty(fieldName, ImmutableSortedMap.of(
         TYPE, FIELD_TYPE_TEXT,
-        INDEX, ANALYZED,
+        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
         ANALYZER, UUID_MODULE_ANALYZER.getName()));
     }
 
@@ -250,6 +252,12 @@ public class NewIndex {
      * By default field is "not_analyzed": it is searchable, but index the value exactly
      * as specified.
      */
+    // ES 5: update javadoc to:
+    /*
+     * "index: false" -> Make this field not searchable.
+     * By default field is "true": it is searchable, but index the value exactly
+     * as specified.
+     */
     public KeywordFieldBuilder disableSearch() {
       this.disableSearch = true;
       return this;
@@ -260,7 +268,7 @@ public class NewIndex {
       if (subFields.isEmpty()) {
         hash.putAll(ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
-            "index", disableSearch ? "no" : "not_analyzed", // ES 5: change to false and true
+            "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE_FOR_KEYWORD,
             "norms", ImmutableMap.of("enabled", String.valueOf(!disableNorms))));
       } else {
         hash.put("type", "multi_field");
@@ -281,7 +289,7 @@ public class NewIndex {
 
         multiFields.put(fieldName, ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
-            "index", "not_analyzed", // ES 5: change to true
+            "index", INDEX_SEARCHABLE_FOR_KEYWORD,
             "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
             "norms", ImmutableMap.of("enabled", "false")));
 
@@ -317,7 +325,7 @@ public class NewIndex {
     public NestedFieldBuilder addKeywordField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of(
         "type", FIELD_TYPE_KEYWORD,
-        "index", "not_analyzed"));
+        "index", INDEX_SEARCHABLE_FOR_KEYWORD));
     }
 
     public NestedFieldBuilder addDoubleField(String fieldName) {
