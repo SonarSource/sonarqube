@@ -60,9 +60,11 @@ const DEFAULT_PROPS = {
   addCustomEvent: () => {},
   addVersion: () => {},
   analyses: ANALYSES,
+  analysesLoading: false,
   changeEvent: () => {},
   deleteAnalysis: () => {},
   deleteEvent: () => {},
+  graphLoading: false,
   loading: false,
   project: {
     key: 'org.sonarsource.sonarqube:sonarqube',

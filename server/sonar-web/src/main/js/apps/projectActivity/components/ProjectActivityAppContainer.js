@@ -86,9 +86,9 @@ class ProjectActivityAppContainer extends React.PureComponent {
     elem && elem.classList.add('dashboard-page');
   }
 
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.location.query !== this.props.location.query) {
-      const query = parseQuery(this.props.location.query);
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.location.query !== this.props.location.query) {
+      const query = parseQuery(nextProps.location.query);
       if (query.graph !== this.state.query.graph) {
         this.updateGraphData(query.graph);
       }
@@ -157,8 +157,8 @@ class ProjectActivityAppContainer extends React.PureComponent {
     );
   };
 
-  fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> =>
-    getAllTimeMachineData(this.props.project.key, metrics).then(
+  fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> => {
+    return getAllTimeMachineData(this.props.project.key, metrics).then(
       ({ measures }) =>
         measures.map(measure => ({
           metric: measure.metric,
@@ -169,6 +169,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
         })),
       throwGlobalError
     );
+  };
 
   fetchMetrics = (): Promise<Array<Metric>> => getMetrics().catch(throwGlobalError);
 
@@ -197,31 +198,41 @@ class ProjectActivityAppContainer extends React.PureComponent {
   firstLoadData() {
     const { query } = this.state;
     const graphMetrics = GRAPHS_METRICS[query.graph];
+    const ignoreHistory = this.shouldRedirect();
     Promise.all([
       this.fetchActivity(query.project, 1, 100, serializeQuery(query)),
       this.fetchMetrics(),
-      this.fetchMeasuresHistory(graphMetrics)
+      ignoreHistory ? Promise.resolve() : this.fetchMeasuresHistory(graphMetrics)
     ]).then(response => {
       if (this.mounted) {
-        this.setState({
-          analyses: response[0].analyses,
-          analysesLoading: true,
-          graphLoading: false,
-          loading: false,
-          metrics: response[1],
-          measuresHistory: response[2],
-          paging: response[0].paging
-        });
-
-        this.loadAllActivities(query.project).then(({ analyses, paging }) => {
-          if (this.mounted) {
+        setTimeout(() => {
+          const newState = {
+            analyses: response[0].analyses,
+            analysesLoading: true,
+            loading: false,
+            metrics: response[1],
+            paging: response[0].paging
+          };
+          if (ignoreHistory) {
+            this.setState(newState);
+          } else {
             this.setState({
-              analyses,
-              analysesLoading: false,
-              paging
+              ...newState,
+              graphLoading: false,
+              measuresHistory: response[2]
             });
           }
-        });
+
+          this.loadAllActivities(query.project).then(({ analyses, paging }) => {
+            if (this.mounted) {
+              this.setState({
+                analyses,
+                analysesLoading: false,
+                paging
+              });
+            }
+          });
+        }, 1000);
       }
     });
   }
@@ -273,7 +284,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
         changeEvent={this.changeEvent}
         deleteAnalysis={this.deleteAnalysis}
         deleteEvent={this.deleteEvent}
-        graphLoading={this.state.graphLoading}
+        graphLoading={this.state.loading || this.state.graphLoading}
         loading={this.state.loading}
         metrics={this.state.metrics}
         measuresHistory={this.state.measuresHistory}
