@@ -55,6 +55,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.bucket.terms.support.IncludeExclude;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
@@ -223,13 +224,16 @@ public class IssueIndex {
   }
 
   private void configureSorting(IssueQuery query, SearchRequestBuilder esRequest) {
+    createSortBuilders(query).forEach(esRequest::addSort);
+  }
+
+  private List<FieldSortBuilder> createSortBuilders(IssueQuery query) {
     String sortField = query.sort();
     if (sortField != null) {
       boolean asc = BooleanUtils.isTrue(query.asc());
-      sorting.fill(esRequest, sortField, asc);
-    } else {
-      sorting.fillDefault(esRequest);
+      return sorting.fill(sortField, asc);
     }
+    return sorting.fillDefault();
   }
 
   private static void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {

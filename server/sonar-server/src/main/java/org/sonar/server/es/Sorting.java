@@ -23,10 +23,10 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.sonar.core.util.stream.MoreCollectors;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -61,25 +61,25 @@ public class Sorting {
     return fields.get(name);
   }
 
-  public void fill(SearchRequestBuilder request, String name, boolean asc) {
+  public List<FieldSortBuilder> fill(String name, boolean asc) {
     List<Field> list = fields.get(name);
     checkRequest(!list.isEmpty(), "Bad sort field: %s", name);
-    doFill(request, list, asc);
+    return doFill(list, asc);
   }
 
-  public void fillDefault(SearchRequestBuilder request) {
-    doFill(request, defaultFields, true);
+  public List<FieldSortBuilder> fillDefault() {
+    return doFill(defaultFields, true);
   }
 
-  private static void doFill(SearchRequestBuilder request, List<Field> fields, boolean asc) {
-    for (Field field : fields) {
+  private static List<FieldSortBuilder> doFill(List<Field> fields, boolean asc) {
+    return fields.stream().map(field -> {
       FieldSortBuilder sortBuilder = SortBuilders.fieldSort(field.name);
       boolean effectiveAsc = asc != field.reverse;
       sortBuilder.order(effectiveAsc ? SortOrder.ASC : SortOrder.DESC);
       boolean effectiveMissingLast = asc == field.missingLast;
       sortBuilder.missing(effectiveMissingLast ? "_last" : "_first");
-      request.addSort(sortBuilder);
-    }
+      return sortBuilder;
+    }).collect(MoreCollectors.toList(fields.size()));
   }
 
   public static class Field {
