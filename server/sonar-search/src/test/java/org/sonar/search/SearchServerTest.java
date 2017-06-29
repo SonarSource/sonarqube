@@ -19,18 +19,14 @@
  */
 package org.sonar.search;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.util.Collection;
-import java.util.Collections;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Properties;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.plugins.Plugin;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +34,6 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.slf4j.Logger;
 import org.sonar.process.Monitored;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessEntryPoint;
@@ -47,10 +42,6 @@ import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 public class SearchServerTest {
 
@@ -63,8 +54,8 @@ public class SearchServerTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private int httpPort = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
   private int port = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
-  private Client client;
   private SearchServer underTest;
 
   @After
@@ -73,61 +64,40 @@ public class SearchServerTest {
       underTest.stop();
       underTest.awaitStop();
     }
-    if (client != null) {
-      client.close();
-    }
-  }
-
-  @Test
-  public void log_information_on_startup() throws IOException {
-    Props props = getClusterProperties();
-    props.set(ProcessProperties.CLUSTER_ENABLED, "true");
-    props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "2");
-    // Set the timeout to 1sec
-    props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "1s");
-    underTest = new SearchServer(props);
-    Logger logger = mock(Logger.class);
-    underTest.LOGGER = logger;
-    underTest.start();
-    System.out.println(org.apache.logging.log4j.Logger.class);
-    verify(logger).info(eq("Elasticsearch is waiting {} for {} node(s) to be up to start."), eq("1s"), eq("2"));
-  }
-
-  @Test
-  public void no_log_information_on_startup() throws IOException {
-    Props props = getClusterProperties();
-    props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "1");
-    // Set the timeout to 1sec
-    props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "1s");
-    underTest = new SearchServer(props);
-    Logger logger = mock(Logger.class);
-    underTest.LOGGER = logger;
-    underTest.start();
-    verify(logger, never()).info(eq("Elasticsearch is waiting {} for {} node(s) to be up to start."), eq("1s"), eq("2"));
   }
 
   @Test
   public void start_stop_server() throws Exception {
     underTest = new SearchServer(getClusterProperties());
+
     underTest.start();
     assertThat(underTest.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
 
-    Settings settings = Settings.builder().put("cluster.name", A_CLUSTER_NAME).build();
-    Collection<Class<? extends Plugin>> plugins = Collections.emptyList();
-    client = new TransportClient(settings, plugins) {
-
-    }.addTransportAddress(new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), port));
-    assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
-
     underTest.stop();
     underTest.awaitStop();
-    underTest = null;
     try {
-      client.admin().cluster().prepareClusterStats().get();
+      underTest.getStatus();
       fail();
-    } catch (NoNodeAvailableException exception) {
+    } catch (Exception exception) {
       // ok
     }
+  }
+
+  private void waitFor(String expectedStatus) throws Exception {
+    String urlString = "http://localhost:" + httpPort + "/_cluster/health";
+    URL url = new URL(urlString);
+    URLConnection urlConnection = url.openConnection();
+    InputStream inputStream = urlConnection.getInputStream();
+    String line;
+    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+    while ((line = reader.readLine()) != null) {
+      if (line.contains("\"status\"")) {
+        if (line.contains(expectedStatus)) {
+          return;
+        }
+      }
+    }
+    fail();
   }
 
   private Props getClusterProperties() throws IOException {
@@ -135,6 +105,7 @@ public class SearchServerTest {
     // the following properties have always default values (see ProcessProperties)
     InetAddress host = InetAddress.getLoopbackAddress();
     props.set(ProcessProperties.SEARCH_HOST, host.getHostAddress());
+    props.set(ProcessProperties.SEARCH_HTTP_PORT, String.valueOf(httpPort));
     props.set(ProcessProperties.SEARCH_PORT, String.valueOf(port));
     props.set(ProcessProperties.CLUSTER_NAME, A_CLUSTER_NAME);
     props.set(EsSettings.CLUSTER_SEARCH_NODE_NAME, A_NODE_NAME);
