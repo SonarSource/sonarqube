@@ -383,6 +383,32 @@ public class RuleIndexTest {
     assertThat(underTest.search(query, new SearchOptions()).getIds()).hasSize(2);
   }
 
+  @Test
+  public void compare_to_another_profile() {
+    String xoo = "xoo";
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(xoo));
+    QProfileDto anotherProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(xoo));
+    RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
+    RuleDefinitionDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
+    RuleDefinitionDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
+    RuleDefinitionDto profileRule3 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
+    RuleDefinitionDto anotherProfileRule1 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
+    RuleDefinitionDto anotherProfileRule2 = db.rules().insertRule(r -> r.setLanguage(xoo)).getDefinition();
+    db.qualityProfiles().activateRule(profile, commonRule);
+    db.qualityProfiles().activateRule(profile, profileRule1);
+    db.qualityProfiles().activateRule(profile, profileRule2);
+    db.qualityProfiles().activateRule(profile, profileRule3);
+    db.qualityProfiles().activateRule(anotherProfile, commonRule);
+    db.qualityProfiles().activateRule(anotherProfile, anotherProfileRule1);
+    db.qualityProfiles().activateRule(anotherProfile, anotherProfileRule2);
+    index();
+
+    verifySearch(newRuleQuery().setActivation(false).setQProfile(profile).setCompareToQProfile(anotherProfile), anotherProfileRule1, anotherProfileRule2);
+    verifySearch(newRuleQuery().setActivation(true).setQProfile(profile).setCompareToQProfile(anotherProfile), commonRule);
+    verifySearch(newRuleQuery().setActivation(true).setQProfile(profile).setCompareToQProfile(profile), commonRule, profileRule1, profileRule2, profileRule3);
+    verifySearch(newRuleQuery().setActivation(false).setQProfile(profile).setCompareToQProfile(profile));
+  }
+
   @SafeVarargs
   private final RuleDefinitionDto createRule(Consumer<RuleDefinitionDto>... consumers) {
     return db.rules().insert(consumers);

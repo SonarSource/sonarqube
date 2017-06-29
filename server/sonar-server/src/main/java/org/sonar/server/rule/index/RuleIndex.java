@@ -20,8 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,6 +54,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.es.EsClient;
@@ -65,6 +64,8 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -114,10 +115,11 @@ public class RuleIndex {
   public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
 
-  public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = ImmutableList.copyOf(
-    Collections2.filter(
-      Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatus::toString),
-      input -> !RuleStatus.REMOVED.toString().equals(input)));
+  public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = Arrays.stream(RuleStatus.values())
+    .filter(status -> !RuleStatus.REMOVED.equals(status))
+    .map(RuleStatus::toString)
+    .collect(MoreCollectors.toList());
+
   private static final String AGGREGATION_NAME = "_ref";
   private static final String AGGREGATION_NAME_FOR_TAGS = "tagsAggregation";
   private final EsClient client;
@@ -296,28 +298,34 @@ public class RuleIndex {
     if (query.getActivation() != null && profile != null) {
 
       // ActiveRule Filter (profile and inheritance)
-      BoolQueryBuilder childrenFilter = boolQuery();
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid());
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
-      addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
+      BoolQueryBuilder activeRuleFilter = boolQuery();
+      addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_PROFILE_UUID, profile.getRulesProfileUuid());
+      addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
+      addTermFilter(activeRuleFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
 
       // ChildQuery
       QueryBuilder childQuery;
-      if (childrenFilter.hasClauses()) {
-        childQuery = childrenFilter;
+      if (activeRuleFilter.hasClauses()) {
+        childQuery = activeRuleFilter;
       } else {
         childQuery = matchAllQuery();
       }
 
-      if (Boolean.TRUE.equals(query.getActivation())) {
+      if (TRUE.equals(query.getActivation())) {
         filters.put("activation",
           QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
             childQuery));
-      } else if (Boolean.FALSE.equals(query.getActivation())) {
+      } else if (FALSE.equals(query.getActivation())) {
         filters.put("activation",
           boolQuery().mustNot(
             QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
               childQuery)));
+      }
+      QProfileDto compareToQProfile = query.getCompareToQProfile();
+      if (compareToQProfile != null) {
+        filters.put("comparison",
+          QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
+            boolQuery().must(QueryBuilders.termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, compareToQProfile.getRulesProfileUuid()))));
       }
     }
 
