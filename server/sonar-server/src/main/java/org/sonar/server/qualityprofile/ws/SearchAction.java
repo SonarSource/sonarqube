@@ -33,7 +33,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -44,6 +43,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
@@ -56,6 +56,7 @@ import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
+import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -153,11 +154,14 @@ public class SearchAction implements QProfileWsAction {
       List<QProfileDto> defaultProfiles = dbClient.qualityProfileDao().selectDefaultProfiles(dbSession, organization, getLanguageKeys());
       List<QProfileDto> profiles = searchProfiles(dbSession, request, organization, defaultProfiles, project);
 
+      ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
       return new SearchData()
         .setOrganization(organization)
         .setProfiles(profiles)
-        .setActiveRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesByProfileUuid(dbSession, organization))
-        .setActiveDeprecatedRuleCountByProfileKey(dbClient.activeRuleDao().countActiveRulesForRuleStatusByProfileUuid(dbSession, organization, RuleStatus.DEPRECATED))
+        .setActiveRuleCountByProfileKey(
+          dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).build()))
+        .setActiveDeprecatedRuleCountByProfileKey(
+          dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setRuleStatus(DEPRECATED).build()))
         .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileUuid(dbSession, organization))
         .setDefaultProfileKeys(defaultProfiles);
     }
