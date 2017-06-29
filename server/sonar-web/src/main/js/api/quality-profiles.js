@@ -20,9 +20,14 @@
 // @flow
 import { request, checkStatus, parseJSON, getJSON, post, postJSON } from '../helpers/request';
 
-export function getQualityProfiles(data: { organization?: string, projectKey?: string }) {
+export function searchQualityProfiles(data: { organization?: string, projectKey?: string }) {
   const url = '/api/qualityprofiles/search';
   return getJSON(url, data).then(r => r.profiles);
+}
+
+export function getQualityProfiles(data: { compareToSonarWay?: boolean, profile: string }) {
+  const url = '/api/qualityprofiles/show';
+  return getJSON(url, data);
 }
 
 export function createQualityProfile(data: Object) {
