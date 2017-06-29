@@ -23,14 +23,22 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -55,14 +63,20 @@ public class ShowActionTest {
   private static Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  @Rule
   public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client(), new ActiveRuleIteratorFactory(db.getDbClient()));
+  private RuleIndex ruleIndex = new RuleIndex(es.client());
+
   private WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), LANGUAGES));
+    new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), LANGUAGES, ruleIndex));
 
   @Test
   public void test_definition() {
@@ -161,6 +175,41 @@ public class ShowActionTest {
   public void compare_to_sonar_way_profile() {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDefinitionDto sonarWayRule1 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDefinitionDto sonarWayRule2 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDefinitionDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDefinitionDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    RuleDefinitionDto profileRule3 = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    db.qualityProfiles().activateRule(profile, commonRule);
+    db.qualityProfiles().activateRule(profile, profileRule1);
+    db.qualityProfiles().activateRule(profile, profileRule2);
+    db.qualityProfiles().activateRule(profile, profileRule3);
+    db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
+    db.qualityProfiles().activateRule(sonarWayProfile, sonarWayRule1);
+    db.qualityProfiles().activateRule(sonarWayProfile, sonarWayRule2);
+    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
+    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
+
+    CompareToSonarWay result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
+        .getCompareToSonarWay();
+
+    assertThat(result)
+      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
+      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName(), 2L);
+  }
+
+  @Test
+  public void compare_to_sonar_way_profile_when_same_active_rules() {
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+    RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(XOO1.getKey())).getDefinition();
+    db.qualityProfiles().activateRule(profile, commonRule);
+    db.qualityProfiles().activateRule(sonarWayProfile, commonRule);
+    ruleIndexer.indexOnStartup(ruleIndexer.getIndexTypes());
+    activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, profile.getKee())
@@ -168,13 +217,14 @@ public class ShowActionTest {
       .getCompareToSonarWay();
 
     assertThat(result)
-      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
-      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName());
+      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
+      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName(), 0L);
   }
 
   @Test
   public void no_comparison_when_sonar_way_does_not_exist() {
-    QProfileDto anotherSonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto anotherSonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+      p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
     ShowWsResponse result = call(ws.newRequest()
@@ -228,7 +278,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -244,7 +294,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
@@ -292,10 +342,11 @@ public class ShowActionTest {
       .mapToObj(i -> db.components().insertPrivateProject())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
-    ws = new WsActionTester(new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), new Languages(cs)));
+    ws = new WsActionTester(
+      new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), new Languages(cs), ruleIndex));
     String result = ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()).execute().getInput();
 
-    assertJson(result).ignoreFields("rulesUpdatedAt", "lastUsed", "userUpdatedAt", "compareToSonarWay").isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(result).ignoreFields("rulesUpdatedAt", "lastUsed", "userUpdatedAt").isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   private ShowWsResponse call(TestRequest request) {
