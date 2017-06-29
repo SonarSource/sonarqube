@@ -205,7 +205,7 @@
     ORDER BY rp.name
   </select>
 
-  <select id="countProjectsByProfileUuid" resultType="KeyLongValue" parameterType="map">
+  <select id="countProjectsByOrganizationAndProfiles" resultType="KeyLongValue" parameterType="map">
     select pqp.profile_key as "key", count(pj.uuid) as "value"
     from projects pj
     inner join project_qprofiles pqp on pqp.project_uuid = pj.uuid
@@ -214,6 +214,9 @@
       pj.enabled = ${_true}
       and pj.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
       and oqp.organization_uuid = pj.organization_uuid
+      and <foreach collection="profileUuids" item="profileUuid" open="(" separator=" or " close=")">
+        oqp.uuid = #{profileUuid, jdbcType=VARCHAR}
+      </foreach>
     group by pqp.profile_key
   </select>
 

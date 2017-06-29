@@ -77,7 +77,7 @@ public interface QualityProfileMapper {
 
   // PROJECTS
 
-  List<KeyLongValue> countProjectsByProfileUuid(@Param("organizationUuid") String organizationUuid);
+  List<KeyLongValue> countProjectsByOrganizationAndProfiles(@Param("organizationUuid") String organizationUuid, @Param("profileUuids") List<String> profiles);
 
   @CheckForNull
   QProfileDto selectAssociatedToProjectUuidAndLanguage(
