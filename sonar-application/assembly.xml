@@ -154,6 +154,8 @@
         <include>bin/*/lib/*.dll</include>
         <include>bin/*/wrapper</include>
         <include>bin/*/wrapper.exe</include>
+        <include>elasticsearch/bin/elasticsearch</include>
+        <include>elasticsearch/bin/elasticsearch.bat</include>
       </includes>
       <fileMode>0755</fileMode>
     </fileSet>
