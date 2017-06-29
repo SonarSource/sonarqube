@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -167,8 +168,9 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectByNameAndLanguages(organization.getUuid(), name, languages);
   }
 
-  public Map<String, Long> countProjectsByProfileUuid(DbSession dbSession, OrganizationDto organization) {
-    return KeyLongValue.toMap(mapper(dbSession).countProjectsByProfileUuid(organization.getUuid()));
+  public Map<String, Long> countProjectsByOrganizationAndProfiles(DbSession dbSession, OrganizationDto organization, List<QProfileDto> profiles) {
+    List<String> profileUuids = profiles.stream().map(QProfileDto::getKee).collect(MoreCollectors.toList());
+    return KeyLongValue.toMap(executeLargeInputs(profileUuids, partition -> mapper(dbSession).countProjectsByOrganizationAndProfiles(organization.getUuid(), partition)));
   }
 
   public void insertProjectProfileAssociation(DbSession dbSession, ComponentDto project, QProfileDto profile) {
