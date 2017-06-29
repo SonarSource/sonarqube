@@ -20,9 +20,11 @@
 package org.sonarqube.ws.client.qualityprofile;
 
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -39,7 +41,9 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -98,6 +102,14 @@ public class QualityProfilesService extends BaseService {
         .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
         .setParam(PARAM_ORGANIZATION, request.getOrganizationKey()),
       SearchWsResponse.parser());
+  }
+
+  public QualityProfiles.ShowResponse show(ShowRequest request) {
+    return call(
+      new GetRequest(path(ACTION_SHOW))
+        .setParam(PARAM_PROFILE, request.getProfile())
+        .setParam(PARAM_COMPARE_TO_SONAR_WAY, request.getCompareToSonarWay()),
+      ShowResponse.parser());
   }
 
   public void addProject(AddProjectRequest request) {

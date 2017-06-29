@@ -22,7 +22,8 @@ package org.sonarqube.ws.client.qualityprofile;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.Common.Severity;
-import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -30,6 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -59,13 +61,28 @@ public class QualityProfilesServiceTest {
       .setProfileName("profile"));
     GetRequest getRequest = serviceTester.getGetRequest();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(SearchWsResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasPath("search")
       .hasParam(PARAM_DEFAULTS, true)
       .hasParam(PARAM_PROJECT_KEY, "project")
       .hasParam(PARAM_LANGUAGE, "language")
       .hasParam(PARAM_PROFILE_NAME, "profile")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void show() {
+    underTest.show(new ShowRequest()
+      .setProfile("profile")
+      .setCompareToSonarWay(true));
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(ShowResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasPath("show")
+      .hasParam(PARAM_PROFILE, "profile")
+      .hasParam(PARAM_COMPARE_TO_SONAR_WAY, true)
       .andNoOtherParam();
   }
 
