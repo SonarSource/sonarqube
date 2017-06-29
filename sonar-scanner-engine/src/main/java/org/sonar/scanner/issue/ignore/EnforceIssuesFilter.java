@@ -79,7 +79,6 @@ public class EnforceIssuesFilter implements IssueFilter {
 
   @CheckForNull
   private String getRelativePath(String componentKey) {
-    // TODO extract componentStore which is immutable
     InputComponent component = componentStore.getByKey(componentKey);
     if (component == null || !component.isFile()) {
       return null;
