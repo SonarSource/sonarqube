@@ -178,7 +178,7 @@ public class EsSettings implements EsSettingsMBean {
       .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor)
       .put("cluster.name", getClusterName())
       .put("cluster.routing.allocation.awareness.attributes", "rack_id")
-      .put("node.rack_id", nodeName)
+      .put("node.attr.rack_id", nodeName)
       .put("node.name", nodeName)
       .put("node.data", true)
       .put("node.master", true);
