@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tr>
+  <td>
+    <strong>
+      total
+    </strong>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/rules#qprofile=bar|activation=true"
+    >
+      <strong>
+        3
+      </strong>
+    </Link>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      className="small text-muted"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/rules#qprofile=bar|activation=false"
+    >
+      <strong>
+        7
+      </strong>
+    </Link>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly if there is 0 rules 1`] = `
+<tr>
+  <td>
+    <strong>
+      total
+    </strong>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/coding_rules#qprofile=bar|activation=true"
+    >
+      <strong>
+        0
+      </strong>
+    </Link>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <span
+      className="note text-muted"
+    >
+      0
+    </span>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly if there is missing data 1`] = `
+<tr>
+  <td>
+    <strong>
+      total
+    </strong>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/coding_rules#qprofile=bar|activation=true"
+    >
+      <strong>
+        5
+      </strong>
+    </Link>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  />
+</tr>
+`;
+
+exports[`should render correctly if there is missing data 2`] = `
+<tr>
+  <td>
+    <strong>
+      total
+    </strong>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  />
+  <td
+    className="thin nowrap text-right"
+  />
+</tr>
+`;

@@ -63,7 +63,9 @@
   padding: 15px 20px 20px;
 }
 
-.quality-profile-rules {}
+.quality-profile-rules {
+  min-height: 182px;
+}
 
 .quality-profile-rules > header {
   padding: 15px 20px;
@@ -77,6 +79,11 @@
 .quality-profile-rules-deprecated {
   padding: 15px 20px;
   background-color: #f2dede;
+}
+
+.quality-profile-rules-sonarway-missing {
+  padding: 15px 20px;
+  background-color: #fcf8e3;
 }
 
 .quality-profile-exporters {
