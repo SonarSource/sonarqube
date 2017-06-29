@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.db.es.RuleExtensionId;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 
@@ -50,6 +51,10 @@ public interface RuleMapper {
   List<RuleDto> selectByKeys(@Param("organizationUuid") String organizationUuid, @Param("ruleKeys") List<RuleKey> keys);
 
   List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);
+
+  List<RuleForIndexingDto> selectRuleForIndexingByKeys(@Param("ruleKeys") List<RuleKey> keys);
+
+  List<RuleExtensionForIndexingDto> selectRuleExtensionForIndexingByKeys(@Param("ruleExtensionIds") List<RuleExtensionId> ruleExtensionIds);
 
   List<RuleDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") RuleQuery ruleQuery);
 

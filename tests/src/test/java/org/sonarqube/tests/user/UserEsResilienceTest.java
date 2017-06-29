@@ -92,8 +92,7 @@ public class UserEsResilienceTest {
   public void creation_and_update_of_user_are_resilient_to_indexing_crash() throws Exception {
     String login = "crash";
 
-    // creation of user succeeds but index is not up-to-date (indexing
-    // crashes are not propagated to web services)
+    // creation of user succeeds in db but indexing crashes --> ws fails
     expectHttpError(500, () -> tester.users().generate(u -> u.setLogin(login)));
 
     // user exists in db, it can't be created again.

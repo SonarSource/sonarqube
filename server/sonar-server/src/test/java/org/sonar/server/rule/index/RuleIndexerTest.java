@@ -20,6 +20,7 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -68,16 +69,14 @@ public class RuleIndexerTest {
 
   @Test
   public void index_nothing() {
-    // underTest.index(Iterators.emptyIterator());
+    underTest.index(dbSession, Collections.emptyList());
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(0L);
   }
 
   @Test
   public void index() {
     dbClient.ruleDao().insert(dbSession, rule);
-    dbSession.commit();
-
-    underTest.indexRuleDefinition(rule.getKey());
+    underTest.commitAndIndex(dbSession, rule.getKey());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
@@ -87,13 +86,12 @@ public class RuleIndexerTest {
     // Create and Index rule
     dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
     dbSession.commit();
-    underTest.indexRuleDefinition(rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
 
     // Remove rule
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
-    dbTester.getSession().commit();
-    underTest.indexRuleDefinition(rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
 
     assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
@@ -101,10 +99,10 @@ public class RuleIndexerTest {
   @Test
   public void index_rule_extension_with_long_id() {
     RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setRuleKey(RuleTesting.randomRuleKeyOfMaximumLength()));
-    underTest.indexRuleDefinition(rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
     OrganizationDto organization = dbTester.organizations().insert();
     dbTester.rules().insertOrUpdateMetadata(rule, organization, m -> m.setTags(ImmutableSet.of("bla")));
-    underTest.indexRuleExtension(organization, rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), organization, rule.getKey());
 
     RuleExtensionDoc doc = new RuleExtensionDoc()
       .setRuleKey(rule.getKey())

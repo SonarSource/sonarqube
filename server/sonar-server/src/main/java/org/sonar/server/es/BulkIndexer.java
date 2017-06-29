@@ -77,7 +77,7 @@ public class BulkIndexer {
   private final String indexName;
   private final BulkProcessor bulkProcessor;
   private final AtomicLong counter = new AtomicLong(0L);
-  private final AtomicLong successCounter = new AtomicLong(0L);
+  private final ResilientIndexerResult successCounter = new ResilientIndexerResult();
   private final SizeHandler sizeHandler;
   private final BulkProcessorListener bulkProcessorListener;
   @Nullable
@@ -103,7 +103,7 @@ public class BulkIndexer {
   public void start() {
     sizeHandler.beforeStart(this);
     counter.set(0L);
-    successCounter.set(0L);
+    successCounter.clear();
   }
 
   public void start(DbSession dbSession, DbClient dbClient, Collection<EsQueueDto> esQueueDtos) {
@@ -112,13 +112,13 @@ public class BulkIndexer {
     this.esQueueDtos = esQueueDtos;
     sizeHandler.beforeStart(this);
     counter.set(0L);
-    successCounter.set(0L);
+    successCounter.clear();
   }
 
   /**
    * @return the number of documents successfully indexed
    */
-  public long stop() {
+  public ResilientIndexerResult stop() {
     try {
       bulkProcessor.awaitClose(1, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
@@ -129,7 +129,7 @@ public class BulkIndexer {
     }
     client.prepareRefresh(indexName).get();
     sizeHandler.afterStop(this);
-    return successCounter.get();
+    return successCounter;
   }
 
   public void add(ActionRequest<?> request) {
@@ -204,8 +204,9 @@ public class BulkIndexer {
       for (BulkItemResponse item : response.getItems()) {
         if (item.isFailed()) {
           LOGGER.error("index [{}], type [{}], id [{}], message [{}]", item.getIndex(), item.getType(), item.getId(), item.getFailureMessage());
+          successCounter.increaseFailure();
         } else {
-          successCounter.incrementAndGet();
+          successCounter.increaseSuccess();
         }
       }
 
@@ -221,7 +222,7 @@ public class BulkIndexer {
       if (esQueueDtos != null) {
         List<EsQueueDto> itemsToDelete = Arrays.stream(bulkResponse.getItems())
           .filter(b -> !b.isFailed())
-          .map(b -> esQueueDtos.stream().filter(t -> b.getId().equals(t.getDocUuid())).findFirst().orElse(null))
+          .map(b -> esQueueDtos.stream().filter(t -> b.getId().equals(t.getDocId())).findFirst().orElse(null))
           .filter(Objects::nonNull)
           .collect(toList());
 

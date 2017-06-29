@@ -81,25 +81,25 @@ import static org.sonar.server.issue.IssueDocTesting.newDoc;
 public class IssueIndexTest {
 
   private System2 system2 = mock(System2.class);
-
+  private MapSettings settings = new MapSettings();
   @Rule
-  public EsTester tester = new EsTester(
-    new IssueIndexDefinition(new MapSettings().asConfig()),
-    new ViewIndexDefinition(new MapSettings().asConfig()),
-    new RuleIndexDefinition(new MapSettings().asConfig()));
+  public EsTester esTester = new EsTester(
+    new IssueIndexDefinition(settings.asConfig()),
+    new ViewIndexDefinition(settings.asConfig()),
+    new RuleIndexDefinition(settings.asConfig());
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private IssueIndexer issueIndexer = new IssueIndexer(tester.client(), new IssueIteratorFactory(null));
-  private ViewIndexer viewIndexer = new ViewIndexer(null, tester.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(tester.client(), db.getDbClient());
-  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(tester, issueIndexer);
+  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(null));
+  private ViewIndexer viewIndexer = new ViewIndexer(null, esTester.client());
+  private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbTester.getDbClient());
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(esTester, issueIndexer);
 
-  private IssueIndex underTest = new IssueIndex(tester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
+  private IssueIndex underTest = new IssueIndex(esTester.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
 
   @Before
   public void setUp() {
@@ -1329,13 +1329,11 @@ public class IssueIndexTest {
 
   @Test
   public void list_tags() {
-    RuleDefinitionDto r1 = db.rules().insert();
-    ruleIndexer.indexRuleDefinition(r1.getKey());
+    RuleDefinitionDto r1 = dbTester.rules().insert();
+    RuleDefinitionDto r2 = dbTester.rules().insert();
+    ruleIndexer.commitAndIndex(dbTester.getSession(), asList(r1.getKey(), r2.getKey()));
 
-    RuleDefinitionDto r2 = db.rules().insert();
-    ruleIndexer.indexRuleDefinition(r2.getKey());
-
-    OrganizationDto org = db.organizations().insert();
+    OrganizationDto org = dbTester.organizations().insert();
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
     indexIssues(

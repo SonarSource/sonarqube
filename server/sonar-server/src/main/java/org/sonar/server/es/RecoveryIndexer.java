@@ -38,6 +38,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.index.UserIndexer;
 
 import static java.lang.String.format;
@@ -64,14 +65,16 @@ public class RecoveryIndexer implements Startable {
   private final Settings settings;
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
+  private final RuleIndexer ruleIndexer;
   private final long minAgeInMs;
   private final long loopLimit;
 
-  public RecoveryIndexer(System2 system2, Settings settings, DbClient dbClient, UserIndexer userIndexer) {
+  public RecoveryIndexer(System2 system2, Settings settings, DbClient dbClient, UserIndexer userIndexer, RuleIndexer ruleIndexer) {
     this.system2 = system2;
     this.settings = settings;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
+    this.ruleIndexer = ruleIndexer;
     this.minAgeInMs = getSetting(PROPERTY_MIN_AGE, DEFAULT_MIN_AGE_IN_MS);
     this.loopLimit = getSetting(PROPERTY_LOOP_LIMIT, DEFAULT_LOOP_LIMIT);
   }
@@ -107,42 +110,43 @@ public class RecoveryIndexer implements Startable {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Profiler profiler = Profiler.create(LOGGER).start();
       long beforeDate = system2.now() - minAgeInMs;
-      long total = 0L;
-      long totalSuccess = 0L;
+      ResilientIndexerResult result = new ResilientIndexerResult();
 
       Collection<EsQueueDto> items = dbClient.esQueueDao().selectForRecovery(dbSession, beforeDate, loopLimit);
       while (!items.isEmpty()) {
-        total += items.size();
-        long loopSuccess = 0L;
+        ResilientIndexerResult loopResult = new ResilientIndexerResult();
 
         ListMultimap<EsQueueDto.Type, EsQueueDto> itemsByType = groupItemsByType(items);
         for (Map.Entry<EsQueueDto.Type, Collection<EsQueueDto>> entry : itemsByType.asMap().entrySet()) {
-          loopSuccess += doIndex(dbSession, entry.getKey(), entry.getValue());
+          loopResult.add(doIndex(dbSession, entry.getKey(), entry.getValue()));
         }
 
-        totalSuccess += loopSuccess;
-        if (1.0d * (items.size() - loopSuccess) / items.size() >= CIRCUIT_BREAKER_IN_PERCENT) {
-          LOGGER.error(LOG_PREFIX + "too many failures [{}/{} documents], waiting for next run", items.size() - loopSuccess, items.size());
+        result.add(loopResult);
+        if (loopResult.getFailureRatio() >= CIRCUIT_BREAKER_IN_PERCENT) {
+          LOGGER.error(LOG_PREFIX + "too many failures [{}/{} documents], waiting for next run", loopResult.getFailures(), loopResult.getTotal());
           break;
         }
         items = dbClient.esQueueDao().selectForRecovery(dbSession, beforeDate, loopLimit);
       }
-      if (total > 0L) {
-        profiler.stopInfo(LOG_PREFIX + format("%d documents processed [%d failures]", total, total - totalSuccess));
+      if (result.getTotal() > 0L) {
+        profiler.stopInfo(LOG_PREFIX + format("%d documents processed [%d failures]", result.getTotal(), result.getFailures()));
       }
     } catch (Throwable t) {
       LOGGER.error(LOG_PREFIX + "fail to recover documents", t);
     }
   }
 
-  private long doIndex(DbSession dbSession, EsQueueDto.Type type, Collection<EsQueueDto> typeItems) {
+  private ResilientIndexerResult doIndex(DbSession dbSession, EsQueueDto.Type type, Collection<EsQueueDto> typeItems) {
     LOGGER.trace(LOG_PREFIX + "processing {} {}", typeItems.size(), type);
     switch (type) {
       case USER:
         return userIndexer.index(dbSession, typeItems);
+      case RULE_EXTENSION:
+      case RULE:
+        return ruleIndexer.index(dbSession, typeItems);
       default:
         LOGGER.error(LOG_PREFIX + "ignore {} documents with unsupported type {}", typeItems.size(), type);
-        return 0;
+        return new ResilientIndexerResult();
     }
   }
 

@@ -22,12 +22,12 @@ package org.sonar.db.es;
 public final class EsQueueDto {
 
   public enum Type {
-    USER
+    USER, RULE, RULE_EXTENSION
   }
 
   private String uuid;
   private Type docType;
-  private String docUuid;
+  private String docId;
 
   public String getUuid() {
     return uuid;
@@ -47,12 +47,12 @@ public final class EsQueueDto {
     return this;
   }
 
-  public String getDocUuid() {
-    return docUuid;
+  public String getDocId() {
+    return docId;
   }
 
-  private EsQueueDto setDocUuid(String s) {
-    this.docUuid = s;
+  private EsQueueDto setDocId(String s) {
+    this.docId = s;
     return this;
   }
 
@@ -61,12 +61,31 @@ public final class EsQueueDto {
     StringBuilder sb = new StringBuilder("EsQueueDto{");
     sb.append("uuid='").append(uuid).append('\'');
     sb.append(", docType=").append(docType);
-    sb.append(", docUuid='").append(docUuid).append('\'');
+    sb.append(", docId='").append(docId).append('\'');
     sb.append('}');
     return sb.toString();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof EsQueueDto)) {
+      return false;
+    }
+
+    EsQueueDto that = (EsQueueDto) o;
+
+    return uuid.equals(that.uuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return uuid.hashCode();
+  }
+
   public static EsQueueDto create(Type docType, String docUuid) {
-    return new EsQueueDto().setDocType(docType).setDocUuid(docUuid);
+    return new EsQueueDto().setDocType(docType).setDocId(docUuid);
   }
 }

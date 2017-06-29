@@ -89,8 +89,7 @@ public class EnableSupportAction implements OrganizationsWsAction {
         createDefaultMembersGroup(dbSession);
         List<RuleKey> disabledTemplateAndCustomRuleKeys = disableTemplateRulesAndCustomRules(dbSession);
         enableFeature(dbSession);
-        dbSession.commit();
-        ruleIndexer.indexRuleDefinitions(disabledTemplateAndCustomRuleKeys);
+        ruleIndexer.commitAndIndex(dbSession, disabledTemplateAndCustomRuleKeys);
       }
     }
     response.noContent();

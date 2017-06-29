@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.config.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService;
@@ -39,12 +40,14 @@ import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupCreatorImpl;
@@ -54,7 +57,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 
@@ -65,20 +69,23 @@ public class EnableSupportActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public DbTester db = DbTester.create();
+  public DbTester dbTester = DbTester.create();
+  @Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(db.getDbClient());
-  private RuleIndexer ruleIndexer = mock(RuleIndexer.class);
-  private EnableSupportAction underTest = new EnableSupportAction(userSession, db.getDbClient(), defaultOrganizationProvider, organizationFlags,
-    new DefaultGroupCreatorImpl(db.getDbClient()), new DefaultGroupFinder(db.getDbClient()), ruleIndexer);
+
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private OrganizationFlags organizationFlags = new OrganizationFlagsImpl(dbTester.getDbClient());
+  private RuleIndexer ruleIndexer = spy(new RuleIndexer(esTester.client(), dbTester.getDbClient()));
+  private EnableSupportAction underTest = new EnableSupportAction(userSession, dbTester.getDbClient(), defaultOrganizationProvider, organizationFlags,
+    new DefaultGroupCreatorImpl(dbTester.getDbClient()), new DefaultGroupFinder(dbTester.getDbClient()), ruleIndexer);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void enabling_support_saves_internal_property_and_flags_caller_as_root() {
-    UserDto user = db.users().insertUser();
-    UserDto otherUser = db.users().insertUser();
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    UserDto user = dbTester.users().insertUser();
+    UserDto otherUser = dbTester.users().insertUser();
+    dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
     verifyFeatureEnabled(false);
     verifyRoot(user, false);
     verifyRoot(otherUser, false);
@@ -93,48 +100,48 @@ public class EnableSupportActionTest {
 
   @Test
   public void enabling_support_creates_default_members_group_and_associate_org_members() throws Exception {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    OrganizationDto anotherOrganization = db.organizations().insert();
-    UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
-    UserDto userInAnotherOrganization = db.users().insertUser();
-    db.organizations().addMember(defaultOrganization, user1);
-    db.organizations().addMember(defaultOrganization, user2);
-    db.organizations().addMember(anotherOrganization, userInAnotherOrganization);
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
+    OrganizationDto anotherOrganization = dbTester.organizations().insert();
+    UserDto user1 = dbTester.users().insertUser();
+    UserDto user2 = dbTester.users().insertUser();
+    UserDto userInAnotherOrganization = dbTester.users().insertUser();
+    dbTester.organizations().addMember(defaultOrganization, user1);
+    dbTester.organizations().addMember(defaultOrganization, user2);
+    dbTester.organizations().addMember(anotherOrganization, userInAnotherOrganization);
+    dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
     logInAsSystemAdministrator(user1.getLogin());
 
     call();
 
-    Optional<Integer> defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), defaultOrganization.getUuid());
+    Optional<Integer> defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid());
     assertThat(defaultGroupId).isPresent();
-    GroupDto membersGroup = db.getDbClient().groupDao().selectById(db.getSession(), defaultGroupId.get());
+    GroupDto membersGroup = dbTester.getDbClient().groupDao().selectById(dbTester.getSession(), defaultGroupId.get());
     assertThat(membersGroup).isNotNull();
     assertThat(membersGroup.getName()).isEqualTo("Members");
-    assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), user1.getId())).containsOnly(defaultGroupId.get());
-    assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), user2.getId())).containsOnly(defaultGroupId.get());
-    assertThat(db.getDbClient().groupMembershipDao().selectGroupIdsByUserId(db.getSession(), userInAnotherOrganization.getId())).isEmpty();
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user1.getId())).containsOnly(defaultGroupId.get());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user2.getId())).containsOnly(defaultGroupId.get());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), userInAnotherOrganization.getId())).isEmpty();
   }
 
   @Test
   public void enabling_support_copy_sonar_users_permissions_to_members_group() throws Exception {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    UserDto user = db.users().insertUser();
-    GroupDto sonarUsersGroup = db.users().insertDefaultGroup(defaultOrganization, "sonar-users");
-    ComponentDto project = db.components().insertPrivateProject(defaultOrganization);
-    db.users().insertPermissionOnGroup(sonarUsersGroup, "user");
-    db.users().insertProjectPermissionOnGroup(sonarUsersGroup, "codeviewer", project);
+    OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
+    UserDto user = dbTester.users().insertUser();
+    GroupDto sonarUsersGroup = dbTester.users().insertDefaultGroup(defaultOrganization, "sonar-users");
+    ComponentDto project = dbTester.components().insertPrivateProject(defaultOrganization);
+    dbTester.users().insertPermissionOnGroup(sonarUsersGroup, "user");
+    dbTester.users().insertProjectPermissionOnGroup(sonarUsersGroup, "codeviewer", project);
     // Should be ignored
-    GroupDto anotherGroup = db.users().insertGroup();
-    db.users().insertPermissionOnGroup(anotherGroup, "admin");
+    GroupDto anotherGroup = dbTester.users().insertGroup();
+    dbTester.users().insertPermissionOnGroup(anotherGroup, "admin");
     logInAsSystemAdministrator(user.getLogin());
 
     call();
 
-    int defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), defaultOrganization.getUuid()).get();
+    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).get();
     assertThat(defaultGroupId).isNotEqualTo(sonarUsersGroup.getId());
     List<GroupPermissionDto> result = new ArrayList<>();
-    db.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(db.getSession(), defaultOrganization.getUuid(), defaultGroupId,
+    dbTester.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(dbTester.getSession(), defaultOrganization.getUuid(), defaultGroupId,
       context -> result.add((GroupPermissionDto) context.getResultObject()));
     assertThat(result).extracting(GroupPermissionDto::getResourceId, GroupPermissionDto::getRole).containsOnly(
       tuple(null, "user"), tuple(project.getId(), "codeviewer"));
@@ -142,36 +149,36 @@ public class EnableSupportActionTest {
 
   @Test
   public void enabling_support_copy_sonar_users_permission_templates_to_members_group() throws Exception {
-    OrganizationDto defaultOrganization = db.getDefaultOrganization();
-    UserDto user = db.users().insertUser();
-    GroupDto sonarUsersGroup = db.users().insertDefaultGroup(defaultOrganization, "sonar-users");
-    PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate(db.getDefaultOrganization());
-    db.permissionTemplates().addGroupToTemplate(permissionTemplate, sonarUsersGroup, "user");
-    db.permissionTemplates().addGroupToTemplate(permissionTemplate, sonarUsersGroup, "admin");
+    OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
+    UserDto user = dbTester.users().insertUser();
+    GroupDto sonarUsersGroup = dbTester.users().insertDefaultGroup(defaultOrganization, "sonar-users");
+    PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(dbTester.getDefaultOrganization());
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, sonarUsersGroup, "user");
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, sonarUsersGroup, "admin");
     // Should be ignored
-    GroupDto otherGroup = db.users().insertGroup();
-    db.permissionTemplates().addGroupToTemplate(permissionTemplate, otherGroup, "user");
+    GroupDto otherGroup = dbTester.users().insertGroup();
+    dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, otherGroup, "user");
     logInAsSystemAdministrator(user.getLogin());
 
     call();
 
-    int defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), defaultOrganization.getUuid()).get();
-    assertThat(db.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(db.getSession(), defaultGroupId))
+    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).get();
+    assertThat(dbTester.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbTester.getSession(), defaultGroupId))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(tuple(defaultGroupId, "user"), tuple(defaultGroupId, "admin"));
   }
 
   @Test
   public void enabling_organizations_should_remove_template_rule_and_custom_rule() {
-    RuleDefinitionDto normal = db.rules().insert();
-    RuleDefinitionDto template = db.rules().insert(r -> r.setIsTemplate(true));
-    RuleDefinitionDto custom = db.rules().insert(r -> r.setTemplateId(template.getId()));
+    RuleDefinitionDto normal = dbTester.rules().insert();
+    RuleDefinitionDto template = dbTester.rules().insert(r -> r.setIsTemplate(true));
+    RuleDefinitionDto custom = dbTester.rules().insert(r -> r.setTemplateId(template.getId()));
 
-    UserDto user = db.users().insertUser();
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    UserDto user = dbTester.users().insertUser();
+    dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
     logInAsSystemAdministrator(user.getLogin());
 
-    assertThat(db.getDbClient().ruleDao().selectAllDefinitions(db.getSession()))
+    assertThat(dbTester.getDbClient().ruleDao().selectAllDefinitions(dbTester.getSession()))
       .extracting(RuleDefinitionDto::getKey, RuleDefinitionDto::getStatus)
       .containsExactlyInAnyOrder(
         tuple(normal.getKey(), RuleStatus.READY),
@@ -181,7 +188,7 @@ public class EnableSupportActionTest {
 
     call();
 
-    assertThat(db.getDbClient().ruleDao().selectAllDefinitions(db.getSession()))
+    assertThat(dbTester.getDbClient().ruleDao().selectAllDefinitions(dbTester.getSession()))
       .extracting(RuleDefinitionDto::getKey, RuleDefinitionDto::getStatus)
       .containsExactlyInAnyOrder(
         tuple(normal.getKey(), RuleStatus.READY),
@@ -192,15 +199,15 @@ public class EnableSupportActionTest {
     @SuppressWarnings("unchecked")
     Class<ArrayList<RuleKey>> listClass = (Class<ArrayList<RuleKey>>)(Class)ArrayList.class;
     ArgumentCaptor<ArrayList<RuleKey>> indexedRuleKeys = ArgumentCaptor.forClass(listClass);
-    verify(ruleIndexer).indexRuleDefinitions(indexedRuleKeys.capture());
+    verify(ruleIndexer).commitAndIndex(any(), indexedRuleKeys.capture());
     assertThat(indexedRuleKeys.getValue()).containsExactlyInAnyOrder(template.getKey(), custom.getKey());
   }
 
   @Test
   public void throw_IAE_when_members_group_already_exists() throws Exception {
-    UserDto user = db.users().insertUser();
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
-    db.users().insertGroup(db.getDefaultOrganization(), "Members");
+    UserDto user = dbTester.users().insertUser();
+    dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
+    dbTester.users().insertGroup(dbTester.getDefaultOrganization(), "Members");
     logInAsSystemAdministrator(user.getLogin());
 
     expectedException.expect(IllegalArgumentException.class);
@@ -231,7 +238,7 @@ public class EnableSupportActionTest {
 
   @Test
   public void throw_ISE_when_default_organization_has_not_default_group() {
-    UserDto user = db.users().insertUser();
+    UserDto user = dbTester.users().insertUser();
     logInAsSystemAdministrator(user.getLogin());
 
     expectedException.expect(IllegalStateException.class);
@@ -242,7 +249,7 @@ public class EnableSupportActionTest {
 
   @Test
   public void do_nothing_if_support_is_already_enabled() {
-    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
+    dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
     logInAsSystemAdministrator("foo");
 
     call();
@@ -265,7 +272,7 @@ public class EnableSupportActionTest {
   }
 
   private void logInAsSystemAdministrator(String login) {
-    userSession.logIn(login).addPermission(ADMINISTER, db.getDefaultOrganization());
+    userSession.logIn(login).addPermission(ADMINISTER, dbTester.getDefaultOrganization());
   }
 
   private void call() {
@@ -274,10 +281,10 @@ public class EnableSupportActionTest {
   }
 
   private void verifyFeatureEnabled(boolean enabled) {
-    assertThat(organizationFlags.isEnabled(db.getSession())).isEqualTo(enabled);
+    assertThat(organizationFlags.isEnabled(dbTester.getSession())).isEqualTo(enabled);
   }
 
   private void verifyRoot(UserDto user, boolean root) {
-    db.rootFlag().verify(user.getLogin(), root);
+    dbTester.rootFlag().verify(user.getLogin(), root);
   }
 }

@@ -252,7 +252,7 @@ public class CreateActionTest {
   private void insertRule(RuleDefinitionDto ruleDto) {
     dbClient.ruleDao().insert(dbSession, ruleDto);
     dbSession.commit();
-    ruleIndexer.indexRuleDefinition(ruleDto.getKey());
+    ruleIndexer.commitAndIndex(dbSession, ruleDto.getKey());
   }
 
   private CreateWsResponse executeRequest(String name, String language) {

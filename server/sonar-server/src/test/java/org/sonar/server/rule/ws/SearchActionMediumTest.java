@@ -26,10 +26,10 @@ public class SearchActionMediumTest {
   // @Test
   // public void search_profile_active_rules_with_inheritance() throws Exception {
   // QProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
-  // tester.get(QualityProfileDao.class).insert(dbSession, profile);
+  // esTester.get(QualityProfileDao.class).insert(dbSession, profile);
   //
   // QProfileDto profile2 = QProfileTesting.newXooP2(defaultOrganizationDto).setParentKee(profile.getKee());
-  // tester.get(QualityProfileDao.class).insert(dbSession, profile2);
+  // esTester.get(QualityProfileDao.class).insert(dbSession, profile2);
   //
   // dbSession.commit();
   //
@@ -37,15 +37,15 @@ public class SearchActionMediumTest {
   // insertRule(rule);
   //
   // ActiveRuleDto activeRule = newActiveRule(profile, rule);
-  // tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
+  // esTester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
   // ActiveRuleDto activeRule2 = newActiveRule(profile2, rule).setInheritance(ActiveRuleDto.OVERRIDES).setSeverity(Severity.CRITICAL);
-  // tester.get(ActiveRuleDao.class).insert(dbSession, activeRule2);
+  // esTester.get(ActiveRuleDao.class).insert(dbSession, activeRule2);
   //
   // dbSession.commit();
   //
   // activeRuleIndexer.index();
   //
-  // WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // WsTester.TestRequest request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.TEXT_QUERY, "x1");
   // request.setParam(PARAM_ACTIVATION, "true");
   // request.setParam(PARAM_QPROFILE, profile2.getKee());
@@ -57,7 +57,7 @@ public class SearchActionMediumTest {
   // @Test
   // public void search_all_active_rules_params() throws Exception {
   // QProfileDto profile = QProfileTesting.newXooP1(defaultOrganizationDto);
-  // tester.get(QualityProfileDao.class).insert(dbSession, profile);
+  // esTester.get(QualityProfileDao.class).insert(dbSession, profile);
   // RuleDefinitionDto rule = RuleTesting.newXooX1().getDefinition();
   // insertRule(rule);
   // dbSession.commit();
@@ -77,21 +77,21 @@ public class SearchActionMediumTest {
   // ruleDao.insertRuleParam(dbSession, rule, param2);
   //
   // ActiveRuleDto activeRule = newActiveRule(profile, rule);
-  // tester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
+  // esTester.get(ActiveRuleDao.class).insert(dbSession, activeRule);
   //
   // ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param)
   // .setValue("The VALUE");
-  // tester.get(ActiveRuleDao.class).insertParam(dbSession, activeRule, activeRuleParam);
+  // esTester.get(ActiveRuleDao.class).insertParam(dbSession, activeRule, activeRuleParam);
   //
   // ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(param2)
   // .setValue("The Other Value");
-  // tester.get(ActiveRuleDao.class).insertParam(dbSession, activeRule, activeRuleParam2);
+  // esTester.get(ActiveRuleDao.class).insertParam(dbSession, activeRule, activeRuleParam2);
   //
   // dbSession.commit();
   //
   // activeRuleIndexer.index();
   //
-  // WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // WsTester.TestRequest request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.TEXT_QUERY, "x1");
   // request.setParam(PARAM_ACTIVATION, "true");
   // request.setParam(WebService.Param.FIELDS, "params");
@@ -103,7 +103,7 @@ public class SearchActionMediumTest {
   // @Test
   // public void get_note_as_markdown_and_html() throws Exception {
   // QProfileDto profile = QProfileTesting.newXooP1("org-123");
-  // tester.get(QualityProfileDao.class).insert(dbSession, profile);
+  // esTester.get(QualityProfileDao.class).insert(dbSession, profile);
   // RuleDto rule = RuleTesting.newXooX1(defaultOrganizationDto).setNoteData("this is *bold*");
   // insertRule(rule.getDefinition());
   // ruleDao.insertOrUpdate(dbSession, rule.getMetadata().setRuleId(rule.getId()));
@@ -112,7 +112,7 @@ public class SearchActionMediumTest {
   //
   // activeRuleIndexer.index();
   //
-  // WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // WsTester.TestRequest request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.FIELDS, "htmlNote, mdNote");
   // WsTester.Result result = request.execute();
   // result.assertJson(this.getClass(), "get_note_as_markdown_and_html.json");
@@ -128,7 +128,7 @@ public class SearchActionMediumTest {
   //
   // activeRuleIndexer.index();
   //
-  // WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // WsTester.TestRequest request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(PARAM_TAGS, "tag1");
   // request.setParam(WebService.Param.FIELDS, "sysTags, tags");
   // request.setParam(WebService.Param.FACETS, "tags");
@@ -138,7 +138,7 @@ public class SearchActionMediumTest {
   //
   // @Test
   // public void severities_facet_should_have_all_severities() throws Exception {
-  // WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // WsTester.TestRequest request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.FACETS, "severities");
   // request.execute().assertJson(this.getClass(), "severities_facet.json");
   // }
@@ -160,7 +160,7 @@ public class SearchActionMediumTest {
   // dbSession.commit();
   //
   // // 1. Sort Name Asc
-  // WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // WsTester.TestRequest request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.FIELDS, "");
   // request.setParam(WebService.Param.SORT, "name");
   // request.setParam(WebService.Param.ASCENDING, "true");
@@ -169,7 +169,7 @@ public class SearchActionMediumTest {
   // result.assertJson("{\"total\":3,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x2\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x3\"}]}");
   //
   // // 2. Sort Name DESC
-  // request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.FIELDS, "");
   // request.setParam(WebService.Param.SORT, RuleIndexDefinition.FIELD_RULE_NAME);
   // request.setParam(WebService.Param.ASCENDING, "false");
@@ -194,7 +194,7 @@ public class SearchActionMediumTest {
   // dbSession.clearCache();
   //
   // // 1. find today's rules
-  // WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // WsTester.TestRequest request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.FIELDS, "");
   // request.setParam(PARAM_AVAILABLE_SINCE, DateUtils.formatDate(since));
   // request.setParam(WebService.Param.SORT, RuleIndexDefinition.FIELD_RULE_KEY);
@@ -202,7 +202,7 @@ public class SearchActionMediumTest {
   // result.assertJson("{\"total\":2,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}");
   //
   // // 2. no rules since tomorrow
-  // request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+  // request = esTester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
   // request.setParam(WebService.Param.FIELDS, "");
   // request.setParam(PARAM_AVAILABLE_SINCE, DateUtils.formatDate(DateUtils.addDays(since, 1)));
   // result = request.execute();
@@ -222,7 +222,7 @@ public class SearchActionMediumTest {
   // ruleDao.insertOrUpdate(dbSession, ruleDto.getMetadata().setRuleId(ruleDto.getId()));
   // dbSession.commit();
   //
-  // WsTester.TestRequest request = tester.wsTester()
+  // WsTester.TestRequest request = esTester.wsTester()
   // .newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
   // .setParam(WebService.Param.FIELDS, "name,defaultDebtRemFn,debtRemFn,effortToFixDescription,debtOverloaded");
   // WsTester.Result result = request.execute();

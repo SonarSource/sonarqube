@@ -22,8 +22,10 @@ package org.sonar.db.rule;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.db.es.RuleExtensionId;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.Dao;
@@ -34,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Optional.ofNullable;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class RuleDao implements Dao {
 
@@ -147,6 +150,24 @@ public class RuleDao implements Dao {
     } else {
       mapper(session).insertMetadata(dto);
     }
+  }
+
+  public void scrollRuleExtensionByRuleKeys(DbSession dbSession, Collection<RuleExtensionId> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
+    RuleMapper mapper = mapper(dbSession);
+
+    executeLargeInputsWithoutOutput(ruleExtensionIds,
+      pageOfRuleExtensionIds -> mapper
+        .selectRuleExtensionForIndexingByKeys(pageOfRuleExtensionIds)
+        .forEach(consumer));
+  }
+
+  public void scrollRuleByRuleKeys(DbSession dbSession, Collection<RuleKey> ruleKeys, Consumer<RuleForIndexingDto> consumer) {
+    RuleMapper mapper = mapper(dbSession);
+
+    executeLargeInputsWithoutOutput(ruleKeys,
+      pageOfRuleKeys -> mapper
+        .selectRuleForIndexingByKeys(pageOfRuleKeys)
+        .forEach(consumer));
   }
 
   private static RuleMapper mapper(DbSession session) {

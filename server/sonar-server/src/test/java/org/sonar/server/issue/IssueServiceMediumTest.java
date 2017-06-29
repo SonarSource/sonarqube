@@ -141,7 +141,7 @@ public class IssueServiceMediumTest {
       ruleDao.insertOrUpdate(session, rule.getMetadata().setRuleId(rule.getId()));
     }
     session.commit();
-    ruleIndexer.indexRuleDefinition(rule.getDefinition().getKey());
+    //FIXME ruleIndexer.commitAndIndex(dbSession, rule.getDefinition().getKey());
     return rule;
   }
 

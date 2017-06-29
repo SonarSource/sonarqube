@@ -230,14 +230,14 @@ public class ShowActionTest {
 
   private RuleDefinitionDto insertRule() {
     RuleDefinitionDto rule = dbTester.rules().insert();
-    ruleIndexer.indexRuleDefinition(rule.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getKey());
     return rule;
   }
 
   @SafeVarargs
   private final RuleMetadataDto insertMetadata(OrganizationDto organization, RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto metadata = dbTester.rules().insertOrUpdateMetadata(rule, organization, populaters);
-    ruleIndexer.indexRuleExtension(organization, rule.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, rule.getKey());
     return metadata;
   }
 }

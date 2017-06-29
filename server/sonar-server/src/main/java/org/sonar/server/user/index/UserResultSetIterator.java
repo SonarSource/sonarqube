@@ -70,7 +70,7 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
       if (esQueueDtos != null) {
         logins = esQueueDtos.stream()
           .filter(i -> i.getDocType() == EsQueueDto.Type.USER)
-          .map(EsQueueDto::getDocUuid).collect(toArrayList());
+          .map(EsQueueDto::getDocId).collect(toArrayList());
         sql += "where (" + repeat("u.login=?", " or ", logins.size()) + ")";
       }
 

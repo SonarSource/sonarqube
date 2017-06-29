@@ -109,8 +109,7 @@ public class QProfilesWsMediumTest {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
     createActiveRule(rule, profile);
-    dbSession.commit();
-    ruleIndexer.indexRuleDefinition(rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
     // 0. Assert No Active Rule for profile
@@ -209,8 +208,7 @@ public class QProfilesWsMediumTest {
   public void activate_rule() throws Exception {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
-    dbSession.commit();
-    ruleIndexer.indexRuleDefinition(rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
@@ -230,8 +228,7 @@ public class QProfilesWsMediumTest {
   public void activate_rule_diff_languages() throws Exception {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule("php", "toto");
-    dbSession.commit();
-    ruleIndexer.indexRuleDefinition(rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
@@ -253,8 +250,7 @@ public class QProfilesWsMediumTest {
   public void activate_rule_override_severity() throws Exception {
     QProfileDto profile = createProfile("java");
     RuleDefinitionDto rule = createRule(profile.getLanguage(), "toto");
-    dbSession.commit();
-    ruleIndexer.indexRuleDefinition(rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
 
     // 0. Assert No Active Rule for profile
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, profile.getKee())).isEmpty();
@@ -456,8 +452,7 @@ public class QProfilesWsMediumTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
     dbClient.ruleDao().insert(dbSession, rule);
-    dbSession.commit();
-    ruleIndexer.indexRuleDefinition(rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
     return rule;
   }
 

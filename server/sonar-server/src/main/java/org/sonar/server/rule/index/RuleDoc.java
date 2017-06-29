@@ -27,6 +27,9 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleForIndexingDto;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.es.BaseDoc;
 
 /**
@@ -201,4 +204,34 @@ public class RuleDoc extends BaseDoc {
     return ReflectionToStringBuilder.toString(this);
   }
 
+  public static RuleDoc of(RuleForIndexingDto ruleForIndexingDto) {
+    RuleDoc ruleDoc = new RuleDoc()
+      .setKey(ruleForIndexingDto.getRuleKey().toString())
+      .setRepository(ruleForIndexingDto.getRepository())
+      .setInternalKey(ruleForIndexingDto.getInternalKey())
+      .setIsTemplate(ruleForIndexingDto.isTemplate())
+      .setLanguage(ruleForIndexingDto.getLanguage())
+      .setName(ruleForIndexingDto.getName())
+      .setRuleKey(ruleForIndexingDto.getPluginRuleKey())
+      .setSeverity(ruleForIndexingDto.getSeverityAsString())
+      .setStatus(ruleForIndexingDto.getStatus().toString())
+      .setType(ruleForIndexingDto.getTypeAsRuleType())
+      .setCreatedAt(ruleForIndexingDto.getCreatedAt())
+      .setUpdatedAt(ruleForIndexingDto.getUpdatedAt());
+
+    if (ruleForIndexingDto.getPluginRuleKey() != null && ruleForIndexingDto.getRepository() != null) {
+      ruleDoc.setTemplateKey(RuleKey.of(ruleForIndexingDto.getPluginRuleKey(), ruleForIndexingDto.getRepository()).toString());
+    } else {
+      ruleDoc.setTemplateKey(null);
+    }
+
+    if (ruleForIndexingDto.getDescription() != null && ruleForIndexingDto.getDescriptionFormat() != null) {
+      if (RuleDto.Format.HTML == ruleForIndexingDto.getDescriptionFormat()) {
+        ruleDoc.setHtmlDescription(ruleForIndexingDto.getDescription());
+      } else {
+        ruleDoc.setHtmlDescription(Markdown.convertToHtml(ruleForIndexingDto.getDescription()));;
+      }
+    }
+    return ruleDoc;
+  }
 }

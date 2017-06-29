@@ -37,6 +37,8 @@ import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.ResilientIndexer;
+import org.sonar.server.es.ResilientIndexerResult;
 import org.sonar.server.es.StartupIndexer;
 
 import static java.util.Collections.singletonList;
@@ -44,7 +46,7 @@ import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
-public class UserIndexer implements StartupIndexer {
+public class UserIndexer implements StartupIndexer, ResilientIndexer {
 
   private final DbClient dbClient;
   private final EsClient esClient;
@@ -104,17 +106,18 @@ public class UserIndexer implements StartupIndexer {
   /**
    * @return the number of items that have been successfully indexed
    */
-  public long index(DbSession dbSession, Collection<EsQueueDto> items) {
+  @Override
+  public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
     if (items.isEmpty()) {
-      return 0L;
+      return new ResilientIndexerResult();
     }
     Set<String> logins = items
       .stream()
       .filter(i -> {
-        requireNonNull(i.getDocUuid(), () -> "BUG - " + i + " has not been persisted before indexing");
-        return true;
+        requireNonNull(i.getDocId(), () -> "BUG - " + i + " has not been persisted before indexing");
+        return i.getDocType() == EsQueueDto.Type.USER;
       })
-      .map(EsQueueDto::getDocUuid)
+      .map(EsQueueDto::getDocId)
       .collect(toHashSet(items.size()));
 
     ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();

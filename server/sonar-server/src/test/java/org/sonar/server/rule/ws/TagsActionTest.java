@@ -99,7 +99,7 @@ public class TagsActionTest {
   @Test
   public void return_system_tag() throws Exception {
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag"));
-    ruleIndexer.indexRuleDefinition(r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
 
     String result = tester.newRequest().execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag\"]}");
@@ -108,9 +108,9 @@ public class TagsActionTest {
   @Test
   public void return_tag() throws Exception {
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags());
-    ruleIndexer.indexRuleDefinition(r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag"));
-    ruleIndexer.indexRuleExtension(organization, r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, r.getKey());
 
     String result = tester.newRequest().setParam("organization", organization.getKey()).execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag\"]}");

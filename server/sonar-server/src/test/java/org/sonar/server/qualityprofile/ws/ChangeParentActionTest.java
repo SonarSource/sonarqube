@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +33,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -65,6 +63,7 @@ import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -158,7 +157,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent1);
-    ruleIndexer.indexRuleDefinition(rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -188,7 +187,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.indexRuleDefinitions(Stream.of(rule1, rule2).map(RuleDefinitionDto::getKey).collect(MoreCollectors.toList()));
+    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getKey(), rule2.getKey()));
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent 1
@@ -216,7 +215,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
-    ruleIndexer.indexRuleDefinition(rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent
@@ -244,7 +243,7 @@ public class ChangeParentActionTest {
     RuleDefinitionDto rule2 = createRule();
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
-    ruleIndexer.indexRuleDefinition(rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
@@ -303,7 +302,7 @@ public class ChangeParentActionTest {
 
     RuleDefinitionDto rule1 = createRule();
     createActiveRule(rule1, parent);
-    ruleIndexer.indexRuleDefinition(rule1.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule1.getKey());
     activeRuleIndexer.indexOnStartup(emptySet());
 
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();

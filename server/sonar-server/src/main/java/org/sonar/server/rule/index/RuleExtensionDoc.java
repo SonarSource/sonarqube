@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.rule.RuleExtensionForIndexingDto;
+import org.sonar.db.rule.RuleForIndexingDto;
 import org.sonar.db.rule.RuleMetadataDto;
 import org.sonar.server.es.BaseDoc;
 
@@ -84,6 +86,20 @@ public class RuleExtensionDoc extends BaseDoc {
       .setRuleKey(key)
       .setScope(scope)
       .setTags(ruleExtension.getTags());
+  }
+
+  public static RuleExtensionDoc of(RuleForIndexingDto rule) {
+    return new RuleExtensionDoc()
+      .setRuleKey(rule.getRuleKey())
+      .setScope(RuleExtensionScope.system())
+      .setTags(rule.getSystemTagsAsSet());
+  }
+
+  public static RuleExtensionDoc of(RuleExtensionForIndexingDto rule) {
+    return new RuleExtensionDoc()
+      .setRuleKey(rule.getRuleKey())
+      .setScope(RuleExtensionScope.organization(rule.getOrganizationUuid()))
+      .setTags(rule.getTagsAsSet());
   }
 
   @Override

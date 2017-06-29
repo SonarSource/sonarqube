@@ -30,6 +30,7 @@ import java.util.stream.IntStream;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.api.config.Settings;
@@ -40,10 +41,14 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 
+import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -57,16 +62,20 @@ public class RecoveryIndexerTest {
 
   private static final long PAST = 1_000L;
   private TestSystem2 system2 = new TestSystem2().setNow(PAST);
+  private MapSettings emptySettings = new MapSettings();
 
   @Rule
-  public final EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
+  public final EsTester es = new EsTester(new UserIndexDefinition(emptySettings.asConfig()), new RuleIndexDefinition(emptySettings.asConfig()));
   @Rule
   public final DbTester db = DbTester.create(system2);
   @Rule
   public final LogTester logTester = new LogTester().setLevel(TRACE);
   @Rule
-  public TestRule safeguard = new Timeout(60, TimeUnit.SECONDS);
+  public TestRule safeguard = new DisableOnDebug(new Timeout(60, TimeUnit.SECONDS));
 
+
+  private RuleIndexer mockedRuleIndexer = mock(RuleIndexer.class);
+  private UserIndexer mockedUserIndexer = mock(UserIndexer.class);
   private RecoveryIndexer underTest;
 
   @After
@@ -79,7 +88,8 @@ public class RecoveryIndexerTest {
   @Test
   public void display_default_configuration_at_startup() {
     UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-    underTest = newRecoveryIndexer(userIndexer, new MapSettings());
+    RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+    underTest = newRecoveryIndexer(userIndexer, ruleIndexer, emptySettings);
 
     underTest.start();
 
@@ -93,7 +103,7 @@ public class RecoveryIndexerTest {
     Settings settings = new MapSettings()
       .setProperty("sonar.search.recovery.initialDelayInMs", "0")
       .setProperty("sonar.search.recovery.delayInMs", "1");
-    underTest = spy(new RecoveryIndexer(system2, settings, db.getDbClient(), mock(UserIndexer.class)));
+    underTest = spy(new RecoveryIndexer(system2, settings, db.getDbClient(), mockedUserIndexer, mockedRuleIndexer));
     AtomicInteger calls = new AtomicInteger(0);
     doAnswer(invocation -> {
       calls.incrementAndGet();
@@ -109,13 +119,33 @@ public class RecoveryIndexerTest {
   }
 
   @Test
-  public void successfully_index_old_records() {
+  public void successfully_index_RULE_records() {
+    EsQueueDto item1 = createUnindexedRule();
+    EsQueueDto item2 = createUnindexedRule();
+
+    ProxyRuleIndexer ruleIndexer = new ProxyRuleIndexer();
+    advanceInTime();
+
+    underTest = newRecoveryIndexer(mockedUserIndexer, ruleIndexer);
+    underTest.recover();
+
+    assertThatQueueHasSize(0);
+    assertThat(ruleIndexer.called)
+      .extracting(EsQueueDto::getUuid)
+      .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid());
+
+    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 2 RULE");
+    assertThatLogsContain(INFO, "Elasticsearch recovery - 4 documents processed [0 failures]");
+  }
+
+  @Test
+  public void successfully_index_USER_records() {
     EsQueueDto item1 = createUnindexedUser();
     EsQueueDto item2 = createUnindexedUser();
 
     ProxyUserIndexer userIndexer = new ProxyUserIndexer();
     advanceInTime();
-    underTest = newRecoveryIndexer(userIndexer);
+    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
     underTest.recover();
 
     assertThatQueueHasSize(0);
@@ -134,7 +164,7 @@ public class RecoveryIndexerTest {
 
     ProxyUserIndexer userIndexer = new ProxyUserIndexer();
     // do not advance in time
-    underTest = newRecoveryIndexer(userIndexer);
+    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
     underTest.recover();
 
     assertThatQueueHasSize(2);
@@ -161,7 +191,7 @@ public class RecoveryIndexerTest {
     FailingOnceUserIndexer failingOnceUserIndexer = new FailingOnceUserIndexer();
     advanceInTime();
 
-    underTest = newRecoveryIndexer(failingOnceUserIndexer);
+    underTest = newRecoveryIndexer(failingOnceUserIndexer, mockedRuleIndexer);
     underTest.recover();
 
     // No rows treated
@@ -175,7 +205,7 @@ public class RecoveryIndexerTest {
     advanceInTime();
     FailingUserIndexer userIndexer = new FailingUserIndexer();
 
-    underTest = newRecoveryIndexer(userIndexer);
+    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
     underTest.start();
 
     // all runs fail, but they are still scheduled
@@ -191,7 +221,7 @@ public class RecoveryIndexerTest {
     advanceInTime();
     FailingOnceUserIndexer userIndexer = new FailingOnceUserIndexer();
 
-    underTest = newRecoveryIndexer(userIndexer);
+    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
     underTest.start();
 
     // first run fails, second run succeeds
@@ -213,7 +243,7 @@ public class RecoveryIndexerTest {
     PartiallyFailingUserIndexer failingAboveRatioUserIndexer = new PartiallyFailingUserIndexer(1);
     Settings settings = new MapSettings()
       .setProperty("sonar.search.recovery.loopLimit", "3");
-    underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, settings);
+    underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, mockedRuleIndexer, settings);
     underTest.recover();
 
     assertThatLogsContain(ERROR, "Elasticsearch recovery - too many failures [2/3 documents], waiting for next run");
@@ -233,7 +263,7 @@ public class RecoveryIndexerTest {
     PartiallyFailingUserIndexer failingAboveRatioUserIndexer = new PartiallyFailingUserIndexer(4, 4, 2);
     Settings settings = new MapSettings()
       .setProperty("sonar.search.recovery.loopLimit", "5");
-    underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, settings);
+    underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, mockedRuleIndexer, settings);
     underTest.recover();
 
     assertThatLogsDoNotContain(ERROR, "too many failures");
@@ -249,7 +279,7 @@ public class RecoveryIndexerTest {
     advanceInTime();
 
     FailingAlwaysOnSameElementIndexer indexer = new FailingAlwaysOnSameElementIndexer(buggy);
-    underTest = newRecoveryIndexer(indexer);
+    underTest = newRecoveryIndexer(indexer, mockedRuleIndexer);
     underTest.recover();
 
     assertThatLogsContain(ERROR, "Elasticsearch recovery - too many failures [1/1 documents], waiting for next run");
@@ -264,7 +294,21 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public long index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+      called.addAll(items);
+      return super.index(dbSession, items);
+    }
+  }
+
+  private class ProxyRuleIndexer extends RuleIndexer {
+    private final List<EsQueueDto> called = new ArrayList<>();
+
+    ProxyRuleIndexer() {
+      super(es.client(), db.getDbClient());
+    }
+
+    @Override
+    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       called.addAll(items);
       return super.index(dbSession, items);
     }
@@ -278,7 +322,7 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public long index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       called.addAll(items);
       throw new RuntimeException("boom");
     }
@@ -293,7 +337,7 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public long index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       try {
         if (counter.getCount() == 2) {
           throw new RuntimeException("boom");
@@ -314,10 +358,15 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public long index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+      ResilientIndexerResult result = new ResilientIndexerResult();
       List<EsQueueDto> filteredItems = items.stream().filter(
         i -> !i.getUuid().equals(failing.getUuid())).collect(toArrayList());
-      return super.index(dbSession, filteredItems);
+      if (items.contains(failing)) {
+        result.increaseFailure();
+      }
+
+      return result.add(super.index(dbSession, filteredItems));
     }
   }
 
@@ -332,17 +381,21 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public long index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       System.out.println("called with " + items.size());
       called.addAll(items);
       int success = successfulReturns.next();
+      ResilientIndexerResult result = new ResilientIndexerResult();
       items.stream().limit(success).forEach(i -> {
         System.out.println(" + success");
         db.getDbClient().esQueueDao().delete(dbSession, i);
+        result.increaseSuccess();
         indexed.add(i);
       });
+
+      rangeClosed(1, items.size() - success).forEach(i -> result.increaseFailure());
       dbSession.commit();
-      return success;
+      return result;
     }
   }
 
@@ -368,24 +421,34 @@ public class RecoveryIndexerTest {
 
   private RecoveryIndexer newRecoveryIndexer() {
     UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-    return newRecoveryIndexer(userIndexer);
+    RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+    return newRecoveryIndexer(userIndexer, ruleIndexer);
   }
 
-  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer) {
+  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer) {
     Settings settings = new MapSettings()
       .setProperty("sonar.search.recovery.initialDelayInMs", "0")
       .setProperty("sonar.search.recovery.delayInMs", "1")
       .setProperty("sonar.search.recovery.minAgeInMs", "1");
-    return newRecoveryIndexer(userIndexer, settings);
+    return newRecoveryIndexer(userIndexer, ruleIndexer, settings);
   }
 
-  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, Settings settings) {
-    return new RecoveryIndexer(system2, settings, db.getDbClient(), userIndexer);
+  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer, Settings settings) {
+    return new RecoveryIndexer(system2, settings, db.getDbClient(), userIndexer, ruleIndexer);
   }
 
   private EsQueueDto createUnindexedUser() {
     UserDto user = db.users().insertUser();
     EsQueueDto item = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
+    db.getDbClient().esQueueDao().insert(db.getSession(), item);
+    db.commit();
+
+    return item;
+  }
+
+  private EsQueueDto createUnindexedRule() {
+    RuleDto rule = db.rules().insertRule();
+    EsQueueDto item = EsQueueDto.create(EsQueueDto.Type.RULE, rule.getKey().toString());
     db.getDbClient().esQueueDao().insert(db.getSession(), item);
     db.commit();
 

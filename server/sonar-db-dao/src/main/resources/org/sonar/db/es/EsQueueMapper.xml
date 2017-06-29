@@ -6,7 +6,7 @@
   <sql id="esQueueColumns">
     uuid,
     doc_type as docType,
-    doc_uuid as docUuid,
+    doc_id as docId,
     created_at as createdAt
   </sql>
 
@@ -14,12 +14,12 @@
     insert into es_queue (
       uuid,
       doc_type,
-      doc_uuid,
+      doc_id,
       created_at
     ) values (
       #{dto.uuid, jdbcType=VARCHAR},
       #{dto.docType, jdbcType=VARCHAR},
-      #{dto.docUuid, jdbcType=VARCHAR},
+      #{dto.docId, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT}
     )
   </insert>

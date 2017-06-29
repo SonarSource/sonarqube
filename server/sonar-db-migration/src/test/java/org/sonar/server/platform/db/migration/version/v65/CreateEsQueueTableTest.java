@@ -48,7 +48,7 @@ public class CreateEsQueueTableTest {
 
     db.assertColumnDefinition(TABLE, "uuid", Types.VARCHAR, 40, false);
     db.assertColumnDefinition(TABLE, "doc_type", Types.VARCHAR, 40, false);
-    db.assertColumnDefinition(TABLE, "doc_uuid", Types.VARCHAR, 255, false);
+    db.assertColumnDefinition(TABLE, "doc_id", Types.VARCHAR, 4000, false);
     db.assertColumnDefinition(TABLE, "created_at", Types.BIGINT, null, false);
   }
 }

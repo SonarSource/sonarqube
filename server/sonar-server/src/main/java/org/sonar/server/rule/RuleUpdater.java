@@ -32,7 +32,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
@@ -82,11 +81,9 @@ public class RuleUpdater {
     apply(update, rule, userSession);
     update(dbSession, rule);
     updateParameters(dbSession, organization, update, rule);
-    dbSession.commit();
+    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, organization, rule.getKey());
 
-    RuleKey ruleKey = rule.getKey();
-    ruleIndexer.indexRuleDefinition(ruleKey);
-    ruleIndexer.indexRuleExtension(organization, ruleKey);
     return true;
   }
 

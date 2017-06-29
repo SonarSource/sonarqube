@@ -63,17 +63,17 @@ public class RuleCreatorTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public DbTester db = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
   private RuleIndex ruleIndex = new RuleIndex(es.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private DbSession dbSession = db.getSession();
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());
+  private DbSession dbSession = dbTester.getSession();
 
-  private RuleCreator underTest = new RuleCreator(system2, new RuleIndexer(es.client(), db.getDbClient()), db.getDbClient(), newFullTypeValidations(),
-    TestDefaultOrganizationProvider.from(db));
+  private RuleCreator underTest = new RuleCreator(system2, new RuleIndexer(es.client(), dbTester.getDbClient()), dbTester.getDbClient(), newFullTypeValidations(),
+    TestDefaultOrganizationProvider.from(dbTester));
 
   @Test
   public void create_custom_rule() {
@@ -88,7 +88,7 @@ public class RuleCreatorTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
     RuleKey customRuleKey = underTest.create(dbSession, newRule);
 
-    RuleDto rule = db.getDbClient().ruleDao().selectOrFailByKey(dbSession, db.getDefaultOrganization(), customRuleKey);
+    RuleDto rule = dbTester.getDbClient().ruleDao().selectOrFailByKey(dbSession, dbTester.getDefaultOrganization(), customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
@@ -105,7 +105,7 @@ public class RuleCreatorTest {
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
 
-    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -132,7 +132,7 @@ public class RuleCreatorTest {
 
     RuleKey customRuleKey = underTest.create(dbSession, newRule);
 
-    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
     RuleParamDto param = params.get(0);
     assertThat(param.getName()).isEqualTo("regex");
@@ -153,7 +153,7 @@ public class RuleCreatorTest {
 
     RuleKey customRuleKey = underTest.create(dbSession, newRule);
 
-    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
     RuleParamDto param = params.get(0);
     assertThat(param.getName()).isEqualTo("myIntegers");
@@ -175,7 +175,7 @@ public class RuleCreatorTest {
 
     RuleKey customRuleKey = underTest.create(dbSession, newRule);
 
-    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
     RuleParamDto param = params.get(0);
     assertThat(param.getName()).isEqualTo("myIntegers");
@@ -237,8 +237,8 @@ public class RuleCreatorTest {
       .setDescription("Old description")
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(Severity.INFO);
-    db.rules().insert(rule.getDefinition());
-    db.rules().insertRuleParam(rule.getDefinition(), param -> param.setDefaultValue("a.*"));
+    dbTester.rules().insert(rule.getDefinition());
+    dbTester.rules().insertRuleParam(rule.getDefinition(), param -> param.setDefaultValue("a.*"));
     dbSession.commit();
 
     // Create custom rule with same key, but with different values
@@ -250,7 +250,7 @@ public class RuleCreatorTest {
       .setParameters(ImmutableMap.of("regex", "c.*"));
     RuleKey customRuleKey = underTest.create(dbSession, newRule);
 
-    RuleDefinitionDto result = db.getDbClient().ruleDao().selectOrFailDefinitionByKey(dbSession, customRuleKey);
+    RuleDefinitionDto result = dbTester.getDbClient().ruleDao().selectOrFailDefinitionByKey(dbSession, customRuleKey);
     assertThat(result.getKey()).isEqualTo(RuleKey.of("java", key));
     assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
 
@@ -259,7 +259,7 @@ public class RuleCreatorTest {
     assertThat(result.getDescription()).isEqualTo("Old description");
     assertThat(result.getSeverityString()).isEqualTo(Severity.INFO);
 
-    List<RuleParamDto> params = db.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = dbTester.getDbClient().ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getDefaultValue()).isEqualTo("a.*");
   }
@@ -276,8 +276,8 @@ public class RuleCreatorTest {
       .setName("Old name")
       .setDescription("Old description")
       .setSeverity(Severity.INFO);
-    db.rules().insert(rule.getDefinition());
-    db.rules().insertRuleParam(rule.getDefinition(), param -> param.setDefaultValue("a.*"));
+    dbTester.rules().insert(rule.getDefinition());
+    dbTester.rules().insertRuleParam(rule.getDefinition(), param -> param.setDefaultValue("a.*"));
     dbSession.commit();
 
     // Create custom rule with same key, but with different values
@@ -427,7 +427,7 @@ public class RuleCreatorTest {
   public void fail_to_create_custom_rule_when_wrong_rule_template() {
     // insert rule
     RuleDefinitionDto rule = newRule(RuleKey.of("java", "S001")).setIsTemplate(false);
-    db.rules().insert(rule);
+    dbTester.rules().insert(rule);
     dbSession.commit();
 
     expectedException.expect(IllegalArgumentException.class);
@@ -458,7 +458,7 @@ public class RuleCreatorTest {
   }
 
   private RuleDto createTemplateRule() {
-    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"), db.getDefaultOrganization())
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"), dbTester.getDefaultOrganization())
       .setIsTemplate(true)
       .setLanguage("java")
       .setConfigKey("S001")
@@ -470,10 +470,10 @@ public class RuleCreatorTest {
       .setSystemTags(Sets.newHashSet("tag1", "tag4"))
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    db.rules().insert(templateRule.getDefinition());
-    db.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleId(templateRule.getId()));
-    db.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
-    ruleIndexer.indexRuleDefinition(templateRule.getDefinition().getKey());
+    dbTester.rules().insert(templateRule.getDefinition());
+    dbTester.rules().insertOrUpdateMetadata(templateRule.getMetadata().setRuleId(templateRule.getId()));
+    dbTester.rules().insertRuleParam(templateRule.getDefinition(), param -> param.setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*"));
+    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getDefinition().getKey());
     return templateRule;
   }
 
@@ -488,9 +488,9 @@ public class RuleCreatorTest {
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    db.rules().insert(templateRule);
-    db.rules().insertRuleParam(templateRule, param -> param.setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1"));
-    ruleIndexer.indexRuleDefinition(templateRule.getKey());
+    dbTester.rules().insert(templateRule);
+    dbTester.rules().insertRuleParam(templateRule, param -> param.setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1"));
+    ruleIndexer.commitAndIndex(dbTester.getSession(), templateRule.getKey());
     return templateRule;
   }
 
@@ -505,9 +505,9 @@ public class RuleCreatorTest {
       .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
-    db.rules().insert(templateRule);
-    db.rules().insertRuleParam(templateRule, param -> param.setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0"));
-    db.rules().insertRuleParam(templateRule, param -> param.setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0"));
+    dbTester.rules().insert(templateRule);
+    dbTester.rules().insertRuleParam(templateRule, param -> param.setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0"));
+    dbTester.rules().insertRuleParam(templateRule, param -> param.setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0"));
     return templateRule;
   }
 

@@ -86,8 +86,7 @@ public class RuleCreator {
       .map(existingRule -> updateExistingRule(existingRule, newRule, dbSession))
       .orElseGet(() -> createCustomRule(customRuleKey, newRule, templateRule, dbSession));
 
-    dbSession.commit();
-    ruleIndexer.indexRuleDefinition(customRuleKey);
+    ruleIndexer.commitAndIndex(dbSession, customRuleKey);
     return customRuleKey;
   }
 
