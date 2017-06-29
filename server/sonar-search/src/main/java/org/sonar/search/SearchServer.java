@@ -45,6 +45,7 @@ public class SearchServer implements Monitored {
 
   private final EsSettings settings;
   Process p;
+  private String url;
 
   public SearchServer(Props props) {
     this.settings = new EsSettings(props);
@@ -60,6 +61,7 @@ public class SearchServer implements Monitored {
     settingsMap.entrySet().stream()
       .filter(entry -> !"path.home".equals(entry.getKey()))
       .forEach(entry -> command.add("-E" + entry.getKey() + "=" + entry.getValue()));
+    url = "http://"+settingsMap.get("http.host") + ":" + settingsMap.get("http.port");
     System.out.println(command.stream().collect(Collectors.joining(" ")));
     ProcessBuilder builder = new ProcessBuilder(command)
       .directory(new File("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/"));
@@ -99,7 +101,7 @@ public class SearchServer implements Monitored {
       // no action required
     }
 
-    String urlString = "http://localhost:55394/_cluster/health?wait_for_status=yellow&timeout=30s";
+    String urlString = url+"/_cluster/health?wait_for_status=yellow&timeout=30s";
     try {
       URL url = new URL(urlString);
       url.openConnection();
@@ -120,7 +122,7 @@ public class SearchServer implements Monitored {
 
   @Override
   public Status getStatus() {
-    String urlString = "http://localhost:55394/_cluster/health";
+    String urlString = url+"/_cluster/health";
     try {
       URL url = new URL(urlString);
       URLConnection urlConnection = url.openConnection();
