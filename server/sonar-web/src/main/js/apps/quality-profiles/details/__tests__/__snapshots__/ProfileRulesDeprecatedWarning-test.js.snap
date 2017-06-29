@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="quality-profile-rules-deprecated clearfix"
+>
+  <span
+    className="pull-left"
+  >
+    quality_profiles.deprecated_rules
+    <Tooltip
+      overlay="quality_profiles.deprecated_rules_description"
+      placement="bottom"
+    >
+      <i
+        className="icon-help spacer-left"
+      />
+    </Tooltip>
+  </span>
+  <Link
+    className="pull-right"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/organizations/foo/rules#qprofile=bar|activation=true|statuses=DEPRECATED"
+  >
+    18
+  </Link>
+</div>
+`;

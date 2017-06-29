@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render the quality profiles rules with sonarway comparison 1`] = `
+<div
+  className="quality-profile-rules"
+>
+  <div
+    className="quality-profile-rules-distribution"
+  >
+    <table
+      className="data condensed"
+    >
+      <thead>
+        <tr>
+          <th>
+            <h2>
+              rules
+            </h2>
+          </th>
+          <th>
+            active
+          </th>
+          <th>
+            inactive
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <ProfileRulesRowTotal
+          count={68}
+          organization="foo"
+          qprofile="foo"
+          total={243}
+        />
+        <ProfileRulesRowOfType
+          count={68}
+          organization="foo"
+          qprofile="foo"
+          total={68}
+          type="BUG"
+        />
+        <ProfileRulesRowOfType
+          count={0}
+          organization="foo"
+          qprofile="foo"
+          total={7}
+          type="VULNERABILITY"
+        />
+        <ProfileRulesRowOfType
+          count={0}
+          organization="foo"
+          qprofile="foo"
+          total={168}
+          type="CODE_SMELL"
+        />
+      </tbody>
+    </table>
+  </div>
+  <ProfileRulesSonarWayComparison
+    organization="foo"
+    profile="foo"
+    sonarWayMissingRules={4}
+    sonarway="sonarway"
+  />
+</div>
+`;
+
+exports[`should show a button to activate more rules for admins 1`] = `
+<Link
+  className="button js-activate-rules"
+  onlyActiveOnIndex={false}
+  style={Object {}}
+  to="/organizations/foo/rules#qprofile=foo|activation=false"
+>
+  quality_profiles.activate_more
+</Link>
+`;
+
+exports[`should show a deprecated rules warning message 1`] = `
+<ProfileRulesDeprecatedWarning
+  activeDeprecatedRules={8}
+  organization="foo"
+  profile="foo"
+/>
+`;

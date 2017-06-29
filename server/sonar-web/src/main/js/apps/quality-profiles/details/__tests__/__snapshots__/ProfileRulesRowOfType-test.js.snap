@@ -1,0 +1,120 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tr>
+  <td>
+    <span>
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="BUG"
+      />
+      issue.type.BUG.plural
+    </span>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/rules#qprofile=bar|activation=true|types=BUG"
+    >
+      3
+    </Link>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      className="small text-muted"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/rules#qprofile=bar|activation=false|types=BUG"
+    >
+      7
+    </Link>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly if there is 0 rules 1`] = `
+<tr>
+  <td>
+    <span>
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="VULNERABILITY"
+      />
+      issue.type.VULNERABILITY.plural
+    </span>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/coding_rules#qprofile=bar|activation=true|types=VULNERABILITY"
+    >
+      0
+    </Link>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <span
+      className="note text-muted"
+    >
+      0
+    </span>
+  </td>
+</tr>
+`;
+
+exports[`should render correctly if there is missing data 1`] = `
+<tr>
+  <td>
+    <span>
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="VULNERABILITY"
+      />
+      issue.type.VULNERABILITY.plural
+    </span>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <Link
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/coding_rules#qprofile=bar|activation=true|types=VULNERABILITY"
+    >
+      5
+    </Link>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  />
+</tr>
+`;
+
+exports[`should render correctly if there is missing data 2`] = `
+<tr>
+  <td>
+    <span>
+      <IssueTypeIcon
+        className="little-spacer-right"
+        query="VULNERABILITY"
+      />
+      issue.type.VULNERABILITY.plural
+    </span>
+  </td>
+  <td
+    className="thin nowrap text-right"
+  />
+  <td
+    className="thin nowrap text-right"
+  />
+</tr>
+`;
