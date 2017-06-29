@@ -21,8 +21,8 @@ package org.sonar.search;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
-import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -51,7 +51,7 @@ public class EsSettingsTest {
 
     EsSettings esSettings = new EsSettings(props);
 
-    Settings generated = esSettings.build();
+    Map<String, String> generated = esSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
     assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
 
@@ -82,7 +82,7 @@ public class EsSettingsTest {
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
 
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("path.data")).isEqualTo(new File(dataDir, "es").getAbsolutePath());
     assertThat(settings.get("path.logs")).isEqualTo(logDir.getAbsolutePath());
@@ -93,7 +93,7 @@ public class EsSettingsTest {
   public void cluster_is_enabled() throws Exception {
     Props props = minProps(true);
     props.set(ProcessProperties.CLUSTER_SEARCH_HOSTS, "1.2.3.4:9000,1.2.3.5:8080");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("1.2.3.4:9000,1.2.3.5:8080");
@@ -108,14 +108,14 @@ public class EsSettingsTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Value of property sonar.search.minimumMasterNodes is not an integer:");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
   }
 
   @Test
   public void cluster_is_enabled_with_defined_minimum_master_nodes() throws Exception {
     Props props = minProps(true);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("5");
   }
@@ -124,7 +124,7 @@ public class EsSettingsTest {
   public void cluster_is_enabled_with_defined_initialTimeout() throws Exception {
     Props props = minProps(true);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("10s");
   }
@@ -133,7 +133,7 @@ public class EsSettingsTest {
   public void in_standalone_initialTimeout_is_not_overridable() throws Exception {
     Props props = minProps(false);
     props.set(ProcessProperties.SEARCH_INITIAL_STATE_TIMEOUT, "10s");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("discovery.initial_state_timeout")).isEqualTo("30s");
   }
@@ -142,7 +142,7 @@ public class EsSettingsTest {
   public void in_standalone_minimumMasterNodes_is_not_overridable() throws Exception {
     Props props = minProps(false);
     props.set(ProcessProperties.SEARCH_MINIMUM_MASTER_NODES, "5");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("discovery.zen.minimum_master_nodes")).isEqualTo("1");
   }
@@ -152,7 +152,7 @@ public class EsSettingsTest {
   public void in_standalone_searchReplicas_is_not_overridable() throws Exception {
     Props props = minProps(false);
     props.set(ProcessProperties.SEARCH_REPLICAS, "5");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("0");
   }
@@ -161,7 +161,7 @@ public class EsSettingsTest {
   public void cluster_is_enabled_with_defined_replicas() throws Exception {
     Props props = minProps(true);
     props.set(ProcessProperties.SEARCH_REPLICAS, "5");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("5");
   }
@@ -174,14 +174,14 @@ public class EsSettingsTest {
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Value of property sonar.search.replicas is not an integer:");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
   }
 
   @Test
   public void enable_marvel() throws Exception {
     Props props = minProps(false);
     props.set(EsSettings.PROP_MARVEL_HOSTS, "127.0.0.2,127.0.0.3");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("marvel.agent.exporter.es.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
   }
@@ -190,7 +190,7 @@ public class EsSettingsTest {
   public void enable_http_connector() throws Exception {
     Props props = minProps(false);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
@@ -202,7 +202,7 @@ public class EsSettingsTest {
     Props props = minProps(false);
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.2");
-    Settings settings = new EsSettings(props).build();
+    Map<String, String> settings = new EsSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.2");

@@ -22,6 +22,7 @@ package org.sonar.server.es;
 import java.io.IOException;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.junit.Rule;
@@ -98,7 +99,7 @@ public class IndexCreatorTest {
 
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
-    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefresh(true).get();
+    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
     // v2
