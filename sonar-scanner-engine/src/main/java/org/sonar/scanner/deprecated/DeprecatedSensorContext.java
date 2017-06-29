@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -46,9 +46,9 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   private final DefaultIndex index;
   private final InputModule module;
 
-  public DeprecatedSensorContext(InputModule module, DefaultIndex index, Settings settings, FileSystem fs, ActiveRules activeRules,
+  public DeprecatedSensorContext(InputModule module, DefaultIndex index, Configuration config, org.sonar.api.config.Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
     AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
-    super(module, settings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
+    super(module, config, mutableSettings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
     this.index = index;
     this.module = module;
   }

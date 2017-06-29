@@ -19,22 +19,22 @@
  */
 package org.sonar.scanner.mediumtest.issues;
 
-import org.junit.rules.TemporaryFolder;
+import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import com.google.common.collect.ImmutableMap;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import java.io.File;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

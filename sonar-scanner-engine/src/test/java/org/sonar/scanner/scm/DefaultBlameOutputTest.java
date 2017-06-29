@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.scanner.scm.DefaultBlameOutput;
 
 public class DefaultBlameOutputTest {
 

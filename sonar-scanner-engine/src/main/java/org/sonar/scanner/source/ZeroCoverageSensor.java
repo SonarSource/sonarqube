@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.source;
 
+import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
-
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,8 +40,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.coverage.CoverageExclusions;
-
-import com.google.common.collect.Sets;
 
 @Phase(name = Phase.Name.POST)
 public final class ZeroCoverageSensor implements Sensor {

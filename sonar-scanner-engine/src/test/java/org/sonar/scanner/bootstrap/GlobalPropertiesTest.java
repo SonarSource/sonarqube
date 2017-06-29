@@ -20,9 +20,8 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.Maps;
-import org.junit.Test;
-import org.sonar.scanner.bootstrap.GlobalProperties;
 import java.util.Map;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

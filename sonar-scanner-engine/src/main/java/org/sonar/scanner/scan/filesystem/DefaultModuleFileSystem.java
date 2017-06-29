@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -40,7 +40,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
 
   private String moduleKey;
   private FileIndexer indexer;
-  private Settings settings;
+  private Configuration settings;
 
   private List<File> sourceDirsOrFiles = new ArrayList<>();
   private List<File> testDirsOrFiles = new ArrayList<>();
@@ -48,7 +48,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
   private Charset charset = null;
 
   public DefaultModuleFileSystem(ModuleInputComponentStore moduleInputFileCache, DefaultInputModule module,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+    Configuration settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
     ProjectRepositories projectRepositories) {
     super(initializer.baseDir(), moduleInputFileCache);
     setFields(module, settings, indexer, initializer, mode, projectRepositories);
@@ -56,14 +56,14 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
 
   @VisibleForTesting
   public DefaultModuleFileSystem(DefaultInputModule module,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+    Configuration settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
     ProjectRepositories projectRepositories) {
     super(initializer.baseDir().toPath());
     setFields(module, settings, indexer, initializer, mode, projectRepositories);
   }
 
   private void setFields(DefaultInputModule module,
-    Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
+    Configuration settings, FileIndexer indexer, ModuleFileSystemInitializer initializer, DefaultAnalysisMode mode,
     ProjectRepositories projectRepositories) {
     this.moduleKey = module.key();
     this.settings = settings;
@@ -97,7 +97,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem {
   @Override
   public Charset encoding() {
     if (charset == null) {
-      String encoding = settings.getString(CoreProperties.ENCODING_PROPERTY);
+      String encoding = settings.get(CoreProperties.ENCODING_PROPERTY).orElse(null);
       if (StringUtils.isNotEmpty(encoding)) {
         charset = Charset.forName(StringUtils.trim(encoding));
       } else {

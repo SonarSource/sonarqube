@@ -34,8 +34,7 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
@@ -63,7 +62,7 @@ public class DefaultSensorStorageTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultSensorStorage underTest;
-  private Settings settings;
+  private MapSettings settings;
   private ModuleIssues moduleIssues;
   private MeasureCache measureCache;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
@@ -81,7 +80,7 @@ public class DefaultSensorStorageTest {
     ReportPublisher reportPublisher = mock(ReportPublisher.class);
     when(reportPublisher.getWriter()).thenReturn(new ScannerReportWriter(temp.newFolder()));
     underTest = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings, coverageExclusions, reportPublisher, measureCache,
+      moduleIssues, settings.asConfig(), coverageExclusions, reportPublisher, measureCache,
       mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics());
   }
 

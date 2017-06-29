@@ -26,7 +26,6 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
-import org.sonar.scanner.bootstrap.ExtensionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

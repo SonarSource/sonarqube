@@ -22,20 +22,17 @@ package org.sonar.scanner.bootstrap;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.Nonnull;
-
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
@@ -53,7 +50,7 @@ public class ScannerPluginPredicate implements Predicate<String> {
   private final Set<String> blacks = newHashSet();
   private final GlobalMode mode;
 
-  public ScannerPluginPredicate(Settings settings, GlobalMode mode) {
+  public ScannerPluginPredicate(Configuration settings, GlobalMode mode) {
     this.mode = mode;
     if (mode.isPreview() || mode.isIssues()) {
       // These default values are not supported by Settings because the class CorePlugin
@@ -92,8 +89,8 @@ public class ScannerPluginPredicate implements Predicate<String> {
     return blacks;
   }
 
-  private static List<String> propertyValues(Settings settings, String key, String defaultValue) {
-    String s = StringUtils.defaultIfEmpty(settings.getString(key), defaultValue);
+  private static List<String> propertyValues(Configuration settings, String key, String defaultValue) {
+    String s = settings.get(key).orElse(defaultValue);
     return StreamSupport.stream(Splitter.on(",").trimResults().omitEmptyStrings().split(s).spliterator(), false)
       .collect(Collectors.toList());
   }

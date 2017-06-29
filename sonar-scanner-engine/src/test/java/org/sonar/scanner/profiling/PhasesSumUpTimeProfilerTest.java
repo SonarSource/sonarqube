@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.profiling;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +47,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.events.BatchStepEvent;
 
-import com.google.common.collect.Maps;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PhasesSumUpTimeProfilerTest {
 

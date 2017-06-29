@@ -45,7 +45,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.log.Logger;
@@ -146,7 +146,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
   private final ContextPropertiesCache contextPropertiesCache;
-  private final Settings settings;
+  private final Configuration settings;
   private final ScannerMetrics scannerMetrics;
   private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new HashMap<>();
   private final Set<Metric<?>> coverageMetrics = new HashSet<>();
@@ -154,7 +154,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private Set<String> alreadyLogged = new HashSet<>();
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
-    Settings settings,
+    Configuration settings,
     CoverageExclusions coverageExclusions, ReportPublisher reportPublisher,
     MeasureCache measureCache, SonarCpdBlockIndex index,
     ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics) {
@@ -221,7 +221,7 @@ public class DefaultSensorStorage implements SensorStorage {
     if (component.isFile()) {
       ((DefaultInputFile) component).setPublish(true);
     }
-    
+
     if (isDeprecatedMetric(measure.metric().key())) {
       logOnce(measure.metric().key(), "Metric '{}' is deprecated. Provided value is ignored.", measure.metric().key());
       return;
@@ -452,11 +452,7 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @VisibleForTesting
   int getBlockSize(String languageKey) {
-    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
-    if (blockSize == 0) {
-      blockSize = DefaultCpdBlockIndexer.getDefaultBlockSize(languageKey);
-    }
-    return blockSize;
+    return settings.getInt("sonar.cpd." + languageKey + ".minimumLines").orElse(DefaultCpdBlockIndexer.getDefaultBlockSize(languageKey));
   }
 
   @Override

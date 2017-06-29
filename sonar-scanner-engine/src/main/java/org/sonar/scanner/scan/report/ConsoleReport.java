@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -45,12 +45,12 @@ public class ConsoleReport implements Reporter {
   public static final String CONSOLE_REPORT_ENABLED_KEY = "sonar.issuesReport.console.enable";
   private static final int LEFT_PAD = 10;
 
-  private Settings settings;
+  private Configuration settings;
   private IssueCache issueCache;
   private InputComponentStore componentStore;
 
   @VisibleForTesting
-  public ConsoleReport(Settings settings, IssueCache issueCache, InputComponentStore componentStore) {
+  public ConsoleReport(Configuration settings, IssueCache issueCache, InputComponentStore componentStore) {
     this.settings = settings;
     this.issueCache = issueCache;
     this.componentStore = componentStore;
@@ -97,7 +97,7 @@ public class ConsoleReport implements Reporter {
 
   @Override
   public void execute() {
-    if (settings.getBoolean(CONSOLE_REPORT_ENABLED_KEY)) {
+    if (settings.getBoolean(CONSOLE_REPORT_ENABLED_KEY).orElse(false)) {
       LOG.warn("Console report is deprecated. Use SonarLint CLI to have local reports of issues");
       Report r = new Report();
       r.setNoFile(!componentStore.allFilesToPublish().iterator().hasNext());

@@ -19,14 +19,12 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import org.sonar.core.issue.tracking.Trackable;
-import org.sonar.core.issue.tracking.BlockHashSequence;
-import org.sonar.core.issue.tracking.LineHashSequence;
-
 import java.util.Collection;
 import java.util.List;
-
+import org.sonar.core.issue.tracking.BlockHashSequence;
 import org.sonar.core.issue.tracking.Input;
+import org.sonar.core.issue.tracking.LineHashSequence;
+import org.sonar.core.issue.tracking.Trackable;
 
 public class IssueTrackingInput<T extends Trackable> implements Input<T> {
 

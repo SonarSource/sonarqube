@@ -28,10 +28,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.rule.ActiveRulesProvider;
-import org.sonar.scanner.rule.DefaultActiveRulesLoader;
-import org.sonar.scanner.rule.LoadedActiveRule;
-import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;

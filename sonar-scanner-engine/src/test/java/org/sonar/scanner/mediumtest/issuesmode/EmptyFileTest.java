@@ -19,10 +19,11 @@
  */
 package org.sonar.scanner.mediumtest.issuesmode;
 
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.FileUtils;
-import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.util.Date;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,13 +31,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
+import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.util.Date;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

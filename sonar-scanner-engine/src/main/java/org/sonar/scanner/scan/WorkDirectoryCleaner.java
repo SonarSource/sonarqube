@@ -19,15 +19,14 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.core.util.FileUtils;
-import org.sonar.home.cache.DirectoryLock;
-
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.core.util.FileUtils;
+import org.sonar.home.cache.DirectoryLock;
 
 public class WorkDirectoryCleaner {
   private Path workDir;

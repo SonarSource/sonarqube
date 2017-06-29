@@ -23,9 +23,7 @@ import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
-
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Logger;

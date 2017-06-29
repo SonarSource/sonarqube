@@ -21,8 +21,7 @@ package org.sonar.scanner.bootstrap;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -30,12 +29,12 @@ import static org.mockito.Mockito.when;
 
 public class ScannerPluginPredicateTest {
 
-  Settings settings = new MapSettings();
-  GlobalMode mode = mock(GlobalMode.class);
+  private MapSettings settings = new MapSettings();
+  private GlobalMode mode = mock(GlobalMode.class);
 
   @Test
   public void accept_if_no_inclusions_nor_exclusions() {
-    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings.asConfig(), mode);
     assertThat(predicate.getWhites()).isEmpty();
     assertThat(predicate.getBlacks()).isEmpty();
     assertThat(predicate.apply("pmd")).isTrue();
@@ -45,7 +44,7 @@ public class ScannerPluginPredicateTest {
   @Test
   public void exclude_buildbreaker_in_preview_mode() {
     when(mode.isPreview()).thenReturn(true);
-    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings.asConfig(), mode);
     assertThat(predicate.apply("buildbreaker")).isFalse();
   }
 
@@ -55,7 +54,7 @@ public class ScannerPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura,pmd");
-    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings.asConfig(), mode);
     assertThat(predicate.apply("pmd")).isTrue();
   }
 
@@ -65,7 +64,7 @@ public class ScannerPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura");
-    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings.asConfig(), mode);
     assertThat(predicate.apply("checkstyle")).isTrue();
     assertThat(predicate.apply("pmd")).isTrue();
     assertThat(predicate.apply("cobertura")).isFalse();
@@ -77,7 +76,7 @@ public class ScannerPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura");
-    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings.asConfig(), mode);
     assertThat(predicate.apply("checkstyle")).isTrue();
     assertThat(predicate.apply("pmd")).isTrue();
     assertThat(predicate.apply("cobertura")).isFalse();
@@ -87,7 +86,7 @@ public class ScannerPluginPredicateTest {
   public void test_exclusions_without_any_inclusions() {
     when(mode.isPreview()).thenReturn(true);
     settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings.asConfig(), mode);
     assertThat(predicate.apply("checkstyle")).isFalse();
     assertThat(predicate.apply("pmd")).isFalse();
     assertThat(predicate.apply("cobertura")).isTrue();
@@ -98,7 +97,7 @@ public class ScannerPluginPredicateTest {
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle, pmd, findbugs")
       .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura, pmd");
-    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings, mode);
+    ScannerPluginPredicate predicate = new ScannerPluginPredicate(settings.asConfig(), mode);
     assertThat(predicate.apply("pmd")).isTrue();
   }
 

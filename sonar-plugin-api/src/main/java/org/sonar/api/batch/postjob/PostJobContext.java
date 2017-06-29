@@ -21,6 +21,7 @@ package org.sonar.api.batch.postjob;
 
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 
 /**
@@ -30,9 +31,15 @@ import org.sonar.api.config.Settings;
 public interface PostJobContext {
 
   /**
-   * Get settings of the current project.
+   * @deprecated since 6.5 use {@link PostJobContext#config()}
    */
   Settings settings();
+
+  /**
+   * Get configuration of the current project.
+   * @since 6.5
+   */
+  Configuration config();
 
   AnalysisMode analysisMode();
 

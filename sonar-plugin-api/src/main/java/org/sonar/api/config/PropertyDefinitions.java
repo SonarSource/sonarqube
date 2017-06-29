@@ -165,6 +165,7 @@ public final class PropertyDefinitions {
     return byCategory;
   }
 
+  @CheckForNull
   public String getDefaultValue(String key) {
     PropertyDefinition def = get(key);
     if (def == null) {

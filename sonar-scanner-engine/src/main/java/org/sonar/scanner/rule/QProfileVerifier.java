@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
@@ -35,11 +35,11 @@ public class QProfileVerifier {
 
   private static final Logger LOG = LoggerFactory.getLogger(QProfileVerifier.class);
 
-  private final Settings settings;
+  private final Configuration settings;
   private final FileSystem fs;
   private final ModuleQProfiles profiles;
 
-  public QProfileVerifier(Settings settings, FileSystem fs, ModuleQProfiles profiles) {
+  public QProfileVerifier(Configuration settings, FileSystem fs, ModuleQProfiles profiles) {
     this.settings = settings;
     this.fs = fs;
     this.profiles = profiles;
@@ -51,7 +51,7 @@ public class QProfileVerifier {
 
   @VisibleForTesting
   void execute(Logger logger) {
-    String defaultName = settings.getString(ModuleQProfiles.SONAR_PROFILE_PROP);
+    String defaultName = settings.get(ModuleQProfiles.SONAR_PROFILE_PROP).orElse(null);
     boolean defaultNameUsed = StringUtils.isBlank(defaultName);
     for (String lang : fs.languages()) {
       QProfile profile = profiles.findByLanguage(lang);

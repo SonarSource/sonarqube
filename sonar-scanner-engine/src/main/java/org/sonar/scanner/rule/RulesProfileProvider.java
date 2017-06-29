@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
@@ -39,9 +39,9 @@ public class RulesProfileProvider extends ProviderAdapter {
 
   private RulesProfile singleton = null;
 
-  public RulesProfile provide(ModuleQProfiles qProfiles, ActiveRules activeRules, Settings settings) {
+  public RulesProfile provide(ModuleQProfiles qProfiles, ActiveRules activeRules, Configuration settings) {
     if (singleton == null) {
-      String lang = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
+      String lang = settings.get(CoreProperties.PROJECT_LANGUAGE_PROPERTY).orElse(null);
       if (StringUtils.isNotBlank(lang)) {
         // Backward-compatibility with single-language modules
         singleton = loadSingleLanguageProfile(qProfiles, activeRules, lang);

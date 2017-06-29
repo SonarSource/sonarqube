@@ -19,16 +19,14 @@
  */
 package org.sonar.scanner.analysis;
 
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import javax.annotation.Nullable;
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.scanner.analysis.AnalysisProperties;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.bootstrap.GlobalProperties;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
+import org.sonar.scanner.bootstrap.GlobalProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

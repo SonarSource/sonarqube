@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.storage;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.scanner.index.AbstractCachesTest;
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

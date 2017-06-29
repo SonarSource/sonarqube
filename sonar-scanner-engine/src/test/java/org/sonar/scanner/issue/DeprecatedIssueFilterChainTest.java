@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilter;
 import org.sonar.api.issue.batch.IssueFilterChain;
-import org.sonar.scanner.issue.DeprecatedIssueFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

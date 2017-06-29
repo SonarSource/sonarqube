@@ -21,6 +21,7 @@ package org.sonar.api.config;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

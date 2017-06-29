@@ -19,10 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +27,10 @@ import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectBuilder.Context;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 public class ProjectBuildersExecutorTest {
   private ProjectReactor reactor;

@@ -29,8 +29,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
@@ -48,7 +47,7 @@ public class DefaultPostJobContextTest {
   private IssueCache issueCache;
   private InputComponentStore componentStore;
   private DefaultPostJobContext context;
-  private Settings settings;
+  private MapSettings settings;
   private AnalysisMode analysisMode;
 
   @Before
@@ -57,7 +56,7 @@ public class DefaultPostJobContextTest {
     componentStore = new InputComponentStore(new PathResolver());
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
-    context = new DefaultPostJobContext(settings, issueCache, componentStore, analysisMode);
+    context = new DefaultPostJobContext(settings.asConfig(), settings, issueCache, componentStore, analysisMode);
   }
 
   @Test

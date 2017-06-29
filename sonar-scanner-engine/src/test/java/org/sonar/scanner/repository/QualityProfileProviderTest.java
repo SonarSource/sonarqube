@@ -31,9 +31,6 @@ import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.scanner.analysis.AnalysisProperties;
-import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.repository.QualityProfileLoader;
-import org.sonar.scanner.repository.QualityProfileProvider;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 

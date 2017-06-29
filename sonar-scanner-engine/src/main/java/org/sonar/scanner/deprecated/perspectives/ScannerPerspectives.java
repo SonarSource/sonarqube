@@ -22,7 +22,6 @@ package org.sonar.scanner.deprecated.perspectives;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;

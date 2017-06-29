@@ -19,15 +19,13 @@
  */
 package org.sonar.scanner.issue;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.ProjectIssues;
-import org.sonar.scanner.issue.tracking.TrackedIssue;
-
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.Nullable;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.ProjectIssues;
+import org.sonar.scanner.issue.tracking.TrackedIssue;
 
 /**
  * Expose list of issues for the current project

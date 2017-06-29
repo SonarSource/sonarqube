@@ -19,24 +19,22 @@
  */
 package org.sonar.scanner.scan.report;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.rule.RuleKey;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import static org.mockito.Matchers.any;
-
-import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.scan.report.RuleNameProvider;
-import org.sonar.api.batch.rule.Rule;
-import org.junit.Test;
-import org.junit.Before;
-import org.sonar.api.batch.rule.Rules;
 
 public class RuleNameProviderTest {
-  RuleNameProvider provider;
-  Rules rules;
-  Rule rule;
-  RuleKey ruleKey;
+  private RuleNameProvider provider;
+  private Rules rules;
+  private Rule rule;
+  private RuleKey ruleKey;
 
   @Before
   public void setUp() {

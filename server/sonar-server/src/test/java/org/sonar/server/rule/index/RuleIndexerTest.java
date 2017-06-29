@@ -22,7 +22,7 @@ package org.sonar.server.rule.index;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;

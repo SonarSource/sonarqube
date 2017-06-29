@@ -30,7 +30,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -43,10 +43,10 @@ public class DefaultCpdBlockIndexer extends CpdBlockIndexer {
 
   private final CpdMappings mappings;
   private final FileSystem fs;
-  private final Settings settings;
+  private final Configuration settings;
   private final SonarCpdBlockIndex index;
 
-  public DefaultCpdBlockIndexer(CpdMappings mappings, FileSystem fs, Settings settings, SonarCpdBlockIndex index) {
+  public DefaultCpdBlockIndexer(CpdMappings mappings, FileSystem fs, Configuration settings, SonarCpdBlockIndex index) {
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
@@ -100,11 +100,7 @@ public class DefaultCpdBlockIndexer extends CpdBlockIndexer {
 
   @VisibleForTesting
   int getBlockSize(String languageKey) {
-    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
-    if (blockSize == 0) {
-      blockSize = getDefaultBlockSize(languageKey);
-    }
-    return blockSize;
+    return settings.getInt("sonar.cpd." + languageKey + ".minimumLines").orElse(getDefaultBlockSize(languageKey));
   }
 
   @VisibleForTesting

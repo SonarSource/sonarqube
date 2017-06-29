@@ -27,11 +27,10 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
@@ -53,7 +52,7 @@ public class MetadataPublisherTest {
   private ProjectDefinition projectDef;
   private DefaultInputModule rootModule;
   private MetadataPublisher underTest;
-  private Settings settings;
+  private MapSettings settings;
   private ModuleQProfiles qProfiles;
   private ProjectAnalysisInfo projectAnalysisInfo;
   private InputModuleHierarchy inputModuleHierarchy;
@@ -68,7 +67,7 @@ public class MetadataPublisherTest {
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
     settings = new MapSettings();
     qProfiles = mock(ModuleQProfiles.class);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings, qProfiles);
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles);
   }
 
   @Test

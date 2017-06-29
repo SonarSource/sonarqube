@@ -19,18 +19,13 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
-import org.sonar.scanner.issue.ignore.pattern.LineRange;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import com.google.common.collect.Sets;
+import java.util.Collections;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.Rule;
-
-import java.util.Collections;
-import java.util.Set;
-
-import javax.annotation.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -22,7 +22,6 @@ package org.sonar.scanner.issue.tracking;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;

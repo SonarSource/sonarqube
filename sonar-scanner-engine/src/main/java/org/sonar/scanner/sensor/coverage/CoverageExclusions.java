@@ -29,17 +29,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.WildcardPattern;
 
 public class CoverageExclusions implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(CoverageExclusions.class);
 
-  private final Settings settings;
+  private final Configuration settings;
   private Collection<WildcardPattern> exclusionPatterns;
 
-  public CoverageExclusions(Settings settings) {
+  public CoverageExclusions(Configuration settings) {
     this.settings = settings;
   }
 

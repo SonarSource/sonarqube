@@ -29,7 +29,8 @@ import java.util.Optional;
 import java.util.function.BinaryOperator;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
@@ -43,10 +44,10 @@ import static org.sonar.scanner.util.ScannerUtils.encodeForUrl;
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
-  private final Settings settings;
+  private final Configuration settings;
   private final ScannerWsClient wsClient;
 
-  public DefaultQualityProfileLoader(Settings settings, ScannerWsClient wsClient) {
+  public DefaultQualityProfileLoader(Configuration settings, ScannerWsClient wsClient) {
     this.settings = settings;
     this.wsClient = wsClient;
   }
@@ -81,7 +82,7 @@ public class DefaultQualityProfileLoader implements QualityProfileLoader {
   }
 
   private Optional<String> getOrganizationKey() {
-    return Optional.ofNullable(settings.getString("sonar.organization"));
+    return settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY);
   }
 
   private Map<String, QualityProfile> call(String url) {

@@ -23,9 +23,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.Nonnull;
-import org.sonar.api.config.Settings;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
@@ -35,11 +34,11 @@ import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 public class ContextPropertiesPublisher implements ReportPublisherStep {
 
   private final ContextPropertiesCache cache;
-  private final Settings settings;
+  private final DefaultConfiguration config;
 
-  public ContextPropertiesPublisher(ContextPropertiesCache cache, Settings settings) {
+  public ContextPropertiesPublisher(ContextPropertiesCache cache, DefaultConfiguration config) {
     this.cache = cache;
-    this.settings = settings;
+    this.config = config;
   }
 
   @Override
@@ -51,7 +50,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
 
     // properties that are automatically included to report so that
     // they can be included to webhook payloads
-    Stream<ScannerReport.ContextProperty> fromSettings = settings.getProperties().entrySet().stream()
+    Stream<ScannerReport.ContextProperty> fromSettings = config.getProperties().entrySet().stream()
       .filter(e -> e.getKey().startsWith(ANALYSIS_PROPERTY_PREFIX))
       .map(transformer);
 
@@ -62,7 +61,7 @@ public class ContextPropertiesPublisher implements ReportPublisherStep {
     private final ScannerReport.ContextProperty.Builder builder = ScannerReport.ContextProperty.newBuilder();
 
     @Override
-    public ScannerReport.ContextProperty apply(@Nonnull  Map.Entry<String, String> input) {
+    public ScannerReport.ContextProperty apply(@Nonnull Map.Entry<String, String> input) {
       return builder.clear().setKey(input.getKey()).setValue(input.getValue()).build();
     }
   }

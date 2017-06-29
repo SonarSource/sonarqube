@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 
 @ScannerSide
 public class SensorOptimizer {
@@ -35,12 +35,12 @@ public class SensorOptimizer {
 
   private final FileSystem fs;
   private final ActiveRules activeRules;
-  private final Settings settings;
+  private final Configuration config;
 
-  public SensorOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings) {
+  public SensorOptimizer(FileSystem fs, ActiveRules activeRules, Configuration config) {
     this.fs = fs;
     this.activeRules = activeRules;
-    this.settings = settings;
+    this.config = config;
   }
 
   /**
@@ -65,7 +65,7 @@ public class SensorOptimizer {
   private boolean settingsCondition(DefaultSensorDescriptor descriptor) {
     if (!descriptor.properties().isEmpty()) {
       for (String propertyKey : descriptor.properties()) {
-        if (!settings.hasKey(propertyKey)) {
+        if (!config.hasKey(propertyKey)) {
           return false;
         }
       }

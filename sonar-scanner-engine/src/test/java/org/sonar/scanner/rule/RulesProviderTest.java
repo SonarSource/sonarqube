@@ -20,15 +20,13 @@
 package org.sonar.scanner.rule;
 
 import com.google.common.collect.Lists;
+import org.junit.Test;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.scanner.rule.RulesLoader;
-import org.sonar.scanner.rule.RulesProvider;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
-import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.junit.Test;
+import static org.mockito.Mockito.when;
 
 public class RulesProviderTest {
   @Test

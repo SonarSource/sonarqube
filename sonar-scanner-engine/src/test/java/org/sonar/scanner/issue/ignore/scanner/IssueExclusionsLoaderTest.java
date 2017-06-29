@@ -22,7 +22,6 @@ package org.sonar.scanner.issue.ignore.scanner;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

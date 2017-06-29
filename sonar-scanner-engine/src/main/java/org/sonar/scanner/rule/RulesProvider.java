@@ -19,18 +19,16 @@
  */
 package org.sonar.scanner.rule;
 
+import java.util.List;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.batch.rule.internal.NewRule;
+import org.sonar.api.batch.rule.internal.RulesBuilder;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-
-import java.util.List;
-
 import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.api.batch.rule.internal.NewRule;
-import org.sonar.api.batch.rule.Rules;
 
 public class RulesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(RulesProvider.class);

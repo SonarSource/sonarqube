@@ -36,8 +36,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
-import org.sonar.scanner.util.ProgressReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.util.ProgressReport;
 
 class DefaultBlameOutput implements BlameOutput {
 

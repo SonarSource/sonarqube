@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-
-import javax.annotation.Nullable;
-
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 public interface QualityProfileLoader {
   List<QualityProfile> load(String projectKey, @Nullable String profileName);

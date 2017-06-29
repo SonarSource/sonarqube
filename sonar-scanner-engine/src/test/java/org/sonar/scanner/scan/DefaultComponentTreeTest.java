@@ -19,12 +19,12 @@
  */
 package org.sonar.scanner.scan;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultComponentTreeTest {
   private DefaultComponentTree tree;

@@ -19,16 +19,15 @@
  */
 package org.sonar.scanner.analysis;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.picocontainer.PicoContainer;
-import org.picocontainer.ComponentLifecycle;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.picocontainer.ComponentLifecycle;
+import org.picocontainer.PicoContainer;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.internal.DefaultTempFolder;
 
 public class AnalysisTempFolderProvider extends ProviderAdapter implements ComponentLifecycle<TempFolder> {
   static final String TMP_NAME = ".sonartmp";

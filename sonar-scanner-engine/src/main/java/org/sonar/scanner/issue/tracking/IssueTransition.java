@@ -19,6 +19,12 @@
  */
 package org.sonar.scanner.issue.tracking;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
@@ -31,13 +37,6 @@ import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.util.ProgressReport;
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @ScannerSide
 public class IssueTransition {

@@ -38,7 +38,8 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.MessageException;
 
 @Properties({
   @Property(key = HtmlReport.HTML_REPORT_ENABLED_KEY, defaultValue = "false", name = "Enable HTML report", description = "Set this to true to generate an HTML report",
@@ -59,13 +60,13 @@ public class HtmlReport implements Reporter {
   public static final String HTML_REPORT_NAME_DEFAULT = "issues-report";
   public static final String HTML_REPORT_LIGHTMODE_ONLY = "sonar.issuesReport.lightModeOnly";
 
-  private final Settings settings;
+  private final Configuration settings;
   private final FileSystem fs;
   private final IssuesReportBuilder builder;
   private final SourceProvider sourceProvider;
   private final RuleNameProvider ruleNameProvider;
 
-  public HtmlReport(Settings settings, FileSystem fs, IssuesReportBuilder builder, SourceProvider sourceProvider, RuleNameProvider ruleNameProvider) {
+  public HtmlReport(Configuration settings, FileSystem fs, IssuesReportBuilder builder, SourceProvider sourceProvider, RuleNameProvider ruleNameProvider) {
     this.settings = settings;
     this.fs = fs;
     this.builder = builder;
@@ -75,7 +76,7 @@ public class HtmlReport implements Reporter {
 
   @Override
   public void execute() {
-    if (settings.getBoolean(HTML_REPORT_ENABLED_KEY)) {
+    if (settings.getBoolean(HTML_REPORT_ENABLED_KEY).orElse(false)) {
       LOG.warn("HTML report is deprecated. Use SonarLint CLI to have local reports of issues");
       IssuesReport report = builder.buildReport();
       print(report);
@@ -84,7 +85,7 @@ public class HtmlReport implements Reporter {
 
   public void print(IssuesReport report) {
     File reportFileDir = getReportFileDir();
-    String reportName = settings.getString(HTML_REPORT_NAME_KEY);
+    String reportName = settings.get(HTML_REPORT_NAME_KEY).orElseThrow(() -> MessageException.of("Missing report name. Please set property '" + HTML_REPORT_NAME_KEY + "'"));
     if (!isLightModeOnly()) {
       File reportFile = new File(reportFileDir, reportName + ".html");
       LOG.debug("Generating HTML Report to: " + reportFile.getAbsolutePath());
@@ -103,7 +104,8 @@ public class HtmlReport implements Reporter {
   }
 
   private File getReportFileDir() {
-    String reportFileDirStr = settings.getString(HTML_REPORT_LOCATION_KEY);
+    String reportFileDirStr = settings.get(HTML_REPORT_LOCATION_KEY)
+      .orElseThrow(() -> MessageException.of("Missing report location. Please set property '" + HTML_REPORT_LOCATION_KEY + "'"));
     File reportFileDir = new File(reportFileDirStr);
     if (!reportFileDir.isAbsolute()) {
       reportFileDir = new File(fs.workDir(), reportFileDirStr);
@@ -174,6 +176,6 @@ public class HtmlReport implements Reporter {
   }
 
   public boolean isLightModeOnly() {
-    return settings.getBoolean(HTML_REPORT_LIGHTMODE_ONLY);
+    return settings.getBoolean(HTML_REPORT_LIGHTMODE_ONLY).orElse(false);
   }
 }

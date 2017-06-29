@@ -19,24 +19,22 @@
  */
 package org.sonar.scanner.mediumtest.tests;
 
-import org.hamcrest.Description;
-
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

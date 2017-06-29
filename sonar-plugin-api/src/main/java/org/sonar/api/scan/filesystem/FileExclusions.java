@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 
 /**
  * Configuration of file inclusions and exclusions.
@@ -35,9 +35,9 @@ import org.sonar.api.config.Settings;
  */
 @ScannerSide
 public class FileExclusions {
-  private final Settings settings;
+  private final Configuration settings;
 
-  public FileExclusions(Settings settings) {
+  public FileExclusions(Configuration settings) {
     this.settings = settings;
   }
 

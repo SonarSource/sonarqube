@@ -21,8 +21,6 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.junit.Test;
 import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scan.filesystem.StatusDetection;
-import org.sonar.scanner.scan.filesystem.StatusDetectionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -19,15 +19,12 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.CoreProperties;
-import org.sonar.scanner.bootstrap.GlobalMode;
-import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

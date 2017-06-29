@@ -19,13 +19,9 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,9 +30,11 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.scan.filesystem.PathResolver;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class InputFileBuilderTest {
   @Rule
@@ -56,8 +54,8 @@ public class InputFileBuilderTest {
     LanguageDetection langDetection = mock(LanguageDetection.class);
     MetadataGenerator metadataGenerator = mock(MetadataGenerator.class);
     BatchIdGenerator idGenerator = new BatchIdGenerator();
-    Settings settings = new MapSettings();
-    builder = new InputFileBuilder(module, pathResolver, langDetection, metadataGenerator, idGenerator, settings);
+    MapSettings settings = new MapSettings();
+    builder = new InputFileBuilder(module, pathResolver, langDetection, metadataGenerator, idGenerator, settings.asConfig());
   }
 
   @Test

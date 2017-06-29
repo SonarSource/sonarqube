@@ -19,11 +19,10 @@
  */
 package org.sonar.scanner.issue;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
-
+import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 
 public class DefaultIssueCallback implements IssueCallback {

@@ -26,8 +26,7 @@ import java.io.InputStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
@@ -42,8 +41,8 @@ public class DefaultQualityProfileLoaderTest {
   public ExpectedException exception = ExpectedException.none();
 
   private ScannerWsClient wsClient = mock(ScannerWsClient.class);
-  private Settings settings = new MapSettings();
-  private DefaultQualityProfileLoader underTest = new DefaultQualityProfileLoader(settings, wsClient);
+  private MapSettings settings = new MapSettings();
+  private DefaultQualityProfileLoader underTest = new DefaultQualityProfileLoader(settings.asConfig(), wsClient);
 
   @Test
   public void load_gets_profiles_for_specified_project_and_profile_name() throws IOException {

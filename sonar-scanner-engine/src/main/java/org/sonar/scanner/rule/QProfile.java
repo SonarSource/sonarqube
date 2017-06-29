@@ -20,7 +20,6 @@
 package org.sonar.scanner.rule;
 
 import com.google.common.base.MoreObjects;
-
 import java.util.Date;
 
 public class QProfile {

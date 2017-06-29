@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -181,7 +180,8 @@ public class ProjectScanContainer extends ComponentContainer {
       ContextPropertiesCache.class,
       ContextPropertiesPublisher.class,
 
-      ProjectSettings.class,
+      MutableProjectSettings.class,
+      new ProjectSettingsProvider(),
 
       // Report
       ScannerMetrics.class,

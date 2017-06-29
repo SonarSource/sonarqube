@@ -42,14 +42,13 @@ import javax.annotation.Nullable;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Loggers;
 
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
@@ -63,32 +62,32 @@ public class DefaultHttpDownloader extends HttpDownloader {
   private final Integer readTimeout;
   private final Integer connectTimeout;
 
-  public DefaultHttpDownloader(Server server, Settings settings) {
-    this(server, settings, null);
+  public DefaultHttpDownloader(Server server, Configuration config) {
+    this(server, config, null);
   }
 
-  public DefaultHttpDownloader(Server server, Settings settings, @Nullable Integer readTimeout) {
-    this(server, settings, null, readTimeout);
+  public DefaultHttpDownloader(Server server, Configuration config, @Nullable Integer readTimeout) {
+    this(server, config, null, readTimeout);
   }
 
-  public DefaultHttpDownloader(Server server, Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
+  public DefaultHttpDownloader(Server server, Configuration config, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(new AuthenticatorFacade(), settings, server.getVersion());
+    downloader = new BaseHttpDownloader(new AuthenticatorFacade(), config, server.getVersion());
   }
 
-  public DefaultHttpDownloader(Settings settings) {
-    this(settings, null);
+  public DefaultHttpDownloader(Configuration config) {
+    this(config, null);
   }
 
-  public DefaultHttpDownloader(Settings settings, @Nullable Integer readTimeout) {
-    this(settings, null, readTimeout);
+  public DefaultHttpDownloader(Configuration config, @Nullable Integer readTimeout) {
+    this(config, null, readTimeout);
   }
 
-  public DefaultHttpDownloader(Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
+  public DefaultHttpDownloader(Configuration config, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(new AuthenticatorFacade(), settings, null);
+    downloader = new BaseHttpDownloader(new AuthenticatorFacade(), config, null);
   }
 
   @Override
@@ -173,22 +172,22 @@ public class DefaultHttpDownloader extends HttpDownloader {
 
     private String userAgent;
 
-    BaseHttpDownloader(AuthenticatorFacade system, Settings settings, @Nullable String userAgent) {
-      initProxy(system, settings);
-      initUserAgent(userAgent, settings);
+    BaseHttpDownloader(AuthenticatorFacade system, Configuration config, @Nullable String userAgent) {
+      initProxy(system, config);
+      initUserAgent(userAgent, config);
     }
 
-    private void initProxy(AuthenticatorFacade system, Settings settings) {
+    private void initProxy(AuthenticatorFacade system, Configuration config) {
       // register credentials
-      String login = settings.getString(HTTP_PROXY_USER);
-      if (isNotEmpty(login)) {
-        system.setDefaultAuthenticator(new ProxyAuthenticator(login, settings.getString(HTTP_PROXY_PASSWORD)));
+      Optional<String> login = config.get(HTTP_PROXY_USER);
+      if (login.isPresent()) {
+        system.setDefaultAuthenticator(new ProxyAuthenticator(login.get(), config.get(HTTP_PROXY_PASSWORD).orElse(null)));
       }
     }
 
-    private void initUserAgent(@Nullable String sonarVersion, Settings settings) {
-      String serverId = settings.getString(CoreProperties.SERVER_ID);
-      userAgent = sonarVersion == null ? "SonarQube" : String.format("SonarQube %s # %s", sonarVersion, Optional.ofNullable(serverId).orElse(""));
+    private void initUserAgent(@Nullable String sonarVersion, Configuration settings) {
+      Optional<String> serverId = settings.get(CoreProperties.SERVER_ID);
+      userAgent = sonarVersion == null ? "SonarQube" : String.format("SonarQube %s # %s", sonarVersion, serverId.orElse(""));
       System.setProperty("http.agent", userAgent);
     }
 

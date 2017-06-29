@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Files;
@@ -40,9 +39,9 @@ import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.ScannerMediumTester.TaskBuilder;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Changeset;
-import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
+import org.sonar.scanner.repository.FileData;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 

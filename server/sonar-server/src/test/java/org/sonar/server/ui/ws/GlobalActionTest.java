@@ -21,8 +21,8 @@ package org.sonar.server.ui.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;

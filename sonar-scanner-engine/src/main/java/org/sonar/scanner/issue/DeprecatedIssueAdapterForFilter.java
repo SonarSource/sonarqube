@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;

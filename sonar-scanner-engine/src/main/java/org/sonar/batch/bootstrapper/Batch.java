@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.base.Throwables;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

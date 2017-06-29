@@ -19,13 +19,11 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
-
-import com.google.common.annotations.VisibleForTesting;
 
 public class PatternDecoder {
   private static final String LINE_RANGE_REGEXP = "\\[((\\d+|\\d+-\\d+),?)*\\]";

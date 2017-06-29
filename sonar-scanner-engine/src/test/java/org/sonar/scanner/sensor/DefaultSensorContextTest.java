@@ -33,8 +33,7 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Version;
@@ -54,7 +53,7 @@ public class DefaultSensorContextTest {
   private ActiveRules activeRules;
   private DefaultFileSystem fs;
   private DefaultSensorContext adaptor;
-  private Settings settings;
+  private MapSettings settings;
   private SensorStorage sensorStorage;
   private AnalysisMode analysisMode;
   private SonarRuntime runtime;
@@ -70,7 +69,7 @@ public class DefaultSensorContextTest {
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
     runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER);
-    adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
+    adaptor = new DefaultSensorContext(mock(InputModule.class), settings.asConfig(), settings, fs, activeRules, analysisMode, sensorStorage, runtime);
   }
 
   @Test

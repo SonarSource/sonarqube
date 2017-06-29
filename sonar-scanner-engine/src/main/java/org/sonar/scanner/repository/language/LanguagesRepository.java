@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.repository.language;
 
-import org.sonar.api.batch.ScannerSide;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Collection;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.ScannerSide;
 
 /**
  * Languages repository

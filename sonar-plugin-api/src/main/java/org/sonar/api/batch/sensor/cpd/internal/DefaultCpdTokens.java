@@ -28,7 +28,7 @@ import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.duplications.internal.pmd.TokensLine;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -37,7 +37,7 @@ import static java.util.Objects.requireNonNull;
 
 public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
 
-  private final Settings settings;
+  private final Configuration config;
   private final ArrayList<TokensLine> result = new ArrayList<>();
   private InputFile inputFile;
   private int startLine = Integer.MIN_VALUE;
@@ -47,15 +47,15 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   private TextRange lastRange;
   private boolean excluded;
 
-  public DefaultCpdTokens(Settings settings, SensorStorage storage) {
+  public DefaultCpdTokens(Configuration config, SensorStorage storage) {
     super(storage);
-    this.settings = settings;
+    this.config = config;
   }
 
   @Override
   public DefaultCpdTokens onFile(InputFile inputFile) {
     this.inputFile = requireNonNull(inputFile, "file can't be null");
-    String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
+    String[] cpdExclusions = config.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     for (PathPattern cpdExclusion : PathPattern.create(cpdExclusions)) {
       if (cpdExclusion.match(inputFile)) {
         this.excluded = true;

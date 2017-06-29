@@ -23,7 +23,6 @@ import com.google.common.collect.Iterables;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.StreamSupport;
-
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.test.CoverageBlock;
@@ -36,8 +35,8 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail;
 import org.sonar.scanner.protocol.output.ScannerReport.Test;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
-import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static java.util.stream.Collectors.toList;
 

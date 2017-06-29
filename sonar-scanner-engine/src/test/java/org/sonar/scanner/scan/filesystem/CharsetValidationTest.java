@@ -19,8 +19,6 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -35,11 +33,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.scanner.scan.filesystem.CharsetValidation.Validation;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CharsetValidationTest {
   private CharsetValidation charsets;

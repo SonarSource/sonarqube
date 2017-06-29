@@ -19,14 +19,11 @@
  */
 package org.sonar.scanner.repository.language;
 
-import org.picocontainer.Startable;
-
-import org.sonar.api.resources.Languages;
-
-import javax.annotation.CheckForNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.annotation.CheckForNull;
+import org.picocontainer.Startable;
+import org.sonar.api.resources.Languages;
 
 /**
  * Languages repository using {@link Languages}

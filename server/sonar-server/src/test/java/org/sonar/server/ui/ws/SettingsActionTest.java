@@ -21,8 +21,8 @@ package org.sonar.server.ui.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.web.page.Page;
 import org.sonar.api.web.page.PageDefinition;
 import org.sonar.core.config.WebConstants;

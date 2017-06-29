@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 
 public class IssueInclusionPatternInitializer extends AbstractPatternInitializer {
 
-  public IssueInclusionPatternInitializer(Settings settings) {
+  public IssueInclusionPatternInitializer(Configuration settings) {
     super(settings);
   }
 

@@ -19,20 +19,18 @@
  */
 package org.sonar.scanner.issue.ignore;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.scanner.issue.ignore.IgnoreIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class IgnoreIssuesFilterTest {

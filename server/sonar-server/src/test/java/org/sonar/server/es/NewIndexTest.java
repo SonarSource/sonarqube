@@ -26,7 +26,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;

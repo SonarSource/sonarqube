@@ -31,7 +31,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.core.util.UuidFactory;
-import org.sonar.scanner.bootstrap.GlobalContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -21,8 +21,8 @@ package org.sonar.server.user;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.SonarException;

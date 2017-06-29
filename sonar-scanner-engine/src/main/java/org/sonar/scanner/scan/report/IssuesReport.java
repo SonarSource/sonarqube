@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rules.RulePriority;

@@ -20,7 +20,6 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import com.google.common.collect.Sets;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;

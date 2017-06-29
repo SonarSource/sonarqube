@@ -19,18 +19,15 @@
  */
 package org.sonar.scanner.scan;
 
-import org.sonar.api.utils.MessageException;
 import com.google.common.base.Joiner;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.analysis.DefaultAnalysisMode;
 

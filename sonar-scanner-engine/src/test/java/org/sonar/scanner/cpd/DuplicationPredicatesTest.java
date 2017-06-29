@@ -22,7 +22,6 @@ package org.sonar.scanner.cpd;
 import com.google.common.base.Predicate;
 import org.junit.Test;
 import org.sonar.duplications.index.CloneGroup;
-import org.sonar.scanner.cpd.DuplicationPredicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

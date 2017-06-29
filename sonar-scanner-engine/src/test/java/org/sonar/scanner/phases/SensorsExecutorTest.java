@@ -21,7 +21,9 @@ package org.sonar.scanner.phases;
 
 import java.io.IOException;
 import java.util.Collections;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -33,7 +35,10 @@ import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.sensor.SensorStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SensorsExecutorTest {
   @Rule

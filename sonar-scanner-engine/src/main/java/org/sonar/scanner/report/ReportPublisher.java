@@ -38,7 +38,7 @@ import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
@@ -66,7 +66,7 @@ public class ReportPublisher implements Startable {
   public static final String VERBOSE_KEY = "sonar.verbose";
   public static final String METADATA_DUMP_FILENAME = "report-task.txt";
 
-  private final Settings settings;
+  private final Configuration settings;
   private final ScannerWsClient wsClient;
   private final AnalysisContextReportPublisher contextPublisher;
   private final ImmutableProjectReactor projectReactor;
@@ -78,7 +78,7 @@ public class ReportPublisher implements Startable {
   private File reportDir;
   private ScannerReportWriter writer;
 
-  public ReportPublisher(Settings settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
+  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.settings = settings;
     this.wsClient = wsClient;
@@ -135,7 +135,7 @@ public class ReportPublisher implements Startable {
   }
 
   private boolean shouldKeepReport() {
-    return settings.getBoolean(KEEP_REPORT_PROP_KEY) || settings.getBoolean(VERBOSE_KEY);
+    return settings.getBoolean(KEEP_REPORT_PROP_KEY).orElse(false) || settings.getBoolean(VERBOSE_KEY).orElse(false);
   }
 
   private File generateReportFile() {
@@ -169,7 +169,7 @@ public class ReportPublisher implements Startable {
     PostRequest.Part filePart = new PostRequest.Part(MediaTypes.ZIP, report);
     PostRequest post = new PostRequest("api/ce/submit")
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam("organization", settings.getString(CoreProperties.PROJECT_ORGANIZATION_PROPERTY))
+      .setParam("organization", settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).orElse(null))
       .setParam("projectKey", projectDefinition.getKey())
       .setParam("projectName", projectDefinition.getOriginalName())
       .setParam("projectBranch", projectDefinition.getBranch())
@@ -202,9 +202,7 @@ public class ReportPublisher implements Startable {
 
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
-      if (settings.hasKey(CoreProperties.PROJECT_ORGANIZATION_PROPERTY)) {
-        metadata.put("organization", settings.getString(CoreProperties.PROJECT_ORGANIZATION_PROPERTY));
-      }
+      settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(org -> metadata.put("organization", org));
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl);
       metadata.put("serverVersion", server.getVersion());

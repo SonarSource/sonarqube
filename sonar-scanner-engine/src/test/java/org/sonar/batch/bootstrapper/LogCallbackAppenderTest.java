@@ -23,8 +23,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.batch.bootstrapper.LogCallbackAppender;
-import org.sonar.batch.bootstrapper.LogOutput;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;

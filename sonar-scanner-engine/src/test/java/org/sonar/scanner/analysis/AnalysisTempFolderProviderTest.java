@@ -19,22 +19,19 @@
  */
 package org.sonar.scanner.analysis;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import java.io.File;
+import java.io.IOException;
 import org.junit.Before;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.TempFolder;
 
-import java.io.File;
-import java.io.IOException;
-
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AnalysisTempFolderProviderTest {
 

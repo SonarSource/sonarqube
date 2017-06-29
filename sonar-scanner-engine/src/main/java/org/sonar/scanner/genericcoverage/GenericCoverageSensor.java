@@ -29,8 +29,8 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -63,9 +63,9 @@ public class GenericCoverageSensor extends Initializer implements Sensor {
   @Deprecated
   static final String OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.overallReportPaths";
 
-  private final Settings settings;
+  private final Configuration settings;
 
-  public GenericCoverageSensor(Settings settings) {
+  public GenericCoverageSensor(Configuration settings) {
     this.settings = settings;
   }
 
@@ -95,7 +95,7 @@ public class GenericCoverageSensor extends Initializer implements Sensor {
     loadDeprecated(reportPaths, OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
     loadDeprecated(reportPaths, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
     if (!reportPaths.isEmpty()) {
-      settings.setProperty(REPORT_PATHS_PROPERTY_KEY, reportPaths.stream().collect(Collectors.joining(",")));
+      // settings.setProperty(REPORT_PATHS_PROPERTY_KEY, reportPaths.stream().collect(Collectors.joining(",")));
     }
   }
 

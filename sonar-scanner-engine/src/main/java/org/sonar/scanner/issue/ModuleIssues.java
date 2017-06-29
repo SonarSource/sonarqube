@@ -20,7 +20,6 @@
 package org.sonar.scanner.issue;
 
 import com.google.common.base.Strings;
-
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;

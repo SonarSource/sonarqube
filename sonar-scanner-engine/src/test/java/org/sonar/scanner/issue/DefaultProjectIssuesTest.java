@@ -20,17 +20,14 @@
 package org.sonar.scanner.issue;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.scanner.issue.DefaultProjectIssues;
-import org.sonar.scanner.issue.IssueCache;
-import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
-
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Test;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.scanner.issue.tracking.TrackedIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

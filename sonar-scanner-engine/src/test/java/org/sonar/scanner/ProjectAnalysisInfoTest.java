@@ -19,27 +19,25 @@
  */
 package org.sonar.scanner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ProjectAnalysisInfoTest {
   @Test
   public void testSimpleDate() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.appendProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2017-01-01");
     settings.appendProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "version");
     System2 system = mock(System2.class);
-    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings, system);
+    ProjectAnalysisInfo info = new ProjectAnalysisInfo(settings.asConfig(), system);
     info.start();
     LocalDate date = LocalDate.of(2017, 1, 1);
 

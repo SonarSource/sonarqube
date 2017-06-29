@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
-import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.scanner.bootstrap.PluginInstaller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

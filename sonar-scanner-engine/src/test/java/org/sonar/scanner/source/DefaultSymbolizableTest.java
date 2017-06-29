@@ -29,7 +29,6 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
-import org.sonar.scanner.source.DefaultSymbolizable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

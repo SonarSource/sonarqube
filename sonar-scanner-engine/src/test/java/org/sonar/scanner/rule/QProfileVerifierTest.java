@@ -27,8 +27,7 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static org.mockito.Mockito.mock;
@@ -45,7 +44,7 @@ public class QProfileVerifierTest {
 
   private DefaultFileSystem fs;
   private ModuleQProfiles profiles;
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   @Before
   public void before() throws Exception {
@@ -62,7 +61,7 @@ public class QProfileVerifierTest {
     fs.add(new TestInputFileBuilder("foo", "src/Bar.java").setLanguage("java").build());
     fs.add(new TestInputFileBuilder("foo", "src/Baz.cbl").setLanguage("cobol").build());
 
-    QProfileVerifier profileLogger = new QProfileVerifier(settings, fs, profiles);
+    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), fs, profiles);
     Logger logger = mock(Logger.class);
     profileLogger.execute(logger);
 
@@ -76,7 +75,7 @@ public class QProfileVerifierTest {
 
     settings.setProperty("sonar.profile", "Unknown");
 
-    QProfileVerifier profileLogger = new QProfileVerifier(settings, fs, profiles);
+    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), fs, profiles);
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("sonar.profile was set to 'Unknown' but didn't match any profile for any language. Please check your configuration.");
@@ -88,7 +87,7 @@ public class QProfileVerifierTest {
   public void should_not_fail_if_no_language_on_project() {
     settings.setProperty("sonar.profile", "Unknown");
 
-    QProfileVerifier profileLogger = new QProfileVerifier(settings, fs, profiles);
+    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), fs, profiles);
 
     profileLogger.execute();
 
@@ -100,7 +99,7 @@ public class QProfileVerifierTest {
 
     settings.setProperty("sonar.profile", "My Java profile");
 
-    QProfileVerifier profileLogger = new QProfileVerifier(settings, fs, profiles);
+    QProfileVerifier profileLogger = new QProfileVerifier(settings.asConfig(), fs, profiles);
 
     profileLogger.execute();
   }
