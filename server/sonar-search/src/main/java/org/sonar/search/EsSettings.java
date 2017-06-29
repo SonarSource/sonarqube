@@ -186,7 +186,7 @@ public class EsSettings implements EsSettingsMBean {
       .put("discovery.initial_state_timeout", initialStateTimeOut)
       .put("cluster.name", getClusterName())
       .put("cluster.routing.allocation.awareness.attributes", "rack_id")
-      .put("node.rack_id", nodeName)
+      .put("node.attr.rack_id", nodeName)
       .put("node.name", nodeName)
       .put("node.data", true)
       .put("node.master", true);
