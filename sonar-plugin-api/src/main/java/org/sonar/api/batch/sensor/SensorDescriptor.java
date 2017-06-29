@@ -19,7 +19,9 @@
  */
 package org.sonar.api.batch.sensor;
 
+import java.util.function.Predicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.Configuration;
 
 /**
  * Describe what a {@link Sensor} is doing. Information may be used by the platform
@@ -70,13 +72,17 @@ public interface SensorDescriptor {
   /**
    * Property this {@link Sensor} depends on. Used by the platform to skip execution of the {@link Sensor} when
    * property is not set.
+   * @deprecated since 6.5 use {@link #onlyWhenConfiguration(Predicate)}
    */
+  @Deprecated
   SensorDescriptor requireProperty(String... propertyKey);
 
   /**
    * List properties this {@link Sensor} depends on. Used by the platform to skip execution of the {@link Sensor} when
    * property is not set.
+   * @deprecated since 6.5 use {@link #onlyWhenConfiguration(Predicate)}
    */
+  @Deprecated
   SensorDescriptor requireProperties(String... propertyKeys);
 
   /**
@@ -84,4 +90,10 @@ public interface SensorDescriptor {
    * @since 6.4
    */
   SensorDescriptor global();
+
+  /**
+   * Predicate that will be evaluated on current module/project {@link Configuration} by the platform to decide if execution of the {@link Sensor} should be skipped.
+   * @since 6.5
+   */
+  SensorDescriptor onlyWhenConfiguration(Predicate<Configuration> predicate);
 }

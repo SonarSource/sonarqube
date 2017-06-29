@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -35,9 +34,10 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static java.util.Arrays.asList;
 import static org.sonar.api.CoreProperties.CATEGORY_CODE_COVERAGE;
 
-public class GenericCoverageSensor extends Initializer implements Sensor {
+public class GenericCoverageSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(GenericCoverageSensor.class);
 
@@ -63,10 +63,10 @@ public class GenericCoverageSensor extends Initializer implements Sensor {
   @Deprecated
   static final String OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY = "sonar.genericcoverage.overallReportPaths";
 
-  private final Configuration settings;
+  private final Configuration config;
 
-  public GenericCoverageSensor(Configuration settings) {
-    this.settings = settings;
+  public GenericCoverageSensor(Configuration config) {
+    this.config = config;
   }
 
   public static ImmutableList<PropertyDefinition> properties() {
@@ -82,39 +82,27 @@ public class GenericCoverageSensor extends Initializer implements Sensor {
 
   }
 
-  /**
-   * Use an initializer to migrate old properties to the new one before Sensor phase so that
-   * Sensor will not be executed if there is no report (thanks to SensorDescriptor.requireProperty(REPORT_PATH_PROPERTY_KEY))
-   */
-  @Override
-  public void execute() {
-    Set<String> reportPaths = new LinkedHashSet<>();
-    reportPaths.addAll(Arrays.asList(settings.getStringArray(REPORT_PATHS_PROPERTY_KEY)));
-    loadDeprecated(reportPaths, OLD_REPORT_PATH_PROPERTY_KEY);
-    loadDeprecated(reportPaths, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    loadDeprecated(reportPaths, OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    loadDeprecated(reportPaths, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
-    if (!reportPaths.isEmpty()) {
-      // settings.setProperty(REPORT_PATHS_PROPERTY_KEY, reportPaths.stream().collect(Collectors.joining(",")));
-    }
-  }
-
   private void loadDeprecated(Set<String> reportPaths, String propertyKey) {
-    if (settings.hasKey(propertyKey)) {
+    if (config.hasKey(propertyKey)) {
       LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", propertyKey, REPORT_PATHS_PROPERTY_KEY);
-      reportPaths.addAll(Arrays.asList(settings.getStringArray(propertyKey)));
+      reportPaths.addAll(Arrays.asList(config.getStringArray(propertyKey)));
     }
   }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("Generic Coverage Report")
-      .requireProperty(REPORT_PATHS_PROPERTY_KEY);
+      .onlyWhenConfiguration(c -> asList(REPORT_PATHS_PROPERTY_KEY, OLD_REPORT_PATH_PROPERTY_KEY, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY,
+        OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY)
+          .stream()
+          .anyMatch(c::hasKey));
   }
 
   @Override
   public void execute(SensorContext context) {
-    for (String reportPath : settings.getStringArray(REPORT_PATHS_PROPERTY_KEY)) {
+    Set<String> reportPaths = loadReportPaths();
+
+    for (String reportPath : reportPaths) {
       File reportFile = context.fileSystem().resolvePath(reportPath);
       LOG.info("Parsing {}", reportFile);
       GenericCoverageReportParser parser = new GenericCoverageReportParser();
@@ -126,6 +114,16 @@ public class GenericCoverageSensor extends Initializer implements Sensor {
       }
     }
 
+  }
+
+  Set<String> loadReportPaths() {
+    Set<String> reportPaths = new LinkedHashSet<>();
+    reportPaths.addAll(Arrays.asList(config.getStringArray(REPORT_PATHS_PROPERTY_KEY)));
+    loadDeprecated(reportPaths, OLD_REPORT_PATH_PROPERTY_KEY);
+    loadDeprecated(reportPaths, OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
+    loadDeprecated(reportPaths, OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
+    loadDeprecated(reportPaths, OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY);
+    return reportPaths;
   }
 
 }

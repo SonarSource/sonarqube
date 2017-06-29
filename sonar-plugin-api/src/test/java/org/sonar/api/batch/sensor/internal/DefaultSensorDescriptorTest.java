@@ -21,6 +21,7 @@ package org.sonar.api.batch.sensor.internal;
 
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,13 +34,17 @@ public class DefaultSensorDescriptorTest {
       .name("Foo")
       .onlyOnLanguage("java")
       .onlyOnFileType(InputFile.Type.MAIN)
-      .requireProperty("sonar.foo.reportPath")
+      .requireProperty("sonar.foo.reportPath", "sonar.foo.reportPath2")
       .createIssuesForRuleRepository("squid-java");
 
     assertThat(descriptor.name()).isEqualTo("Foo");
     assertThat(descriptor.languages()).containsOnly("java");
     assertThat(descriptor.type()).isEqualTo(InputFile.Type.MAIN);
-    assertThat(descriptor.properties()).containsOnly("sonar.foo.reportPath");
+    MapSettings settings = new MapSettings();
+    settings.setProperty("sonar.foo.reportPath", "foo");
+    assertThat(descriptor.configurationPredicate().test(settings.asConfig())).isFalse();
+    settings.setProperty("sonar.foo.reportPath2", "foo");
+    assertThat(descriptor.configurationPredicate().test(settings.asConfig())).isTrue();
     assertThat(descriptor.ruleRepositories()).containsOnly("squid-java");
   }
 

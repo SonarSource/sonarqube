@@ -19,10 +19,10 @@
  */
 package org.sonar.scanner.genericcoverage;
 
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -36,19 +36,19 @@ public class GenericCoverageSensorTest {
 
   @Test
   public void migrateOldProperties() {
-    Settings settings = new MapSettings(new PropertyDefinitions(GenericCoverageSensor.properties()));
+    MapSettings settings = new MapSettings(new PropertyDefinitions(GenericCoverageSensor.properties()));
     settings.setProperty(GenericCoverageSensor.OLD_REPORT_PATH_PROPERTY_KEY, "old.xml");
     settings.setProperty(GenericCoverageSensor.OLD_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old1.xml,old2.xml");
     settings.setProperty(GenericCoverageSensor.OLD_IT_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old3.xml,old4.xml,old.xml");
     settings.setProperty(GenericCoverageSensor.OLD_OVERALL_COVERAGE_REPORT_PATHS_PROPERTY_KEY, "old5.xml,old6.xml");
-    new GenericCoverageSensor(settings).execute();
+    Set<String> reportPaths = new GenericCoverageSensor(settings.asConfig()).loadReportPaths();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains(
       "Property 'sonar.genericcoverage.reportPath' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
       "Property 'sonar.genericcoverage.reportPaths' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
       "Property 'sonar.genericcoverage.itReportPaths' is deprecated. Please use 'sonar.coverageReportPaths' instead.",
       "Property 'sonar.genericcoverage.overallReportPaths' is deprecated. Please use 'sonar.coverageReportPaths' instead.");
 
-    assertThat(settings.getStringArray(GenericCoverageSensor.REPORT_PATHS_PROPERTY_KEY)).containsOnly(
+    assertThat(reportPaths).containsOnly(
       "old.xml", "old1.xml", "old2.xml", "old3.xml", "old4.xml", "old5.xml", "old6.xml");
   }
 
