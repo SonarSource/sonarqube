@@ -36,6 +36,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.QualityProfiles.ShowWsResponse;
+import org.sonarqube.ws.QualityProfiles.ShowWsResponse.CompareToSonarWay;
 
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +45,7 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.QualityProfiles.ShowWsResponse.QualityProfile;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
 public class ShowActionTest {
@@ -79,6 +81,7 @@ public class ShowActionTest {
     assertThat(compareToSonarWay.isRequired()).isFalse();
     assertThat(compareToSonarWay.isInternal()).isTrue();
     assertThat(compareToSonarWay.description()).isNotEmpty();
+    assertThat(compareToSonarWay.defaultValue()).isEqualTo("false");
     assertThat(compareToSonarWay.possibleValues()).contains("true", "false");
   }
 
@@ -152,6 +155,100 @@ public class ShowActionTest {
     assertThat(result.getProfile())
       .extracting(QualityProfile::getActiveRuleCount, QualityProfile::getActiveDeprecatedRuleCount, QualityProfile::getProjectCount)
       .containsExactly(13L, 3L, 7L);
+  }
+
+  @Test
+  public void compare_to_sonar_way_profile() {
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+
+    CompareToSonarWay result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
+      .getCompareToSonarWay();
+
+    assertThat(result)
+      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
+      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName());
+  }
+
+  @Test
+  public void no_comparison_when_sonar_way_does_not_exist() {
+    QProfileDto anotherSonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+
+    ShowWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
+
+    assertThat(result.hasCompareToSonarWay()).isFalse();
+  }
+
+  @Test
+  public void no_comparison_when_profile_is_built_in() {
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto anotherBuiltInProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setLanguage(XOO1.getKey()));
+
+    ShowWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, anotherBuiltInProfile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
+
+    assertThat(result.hasCompareToSonarWay()).isFalse();
+  }
+
+  @Test
+  public void no_comparison_if_sonar_way_is_not_built_in() {
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(false).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+
+    ShowWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
+
+    assertThat(result.hasCompareToSonarWay()).isFalse();
+  }
+
+  @Test
+  public void no_comparison_when_param_is_false() {
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+
+    ShowWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "false"));
+
+    assertThat(result.hasCompareToSonarWay()).isFalse();
+  }
+
+  @Test
+  public void compare_to_sonarqube_way_profile() {
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+
+    CompareToSonarWay result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
+      .getCompareToSonarWay();
+
+    assertThat(result)
+      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
+      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName());
+  }
+
+  @Test
+  public void compare_to_sonar_way_over_sonarqube_way() {
+    QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
+    QProfileDto sonarQubeWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("SonarQube way").setLanguage(XOO1.getKey()));
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
+
+    CompareToSonarWay result = call(ws.newRequest()
+      .setParam(PARAM_PROFILE, profile.getKee())
+      .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
+      .getCompareToSonarWay();
+
+    assertThat(result)
+      .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName)
+      .containsExactly(sonarWayProfile.getKee(), sonarWayProfile.getName());
   }
 
   @Test
