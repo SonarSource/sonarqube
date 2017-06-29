@@ -19,16 +19,19 @@
  */
 package org.sonar.search;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import org.apache.lucene.util.StringHelper;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
@@ -40,8 +43,6 @@ public class SearchServer implements Monitored {
   // VisibleForTesting
   protected static Logger LOGGER = LoggerFactory.getLogger(SearchServer.class);
 
-  private static final String MIMINUM_MASTER_NODES = "discovery.zen.minimum_master_nodes";
-  private static final String INITIAL_STATE_TIMEOUT = "discovery.initial_state_timeout";
   private final EsSettings settings;
   Process p;
 
@@ -53,65 +54,98 @@ public class SearchServer implements Monitored {
 
   @Override
   public void start() {
-    //Jmx.register(EsSettingsMBean.OBJECT_NAME, settings);
-    initBootstrap();
-    Settings esSettings = settings.build();
-    if (esSettings.getAsInt(MIMINUM_MASTER_NODES, 1) >= 2) {
-      LOGGER.info("Elasticsearch is waiting {} for {} node(s) to be up to start.",
-        esSettings.get(INITIAL_STATE_TIMEOUT),
-        esSettings.get(MIMINUM_MASTER_NODES));
+    List<String> command = new ArrayList<>();
+    command.add("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/elasticsearch");
+    Map<String, String> settingsMap = settings.build();
+    settingsMap.entrySet().stream()
+      .filter(entry -> !"path.home".equals(entry.getKey()))
+      .forEach(entry -> command.add("-E" + entry.getKey() + "=" + entry.getValue()));
+    System.out.println(command.stream().collect(Collectors.joining(" ")));
+    ProcessBuilder builder = new ProcessBuilder(command)
+      .directory(new File("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/"));
+    builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+    builder.redirectErrorStream(true);
+    try {
+      p = builder.start();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+
+    CountDownLatch latch = new CountDownLatch(2);
+
+    new Thread(() -> {
+      InputStream inputStream = p.getInputStream();
+      InputStreamReader reader1 = new InputStreamReader(inputStream);
+      BufferedReader reader = new BufferedReader(reader1);
+      String line;
+      try {
+        while ((line = reader.readLine()) != null) {
+          System.out.println(line);
+          if (line.contains(" publish_address ")) {
+            latch.countDown();
+          }
+          if (line.contains(" started")) {
+            latch.countDown();
+          }
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }).start();
 
     try {
-      ProcessBuilder builder = new ProcessBuilder("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/elasticsearch")
-        .directory(new File("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/"));
-      builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
-      builder.redirectErrorStream(true);
-      Process p = builder.start();
-      p.destroy();
+      latch.await();
+    } catch (InterruptedException e) {
+      // no action required
     }
-    catch (Exception e) {
-      throw new RuntimeException("Failed to start ES", e);
+
+    String urlString = "http://localhost:55394/_cluster/health?wait_for_status=yellow&timeout=30s";
+    try {
+      URL url = new URL(urlString);
+      url.openConnection();
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-    configureIndexDefaultSettings(settings);
+
+//    Settings esSettings = settings.build();
   }
 
-  private void configureIndexDefaultSettings(EsSettings settings) {
-    Settings.Builder indexSettings = Settings.builder();
-    settings.configureIndexDefaults(indexSettings);
-//    node.client().admin().indices().putTemplate(new PutIndexTemplateRequest().settings(indexSettings));
-  }
-
-  // copied from https://github.com/elastic/elasticsearch/blob/v2.3.3/core/src/main/java/org/elasticsearch/bootstrap/Bootstrap.java
-  private static void initBootstrap() {
-    // init lucene random seed. it will use /dev/urandom where available:
-    StringHelper.randomId();
-  }
+//  private void configureIndexDefaultSettings(EsSettings settings, PreBuiltTransportClient client) {
+//    Settings.Builder indexSettings = Settings.builder();
+//    settings.configureIndexDefaults(indexSettings);
+//    client.admin().indices().putTemplate(new PutIndexTemplateRequest().settings(indexSettings));
+//  }
 
   @Override
   public Status getStatus() {
+    String urlString = "http://localhost:55394/_cluster/health";
     try {
-      Thread.sleep(3000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    try (TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)) {
-      client
-        .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
-
-      boolean esStatus = client.admin().cluster().prepareHealth()
-        .setWaitForYellowStatus()
-        .setTimeout(TimeValue.timeValueSeconds(30L))
-        .get()
-        .getStatus() != ClusterHealthStatus.RED;
-      if (esStatus) {
-        return Status.OPERATIONAL;
+      URL url = new URL(urlString);
+      URLConnection urlConnection = url.openConnection();
+      InputStream inputStream = urlConnection.getInputStream();
+      String line;
+      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+      while ((line = reader.readLine()) != null) {
+        if (line.contains("\"status\"")) {
+          if (line.contains("\"red\"")) {
+            return Status.DOWN;
+          }
+          if (line.contains("\"yellow\"")) {
+            return Status.OPERATIONAL;
+          }
+          if (line.contains("\"green\"")) {
+            return Status.OPERATIONAL;
+          }
+        }
       }
-    } catch (UnknownHostException e) {
+    } catch (MalformedURLException e) {
       e.printStackTrace();
-      // no action required
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-    return Status.DOWN;
+    return Status.FAILED;
   }
 
   @Override
@@ -124,7 +158,6 @@ public class SearchServer implements Monitored {
         e.printStackTrace();
       }
     }
-
   }
 
   @Override
@@ -132,7 +165,6 @@ public class SearchServer implements Monitored {
     if (p != null) {
       p.destroyForcibly();
     }
-
     //Jmx.unregister(EsSettingsMBean.OBJECT_NAME);
   }
 

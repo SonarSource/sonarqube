@@ -23,12 +23,12 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessProperties;
@@ -74,16 +74,16 @@ public class EsSettings implements EsSettingsMBean {
     return nodeName;
   }
 
-  Settings build() {
-    Settings.Builder builder = Settings.builder();
+  Map<String, String> build() {
+    Map<String, String> builder = new HashMap<>();
     configureFileSystem(builder);
     configureNetwork(builder);
     configureCluster(builder);
     configureMarvel(builder);
-    return builder.build();
+    return builder;
   }
 
-  private void configureFileSystem(Settings.Builder builder) {
+  private void configureFileSystem(Map<String, String> builder) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
     File dataDir;
     File logDir;
@@ -98,7 +98,7 @@ public class EsSettings implements EsSettingsMBean {
     builder.put("path.data", dataDir.getAbsolutePath());
 
     String tempPath = props.value(ProcessProperties.PATH_TEMP);
-    builder.put("path.home", new File(tempPath, "es"));
+    builder.put("path.home", new File(tempPath, "es").getAbsolutePath());
 
     // log dir
     String logPath = props.value(ProcessProperties.PATH_LOGS);
@@ -110,31 +110,30 @@ public class EsSettings implements EsSettingsMBean {
     builder.put("path.logs", logDir.getAbsolutePath());
   }
 
-  private void configureNetwork(Settings.Builder builder) {
+  private void configureNetwork(Map<String, String> builder) {
     InetAddress host = readHost();
     int port = Integer.parseInt(props.nonNullValue(ProcessProperties.SEARCH_PORT));
     LOGGER.info("Elasticsearch listening on {}:{}", host, port);
 
-    builder
-      .put("transport.tcp.port", port)
-      .put("transport.host", host.getHostAddress())
-      .put("network.host", host.getHostAddress());
+    builder.put("transport.tcp.port", String.valueOf(port));
+    builder.put("transport.host", String.valueOf(host.getHostAddress()));
+    builder.put("network.host", String.valueOf(host.getHostAddress()));
 
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
-    builder.put("network.tcp.reuse_address", true);
+    builder.put("network.tcp.reuse_address", String.valueOf(true));
 
     int httpPort = getHttpPort();
     if (httpPort < 0) {
       // standard configuration
-      builder.put("http.enabled", false);
+      builder.put("http.enabled", String.valueOf(false));
     } else {
       LOGGER.warn("Elasticsearch HTTP connector is enabled on port {}. MUST NOT BE USED FOR PRODUCTION", httpPort);
       // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
-      builder.put("http.cors.enabled", true)
-        .put("http.cors.allow-origin", "*")
-        .put("http.enabled", true)
-        .put("http.host", host.getHostAddress())
-        .put("http.port", httpPort);
+      builder.put("http.cors.enabled", String.valueOf(true));
+      builder.put("http.cors.allow-origin", "*");
+      builder.put("http.enabled", String.valueOf(true));
+      builder.put("http.host", host.getHostAddress());
+      builder.put("http.port", String.valueOf(httpPort));
     }
   }
 
@@ -147,17 +146,16 @@ public class EsSettings implements EsSettingsMBean {
     }
   }
 
-  void configureIndexDefaults(Settings.Builder builder) {
+  void configureIndexDefaults(Map<String, String> builder) {
     configureIndexDefaultsForCluster(builder);
-    builder
-      .put("index.number_of_shards", "1")
-      .put("index.refresh_interval", "30s")
-      .put("action.auto_create_index", false)
-      .put("index.mapper.dynamic", false);
+    builder.put("index.number_of_shards", "1");
+    builder.put("index.refresh_interval", "30s");
+    builder.put("action.auto_create_index", String.valueOf(false));
+    builder.put("index.mapper.dynamic", String.valueOf(false));
   }
 
-  private void configureIndexDefaultsForCluster(Settings.Builder builder) {
-    builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, computeReplicationFactor());
+  private void configureIndexDefaultsForCluster(Map<String, String> builder) {
+    builder.put("index.number_of_replicas", String.valueOf(computeReplicationFactor()));
   }
 
   private int computeReplicationFactor() {
@@ -167,7 +165,7 @@ public class EsSettings implements EsSettingsMBean {
     return 0;
   }
 
-  private void configureCluster(Settings.Builder builder) {
+  private void configureCluster(Map<String, String> builder) {
     // Default value in a standalone mode, not overridable
 
     int minimumMasterNodes = 1;
@@ -182,17 +180,17 @@ public class EsSettings implements EsSettingsMBean {
       builder.put("discovery.zen.ping.unicast.hosts", hosts);
     }
 
-    builder.put("discovery.zen.minimum_master_nodes", minimumMasterNodes)
-      .put("discovery.initial_state_timeout", initialStateTimeOut)
-      .put("cluster.name", getClusterName())
-      .put("cluster.routing.allocation.awareness.attributes", "rack_id")
-      .put("node.attr.rack_id", nodeName)
-      .put("node.name", nodeName)
-      .put("node.data", true)
-      .put("node.master", true);
+    builder.put("discovery.zen.minimum_master_nodes", String.valueOf(minimumMasterNodes));
+    builder.put("discovery.initial_state_timeout", initialStateTimeOut);
+    builder.put("cluster.name", getClusterName());
+    builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
+    builder.put("node.attr.rack_id", nodeName);
+    builder.put("node.name", nodeName);
+    builder.put("node.data", String.valueOf(true));
+    builder.put("node.master", String.valueOf(true));
   }
 
-  private void configureMarvel(Settings.Builder builder) {
+  private void configureMarvel(Map<String, String> builder) {
     Set<String> marvels = new TreeSet<>();
     marvels.addAll(Arrays.asList(StringUtils.split(props.value(PROP_MARVEL_HOSTS, ""), ",")));
 
