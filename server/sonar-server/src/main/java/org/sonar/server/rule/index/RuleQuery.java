@@ -43,6 +43,7 @@ public class RuleQuery {
   private Collection<RuleType> types;
   private Boolean activation;
   private QProfileDto profile;
+  private QProfileDto compareToQProfile;
   private Collection<String> inheritance;
   private Collection<String> activeSeverities;
   private String templateKey;
@@ -270,6 +271,16 @@ public class RuleQuery {
 
   public RuleQuery setOrganization(OrganizationDto o) {
     this.organization = o;
+    return this;
+  }
+
+  @CheckForNull
+  public QProfileDto getCompareToQProfile() {
+    return compareToQProfile;
+  }
+
+  public RuleQuery setCompareToQProfile(@Nullable QProfileDto compareToQProfile) {
+    this.compareToQProfile = compareToQProfile;
     return this;
   }
 }

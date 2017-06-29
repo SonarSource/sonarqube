@@ -35,6 +35,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.QualityProfiles.ShowWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowWsResponse.CompareToSonarWay;
 import org.sonarqube.ws.QualityProfiles.ShowWsResponse.QualityProfile;
@@ -57,11 +60,13 @@ public class ShowAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileWsSupport qProfileWsSupport;
   private final Languages languages;
+  private final RuleIndex ruleIndex;
 
-  public ShowAction(DbClient dbClient, QProfileWsSupport qProfileWsSupport, Languages languages) {
+  public ShowAction(DbClient dbClient, QProfileWsSupport qProfileWsSupport, Languages languages, RuleIndex ruleIndex) {
     this.dbClient = dbClient;
     this.qProfileWsSupport = qProfileWsSupport;
     this.languages = languages;
+    this.ruleIndex = ruleIndex;
   }
 
   @Override
@@ -132,9 +137,15 @@ public class ShowAction implements QProfileWsAction {
       return null;
     }
 
+    long missingRuleCount = ruleIndex.search(
+      new RuleQuery().setQProfile(profile).setActivation(false).setCompareToQProfile(sonarWay),
+      new SearchOptions().setLimit(1))
+      .getTotal();
+
     return CompareToSonarWay.newBuilder()
       .setProfile(sonarWay.getKee())
       .setProfileName(sonarWay.getName())
+      .setMissingRuleCount(missingRuleCount)
       .build();
   }
 

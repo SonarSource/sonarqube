@@ -12,10 +12,5 @@
     "projectCount": 7,
     "rulesUpdatedAt": "2016-12-22T19:10:03+0100",
     "lastUsed": "2016-12-01T19:10:03+0100"
-  },
-  "compareToSonarWay": {
-    "profile": "iU5OvuD2FLz",
-    "profileName": "Sonar way",
-    "missingRuleCount": 4
   }
 }
