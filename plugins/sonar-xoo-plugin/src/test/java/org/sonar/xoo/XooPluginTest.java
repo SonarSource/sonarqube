@@ -36,7 +36,7 @@ public class XooPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarLint(Version.parse("5.4"));
     Plugin.Context context = new Plugin.Context(runtime);
     new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(44).doesNotContain(CpdTokenizerSensor.class);
+    assertThat(context.getExtensions()).hasSize(46).doesNotContain(CpdTokenizerSensor.class);
   }
 
   @Test
@@ -44,6 +44,6 @@ public class XooPluginTest {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("5.5"), SonarQubeSide.SCANNER);
     Plugin.Context context = new Plugin.Context(runtime);
     new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(47).contains(CpdTokenizerSensor.class);
+    assertThat(context.getExtensions()).hasSize(49).contains(CpdTokenizerSensor.class);
   }
 }
