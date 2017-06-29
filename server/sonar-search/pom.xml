@@ -20,8 +20,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>transport</artifactId>
+      <version>5.0.0</version>
     </dependency>
     <dependency>
       <groupId>net.java.dev.jna</groupId>

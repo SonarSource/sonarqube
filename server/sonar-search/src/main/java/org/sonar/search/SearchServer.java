@@ -19,17 +19,18 @@
  */
 package org.sonar.search;
 
-import java.io.IOException;
+import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.apache.lucene.util.StringHelper;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeValidationException;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.Jmx;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
@@ -42,7 +43,7 @@ public class SearchServer implements Monitored {
   private static final String MIMINUM_MASTER_NODES = "discovery.zen.minimum_master_nodes";
   private static final String INITIAL_STATE_TIMEOUT = "discovery.initial_state_timeout";
   private final EsSettings settings;
-  private Node node;
+  Process p;
 
   public SearchServer(Props props) {
     this.settings = new EsSettings(props);
@@ -52,7 +53,7 @@ public class SearchServer implements Monitored {
 
   @Override
   public void start() {
-    Jmx.register(EsSettingsMBean.OBJECT_NAME, settings);
+    //Jmx.register(EsSettingsMBean.OBJECT_NAME, settings);
     initBootstrap();
     Settings esSettings = settings.build();
     if (esSettings.getAsInt(MIMINUM_MASTER_NODES, 1) >= 2) {
@@ -60,10 +61,16 @@ public class SearchServer implements Monitored {
         esSettings.get(INITIAL_STATE_TIMEOUT),
         esSettings.get(MIMINUM_MASTER_NODES));
     }
-    node = new Node(settings.build());
+
     try {
-      node.start();
-    } catch (NodeValidationException e) {
+      ProcessBuilder builder = new ProcessBuilder("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/elasticsearch")
+        .directory(new File("/Users/danielschwarz/SonarSource/batches/elasticsearch/elasticsearch-5.0.0/bin/"));
+      builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+      builder.redirectErrorStream(true);
+      Process p = builder.start();
+      p.destroy();
+    }
+    catch (Exception e) {
       throw new RuntimeException("Failed to start ES", e);
     }
     configureIndexDefaultSettings(settings);
@@ -72,7 +79,7 @@ public class SearchServer implements Monitored {
   private void configureIndexDefaultSettings(EsSettings settings) {
     Settings.Builder indexSettings = Settings.builder();
     settings.configureIndexDefaults(indexSettings);
-    node.client().admin().indices().putTemplate(new PutIndexTemplateRequest().settings(indexSettings));
+//    node.client().admin().indices().putTemplate(new PutIndexTemplateRequest().settings(indexSettings));
   }
 
   // copied from https://github.com/elastic/elasticsearch/blob/v2.3.3/core/src/main/java/org/elasticsearch/bootstrap/Bootstrap.java
@@ -83,39 +90,50 @@ public class SearchServer implements Monitored {
 
   @Override
   public Status getStatus() {
-    boolean esStatus = node != null && node.client().admin().cluster().prepareHealth()
-      .setWaitForYellowStatus()
-      .setTimeout(TimeValue.timeValueSeconds(30L))
-      .get()
-      .getStatus() != ClusterHealthStatus.RED;
-    if (esStatus) {
-      return Status.OPERATIONAL;
+    try {
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    try (TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)) {
+      client
+        .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
+
+      boolean esStatus = client.admin().cluster().prepareHealth()
+        .setWaitForYellowStatus()
+        .setTimeout(TimeValue.timeValueSeconds(30L))
+        .get()
+        .getStatus() != ClusterHealthStatus.RED;
+      if (esStatus) {
+        return Status.OPERATIONAL;
+      }
+    } catch (UnknownHostException e) {
+      e.printStackTrace();
+      // no action required
     }
     return Status.DOWN;
   }
 
   @Override
   public void awaitStop() {
-    try {
-      while (node != null && !node.isClosed()) {
-        Thread.sleep(200L);
+    if (p != null) {
+      p.destroy();
+      try {
+        p.waitFor();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-    } catch (InterruptedException e) {
-      // Restore the interrupted status
-      Thread.currentThread().interrupt();
     }
+
   }
 
   @Override
   public void stop() {
-    if (node != null && !node.isClosed()) {
-      try {
-        node.close();
-      } catch (IOException e) {
-        LOGGER.error("Failed to stop ES cleanly", e);
-      }
+    if (p != null) {
+      p.destroyForcibly();
     }
-    Jmx.unregister(EsSettingsMBean.OBJECT_NAME);
+
+    //Jmx.unregister(EsSettingsMBean.OBJECT_NAME);
   }
 
   public static void main(String... args) {
