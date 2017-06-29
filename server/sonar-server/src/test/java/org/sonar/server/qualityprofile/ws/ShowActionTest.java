@@ -43,8 +43,9 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.QualityProfiles.ShowWsResponse;
-import org.sonarqube.ws.QualityProfiles.ShowWsResponse.CompareToSonarWay;
+import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.QualityProfiles.ShowResponse;
+import org.sonarqube.ws.QualityProfiles.ShowResponse.CompareToSonarWay;
 
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,7 @@ import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.QualityProfiles.ShowWsResponse.QualityProfile;
+import static org.sonarqube.ws.QualityProfiles.ShowResponse.QualityProfile;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
@@ -103,7 +104,7 @@ public class ShowActionTest {
   public void profile_info() {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
-    ShowWsResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
+    QualityProfiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
 
     assertThat(result.getProfile())
       .extracting(QualityProfile::getKey, QualityProfile::getName, QualityProfile::getIsBuiltIn, QualityProfile::getLanguage, QualityProfile::getLanguageName,
@@ -116,7 +117,7 @@ public class ShowActionTest {
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
     db.qualityProfiles().setAsDefault(profile);
 
-    ShowWsResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
+    QualityProfiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
 
     assertThat(result.getProfile().getIsDefault()).isTrue();
   }
@@ -127,7 +128,7 @@ public class ShowActionTest {
     QProfileDto defaultProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
     db.qualityProfiles().setAsDefault(defaultProfile);
 
-    ShowWsResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
+    ShowResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
 
     assertThat(result.getProfile().getIsDefault()).isFalse();
   }
@@ -141,7 +142,7 @@ public class ShowActionTest {
       .setLastUsed(time)
       .setUserUpdatedAt(time));
 
-    ShowWsResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
+    QualityProfiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
 
     assertThat(result.getProfile().getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+0100");
     assertThat(parseDateTime(result.getProfile().getLastUsed()).getTime()).isEqualTo(time);
@@ -164,7 +165,7 @@ public class ShowActionTest {
       .mapToObj(i -> db.components().insertPrivateProject())
       .forEach(project -> db.qualityProfiles().associateWithProject(project, profile));
 
-    ShowWsResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
+    QualityProfiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_PROFILE, profile.getKee()));
 
     assertThat(result.getProfile())
       .extracting(QualityProfile::getActiveRuleCount, QualityProfile::getActiveDeprecatedRuleCount, QualityProfile::getProjectCount)
@@ -227,7 +228,7 @@ public class ShowActionTest {
       p -> p.setIsBuiltIn(true).setName("Another Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
-    ShowWsResponse result = call(ws.newRequest()
+    ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
 
@@ -239,7 +240,7 @@ public class ShowActionTest {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto anotherBuiltInProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setLanguage(XOO1.getKey()));
 
-    ShowWsResponse result = call(ws.newRequest()
+    QualityProfiles.ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, anotherBuiltInProfile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
 
@@ -251,7 +252,7 @@ public class ShowActionTest {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(false).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
-    ShowWsResponse result = call(ws.newRequest()
+    QualityProfiles.ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"));
 
@@ -263,7 +264,7 @@ public class ShowActionTest {
     QProfileDto sonarWayProfile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setIsBuiltIn(true).setName("Sonar way").setLanguage(XOO1.getKey()));
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p.setLanguage(XOO1.getKey()));
 
-    ShowWsResponse result = call(ws.newRequest()
+    QualityProfiles.ShowResponse result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "false"));
 
@@ -349,8 +350,8 @@ public class ShowActionTest {
     assertJson(result).ignoreFields("rulesUpdatedAt", "lastUsed", "userUpdatedAt").isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
-  private ShowWsResponse call(TestRequest request) {
+  private ShowResponse call(TestRequest request) {
     TestRequest wsRequest = request.setMediaType(MediaTypes.PROTOBUF);
-    return wsRequest.executeProtobuf(ShowWsResponse.class);
+    return wsRequest.executeProtobuf(QualityProfiles.ShowResponse.class);
   }
 }
