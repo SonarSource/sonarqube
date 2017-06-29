@@ -115,8 +115,7 @@ public class EsSettings implements EsSettingsMBean {
     int port = Integer.parseInt(props.nonNullValue(ProcessProperties.SEARCH_PORT));
     LOGGER.info("Elasticsearch listening on {}:{}", host, port);
 
-    // disable multicast
-    builder.put("discovery.zen.ping.multicast.enabled", "false")
+    builder
       .put("transport.tcp.port", port)
       .put("transport.host", host.getHostAddress())
       .put("network.host", host.getHostAddress());
