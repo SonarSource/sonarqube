@@ -82,6 +82,7 @@ export default BaseFacet.extend({
       obj.activation = true;
       obj[property] = $(e.currentTarget).data('value');
     }
+    obj.compareToProfile = null;
     this.options.app.state.updateFilter(obj);
   },
 
@@ -90,7 +91,7 @@ export default BaseFacet.extend({
     const compareProfile = this.options.app.state.get('query').compareToProfile;
     const profile = $(e.currentTarget).parents('.js-facet').data('value');
     if (compareProfile == null || compareProfile !== profile) {
-      this.options.app.state.updateFilter({ activation: 'true' });
+      this.options.app.state.updateFilter({ activation: 'true', compareToProfile: null });
     }
   },
 
@@ -101,7 +102,8 @@ export default BaseFacet.extend({
     if (compareProfile == null || compareProfile !== profile) {
       this.options.app.state.updateFilter({
         activation: 'false',
-        active_severities: null
+        active_severities: null,
+        compareToProfile: null
       });
     }
   },
@@ -115,6 +117,7 @@ export default BaseFacet.extend({
     const obj = { activation: null };
     const property = this.model.get('property');
     obj[property] = null;
+    obj.compareToProfile = null;
     this.options.app.state.updateFilter(obj);
   },
 
