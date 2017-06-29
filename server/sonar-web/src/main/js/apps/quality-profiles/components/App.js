@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { getQualityProfiles, getExporters } from '../../../api/quality-profiles';
+import { searchQualityProfiles, getExporters } from '../../../api/quality-profiles';
 import { sortProfiles } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import OrganizationHelmet from '../../../components/common/OrganizationHelmet';
@@ -68,7 +68,7 @@ export default class App extends React.PureComponent {
   fetchProfiles() {
     const { organization } = this.props;
     const data = organization ? { organization: organization.key } : {};
-    return getQualityProfiles(data);
+    return searchQualityProfiles(data);
   }
 
   loadData() {
