@@ -24,15 +24,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.KeyLongValue;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.KeyLongValue.toMap;
 
 public class ActiveRuleDao implements Dao {
 
@@ -166,25 +165,9 @@ public class ActiveRuleDao implements Dao {
     DatabaseUtils.executeLargeUpdates(activeRuleIds, mapper::deleteParamsByActiveRuleIds);
   }
 
-  /**
-   * Active rule on removed rule are NOT taken into account
-   */
-  public Map<String, Long> countActiveRulesByProfileUuid(DbSession dbSession, OrganizationDto organization) {
-    return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesByProfileUuid(organization.getUuid()));
-  }
-
-  public Map<String, Long> countActiveRulesForRuleStatusByProfileUuid(DbSession dbSession, OrganizationDto organization, RuleStatus ruleStatus) {
-    return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesForRuleStatusByProfileUuid(organization.getUuid(), ruleStatus));
-  }
-
-  /**
-   * Active rule on removed rule are NOT taken into account
-   */
-  public Map<String, Long> countActiveRulesForInheritanceByProfileUuid(DbSession dbSession, OrganizationDto organization, String inheritance) {
-    return KeyLongValue.toMap(
-      mapper(dbSession).countActiveRulesForInheritanceByProfileUuid(organization.getUuid(), inheritance));
+  public Map<String, Long> countActiveRulesByQuery(DbSession dbSession, ActiveRuleCountQuery query) {
+    return toMap(executeLargeInputs(query.getProfileUuids(),
+      partition -> mapper(dbSession).countActiveRulesByQuery(query.getOrganization().getUuid(), partition, query.getRuleStatus(), query.getInheritance())));
   }
 
   private static ActiveRuleMapper mapper(DbSession dbSession) {
