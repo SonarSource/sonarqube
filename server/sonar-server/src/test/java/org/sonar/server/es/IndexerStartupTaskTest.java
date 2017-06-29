@@ -87,6 +87,6 @@ public class IndexerStartupTaskTest {
   }
 
   private void emulateStartup(StartupIndexer indexer) {
-    new IndexerStartupTask(es.client(), settings, indexer).execute();
+    new IndexerStartupTask(es.client(), settings.asConfig(), indexer).execute();
   }
 }

@@ -23,7 +23,7 @@ import okhttp3.OkHttpClient;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.process.ProcessProperties;
 import org.sonarqube.ws.client.OkHttpClientBuilder;
@@ -52,15 +52,15 @@ public class OkHttpClientProvider extends ProviderAdapter {
   /**
    * @return a {@link OkHttpClient} singleton
    */
-  public OkHttpClient provide(Settings settings, SonarRuntime runtime) {
+  public OkHttpClient provide(Configuration config, SonarRuntime runtime) {
     if (okHttpClient == null) {
       OkHttpClientBuilder builder = new OkHttpClientBuilder();
       builder.setConnectTimeoutMs(DEFAULT_CONNECT_TIMEOUT_IN_MS);
       builder.setReadTimeoutMs(DEFAULT_READ_TIMEOUT_IN_MS);
       // no need to define proxy URL as system-wide proxy is used and properly
       // configured by bootstrap process.
-      builder.setProxyLogin(settings.getString(ProcessProperties.HTTP_PROXY_USER));
-      builder.setProxyPassword(settings.getString(ProcessProperties.HTTP_PROXY_PASSWORD));
+      builder.setProxyLogin(config.get(ProcessProperties.HTTP_PROXY_USER).orElse(null));
+      builder.setProxyPassword(config.get(ProcessProperties.HTTP_PROXY_PASSWORD).orElse(null));
       builder.setUserAgent(format("SonarQube/%s", runtime.getApiVersion().toString()));
       okHttpClient = builder.build();
     }

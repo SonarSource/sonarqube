@@ -63,7 +63,7 @@ public class ListActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

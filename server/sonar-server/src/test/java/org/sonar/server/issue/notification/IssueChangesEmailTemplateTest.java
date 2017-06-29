@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.db.DbTester;
@@ -40,9 +39,9 @@ public class IssueChangesEmailTemplateTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private Settings settings = new MapSettings().setProperty(SERVER_BASE_URL, "http://nemo.sonarsource.org");
+  private MapSettings settings = new MapSettings().setProperty(SERVER_BASE_URL, "http://nemo.sonarsource.org");
 
-  private IssueChangesEmailTemplate underTest = new IssueChangesEmailTemplate(db.getDbClient(), new EmailSettings(settings));
+  private IssueChangesEmailTemplate underTest = new IssueChangesEmailTemplate(db.getDbClient(), new EmailSettings(settings.asConfig()));
 
   @Test
   public void should_ignore_non_issue_changes() {

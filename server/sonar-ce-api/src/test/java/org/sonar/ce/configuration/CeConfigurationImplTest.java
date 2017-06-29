@@ -23,8 +23,7 @@ import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.Math.abs;
@@ -36,32 +35,32 @@ public class CeConfigurationImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   @Test
   public void getWorkerCount_returns_1_when_worker_property_is_not_defined() {
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(settings.asConfig()).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
   public void getWorkerCount_returns_1_when_worker_property_is_empty() {
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, "");
 
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(settings.asConfig()).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
   public void getWorkerCount_returns_1_when_worker_property_is_space_chars() {
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, "  \n  ");
 
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(settings.asConfig()).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
   public void getWorkerCount_returns_1_when_worker_property_is_1() {
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, 1);
 
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(settings.asConfig()).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
@@ -69,7 +68,7 @@ public class CeConfigurationImplTest {
     int value = abs(new Random().nextInt()) + 2;
     settings.setProperty(CE_WORKERS_COUNT_PROPERTY, value);
 
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(value);
+    assertThat(new CeConfigurationImpl(settings.asConfig()).getWorkerCount()).isEqualTo(value);
   }
 
   @Test
@@ -79,7 +78,7 @@ public class CeConfigurationImplTest {
 
     expectMessageException(value);
 
-    new CeConfigurationImpl(settings);
+    new CeConfigurationImpl(settings.asConfig());
   }
 
   @Test
@@ -89,7 +88,7 @@ public class CeConfigurationImplTest {
 
     expectMessageException(value);
 
-    new CeConfigurationImpl(settings);
+    new CeConfigurationImpl(settings.asConfig());
   }
 
   @Test
@@ -101,7 +100,7 @@ public class CeConfigurationImplTest {
     expectedException.expectMessage("value '" + value + "' of property " + CE_WORKERS_COUNT_PROPERTY + " is invalid. " +
       "It must an integer strictly greater than 0");
 
-    new CeConfigurationImpl(settings);
+    new CeConfigurationImpl(settings.asConfig());
   }
 
   private void expectMessageException(int value) {
@@ -112,13 +111,13 @@ public class CeConfigurationImplTest {
 
   @Test
   public void getCleanCeTasksInitialDelay_returns_1() {
-    assertThat(new CeConfigurationImpl(settings).getCleanCeTasksInitialDelay())
+    assertThat(new CeConfigurationImpl(settings.asConfig()).getCleanCeTasksInitialDelay())
       .isEqualTo(1L);
   }
 
   @Test
   public void getCleanCeTasksDelay_returns_10() {
-    assertThat(new CeConfigurationImpl(settings).getCleanCeTasksDelay())
+    assertThat(new CeConfigurationImpl(settings.asConfig()).getCleanCeTasksDelay())
       .isEqualTo(10L);
   }
 }

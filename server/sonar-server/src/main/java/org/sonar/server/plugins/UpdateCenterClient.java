@@ -29,7 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.WebConstants;
@@ -72,10 +72,10 @@ public class UpdateCenterClient {
   private UpdateCenter pluginCenter = null;
   private long lastRefreshDate = 0;
 
-  public UpdateCenterClient(UriReader uriReader, Settings settings) throws URISyntaxException {
+  public UpdateCenterClient(UriReader uriReader, Configuration config) throws URISyntaxException {
     this.uriReader = uriReader;
-    this.uri = new URI(settings.getString(URL_PROPERTY));
-    this.isActivated = settings.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE);
+    this.uri = new URI(config.get(URL_PROPERTY).get());
+    this.isActivated = config.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE).get();
     Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
   }
 

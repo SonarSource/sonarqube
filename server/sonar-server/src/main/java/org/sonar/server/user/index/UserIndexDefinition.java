@@ -19,7 +19,7 @@
  */
 package org.sonar.server.user.index;
 
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
@@ -42,17 +42,17 @@ public class UserIndexDefinition implements IndexDefinition {
   public static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
   public static final String FIELD_ORGANIZATION_UUIDS = "organizationUuids";
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public UserIndexDefinition(Settings settings) {
-    this.settings = settings;
+  public UserIndexDefinition(Configuration config) {
+    this.config = config;
   }
 
   @Override
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX_TYPE_USER.getIndex());
 
-    index.configureShards(settings, 1);
+    index.configureShards(config, 1);
 
     // type "user"
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_USER.getType());

@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import org.picocontainer.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.process.ProcessProperties;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -46,10 +46,10 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
   @VisibleForTesting
   protected HazelcastInstance hzInstance;
 
-  public HazelcastClientWrapperImpl(Settings settings) {
-    boolean clusterEnabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
-    String clusterName = settings.getString(ProcessProperties.CLUSTER_NAME);
-    String clusterLocalEndPoint = settings.getString(ProcessProperties.CLUSTER_LOCALENDPOINT);
+  public HazelcastClientWrapperImpl(Configuration config) {
+    boolean clusterEnabled = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
+    String clusterName = config.get(ProcessProperties.CLUSTER_NAME).orElse(null);
+    String clusterLocalEndPoint = config.get(ProcessProperties.CLUSTER_LOCALENDPOINT).orElse(null);
 
     checkState(clusterEnabled, "Cluster is not enabled");
     checkState(isNotEmpty(clusterLocalEndPoint), "LocalEndPoint have not been set");
@@ -85,7 +85,7 @@ public class HazelcastClientWrapperImpl implements Startable, HazelcastClientWra
   }
 
   @Override
-  public <K,V> Map<K,V> getReplicatedMap(String name) {
+  public <K, V> Map<K, V> getReplicatedMap(String name) {
     return hzInstance.getReplicatedMap(name);
   }
 

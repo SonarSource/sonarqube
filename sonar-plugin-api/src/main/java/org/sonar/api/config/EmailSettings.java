@@ -53,10 +53,10 @@ public class EmailSettings {
   public static final String PREFIX = "email.prefix";
   public static final String PREFIX_DEFAULT = "[SONARQUBE]";
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public EmailSettings(Settings settings) {
-    this.settings = settings;
+  public EmailSettings(Configuration config) {
+    this.config = config;
   }
 
   public String getSmtpHost() {
@@ -92,8 +92,7 @@ public class EmailSettings {
   }
 
   private String get(String key, String defaultValue) {
-    String value = settings.getString(key);
-    return value != null ? value : defaultValue;
+    return config.get(key).orElse(defaultValue);
   }
 
   /**

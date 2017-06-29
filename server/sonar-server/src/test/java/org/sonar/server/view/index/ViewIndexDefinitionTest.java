@@ -32,7 +32,7 @@ public class ViewIndexDefinitionTest {
 
   @Test
   public void define() {
-    ViewIndexDefinition def = new ViewIndexDefinition(new MapSettings());
+    ViewIndexDefinition def = new ViewIndexDefinition(new MapSettings().asConfig());
     def.define(underTest);
 
     assertThat(underTest.getIndices()).hasSize(1);

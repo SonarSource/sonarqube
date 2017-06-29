@@ -26,7 +26,7 @@ import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
@@ -45,8 +45,8 @@ public class CeHttpClient {
 
   private final File ipcSharedDir;
 
-  public CeHttpClient(Settings props) {
-    this.ipcSharedDir = new File(props.getString(PROPERTY_SHARED_PATH));
+  public CeHttpClient(Configuration config) {
+    this.ipcSharedDir = new File(config.get(PROPERTY_SHARED_PATH).get());
   }
 
   /**

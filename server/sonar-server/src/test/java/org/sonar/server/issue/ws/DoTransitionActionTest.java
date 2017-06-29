@@ -86,7 +86,7 @@ public class DoTransitionActionTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -201,14 +201,14 @@ public class DoTransitionActionTest {
   private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {
     SearchResponseData preloadedSearchResponseData = preloadedSearchResponseDataCaptor.getValue();
     assertThat(preloadedSearchResponseData.getIssues())
-        .extracting(IssueDto::getKey)
-        .containsOnly(issue.getKey());
+      .extracting(IssueDto::getKey)
+      .containsOnly(issue.getKey());
     assertThat(preloadedSearchResponseData.getRules())
-        .extracting(RuleDefinitionDto::getKey)
-        .containsOnly(issue.getRuleKey());
+      .extracting(RuleDefinitionDto::getKey)
+      .containsOnly(issue.getRuleKey());
     assertThat(preloadedSearchResponseData.getComponents())
-        .extracting(ComponentDto::uuid)
-        .containsOnly(issue.getComponentUuid(), issue.getProjectUuid());
+      .extracting(ComponentDto::uuid)
+      .containsOnly(issue.getComponentUuid(), issue.getProjectUuid());
   }
 
 }

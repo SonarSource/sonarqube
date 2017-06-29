@@ -79,6 +79,26 @@ public class MapSettings extends Settings {
     return this;
   }
 
+  @Override
+  public MapSettings setProperty(String key, String value) {
+    return (MapSettings) super.setProperty(key, value);
+  }
+
+  @Override
+  public MapSettings setProperty(String key, Integer value) {
+    return (MapSettings) super.setProperty(key, value);
+  }
+
+  @Override
+  public MapSettings setProperty(String key, Boolean value) {
+    return (MapSettings) super.setProperty(key, value);
+  }
+
+  @Override
+  public MapSettings setProperty(String key, Long value) {
+    return (MapSettings) super.setProperty(key, value);
+  }
+
   /**
    * @return a {@link Configuration} proxy on top of this existing {@link Settings} implementation. Changes are reflected in the {@link Configuration} object.
    * @since 6.5

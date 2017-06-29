@@ -27,7 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
@@ -42,16 +42,16 @@ public class DefaultAssignee {
 
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
-  private final SettingsRepository settingsRepository;
+  private final ConfigurationRepository configRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
   private boolean loaded = false;
   private String login = null;
 
-  public DefaultAssignee(DbClient dbClient, TreeRootHolder treeRootHolder, SettingsRepository settingsRepository, AnalysisMetadataHolder analysisMetadataHolder) {
+  public DefaultAssignee(DbClient dbClient, TreeRootHolder treeRootHolder, ConfigurationRepository configRepository, AnalysisMetadataHolder analysisMetadataHolder) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
-    this.settingsRepository = settingsRepository;
+    this.configRepository = configRepository;
     this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
@@ -60,7 +60,7 @@ public class DefaultAssignee {
     if (loaded) {
       return login;
     }
-    String configuredLogin = settingsRepository.getSettings(treeRootHolder.getRoot()).getString(DEFAULT_ISSUE_ASSIGNEE);
+    String configuredLogin = configRepository.getConfiguration(treeRootHolder.getRoot()).get(DEFAULT_ISSUE_ASSIGNEE).orElse(null);
     if (!Strings.isNullOrEmpty(configuredLogin) && isValidLogin(configuredLogin)) {
       this.login = configuredLogin;
     }

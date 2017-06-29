@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

@@ -20,19 +20,18 @@
 package org.sonar.server.app;
 
 import java.io.File;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.ProcessCommands;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
 public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
-  private final Settings settings;
+  private final Configuration config;
 
-  public ProcessCommandWrapperImpl(Settings settings) {
-    this.settings = settings;
+  public ProcessCommandWrapperImpl(Configuration config) {
+    this.config = config;
   }
 
   @Override
@@ -87,14 +86,10 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
   }
 
   private int nonNullAsInt(String key) {
-    String s = settings.getString(key);
-    checkArgument(s != null, "Property %s is not set", key);
-    return Integer.parseInt(s);
+    return config.getInt(key).orElseThrow(() -> new IllegalArgumentException(String.format("Property %s is not set", key)));
   }
 
   private File nonNullValueAsFile(String key) {
-    String s = settings.getString(key);
-    checkArgument(s != null, "Property %s is not set", key);
-    return new File(s);
+    return new File(config.get(key).orElseThrow(() -> new IllegalArgumentException(String.format("Property %s is not set", key))));
   }
 }

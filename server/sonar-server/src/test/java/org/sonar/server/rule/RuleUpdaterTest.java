@@ -77,7 +77,7 @@ public class RuleUpdaterTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
   private RuleIndex ruleIndex = new RuleIndex(es.client());
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());

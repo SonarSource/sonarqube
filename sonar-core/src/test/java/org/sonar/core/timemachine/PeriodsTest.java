@@ -24,14 +24,13 @@ import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.i18n.I18n;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.isNull;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -51,9 +50,9 @@ public class PeriodsTest {
   static int PERIOD_INDEX = 1;
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-  Settings settings = new MapSettings();
+  MapSettings settings = new MapSettings();
   I18n i18n = mock(I18n.class);
-  Periods periods = new Periods(settings, i18n);
+  Periods periods = new Periods(settings.asConfig(), i18n);
 
   @Test
   public void return_over_x_days_label_when_no_date() {

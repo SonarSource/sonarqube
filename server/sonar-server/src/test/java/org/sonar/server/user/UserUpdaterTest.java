@@ -77,7 +77,7 @@ public class UserUpdaterTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public DbTester db = DbTester.create(system2);
@@ -92,7 +92,7 @@ public class UserUpdaterTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private MapSettings settings = new MapSettings();
   private UserUpdater underTest = new UserUpdater(newUserNotifier, dbClient, userIndexer, system2, organizationFlags, defaultOrganizationProvider, organizationCreation,
-    new DefaultGroupFinder(dbClient), settings);
+    new DefaultGroupFinder(dbClient), settings.asConfig());
 
   @Test
   public void create_user() {

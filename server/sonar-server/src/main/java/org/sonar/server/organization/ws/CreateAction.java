@@ -21,7 +21,7 @@ package org.sonar.server.organization.ws;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -44,7 +44,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class CreateAction implements OrganizationsWsAction {
   private static final String ACTION = "create";
 
-  private final Settings settings;
+  private final Configuration config;
   private final UserSession userSession;
   private final DbClient dbClient;
   private final OrganizationsWsSupport wsSupport;
@@ -52,9 +52,9 @@ public class CreateAction implements OrganizationsWsAction {
   private final OrganizationCreation organizationCreation;
   private final OrganizationFlags organizationFlags;
 
-  public CreateAction(Settings settings, UserSession userSession, DbClient dbClient, OrganizationsWsSupport wsSupport,
+  public CreateAction(Configuration config, UserSession userSession, DbClient dbClient, OrganizationsWsSupport wsSupport,
     OrganizationValidation organizationValidation, OrganizationCreation organizationCreation, OrganizationFlags organizationFlags) {
-    this.settings = settings;
+    this.config = config;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
@@ -87,7 +87,7 @@ public class CreateAction implements OrganizationsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    if (settings.getBoolean(CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE)) {
+    if (config.getBoolean(CorePropertyDefinitions.ORGANIZATIONS_ANYONE_CAN_CREATE).orElse(false)) {
       userSession.checkLoggedIn();
     } else {
       userSession.checkIsSystemAdministrator();

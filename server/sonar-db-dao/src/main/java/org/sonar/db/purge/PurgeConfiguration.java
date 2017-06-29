@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
@@ -46,12 +46,12 @@ public class PurgeConfiguration {
     this.disabledComponentUuids = disabledComponentUuids;
   }
 
-  public static PurgeConfiguration newDefaultPurgeConfiguration(Settings settings, IdUuidPair idUuidPair, Collection<String> disabledComponentUuids) {
+  public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, IdUuidPair idUuidPair, Collection<String> disabledComponentUuids) {
     String[] scopes = new String[] {Scopes.FILE};
-    if (settings.getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY)) {
+    if (config.getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY).orElse(false)) {
       scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
     }
-    return new PurgeConfiguration(idUuidPair, scopes, settings.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES), System2.INSTANCE, disabledComponentUuids);
+    return new PurgeConfiguration(idUuidPair, scopes, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(), System2.INSTANCE, disabledComponentUuids);
   }
 
   public IdUuidPair rootProjectIdUuid() {

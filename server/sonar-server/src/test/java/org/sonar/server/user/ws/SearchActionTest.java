@@ -56,7 +56,7 @@ public class SearchActionTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

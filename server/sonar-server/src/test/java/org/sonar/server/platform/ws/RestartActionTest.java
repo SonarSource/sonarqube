@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -48,11 +47,11 @@ public class RestartActionTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private Platform platform = mock(Platform.class);
   private ProcessCommandWrapper processCommandWrapper = mock(ProcessCommandWrapper.class);
   private RestartFlagHolder restartFlagHolder = mock(RestartFlagHolder.class);
-  private RestartAction sut = new RestartAction(userSessionRule, settings, platform, processCommandWrapper, restartFlagHolder);
+  private RestartAction sut = new RestartAction(userSessionRule, settings.asConfig(), platform, processCommandWrapper, restartFlagHolder);
   private InOrder inOrder = Mockito.inOrder(platform, restartFlagHolder, processCommandWrapper);
 
   private WsActionTester actionTester = new WsActionTester(sut);

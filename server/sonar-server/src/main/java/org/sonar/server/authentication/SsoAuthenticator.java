@@ -32,7 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
@@ -41,12 +41,11 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.exceptions.BadRequestException;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.time.DateUtils.addMinutes;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class SsoAuthenticator implements Startable {
@@ -82,7 +81,7 @@ public class SsoAuthenticator implements Startable {
     REFRESH_INTERVAL_PARAM, REFRESH_INTERVAL_DEFAULT_VALUE);
 
   private final System2 system2;
-  private final Settings settings;
+  private final Configuration config;
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final JwtHttpHandler jwtHttpHandler;
   private final AuthenticationEvent authenticationEvent;
@@ -90,10 +89,10 @@ public class SsoAuthenticator implements Startable {
   private boolean enabled = false;
   private Map<String, String> settingsByKey = new HashMap<>();
 
-  public SsoAuthenticator(System2 system2, Settings settings, UserIdentityAuthenticator userIdentityAuthenticator,
+  public SsoAuthenticator(System2 system2, Configuration config, UserIdentityAuthenticator userIdentityAuthenticator,
     JwtHttpHandler jwtHttpHandler, AuthenticationEvent authenticationEvent) {
     this.system2 = system2;
-    this.settings = settings;
+    this.config = config;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.jwtHttpHandler = jwtHttpHandler;
     this.authenticationEvent = authenticationEvent;
@@ -101,11 +100,11 @@ public class SsoAuthenticator implements Startable {
 
   @Override
   public void start() {
-    if (settings.getBoolean(ENABLE_PARAM)) {
+    if (config.getBoolean(ENABLE_PARAM).orElse(false)) {
       LOG.info("SSO Authentication enabled");
       enabled = true;
       DEFAULT_VALUES_BY_SETTING_KEYS.entrySet()
-        .forEach(entry -> settingsByKey.put(entry.getKey(), defaultIfBlank(settings.getString(entry.getKey()), DEFAULT_VALUES_BY_SETTING_KEYS.get(entry.getKey()))));
+        .forEach(entry -> settingsByKey.put(entry.getKey(), config.get(entry.getKey()).orElse(DEFAULT_VALUES_BY_SETTING_KEYS.get(entry.getKey()))));
     }
   }
 

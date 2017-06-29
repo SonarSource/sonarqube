@@ -32,7 +32,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Optional.*;
+import static java.util.Optional.ofNullable;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {

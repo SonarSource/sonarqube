@@ -21,7 +21,7 @@ package org.sonar.server.platform.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.picocontainer.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
 
@@ -31,19 +31,19 @@ public class EmbeddedDatabaseFactory implements Startable {
 
   private static final String URL_PREFIX = "jdbc:h2:tcp:";
 
-  private final Settings settings;
+  private final Configuration config;
   private final System2 system2;
   private EmbeddedDatabase embeddedDatabase;
 
-  public EmbeddedDatabaseFactory(Settings settings, System2 system2) {
-    this.settings = settings;
+  public EmbeddedDatabaseFactory(Configuration config, System2 system2) {
+    this.config = config;
     this.system2 = system2;
   }
 
   @Override
   public void start() {
     if (embeddedDatabase == null) {
-      String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
+      String jdbcUrl = config.get(DatabaseProperties.PROP_URL).get();
       if (startsWith(jdbcUrl, URL_PREFIX)) {
         embeddedDatabase = createEmbeddedDatabase();
         embeddedDatabase.start();
@@ -61,6 +61,6 @@ public class EmbeddedDatabaseFactory implements Startable {
 
   @VisibleForTesting
   EmbeddedDatabase createEmbeddedDatabase() {
-    return new EmbeddedDatabase(settings, system2);
+    return new EmbeddedDatabase(config, system2);
   }
 }

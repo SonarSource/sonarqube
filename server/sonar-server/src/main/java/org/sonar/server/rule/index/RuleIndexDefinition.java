@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.Set;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
@@ -77,15 +77,15 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_ACTIVE_RULE_SEVERITY = "severity";
   public static final String FIELD_ACTIVE_RULE_RULE_KEY = "ruleKey";
 
-  private final Settings settings;
+  private final Configuration config;
   private final boolean enableSource;
 
-  public RuleIndexDefinition(Settings settings) {
-    this(settings, false);
+  public RuleIndexDefinition(Configuration config) {
+    this(config, false);
   }
 
-  private RuleIndexDefinition(Settings settings, boolean enableSource) {
-    this.settings = settings;
+  private RuleIndexDefinition(Configuration config, boolean enableSource) {
+    this.config = config;
     this.enableSource = enableSource;
   }
 
@@ -93,8 +93,8 @@ public class RuleIndexDefinition implements IndexDefinition {
    * Keep the document sources in index so that indexer tests can verify content
    * of indexed documents.
    */
-  public static RuleIndexDefinition createForTest(Settings settings) {
-    return new RuleIndexDefinition(settings, true);
+  public static RuleIndexDefinition createForTest(Configuration config) {
+    return new RuleIndexDefinition(config, true);
   }
 
   @Override
@@ -105,7 +105,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     // Default nb of shards should be greater than 1 in order to
     // easily detect routing misconfiguration.
     // See https://jira.sonarsource.com/browse/SONAR-9489
-    index.configureShards(settings, 2);
+    index.configureShards(config, 2);
 
     // Active rule type
     NewIndex.NewIndexType activeRuleMapping = index.createType(INDEX_TYPE_ACTIVE_RULE.getType());

@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.picocontainer.Startable;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
@@ -62,9 +62,9 @@ public class NotificationDaemon implements Startable {
   private ScheduledExecutorService executorService;
   private boolean stopping = false;
 
-  public NotificationDaemon(Settings settings, DefaultNotificationManager manager, NotificationService service) {
-    this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
-    this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
+  public NotificationDaemon(Configuration config, DefaultNotificationManager manager, NotificationService service) {
+    this.delayInSeconds = config.getLong(PROPERTY_DELAY).get();
+    this.delayBeforeReportingStatusInSeconds = config.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS).get();
     this.manager = manager;
     this.service = service;
   }

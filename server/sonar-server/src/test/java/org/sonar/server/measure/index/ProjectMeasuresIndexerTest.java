@@ -54,7 +54,7 @@ public class ProjectMeasuresIndexerTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester esTester = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);

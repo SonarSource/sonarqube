@@ -21,9 +21,10 @@ package org.sonar.server.setting;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.ce.settings.ProjectSettingsFactory;
+import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertyDto;
 
@@ -36,18 +37,17 @@ public class ProjectSettingsFactoryTest {
 
   static final String PROJECT_KEY = "PROJECT_KEY";
 
-  Settings settings = new MapSettings();
+  MapSettings settings = new MapSettings();
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
 
-  ProjectSettingsFactory underTest = new ProjectSettingsFactory(settings, dbClient);
+  ProjectConfigurationFactory underTest = new ProjectConfigurationFactory(settings, dbClient);
 
   @Test
   public void return_global_settings() {
     settings.setProperty("key", "value");
-    Settings projectSettings = underTest.newProjectSettings(PROJECT_KEY);
+    Configuration config = underTest.newProjectConfiguration(PROJECT_KEY);
 
-    assertThat(projectSettings.getProperties()).hasSize(1);
-    assertThat(projectSettings.getString("key")).isEqualTo("value");
+    assertThat(config.get("key")).hasValue("value");
   }
 
   @Test
@@ -55,24 +55,22 @@ public class ProjectSettingsFactoryTest {
     when(dbClient.propertiesDao().selectProjectProperties(PROJECT_KEY)).thenReturn(newArrayList(
       new PropertyDto().setKey("1").setValue("val1"),
       new PropertyDto().setKey("2").setValue("val2"),
-      new PropertyDto().setKey("3").setValue("val3"))
-      );
+      new PropertyDto().setKey("3").setValue("val3")));
 
-    Settings projectSettings = underTest.newProjectSettings(PROJECT_KEY);
+    Configuration config = underTest.newProjectConfiguration(PROJECT_KEY);
 
-    assertThat(projectSettings.getString("1")).isEqualTo("val1");
-    assertThat(projectSettings.getString("2")).isEqualTo("val2");
-    assertThat(projectSettings.getString("3")).isEqualTo("val3");
+    assertThat(config.get("1")).hasValue("val1");
+    assertThat(config.get("2")).hasValue("val2");
+    assertThat(config.get("3")).hasValue("val3");
   }
 
   @Test
   public void project_settings_override_global_settings() {
     settings.setProperty("key", "value");
     when(dbClient.propertiesDao().selectProjectProperties(PROJECT_KEY)).thenReturn(newArrayList(
-        new PropertyDto().setKey("key").setValue("value2"))
-    );
+      new PropertyDto().setKey("key").setValue("value2")));
 
-    Settings projectSettings = underTest.newProjectSettings(PROJECT_KEY);
-    assertThat(projectSettings.getString("key")).isEqualTo("value2");
+    Configuration projectConfig = underTest.newProjectConfiguration(PROJECT_KEY);
+    assertThat(projectConfig.get("key")).hasValue("value2");
   }
 }

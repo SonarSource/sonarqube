@@ -21,35 +21,35 @@ package org.sonar.server.computation.task.projectanalysis.component;
 
 import java.util.Collection;
 import java.util.Map;
-import org.sonar.api.config.Settings;
-import org.sonar.ce.settings.ProjectSettingsFactory;
+import org.sonar.api.config.Configuration;
+import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.server.util.cache.CacheLoader;
 import org.sonar.server.util.cache.MemoryCache;
 
 /**
  * Repository of component settings implementation based on a memory cache.
  */
-public class SettingsRepositoryImpl implements SettingsRepository {
+public class ConfigurationRepositoryImpl implements ConfigurationRepository {
 
-  private final ProjectSettingsFactory projectSettingsFactory;
-  private final MemoryCache<String, Settings> cache = new MemoryCache<>(new CacheLoader<String, Settings>() {
+  private final ProjectConfigurationFactory projectConfigurationFactory;
+  private final MemoryCache<String, Configuration> cache = new MemoryCache<>(new CacheLoader<String, Configuration>() {
     @Override
-    public Settings load(String key) {
-      return projectSettingsFactory.newProjectSettings(key);
+    public Configuration load(String key) {
+      return projectConfigurationFactory.newProjectConfiguration(key);
     }
 
     @Override
-    public Map<String, Settings> loadAll(Collection<? extends String> keys) {
+    public Map<String, Configuration> loadAll(Collection<? extends String> keys) {
       throw new UnsupportedOperationException("loadAll is not supported");
     }
   });
 
-  public SettingsRepositoryImpl(ProjectSettingsFactory projectSettingsFactory) {
-    this.projectSettingsFactory = projectSettingsFactory;
+  public ConfigurationRepositoryImpl(ProjectConfigurationFactory projectSettingsFactory) {
+    this.projectConfigurationFactory = projectSettingsFactory;
   }
 
   @Override
-  public Settings getSettings(Component component){
+  public Configuration getConfiguration(Component component) {
     return cache.get(component.getKey());
   }
 

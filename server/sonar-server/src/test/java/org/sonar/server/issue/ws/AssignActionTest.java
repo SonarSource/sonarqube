@@ -75,7 +75,7 @@ public class AssignActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -248,14 +248,14 @@ public class AssignActionTest {
   private void verifyContentOfPreloadedSearchResponseData(IssueDto issue) {
     SearchResponseData preloadedSearchResponseData = preloadedSearchResponseDataCaptor.getValue();
     assertThat(preloadedSearchResponseData.getIssues())
-        .extracting(IssueDto::getKey)
-        .containsOnly(issue.getKey());
+      .extracting(IssueDto::getKey)
+      .containsOnly(issue.getKey());
     assertThat(preloadedSearchResponseData.getRules())
-        .extracting(RuleDefinitionDto::getKey)
-        .containsOnly(issue.getRuleKey());
+      .extracting(RuleDefinitionDto::getKey)
+      .containsOnly(issue.getRuleKey());
     assertThat(preloadedSearchResponseData.getComponents())
-        .extracting(ComponentDto::uuid)
-        .containsOnly(issue.getComponentUuid(), issue.getProjectUuid());
+      .extracting(ComponentDto::uuid)
+      .containsOnly(issue.getComponentUuid(), issue.getProjectUuid());
   }
 
   private UserDto insertUser(String login) {

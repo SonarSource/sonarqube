@@ -24,10 +24,13 @@ import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.web.ServletFilter.UrlPattern;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
@@ -35,11 +38,8 @@ import org.sonar.server.user.UserSessionFactory;
 
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
-import static org.sonar.api.web.ServletFilter.UrlPattern;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.AuthenticationError.handleAuthenticationError;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.ws.LoginAction.LOGIN_URL;
 import static org.sonar.server.authentication.ws.LogoutAction.LOGOUT_URL;
 import static org.sonar.server.authentication.ws.ValidateAction.VALIDATE_URL;
@@ -70,7 +70,7 @@ public class UserSessionInitializer {
     .excludes(SKIPPED_URLS)
     .build();
 
-  private final Settings settings;
+  private final Configuration config;
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthenticator basicAuthenticator;
   private final SsoAuthenticator ssoAuthenticator;
@@ -78,10 +78,10 @@ public class UserSessionInitializer {
   private final AuthenticationEvent authenticationEvent;
   private final UserSessionFactory userSessionFactory;
 
-  public UserSessionInitializer(Settings settings, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
+  public UserSessionInitializer(Configuration config, JwtHttpHandler jwtHttpHandler, BasicAuthenticator basicAuthenticator,
     SsoAuthenticator ssoAuthenticator, ThreadLocalUserSession threadLocalSession, AuthenticationEvent authenticationEvent,
     UserSessionFactory userSessionFactory) {
-    this.settings = settings;
+    this.config = config;
     this.jwtHttpHandler = jwtHttpHandler;
     this.basicAuthenticator = basicAuthenticator;
     this.ssoAuthenticator = ssoAuthenticator;
@@ -127,7 +127,7 @@ public class UserSessionInitializer {
       threadLocalSession.set(session);
       request.setAttribute(ACCESS_LOG_LOGIN, session.getLogin());
     } else {
-      if (settings.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY)) {
+      if (config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false)) {
         throw AuthenticationException.newBuilder()
           .setSource(Source.local(Method.BASIC))
           .setMessage("User must be authenticated")

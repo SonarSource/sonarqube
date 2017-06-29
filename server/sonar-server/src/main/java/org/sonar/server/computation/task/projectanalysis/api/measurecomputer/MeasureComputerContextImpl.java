@@ -32,22 +32,23 @@ import javax.annotation.Nullable;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.ce.measure.Measure;
+import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerContext;
+import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import org.sonar.api.ce.measure.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerContext;
-import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 
 public class MeasureComputerContextImpl implements MeasureComputerContext {
 
-  private final SettingsRepository settings;
+  private final ConfigurationRepository config;
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
 
@@ -58,9 +59,9 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
   private MeasureComputerDefinition definition;
   private Set<String> allowedMetrics;
 
-  public MeasureComputerContextImpl(org.sonar.server.computation.task.projectanalysis.component.Component component, SettingsRepository settings,
+  public MeasureComputerContextImpl(org.sonar.server.computation.task.projectanalysis.component.Component component, ConfigurationRepository config,
     MeasureRepository measureRepository, MetricRepository metricRepository, ComponentIssuesRepository componentIssuesRepository) {
-    this.settings = settings;
+    this.config = config;
     this.internalComponent = component;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
@@ -96,7 +97,7 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
       @Override
       @CheckForNull
       public String getString(String key) {
-        return getComponentSettings().getString(key);
+        return getComponentSettings().get(key).orElse(null);
       }
 
       @Override
@@ -106,8 +107,8 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
     };
   }
 
-  private org.sonar.api.config.Settings getComponentSettings() {
-    return settings.getSettings(internalComponent);
+  private Configuration getComponentSettings() {
+    return config.getConfiguration(internalComponent);
   }
 
   @Override
@@ -187,11 +188,12 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
       component.getKey(),
       Component.Type.valueOf(component.getType().name()),
       component.getType() == org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE
-        ? new ComponentImpl.FileAttributesImpl(component.getFileAttributes().getLanguageKey(), component.getFileAttributes().isUnitTest()) : null);
+        ? new ComponentImpl.FileAttributesImpl(component.getFileAttributes().getLanguageKey(), component.getFileAttributes().isUnitTest())
+        : null);
   }
 
-  private class ComponentToMeasure implements Function<org.sonar.server.computation.task.projectanalysis.component.Component,
-      Optional<org.sonar.server.computation.task.projectanalysis.measure.Measure>> {
+  private class ComponentToMeasure
+    implements Function<org.sonar.server.computation.task.projectanalysis.component.Component, Optional<org.sonar.server.computation.task.projectanalysis.measure.Measure>> {
 
     private final Metric metric;
 

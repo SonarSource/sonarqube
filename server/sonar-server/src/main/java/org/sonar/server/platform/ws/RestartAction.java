@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -38,14 +38,14 @@ public class RestartAction implements SystemWsAction {
   private static final Logger LOGGER = Loggers.get(RestartAction.class);
 
   private final UserSession userSession;
-  private final Settings settings;
+  private final Configuration config;
   private final Platform platform;
   private final ProcessCommandWrapper processCommandWrapper;
   private final RestartFlagHolder restartFlagHolder;
 
-  public RestartAction(UserSession userSession, Settings settings, Platform platform, ProcessCommandWrapper processCommandWrapper, RestartFlagHolder restartFlagHolder) {
+  public RestartAction(UserSession userSession, Configuration config, Platform platform, ProcessCommandWrapper processCommandWrapper, RestartFlagHolder restartFlagHolder) {
     this.userSession = userSession;
-    this.settings = settings;
+    this.config = config;
     this.platform = platform;
     this.processCommandWrapper = processCommandWrapper;
     this.restartFlagHolder = restartFlagHolder;
@@ -62,7 +62,7 @@ public class RestartAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    if (settings.getBoolean("sonar.web.dev")) {
+    if (config.getBoolean("sonar.web.dev").orElse(false)) {
       LOGGER.info("Fast restarting WebServer...");
       restartFlagHolder.set();
       try {

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.measure.index;
 
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
@@ -41,17 +41,17 @@ public class ProjectMeasuresIndexDefinition implements IndexDefinition {
   public static final String FIELD_MEASURES_VALUE = "value";
   public static final String FIELD_LANGUAGES = "languages";
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public ProjectMeasuresIndexDefinition(Settings settings) {
-    this.settings = settings;
+  public ProjectMeasuresIndexDefinition(Configuration settings) {
+    this.config = settings;
   }
 
   @Override
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX_TYPE_PROJECT_MEASURES.getIndex());
     index.refreshHandledByIndexer();
-    index.configureShards(settings, 5);
+    index.configureShards(config, 5);
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_PROJECT_MEASURES.getType())
       .requireProjectAuthorization();

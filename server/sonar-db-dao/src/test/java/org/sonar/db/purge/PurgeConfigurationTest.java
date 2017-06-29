@@ -22,12 +22,13 @@ package org.sonar.db.purge;
 import java.util.Collections;
 import java.util.Date;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
+import org.sonar.core.config.PurgeProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,12 +56,12 @@ public class PurgeConfigurationTest {
 
   @Test
   public void do_not_delete_directory_by_default() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings(new PropertyDefinitions(PurgeProperties.all()));
     settings.setProperty(PurgeConstants.PROPERTY_CLEAN_DIRECTORY, false);
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
     Date now = new Date();
 
-    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"), Collections.emptyList());
+    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings.asConfig(), new IdUuidPair(42L, "any-uuid"), Collections.emptyList());
 
     assertThat(underTest.scopesWithoutHistoricalData()).contains(Scopes.FILE)
       .doesNotContain(Scopes.DIRECTORY);
@@ -69,10 +70,10 @@ public class PurgeConfigurationTest {
 
   @Test
   public void delete_directory_if_in_settings() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings(new PropertyDefinitions(PurgeProperties.all()));
     settings.setProperty(PurgeConstants.PROPERTY_CLEAN_DIRECTORY, true);
 
-    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"), Collections.emptyList());
+    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings.asConfig(), new IdUuidPair(42L, "any-uuid"), Collections.emptyList());
 
     assertThat(underTest.scopesWithoutHistoricalData()).contains(Scopes.DIRECTORY, Scopes.FILE);
   }

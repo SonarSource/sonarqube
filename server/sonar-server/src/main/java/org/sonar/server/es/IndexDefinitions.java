@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -87,11 +88,11 @@ public class IndexDefinitions implements Startable {
 
   private final Map<String, Index> byKey = Maps.newHashMap();
   private final IndexDefinition[] defs;
-  private final org.sonar.api.config.Settings settings;
+  private final Configuration config;
 
-  public IndexDefinitions(IndexDefinition[] defs, org.sonar.api.config.Settings settings) {
+  public IndexDefinitions(IndexDefinition[] defs, Configuration config) {
     this.defs = defs;
-    this.settings = settings;
+    this.config = config;
   }
 
   public Map<String, Index> getIndices() {
@@ -103,7 +104,7 @@ public class IndexDefinitions implements Startable {
     // collect definitions
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
-    if (!settings.getBoolean("sonar.internal.es.disableIndexes")) {
+    if (!config.getBoolean("sonar.internal.es.disableIndexes").orElse(false)) {
       for (IndexDefinition definition : defs) {
         definition.define(context);
       }

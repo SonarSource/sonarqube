@@ -17,16 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.component;
+package org.sonar.core.config;
 
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.ConfigurationBridge;
 
-/**
- * Repository of component settings.
- */
-public interface SettingsRepository {
-  /**
-   * Returns the settings for the specified Component.
-   */
-  Settings getSettings(Component component);
+public class ConfigurationProvider extends ProviderAdapter {
+
+  private Configuration configuration;
+
+  public Configuration provide(Settings settings) {
+    if (configuration == null) {
+      configuration = new ConfigurationBridge(settings);
+    }
+    return configuration;
+  }
+
 }

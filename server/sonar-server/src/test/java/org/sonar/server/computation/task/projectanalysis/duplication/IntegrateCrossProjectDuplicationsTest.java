@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -59,9 +58,9 @@ public class IntegrateCrossProjectDuplicationsTest {
 
   static final String OTHER_FILE_KEY = "OTHER_FILE_KEY";
 
-  Settings settings = new MapSettings();
+  MapSettings settings = new MapSettings();
 
-  IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings, duplicationRepository);
+  IntegrateCrossProjectDuplications underTest = new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository);
 
   @Test
   public void add_duplications_from_two_blocks() {
@@ -81,8 +80,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setIndexInFile(1)
         .setLines(32, 45)
         .setUnit(5, 20)
-        .build()
-      );
+        .build());
 
     Collection<Block> duplicatedBlocks = asList(
       new Block.Builder()
@@ -102,8 +100,7 @@ public class IntegrateCrossProjectDuplicationsTest {
 
     assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
       .containsExactly(
-        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
-      );
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55)));
   }
 
   @Test
@@ -118,8 +115,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setIndexInFile(0)
         .setLines(30, 45)
         .setUnit(0, 10)
-        .build()
-      );
+        .build());
 
     Collection<Block> duplicatedBlocks = singletonList(
       new Block.Builder()
@@ -127,15 +123,13 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setBlockHash(new ByteArray("a8998353e96320ec"))
         .setIndexInFile(0)
         .setLines(40, 55)
-        .build()
-      );
+        .build());
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
     assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
       .containsExactly(
-        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
-      );
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55)));
   }
 
   @Test
@@ -157,8 +151,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setIndexInFile(0)
         .setLines(46, 60)
         .setUnit(0, 10)
-        .build()
-      );
+        .build());
 
     Collection<Block> duplicatedBlocks = singletonList(
       new Block.Builder()
@@ -166,8 +159,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setBlockHash(new ByteArray("a8998353e96320ed"))
         .setIndexInFile(0)
         .setLines(40, 55)
-        .build()
-      );
+        .build());
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
@@ -186,8 +178,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setIndexInFile(0)
         .setLines(30, 45)
         .setUnit(0, 4)
-        .build()
-      );
+        .build());
 
     Collection<Block> duplicatedBlocks = singletonList(
       new Block.Builder()
@@ -195,8 +186,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setBlockHash(new ByteArray("a8998353e96320ec"))
         .setIndexInFile(0)
         .setLines(40, 55)
-        .build()
-      );
+        .build());
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
@@ -214,8 +204,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setIndexInFile(0)
         .setLines(30, 45)
         .setUnit(0, 10)
-        .build()
-      );
+        .build());
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, Collections.<Block>emptyList());
 
@@ -237,8 +226,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setIndexInFile(0)
         .setLines(30, 45)
         .setUnit(0, 0)
-        .build()
-      );
+        .build());
 
     Collection<Block> duplicatedBlocks = singletonList(
       new Block.Builder()
@@ -246,15 +234,13 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setBlockHash(new ByteArray("a8998353e96320ec"))
         .setIndexInFile(0)
         .setLines(40, 55)
-        .build()
-      );
+        .build());
 
     underTest.computeCpd(javaFile, originBlocks, duplicatedBlocks);
 
     assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
       .containsExactly(
-        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
-      );
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55)));
   }
 
   @Test
@@ -268,8 +254,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setIndexInFile(0)
         .setLines(30, 45)
         .setUnit(0, 100)
-        .build()
-      );
+        .build());
 
     Collection<Block> duplicatedBlocks = singletonList(
       new Block.Builder()
@@ -277,15 +262,13 @@ public class IntegrateCrossProjectDuplicationsTest {
         .setBlockHash(new ByteArray("a8998353e96320ec"))
         .setIndexInFile(0)
         .setLines(40, 55)
-        .build()
-      );
+        .build());
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
 
     assertThat(duplicationRepository.getDuplications(ORIGIN_FILE))
       .containsExactly(
-        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55))
-      );
+        crossProjectDuplication(new TextBlock(30, 45), OTHER_FILE_KEY, new TextBlock(40, 55)));
   }
 
   @Test
@@ -306,8 +289,7 @@ public class IntegrateCrossProjectDuplicationsTest {
       duplicatedBlocks.add(
         blockBuilder
           .setResourceId(randomAlphanumeric(16))
-          .build()
-        );
+          .build());
     }
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);
@@ -341,8 +323,7 @@ public class IntegrateCrossProjectDuplicationsTest {
         blockBuilder
           .setResourceId("resource" + i)
           .setBlockHash(new ByteArray(hash))
-          .build()
-        );
+          .build());
     }
 
     underTest.computeCpd(ORIGIN_FILE, originBlocks, duplicatedBlocks);

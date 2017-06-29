@@ -24,12 +24,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.WebhookProperties;
 import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 
 import static java.lang.String.format;
@@ -40,15 +40,15 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
   private static final Logger LOGGER = Loggers.get(WebhookPostTask.class);
 
   private final TreeRootHolder rootHolder;
-  private final SettingsRepository settingsRepository;
+  private final ConfigurationRepository configRepository;
   private final WebhookPayloadFactory payloadFactory;
   private final WebhookCaller caller;
   private final WebhookDeliveryStorage deliveryStorage;
 
-  public WebhookPostTask(TreeRootHolder rootHolder, SettingsRepository settingsRepository, WebhookPayloadFactory payloadFactory,
+  public WebhookPostTask(TreeRootHolder rootHolder, ConfigurationRepository settingsRepository, WebhookPayloadFactory payloadFactory,
     WebhookCaller caller, WebhookDeliveryStorage deliveryStorage) {
     this.rootHolder = rootHolder;
-    this.settingsRepository = settingsRepository;
+    this.configRepository = settingsRepository;
     this.payloadFactory = payloadFactory;
     this.caller = caller;
     this.deliveryStorage = deliveryStorage;
@@ -56,30 +56,30 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
   @Override
   public void finished(ProjectAnalysis analysis) {
-    Settings settings = settingsRepository.getSettings(rootHolder.getRoot());
+    Configuration config = configRepository.getConfiguration(rootHolder.getRoot());
 
     Iterable<String> webhookProps = Iterables.concat(
-      getWebhookProperties(settings, WebhookProperties.GLOBAL_KEY),
-      getWebhookProperties(settings, WebhookProperties.PROJECT_KEY));
+      getWebhookProperties(config, WebhookProperties.GLOBAL_KEY),
+      getWebhookProperties(config, WebhookProperties.PROJECT_KEY));
     if (!Iterables.isEmpty(webhookProps)) {
-      process(settings, analysis, webhookProps);
+      process(config, analysis, webhookProps);
       deliveryStorage.purge(analysis.getProject().getUuid());
     }
   }
 
-  private static List<String> getWebhookProperties(Settings settings, String propertyKey) {
-    String[] webhookIds = settings.getStringArray(propertyKey);
+  private static List<String> getWebhookProperties(Configuration config, String propertyKey) {
+    String[] webhookIds = config.getStringArray(propertyKey);
     return Arrays.stream(webhookIds)
       .map(webhookId -> format("%s.%s", propertyKey, webhookId))
       .limit(MAX_WEBHOOKS_PER_TYPE)
       .collect(MoreCollectors.toList(webhookIds.length));
   }
 
-  private void process(Settings settings, ProjectAnalysis analysis, Iterable<String> webhookProperties) {
+  private void process(Configuration config, ProjectAnalysis analysis, Iterable<String> webhookProperties) {
     WebhookPayload payload = payloadFactory.create(analysis);
     for (String webhookProp : webhookProperties) {
-      String name = settings.getString(format("%s.%s", webhookProp, WebhookProperties.NAME_FIELD));
-      String url = settings.getString(format("%s.%s", webhookProp, WebhookProperties.URL_FIELD));
+      String name = config.get(format("%s.%s", webhookProp, WebhookProperties.NAME_FIELD)).orElse(null);
+      String url = config.get(format("%s.%s", webhookProp, WebhookProperties.URL_FIELD)).orElse(null);
       // as webhooks are defined as property sets, we can't ensure validity of fields on creation.
       if (name != null && url != null) {
         Webhook webhook = new Webhook(analysis.getProject().getUuid(), analysis.getCeTask().getId(), name, url);

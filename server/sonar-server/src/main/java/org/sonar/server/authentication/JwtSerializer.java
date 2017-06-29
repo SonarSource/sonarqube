@@ -35,16 +35,16 @@ import javax.annotation.concurrent.Immutable;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.jsonwebtoken.impl.crypto.MacProvider.generateKey;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 /**
  * This class can be used to encode or decode a JWT token
@@ -56,14 +56,14 @@ public class JwtSerializer implements Startable {
 
   private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
-  private final Settings settings;
+  private final Configuration config;
   private final System2 system2;
   private final UuidFactory uuidFactory;
 
   private SecretKey secretKey;
 
-  public JwtSerializer(Settings settings, System2 system2, UuidFactory uuidFactory) {
-    this.settings = settings;
+  public JwtSerializer(Configuration config, System2 system2, UuidFactory uuidFactory) {
+    this.config = config;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
   }
@@ -75,11 +75,11 @@ public class JwtSerializer implements Startable {
 
   @Override
   public void start() {
-    String encodedKey = settings.getString(SECRET_KEY_PROPERTY);
-    if (encodedKey == null) {
-      this.secretKey = generateSecretKey();
+    Optional<String> encodedKey = config.get(SECRET_KEY_PROPERTY);
+    if (encodedKey.isPresent()) {
+      this.secretKey = decodeSecretKeyProperty(encodedKey.get());
     } else {
-      this.secretKey = decodeSecretKeyProperty(encodedKey);
+      this.secretKey = generateSecretKey();
     }
   }
 

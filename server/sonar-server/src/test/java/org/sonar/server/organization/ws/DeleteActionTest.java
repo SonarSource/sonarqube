@@ -71,7 +71,7 @@ public class DeleteActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule

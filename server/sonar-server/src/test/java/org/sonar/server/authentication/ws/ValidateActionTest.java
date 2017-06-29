@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.authentication.BasicAuthenticator;
 import org.sonar.server.authentication.JwtHttpHandler;
@@ -52,9 +51,9 @@ public class ValidateActionTest {
   BasicAuthenticator basicAuthenticator = mock(BasicAuthenticator.class);
   JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  Settings settings = new MapSettings();
+  MapSettings settings = new MapSettings();
 
-  ValidateAction underTest = new ValidateAction(settings, basicAuthenticator, jwtHttpHandler);
+  ValidateAction underTest = new ValidateAction(settings.asConfig(), basicAuthenticator, jwtHttpHandler);
 
   @Before
   public void setUp() throws Exception {

@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -36,8 +35,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -72,8 +71,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   private PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
   private DbClient dbClient = dbTester.getDbClient();
-  private Settings settings = new MapSettings();
-  private SettingsRepository settingsRepository = mock(SettingsRepository.class);
+  private MapSettings settings = new MapSettings();
+  private ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
 
   private LoadPeriodsStep underTest = new LoadPeriodsStep(dbClient, settingsRepository, treeRootHolder, analysisMetadataHolder, periodsHolder);
 
@@ -89,7 +88,7 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
   private void setupRoot(Component root) {
     treeRootHolder.setRoot(root);
-    when(settingsRepository.getSettings(root)).thenReturn(settings);
+    when(settingsRepository.getConfiguration(root)).thenReturn(settings.asConfig());
   }
 
   @DataProvider
@@ -293,7 +292,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Leak period is set to deprecated value 'previous_analysis'. This value will be removed in next SonarQube LTS, please use another one instead.");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsOnly("Leak period is set to deprecated value 'previous_analysis'. This value will be removed in next SonarQube LTS, please use another one instead.");
   }
 
   @Test

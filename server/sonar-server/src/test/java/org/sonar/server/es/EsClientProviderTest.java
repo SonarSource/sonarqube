@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -44,7 +43,7 @@ public class EsClientProviderTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private EsClientProvider underTest = new EsClientProvider();
   private String localhost;
 
@@ -62,7 +61,7 @@ public class EsClientProviderTest {
     settings.setProperty(ProcessProperties.SEARCH_HOST, localhost);
     settings.setProperty(ProcessProperties.SEARCH_PORT, 8080);
 
-    EsClient client = underTest.provide(settings);
+    EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();
     assertThat(transportClient.transportAddresses()).hasSize(1);
     TransportAddress address = transportClient.transportAddresses().get(0);
@@ -71,7 +70,7 @@ public class EsClientProviderTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to local Elasticsearch: [" + localhost + ":8080]"), ""));
 
     // keep in cache
-    assertThat(underTest.provide(settings)).isSameAs(client);
+    assertThat(underTest.provide(settings.asConfig())).isSameAs(client);
   }
 
   @Test
@@ -80,7 +79,7 @@ public class EsClientProviderTest {
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s:8080,%s:8081", localhost, localhost));
 
-    EsClient client = underTest.provide(settings);
+    EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();
     assertThat(transportClient.transportAddresses()).hasSize(2);
     TransportAddress address = transportClient.transportAddresses().get(0);
@@ -92,7 +91,7 @@ public class EsClientProviderTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [" + localhost + ":8080, " + localhost + ":8081]"), ""));
 
     // keep in cache
-    assertThat(underTest.provide(settings)).isSameAs(client);
+    assertThat(underTest.provide(settings.asConfig())).isSameAs(client);
   }
 
   @Test
@@ -104,18 +103,19 @@ public class EsClientProviderTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage(format("Port number out of range: %s:100000", localhost));
 
-    underTest.provide(settings);
+    underTest.provide(settings.asConfig());
   }
 
   @Test
   public void es_client_provider_must_throw_ISE_when_incorrect_port_is_used() throws Exception {
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, true);
+    settings.setProperty(ProcessProperties.SEARCH_HOST, "localhost");
     settings.setProperty(ProcessProperties.SEARCH_PORT, "100000");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Port out of range: 100000");
 
-    underTest.provide(settings);
+    underTest.provide(settings.asConfig());
   }
 
   @Test
@@ -124,7 +124,7 @@ public class EsClientProviderTest {
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_DISABLED, true);
     settings.setProperty(ProcessProperties.CLUSTER_SEARCH_HOSTS, format("%s,%s:8081", localhost, localhost));
 
-    EsClient client = underTest.provide(settings);
+    EsClient client = underTest.provide(settings.asConfig());
     TransportClient transportClient = (TransportClient) client.nativeClient();
     assertThat(transportClient.transportAddresses()).hasSize(2);
     TransportAddress address = transportClient.transportAddresses().get(0);
@@ -136,6 +136,6 @@ public class EsClientProviderTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).has(new Condition<>(s -> s.contains("Connected to remote Elasticsearch: [" + localhost + ":9001, " + localhost + ":8081]"), ""));
 
     // keep in cache
-    assertThat(underTest.provide(settings)).isSameAs(client);
+    assertThat(underTest.provide(settings.asConfig())).isSameAs(client);
   }
 }

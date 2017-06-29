@@ -27,7 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.h2.Driver;
 import org.h2.tools.Server;
 import org.picocontainer.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -46,12 +46,12 @@ import static org.sonar.process.ProcessProperties.PATH_DATA;
 public class EmbeddedDatabase implements Startable {
   private static final Logger LOG = Loggers.get(EmbeddedDatabase.class);
 
-  private final Settings settings;
+  private final Configuration config;
   private final System2 system2;
   private Server server;
 
-  public EmbeddedDatabase(Settings settings, System2 system2) {
-    this.settings = settings;
+  public EmbeddedDatabase(Configuration config, System2 system2) {
+    this.config = config;
     this.system2 = system2;
   }
 
@@ -101,13 +101,13 @@ public class EmbeddedDatabase implements Startable {
   }
 
   private String getRequiredSetting(String property) {
-    String value = settings.getString(property);
+    String value = config.get(property).orElse("");
     checkArgument(isNotEmpty(value), "Missing property %s", property);
     return value;
   }
 
   private String getSetting(String name, String defaultValue) {
-    return StringUtils.defaultIfBlank(settings.getString(name), defaultValue);
+    return StringUtils.defaultIfBlank(config.get(name).orElse(""), defaultValue);
   }
 
   private static void createDatabase(File dbHome, String user, String password) throws SQLException {

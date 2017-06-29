@@ -32,7 +32,7 @@ public class UserIndexDefinitionTest {
 
   @Test
   public void define() {
-    UserIndexDefinition def = new UserIndexDefinition(new MapSettings());
+    UserIndexDefinition def = new UserIndexDefinition(new MapSettings().asConfig());
     def.define(underTest);
 
     assertThat(underTest.getIndices()).hasSize(1);

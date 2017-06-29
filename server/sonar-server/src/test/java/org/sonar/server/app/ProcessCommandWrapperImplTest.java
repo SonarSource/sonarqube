@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.DefaultProcessCommands;
 
@@ -41,11 +40,11 @@ public class ProcessCommandWrapperImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   @Test
   public void requestSQRestart_throws_IAE_if_process_index_property_not_set() throws Exception {
-    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property process.index is not set");
@@ -56,7 +55,7 @@ public class ProcessCommandWrapperImplTest {
   @Test
   public void requestSQRestart_throws_IAE_if_process_shared_path_property_not_set() throws Exception {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
-    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property process.sharedDir is not set");
@@ -70,7 +69,7 @@ public class ProcessCommandWrapperImplTest {
     settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     settings.setProperty(PROPERTY_PROCESS_INDEX, PROCESS_NUMBER);
 
-    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
     underTest.requestSQRestart();
 
     try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, PROCESS_NUMBER)) {
@@ -81,7 +80,7 @@ public class ProcessCommandWrapperImplTest {
   @Test
   public void requestSQStop_throws_IAE_if_process_shared_path_property_not_set() throws Exception {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
-    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property process.sharedDir is not set");
@@ -95,7 +94,7 @@ public class ProcessCommandWrapperImplTest {
     settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     settings.setProperty(PROPERTY_PROCESS_INDEX, PROCESS_NUMBER);
 
-    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
     underTest.requestStop();
 
     try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, PROCESS_NUMBER)) {
@@ -106,7 +105,7 @@ public class ProcessCommandWrapperImplTest {
   @Test
   public void notifyOperational_throws_IAE_if_process_sharedDir_property_not_set() throws Exception {
     settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
-    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property process.sharedDir is not set");
@@ -116,7 +115,7 @@ public class ProcessCommandWrapperImplTest {
 
   @Test
   public void notifyOperational_throws_IAE_if_process_index_property_not_set() throws Exception {
-    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings.asConfig());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property process.index is not set");
@@ -130,7 +129,7 @@ public class ProcessCommandWrapperImplTest {
     settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     settings.setProperty(PROPERTY_PROCESS_INDEX, PROCESS_NUMBER);
 
-    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings);
+    ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings.asConfig());
     underTest.notifyOperational();
 
     try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, PROCESS_NUMBER)) {

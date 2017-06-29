@@ -71,7 +71,7 @@ public class RemoveMemberActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();

@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -56,7 +55,6 @@ import org.sonar.server.organization.OrganizationValidation;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.organization.TestOrganizationFlags;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -88,25 +86,25 @@ public class CreateActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private Settings settings = new MapSettings()
+  private MapSettings settings = new MapSettings()
     .setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, false);
   private UuidFactory uuidFactory = mock(UuidFactory.class);
   private OrganizationValidation organizationValidation = new OrganizationValidationImpl();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client());
-  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings, userIndexer,
+  private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings.asConfig(), userIndexer,
     mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient));
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
 
   private UserDto user;
 
-  private CreateAction underTest = new CreateAction(settings, userSession, dbClient, new OrganizationsWsSupport(organizationValidation), organizationValidation,
+  private CreateAction underTest = new CreateAction(settings.asConfig(), userSession, dbClient, new OrganizationsWsSupport(organizationValidation), organizationValidation,
     organizationCreation, organizationFlags);
 
   private WsActionTester wsTester = new WsActionTester(underTest);

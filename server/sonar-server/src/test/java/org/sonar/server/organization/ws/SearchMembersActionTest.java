@@ -61,7 +61,7 @@ public class SearchMembersActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public DbTester db = DbTester.create();

@@ -159,7 +159,7 @@ public class NewIndexTest {
   @Test
   public void default_shards_and_replicas() {
     NewIndex index = new NewIndex("issues");
-    index.configureShards(new MapSettings(), 5);
+    index.configureShards(new MapSettings().asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
@@ -169,7 +169,7 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
-    index.configureShards(settings, 5);
+    index.configureShards(settings.asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("5");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
@@ -179,7 +179,7 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
     settings.setProperty("sonar.search.issues.shards", "3");
-    index.configureShards(settings, 5);
+    index.configureShards(settings.asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
     // keep default value
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
@@ -189,7 +189,7 @@ public class NewIndexTest {
   public void default_number_of_replicas_on_standalone_instance_must_be_0() {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
-    index.configureShards(settings, 5);
+    index.configureShards(settings.asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
@@ -198,7 +198,7 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "false");
-    index.configureShards(settings, 5);
+    index.configureShards(settings.asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
@@ -207,7 +207,7 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
-    index.configureShards(settings, 5);
+    index.configureShards(settings.asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
   }
 
@@ -217,7 +217,7 @@ public class NewIndexTest {
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessProperties.CLUSTER_ENABLED, "true");
     settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "0");
-    index.configureShards(settings, 5);
+    index.configureShards(settings.asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("0");
   }
 
@@ -226,7 +226,7 @@ public class NewIndexTest {
     NewIndex index = new NewIndex("issues");
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessProperties.SEARCH_REPLICAS, "3");
-    index.configureShards(settings, 5);
+    index.configureShards(settings.asConfig(), 5);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("3");
   }
 
@@ -266,8 +266,8 @@ public class NewIndexTest {
 
     // authorization type
     NewIndex.NewIndexType authorizationType = index.getTypes().get("authorization");
-    assertThat(getAttributeAsMap(authorizationType,"_parent")).isNull();
-    assertThat(getAttributeAsMap(authorizationType,"_routing")).containsExactly(entry("required", true));
+    assertThat(getAttributeAsMap(authorizationType, "_parent")).isNull();
+    assertThat(getAttributeAsMap(authorizationType, "_routing")).containsExactly(entry("required", true));
   }
 
   private static Map<String, Object> getAttributeAsMap(NewIndex.NewIndexType type, String attributeKey) {

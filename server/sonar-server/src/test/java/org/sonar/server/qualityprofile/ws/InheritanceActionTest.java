@@ -70,7 +70,7 @@ public class InheritanceActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
@@ -118,8 +118,7 @@ public class InheritanceActionTest {
     /*
      * sonar way (2) <- companyWide (2) <- buWide (2, 1 overriding) <- (forProject1 (2), forProject2 (2))
      */
-    QProfileDto sonarway = db.qualityProfiles().insert(organization, p ->
-      p.setKee("xoo-sonar-way").setLanguage("xoo").setName("Sonar way").setIsBuiltIn(true));
+    QProfileDto sonarway = db.qualityProfiles().insert(organization, p -> p.setKee("xoo-sonar-way").setLanguage("xoo").setName("Sonar way").setIsBuiltIn(true));
     ActiveRuleDto activeRule1 = createActiveRule(rule1, sonarway);
     ActiveRuleDto activeRule2 = createActiveRule(rule2, sonarway);
 

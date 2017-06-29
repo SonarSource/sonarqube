@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -33,8 +33,6 @@ import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
-
-import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class DefaultPeriodCleaner {
 
@@ -47,8 +45,8 @@ public class DefaultPeriodCleaner {
     this.profiler = profiler;
   }
 
-  public void clean(DbSession session, String rootUuid, Settings settings) {
-    doClean(rootUuid, new Filters(settings).all(), session);
+  public void clean(DbSession session, String rootUuid, Configuration config) {
+    doClean(rootUuid, new Filters(config).all(), session);
   }
 
   @VisibleForTesting

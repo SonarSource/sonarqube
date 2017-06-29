@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.verify;
 
 public class SecurityRealmFactoryTest {
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   /**
    * Typical usage.
@@ -44,7 +43,7 @@ public class SecurityRealmFactoryTest {
     SecurityRealm realm = spy(new FakeRealm());
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
 
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[] {realm});
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm});
     factory.start();
     assertThat(factory.getRealm()).isSameAs(realm);
     assertThat(factory.hasExternalAuthentication()).isTrue();
@@ -55,7 +54,7 @@ public class SecurityRealmFactoryTest {
 
   @Test
   public void do_not_fail_if_no_realms() {
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings);
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig());
     factory.start();
     assertThat(factory.getRealm()).isNull();
     assertThat(factory.hasExternalAuthentication()).isFalse();
@@ -66,7 +65,7 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, "Fake");
 
     try {
-      new SecurityRealmFactory(settings);
+      new SecurityRealmFactory(settings.asConfig());
       fail();
     } catch (SonarException e) {
       assertThat(e.getMessage()).contains("Realm 'Fake' not found.");
@@ -78,7 +77,7 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
     LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
 
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new LoginPasswordAuthenticator[] {authenticator});
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig(), new LoginPasswordAuthenticator[] {authenticator});
     SecurityRealm realm = factory.getRealm();
     assertThat(realm).isInstanceOf(CompatibilityRealm.class);
   }
@@ -90,7 +89,7 @@ public class SecurityRealmFactoryTest {
     LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
 
-    SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[] {realm},
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm},
       new LoginPasswordAuthenticator[] {authenticator});
     assertThat(factory.getRealm()).isSameAs(realm);
   }
@@ -100,7 +99,7 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "Fake");
 
     try {
-      new SecurityRealmFactory(settings);
+      new SecurityRealmFactory(settings.asConfig());
       fail();
     } catch (SonarException e) {
       assertThat(e.getMessage()).contains("Authenticator 'Fake' not found.");
@@ -113,7 +112,7 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE, true);
 
-    new SecurityRealmFactory(settings, new SecurityRealm[] {realm}).start();
+    new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm}).start();
     verify(realm).init();
   }
 
@@ -123,7 +122,7 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
 
     try {
-      new SecurityRealmFactory(settings, new SecurityRealm[] {realm}).start();
+      new SecurityRealmFactory(settings.asConfig(), new SecurityRealm[] {realm}).start();
       fail();
     } catch (SonarException e) {
       assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);

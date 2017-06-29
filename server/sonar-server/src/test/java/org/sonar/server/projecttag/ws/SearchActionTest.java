@@ -55,7 +55,7 @@ public class SearchActionTest {
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
 
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

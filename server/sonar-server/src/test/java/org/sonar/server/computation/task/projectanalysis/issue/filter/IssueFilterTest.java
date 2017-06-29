@@ -31,7 +31,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
 import static java.util.Arrays.asList;
@@ -67,7 +67,7 @@ public class IssueFilterTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
 
-  SettingsRepository settingsRepository = mock(SettingsRepository.class);
+  ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
 
   @Test
   public void accept_everything_when_no_filter_properties() throws Exception {
@@ -101,8 +101,7 @@ public class IssueFilterTest {
   public void ignore_many_rules() throws Exception {
     IssueFilter underTest = newIssueFilter(newSettings(
       asList("xoo:x1", "**/xoo/File1*", "xoo:x2", "**/xoo/File1*"),
-      Collections.<String>emptyList())
-    );
+      Collections.<String>emptyList()));
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isFalse();
     assertThat(underTest.accept(ISSUE_1, COMPONENT_2)).isTrue();
@@ -147,8 +146,7 @@ public class IssueFilterTest {
   public void include_many_rules() throws Exception {
     IssueFilter underTest = newIssueFilter(newSettings(
       Collections.<String>emptyList(),
-      asList("xoo:x1", "**/xoo/File1*", "xoo:x2", "**/xoo/File1*")
-    ));
+      asList("xoo:x1", "**/xoo/File1*", "xoo:x2", "**/xoo/File1*")));
 
     assertThat(underTest.accept(ISSUE_1, COMPONENT_1)).isTrue();
     assertThat(underTest.accept(ISSUE_1, COMPONENT_2)).isFalse();
@@ -182,13 +180,13 @@ public class IssueFilterTest {
     newIssueFilter(newSettings(Collections.<String>emptyList(), asList("", "**")));
   }
 
-  private IssueFilter newIssueFilter(Settings settings) {
-    when(settingsRepository.getSettings(PROJECT)).thenReturn(settings);
+  private IssueFilter newIssueFilter(MapSettings settings) {
+    when(settingsRepository.getConfiguration(PROJECT)).thenReturn(settings.asConfig());
     return new IssueFilter(treeRootHolder, settingsRepository);
   }
 
-  private static Settings newSettings(List<String> exclusionsProperties, List<String> inclusionsProperties) {
-    Settings settings = new MapSettings();
+  private static MapSettings newSettings(List<String> exclusionsProperties, List<String> inclusionsProperties) {
+    MapSettings settings = new MapSettings();
     if (!exclusionsProperties.isEmpty()) {
       addProperties(exclusionsProperties, "ignore", settings);
     }

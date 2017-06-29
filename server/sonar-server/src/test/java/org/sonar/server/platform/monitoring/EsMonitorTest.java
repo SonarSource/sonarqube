@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class EsMonitorTest {
 
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
 
   private EsMonitor underTest = new EsMonitor(esTester.client());
 

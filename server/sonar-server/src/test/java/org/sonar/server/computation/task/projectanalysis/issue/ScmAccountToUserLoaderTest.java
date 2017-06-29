@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
 public class ScmAccountToUserLoaderTest {
 
   @org.junit.Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
 
   @org.junit.Rule
   public LogTester logTester = new LogTester();

@@ -111,7 +111,7 @@ public class SearchProjectsActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 

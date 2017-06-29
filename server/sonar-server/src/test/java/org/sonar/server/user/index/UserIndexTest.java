@@ -43,7 +43,7 @@ public class UserIndexTest {
   private static final long DATE_2 = 1_500_000_000_001L;
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
 
   private UserIndex underTest;
 

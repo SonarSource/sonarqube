@@ -19,38 +19,33 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
-
-import static com.google.common.base.Optional.fromNullable;
+import org.sonar.api.config.Configuration;
 
 public class ServerIdLoader {
 
-  private final Settings settings;
+  private final Configuration config;
   private final ServerIdGenerator idGenerator;
 
-  public ServerIdLoader(Settings settings, ServerIdGenerator idGenerator) {
-    this.settings = settings;
+  public ServerIdLoader(Configuration config, ServerIdGenerator idGenerator) {
+    this.config = config;
     this.idGenerator = idGenerator;
   }
 
   public Optional<String> getRaw() {
-    return fromNullable(settings.getString(CoreProperties.PERMANENT_SERVER_ID));
+    return config.get(CoreProperties.PERMANENT_SERVER_ID);
   }
 
   public Optional<ServerId> get() {
-    Optional<String> rawId = getRaw();
-    if (!rawId.isPresent()) {
-      return Optional.absent();
-    }
+    return getRaw().map(rawId -> {
+      Optional<String> organization = config.get(CoreProperties.ORGANISATION);
+      Optional<String> ipAddress = config.get(CoreProperties.SERVER_ID_IP_ADDRESS);
+      boolean validated = organization.isPresent()
+        && ipAddress.isPresent()
+        && idGenerator.validate(organization.get(), ipAddress.get(), rawId);
 
-    String organization = settings.getString(CoreProperties.ORGANISATION);
-    String ipAddress = settings.getString(CoreProperties.SERVER_ID_IP_ADDRESS);
-    boolean validated = organization != null
-      && ipAddress != null
-      && idGenerator.validate(organization, ipAddress, rawId.get());
-
-    return Optional.of(new ServerId(rawId.get(), validated));
+      return new ServerId(rawId, validated);
+    });
   }
 }

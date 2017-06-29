@@ -29,7 +29,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -43,25 +43,25 @@ public class EsClientProvider extends ProviderAdapter {
 
   private EsClient cache;
 
-  public EsClient provide(Settings settings) {
+  public EsClient provide(Configuration config) {
     if (cache == null) {
       TransportClient nativeClient;
       org.elasticsearch.common.settings.Settings.Builder esSettings = org.elasticsearch.common.settings.Settings.builder();
 
       // mandatory property defined by bootstrap process
-      esSettings.put("cluster.name", settings.getString(ProcessProperties.CLUSTER_NAME));
+      esSettings.put("cluster.name", config.get(ProcessProperties.CLUSTER_NAME).get());
 
-      boolean clusterEnabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
-      if (clusterEnabled && settings.getBoolean(ProcessProperties.CLUSTER_SEARCH_DISABLED)) {
+      boolean clusterEnabled = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
+      if (clusterEnabled && config.getBoolean(ProcessProperties.CLUSTER_SEARCH_DISABLED).orElse(false)) {
         esSettings.put("client.transport.sniff", true);
         nativeClient = TransportClient.builder().settings(esSettings).build();
-        Arrays.stream(settings.getStringArray(ProcessProperties.CLUSTER_SEARCH_HOSTS))
+        Arrays.stream(config.getStringArray(ProcessProperties.CLUSTER_SEARCH_HOSTS))
           .map(HostAndPort::fromString)
           .forEach(h -> addHostToClient(h, nativeClient));
         LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
       } else {
         nativeClient = TransportClient.builder().settings(esSettings).build();
-        HostAndPort host = HostAndPort.fromParts(settings.getString(ProcessProperties.SEARCH_HOST), settings.getInt(ProcessProperties.SEARCH_PORT));
+        HostAndPort host = HostAndPort.fromParts(config.get(ProcessProperties.SEARCH_HOST).get(), config.getInt(ProcessProperties.SEARCH_PORT).get());
         addHostToClient(host, nativeClient);
         LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));
       }

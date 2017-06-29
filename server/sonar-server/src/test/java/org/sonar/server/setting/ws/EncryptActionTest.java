@@ -50,7 +50,7 @@ public class EncryptActionTest {
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private Encryption encryption = settings.getEncryption();
   private EncryptAction underTest = new EncryptAction(userSession, settings);
   private WsActionTester ws = new WsActionTester(underTest);

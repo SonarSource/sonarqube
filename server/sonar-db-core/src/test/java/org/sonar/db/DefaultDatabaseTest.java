@@ -23,7 +23,7 @@ import java.util.Properties;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.dialect.PostgreSql;
 import org.sonar.process.logging.LogbackHelper;
 

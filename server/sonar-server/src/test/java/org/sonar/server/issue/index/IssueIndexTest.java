@@ -84,9 +84,9 @@ public class IssueIndexTest {
 
   @Rule
   public EsTester tester = new EsTester(
-    new IssueIndexDefinition(new MapSettings()),
-    new ViewIndexDefinition(new MapSettings()),
-    new RuleIndexDefinition(new MapSettings()));
+    new IssueIndexDefinition(new MapSettings().asConfig()),
+    new ViewIndexDefinition(new MapSettings().asConfig()),
+    new RuleIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule

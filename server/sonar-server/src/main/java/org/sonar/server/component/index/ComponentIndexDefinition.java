@@ -19,7 +19,7 @@
  */
 package org.sonar.server.component.index;
 
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.es.DefaultIndexSettingsElement;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
@@ -42,17 +42,17 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
   static final DefaultIndexSettingsElement[] NAME_ANALYZERS = {SORTABLE_ANALYZER, SEARCH_PREFIX_ANALYZER, SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER, SEARCH_GRAMS_ANALYZER};
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public ComponentIndexDefinition(Settings settings) {
-    this.settings = settings;
+  public ComponentIndexDefinition(Configuration config) {
+    this.config = config;
   }
 
   @Override
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX_TYPE_COMPONENT.getIndex());
     index.refreshHandledByIndexer();
-    index.configureShards(settings, DEFAULT_NUMBER_OF_SHARDS);
+    index.configureShards(config, DEFAULT_NUMBER_OF_SHARDS);
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_COMPONENT.getType())
       .requireProjectAuthorization();

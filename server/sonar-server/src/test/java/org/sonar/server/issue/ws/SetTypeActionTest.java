@@ -78,7 +78,7 @@ public class SetTypeActionTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

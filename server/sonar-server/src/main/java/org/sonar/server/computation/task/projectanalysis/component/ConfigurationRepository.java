@@ -17,28 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.settings;
+package org.sonar.server.computation.task.projectanalysis.component;
 
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
-import org.sonar.db.DbClient;
+import org.sonar.api.config.Configuration;
 
-@ComputeEngineSide
-public class ProjectSettingsFactory {
-
-  private final Settings globalSettings;
-  private final DbClient dbClient;
-
-  public ProjectSettingsFactory(Settings globalSettings, DbClient dbClient) {
-    this.globalSettings = globalSettings;
-    this.dbClient = dbClient;
-  }
-
-  public Settings newProjectSettings(String projectKey) {
-    Settings projectSettings = new ProjectSettings(globalSettings);
-    dbClient.propertiesDao()
-      .selectProjectProperties(projectKey)
-      .forEach(property -> projectSettings.setProperty(property.getKey(), property.getValue()));
-    return projectSettings;
-  }
+/**
+ * Repository of component settings.
+ */
+public interface ConfigurationRepository {
+  /**
+   * Returns the configuration for the specified Component.
+   */
+  Configuration getConfiguration(Component component);
 }

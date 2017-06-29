@@ -24,7 +24,7 @@ import java.util.Date;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ServerSide;
 
@@ -32,14 +32,14 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public class ServerImpl extends Server {
 
-  private final Settings settings;
+  private final Configuration config;
   private final StartupMetadata state;
   private final ServerFileSystem fs;
   private final UrlSettings urlSettings;
   private final SonarRuntime runtime;
 
-  public ServerImpl(Settings settings, StartupMetadata state, ServerFileSystem fs, UrlSettings urlSettings, SonarRuntime runtime) {
-    this.settings = settings;
+  public ServerImpl(Configuration config, StartupMetadata state, ServerFileSystem fs, UrlSettings urlSettings, SonarRuntime runtime) {
+    this.config = config;
     this.state = state;
     this.fs = fs;
     this.urlSettings = urlSettings;
@@ -48,12 +48,12 @@ public class ServerImpl extends Server {
 
   @Override
   public String getId() {
-    return settings.getString(CoreProperties.SERVER_ID);
+    return config.get(CoreProperties.SERVER_ID).get();
   }
 
   @Override
   public String getPermanentServerId() {
-    return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
+    return config.get(CoreProperties.PERMANENT_SERVER_ID).orElse(null);
   }
 
   @Override

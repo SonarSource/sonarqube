@@ -53,7 +53,7 @@ public class ChangePasswordActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn();
 
@@ -65,7 +65,7 @@ public class ChangePasswordActionTest {
     TestDefaultOrganizationProvider.from(db),
     mock(OrganizationCreation.class),
     new DefaultGroupFinder(db.getDbClient()),
-    new MapSettings());
+    new MapSettings().asConfig());
 
   private WsTester tester = new WsTester(new UsersWs(new ChangePasswordAction(db.getDbClient(), userUpdater, userSessionRule)));
 

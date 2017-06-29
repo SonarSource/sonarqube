@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.Version;
 
@@ -36,12 +35,12 @@ import static org.mockito.Mockito.when;
 
 public class ServerImplTest {
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private StartupMetadata state = mock(StartupMetadata.class);
   private ServerFileSystem fs = mock(ServerFileSystem.class);
   private UrlSettings urlSettings = mock(UrlSettings.class);
   private SonarRuntime runtime = mock(SonarRuntime.class);
-  private ServerImpl underTest = new ServerImpl(settings, state, fs, urlSettings, runtime);
+  private ServerImpl underTest = new ServerImpl(settings.asConfig(), state, fs, urlSettings, runtime);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

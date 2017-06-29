@@ -19,22 +19,22 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 
 /**
- * Implementation of {@link SettingsRepository} that always return the
- * same mutable {@link Settings}, whatever the component.
+ * Implementation of {@link ConfigurationRepository} that always return the
+ * same {@link Configuration}, whatever the component.
  */
-public class TestSettingsRepository implements SettingsRepository {
+public class TestSettingsRepository implements ConfigurationRepository {
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public TestSettingsRepository(Settings settings) {
-    this.settings = settings;
+  public TestSettingsRepository(Configuration config) {
+    this.config = config;
   }
 
   @Override
-  public Settings getSettings(Component component) {
-    return settings;
+  public Configuration getConfiguration(Component component) {
+    return config;
   }
 }

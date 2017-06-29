@@ -21,14 +21,14 @@ package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
@@ -52,15 +52,15 @@ import static org.sonar.server.computation.task.projectanalysis.component.Crawle
 public class LoadPeriodsStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final SettingsRepository settingsRepository;
+  private final ConfigurationRepository configRepository;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodHolderImpl periodsHolder;
 
-  public LoadPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+  public LoadPeriodsStep(DbClient dbClient, ConfigurationRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
     PeriodHolderImpl periodsHolder) {
     this.dbClient = dbClient;
-    this.settingsRepository = settingsRepository;
+    this.configRepository = settingsRepository;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.periodsHolder = periodsHolder;
@@ -100,8 +100,8 @@ public class LoadPeriodsStep implements ComputationStep {
     PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectDto.get().uuid(), analysisMetadataHolder.getAnalysisDate(),
       isReportType ? projectOrView.getReportAttributes().getVersion() : null);
 
-    Settings settings = settingsRepository.getSettings(projectOrView);
-    Period period = periodResolver.resolve(settings);
+    Configuration config = configRepository.getConfiguration(projectOrView);
+    Period period = periodResolver.resolve(config);
     // SONAR-4700 Add a past snapshot only if it exists
     if (period != null) {
       return period;

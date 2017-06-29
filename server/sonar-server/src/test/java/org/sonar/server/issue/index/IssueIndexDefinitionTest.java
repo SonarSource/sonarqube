@@ -32,7 +32,7 @@ public class IssueIndexDefinitionTest {
 
   @Test
   public void define() {
-    IssueIndexDefinition def = new IssueIndexDefinition(new MapSettings());
+    IssueIndexDefinition def = new IssueIndexDefinition(new MapSettings().asConfig());
     def.define(underTest);
 
     assertThat(underTest.getIndices()).hasSize(1);

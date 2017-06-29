@@ -46,7 +46,7 @@ public class GenerateSecretKeyActionTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private Encryption encryption = settings.getEncryption();
   private GenerateSecretKeyAction underTest = new GenerateSecretKeyAction(settings, userSession);
   private WsActionTester ws = new WsActionTester(underTest);

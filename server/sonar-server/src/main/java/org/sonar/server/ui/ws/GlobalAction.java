@@ -21,7 +21,7 @@ package org.sonar.server.ui.ws;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -58,7 +58,7 @@ public class GlobalAction implements NavigationWsAction {
     RATING_GRID);
 
   private final PageRepository pageRepository;
-  private final Settings settings;
+  private final Configuration config;
   private final ResourceTypes resourceTypes;
   private final Server server;
   private final DbClient dbClient;
@@ -66,10 +66,10 @@ public class GlobalAction implements NavigationWsAction {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UserSession userSession;
 
-  public GlobalAction(PageRepository pageRepository, Settings settings, ResourceTypes resourceTypes, Server server,
-                      DbClient dbClient, OrganizationFlags organizationFlags, DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
+  public GlobalAction(PageRepository pageRepository, Configuration config, ResourceTypes resourceTypes, Server server,
+    DbClient dbClient, OrganizationFlags organizationFlags, DefaultOrganizationProvider defaultOrganizationProvider, UserSession userSession) {
     this.pageRepository = pageRepository;
-    this.settings = settings;
+    this.config = config;
     this.resourceTypes = resourceTypes;
     this.server = server;
     this.dbClient = dbClient;
@@ -120,14 +120,14 @@ public class GlobalAction implements NavigationWsAction {
   private void writeSettings(JsonWriter json) {
     json.name("settings").beginObject();
     for (String settingKey : SETTING_KEYS) {
-      json.prop(settingKey, settings.getString(settingKey));
+      json.prop(settingKey, config.get(settingKey).orElse(null));
     }
     json.endObject();
   }
 
   private void writeDeprecatedLogoProperties(JsonWriter json) {
-    json.prop("logoUrl", settings.getString(SONAR_LF_LOGO_URL));
-    json.prop("logoWidth", settings.getString(SONAR_LF_LOGO_WIDTH_PX));
+    json.prop("logoUrl", config.get(SONAR_LF_LOGO_URL).orElse(null));
+    json.prop("logoWidth", config.get(SONAR_LF_LOGO_WIDTH_PX).orElse(null));
   }
 
   private void writeQualifiers(JsonWriter json) {
