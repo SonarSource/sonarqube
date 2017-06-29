@@ -165,12 +165,12 @@ public interface SensorContext {
    */
   void markForPublishing(InputFile inputFile);
   
-  
   /**
-   * How many threads can be used by the sensor
-   * @return maximum number of threads that the user can use
+   * Whether the sensor should parallelize its execution. 
+   * @return False if the sensor should use a single thread, true otherwise.
+   * 
    * @since 6.5
    */
-  int threads();
-
+  boolean parallel();
+  
 }

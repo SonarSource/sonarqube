@@ -170,7 +170,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public int threads() {
-    return Runtime.getRuntime().availableProcessors() + 1;
+  public boolean parallel() {
+    return true;
   }
 }

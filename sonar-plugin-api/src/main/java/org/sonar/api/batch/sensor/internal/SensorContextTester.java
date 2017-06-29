@@ -347,7 +347,7 @@ public class SensorContextTester implements SensorContext {
   }
   
   @Override
-  public int threads() {
-    return 1;
+  public boolean parallel() {
+    return false;
   }
 }
