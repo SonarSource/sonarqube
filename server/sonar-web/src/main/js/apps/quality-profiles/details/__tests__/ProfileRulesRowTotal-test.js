@@ -19,31 +19,26 @@
  */
 // @flow
 import React from 'react';
+import { shallow } from 'enzyme';
+import ProfileRulesRowTotal from '../ProfileRulesRowTotal';
 
-type Props = {
-  renderCount: () => ?React.Element<*>,
-  renderTitle: () => React.Element<*>,
-  renderTotal: () => ?React.Element<*>
-};
+it('should render correctly', () => {
+  expect(
+    shallow(<ProfileRulesRowTotal count={3} organization="foo" qprofile="bar" total={10} />)
+  ).toMatchSnapshot();
+});
 
-export default class ProfileRulesRow extends React.PureComponent {
-  props: Props;
+it('should render correctly if there is 0 rules', () => {
+  expect(
+    shallow(<ProfileRulesRowTotal count={0} organization={null} qprofile="bar" total={0} />)
+  ).toMatchSnapshot();
+});
 
-  render() {
-    const { renderTitle, renderCount, renderTotal } = this.props;
-
-    return (
-      <tr>
-        <td>
-          {renderTitle()}
-        </td>
-        <td className="thin nowrap text-right">
-          {renderCount()}
-        </td>
-        <td className="thin nowrap text-right">
-          {renderTotal()}
-        </td>
-      </tr>
-    );
-  }
-}
+it('should render correctly if there is missing data', () => {
+  expect(
+    shallow(<ProfileRulesRowTotal count={5} organization={null} qprofile="bar" total={null} />)
+  ).toMatchSnapshot();
+  expect(
+    shallow(<ProfileRulesRowTotal count={null} organization={null} qprofile="foo" total={10} />)
+  ).toMatchSnapshot();
+});
