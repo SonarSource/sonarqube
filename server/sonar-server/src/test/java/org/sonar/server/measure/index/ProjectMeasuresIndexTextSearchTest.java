@@ -33,6 +33,7 @@ import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -47,7 +48,6 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.server.component.ws.FilterParser.Operator.GT;
 import static org.sonar.server.component.ws.FilterParser.Operator.LT;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES;
-import static org.sonar.server.measure.index.ProjectMeasuresQuery.MetricCriterion;
 
 public class ProjectMeasuresIndexTextSearchTest {
 
@@ -56,7 +56,7 @@ public class ProjectMeasuresIndexTextSearchTest {
   private static final OrganizationDto ORG = OrganizationTesting.newOrganizationDto();
 
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

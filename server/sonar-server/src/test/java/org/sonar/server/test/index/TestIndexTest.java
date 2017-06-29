@@ -34,7 +34,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 public class TestIndexTest {
   @Rule
-  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings().asConfig()));
 
   TestIndex underTest = new TestIndex(es.client());
 

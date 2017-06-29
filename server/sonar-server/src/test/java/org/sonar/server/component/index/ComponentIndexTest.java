@@ -48,7 +48,7 @@ import static org.sonar.api.resources.Qualifiers.PROJECT;
 public abstract class ComponentIndexTest {
 
   @Rule
-  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);

@@ -81,7 +81,7 @@ public class ChangeParentActionTest {
   @Rule
   public DbTester dbTester = new DbTester(System2.INSTANCE, null);
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

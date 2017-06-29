@@ -24,7 +24,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
@@ -38,32 +38,30 @@ import static org.sonar.api.CoreProperties.RATING_GRID_DEF_VALUES;
 
 public class RatingSettings {
 
-  private final Settings settings;
+  private final Configuration config;
   private final Map<String, LanguageSpecificConfiguration> languageSpecificConfigurationByLanguageKey;
 
-  public RatingSettings(Settings settings) {
-    this.settings = settings;
-    this.languageSpecificConfigurationByLanguageKey = buildLanguageSpecificConfigurationByLanguageKey(settings);
+  public RatingSettings(Configuration config) {
+    this.config = config;
+    this.languageSpecificConfigurationByLanguageKey = buildLanguageSpecificConfigurationByLanguageKey(config);
   }
 
-  private static Map<String, LanguageSpecificConfiguration> buildLanguageSpecificConfigurationByLanguageKey(Settings settings) {
+  private static Map<String, LanguageSpecificConfiguration> buildLanguageSpecificConfigurationByLanguageKey(Configuration config) {
     ImmutableMap.Builder<String, LanguageSpecificConfiguration> builder = ImmutableMap.builder();
-    String[] languageConfigIndexes = settings.getStringArray(LANGUAGE_SPECIFIC_PARAMETERS);
+    String[] languageConfigIndexes = config.getStringArray(LANGUAGE_SPECIFIC_PARAMETERS);
     for (String languageConfigIndex : languageConfigIndexes) {
       String languagePropertyKey = LANGUAGE_SPECIFIC_PARAMETERS + "." + languageConfigIndex + "." + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY;
-      String languageKey = settings.getString(languagePropertyKey);
-      if (languageKey == null) {
-        throw MessageException.of("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
-          "Contact your administrator to update this configuration in the global administration section of SonarQube.");
-      }
-      builder.put(languageKey, LanguageSpecificConfiguration.create(settings, languageConfigIndex));
+      String languageKey = config.get(languagePropertyKey)
+        .orElseThrow(() -> MessageException.of("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
+          "Contact your administrator to update this configuration in the global administration section of SonarQube."));
+      builder.put(languageKey, LanguageSpecificConfiguration.create(config, languageConfigIndex));
     }
     return builder.build();
   }
 
   public RatingGrid getRatingGrid() {
     try {
-      String[] ratingGrades = settings.getStringArray(RATING_GRID);
+      String[] ratingGrades = config.getStringArray(RATING_GRID);
       double[] grid = new double[4];
       for (int i = 0; i < 4; i++) {
         grid[i] = Double.parseDouble(ratingGrades[i]);
@@ -72,7 +70,7 @@ public class RatingSettings {
     } catch (Exception e) {
       throw new IllegalArgumentException("The rating grid is incorrect. Expected something similar to '"
         + RATING_GRID_DEF_VALUES + "' and got '"
-        + settings.getString(RATING_GRID) + "'", e);
+        + config.get(RATING_GRID).get() + "'", e);
     }
   }
 
@@ -93,10 +91,10 @@ public class RatingSettings {
 
   private long getDefaultDevelopmentCost() {
     try {
-      return Long.parseLong(settings.getString(DEVELOPMENT_COST));
+      return Long.parseLong(config.get(DEVELOPMENT_COST).get());
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException("The value of the development cost property '" + DEVELOPMENT_COST
-        + "' is incorrect. Expected long but got '" + settings.getString(DEVELOPMENT_COST) + "'", e);
+        + "' is incorrect. Expected long but got '" + config.get(DEVELOPMENT_COST).get() + "'", e);
     }
   }
 
@@ -117,13 +115,13 @@ public class RatingSettings {
       this.metricKey = metricKey;
     }
 
-    static LanguageSpecificConfiguration create(Settings settings, String configurationId) {
+    static LanguageSpecificConfiguration create(Configuration config, String configurationId) {
 
       String configurationPrefix = LANGUAGE_SPECIFIC_PARAMETERS + "." + configurationId + ".";
 
-      String language = settings.getString(configurationPrefix + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY);
-      String manDays = settings.getString(configurationPrefix + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY);
-      String metric = settings.getString(configurationPrefix + LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY);
+      String language = config.get(configurationPrefix + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY).orElse(null);
+      String manDays = config.get(configurationPrefix + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY).orElse(null);
+      String metric = config.get(configurationPrefix + LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY).orElse(null);
 
       return new LanguageSpecificConfiguration(language, manDays, metric);
     }

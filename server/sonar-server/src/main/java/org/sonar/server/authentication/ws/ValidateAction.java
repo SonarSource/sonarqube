@@ -29,7 +29,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.ServletFilter;
@@ -48,12 +48,12 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
   private static final String VALIDATE_ACTION = "validate";
   public static final String VALIDATE_URL = "/" + AUTHENTICATION_CONTROLLER + "/" + VALIDATE_ACTION;
 
-  private final Settings settings;
+  private final Configuration config;
   private final JwtHttpHandler jwtHttpHandler;
   private final BasicAuthenticator basicAuthenticator;
 
-  public ValidateAction(Settings settings, BasicAuthenticator basicAuthenticator, JwtHttpHandler jwtHttpHandler) {
-    this.settings = settings;
+  public ValidateAction(Configuration config, BasicAuthenticator basicAuthenticator, JwtHttpHandler jwtHttpHandler) {
+    this.config = config;
     this.basicAuthenticator = basicAuthenticator;
     this.jwtHttpHandler = jwtHttpHandler;
   }
@@ -97,7 +97,7 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
       if (user.isPresent()) {
         return true;
       }
-      return !settings.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY);
+      return !config.getBoolean(CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false);
     } catch (AuthenticationException e) {
       return false;
     }

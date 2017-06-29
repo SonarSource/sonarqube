@@ -39,7 +39,7 @@ public class UserIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
 
   private UserIndexer underTest = new UserIndexer(db.getDbClient(), es.client());
 

@@ -85,7 +85,7 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

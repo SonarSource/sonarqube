@@ -62,7 +62,7 @@ public class TestIndexerTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public DbTester db = DbTester.create(system2);

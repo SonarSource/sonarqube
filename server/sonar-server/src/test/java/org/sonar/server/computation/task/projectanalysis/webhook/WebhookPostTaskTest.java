@@ -30,7 +30,7 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
@@ -130,7 +130,7 @@ public class WebhookPostTaskTest {
   }
 
   private void execute() {
-    SettingsRepository settingsRepository = new TestSettingsRepository(settings);
+    ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());
     WebhookPostTask task = new WebhookPostTask(rootHolder, settingsRepository, payloadFactory, caller, deliveryStorage);
 
     PostProjectAnalysisTaskTester.of(task)

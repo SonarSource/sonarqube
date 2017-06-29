@@ -45,7 +45,7 @@ public class AuthorsActionTest {
   @Rule
   public DbTester db = DbTester.create();
   @Rule
-  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

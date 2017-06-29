@@ -22,7 +22,7 @@ package org.sonar.server.computation.dbcleaner;
 import java.util.Collection;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
@@ -54,22 +54,22 @@ public class ProjectCleaner {
     this.purgeListener = purgeListener;
   }
 
-  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Settings projectSettings, Collection<String> disabledComponentUuids) {
+  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Configuration projectConfig, Collection<String> disabledComponentUuids) {
     long start = System.currentTimeMillis();
     profiler.reset();
 
-    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectSettings, idUuidPair, disabledComponentUuids);
+    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectConfig, idUuidPair, disabledComponentUuids);
 
-    cleanHistoricalData(session, configuration.rootProjectIdUuid().getUuid(), projectSettings);
+    cleanHistoricalData(session, configuration.rootProjectIdUuid().getUuid(), projectConfig);
     doPurge(session, configuration);
 
     session.commit();
-    logProfiling(start, projectSettings);
+    logProfiling(start, projectConfig);
     return this;
   }
 
-  private void logProfiling(long start, Settings settings) {
-    if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
+  private void logProfiling(long start, Configuration config) {
+    if (config.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY).orElse(false)) {
       long duration = System.currentTimeMillis() - start;
       LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
       profiler.dump(duration, LOG);
@@ -77,9 +77,9 @@ public class ProjectCleaner {
     }
   }
 
-  private void cleanHistoricalData(DbSession session, String rootUuid, Settings settings) {
+  private void cleanHistoricalData(DbSession session, String rootUuid, Configuration config) {
     try {
-      periodCleaner.clean(session, rootUuid, settings);
+      periodCleaner.clean(session, rootUuid, config);
     } catch (Exception e) {
       // purge errors must no fail the batch
       LOG.error("Fail to clean historical data [uuid=" + rootUuid + "]", e);

@@ -20,7 +20,6 @@
 package org.sonar.server.platform.db;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.verify;
 
 public class EmbeddedDatabaseFactoryTest {
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private System2 system2 = mock(System2.class);
 
   @Test
@@ -40,7 +39,7 @@ public class EmbeddedDatabaseFactoryTest {
 
     EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 
-    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings, system2) {
+    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings.asConfig(), system2) {
       @Override
       EmbeddedDatabase createEmbeddedDatabase() {
         return embeddedDatabase;
@@ -59,7 +58,7 @@ public class EmbeddedDatabaseFactoryTest {
 
     EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
 
-    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings, system2) {
+    EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory(settings.asConfig(), system2) {
       @Override
       EmbeddedDatabase createEmbeddedDatabase() {
         return embeddedDatabase;

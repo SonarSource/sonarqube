@@ -81,7 +81,7 @@ public class RuleActivatorTest {
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings()));
+  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   private RuleIndex ruleIndex = new RuleIndex(es.client());
@@ -112,7 +112,6 @@ public class RuleActivatorTest {
     QProfileDto profile = createProfile(rule);
     RuleActivation activation = RuleActivation.create(rule.getKey(), BLOCKER, null);
     List<ActiveRuleChange> changes = activate(profile, activation);
-
 
     assertThatRuleIsActivated(profile, rule, changes, BLOCKER, null, emptyMap());
     assertThatProfileIsUpdatedByUser(profile);
@@ -376,7 +375,6 @@ public class RuleActivatorTest {
     RuleActivation activation = RuleActivation.create(rule.getKey(), null, of(param.getName(), "foo"));
     expectFailure("Value 'foo' must be an integer.", () -> activate(profile, activation));
   }
-
 
   @Test
   public void ignore_parameters_when_activating_custom_rule() {

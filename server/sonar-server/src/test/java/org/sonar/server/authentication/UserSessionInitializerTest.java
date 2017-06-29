@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.utils.System2;
@@ -35,6 +34,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Method;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.ServerUserSession;
 import org.sonar.server.user.TestUserSessionFactory;
@@ -53,8 +54,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Method;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 public class UserSessionInitializerTest {
 
@@ -75,11 +74,11 @@ public class UserSessionInitializerTest {
   private SsoAuthenticator ssoAuthenticator = mock(SsoAuthenticator.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
   private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   private UserDto user = newUserDto();
 
-  private UserSessionInitializer underTest = new UserSessionInitializer(settings, jwtHttpHandler, basicAuthenticator,
+  private UserSessionInitializer underTest = new UserSessionInitializer(settings.asConfig(), jwtHttpHandler, basicAuthenticator,
     ssoAuthenticator, userSession, authenticationEvent, userSessionFactory);
 
   @Before

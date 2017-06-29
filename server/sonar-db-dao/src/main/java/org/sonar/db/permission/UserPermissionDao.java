@@ -26,7 +26,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.Pagination;
 import org.sonar.db.component.ComponentMapper;
 
 import static com.google.common.base.Preconditions.checkArgument;

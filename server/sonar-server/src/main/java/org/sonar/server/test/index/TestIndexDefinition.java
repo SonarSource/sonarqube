@@ -20,7 +20,7 @@
 package org.sonar.server.test.index;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
@@ -41,10 +41,10 @@ public class TestIndexDefinition implements IndexDefinition {
   public static final String FIELD_COVERED_FILE_LINES = "coveredLines";
   public static final String FIELD_UPDATED_AT = "updatedAt";
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public TestIndexDefinition(Settings settings) {
-    this.settings = settings;
+  public TestIndexDefinition(Configuration config) {
+    this.config = config;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class TestIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX_TYPE_TEST.getIndex());
 
     index.refreshHandledByIndexer();
-    index.configureShards(settings, 5);
+    index.configureShards(config, 5);
 
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_TEST.getType());
     mapping.setAttribute("_routing", ImmutableMap.of("required", true));
@@ -66,8 +66,7 @@ public class TestIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_STACKTRACE).disableNorms().disableSearch().build();
     mapping.setProperty(FIELD_COVERED_FILES, ImmutableMap.of("type", "nested", "properties", ImmutableMap.of(
       FIELD_COVERED_FILE_UUID, ImmutableMap.of("type", "string", "index", "not_analyzed"),
-      FIELD_COVERED_FILE_LINES, ImmutableMap.of("type", "integer")
-      )));
+      FIELD_COVERED_FILE_LINES, ImmutableMap.of("type", "integer"))));
     mapping.createDateTimeField(FIELD_UPDATED_AT);
   }
 }

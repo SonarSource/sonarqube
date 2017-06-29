@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.i18n.I18n;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -39,11 +39,11 @@ import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VER
 
 public class Periods {
 
-  private final Settings settings;
+  private final Configuration config;
   private final I18n i18n;
 
-  public Periods(Settings settings, I18n i18n) {
-    this.settings = settings;
+  public Periods(Configuration config, I18n i18n) {
+    this.config = config;
     this.i18n = i18n;
   }
 
@@ -58,14 +58,14 @@ public class Periods {
 
   @CheckForNull
   public String label(int periodIndex) {
-    String periodProperty = settings.getString(LEAK_PERIOD + periodIndex);
+    String periodProperty = config.get(LEAK_PERIOD + periodIndex).orElse(null);
     PeriodParameters periodParameters = new PeriodParameters(periodProperty);
     return label(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
   }
 
   @CheckForNull
   public String abbreviation(int periodIndex) {
-    String periodProperty = settings.getString(LEAK_PERIOD + periodIndex);
+    String periodProperty = config.get(LEAK_PERIOD + periodIndex).orElse(null);
     PeriodParameters periodParameters = new PeriodParameters(periodProperty);
     return abbreviation(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
   }

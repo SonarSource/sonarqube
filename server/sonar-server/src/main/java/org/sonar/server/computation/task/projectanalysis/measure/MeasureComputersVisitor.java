@@ -23,7 +23,7 @@ import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.task.projectanalysis.api.measurecomputer.MeasureComputerContextImpl;
@@ -40,12 +40,12 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
-  private final SettingsRepository settings;
+  private final ConfigurationRepository settings;
 
   private final MeasureComputersHolder measureComputersHolder;
   private final ComponentIssuesRepository componentIssuesRepository;
 
-  public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SettingsRepository settings,
+  public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ConfigurationRepository settings,
     MeasureComputersHolder measureComputersHolder, ComponentIssuesRepository componentIssuesRepository) {
     super(CrawlerDepthLimit.reportMaxDepth(FILE).withViewsMaxDepth(SUBVIEW), POST_ORDER);
     this.metricRepository = metricRepository;

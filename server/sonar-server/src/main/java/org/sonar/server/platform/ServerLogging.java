@@ -25,12 +25,12 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.logging.LogbackHelper;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ServerProcessLogging;
 
 @ServerSide
@@ -38,16 +38,16 @@ import org.sonar.server.app.ServerProcessLogging;
 public class ServerLogging {
 
   private final LogbackHelper helper;
-  private final Settings settings;
+  private final Configuration config;
 
-  public ServerLogging(Settings settings) {
-    this(new LogbackHelper(), settings);
+  public ServerLogging(Configuration config) {
+    this(new LogbackHelper(), config);
   }
 
   @VisibleForTesting
-  ServerLogging(LogbackHelper helper, Settings settings) {
+  ServerLogging(LogbackHelper helper, Configuration config) {
     this.helper = helper;
-    this.settings = settings;
+    this.config = config;
   }
 
   public void changeLevel(ServerProcessLogging serverProcessLogging, LoggerLevel level) {
@@ -64,7 +64,7 @@ public class ServerLogging {
    * The directory that contains log files. May not exist.
    */
   public File getLogsDir() {
-    return new File(settings.getString(ProcessProperties.PATH_LOGS));
+    return new File(config.get(ProcessProperties.PATH_LOGS).get());
   }
 
 }

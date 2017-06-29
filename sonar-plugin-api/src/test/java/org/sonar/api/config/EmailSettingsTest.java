@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmailSettingsTest {
 
-  private EmailSettings underTest = new EmailSettings(new MapSettings());
+  private EmailSettings underTest = new EmailSettings(new MapSettings().asConfig());
 
   @Test
   public void should_return_default_values() {

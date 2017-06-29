@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 
@@ -77,17 +78,12 @@ public class NewIndex {
     return types;
   }
 
-  public void configureShards(org.sonar.api.config.Settings settings, int defaultNbOfShards) {
-    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
-    int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
-    if (shards == 0) {
-      shards = defaultNbOfShards;
-    }
+  public void configureShards(Configuration config, int defaultNbOfShards) {
+    boolean clusterMode = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
+    int shards = config.getInt(format("sonar.search.%s.shards", indexName)).orElse(defaultNbOfShards);
 
-    int replicas = settings.getInt(ProcessProperties.SEARCH_REPLICAS);
-    if (replicas == 0 && settings.getString(ProcessProperties.SEARCH_REPLICAS) == null) {
-      replicas = clusterMode ? 1 : 0;
-    }
+    int replicas = config.getInt(ProcessProperties.SEARCH_REPLICAS).orElse(clusterMode ? 1 : 0);
+
     getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, shards);
     getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
   }

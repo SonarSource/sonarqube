@@ -20,7 +20,7 @@
 package org.sonar.ce.configuration;
 
 import org.picocontainer.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -47,8 +47,8 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   private final int workerCount;
 
-  public CeConfigurationImpl(Settings settings) {
-    String workerCountAsStr = settings.getString(CE_WORKERS_COUNT_PROPERTY);
+  public CeConfigurationImpl(Configuration config) {
+    String workerCountAsStr = config.get(CE_WORKERS_COUNT_PROPERTY).orElse(null);
     if (workerCountAsStr == null || workerCountAsStr.isEmpty()) {
       this.workerCount = DEFAULT_WORKER_COUNT;
     } else {
@@ -72,8 +72,7 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
     return MessageException.of(format(
       "value '%s' of property %s is invalid. It must an integer strictly greater than 0.",
       workerCountAsStr,
-      CE_WORKERS_COUNT_PROPERTY)
-      );
+      CE_WORKERS_COUNT_PROPERTY));
   }
 
   @Override

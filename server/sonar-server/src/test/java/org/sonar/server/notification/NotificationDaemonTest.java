@@ -24,6 +24,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
@@ -32,12 +33,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertiesDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.same;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -56,7 +57,7 @@ public class NotificationDaemonTest {
   private NotificationDispatcher commentOnIssueCreatedByMe = mock(NotificationDispatcher.class);
   private NotificationDispatcher qualityGateChange = mock(NotificationDispatcher.class);
   private DbClient dbClient = mock(DbClient.class);
-  private NotificationService service = new NotificationService(dbClient, new NotificationDispatcher[]{commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
+  private NotificationService service = new NotificationService(dbClient, new NotificationDispatcher[] {commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
   private NotificationDaemon underTest = null;
 
   private void setUpMocks() {
@@ -70,9 +71,9 @@ public class NotificationDaemonTest {
     when(qualityGateChange.getType()).thenReturn("qgate-changes");
     when(manager.getFromQueue()).thenReturn(notification).thenReturn(null);
 
-    Settings settings = new MapSettings().setProperty("sonar.notifications.delay", 1L);
+    MapSettings settings = new MapSettings(new PropertyDefinitions(NotificationDaemon.class)).setProperty("sonar.notifications.delay", 1L);
 
-    underTest = new NotificationDaemon(settings, manager, service);
+    underTest = new NotificationDaemon(settings.asConfig(), manager, service);
   }
 
   /**
@@ -137,7 +138,7 @@ public class NotificationDaemonTest {
   @Test
   public void scenario3() {
     setUpMocks();
-    doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[]{emailChannel, gtalkChannel}))
+    doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[] {emailChannel, gtalkChannel}))
       .when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     underTest.start();
@@ -244,7 +245,7 @@ public class NotificationDaemonTest {
   }
 
   private static Answer<Object> addUser(final String user, final NotificationChannel channel) {
-    return addUser(user, new NotificationChannel[]{channel});
+    return addUser(user, new NotificationChannel[] {channel});
   }
 
   private static Answer<Object> addUser(final String user, final NotificationChannel[] channels) {

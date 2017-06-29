@@ -76,7 +76,7 @@ public class DeactivateActionTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

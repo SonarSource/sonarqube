@@ -20,7 +20,6 @@
 package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,14 +27,13 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
-import org.sonar.server.platform.ServerId;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
@@ -46,17 +44,17 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
 
   static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
 
-  private final Settings settings;
+  private final Configuration config;
   private final SecurityRealmFactory securityRealmFactory;
   private final IdentityProviderRepository identityProviderRepository;
   private final Server server;
   private final ServerLogging serverLogging;
   private final ServerIdLoader serverIdLoader;
 
-  public SonarQubeMonitor(Settings settings, SecurityRealmFactory securityRealmFactory,
+  public SonarQubeMonitor(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
     ServerIdLoader serverIdLoader) {
-    this.settings = settings;
+    this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.server = server;
@@ -66,7 +64,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
 
   @Override
   public String getServerId() {
-    return serverIdLoader.getRaw().orNull();
+    return serverIdLoader.getRaw().orElse(null);
   }
 
   @Override
@@ -103,7 +101,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   }
 
   private boolean getForceAuthentication() {
-    return settings.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY);
+    return config.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY).orElse(false);
   }
 
   private boolean isOfficialDistribution() {
@@ -129,20 +127,19 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     addIfNotEmpty("External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders(), attributes);
     attributes.put("Force authentication", getForceAuthentication());
     attributes.put("Official Distribution", isOfficialDistribution());
-    attributes.put("Home Dir", settings.getString(ProcessProperties.PATH_HOME));
-    attributes.put("Data Dir", settings.getString(ProcessProperties.PATH_DATA));
-    attributes.put("Temp Dir", settings.getString(ProcessProperties.PATH_TEMP));
-    attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
+    attributes.put("Home Dir", config.get(ProcessProperties.PATH_HOME).orElse(null));
+    attributes.put("Data Dir", config.get(ProcessProperties.PATH_DATA).orElse(null));
+    attributes.put("Temp Dir", config.get(ProcessProperties.PATH_TEMP).orElse(null));
+    attributes.put("Logs Dir", config.get(ProcessProperties.PATH_LOGS).orElse(null));
     attributes.put("Logs Level", getLogLevel());
     return attributes;
   }
 
   private void completeWithServerIdAttributes(Map<String, Object> attributes) {
-    Optional<ServerId> serverId = serverIdLoader.get();
-    if (serverId.isPresent()) {
-      attributes.put("Server ID", serverId.get().getId());
-      attributes.put("Server ID validated", serverId.get().isValid());
-    }
+    serverIdLoader.get().ifPresent(serverId -> {
+      attributes.put("Server ID", serverId.getId());
+      attributes.put("Server ID validated", serverId.isValid());
+    });
   }
 
   private static void addIfNotNull(String key, @Nullable String value, Map<String, Object> attributes) {

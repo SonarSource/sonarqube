@@ -53,6 +53,8 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
+import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
+import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
 import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
 
@@ -80,8 +82,6 @@ import static org.sonar.server.component.ws.SuggestionsAction.PARAM_MORE;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_QUERY;
 import static org.sonar.server.component.ws.SuggestionsAction.PARAM_RECENTLY_BROWSED;
 import static org.sonar.server.component.ws.SuggestionsAction.SHORT_INPUT_WARNING;
-import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
-import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
 
 public class SuggestionsActionTest {
   private static final String[] SUGGESTION_QUALIFIERS = Stream.of(SuggestionCategory.values())
@@ -91,7 +91,7 @@ public class SuggestionsActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   public ResourceTypesRule resourceTypes = new ResourceTypesRule();

@@ -54,7 +54,7 @@ public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_KEY = "project-key";
 
   @Rule
-  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule

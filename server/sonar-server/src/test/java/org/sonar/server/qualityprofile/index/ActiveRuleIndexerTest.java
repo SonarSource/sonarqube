@@ -51,7 +51,7 @@ public class ActiveRuleIndexerTest {
   public DbTester db = DbTester.create(system2);
 
   @Rule
-  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings()));
+  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings().asConfig()));
 
   private ActiveRuleIndexer underTest = new ActiveRuleIndexer(db.getDbClient(), es.client(), new ActiveRuleIteratorFactory(db.getDbClient()));
   private RuleDefinitionDto rule1;

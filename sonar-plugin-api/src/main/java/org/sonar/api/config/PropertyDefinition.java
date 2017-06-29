@@ -57,7 +57,7 @@ import static org.sonar.api.PropertyType.REGULAR_EXPRESSION;
 import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 
 /**
- * Declare a plugin property. Values are available at runtime through the components {@link Settings} or {@link org.sonar.api.Configuration.SettingsReader}.
+ * Declare a plugin property. Values are available at runtime through the component {@link Configuration}.
  * <br>
  * It's the programmatic alternative to the annotation {@link org.sonar.api.Property}. It is more
  * testable and adds new features like sub-categories and ordering.

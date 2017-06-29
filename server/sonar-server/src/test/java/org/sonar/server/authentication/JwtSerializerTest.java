@@ -32,16 +32,15 @@ import javax.crypto.spec.SecretKeySpec;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.server.authentication.JwtSerializer.JwtSession;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.authentication.JwtSerializer.JwtSession;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class JwtSerializerTest {
@@ -52,10 +51,10 @@ public class JwtSerializerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private System2 system2 = System2.INSTANCE;
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  private JwtSerializer underTest = new JwtSerializer(settings, system2, uuidFactory);
+  private JwtSerializer underTest = new JwtSerializer(settings.asConfig(), system2, uuidFactory);
 
   @Test
   public void generate_token() throws Exception {

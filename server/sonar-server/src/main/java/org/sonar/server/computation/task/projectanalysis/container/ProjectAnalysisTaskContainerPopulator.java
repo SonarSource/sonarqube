@@ -35,7 +35,7 @@ import org.sonar.server.computation.task.projectanalysis.batch.BatchReportDirect
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepositoryImpl;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationRepositoryImpl;
@@ -166,7 +166,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       LanguageRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
-      SettingsRepositoryImpl.class,
+      ConfigurationRepositoryImpl.class,
       DbIdsRepositoryImpl.class,
       DisabledComponentsHolderImpl.class,
       QualityGateServiceImpl.class,

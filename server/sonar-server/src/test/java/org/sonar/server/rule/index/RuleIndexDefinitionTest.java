@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsTester;
@@ -40,8 +39,8 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;;
 
 public class RuleIndexDefinitionTest {
 
-  private Settings settings = new MapSettings();
-  private RuleIndexDefinition underTest = new RuleIndexDefinition(settings);
+  private MapSettings settings = new MapSettings();
+  private RuleIndexDefinition underTest = new RuleIndexDefinition(settings.asConfig());
 
   @Rule
   public EsTester tester = new EsTester(underTest);

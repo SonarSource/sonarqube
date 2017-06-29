@@ -21,7 +21,7 @@ package org.sonar.db;
 
 import org.junit.Test;
 
-import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;

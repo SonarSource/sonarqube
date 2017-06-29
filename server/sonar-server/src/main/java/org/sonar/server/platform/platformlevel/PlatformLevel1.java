@@ -28,6 +28,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.internal.TempFolderCleaner;
+import org.sonar.core.config.ConfigurationProvider;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
@@ -76,6 +77,7 @@ public class PlatformLevel1 extends PlatformLevel {
       new SonarQubeVersion(apiVersion),
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SERVER),
       ThreadLocalSettings.class,
+      new ConfigurationProvider(),
       LogServerVersion.class,
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,

@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.security.Authenticator;
 import org.sonar.api.security.ExternalGroupsProvider;
 import org.sonar.api.security.ExternalUsersProvider;
@@ -38,20 +38,20 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.authentication.event.AuthenticationException;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 
 public class RealmAuthenticator implements Startable {
 
   private static final Logger LOG = Loggers.get(RealmAuthenticator.class);
 
-  private final Settings settings;
+  private final Configuration config;
   private final SecurityRealmFactory securityRealmFactory;
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final AuthenticationEvent authenticationEvent;
@@ -61,9 +61,9 @@ public class RealmAuthenticator implements Startable {
   private ExternalUsersProvider externalUsersProvider;
   private ExternalGroupsProvider externalGroupsProvider;
 
-  public RealmAuthenticator(Settings settings, SecurityRealmFactory securityRealmFactory,
+  public RealmAuthenticator(Configuration config, SecurityRealmFactory securityRealmFactory,
     UserIdentityAuthenticator userIdentityAuthenticator, AuthenticationEvent authenticationEvent) {
-    this.settings = settings;
+    this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.authenticationEvent = authenticationEvent;
@@ -142,7 +142,7 @@ public class RealmAuthenticator implements Startable {
   }
 
   private String getLogin(String userLogin) {
-    if (settings.getBoolean("sonar.authenticator.downcase")) {
+    if (config.getBoolean("sonar.authenticator.downcase").orElse(false)) {
       return userLogin.toLowerCase(Locale.ENGLISH);
     }
     return userLogin;

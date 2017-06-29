@@ -33,7 +33,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.issue.ComponentIssuesRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
@@ -95,7 +95,7 @@ public class MeasureComputerContextImplTest {
   @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepository = new ComponentIssuesRepositoryRule(treeRootHolder);
 
-  SettingsRepository settingsRepository = mock(SettingsRepository.class);
+  ConfigurationRepository settingsRepository = mock(ConfigurationRepository.class);
 
   @Test
   public void get_component() throws Exception {
@@ -105,9 +105,9 @@ public class MeasureComputerContextImplTest {
 
   @Test
   public void get_string_settings() throws Exception {
-    org.sonar.api.config.Settings serverSettings = new MapSettings();
+    MapSettings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "value");
-    when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
+    when(settingsRepository.getConfiguration(FILE_1)).thenReturn(serverSettings.asConfig());
 
     MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getString("prop")).isEqualTo("value");
@@ -116,9 +116,9 @@ public class MeasureComputerContextImplTest {
 
   @Test
   public void get_string_array_settings() throws Exception {
-    org.sonar.api.config.Settings serverSettings = new MapSettings();
+    MapSettings serverSettings = new MapSettings();
     serverSettings.setProperty("prop", "1,3.4,8,50");
-    when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
+    when(settingsRepository.getConfiguration(FILE_1)).thenReturn(serverSettings.asConfig());
 
     MeasureComputerContextImpl underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getStringArray("prop")).containsExactly("1", "3.4", "8", "50");

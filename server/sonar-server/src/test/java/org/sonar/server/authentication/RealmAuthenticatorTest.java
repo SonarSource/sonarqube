@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.security.Authenticator;
 import org.sonar.api.security.ExternalGroupsProvider;
@@ -36,6 +35,7 @@ import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static java.util.Arrays.asList;
@@ -49,7 +49,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC;
 import static org.sonar.server.authentication.event.AuthenticationEvent.Method.BASIC_TOKEN;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
@@ -69,7 +68,7 @@ public class RealmAuthenticatorTest {
   private ArgumentCaptor<IdentityProvider> identityProviderArgumentCaptor = ArgumentCaptor.forClass(IdentityProvider.class);
   private ArgumentCaptor<AuthenticationEvent.Source> sourceCaptor = ArgumentCaptor.forClass(Source.class);
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
   private SecurityRealm realm = mock(SecurityRealm.class);
@@ -82,7 +81,7 @@ public class RealmAuthenticatorTest {
 
   private HttpServletRequest request = mock(HttpServletRequest.class);
 
-  private RealmAuthenticator underTest = new RealmAuthenticator(settings, securityRealmFactory, userIdentityAuthenticator, authenticationEvent);
+  private RealmAuthenticator underTest = new RealmAuthenticator(settings.asConfig(), securityRealmFactory, userIdentityAuthenticator, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {

@@ -23,14 +23,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
-import org.sonar.server.computation.task.projectanalysis.component.SettingsRepository;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TestSettingsRepository;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
@@ -48,8 +47,8 @@ public class DefaultAssigneeTest {
   @Rule
   public TreeRootHolderRule rootHolder = new TreeRootHolderRule().setRoot(DUMB_PROJECT);
 
-  private Settings settings = new MapSettings();
-  private SettingsRepository settingsRepository = new TestSettingsRepository(settings);
+  private MapSettings settings = new MapSettings();
+  private ConfigurationRepository settingsRepository = new TestSettingsRepository(settings.asConfig());
   private AnalysisMetadataHolderImpl analysisMetadataHolder = new AnalysisMetadataHolderImpl();
   private OrganizationDto organizationDto;
 

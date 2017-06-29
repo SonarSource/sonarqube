@@ -101,7 +101,7 @@ public class SearchActionTest {
   @org.junit.Rule
   public DbTester db = DbTester.create(system2);
   @org.junit.Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private RuleIndex ruleIndex = new RuleIndex(es.client());

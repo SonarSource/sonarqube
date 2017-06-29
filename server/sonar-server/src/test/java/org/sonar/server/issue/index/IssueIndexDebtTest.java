@@ -59,7 +59,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT
 public class IssueIndexDebtTest {
 
   @Rule
-  public EsTester tester = new EsTester(new IssueIndexDefinition(new MapSettings()), new ViewIndexDefinition(new MapSettings()));
+  public EsTester tester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()), new ViewIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();

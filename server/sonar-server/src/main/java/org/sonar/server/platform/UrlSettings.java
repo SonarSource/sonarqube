@@ -20,10 +20,9 @@
 package org.sonar.server.platform;
 
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
@@ -37,19 +36,19 @@ public class UrlSettings {
   private static final int DEFAULT_HTTP_PORT = 80;
   private static final String ALL_IPS_HOST = "0.0.0.0";
 
-  private final Settings settings;
+  private final Configuration config;
   // cached, so can't change at runtime
   private final String contextPath;
 
-  public UrlSettings(Settings settings) {
-    this.settings = settings;
-    this.contextPath = defaultIfBlank(settings.getString(PROPERTY_CONTEXT), "")
+  public UrlSettings(Configuration config) {
+    this.config = config;
+    this.contextPath = config.get(PROPERTY_CONTEXT).orElse("")
       // Remove trailing slashes
       .replaceFirst("(\\/+)$", "");
   }
 
   public String getBaseUrl() {
-    String url = settings.getString(SERVER_BASE_URL);
+    String url = config.get(SERVER_BASE_URL).orElse("");
     if (isEmpty(url)) {
       url = computeBaseUrl();
     }
@@ -61,7 +60,7 @@ public class UrlSettings {
   }
 
   public boolean isDev() {
-    return settings.getBoolean("sonar.web.dev");
+    return config.getBoolean("sonar.web.dev").orElse(false);
   }
 
   public boolean isSecured() {
@@ -69,9 +68,9 @@ public class UrlSettings {
   }
 
   private String computeBaseUrl() {
-    String host = settings.getString("sonar.web.host");
-    int port = settings.getInt("sonar.web.port");
-    String context = settings.getString("sonar.web.context");
+    String host = config.get("sonar.web.host").orElse("");
+    int port = config.getInt("sonar.web.port").orElse(0);
+    String context = config.get("sonar.web.context").orElse("");
 
     StringBuilder res = new StringBuilder();
     res.append("http://");

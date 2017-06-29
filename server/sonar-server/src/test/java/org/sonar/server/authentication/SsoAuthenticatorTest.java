@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.AlwaysIncreasingSystem2;
@@ -40,6 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
+import org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.OrganizationCreation;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -61,7 +61,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonar.server.authentication.event.AuthenticationEvent.Source;
 import static org.sonar.server.authentication.event.AuthenticationExceptionMatcher.authenticationException;
 
 public class SsoAuthenticatorTest {
@@ -94,7 +93,7 @@ public class SsoAuthenticatorTest {
   private GroupDto sonarUsers;
 
   private System2 system2 = mock(System2.class);
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
   private OrganizationCreation organizationCreation = mock(OrganizationCreation.class);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
@@ -102,14 +101,14 @@ public class SsoAuthenticatorTest {
   private UserIdentityAuthenticator userIdentityAuthenticator = new UserIdentityAuthenticator(
     db.getDbClient(),
     new UserUpdater(mock(NewUserNotifier.class), db.getDbClient(), mock(UserIndexer.class), System2.INSTANCE, organizationFlags, defaultOrganizationProvider, organizationCreation,
-      new DefaultGroupFinder(db.getDbClient()), settings),
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig()),
     defaultOrganizationProvider, organizationFlags, new DefaultGroupFinder(db.getDbClient()));
 
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
 
-  private SsoAuthenticator underTest = new SsoAuthenticator(system2, settings, userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
+  private SsoAuthenticator underTest = new SsoAuthenticator(system2, settings.asConfig(), userIdentityAuthenticator, jwtHttpHandler, authenticationEvent);
 
   @Before
   public void setUp() throws Exception {

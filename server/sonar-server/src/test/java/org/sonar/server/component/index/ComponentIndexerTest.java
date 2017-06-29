@@ -48,7 +48,7 @@ public class ComponentIndexerTest {
   private System2 system2 = System2.INSTANCE;
 
   @Rule
-  public EsTester esTester = new EsTester(new ComponentIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);

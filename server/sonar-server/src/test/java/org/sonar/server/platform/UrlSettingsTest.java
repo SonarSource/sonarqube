@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.CorePropertyDefinitions;
 
@@ -39,7 +38,7 @@ public class UrlSettingsTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private Settings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
 
   @Test
   public void use_default_context_path() {
@@ -163,10 +162,10 @@ public class UrlSettingsTest {
   }
 
   @Test
-  public void getBaseUrl_throws_NFE_when_port_not_an_int() {
+  public void getBaseUrl_throws_when_port_not_an_int() {
     settings.setProperty(PORT_PORPERTY, "not a number");
 
-    expectedException.expect(NumberFormatException.class);
+    expectedException.expect(IllegalStateException.class);
     underTest().getBaseUrl();
   }
 
@@ -195,6 +194,6 @@ public class UrlSettingsTest {
   }
 
   private UrlSettings underTest() {
-    return new UrlSettings(settings);
+    return new UrlSettings(settings.asConfig());
   }
 }

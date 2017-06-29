@@ -27,7 +27,7 @@ import org.elasticsearch.action.admin.indices.open.OpenIndexAction;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -41,12 +41,12 @@ public class IndexerStartupTask {
   private static final String SETTING_PREFIX_INITIAL_INDEXING_FINISHED = "sonarqube_initial_indexing_finished.";
 
   private final EsClient esClient;
-  private final Settings settings;
+  private final Configuration config;
   private final StartupIndexer[] indexers;
 
-  public IndexerStartupTask(EsClient esClient, Settings settings, StartupIndexer... indexers) {
+  public IndexerStartupTask(EsClient esClient, Configuration config, StartupIndexer... indexers) {
     this.esClient = esClient;
-    this.settings = settings;
+    this.config = config;
     this.indexers = indexers;
   }
 
@@ -58,7 +58,7 @@ public class IndexerStartupTask {
   }
 
   private boolean indexesAreEnabled() {
-    return !settings.getBoolean("sonar.internal.es.disableIndexes");
+    return !config.getBoolean("sonar.internal.es.disableIndexes").orElse(false);
   }
 
   private void indexEmptyTypes(StartupIndexer indexer) {

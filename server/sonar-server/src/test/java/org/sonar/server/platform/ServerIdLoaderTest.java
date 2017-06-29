@@ -19,10 +19,9 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +36,9 @@ public class ServerIdLoaderTest {
   private static final String AN_IP = "1.2.3.4";
   public static final String AN_ORGANIZATION = "corp";
 
-  Settings settings = new MapSettings();
+  MapSettings settings = new MapSettings();
   ServerIdGenerator idGenerator = mock(ServerIdGenerator.class);
-  ServerIdLoader underTest = new ServerIdLoader(settings, idGenerator);
+  ServerIdLoader underTest = new ServerIdLoader(settings.asConfig(), idGenerator);
 
   @Test
   public void get_returns_absent_if_id_property_is_not_set() {
@@ -47,7 +46,7 @@ public class ServerIdLoaderTest {
     settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, AN_IP);
 
     Optional<ServerId> serverIdOpt = underTest.get();
-    assertThat(serverIdOpt.isPresent()).isFalse();
+    assertThat(serverIdOpt).isEmpty();
     verifyZeroInteractions(idGenerator);
   }
 

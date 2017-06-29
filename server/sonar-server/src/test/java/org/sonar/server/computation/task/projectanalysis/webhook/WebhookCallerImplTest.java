@@ -172,6 +172,6 @@ public class WebhookCallerImplTest {
 
   private WebhookCaller newSender() {
     SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.parse("6.2"), SonarQubeSide.SERVER);
-    return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings(), runtime));
+    return new WebhookCallerImpl(system, new OkHttpClientProvider().provide(new MapSettings().asConfig(), runtime));
   }
 }

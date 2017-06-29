@@ -33,8 +33,8 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeableAnalysisDto;
 
-import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.eq;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;

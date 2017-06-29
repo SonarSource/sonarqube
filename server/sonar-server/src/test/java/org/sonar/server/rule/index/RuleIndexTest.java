@@ -91,7 +91,7 @@ public class RuleIndexTest {
   private System2 system2 = new AlwaysIncreasingSystem2();
 
   @Rule
-  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings()));
+  public EsTester es = new EsTester(RuleIndexDefinition.createForTest(new MapSettings().asConfig()));
   @Rule
   public DbTester db = DbTester.create(system2);
   @Rule

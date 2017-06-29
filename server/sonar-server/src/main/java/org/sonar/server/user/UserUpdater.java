@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -78,10 +78,10 @@ public class UserUpdater {
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final OrganizationCreation organizationCreation;
   private final DefaultGroupFinder defaultGroupFinder;
-  private final Settings settings;
+  private final Configuration config;
 
   public UserUpdater(NewUserNotifier newUserNotifier, DbClient dbClient, UserIndexer userIndexer, System2 system2, OrganizationFlags organizationFlags,
-    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Settings settings) {
+    DefaultOrganizationProvider defaultOrganizationProvider, OrganizationCreation organizationCreation, DefaultGroupFinder defaultGroupFinder, Configuration config) {
     this.newUserNotifier = newUserNotifier;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
@@ -90,7 +90,7 @@ public class UserUpdater {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.organizationCreation = organizationCreation;
     this.defaultGroupFinder = defaultGroupFinder;
-    this.settings = settings;
+    this.config = config;
   }
 
   public UserDto create(DbSession dbSession, NewUser newUser) {
@@ -260,7 +260,7 @@ public class UserUpdater {
   }
 
   private void setOnboarded(UserDto userDto) {
-    boolean showOnboarding = settings.getBoolean(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS);
+    boolean showOnboarding = config.getBoolean(ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS).orElse(false);
     userDto.setOnboarded(!showOnboarding);
   }
 

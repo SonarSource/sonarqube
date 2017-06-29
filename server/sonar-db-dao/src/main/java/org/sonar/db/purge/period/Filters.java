@@ -24,17 +24,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.core.config.PurgeConstants;
 
 class Filters {
   private final List<Filter> all = Lists.newArrayList();
 
-  Filters(Settings settings) {
-    Date dateToStartKeepingOneSnapshotByDay = getDateFromHours(settings, PurgeConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY);
-    Date dateToStartKeepingOneSnapshotByWeek = getDateFromWeeks(settings, PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK);
-    Date dateToStartKeepingOneSnapshotByMonth = getDateFromWeeks(settings, PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
-    Date dateToStartDeletingAllSnapshots = getDateFromWeeks(settings, PurgeConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS);
+  Filters(Configuration config) {
+    Date dateToStartKeepingOneSnapshotByDay = getDateFromHours(config, PurgeConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY);
+    Date dateToStartKeepingOneSnapshotByWeek = getDateFromWeeks(config, PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK);
+    Date dateToStartKeepingOneSnapshotByMonth = getDateFromWeeks(config, PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
+    Date dateToStartDeletingAllSnapshots = getDateFromWeeks(config, PurgeConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS);
 
     all.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByDay, Calendar.DAY_OF_YEAR, "day"));
     all.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByMonth, dateToStartKeepingOneSnapshotByWeek, Calendar.WEEK_OF_YEAR, "week"));
@@ -42,13 +42,13 @@ class Filters {
     all.add(new DeleteAllFilter(dateToStartDeletingAllSnapshots));
   }
 
-  static Date getDateFromWeeks(Settings settings, String propertyKey) {
-    int weeks = settings.getInt(propertyKey);
+  static Date getDateFromWeeks(Configuration config, String propertyKey) {
+    int weeks = config.getInt(propertyKey).get();
     return DateUtils.addWeeks(new Date(), -weeks);
   }
 
-  static Date getDateFromHours(Settings settings, String propertyKey) {
-    int hours = settings.getInt(propertyKey);
+  static Date getDateFromHours(Configuration config, String propertyKey) {
+    int hours = config.getInt(propertyKey).get();
     return DateUtils.addHours(new Date(), -hours);
   }
 

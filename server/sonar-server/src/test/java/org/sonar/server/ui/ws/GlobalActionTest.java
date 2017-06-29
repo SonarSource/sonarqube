@@ -21,7 +21,6 @@ package org.sonar.server.ui.ws;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.ResourceType;
@@ -52,7 +51,7 @@ public class GlobalActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   private Server server = mock(Server.class);
   private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
@@ -212,7 +211,7 @@ public class GlobalActionTest {
       }
     }});
     pageRepository.start();
-    ws = new WsActionTester(new GlobalAction(pageRepository, settings, new ResourceTypes(resourceTypeTrees), server,
+    ws = new WsActionTester(new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
       dbClient, organizationFlags, defaultOrganizationProvider, userSession));
   }
 

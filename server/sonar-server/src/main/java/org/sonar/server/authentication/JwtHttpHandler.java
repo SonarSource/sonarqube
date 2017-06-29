@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -70,11 +70,11 @@ public class JwtHttpHandler {
   private final int sessionTimeoutInSeconds;
   private final JwtCsrfVerifier jwtCsrfVerifier;
 
-  public JwtHttpHandler(System2 system2, DbClient dbClient, Settings settings, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier) {
+  public JwtHttpHandler(System2 system2, DbClient dbClient, Configuration config, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier) {
     this.jwtSerializer = jwtSerializer;
     this.dbClient = dbClient;
     this.system2 = system2;
-    this.sessionTimeoutInSeconds = getSessionTimeoutInSeconds(settings);
+    this.sessionTimeoutInSeconds = getSessionTimeoutInSeconds(config);
     this.jwtCsrfVerifier = jwtCsrfVerifier;
   }
 
@@ -176,14 +176,9 @@ public class JwtHttpHandler {
     }
   }
 
-  private static int getSessionTimeoutInSeconds(Settings settings) {
-    int minutes;
-    if (settings.hasKey(SESSION_TIMEOUT_IN_MINUTES_PROPERTY)) {
-      minutes = settings.getInt(SESSION_TIMEOUT_IN_MINUTES_PROPERTY);
-      checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s", SESSION_TIMEOUT_IN_MINUTES_PROPERTY, minutes);
-    } else {
-      minutes = SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES;
-    }
+  private static int getSessionTimeoutInSeconds(Configuration config) {
+    int minutes = config.getInt(SESSION_TIMEOUT_IN_MINUTES_PROPERTY).orElse(SESSION_TIMEOUT_DEFAULT_VALUE_IN_MINUTES);
+    checkArgument(minutes > 0, "Property %s must be strictly positive. Got %s", SESSION_TIMEOUT_IN_MINUTES_PROPERTY, minutes);
     checkArgument(minutes <= MAX_SESSION_TIMEOUT_IN_MINUTES, "Property %s must not be greater than 3 months (%s minutes). Got %s minutes",
       SESSION_TIMEOUT_IN_MINUTES_PROPERTY, MAX_SESSION_TIMEOUT_IN_MINUTES, minutes);
     return minutes * 60;

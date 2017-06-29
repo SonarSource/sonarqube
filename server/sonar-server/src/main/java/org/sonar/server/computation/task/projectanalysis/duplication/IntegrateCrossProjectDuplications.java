@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -52,13 +52,13 @@ public class IntegrateCrossProjectDuplications {
   private static final int MAX_CLONE_GROUP_PER_FILE = 100;
   private static final int MAX_CLONE_PART_PER_GROUP = 100;
 
-  private final Settings settings;
+  private final Configuration config;
   private final DuplicationRepository duplicationRepository;
 
   private Map<String, NumberOfUnitsNotLessThan> numberOfUnitsByLanguage = new HashMap<>();
 
-  public IntegrateCrossProjectDuplications(Settings settings, DuplicationRepository duplicationRepository) {
-    this.settings = settings;
+  public IntegrateCrossProjectDuplications(Configuration config, DuplicationRepository duplicationRepository) {
+    this.config = config;
     this.duplicationRepository = duplicationRepository;
   }
 
@@ -96,8 +96,7 @@ public class IntegrateCrossProjectDuplications {
     if (!Iterables.isEmpty(duplicates)) {
       duplicationRepository.add(
         file,
-        new Duplication(new TextBlock(originPart.getStartLine(), originPart.getEndLine()), duplicates)
-        );
+        new Duplication(new TextBlock(originPart.getStartLine(), originPart.getEndLine()), duplicates));
     }
   }
 
@@ -123,11 +122,7 @@ public class IntegrateCrossProjectDuplications {
     if (languageKey.equalsIgnoreCase(JAVA_KEY)) {
       return 0;
     }
-    int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
-    if (minimumTokens == 0) {
-      return 100;
-    }
-    return minimumTokens;
+    return config.getInt("sonar.cpd." + languageKey + ".minimumTokens").orElse(100);
   }
 
   private static class NumberOfUnitsNotLessThan implements Predicate<CloneGroup> {

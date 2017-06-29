@@ -37,7 +37,7 @@ import org.dbunit.IDatabaseTester;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
 import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.H2;

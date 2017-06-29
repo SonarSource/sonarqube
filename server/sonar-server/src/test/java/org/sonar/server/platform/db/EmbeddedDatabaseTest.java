@@ -62,7 +62,7 @@ public class EmbeddedDatabaseTest {
 
   private MapSettings settings = new MapSettings();
   private System2 system2 = mock(System2.class);
-  private EmbeddedDatabase underTest = new EmbeddedDatabase(settings, system2);
+  private EmbeddedDatabase underTest = new EmbeddedDatabase(settings.asConfig(), system2);
 
   @After
   public void tearDown() throws Exception {

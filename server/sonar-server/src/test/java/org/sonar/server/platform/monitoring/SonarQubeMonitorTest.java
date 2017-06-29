@@ -19,15 +19,14 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
@@ -41,7 +40,6 @@ import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,18 +54,20 @@ public class SonarQubeMonitorTest {
   @Rule
   public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
 
-  Settings settings = new MapSettings();
+  MapSettings settings = new MapSettings();
   Server server = mock(Server.class);
-  ServerIdLoader serverIdLoader = mock(ServerIdLoader.class, RETURNS_DEEP_STUBS);
+  ServerIdLoader serverIdLoader = mock(ServerIdLoader.class);
   ServerLogging serverLogging = mock(ServerLogging.class);
   SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
 
-  SonarQubeMonitor underTest = new SonarQubeMonitor(settings, securityRealmFactory, identityProviderRepository, server,
+  SonarQubeMonitor underTest = new SonarQubeMonitor(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
     serverLogging, serverIdLoader);
 
   @Before
   public void setUp() throws Exception {
     when(serverLogging.getRootLoggerLevel()).thenReturn(LoggerLevel.DEBUG);
+    when(serverIdLoader.getRaw()).thenReturn(Optional.empty());
+    when(serverIdLoader.get()).thenReturn(Optional.empty());
   }
 
   @Test
@@ -80,7 +80,7 @@ public class SonarQubeMonitorTest {
     when(serverIdLoader.getRaw()).thenReturn(Optional.of("ABC"));
     assertThat(underTest.getServerId()).isEqualTo("ABC");
 
-    when(serverIdLoader.getRaw()).thenReturn(Optional.<String>absent());
+    when(serverIdLoader.getRaw()).thenReturn(Optional.<String>empty());
     assertThat(underTest.getServerId()).isNull();
   }
 
@@ -102,7 +102,7 @@ public class SonarQubeMonitorTest {
 
   @Test
   public void attributes_do_not_contain_information_about_server_id_if_absent() {
-    when(serverIdLoader.get()).thenReturn(Optional.<ServerId>absent());
+    when(serverIdLoader.get()).thenReturn(Optional.<ServerId>empty());
 
     Map<String, Object> attributes = underTest.attributes();
     assertThat(attributes).doesNotContainKeys(SERVER_ID_PROPERTY, SERVER_ID_VALIDATED_PROPERTY);

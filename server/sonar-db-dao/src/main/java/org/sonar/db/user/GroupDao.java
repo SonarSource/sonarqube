@@ -30,8 +30,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
-import org.sonar.db.DbSession;
 import org.sonar.db.DaoDatabaseUtils;
+import org.sonar.db.DbSession;
 import org.sonar.db.WildcardPosition;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;

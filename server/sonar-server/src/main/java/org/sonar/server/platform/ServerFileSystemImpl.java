@@ -21,13 +21,11 @@ package org.sonar.server.platform;
 
 import java.io.File;
 import org.picocontainer.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.app.TomcatContexts;
-
-import static java.util.Objects.requireNonNull;
 
 public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.platform.ServerFileSystem, Startable {
 
@@ -38,10 +36,10 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
   private final File dataDir;
   private final File deployDir;
 
-  public ServerFileSystemImpl(Settings settings) {
-    this.homeDir = new File(requireNonNull(settings.getString(ProcessProperties.PATH_HOME)));
-    this.tempDir = new File(requireNonNull(settings.getString(ProcessProperties.PATH_TEMP)));
-    this.dataDir = new File(requireNonNull(settings.getString(ProcessProperties.PATH_DATA)));
+  public ServerFileSystemImpl(Configuration config) {
+    this.homeDir = new File(config.get(ProcessProperties.PATH_HOME).get());
+    this.tempDir = new File(config.get(ProcessProperties.PATH_TEMP).get());
+    this.dataDir = new File(config.get(ProcessProperties.PATH_DATA).get());
     this.deployDir = new File(this.dataDir, TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
   }
 

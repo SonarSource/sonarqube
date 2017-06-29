@@ -77,8 +77,8 @@ public class BulkUpdateKeyActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings()),
-    new ComponentIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new ProjectMeasuresIndexDefinition(new MapSettings().asConfig()),
+    new ComponentIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public DbTester db = DbTester.create(system2);
 

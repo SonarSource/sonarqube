@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -54,8 +53,8 @@ public class ServerLoggingTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private LogbackHelper logbackHelper = spy(new LogbackHelper());
-  private Settings settings = new MapSettings();
-  private ServerLogging underTest = new ServerLogging(logbackHelper, settings);
+  private MapSettings settings = new MapSettings();
+  private ServerLogging underTest = new ServerLogging(logbackHelper, settings.asConfig());
 
   @Rule
   public LogTester logTester = new LogTester();

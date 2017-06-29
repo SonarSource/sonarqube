@@ -17,36 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.cluster;
+package org.sonar.ce.settings;
 
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
+import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.db.DbClient;
 
-import static org.sonar.process.ProcessProperties.CLUSTER_WEB_LEADER;
+@ComputeEngineSide
+public class ProjectConfigurationFactory {
 
-public class ClusterImpl implements Cluster {
+  private final Settings globalSettings;
+  private final DbClient dbClient;
 
-  private final boolean enabled;
-  private final boolean startupLeader;
-
-  public ClusterImpl(Configuration config) {
-    this.enabled = config.getBoolean(ProcessProperties.CLUSTER_ENABLED).orElse(false);
-    if (this.enabled) {
-      this.startupLeader = config.getBoolean(CLUSTER_WEB_LEADER).orElse(false);
-      Loggers.get(ClusterImpl.class).info("Cluster enabled (startup {})", startupLeader ? "leader" : "follower");
-    } else {
-      this.startupLeader = true;
-    }
+  public ProjectConfigurationFactory(Settings globalSettings, DbClient dbClient) {
+    this.globalSettings = globalSettings;
+    this.dbClient = dbClient;
   }
 
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  @Override
-  public boolean isStartupLeader() {
-    return startupLeader;
+  public Configuration newProjectConfiguration(String projectKey) {
+    Settings projectSettings = new ProjectSettings(globalSettings);
+    dbClient.propertiesDao()
+      .selectProjectProperties(projectKey)
+      .forEach(property -> projectSettings.setProperty(property.getKey(), property.getValue()));
+    return new ConfigurationBridge(projectSettings);
   }
 }

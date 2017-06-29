@@ -25,7 +25,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -65,8 +65,8 @@ public class PeriodResolver {
   }
 
   @CheckForNull
-  public Period resolve(Settings settings) {
-    String propertyValue = getPropertyValue(settings);
+  public Period resolve(Configuration config) {
+    String propertyValue = getPropertyValue(config);
     if (StringUtils.isBlank(propertyValue)) {
       return null;
     }
@@ -207,7 +207,7 @@ public class PeriodResolver {
     return DateUtils.formatDate(Date.from(new Date(date).toInstant().truncatedTo(ChronoUnit.SECONDS)));
   }
 
-  private static String getPropertyValue(Settings settings) {
-    return settings.getString(LEAK_PERIOD);
+  private static String getPropertyValue(Configuration config) {
+    return config.get(LEAK_PERIOD).get();
   }
 }

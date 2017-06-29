@@ -23,10 +23,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
-import org.sonar.ce.settings.ProjectSettingsFactory;
+import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -37,8 +37,7 @@ import org.sonar.db.property.PropertyDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 
-
-public class SettingsRepositoryTest {
+public class ConfigurationRepositoryTest {
 
   private static final Component ROOT = ReportComponent.builder(PROJECT, 1).setKey("ROOT").build();
 
@@ -51,13 +50,13 @@ public class SettingsRepositoryTest {
 
   MapSettings globalSettings;
 
-  SettingsRepository underTest;
+  ConfigurationRepository underTest;
 
   @Before
   public void createDao() {
     globalSettings = new MapSettings();
     session = dbClient.openSession(false);
-    underTest = new SettingsRepositoryImpl(new ProjectSettingsFactory(globalSettings, dbClient));
+    underTest = new ConfigurationRepositoryImpl(new ProjectConfigurationFactory(globalSettings, dbClient));
   }
 
   @After
@@ -69,9 +68,9 @@ public class SettingsRepositoryTest {
   public void get_project_settings_from_global_settings() {
     globalSettings.setProperty("key", "value");
 
-    Settings settings = underTest.getSettings(ROOT);
+    Configuration config = underTest.getConfiguration(ROOT);
 
-    assertThat(settings.getString("key")).isEqualTo("value");
+    assertThat(config.get("key")).hasValue("value");
   }
 
   @Test
@@ -81,19 +80,19 @@ public class SettingsRepositoryTest {
     dbClient.propertiesDao().saveProperty(session, new PropertyDto().setResourceId(project.getId()).setKey("key").setValue("value"));
     session.commit();
 
-    Settings settings = underTest.getSettings(ROOT);
+    Configuration config = underTest.getConfiguration(ROOT);
 
-    assertThat(settings.getString("key")).isEqualTo("value");
+    assertThat(config.get("key")).hasValue("value");
   }
 
   @Test
   public void call_twice_get_project_settings() {
     globalSettings.setProperty("key", "value");
 
-    Settings settings = underTest.getSettings(ROOT);
-    assertThat(settings.getString("key")).isEqualTo("value");
+    Configuration config = underTest.getConfiguration(ROOT);
+    assertThat(config.get("key")).hasValue("value");
 
-    settings = underTest.getSettings(ROOT);
-    assertThat(settings.getString("key")).isEqualTo("value");
+    config = underTest.getConfiguration(ROOT);
+    assertThat(config.get("key")).hasValue("value");
   }
 }

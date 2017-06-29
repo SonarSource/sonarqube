@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.ServerSide;
@@ -40,10 +40,10 @@ public class SecurityRealmFactory implements Startable {
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;
 
-  public SecurityRealmFactory(Settings settings, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
-    ignoreStartupFailure = settings.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE);
-    String realmName = settings.getString(CoreProperties.CORE_AUTHENTICATOR_REALM);
-    String className = settings.getString(CoreProperties.CORE_AUTHENTICATOR_CLASS);
+  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms, LoginPasswordAuthenticator[] authenticators) {
+    ignoreStartupFailure = config.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE).orElse(false);
+    String realmName = config.get(CoreProperties.CORE_AUTHENTICATOR_REALM).orElse(null);
+    String className = config.get(CoreProperties.CORE_AUTHENTICATOR_CLASS).orElse(null);
     SecurityRealm selectedRealm = null;
     if (!StringUtils.isEmpty(realmName)) {
       selectedRealm = selectRealm(realms, realmName);
@@ -63,16 +63,16 @@ public class SecurityRealmFactory implements Startable {
     realm = selectedRealm;
   }
 
-  public SecurityRealmFactory(Settings settings, LoginPasswordAuthenticator[] authenticators) {
-    this(settings, new SecurityRealm[0], authenticators);
+  public SecurityRealmFactory(Configuration config, LoginPasswordAuthenticator[] authenticators) {
+    this(config, new SecurityRealm[0], authenticators);
   }
 
-  public SecurityRealmFactory(Settings settings, SecurityRealm[] realms) {
-    this(settings, realms, new LoginPasswordAuthenticator[0]);
+  public SecurityRealmFactory(Configuration config, SecurityRealm[] realms) {
+    this(config, realms, new LoginPasswordAuthenticator[0]);
   }
 
-  public SecurityRealmFactory(Settings settings) {
-    this(settings, new SecurityRealm[0], new LoginPasswordAuthenticator[0]);
+  public SecurityRealmFactory(Configuration config) {
+    this(config, new SecurityRealm[0], new LoginPasswordAuthenticator[0]);
   }
 
   @Override

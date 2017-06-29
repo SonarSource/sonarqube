@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
@@ -74,10 +74,10 @@ public class IssueIndexDefinition implements IndexDefinition {
    */
   public static final String FIELD_ISSUE_TECHNICAL_UPDATED_AT = "updatedAt";
 
-  private final Settings settings;
+  private final Configuration config;
 
-  public IssueIndexDefinition(Settings settings) {
-    this.settings = settings;
+  public IssueIndexDefinition(Configuration config) {
+    this.config = config;
   }
 
   @Override
@@ -85,7 +85,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX_TYPE_ISSUE.getIndex());
 
     index.refreshHandledByIndexer();
-    index.configureShards(settings, 5);
+    index.configureShards(config, 5);
 
     NewIndex.NewIndexType type = index.createType(INDEX_TYPE_ISSUE.getType());
     type.requireProjectAuthorization();
