@@ -69,15 +69,14 @@ public class SearchServerTest {
   @Test
   public void start_stop_server() throws Exception {
     underTest = new SearchServer(getClusterProperties());
+
     underTest.start();
     assertThat(underTest.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
 
-    waitFor("green");
     underTest.stop();
     underTest.awaitStop();
-    underTest = null;
     try {
-      waitFor("green");
+      underTest.getStatus();
       fail();
     } catch (Exception exception) {
       // ok
@@ -85,7 +84,7 @@ public class SearchServerTest {
   }
 
   private void waitFor(String expectedStatus) throws Exception {
-    String urlString = "http://localhost:"+httpPort+"/_cluster/health";
+    String urlString = "http://localhost:" + httpPort + "/_cluster/health";
     URL url = new URL(urlString);
     URLConnection urlConnection = url.openConnection();
     InputStream inputStream = urlConnection.getInputStream();

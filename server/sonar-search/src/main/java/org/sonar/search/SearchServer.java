@@ -122,6 +122,18 @@ public class SearchServer implements Monitored {
 
   @Override
   public Status getStatus() {
+    Status status = null;
+    try {
+      status = getStatus2();
+      System.out.println("ES STATUS "+status);
+      return status;
+    } catch (Exception e) {
+      System.out.println("ES STATUS "+e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Status getStatus2() {
     String urlString = url+"/_cluster/health";
     try {
       URL url = new URL(urlString);
