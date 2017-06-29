@@ -38,9 +38,10 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonarqube.ws.QualityProfiles.ShowWsResponse;
-import org.sonarqube.ws.QualityProfiles.ShowWsResponse.CompareToSonarWay;
-import org.sonarqube.ws.QualityProfiles.ShowWsResponse.QualityProfile;
+import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.QualityProfiles.ShowResponse;
+import org.sonarqube.ws.QualityProfiles.ShowResponse.CompareToSonarWay;
+import org.sonarqube.ws.QualityProfiles.ShowResponse.QualityProfile;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
@@ -49,6 +50,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
@@ -71,7 +73,7 @@ public class ShowAction implements QProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction show = controller.createAction("show")
+    NewAction show = controller.createAction(ACTION_SHOW)
       .setSince("6.5")
       .setDescription("Show a quality profile")
       .setResponseExample(getClass().getResource("show-example.json"))
@@ -149,9 +151,9 @@ public class ShowAction implements QProfileWsAction {
       .build();
   }
 
-  private static ShowWsResponse buildResponse(QProfileDto profile, boolean isDefault, Language language, long activeRules, long deprecatedActiveRules, long projects,
-    @Nullable CompareToSonarWay compareToSonarWay) {
-    ShowWsResponse.Builder showResponseBuilder = ShowWsResponse.newBuilder();
+  private static ShowResponse buildResponse(QProfileDto profile, boolean isDefault, Language language, long activeRules, long deprecatedActiveRules, long projects,
+                                            @Nullable CompareToSonarWay compareToSonarWay) {
+    ShowResponse.Builder showResponseBuilder = QualityProfiles.ShowResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder()
       .setKey(profile.getKee())
       .setName(profile.getName())

@@ -101,7 +101,7 @@ message CopyWsResponse {
 }
 
 // WS api/qualityprofiles/show
-message ShowWsResponse {
+message ShowResponse {
   optional QualityProfile profile = 1;
   optional CompareToSonarWay compareToSonarWay = 2;
 
