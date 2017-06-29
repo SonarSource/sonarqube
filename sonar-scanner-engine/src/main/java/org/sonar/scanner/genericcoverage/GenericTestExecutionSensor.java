@@ -66,7 +66,7 @@ public class GenericTestExecutionSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("Generic Test Executions Report")
-      .requireProperty(REPORT_PATHS_PROPERTY_KEY);
+      .onlyWhenConfiguration(conf -> conf.hasKey(REPORT_PATHS_PROPERTY_KEY));
   }
 
   @Override

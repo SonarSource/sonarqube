@@ -63,12 +63,8 @@ public class SensorOptimizer {
   }
 
   private boolean settingsCondition(DefaultSensorDescriptor descriptor) {
-    if (!descriptor.properties().isEmpty()) {
-      for (String propertyKey : descriptor.properties()) {
-        if (!config.hasKey(propertyKey)) {
-          return false;
-        }
-      }
+    if (descriptor.configurationPredicate() != null) {
+      return descriptor.configurationPredicate().test(config);
     }
     return true;
   }

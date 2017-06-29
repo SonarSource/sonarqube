@@ -24,10 +24,9 @@ import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.internal.SettingsReader;
 
 @ComputeEngineSide
-public class ProjectSettings extends Settings implements SettingsReader {
+public class ProjectSettings extends Settings {
 
   private final Map<String, String> projectProps = new HashMap<>();
   private final Settings globalSettings;

@@ -21,9 +21,13 @@ package org.sonar.api.batch.sensor.internal;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.config.Configuration;
+
+import static java.util.Arrays.asList;
 
 public class DefaultSensorDescriptor implements SensorDescriptor {
 
@@ -31,8 +35,8 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   private String[] languages = new String[0];
   private InputFile.Type type = null;
   private String[] ruleRepositories = new String[0];
-  private String[] properties = new String[0];
   private boolean global = false;
+  private Predicate<Configuration> configurationPredicate;
 
   public String name() {
     return name;
@@ -51,8 +55,8 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
     return Arrays.asList(ruleRepositories);
   }
 
-  public Collection<String> properties() {
-    return Arrays.asList(properties);
+  public Predicate<Configuration> configurationPredicate() {
+    return configurationPredicate;
   }
 
   public boolean isGlobal() {
@@ -100,13 +104,19 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
 
   @Override
   public DefaultSensorDescriptor requireProperties(String... propertyKeys) {
-    this.properties = propertyKeys;
+    this.configurationPredicate = config -> asList(propertyKeys).stream().allMatch(config::hasKey);
     return this;
   }
 
   @Override
   public SensorDescriptor global() {
     this.global = true;
+    return this;
+  }
+
+  @Override
+  public SensorDescriptor onlyWhenConfiguration(Predicate<Configuration> configurationPredicate) {
+    this.configurationPredicate = configurationPredicate;
     return this;
   }
 
