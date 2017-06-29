@@ -246,38 +246,31 @@
     </where>
   </select>
 
-  <select id="countActiveRulesByProfileUuid" resultType="KeyLongValue" parameterType="map">
+  <select id="countActiveRulesByQuery" resultType="KeyLongValue" parameterType="map">
     select oqp.uuid as "key", count(ar.id) as "value"
     from active_rules ar
     inner join rules_profiles rp on rp.id = ar.profile_id
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
     inner join rules r on r.id = ar.rule_id
-    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    and r.status != 'REMOVED'
+    <where>
+      oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+      and <foreach collection="profileUuids" item="profileUuid" open="(" separator=" or " close=")">
+        oqp.uuid = #{profileUuid, jdbcType=VARCHAR}
+      </foreach>
+      <choose>
+        <when test="ruleStatus == null">
+          and r.status != 'REMOVED'
+        </when>
+        <otherwise>
+          and r.status = #{ruleStatus, jdbcType=VARCHAR}
+        </otherwise>
+      </choose>
+      <if test="inheritance != null">
+        and ar.inheritance = #{inheritance, jdbcType=VARCHAR}
+      </if>
+    </where>
     group by oqp.uuid
   </select>
 
-  <select id="countActiveRulesForRuleStatusByProfileUuid" resultType="KeyLongValue" parameterType="map">
-    select oqp.uuid as "key", count(ar.id) as "value"
-    from active_rules ar
-    inner join rules_profiles rp on rp.id = ar.profile_id
-    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
-    inner join rules r on r.id = ar.rule_id
-    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    and r.status = #{ruleStatus, jdbcType=VARCHAR}
-    group by oqp.uuid
-  </select>
-
-  <select id="countActiveRulesForInheritanceByProfileUuid" resultType="KeyLongValue" parameterType="map">
-    select oqp.uuid as "key", count(ar.id) as "value"
-    from active_rules ar
-    inner join rules_profiles rp on rp.id = ar.profile_id
-    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
-    inner join rules r on r.id = ar.rule_id
-    where oqp.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
-    and ar.inheritance = #{inheritance, jdbcType=VARCHAR}
-    and r.status != 'REMOVED'
-    group by oqp.uuid
-  </select>
 </mapper>
 
