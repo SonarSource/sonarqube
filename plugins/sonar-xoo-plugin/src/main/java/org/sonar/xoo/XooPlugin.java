@@ -58,12 +58,14 @@ import org.sonar.xoo.rule.OneVulnerabilityIssuePerModuleSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
 import org.sonar.xoo.rule.SaveDataTwiceSensor;
 import org.sonar.xoo.rule.Xoo2BasicProfile;
+import org.sonar.xoo.rule.Xoo2SonarWayProfile;
 import org.sonar.xoo.rule.XooBasicProfile;
 import org.sonar.xoo.rule.XooEmptyProfile;
 import org.sonar.xoo.rule.XooFakeExporter;
 import org.sonar.xoo.rule.XooFakeImporter;
 import org.sonar.xoo.rule.XooFakeImporterWithMessages;
 import org.sonar.xoo.rule.XooRulesDefinition;
+import org.sonar.xoo.rule.XooSonarWayProfile;
 import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooScmProvider;
 import org.sonar.xoo.test.CoveragePerTestSensor;
@@ -92,7 +94,9 @@ public class XooPlugin implements Plugin {
       Xoo.class,
       Xoo2.class,
       XooRulesDefinition.class,
+      XooSonarWayProfile.class,
       XooBasicProfile.class,
+      Xoo2SonarWayProfile.class,
       Xoo2BasicProfile.class,
       XooEmptyProfile.class,
 

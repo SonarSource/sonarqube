@@ -20,11 +20,11 @@
 package org.sonarqube.tests.qualityProfile;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category6Suite;
 import java.util.function.Predicate;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Session;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations.Organization;
@@ -61,8 +61,10 @@ public class BuiltInQualityProfilesTest {
       .extracting(QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
       .containsExactlyInAnyOrder(
         tuple("Basic", "xoo", true, true),
+        tuple("Sonar way", "xoo", true, false),
         tuple("empty", "xoo", true, false),
-        tuple("Basic", "xoo2", true, true));
+        tuple("Basic", "xoo2", true, true),
+        tuple("Sonar way", "xoo2", true, false));
   }
 
   @Test
@@ -73,8 +75,10 @@ public class BuiltInQualityProfilesTest {
       .extracting(QualityProfile::getOrganization, QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
       .containsExactlyInAnyOrder(
         tuple("default-organization", "Basic", "xoo", true, true),
+        tuple("default-organization", "Sonar way", "xoo", true, false),
         tuple("default-organization", "empty", "xoo", true, false),
-        tuple("default-organization", "Basic", "xoo2", true, true));
+        tuple("default-organization", "Basic", "xoo2", true, true),
+        tuple("default-organization", "Sonar way", "xoo2", true, false));
   }
 
   @Test
