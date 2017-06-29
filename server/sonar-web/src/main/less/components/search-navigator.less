@@ -200,12 +200,12 @@
 
   .facet-toggle-active.facet-toggle-green {
     background-color: @green;
-    color: #fff;
+    color: @white;
   }
 
   .facet-toggle-active.facet-toggle-red {
     background-color: @red;
-    color: #fff;
+    color: @white;
   }
 }
 
@@ -246,6 +246,22 @@
 
   .facet-toggle {
     display: inline;
+  }
+}
+
+.search-navigator-facet.compare {
+  .facet-toggle {
+    cursor: not-allowed;
+    opacity: 0.5;
+
+    &.facet-toggle-green {
+      background-color: @green;
+      color: @white;
+    }
+    &.facet-toggle-red {
+      background-color: transparent;
+      color: @secondFontColor;
+    }
   }
 }
 
@@ -531,7 +547,7 @@
   border: 1px solid #e8e8e8;
   box-sizing: border-box;
   line-height: 1.5;
-  background-color: #fff;
+  background-color: @white;
   box-shadow: @defaultShadow;
 }
 

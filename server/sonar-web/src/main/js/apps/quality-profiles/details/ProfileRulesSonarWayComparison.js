@@ -21,6 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import Tooltip from '../../../components/controls/Tooltip';
+import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
@@ -31,6 +32,11 @@ type Props = {
 };
 
 export default function ProfileRulesSonarWayComparison(props: Props) {
+  const url = getRulesUrl(
+    { qprofile: props.profile, activation: false, compareToProfile: props.sonarway },
+    props.organization
+  );
+
   return (
     <div className="quality-profile-rules-sonarway-missing clearfix">
       <span className="pull-left">
@@ -39,7 +45,7 @@ export default function ProfileRulesSonarWayComparison(props: Props) {
           <i className="icon-help spacer-left" />
         </Tooltip>
       </span>
-      <Link className="pull-right">
+      <Link className="pull-right" to={url}>
         {props.sonarWayMissingRules}
       </Link>
     </div>
