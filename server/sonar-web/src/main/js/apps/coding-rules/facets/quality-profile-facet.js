@@ -33,6 +33,29 @@ export default BaseFacet.extend({
     };
   },
 
+  onRender() {
+    this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
+    this.$el.attr('data-property', this.model.get('property'));
+    const that = this;
+    const property = this.model.get('property');
+    const value = this.options.app.state.get('query')[property];
+    if (typeof value === 'string') {
+      value.split(',').forEach(s => {
+        const facet = that.$('.js-facet').filter(`[data-value="${s}"]`);
+        if (facet.length > 0) {
+          facet.addClass('active');
+        }
+      });
+    }
+    const compareToProfile = this.options.app.state.get('query').compareToProfile;
+    if (typeof compareToProfile === 'string') {
+      const facet = that.$('.js-facet').filter(`[data-value="${compareToProfile}"]`);
+      if (facet.length > 0) {
+        facet.addClass('active compare');
+      }
+    }
+  },
+
   getValues() {
     const that = this;
     const languagesQuery = this.options.app.state.get('query').languages;
@@ -64,12 +87,23 @@ export default BaseFacet.extend({
 
   setActivation(e) {
     e.stopPropagation();
-    this.options.app.state.updateFilter({ activation: 'true' });
+    const compareProfile = this.options.app.state.get('query').compareToProfile;
+    const profile = $(e.currentTarget).parents('.js-facet').data('value');
+    if (compareProfile == null || compareProfile !== profile) {
+      this.options.app.state.updateFilter({ activation: 'true' });
+    }
   },
 
   unsetActivation(e) {
     e.stopPropagation();
-    this.options.app.state.updateFilter({ activation: 'false', active_severities: null });
+    const compareProfile = this.options.app.state.get('query').compareToProfile;
+    const profile = $(e.currentTarget).parents('.js-facet').data('value');
+    if (compareProfile == null || compareProfile !== profile) {
+      this.options.app.state.updateFilter({
+        activation: 'false',
+        active_severities: null
+      });
+    }
   },
 
   getToggled() {
