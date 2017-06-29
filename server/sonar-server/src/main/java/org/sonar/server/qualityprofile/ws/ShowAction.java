@@ -20,6 +20,10 @@
 package org.sonar.server.qualityprofile.ws;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -32,6 +36,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonarqube.ws.QualityProfiles.ShowWsResponse;
+import org.sonarqube.ws.QualityProfiles.ShowWsResponse.CompareToSonarWay;
 import org.sonarqube.ws.QualityProfiles.ShowWsResponse.QualityProfile;
 
 import static java.util.Collections.singletonList;
@@ -45,6 +50,9 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
 public class ShowAction implements QProfileWsAction {
+
+  private static final String SONAR_WAY = "Sonar way";
+  private static final String SONARQUBE_WAY = "SonarQube way";
 
   private final DbClient dbClient;
   private final QProfileWsSupport qProfileWsSupport;
@@ -73,6 +81,7 @@ public class ShowAction implements QProfileWsAction {
     show.createParam(PARAM_COMPARE_TO_SONAR_WAY)
       .setDescription("Add the number of missing rules from the related Sonar way profile in the response")
       .setInternal(true)
+      .setDefaultValue("false")
       .setBooleanPossibleValues();
   }
 
@@ -86,7 +95,8 @@ public class ShowAction implements QProfileWsAction {
       long activeRuleCount = countActiveRulesByQuery(dbSession, profile, builder);
       long deprecatedActiveRuleCount = countActiveRulesByQuery(dbSession, profile, builder.setRuleStatus(DEPRECATED));
       long projectCount = countProjectsByOrganizationAndProfiles(dbSession, organization, profile);
-      writeProtobuf(buildResponse(profile, isDefault, getLanguage(profile), activeRuleCount, deprecatedActiveRuleCount, projectCount), request, response);
+      CompareToSonarWay compareToSonarWay = getSonarWay(request, dbSession, organization, profile);
+      writeProtobuf(buildResponse(profile, isDefault, getLanguage(profile), activeRuleCount, deprecatedActiveRuleCount, projectCount, compareToSonarWay), request, response);
     }
   }
 
@@ -106,7 +116,31 @@ public class ShowAction implements QProfileWsAction {
     return language;
   }
 
-  private static ShowWsResponse buildResponse(QProfileDto profile, boolean isDefault, Language language, long activeRules, long deprecatedActiveRules, long projects) {
+  @CheckForNull
+  public CompareToSonarWay getSonarWay(Request request, DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
+    if (!request.mandatoryParamAsBoolean(PARAM_COMPARE_TO_SONAR_WAY) || profile.isBuiltIn()) {
+      return null;
+    }
+    QProfileDto sonarWay = Stream.of(SONAR_WAY, SONARQUBE_WAY)
+      .map(name -> dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, name, profile.getLanguage()))
+      .filter(Objects::nonNull)
+      .filter(QProfileDto::isBuiltIn)
+      .findFirst()
+      .orElse(null);
+
+    if (sonarWay == null) {
+      return null;
+    }
+
+    return CompareToSonarWay.newBuilder()
+      .setProfile(sonarWay.getKee())
+      .setProfileName(sonarWay.getName())
+      .build();
+  }
+
+  private static ShowWsResponse buildResponse(QProfileDto profile, boolean isDefault, Language language, long activeRules, long deprecatedActiveRules, long projects,
+    @Nullable CompareToSonarWay compareToSonarWay) {
+    ShowWsResponse.Builder showResponseBuilder = ShowWsResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder()
       .setKey(profile.getKee())
       .setName(profile.getName())
@@ -121,7 +155,8 @@ public class ShowAction implements QProfileWsAction {
     setNullable(profile.getRulesUpdatedAt(), profileBuilder::setRulesUpdatedAt);
     setNullable(profile.getLastUsed(), last -> profileBuilder.setLastUsed(formatDateTime(last)));
     setNullable(profile.getUserUpdatedAt(), userUpdatedAt -> profileBuilder.setUserUpdatedAt(formatDateTime(userUpdatedAt)));
-    return ShowWsResponse.newBuilder().setProfile(profileBuilder).build();
+    setNullable(compareToSonarWay, showResponseBuilder::setCompareToSonarWay);
+    return showResponseBuilder.setProfile(profileBuilder).build();
   }
 
 }
