@@ -357,6 +357,13 @@ public class SearchActionTest {
   }
 
   @Test
+  public void no_profile() {
+    SearchWsResponse result = call(ws.newRequest());
+
+    assertThat(result.getProfilesList()).isEmpty();
+  }
+
+  @Test
   public void map_dates() {
     long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
     qualityProfileDb.insert(newQualityProfileDto()

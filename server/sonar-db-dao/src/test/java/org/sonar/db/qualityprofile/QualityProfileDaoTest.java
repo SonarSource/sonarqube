@@ -488,8 +488,10 @@ public class QualityProfileDaoTest {
     ComponentDto projectInOtherOrg = db.components().insertPrivateProject(otherOrg);
     db.qualityProfiles().associateWithProject(projectInOtherOrg, profileInOtherOrg);
 
-    assertThat(underTest.countProjectsByProfileUuid(dbSession, organization)).containsOnly(
+    assertThat(underTest.countProjectsByOrganizationAndProfiles(dbSession, organization, asList(profileWithoutProjects, profileWithProjects, profileInOtherOrg))).containsOnly(
       MapEntry.entry(profileWithProjects.getKee(), 2L));
+    assertThat(underTest.countProjectsByOrganizationAndProfiles(dbSession, otherOrg, singletonList(profileWithoutProjects))).isEmpty();
+    assertThat(underTest.countProjectsByOrganizationAndProfiles(dbSession, organization, Collections.emptyList())).isEmpty();
   }
 
   @Test
