@@ -21,6 +21,7 @@ package org.sonar.search;
 
 import java.io.IOException;
 import org.apache.lucene.util.StringHelper;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -65,6 +66,13 @@ public class SearchServer implements Monitored {
     } catch (NodeValidationException e) {
       throw new RuntimeException("Failed to start ES", e);
     }
+    configureIndexDefaultSettings(settings);
+  }
+
+  private void configureIndexDefaultSettings(EsSettings settings) {
+    Settings.Builder indexSettings = Settings.builder();
+    settings.configureIndexDefaults(indexSettings);
+    node.client().admin().indices().putTemplate(new PutIndexTemplateRequest().settings(indexSettings));
   }
 
   // copied from https://github.com/elastic/elasticsearch/blob/v2.3.3/core/src/main/java/org/elasticsearch/bootstrap/Bootstrap.java
