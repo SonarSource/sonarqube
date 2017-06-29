@@ -24,16 +24,16 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.xoo.Xoo;
+import org.sonar.xoo.Xoo2;
 
-public class XooBasicProfile extends ProfileDefinition {
+public class Xoo2SonarWayProfile extends ProfileDefinition {
 
   @Override
-  public RulesProfile createProfile(ValidationMessages validation) {
-    final RulesProfile profile = RulesProfile.create("Basic", Xoo.KEY);
-    profile.setDefaultProfile(true);
+  public RulesProfile createProfile(ValidationMessages messages) {
+    RulesProfile profile = RulesProfile.create("Sonar way", Xoo2.KEY);
 
-    profile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, HasTagSensor.RULE_KEY), RulePriority.MAJOR);
+    profile.activateRule(Rule.create(XooRulesDefinition.XOO2_REPOSITORY, HasTagSensor.RULE_KEY), RulePriority.MAJOR);
+    profile.activateRule(Rule.create(XooRulesDefinition.XOO2_REPOSITORY, OneIssuePerLineSensor.RULE_KEY), RulePriority.MINOR);
 
     return profile;
   }
