@@ -21,8 +21,8 @@ package org.sonar.server.setting;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.ce.settings.ProjectSettingsFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertyDto;

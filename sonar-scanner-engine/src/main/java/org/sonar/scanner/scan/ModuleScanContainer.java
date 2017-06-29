@@ -30,9 +30,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
-import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
+import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.deprecated.DeprecatedSensorContext;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
 import org.sonar.scanner.events.EventBus;
@@ -97,7 +97,8 @@ public class ModuleScanContainer extends ComponentContainer {
       // still injected by some plugins
       new Project(module.definition()),
       module,
-      ModuleSettings.class);
+      MutableModuleSettings.class,
+      new ModuleSettingsProvider());
 
     if (getComponentByType(AnalysisMode.class).isIssues()) {
       add(IssuesPhaseExecutor.class,

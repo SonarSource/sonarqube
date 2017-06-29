@@ -24,11 +24,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -45,11 +44,11 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
   private static final Logger LOG = Loggers.get(SonarCpdBlockIndex.class);
   private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final ReportPublisher publisher;
-  private final Settings settings;
+  private final Configuration settings;
   // Files already tokenized
   private final Set<InputFile> indexedFiles = new HashSet<>();
 
-  public SonarCpdBlockIndex(ReportPublisher publisher, Settings settings) {
+  public SonarCpdBlockIndex(ReportPublisher publisher, Configuration settings) {
     this.publisher = publisher;
     this.settings = settings;
   }
@@ -88,10 +87,10 @@ public class SonarCpdBlockIndex extends AbstractCloneIndex {
     return indexedFiles.contains(inputFile);
   }
 
-  public static boolean isCrossProjectDuplicationEnabled(Settings settings) {
-    return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)
+  public static boolean isCrossProjectDuplicationEnabled(Configuration settings) {
+    return settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT).orElse(false)
       // No cross project duplication for branches
-      && StringUtils.isBlank(settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY));
+      && !settings.get(CoreProperties.PROJECT_BRANCH_PROPERTY).isPresent();
   }
 
   public Collection<Block> getByInputFile(String resourceKey) {

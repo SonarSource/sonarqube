@@ -19,10 +19,9 @@
  */
 package org.sonar.scanner.cpd.deprecated;
 
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.CpdMapping;
-
 import javax.annotation.CheckForNull;
+import org.sonar.api.batch.CpdMapping;
+import org.sonar.api.batch.ScannerSide;
 
 @ScannerSide
 public class CpdMappings {

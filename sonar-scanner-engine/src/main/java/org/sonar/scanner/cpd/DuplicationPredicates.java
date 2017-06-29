@@ -20,9 +20,8 @@
 package org.sonar.scanner.cpd;
 
 import com.google.common.base.Predicate;
-import org.sonar.duplications.index.CloneGroup;
-
 import javax.annotation.Nullable;
+import org.sonar.duplications.index.CloneGroup;
 
 public final class DuplicationPredicates {
 

@@ -30,8 +30,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,13 +45,13 @@ public class SensorOptimizerTest {
 
   private DefaultFileSystem fs;
   private SensorOptimizer optimizer;
-  private Settings settings;
+  private MapSettings settings;
 
   @Before
   public void prepare() throws Exception {
     fs = new DefaultFileSystem(temp.newFolder().toPath());
     settings = new MapSettings();
-    optimizer = new SensorOptimizer(fs, new ActiveRulesBuilder().build(), settings);
+    optimizer = new SensorOptimizer(fs, new ActiveRulesBuilder().build(), settings.asConfig());
   }
 
   @Test
@@ -110,7 +109,7 @@ public class SensorOptimizerTest {
       .create(RuleKey.of("repo1", "foo"))
       .activate()
       .build();
-    optimizer = new SensorOptimizer(fs, activeRules, settings);
+    optimizer = new SensorOptimizer(fs, activeRules, settings.asConfig());
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
@@ -120,7 +119,7 @@ public class SensorOptimizerTest {
       .create(RuleKey.of("squid", "rule"))
       .activate()
       .build();
-    optimizer = new SensorOptimizer(fs, activeRules, settings);
+    optimizer = new SensorOptimizer(fs, activeRules, settings.asConfig());
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 

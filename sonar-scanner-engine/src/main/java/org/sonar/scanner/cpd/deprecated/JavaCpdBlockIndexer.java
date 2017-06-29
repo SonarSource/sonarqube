@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -50,10 +50,10 @@ public class JavaCpdBlockIndexer extends CpdBlockIndexer {
   private static final int BLOCK_SIZE = 10;
 
   private final FileSystem fs;
-  private final Settings settings;
+  private final Configuration settings;
   private final SonarCpdBlockIndex index;
 
-  public JavaCpdBlockIndexer(FileSystem fs, Settings settings, SonarCpdBlockIndex index) {
+  public JavaCpdBlockIndexer(FileSystem fs, Configuration settings, SonarCpdBlockIndex index) {
     this.fs = fs;
     this.settings = settings;
     this.index = index;

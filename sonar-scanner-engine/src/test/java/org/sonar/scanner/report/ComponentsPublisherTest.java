@@ -22,7 +22,6 @@ package org.sonar.scanner.report;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,10 +40,9 @@ import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
-import org.sonar.scanner.report.ComponentsPublisher;
-import org.sonar.scanner.scan.DefaultComponentTree;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.DefaultComponentTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

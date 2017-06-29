@@ -30,11 +30,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.duplications.block.Block;
@@ -67,12 +66,12 @@ public class CpdExecutor {
   private final SonarCpdBlockIndex index;
   private final ReportPublisher publisher;
   private final InputComponentStore componentStore;
-  private final Settings settings;
+  private final Configuration settings;
   private final ProgressReport progressReport;
   private int count;
   private int total;
 
-  public CpdExecutor(Settings settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
+  public CpdExecutor(Configuration settings, SonarCpdBlockIndex index, ReportPublisher publisher, InputComponentStore inputComponentCache) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
@@ -157,12 +156,7 @@ public class CpdExecutor {
    * @return
    */
   int getMinimumTokens(String languageKey) {
-    int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
-    if (minimumTokens == 0) {
-      minimumTokens = 100;
-    }
-
-    return minimumTokens;
+    return settings.getInt("sonar.cpd." + languageKey + ".minimumTokens").orElse(100);
   }
 
   @VisibleForTesting

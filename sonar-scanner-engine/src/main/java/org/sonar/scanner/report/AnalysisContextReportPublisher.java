@@ -37,7 +37,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.scanner.bootstrap.GlobalSettings;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -55,12 +55,12 @@ public class AnalysisContextReportPublisher {
   private final AnalysisMode mode;
   private final System2 system;
   private final ProjectRepositories projectRepos;
-  private final GlobalSettings globalSettings;
+  private final GlobalConfiguration globalSettings;
 
   private ScannerReportWriter writer;
 
   public AnalysisContextReportPublisher(AnalysisMode mode, ScannerPluginRepository pluginRepo, System2 system,
-    ProjectRepositories projectRepos, GlobalSettings globalSettings) {
+    ProjectRepositories projectRepos, GlobalConfiguration globalSettings) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;

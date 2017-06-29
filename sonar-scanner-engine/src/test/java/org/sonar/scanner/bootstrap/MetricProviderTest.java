@@ -19,13 +19,12 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.scanner.bootstrap.MetricProvider;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

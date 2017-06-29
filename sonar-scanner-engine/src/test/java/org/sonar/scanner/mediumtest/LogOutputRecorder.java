@@ -19,15 +19,14 @@
  */
 package org.sonar.scanner.mediumtest;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.sonar.batch.bootstrapper.LogOutput;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.HashMultimap;
 
 public class LogOutputRecorder implements LogOutput {
   private final Multimap<String, String> recordedByLevel = HashMultimap.create();

@@ -22,7 +22,7 @@ package org.sonar.server.view.index;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.server.es.EsTester;
 
 import static com.google.common.collect.Lists.newArrayList;

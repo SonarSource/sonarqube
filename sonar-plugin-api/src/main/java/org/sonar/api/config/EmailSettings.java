@@ -21,7 +21,6 @@ package org.sonar.api.config;
 
 import java.util.List;
 import org.sonar.api.PropertyType;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -34,11 +33,8 @@ import static org.sonar.api.PropertyType.INTEGER;
 import static org.sonar.api.PropertyType.SINGLE_SELECT_LIST;
 
 /**
- * If batch extensions use this component, then batch must be executed with administrator rights (see properties sonar.login and sonar.password)
- *
  * @since 3.2
  */
-@ScannerSide
 @ServerSide
 @ComputeEngineSide
 public class EmailSettings {

@@ -19,10 +19,9 @@
  */
 package org.sonar.scanner.events;
 
-import org.sonar.api.batch.events.EventHandler;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.batch.events.EventHandler;
 
 /**
  * Dispatches {@link BatchEvent}s. Eases decoupling by allowing objects to interact without having direct dependencies upon one another, and

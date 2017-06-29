@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrapper;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;

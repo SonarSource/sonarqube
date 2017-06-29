@@ -19,16 +19,14 @@
  */
 package org.sonar.scanner.rule;
 
-import org.sonar.api.batch.rule.internal.RulesBuilder;
-
-import org.sonar.api.batch.rule.Rules;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.scanner.rule.RuleFinderCompatibility;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

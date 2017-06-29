@@ -19,15 +19,14 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class IssuePatternTest {
 

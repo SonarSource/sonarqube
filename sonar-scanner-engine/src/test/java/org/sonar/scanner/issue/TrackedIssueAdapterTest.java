@@ -23,7 +23,6 @@ import java.util.Date;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.scanner.issue.TrackedIssueAdapter;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;

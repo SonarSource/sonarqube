@@ -20,8 +20,6 @@
 package org.sonar.scanner.events;
 
 import org.junit.Test;
-import org.sonar.scanner.events.BatchStepEvent;
-import org.sonar.scanner.events.BatchStepHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

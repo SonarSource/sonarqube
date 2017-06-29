@@ -20,17 +20,6 @@
 package org.sonar.scanner.issue.ignore.scanner;
 
 import com.google.common.io.Resources;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.scanner.issue.ignore.pattern.LineRange;
-import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
-import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsRegexpScanner;
-import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -42,6 +31,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.scanner.issue.ignore.pattern.LineRange;
+import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
+import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.times;

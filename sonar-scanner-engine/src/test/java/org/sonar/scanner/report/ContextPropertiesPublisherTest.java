@@ -21,14 +21,16 @@ package org.sonar.scanner.report;
 
 import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ContextPropertiesCache;
@@ -37,6 +39,7 @@ import static java.util.Collections.emptyList;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ContextPropertiesPublisherTest {
   @Rule
@@ -44,8 +47,14 @@ public class ContextPropertiesPublisherTest {
 
   private ScannerReportWriter writer = mock(ScannerReportWriter.class);
   private ContextPropertiesCache cache = new ContextPropertiesCache();
-  private Settings settings = new MapSettings();
-  private ContextPropertiesPublisher underTest = new ContextPropertiesPublisher(cache, settings);
+  private DefaultConfiguration config = mock(DefaultConfiguration.class);
+  private Map<String, String> props = new HashMap<>();
+  private ContextPropertiesPublisher underTest = new ContextPropertiesPublisher(cache, config);
+
+  @Before
+  public void prepareMock() {
+    when(config.getProperties()).thenReturn(props);
+  }
 
   @Test
   public void publish_writes_properties_to_report() {
@@ -69,9 +78,9 @@ public class ContextPropertiesPublisherTest {
 
   @Test
   public void publish_settings_prefixed_with_sonar_analysis_for_webhooks() {
-    settings.setProperty("foo", "should not be exported");
-    settings.setProperty("sonar.analysis.revision", "ab45b3");
-    settings.setProperty("sonar.analysis.build.number", "B123");
+    props.put("foo", "should not be exported");
+    props.put("sonar.analysis.revision", "ab45b3");
+    props.put("sonar.analysis.build.number", "B123");
 
     underTest.publish(writer);
 

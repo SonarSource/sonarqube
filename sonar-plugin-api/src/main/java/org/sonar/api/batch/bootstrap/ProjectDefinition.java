@@ -186,7 +186,7 @@ public class ProjectDefinition {
     }
     return null;
   }
-  
+
   @CheckForNull
   public String getOriginalVersion() {
     return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
@@ -199,7 +199,7 @@ public class ProjectDefinition {
     }
     return version;
   }
-  
+
   @CheckForNull
   public String getOriginalName() {
     return properties.get(CoreProperties.PROJECT_NAME_PROPERTY);
@@ -320,6 +320,7 @@ public class ProjectDefinition {
     return this;
   }
 
+  @CheckForNull
   public ProjectDefinition getParent() {
     return parent;
   }

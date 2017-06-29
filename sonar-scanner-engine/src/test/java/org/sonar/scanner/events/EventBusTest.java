@@ -21,8 +21,6 @@ package org.sonar.scanner.events;
 
 import org.junit.Test;
 import org.sonar.api.batch.events.EventHandler;
-import org.sonar.scanner.events.BatchEvent;
-import org.sonar.scanner.events.EventBus;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

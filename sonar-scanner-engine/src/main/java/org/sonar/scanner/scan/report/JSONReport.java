@@ -46,7 +46,7 @@ import org.sonar.api.batch.fs.internal.InputComponentTree;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.Server;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
@@ -65,7 +65,7 @@ public class JSONReport implements Reporter {
 
   static final String SONAR_REPORT_EXPORT_PATH = "sonar.report.export.path";
   private static final Logger LOG = LoggerFactory.getLogger(JSONReport.class);
-  private final Settings settings;
+  private final Configuration settings;
   private final FileSystem fileSystem;
   private final Server server;
   private final Rules rules;
@@ -75,7 +75,7 @@ public class JSONReport implements Reporter {
   private final InputModuleHierarchy moduleHierarchy;
   private final InputComponentTree inputComponentTree;
 
-  public JSONReport(InputModuleHierarchy moduleHierarchy, Settings settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
+  public JSONReport(InputModuleHierarchy moduleHierarchy, Configuration settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
     DefaultInputModule rootModule, InputComponentStore componentStore, InputComponentTree inputComponentTree) {
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
@@ -90,10 +90,7 @@ public class JSONReport implements Reporter {
 
   @Override
   public void execute() {
-    String exportPath = settings.getString(SONAR_REPORT_EXPORT_PATH);
-    if (exportPath != null) {
-      exportResults(exportPath);
-    }
+    settings.get(SONAR_REPORT_EXPORT_PATH).ifPresent(this::exportResults);
   }
 
   private void exportResults(String exportPath) {

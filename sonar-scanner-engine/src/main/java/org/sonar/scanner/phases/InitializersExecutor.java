@@ -20,6 +20,7 @@
 package org.sonar.scanner.phases;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
@@ -29,7 +30,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
-import java.util.Collection;
 
 public class InitializersExecutor {
 

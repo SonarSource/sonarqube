@@ -19,60 +19,16 @@
  */
 package org.sonar.scanner.scan;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
-import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
-import org.sonar.scanner.bootstrap.GlobalSettings;
-import org.sonar.scanner.repository.ProjectRepositories;
+import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.config.Encryption;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.scanner.config.DefaultConfiguration;
 
-public class ProjectSettings extends Settings {
+public class ProjectSettings extends DefaultConfiguration {
 
-  private final GlobalSettings globalSettings;
-  private final ProjectRepositories projectRepositories;
-  private final DefaultAnalysisMode mode;
-  private final Map<String, String> properties = new HashMap<>();
-
-  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
-    super(globalSettings.getDefinitions(), globalSettings.getEncryption());
-    this.mode = mode;
-    this.globalSettings = globalSettings;
-    this.projectRepositories = projectRepositories;
-    init(reactor);
+  public ProjectSettings(PropertyDefinitions propertyDefinitions, Encryption encryption, AnalysisMode mode, Map<String, String> props) {
+    super(propertyDefinitions, encryption, mode, props);
   }
 
-  private void init(ProjectReactor reactor) {
-    addProperties(globalSettings.getProperties());
-
-    addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
-
-    addProperties(reactor.getRoot().properties());
-  }
-
-  @Override
-  protected Optional<String> get(String key) {
-    if (mode.isIssues() && key.endsWith(".secured") && !key.contains(".license")) {
-      throw MessageException.of("Access to the secured property '" + key
-        + "' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
-    }
-    return Optional.ofNullable(properties.get(key));
-  }
-
-  @Override
-  protected void set(String key, String value) {
-    properties.put(key, value);
-  }
-
-  @Override
-  protected void remove(String key) {
-    properties.remove(key);
-  }
-
-  @Override
-  public Map<String, String> getProperties() {
-    return properties;
-  }
 }

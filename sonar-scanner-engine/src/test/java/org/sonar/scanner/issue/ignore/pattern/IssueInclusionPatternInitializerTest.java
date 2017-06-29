@@ -22,8 +22,7 @@ package org.sonar.scanner.issue.ignore.pattern;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.IssueExclusionProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,12 +30,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueInclusionPatternInitializerTest {
 
   private IssueInclusionPatternInitializer patternsInitializer;
-  private Settings settings;
+  private MapSettings settings;
 
   @Before
   public void init() {
     settings = new MapSettings(new PropertyDefinitions(IssueExclusionProperties.all()));
-    patternsInitializer = new IssueInclusionPatternInitializer(settings);
+    patternsInitializer = new IssueInclusionPatternInitializer(settings.asConfig());
   }
 
   @Test

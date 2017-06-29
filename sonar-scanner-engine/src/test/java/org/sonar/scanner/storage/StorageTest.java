@@ -22,7 +22,6 @@ package org.sonar.scanner.storage;
 import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.sonar.scanner.index.AbstractCachesTest;
-import org.sonar.scanner.storage.Storage;
 import org.sonar.scanner.storage.Storage.Entry;
 
 import static org.assertj.core.api.Assertions.assertThat;

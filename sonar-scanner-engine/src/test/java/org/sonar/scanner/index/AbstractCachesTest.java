@@ -19,21 +19,19 @@
  */
 package org.sonar.scanner.index;
 
-import org.junit.After;
-
-import org.junit.Before;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.bootstrap.GlobalTempFolderProvider;
 import org.sonar.scanner.storage.Storages;
 import org.sonar.scanner.storage.StoragesManager;
-import java.util.Map;
-
-import org.junit.ClassRule;
-import org.junit.rules.TemporaryFolder;
 
 public abstract class AbstractCachesTest {
   @ClassRule

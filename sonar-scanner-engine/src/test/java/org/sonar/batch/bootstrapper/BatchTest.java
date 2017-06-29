@@ -20,9 +20,6 @@
 package org.sonar.batch.bootstrapper;
 
 import org.junit.Test;
-import org.sonar.batch.bootstrapper.Batch;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.bootstrapper.LogOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;

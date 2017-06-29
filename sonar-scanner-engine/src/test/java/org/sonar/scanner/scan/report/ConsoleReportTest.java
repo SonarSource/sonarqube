@@ -26,8 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.scanner.issue.IssueCache;
@@ -43,7 +42,7 @@ public class ConsoleReportTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  private Settings settings;
+  private MapSettings settings;
   private IssueCache issueCache;
   private InputComponentStore inputPathCache;
   private ConsoleReport report;
@@ -53,7 +52,7 @@ public class ConsoleReportTest {
     settings = new MapSettings();
     issueCache = mock(IssueCache.class);
     inputPathCache = mock(InputComponentStore.class);
-    report = new ConsoleReport(settings, issueCache, inputPathCache);
+    report = new ConsoleReport(settings.asConfig(), issueCache, inputPathCache);
   }
 
   @Test

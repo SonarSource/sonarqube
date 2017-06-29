@@ -19,15 +19,14 @@
  */
 package org.sonar.scanner.issue;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
-import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.scanner.ProjectAnalysisInfo;
-import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.scanner.ProjectAnalysisInfo;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 @ScannerSide
 public class IssueFilters {

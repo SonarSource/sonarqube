@@ -24,8 +24,7 @@ import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.home.cache.FileCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,7 @@ public class FileCacheProviderTest {
   @Test
   public void provide() {
     FileCacheProvider provider = new FileCacheProvider();
-    FileCache cache = provider.provide(new MapSettings());
+    FileCache cache = provider.provide(new MapSettings().asConfig());
 
     assertThat(cache).isNotNull();
     assertThat(cache.getDir()).isNotNull().exists();
@@ -46,9 +45,9 @@ public class FileCacheProviderTest {
   @Test
   public void keep_singleton_instance() {
     FileCacheProvider provider = new FileCacheProvider();
-    Settings settings = new MapSettings();
-    FileCache cache1 = provider.provide(settings);
-    FileCache cache2 = provider.provide(settings);
+    MapSettings settings = new MapSettings();
+    FileCache cache1 = provider.provide(settings.asConfig());
+    FileCache cache2 = provider.provide(settings.asConfig());
 
     assertThat(cache1).isSameAs(cache2);
   }
@@ -56,10 +55,10 @@ public class FileCacheProviderTest {
   @Test
   public void honor_sonarUserHome() throws IOException {
     FileCacheProvider provider = new FileCacheProvider();
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     File f = temp.newFolder();
     settings.appendProperty("sonar.userHome", f.getAbsolutePath());
-    FileCache cache = provider.provide(settings);
+    FileCache cache = provider.provide(settings.asConfig());
 
     assertThat(cache.getDir()).isEqualTo(new File(f, "cache"));
   }

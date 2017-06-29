@@ -19,28 +19,24 @@
  */
 package org.sonar.scanner.issue;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import com.google.common.collect.ImmutableList;
+import java.util.LinkedList;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.bootstrapper.IssueListener.Issue;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Mock;
-import org.sonar.api.batch.rule.Rules;
-import org.sonar.scanner.issue.DefaultIssueCallback;
-import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
-import org.junit.Before;
-import com.google.common.collect.ImmutableList;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultIssueCallbackTest {
   @Mock

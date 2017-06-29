@@ -37,8 +37,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.duplications.block.Block;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 
@@ -57,7 +56,7 @@ public class JavaCpdBlockIndexerTest {
   @Captor
   private ArgumentCaptor<List<Block>> blockCaptor;
 
-  private Settings settings;
+  private MapSettings settings;
   private JavaCpdBlockIndexer engine;
   private InputFile file;
 
@@ -79,12 +78,12 @@ public class JavaCpdBlockIndexerTest {
     FileUtils.copyURLToFile(this.getClass().getResource("ManyStatements.java"), ioFile);
 
     settings = new MapSettings();
-    engine = new JavaCpdBlockIndexer(fs, settings, index);
+    engine = new JavaCpdBlockIndexer(fs, settings.asConfig(), index);
   }
 
   @Test
   public void languageSupported() {
-    JavaCpdBlockIndexer engine = new JavaCpdBlockIndexer(mock(FileSystem.class), new MapSettings(), index);
+    JavaCpdBlockIndexer engine = new JavaCpdBlockIndexer(mock(FileSystem.class), new MapSettings().asConfig(), index);
     assertThat(engine.isLanguageSupported(JAVA)).isTrue();
     assertThat(engine.isLanguageSupported("php")).isFalse();
   }

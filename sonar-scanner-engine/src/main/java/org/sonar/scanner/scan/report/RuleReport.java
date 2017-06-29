@@ -19,9 +19,8 @@
  */
 package org.sonar.scanner.scan.report;
 
-import org.sonar.api.batch.rule.Rule;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sonar.api.batch.rule.Rule;
 
 public final class RuleReport {
   private final ReportRuleKey reportRuleKey;

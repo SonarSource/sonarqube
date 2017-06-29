@@ -19,11 +19,9 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Test;
-import org.sonar.scanner.issue.tracking.FileHashes;
-import org.sonar.scanner.issue.tracking.TrackedIssue;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackedIssueTest {
   @Test

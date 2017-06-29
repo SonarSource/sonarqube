@@ -19,14 +19,10 @@
  */
 package org.sonar.scanner.mediumtest.issuesmode;
 
+import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-
-import java.io.File;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,6 +34,8 @@ import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NoPreviousAnalysisTest {
   @Rule

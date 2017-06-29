@@ -24,7 +24,6 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.task.TaskExtension;
-import org.sonar.scanner.scan.ProjectScanContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class GlobalSettingsTest {
+public class GlobalConfigurationProviderTest {
 
   public static final String SOME_VALUE = "some_value";
   @Rule
@@ -58,9 +58,9 @@ public class GlobalSettingsTest {
   public void should_load_global_settings() {
     when(settingsLoader.load(null)).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
 
-    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), settingsLoader, mode);
+    GlobalConfiguration globalConfig = new GlobalConfigurationProvider().provide(settingsLoader, bootstrapProps, new PropertyDefinitions(), mode);
 
-    assertThat(batchSettings.getBoolean("sonar.cpd.cross")).isTrue();
+    assertThat(globalConfig.get("sonar.cpd.cross")).hasValue("true");
   }
 
   @Test
@@ -69,7 +69,7 @@ public class GlobalSettingsTest {
       "sonar.jdbc.username", SOME_VALUE,
       "sonar.jdbc.password", SOME_VALUE));
 
-    new GlobalSettings(bootstrapProps, new PropertyDefinitions(), settingsLoader, mode);
+    new GlobalConfigurationProvider().provide(settingsLoader, bootstrapProps, new PropertyDefinitions(), mode);
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
       "Property 'sonar.jdbc.url' is not supported any more. It will be ignored. There is no longer any DB connection to the SQ database.",

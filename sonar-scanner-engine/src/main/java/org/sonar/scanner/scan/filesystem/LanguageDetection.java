@@ -33,7 +33,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.repository.language.LanguagesRepository;
@@ -53,7 +53,7 @@ public class LanguageDetection {
   private final List<String> languagesToConsider = new ArrayList<>();
   private final String forcedLanguage;
 
-  public LanguageDetection(Settings settings, LanguagesRepository languages) {
+  public LanguageDetection(Configuration settings, LanguagesRepository languages) {
     for (Language language : languages.all()) {
       String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.key()));
       PathPattern[] pathPatterns = PathPattern.create(filePatterns);
@@ -73,7 +73,7 @@ public class LanguageDetection {
       }
     }
 
-    forcedLanguage = StringUtils.defaultIfBlank(settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY), null);
+    forcedLanguage = StringUtils.defaultIfBlank(settings.get(CoreProperties.PROJECT_LANGUAGE_PROPERTY).orElse(null), null);
     // First try with lang patterns
     if (forcedLanguage != null) {
       if (!patternsByLanguage.containsKey(forcedLanguage)) {

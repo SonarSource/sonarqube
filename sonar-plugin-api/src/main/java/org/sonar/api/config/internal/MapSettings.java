@@ -17,11 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.config;
+package org.sonar.api.config.internal;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.config.Encryption;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 
 import static java.util.Collections.unmodifiableMap;
 
@@ -36,13 +40,15 @@ import static java.util.Collections.unmodifiableMap;
 public class MapSettings extends Settings {
 
   private final Map<String, String> props = new HashMap<>();
+  private final ConfigurationBridge configurationBridge;
 
   public MapSettings() {
-    super(new PropertyDefinitions(), new Encryption(null));
+    this(new PropertyDefinitions());
   }
 
   public MapSettings(PropertyDefinitions definitions) {
     super(definitions, new Encryption(null));
+    configurationBridge = new ConfigurationBridge(this);
   }
 
   @Override
@@ -71,5 +77,13 @@ public class MapSettings extends Settings {
   public MapSettings clear() {
     props.clear();
     return this;
+  }
+
+  /**
+   * @return a {@link Configuration} proxy on top of this existing {@link Settings} implementation. Changes are reflected in the {@link Configuration} object.
+   * @since 6.5
+   */
+  public Configuration asConfig() {
+    return configurationBridge;
   }
 }

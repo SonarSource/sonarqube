@@ -21,7 +21,6 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
 import org.sonar.api.batch.fs.InputComponent;
 
 /**

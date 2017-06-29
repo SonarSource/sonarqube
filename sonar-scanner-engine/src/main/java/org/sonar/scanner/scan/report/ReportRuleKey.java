@@ -19,10 +19,9 @@
  */
 package org.sonar.scanner.scan.report;
 
-import org.sonar.api.batch.rule.Rule;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.rules.RulePriority;
 
 /**

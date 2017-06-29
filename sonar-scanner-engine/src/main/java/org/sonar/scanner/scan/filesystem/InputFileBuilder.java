@@ -21,16 +21,14 @@ package org.sonar.scanner.scan.filesystem;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-
 import javax.annotation.CheckForNull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 public class InputFileBuilder {
@@ -45,14 +43,14 @@ public class InputFileBuilder {
   private final boolean preloadMetadata;
 
   public InputFileBuilder(DefaultInputModule module, PathResolver pathResolver, LanguageDetection langDetection, MetadataGenerator metadataGenerator,
-    BatchIdGenerator idGenerator, Settings settings) {
+    BatchIdGenerator idGenerator, Configuration settings) {
     this.moduleKey = module.key();
     this.moduleBaseDir = module.definition().getBaseDir().toPath();
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
     this.metadataGenerator = metadataGenerator;
     this.idGenerator = idGenerator;
-    this.preloadMetadata = settings.getBoolean(PRELOAD_FILE_METADATA_KEY);
+    this.preloadMetadata = settings.getBoolean(PRELOAD_FILE_METADATA_KEY).orElse(false);
   }
 
   @CheckForNull

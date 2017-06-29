@@ -22,8 +22,7 @@ package org.sonar.scanner.cpd.deprecated;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultCpdBlockIndexerTest {
 
   private DefaultCpdBlockIndexer engine;
-  private Settings settings;
+  private MapSettings settings;
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -39,7 +38,7 @@ public class DefaultCpdBlockIndexerTest {
   @Before
   public void init() {
     settings = new MapSettings();
-    engine = new DefaultCpdBlockIndexer(null, null, settings, null);
+    engine = new DefaultCpdBlockIndexer(null, null, settings.asConfig(), null);
   }
 
   @Test

@@ -20,8 +20,6 @@
 package org.sonar.scanner.issue.tracking;
 
 import org.junit.Test;
-import org.sonar.scanner.issue.tracking.FileHashes;
-import org.sonar.scanner.issue.tracking.RollingFileHashes;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;

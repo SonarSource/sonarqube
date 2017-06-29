@@ -19,17 +19,14 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.sonar.api.rule.RuleKey;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-
 import java.util.Collection;
 import java.util.Set;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 
 public class PatternMatcher {
 

@@ -19,14 +19,7 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.sonar.api.utils.System2;
-import org.apache.commons.io.FileUtils;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.scanner.bootstrap.GlobalProperties;
-import org.sonar.scanner.bootstrap.GlobalTempFolderProvider;
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.CoreProperties;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,13 +27,17 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GlobalTempFolderProviderTest {
   @Rule

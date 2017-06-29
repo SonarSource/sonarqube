@@ -35,69 +35,19 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trim;
 
 /**
- * Component to get effective settings. Values of properties depend on the runtime environment:
- * <ul>
- *   <li>project settings in scanner.</li>
- *   <li>global settings in web server. It does not allow to get the settings overridden on projects.</li>
- *   <li>project settings in Compute Engine.</li>
- * </ul>
- *
- * <h3>Usage</h3>
- * <pre>
- * public class MyExtension {
- *
- *   private final Settings settings;
- *
- *   public MyExtension(Settings settings) {
- *     this.settings = settings;
- *   }
- *   public void doSomething() {
- *     String fooValue = settings.getString("sonar.foo");
- *     // ..
- *   }
- * }
- * </pre>
- *
- * <h3>Scanner example</h3>
- * Scanner sensor can get the reference on Settings directly through SensorContext,
- * without injecting the component into constructor.
- *
- * <pre>
- * public class MySensor implements Sensor {
- *   {@literal @}Override
- *   public void execute(SensorContext context) {
- *     String fooValue = context.settings().getString("sonar.foo");
- *     // ..
- *   }
- * }
- * </pre>
- *
- * <p>
- * For testing, and only for testing, the in-memory implementation {@link MapSettings} can be used.
- * <pre>
- * {@literal @}Test
- * public void my_test() {
- *   Settings settings = new MapSettings();
- *   settings.setProperty("foo", "bar");
- *   MyExtension underTest = new MyExtension(settings);
- *   // ...
- * }
- * </pre>
- *
- * History - this class is abstract since 6.1.
- *
- * @see MapSettings
- * @see PropertyDefinition
- * @since 2.12
+ * @deprecated since 6.5 use {@link Configuration}
  */
-@ScannerSide
 @ServerSide
 @ComputeEngineSide
+@ScannerSide
+@SonarLintSide
+@Deprecated
 public abstract class Settings {
 
   private final PropertyDefinitions definitions;

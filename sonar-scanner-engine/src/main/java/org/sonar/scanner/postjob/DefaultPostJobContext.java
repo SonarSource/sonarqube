@@ -22,13 +22,13 @@ package org.sonar.scanner.postjob;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
 import javax.annotation.Nullable;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.issue.IssueCache;
@@ -37,13 +37,16 @@ import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class DefaultPostJobContext implements PostJobContext {
 
-  private final Settings settings;
+  private final Configuration config;
   private final IssueCache cache;
   private final AnalysisMode analysisMode;
   private InputComponentStore inputComponentStore;
+  private final Settings mutableSettings;
 
-  public DefaultPostJobContext(Settings settings, IssueCache cache, InputComponentStore inputComponentStore, AnalysisMode analysisMode) {
-    this.settings = settings;
+  public DefaultPostJobContext(Configuration config, Settings mutableSettings, IssueCache cache, InputComponentStore inputComponentStore,
+    AnalysisMode analysisMode) {
+    this.config = config;
+    this.mutableSettings = mutableSettings;
     this.cache = cache;
     this.inputComponentStore = inputComponentStore;
     this.analysisMode = analysisMode;
@@ -51,7 +54,12 @@ public class DefaultPostJobContext implements PostJobContext {
 
   @Override
   public Settings settings() {
-    return settings;
+    return mutableSettings;
+  }
+
+  @Override
+  public Configuration config() {
+    return config;
   }
 
   @Override

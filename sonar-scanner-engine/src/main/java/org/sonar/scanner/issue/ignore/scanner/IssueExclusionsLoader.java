@@ -21,9 +21,7 @@ package org.sonar.scanner.issue.ignore.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.internal.FileMetadata.CharHandler;
 import org.sonar.scanner.issue.ignore.pattern.BlockIssuePattern;

@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
@@ -55,7 +54,6 @@ public class TaskContainer extends ComponentContainer {
 
   private void addCoreComponents() {
     add(new TaskProperties(taskProperties, getParent().getComponentByType(GlobalProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
-    add(EmailSettings.class);
   }
 
   private void addTaskExtensions() {

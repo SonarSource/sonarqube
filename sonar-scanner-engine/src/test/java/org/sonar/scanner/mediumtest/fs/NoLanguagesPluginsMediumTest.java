@@ -19,16 +19,14 @@
  */
 package org.sonar.scanner.mediumtest.fs;
 
-import org.junit.rules.ExpectedException;
-
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import java.io.File;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.issuesmode.IssueModeAndReportsMediumTest;

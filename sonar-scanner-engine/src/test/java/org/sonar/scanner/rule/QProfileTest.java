@@ -20,7 +20,8 @@
 package org.sonar.scanner.rule;
 
 import org.junit.Test;
-import static org.assertj.core.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class QProfileTest {
   @Test

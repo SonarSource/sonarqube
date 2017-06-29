@@ -21,27 +21,26 @@ package org.sonar.api.scan.filesystem;
 
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileExclusionsTest {
   @Test
   public void ignore_inclusion_of_world() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*");
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "**/*");
-    assertThat(new FileExclusions(settings).sourceInclusions()).isEmpty();
-    assertThat(new FileExclusions(settings).testInclusions()).isEmpty();
+    assertThat(new FileExclusions(settings.asConfig()).sourceInclusions()).isEmpty();
+    assertThat(new FileExclusions(settings.asConfig()).testInclusions()).isEmpty();
   }
 
   @Test
   public void load_inclusions() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(CoreProperties.PROJECT_INCLUSIONS_PROPERTY, "**/*Foo.java");
     settings.setProperty(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY, "**/*FooTest.java");
-    FileExclusions moduleExclusions = new FileExclusions(settings);
+    FileExclusions moduleExclusions = new FileExclusions(settings.asConfig());
 
     assertThat(moduleExclusions.sourceInclusions()).containsOnly("**/*Foo.java");
     assertThat(moduleExclusions.testInclusions()).containsOnly("**/*FooTest.java");
@@ -49,10 +48,10 @@ public class FileExclusionsTest {
 
   @Test
   public void load_exclusions() {
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "**/*Foo.java");
     settings.setProperty(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY, "**/*FooTest.java");
-    FileExclusions moduleExclusions = new FileExclusions(settings);
+    FileExclusions moduleExclusions = new FileExclusions(settings.asConfig());
 
     assertThat(moduleExclusions.sourceInclusions()).isEmpty();
     assertThat(moduleExclusions.sourceExclusions()).containsOnly("**/*Foo.java");

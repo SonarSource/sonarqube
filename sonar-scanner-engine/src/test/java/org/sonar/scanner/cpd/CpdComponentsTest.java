@@ -20,7 +20,6 @@
 package org.sonar.scanner.cpd;
 
 import org.junit.Test;
-import org.sonar.scanner.cpd.CpdComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

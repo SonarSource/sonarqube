@@ -19,22 +19,21 @@
  */
 package org.sonar.scanner.scan;
 
-import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.home.cache.DirectoryLock;
-import org.sonar.scanner.scan.ProjectLock;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.home.cache.DirectoryLock;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectLockTest {
   @Rule

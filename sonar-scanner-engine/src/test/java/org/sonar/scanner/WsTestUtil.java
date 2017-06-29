@@ -19,15 +19,14 @@
  */
 package org.sonar.scanner;
 
+import java.io.InputStream;
+import java.io.Reader;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
-
-import java.io.InputStream;
-import java.io.Reader;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;

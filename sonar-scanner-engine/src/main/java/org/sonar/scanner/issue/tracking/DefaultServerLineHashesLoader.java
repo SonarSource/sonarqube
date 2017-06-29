@@ -19,18 +19,16 @@
  */
 package org.sonar.scanner.issue.tracking;
 
-import org.sonarqube.ws.client.GetRequest;
-
-import java.io.IOException;
-import java.io.Reader;
-
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
+import java.io.IOException;
+import java.io.Reader;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.ScannerUtils;
+import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
   private ScannerWsClient wsClient;

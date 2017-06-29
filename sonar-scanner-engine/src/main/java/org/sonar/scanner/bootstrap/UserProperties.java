@@ -19,12 +19,10 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.sonar.api.config.Encryption;
-
-import javax.annotation.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.api.config.Encryption;
 
 /**
  * Properties that are coming from bootstrapper.
@@ -49,6 +47,10 @@ public abstract class UserProperties {
       decryptedProps.put(entry.getKey(), value);
     }
     this.properties = decryptedProps;
+  }
+
+  public Encryption getEncryption() {
+    return encryption;
   }
 
   public Map<String, String> properties() {

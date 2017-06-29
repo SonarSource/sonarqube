@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -30,8 +30,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.Metadata;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
-
-import com.google.common.annotations.VisibleForTesting;
 
 class MetadataGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(MetadataGenerator.class);

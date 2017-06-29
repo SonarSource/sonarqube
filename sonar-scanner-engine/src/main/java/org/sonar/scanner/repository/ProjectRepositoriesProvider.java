@@ -19,12 +19,12 @@
  */
 package org.sonar.scanner.repository;
 
-import org.sonar.api.utils.log.Profiler;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);

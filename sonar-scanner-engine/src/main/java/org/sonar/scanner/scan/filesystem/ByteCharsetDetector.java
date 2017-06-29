@@ -19,19 +19,17 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import static java.nio.charset.StandardCharsets.UTF_16;
-import static java.nio.charset.StandardCharsets.UTF_16LE;
-import static java.nio.charset.StandardCharsets.UTF_16BE;
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import java.nio.charset.Charset;
 import java.util.Arrays;
-
 import javax.annotation.CheckForNull;
-
 import org.apache.commons.io.ByteOrderMark;
 import org.sonar.scanner.scan.filesystem.CharsetValidation.Result;
 import org.sonar.scanner.scan.filesystem.CharsetValidation.Validation;
+
+import static java.nio.charset.StandardCharsets.UTF_16;
+import static java.nio.charset.StandardCharsets.UTF_16BE;
+import static java.nio.charset.StandardCharsets.UTF_16LE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ByteCharsetDetector {
   // these needs to be sorted by longer first!

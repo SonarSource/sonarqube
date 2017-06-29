@@ -19,15 +19,14 @@
  */
 package org.sonar.scanner.rule;
 
-import org.apache.commons.io.IOUtils;
-import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.Rules.ListResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.sonar.scanner.bootstrap.ScannerWsClient;
+import org.sonarqube.ws.Rules.ListResponse;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
+import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultRulesLoader implements RulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/list.protobuf";

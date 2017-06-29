@@ -24,9 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
-import org.sonar.scanner.task.ListTask;
-import org.sonar.scanner.task.ScanTask;
-import org.sonar.scanner.task.Tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

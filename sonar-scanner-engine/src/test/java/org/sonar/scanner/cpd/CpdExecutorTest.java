@@ -33,8 +33,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -56,11 +55,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CpdExecutorTest {
-  private CpdExecutor executor;
-  private Settings settings;
-  private SonarCpdBlockIndex index;
-  private ReportPublisher publisher;
-
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -70,6 +64,10 @@ public class CpdExecutorTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private CpdExecutor executor;
+  private MapSettings settings;
+  private SonarCpdBlockIndex index;
+  private ReportPublisher publisher;
   private ScannerReportReader reader;
   private DefaultInputFile batchComponent1;
   private DefaultInputFile batchComponent2;
@@ -85,9 +83,9 @@ public class CpdExecutorTest {
     settings = new MapSettings();
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new ScannerReportWriter(outputDir));
-    index = new SonarCpdBlockIndex(publisher, settings);
+    index = new SonarCpdBlockIndex(publisher, settings.asConfig());
     componentStore = new InputComponentStore(new PathResolver());
-    executor = new CpdExecutor(settings, index, publisher, componentStore);
+    executor = new CpdExecutor(settings.asConfig(), index, publisher, componentStore);
     reader = new ScannerReportReader(outputDir);
 
     componentStore.put(TestInputFileBuilder.newDefaultInputModule("foo", baseDir));

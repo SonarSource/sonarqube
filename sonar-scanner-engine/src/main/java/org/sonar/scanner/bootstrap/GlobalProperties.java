@@ -19,9 +19,8 @@
  */
 package org.sonar.scanner.bootstrap;
 
-import org.sonar.api.CoreProperties;
-
 import java.util.Map;
+import org.sonar.api.CoreProperties;
 
 /**
  * Immutable batch properties that are not specific to a task (for example

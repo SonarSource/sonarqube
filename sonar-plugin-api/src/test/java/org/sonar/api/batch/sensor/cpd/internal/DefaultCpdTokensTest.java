@@ -24,7 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -44,7 +44,7 @@ public class DefaultCpdTokensTest {
   @Test
   public void save_no_tokens() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
-    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings(), sensorStorage)
+    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings().asConfig(), sensorStorage)
       .onFile(INPUT_FILE);
 
     tokens.save();
@@ -57,7 +57,7 @@ public class DefaultCpdTokensTest {
   @Test
   public void save_one_token() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
-    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings(), sensorStorage)
+    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings().asConfig(), sensorStorage)
       .onFile(INPUT_FILE)
       .addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo");
 
@@ -71,9 +71,9 @@ public class DefaultCpdTokensTest {
   @Test
   public void handle_exclusions_by_pattern() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
-    Settings settings = new MapSettings();
+    MapSettings settings = new MapSettings();
     settings.setProperty("sonar.cpd.exclusions", "src/Foo.java,another");
-    DefaultCpdTokens tokens = new DefaultCpdTokens(settings, sensorStorage)
+    DefaultCpdTokens tokens = new DefaultCpdTokens(settings.asConfig(), sensorStorage)
       .onFile(INPUT_FILE)
       .addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo");
 
@@ -87,7 +87,7 @@ public class DefaultCpdTokensTest {
   @Test
   public void save_many_tokens() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
-    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings(), sensorStorage)
+    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings().asConfig(), sensorStorage)
       .onFile(INPUT_FILE)
       .addToken(INPUT_FILE.newRange(1, 2, 1, 5), "foo")
       .addToken(INPUT_FILE.newRange(1, 6, 1, 10), "bar")
@@ -108,7 +108,7 @@ public class DefaultCpdTokensTest {
   @Test
   public void basic_validation() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
-    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings(), sensorStorage);
+    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings().asConfig(), sensorStorage);
     try {
       tokens.save();
       fail("Expected exception");
@@ -138,7 +138,7 @@ public class DefaultCpdTokensTest {
   @Test
   public void validate_tokens_order() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
-    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings(), sensorStorage)
+    DefaultCpdTokens tokens = new DefaultCpdTokens(new MapSettings().asConfig(), sensorStorage)
       .onFile(INPUT_FILE)
       .addToken(INPUT_FILE.newRange(1, 6, 1, 10), "bar");
 

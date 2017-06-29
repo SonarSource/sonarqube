@@ -20,7 +20,6 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import org.junit.Test;
-import org.sonar.scanner.issue.ignore.pattern.LineRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -19,14 +19,12 @@
  */
 package org.sonar.scanner.scan.report;
 
-import org.sonar.api.batch.rule.Rule;
-
-import org.sonar.api.batch.rule.Rules;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.CheckForNull;
 
 @ScannerSide
 public class RuleNameProvider {

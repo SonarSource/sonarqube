@@ -34,7 +34,6 @@ import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.report.ActiveRulesPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -35,7 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.scanner.bootstrap.GlobalSettings;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -64,7 +64,7 @@ public class AnalysisContextReportPublisherTest {
   private AnalysisMode analysisMode = mock(AnalysisMode.class);
   private System2 system2;
   private ProjectRepositories projectRepos;
-  private GlobalSettings globalSettings;
+  private GlobalConfiguration globalSettings;
 
   @Before
   public void prepare() throws Exception {
@@ -72,7 +72,7 @@ public class AnalysisContextReportPublisherTest {
     system2 = mock(System2.class);
     when(system2.properties()).thenReturn(new Properties());
     projectRepos = mock(ProjectRepositories.class);
-    globalSettings = mock(GlobalSettings.class);
+    globalSettings = mock(GlobalConfiguration.class);
     publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2, projectRepos, globalSettings);
   }
 

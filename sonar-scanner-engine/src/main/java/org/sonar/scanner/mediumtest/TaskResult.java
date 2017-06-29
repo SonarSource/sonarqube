@@ -47,11 +47,11 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata;
 import org.sonar.scanner.protocol.output.ScannerReport.Symbol;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.report.ScannerReportUtils;
 import org.sonar.scanner.scan.ProjectScanContainer;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 

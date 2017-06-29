@@ -64,8 +64,10 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.ApiVersion;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.Metric;
@@ -120,6 +122,11 @@ public class SensorContextTester implements SensorContext {
   @Override
   public Settings settings() {
     return settings;
+  }
+
+  @Override
+  public Configuration config() {
+    return new ConfigurationBridge(settings);
   }
 
   public SensorContextTester setSettings(Settings settings) {
@@ -269,7 +276,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    return new DefaultCpdTokens(settings, sensorStorage);
+    return new DefaultCpdTokens(config(), sensorStorage);
   }
 
   @Override

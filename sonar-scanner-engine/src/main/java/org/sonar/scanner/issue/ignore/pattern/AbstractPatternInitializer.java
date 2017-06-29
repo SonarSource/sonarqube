@@ -20,27 +20,26 @@
 package org.sonar.scanner.issue.ignore.pattern;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.config.Configuration;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 @ScannerSide
 public abstract class AbstractPatternInitializer {
-  private Settings settings;
+  private Configuration settings;
   private List<IssuePattern> multicriteriaPatterns;
 
-  protected AbstractPatternInitializer(Settings settings) {
+  protected AbstractPatternInitializer(Configuration settings) {
     this.settings = settings;
     initPatterns();
   }
 
-  protected Settings getSettings() {
+  protected Configuration getSettings() {
     return settings;
   }
 
@@ -60,11 +59,10 @@ public abstract class AbstractPatternInitializer {
   protected final void initPatterns() {
     // Patterns Multicriteria
     multicriteriaPatterns = new ArrayList<>();
-    String patternConf = StringUtils.defaultIfBlank(settings.getString(getMulticriteriaConfigurationKey()), "");
-    for (String id : StringUtils.split(patternConf, ',')) {
+    for (String id : settings.getStringArray(getMulticriteriaConfigurationKey())) {
       String propPrefix = getMulticriteriaConfigurationKey() + "." + id + ".";
-      String resourceKeyPattern = settings.getString(propPrefix + "resourceKey");
-      String ruleKeyPattern = settings.getString(propPrefix + "ruleKey");
+      String resourceKeyPattern = settings.get(propPrefix + "resourceKey").orElse(null);
+      String ruleKeyPattern = settings.get(propPrefix + "ruleKey").orElse(null);
       String lineRange = "*";
       String[] fields = new String[] {resourceKeyPattern, ruleKeyPattern, lineRange};
       PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);

@@ -19,13 +19,12 @@
  */
 package org.sonar.scanner.issue.ignore.pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
-import org.sonar.core.config.IssueExclusionProperties;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Configuration;
+import org.sonar.core.config.IssueExclusionProperties;
 
 import static com.google.common.base.Strings.nullToEmpty;
 
@@ -34,7 +33,7 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
   private List<BlockIssuePattern> blockPatterns;
   private List<String> allFilePatterns;
 
-  public IssueExclusionPatternInitializer(Settings settings) {
+  public IssueExclusionPatternInitializer(Configuration settings) {
     super(settings);
     loadFileContentPatterns();
   }
@@ -52,11 +51,10 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
   private final void loadFileContentPatterns() {
     // Patterns Block
     blockPatterns = new ArrayList<>();
-    String patternConf = StringUtils.defaultIfBlank(getSettings().getString(IssueExclusionProperties.PATTERNS_BLOCK_KEY), "");
-    for (String id : StringUtils.split(patternConf, ',')) {
+    for (String id : getSettings().getStringArray(IssueExclusionProperties.PATTERNS_BLOCK_KEY)) {
       String propPrefix = IssueExclusionProperties.PATTERNS_BLOCK_KEY + "." + id + ".";
-      String beginBlockRegexp = getSettings().getString(propPrefix + IssueExclusionProperties.BEGIN_BLOCK_REGEXP);
-      String endBlockRegexp = getSettings().getString(propPrefix + IssueExclusionProperties.END_BLOCK_REGEXP);
+      String beginBlockRegexp = getSettings().get(propPrefix + IssueExclusionProperties.BEGIN_BLOCK_REGEXP).orElse(null);
+      String endBlockRegexp = getSettings().get(propPrefix + IssueExclusionProperties.END_BLOCK_REGEXP).orElse(null);
       String[] fields = new String[] {beginBlockRegexp, endBlockRegexp};
       PatternDecoder.checkDoubleRegexpLineConstraints(StringUtils.join(fields, ","), fields);
       BlockIssuePattern pattern = new BlockIssuePattern(nullToEmpty(beginBlockRegexp), nullToEmpty(endBlockRegexp));
@@ -66,10 +64,9 @@ public class IssueExclusionPatternInitializer extends AbstractPatternInitializer
 
     // Patterns All File
     allFilePatterns = new ArrayList<>();
-    patternConf = StringUtils.defaultIfBlank(getSettings().getString(IssueExclusionProperties.PATTERNS_ALLFILE_KEY), "");
-    for (String id : StringUtils.split(patternConf, ',')) {
+    for (String id : getSettings().getStringArray(IssueExclusionProperties.PATTERNS_ALLFILE_KEY)) {
       String propPrefix = IssueExclusionProperties.PATTERNS_ALLFILE_KEY + "." + id + ".";
-      String allFileRegexp = getSettings().getString(propPrefix + IssueExclusionProperties.FILE_REGEXP);
+      String allFileRegexp = getSettings().get(propPrefix + IssueExclusionProperties.FILE_REGEXP).orElse(null);
       PatternDecoder.checkWholeFileRegexp(allFileRegexp);
       allFilePatterns.add(nullToEmpty(allFileRegexp));
     }

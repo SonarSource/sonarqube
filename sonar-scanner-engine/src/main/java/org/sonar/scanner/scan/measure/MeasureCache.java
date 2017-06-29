@@ -25,8 +25,8 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.scanner.storage.Storage;
-import org.sonar.scanner.storage.Storages;
 import org.sonar.scanner.storage.Storage.Entry;
+import org.sonar.scanner.storage.Storages;
 
 /**
  * Cache of all measures. This cache is shared amongst all project modules.

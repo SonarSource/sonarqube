@@ -20,10 +20,12 @@
 package org.sonar.scanner;
 
 import java.util.Date;
+import java.util.Optional;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 
@@ -33,12 +35,12 @@ import org.sonar.api.utils.System2;
 @ScannerSide
 public class ProjectAnalysisInfo implements Startable {
   private final System2 system2;
-  private Settings settings;
+  private Configuration settings;
 
   private Date analysisDate;
   private String analysisVersion;
 
-  public ProjectAnalysisInfo(Settings settings, System2 system2) {
+  public ProjectAnalysisInfo(Configuration settings, System2 system2) {
     this.settings = settings;
     this.system2 = system2;
   }
@@ -52,23 +54,22 @@ public class ProjectAnalysisInfo implements Startable {
   }
 
   private Date loadAnalysisDate() {
+    Optional<String> value = settings.get(CoreProperties.PROJECT_DATE_PROPERTY);
+    if (!value.isPresent()) {
+      return new Date(system2.now());
+    }
     Date date;
     try {
       // sonar.projectDate may have been specified as a time
-      date = settings.getDateTime(CoreProperties.PROJECT_DATE_PROPERTY);
+      return DateUtils.parseDateTime(value.get());
     } catch (SonarException e) {
       // this is probably just a date
-      date = settings.getDate(CoreProperties.PROJECT_DATE_PROPERTY);
+      return DateUtils.parseDate(value.get());
     }
-    if (date == null) {
-      date = new Date(system2.now());
-      settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, date, true);
-    }
-    return date;
   }
 
   private String loadAnalysisVersion() {
-    return settings.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
+    return settings.get(CoreProperties.PROJECT_VERSION_PROPERTY).orElse(null);
   }
 
   @Override

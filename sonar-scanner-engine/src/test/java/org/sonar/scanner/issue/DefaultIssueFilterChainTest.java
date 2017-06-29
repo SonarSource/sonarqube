@@ -19,12 +19,10 @@
  */
 package org.sonar.scanner.issue;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
 import org.junit.Test;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
-import org.sonar.scanner.issue.DefaultIssueFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

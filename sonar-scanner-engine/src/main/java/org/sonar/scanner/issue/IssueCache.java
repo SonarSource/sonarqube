@@ -19,11 +19,11 @@
  */
 package org.sonar.scanner.issue;
 
+import java.util.Collection;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.scanner.issue.tracking.TrackedIssue;
 import org.sonar.scanner.storage.Storage;
 import org.sonar.scanner.storage.Storages;
-import java.util.Collection;
 
 /**
  * Shared issues among all project modules

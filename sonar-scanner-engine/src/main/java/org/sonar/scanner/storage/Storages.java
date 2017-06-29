@@ -27,7 +27,6 @@ import com.persistit.Volume;
 import com.persistit.encoding.CoderManager;
 import com.persistit.encoding.ValueCoder;
 import com.persistit.exception.PersistitException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;

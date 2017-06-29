@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.scanner.repository.FileData;
 import org.sonar.scanner.repository.ProjectRepositories;
-import org.sonar.scanner.scan.filesystem.StatusDetection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

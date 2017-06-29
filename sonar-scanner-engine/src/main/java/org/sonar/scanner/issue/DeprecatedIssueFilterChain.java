@@ -19,13 +19,12 @@
  */
 package org.sonar.scanner.issue;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.batch.IssueFilter;
-import org.sonar.api.issue.batch.IssueFilterChain;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.batch.IssueFilter;
+import org.sonar.api.issue.batch.IssueFilterChain;
 
 /**
  * @deprecated since 5.3

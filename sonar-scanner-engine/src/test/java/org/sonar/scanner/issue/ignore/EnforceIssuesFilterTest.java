@@ -19,17 +19,15 @@
  */
 package org.sonar.scanner.issue.ignore;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 import org.sonar.api.utils.WildcardPattern;
-import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
 import org.sonar.scanner.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;

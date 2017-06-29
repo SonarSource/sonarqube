@@ -42,6 +42,7 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
 import org.sonar.scanner.sensor.noop.NoOpNewAnalysisError;
@@ -56,18 +57,21 @@ public class DefaultSensorContext implements SensorContext {
   private static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
   private static final NoOpNewAnalysisError NO_OP_NEW_ANALYSIS_ERROR = new NoOpNewAnalysisError();
 
-  private final Settings settings;
+  private final Settings mutableSettings;
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
   private final InputModule module;
   private final SonarRuntime sonarRuntime;
+  private final Configuration config;
 
-  public DefaultSensorContext(InputModule module, Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage,
+  public DefaultSensorContext(InputModule module, Configuration config, Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
+    AnalysisMode analysisMode, SensorStorage sensorStorage,
     SonarRuntime sonarRuntime) {
     this.module = module;
-    this.settings = settings;
+    this.config = config;
+    this.mutableSettings = mutableSettings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.analysisMode = analysisMode;
@@ -77,7 +81,12 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public Settings settings() {
-    return settings;
+    return mutableSettings;
+  }
+
+  @Override
+  public Configuration config() {
+    return config;
   }
 
   @Override
@@ -141,7 +150,7 @@ public class DefaultSensorContext implements SensorContext {
     if (analysisMode.isIssues()) {
       return NO_OP_NEW_CPD_TOKENS;
     }
-    return new DefaultCpdTokens(settings, sensorStorage);
+    return new DefaultCpdTokens(config, sensorStorage);
   }
 
   @Override

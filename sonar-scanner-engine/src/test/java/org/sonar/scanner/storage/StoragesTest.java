@@ -19,13 +19,10 @@
  */
 package org.sonar.scanner.storage;
 
-import java.io.Serializable;
-
 import com.persistit.exception.PersistitException;
+import java.io.Serializable;
 import org.junit.Test;
 import org.sonar.scanner.index.AbstractCachesTest;
-import org.sonar.scanner.storage.Storage;
-import org.sonar.scanner.storage.Storages;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

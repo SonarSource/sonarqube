@@ -20,14 +20,13 @@
 package org.sonar.scanner.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.batch.ScannerSide;
+import java.util.List;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-
-import java.util.List;
 
 @ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)

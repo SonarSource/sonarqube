@@ -25,7 +25,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.ProjectAnalysisInfo;
-import org.sonar.scanner.issue.DeprecatedIssueAdapterForFilter;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 

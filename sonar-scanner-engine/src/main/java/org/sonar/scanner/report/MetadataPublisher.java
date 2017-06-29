@@ -23,7 +23,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -33,12 +33,12 @@ import org.sonar.scanner.rule.QProfile;
 
 public class MetadataPublisher implements ReportPublisherStep {
 
-  private final Settings settings;
+  private final Configuration settings;
   private final ModuleQProfiles qProfiles;
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final InputModuleHierarchy moduleHierarchy;
 
-  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Settings settings, ModuleQProfiles qProfiles) {
+  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings, ModuleQProfiles qProfiles) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
@@ -56,10 +56,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setCrossProjectDuplicationActivated(SonarCpdBlockIndex.isCrossProjectDuplicationEnabled(settings))
       .setRootComponentRef(rootProject.batchId());
 
-    String organization = settings.getString(CoreProperties.PROJECT_ORGANIZATION_PROPERTY);
-    if (organization != null) {
-      builder.setOrganizationKey(organization);
-    }
+    settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(builder::setOrganizationKey);
 
     String branch = rootDef.getBranch();
     if (branch != null) {

@@ -20,7 +20,6 @@
 package org.sonar.scanner.scan;
 
 import java.lang.reflect.Method;
-
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;

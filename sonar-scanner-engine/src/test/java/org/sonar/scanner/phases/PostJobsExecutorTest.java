@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.phases;
 
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.PostJob;
@@ -27,14 +28,12 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.phases.PostJobsExecutor;
-import java.util.Arrays;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.any;
 
 public class PostJobsExecutorTest {
   PostJobsExecutor executor;
