@@ -22,6 +22,7 @@ package org.sonar.db.qualityprofile;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.KeyLongValue;
@@ -69,9 +70,7 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleIds(@Param("ids") List<Integer> ids);
 
-  List<KeyLongValue> countActiveRulesByProfileUuid(@Param("organizationUuid") String organizationUuid);
+  List<KeyLongValue> countActiveRulesByQuery(@Param("organizationUuid") String organizationUuid, @Param("profileUuids") List<String> profileUuids,
+    @Nullable @Param("ruleStatus") RuleStatus ruleStatus, @Param("inheritance") String inheritance);
 
-  List<KeyLongValue> countActiveRulesForRuleStatusByProfileUuid(@Param("organizationUuid") String organizationUuid, @Param("ruleStatus") RuleStatus ruleStatus);
-
-  List<KeyLongValue> countActiveRulesForInheritanceByProfileUuid(@Param("organizationUuid") String organizationUuid, @Param("inheritance") String inheritance);
 }
