@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export MAVEN_OPTS='-Xmx256m'
+#export MAVEN_OPTS='-Xmx256m'
 
 cat << 'EOF'
 

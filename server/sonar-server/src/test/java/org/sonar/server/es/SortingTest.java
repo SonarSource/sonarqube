@@ -20,19 +20,13 @@
 package org.sonar.server.es;
 
 import java.util.List;
-import org.apache.commons.lang.reflect.FieldUtils;
-import org.elasticsearch.action.search.SearchAction;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class SortingTest {
 
@@ -58,9 +52,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt");
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
-    sorting.fill(request, "updatedAt", true);
-    List<SortBuilder> fields = fields(request);
+    List<FieldSortBuilder> fields = sorting.fill("updatedAt", true);
     assertThat(fields).hasSize(1);
     expectField(fields.get(0), "updatedAt", "_first", SortOrder.ASC);
   }
@@ -70,9 +62,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt");
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
-    sorting.fill(request, "updatedAt", false);
-    List<SortBuilder> fields = fields(request);
+    List<FieldSortBuilder> fields = sorting.fill("updatedAt", false);
     assertThat(fields).hasSize(1);
     expectField(fields.get(0), "updatedAt", "_last", SortOrder.DESC);
   }
@@ -82,9 +72,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt").missingLast();
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
-    sorting.fill(request, "updatedAt", true);
-    List<SortBuilder> fields = fields(request);
+    List<FieldSortBuilder> fields = sorting.fill("updatedAt", true);
     assertThat(fields).hasSize(1);
     expectField(fields.get(0), "updatedAt", "_last", SortOrder.ASC);
   }
@@ -94,9 +82,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt").missingLast();
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
-    sorting.fill(request, "updatedAt", false);
-    List<SortBuilder> fields = fields(request);
+    List<FieldSortBuilder> fields = sorting.fill("updatedAt", false);
     assertThat(fields).hasSize(1);
     expectField(fields.get(0), "updatedAt", "_first", SortOrder.DESC);
   }
@@ -110,9 +96,7 @@ public class SortingTest {
     sorting.add("fileLine", "severity").reverse();
     sorting.add("fileLine", "key").missingLast();
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
-    sorting.fill(request, "fileLine", true);
-    List<SortBuilder> fields = fields(request);
+    List<FieldSortBuilder> fields = sorting.fill("fileLine", true);
     assertThat(fields).hasSize(4);
     expectField(fields.get(0), "file", "_first", SortOrder.ASC);
     expectField(fields.get(1), "line", "_first", SortOrder.ASC);
@@ -126,7 +110,7 @@ public class SortingTest {
     sorting.add("file");
 
     try {
-      sorting.fill(new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE), "unknown", true);
+      sorting.fill("unknown", true);
       fail();
     } catch (BadRequestException e) {
       assertThat(e.getMessage()).isEqualTo("Bad sort field: unknown");
@@ -138,32 +122,13 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.addDefault("file");
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
-    sorting.fillDefault(request);
-    List<SortBuilder> fields = fields(request);
+    List<FieldSortBuilder> fields = sorting.fillDefault();
     assertThat(fields).hasSize(1);
   }
 
-  private void expectField(SortBuilder field, String expectedField, String expectedMissing, SortOrder expectedSort) throws IllegalAccessException {
-    assertThat(fieldName(field)).isEqualTo(expectedField);
-    assertThat(missing(field)).isEqualTo(expectedMissing);
-    assertThat(order(field)).isEqualTo(expectedSort);
-  }
-
-  private static List<SortBuilder> fields(SearchRequestBuilder request) throws IllegalAccessException {
-    SearchSourceBuilder source = request.internalBuilder();
-    return (List<SortBuilder>) FieldUtils.readField(source, "sorts", true);
-  }
-
-  private static String fieldName(SortBuilder sortBuilder) throws IllegalAccessException {
-    return (String) FieldUtils.readField(sortBuilder, "fieldName", true);
-  }
-
-  private static String missing(SortBuilder sortBuilder) throws IllegalAccessException {
-    return (String) FieldUtils.readField(sortBuilder, "missing", true);
-  }
-
-  private static SortOrder order(SortBuilder sortBuilder) throws IllegalAccessException {
-    return (SortOrder) FieldUtils.readField(sortBuilder, "order", true);
+  private void expectField(FieldSortBuilder field, String expectedField, String expectedMissing, SortOrder expectedSort) throws IllegalAccessException {
+    assertThat(field.getFieldName()).isEqualTo(expectedField);
+    assertThat(field.missing()).isEqualTo(expectedMissing);
+    assertThat(field.order()).isEqualTo(expectedSort);
   }
 }

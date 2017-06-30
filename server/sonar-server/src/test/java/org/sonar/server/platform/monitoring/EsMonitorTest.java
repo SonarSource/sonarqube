@@ -71,8 +71,7 @@ public class EsMonitorTest {
     Map indicesAttributes = (Map) attributes.get("Indices");
 
     // one index "issues"
-    assertThat(indicesAttributes).hasSize(1);
-    Map indexAttributes = (Map) indicesAttributes.values().iterator().next();
+    Map indexAttributes = (Map) indicesAttributes.get(IssueIndexDefinition.INDEX_TYPE_ISSUE.getIndex());
     assertThat(indexAttributes.get("Docs")).isEqualTo(0L);
     assertThat((int) indexAttributes.get("Shards")).isGreaterThan(0);
     assertThat(indexAttributes.get("Store Size")).isNotNull();

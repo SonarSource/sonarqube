@@ -23,6 +23,7 @@ import com.google.common.net.HostAndPort;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -54,13 +55,13 @@ public class EsClientProvider extends ProviderAdapter {
       boolean clusterEnabled = settings.getBoolean(ProcessProperties.CLUSTER_ENABLED);
       if (clusterEnabled && settings.getBoolean(ProcessProperties.CLUSTER_SEARCH_DISABLED)) {
         esSettings.put("client.transport.sniff", true);
-        nativeClient = TransportClient.builder().settings(esSettings).build();
+        nativeClient = new TransportClient(esSettings.build(), Collections.emptyList()) {};
         Arrays.stream(settings.getStringArray(ProcessProperties.CLUSTER_SEARCH_HOSTS))
           .map(HostAndPort::fromString)
           .forEach(h -> addHostToClient(h, nativeClient));
         LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
       } else {
-        nativeClient = TransportClient.builder().settings(esSettings).build();
+        nativeClient = new TransportClient(esSettings.build(), Collections.emptyList()) {};
         HostAndPort host = HostAndPort.fromParts(settings.getString(ProcessProperties.SEARCH_HOST), settings.getInt(ProcessProperties.SEARCH_PORT));
         addHostToClient(host, nativeClient);
         LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));

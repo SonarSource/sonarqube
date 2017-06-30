@@ -57,13 +57,13 @@ public class ComponentIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_COMPONENT.getType())
       .requireProjectAuthorization();
 
-    mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
-    mapping.stringFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    mapping.stringFieldBuilder(FIELD_NAME)
+    mapping.keywordFieldBuilder(FIELD_PROJECT_UUID).build();
+    mapping.keywordFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_NAME)
       .termVectorWithPositionOffsets()
       .addSubFields(NAME_ANALYZERS)
       .build();
 
-    mapping.stringFieldBuilder(FIELD_QUALIFIER).build();
+    mapping.keywordFieldBuilder(FIELD_QUALIFIER).build();
   }
 }

@@ -22,6 +22,7 @@ package org.sonar.server.test.index;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.server.es.EsClient;
@@ -71,9 +72,12 @@ public class TestIndex {
     SearchRequestBuilder searchRequest = client.prepareSearch(TestIndexDefinition.INDEX_TYPE_TEST)
       .setSize(searchOptions.getLimit())
       .setFrom(searchOptions.getOffset())
-      .setQuery(nestedQuery(FIELD_COVERED_FILES, boolQuery()
-        .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_UUID, sourceFileUuid))
-        .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber))));
+      .setQuery(nestedQuery(
+        FIELD_COVERED_FILES,
+        boolQuery()
+          .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_UUID, sourceFileUuid))
+          .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber)),
+        ScoreMode.Avg));
 
     return new SearchResult<>(searchRequest.get(), TestDoc::new);
   }

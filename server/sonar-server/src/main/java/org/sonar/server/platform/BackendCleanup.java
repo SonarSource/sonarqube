@@ -94,7 +94,7 @@ public class BackendCleanup {
     try {
       esClient.prepareClearCache().get();
 
-      for (String index : esClient.prepareState().get().getState().getMetaData().concreteAllIndices()) {
+      for (String index : esClient.prepareState().get().getState().getMetaData().getConcreteAllIndices()) {
         clearIndex(index);
       }
     } catch (Exception e) {
