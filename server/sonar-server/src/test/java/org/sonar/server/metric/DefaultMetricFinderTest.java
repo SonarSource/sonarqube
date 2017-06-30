@@ -20,52 +20,61 @@
 package org.sonar.server.metric;
 
 import java.util.Arrays;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.TestDBSessions;
-import org.sonar.db.metric.MetricDao;
+import org.sonar.db.metric.MetricDto;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 
 public class DefaultMetricFinderTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DefaultMetricFinder finder;
+  private DefaultMetricFinder underTest = new DefaultMetricFinder(db.getDbClient());
 
-  @Before
-  public void setUp() {
-    dbTester.prepareDbUnit(DefaultMetricFinderTest.class, "shared.xml");
-    finder = new DefaultMetricFinder(new DbClient(dbTester.database(), dbTester.myBatis(), new TestDBSessions(dbTester.myBatis()), new MetricDao()));
+  @Test
+  public void findAll_enabled() {
+    db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    db.getDbClient().metricDao().insert(db.getSession(), newMetricDto().setEnabled(false));
+    db.commit();
+
+    assertThat(underTest.findAll()).hasSize(2);
   }
 
   @Test
-  public void shouldFindAll() {
-    assertThat(finder.findAll().size(), is(2));
+  public void findAll_by_keys() {
+    db.getDbClient().metricDao().insert(db.getSession(), newMetricDto().setKey("ncloc"));
+    db.getDbClient().metricDao().insert(db.getSession(), newMetricDto().setKey("foo"));
+    db.getDbClient().metricDao().insert(db.getSession(), newMetricDto().setKey("coverage"));
+    db.commit();
+
+    assertThat(underTest.findAll(Arrays.asList("ncloc", "foo"))).extracting(Metric::getKey).containsExactlyInAnyOrder("ncloc", "foo")
+      .doesNotContain("coverage");
+
   }
 
   @Test
-  public void shouldFindByKeys() {
-    assertThat(finder.findAll(Arrays.asList("ncloc", "foo", "coverage")).size(), is(2));
+  public void findById() {
+    MetricDto firstMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    db.commit();
+
+    assertThat(underTest.findById(firstMetric.getId())).extracting(Metric::getKey).containsExactly(firstMetric.getKey());
   }
 
   @Test
-  public void shouldFindById() {
-    assertThat(finder.findById(1).getKey(), is("ncloc"));
-    assertThat(finder.findById(3), nullValue());
-  }
+  public void findByKey() {
+    MetricDto firstMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    MetricDto secondMetric = db.getDbClient().metricDao().insert(db.getSession(), newMetricDto());
+    db.commit();
 
-  @Test
-  public void shouldFindByKey() {
-    assertThat(finder.findByKey("ncloc").getKey(), is("ncloc"));
-    assertThat(finder.findByKey("disabled"), nullValue());
+    assertThat(underTest.findByKey(secondMetric.getKey())).extracting(Metric::getKey).containsExactly(secondMetric.getKey());
   }
 }

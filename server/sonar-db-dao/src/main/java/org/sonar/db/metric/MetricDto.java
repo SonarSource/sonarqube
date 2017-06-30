@@ -25,6 +25,9 @@ import javax.annotation.Nullable;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
+import static org.sonar.db.metric.MetricDtoValidator.validateDescription;
+import static org.sonar.db.metric.MetricDtoValidator.validateKey;
+import static org.sonar.db.metric.MetricDtoValidator.validateShortName;
 
 public class MetricDto {
 
@@ -73,8 +76,8 @@ public class MetricDto {
     return kee;
   }
 
-  public MetricDto setKey(String name) {
-    this.kee = name;
+  public MetricDto setKey(String key) {
+    this.kee = validateKey(key);
     return this;
   }
 
@@ -83,7 +86,7 @@ public class MetricDto {
   }
 
   public MetricDto setShortName(String shortName) {
-    this.shortName = shortName;
+    this.shortName = validateShortName(shortName);
     return this;
   }
 
@@ -105,7 +108,7 @@ public class MetricDto {
   }
 
   public MetricDto setDescription(@Nullable String description) {
-    this.description = description;
+    this.description = validateDescription(description);
     return this;
   }
 

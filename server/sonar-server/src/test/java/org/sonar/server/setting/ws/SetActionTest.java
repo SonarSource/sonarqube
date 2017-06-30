@@ -318,7 +318,7 @@ public class SetActionTest {
   @Test
   public void persist_multi_value_with_type_metric() {
     definitions.addComponent(PropertyDefinition
-      .builder("my.key")
+      .builder("my_key")
       .name("foo")
       .description("desc")
       .category("cat")
@@ -327,13 +327,13 @@ public class SetActionTest {
       .defaultValue("default")
       .multiValues(true)
       .build());
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.key.1"));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.key.2"));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_key_1"));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_key_2"));
     dbSession.commit();
 
-    callForMultiValueGlobalSetting("my.key", newArrayList("metric.key.1", "metric.key.2"));
+    callForMultiValueGlobalSetting("my_key", newArrayList("metric_key_1", "metric_key_2"));
 
-    assertGlobalSetting("my.key", "metric.key.1,metric.key.2");
+    assertGlobalSetting("my_key", "metric_key_1,metric_key_2");
   }
 
   @Test
@@ -464,7 +464,7 @@ public class SetActionTest {
   @Test
   public void fail_when_data_and_metric_type_with_invalid_key() {
     definitions.addComponent(PropertyDefinition
-      .builder("my.key")
+      .builder("my_key")
       .name("foo")
       .description("desc")
       .category("cat")
@@ -473,14 +473,14 @@ public class SetActionTest {
       .defaultValue("default")
       .multiValues(true)
       .build());
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.key"));
-    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric.disabled.key").setEnabled(false));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_key"));
+    dbClient.metricDao().insert(dbSession, newMetricDto().setKey("metric_disabled_key").setEnabled(false));
     dbSession.commit();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Error when validating metric setting with key 'my.key' and values [metric.key, metric.disabled.key]. A value is not a valid metric key.");
+    expectedException.expectMessage("Error when validating metric setting with key 'my_key' and values [metric_key, metric_disabled_key]. A value is not a valid metric key.");
 
-    callForMultiValueGlobalSetting("my.key", newArrayList("metric.key", "metric.disabled.key"));
+    callForMultiValueGlobalSetting("my_key", newArrayList("metric_key", "metric_disabled_key"));
   }
 
   @Test

@@ -20,7 +20,6 @@
 package org.sonar.server.util;
 
 public class MetricKeyValidator {
-
   /*
    * Allowed characters are alphanumeric, '-', '_', with at least one non-digit
    */

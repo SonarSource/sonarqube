@@ -21,8 +21,6 @@ package org.sonar.db.metric;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,34 +33,22 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
-
 public class MetricDaoTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  DbSession session;
+  private DbSession dbSession = db.getSession();
 
-  MetricDao underTest;
-
-  @Before
-  public void createDao() {
-    session = dbTester.myBatis().openSession(false);
-    underTest = new MetricDao();
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  private MetricDao underTest = new MetricDao();
 
   @Test
   public void select_by_key() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    MetricDto result = underTest.selectByKey(session, "coverage");
+    MetricDto result = underTest.selectByKey(dbSession, "coverage");
     assertThat(result.getId()).isEqualTo(2);
     assertThat(result.getKey()).isEqualTo("coverage");
     assertThat(result.getShortName()).isEqualTo("Coverage");
@@ -81,21 +67,23 @@ public class MetricDaoTest {
     assertThat(result.getDecimalScale()).isEqualTo(3);
 
     // Disabled metrics are returned
-    result = underTest.selectByKey(session, "disabled");
+    result = underTest.selectByKey(dbSession, "disabled");
     assertThat(result.getId()).isEqualTo(3);
     assertThat(result.isEnabled()).isFalse();
   }
 
-  @Test(expected = RowNotFoundException.class)
+  @Test
   public void select_or_fail_by_key() {
-    underTest.selectOrFailByKey(session, "unknown");
+    expectedException.expect(RowNotFoundException.class);
+
+    underTest.selectOrFailByKey(dbSession, "unknown");
   }
 
   @Test
   public void get_manual_metric() {
-    dbTester.prepareDbUnit(getClass(), "manual_metric.xml");
+    db.prepareDbUnit(getClass(), "manual_metric.xml");
 
-    MetricDto result = underTest.selectByKey(session, "manual");
+    MetricDto result = underTest.selectByKey(dbSession, "manual");
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getKey()).isEqualTo("manual");
     assertThat(result.getShortName()).isEqualTo("Manual metric");
@@ -115,21 +103,21 @@ public class MetricDaoTest {
 
   @Test
   public void find_all_enabled() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectEnabled(session)).hasSize(2);
+    assertThat(underTest.selectEnabled(dbSession)).hasSize(2);
   }
 
   @Test
   public void find_all() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectAll(session)).extracting("id").containsExactly(2, 3, 1);
+    assertThat(underTest.selectAll(dbSession)).extracting("id").containsExactly(2, 3, 1);
   }
 
   @Test
   public void insert() {
-    underTest.insert(session, new MetricDto()
+    underTest.insert(dbSession, new MetricDto()
       .setKey("coverage")
       .setShortName("Coverage")
       .setDescription("Coverage by unit tests")
@@ -145,7 +133,7 @@ public class MetricDaoTest {
       .setDeleteHistoricalData(true)
       .setEnabled(true));
 
-    MetricDto result = underTest.selectByKey(session, "coverage");
+    MetricDto result = underTest.selectByKey(dbSession, "coverage");
     assertThat(result.getId()).isNotNull();
     assertThat(result.getKey()).isEqualTo("coverage");
     assertThat(result.getShortName()).isEqualTo("Coverage");
@@ -165,7 +153,7 @@ public class MetricDaoTest {
 
   @Test
   public void insert_metrics() {
-    underTest.insert(session, new MetricDto()
+    underTest.insert(dbSession, new MetricDto()
       .setKey("coverage")
       .setShortName("Coverage")
       .setDescription("Coverage by unit tests")
@@ -195,86 +183,86 @@ public class MetricDaoTest {
         .setHidden(true)
         .setDeleteHistoricalData(true)
         .setEnabled(true));
-    session.commit();
+    dbSession.commit();
 
-    assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(2);
+    assertThat(db.countRowsOfTable("metrics")).isEqualTo(2);
   }
 
   @Test
   public void selectById() {
-    MetricDto metric = underTest.insert(session, newMetricDto());
+    MetricDto metric = underTest.insert(dbSession, newMetricDto());
 
-    MetricDto result = underTest.selectById(session, metric.getId());
+    MetricDto result = underTest.selectById(dbSession, metric.getId());
 
     assertThat(result).isNotNull();
   }
 
   @Test
   public void selectOrFailById() {
-    MetricDto metric = underTest.insert(session, newMetricDto());
+    MetricDto metric = underTest.insert(dbSession, newMetricDto());
 
-    MetricDto result = underTest.selectOrFailById(session, metric.getId());
+    MetricDto result = underTest.selectOrFailById(dbSession, metric.getId());
 
     assertThat(result).isNotNull();
   }
 
   @Test
   public void fail_when_no_id_selectOrFailById() {
-    thrown.expect(RowNotFoundException.class);
+    expectedException.expect(RowNotFoundException.class);
 
-    underTest.selectOrFailById(session, 42L);
+    underTest.selectOrFailById(dbSession, 42L);
   }
 
   @Test
   public void selectByIds() {
-    MetricDto metric1 = underTest.insert(session, newMetricDto());
-    MetricDto metric2 = underTest.insert(session, newMetricDto());
+    MetricDto metric1 = underTest.insert(dbSession, newMetricDto());
+    MetricDto metric2 = underTest.insert(dbSession, newMetricDto());
 
-    List<MetricDto> result = underTest.selectByIds(session, newHashSet(metric1.getId(), metric2.getId()));
+    List<MetricDto> result = underTest.selectByIds(dbSession, newHashSet(metric1.getId(), metric2.getId()));
 
     assertThat(result).hasSize(2);
   }
 
   @Test
   public void update() {
-    MetricDto metric = underTest.insert(session, newMetricDto().setKey("first-key"));
+    MetricDto metric = underTest.insert(dbSession, newMetricDto().setKey("first-key"));
 
-    underTest.update(session, metric.setKey("second-key"));
+    underTest.update(dbSession, metric.setKey("second-key"));
 
-    MetricDto result = underTest.selectByKey(session, "second-key");
+    MetricDto result = underTest.selectByKey(dbSession, "second-key");
     assertThat(result).isNotNull();
   }
 
   @Test
   public void countEnabled() {
-    underTest.insert(session, newMetricDto().setEnabled(true).setUserManaged(true));
-    underTest.insert(session, newMetricDto().setEnabled(true).setUserManaged(true));
-    underTest.insert(session, newMetricDto().setEnabled(false));
+    underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
+    underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
+    underTest.insert(dbSession, newMetricDto().setEnabled(false));
 
-    int result = underTest.countEnabled(session, true);
+    int result = underTest.countEnabled(dbSession, true);
 
     assertThat(result).isEqualTo(2);
   }
 
   @Test
   public void selectDomains() {
-    underTest.insert(session, newMetricDto().setDomain("first-domain").setEnabled(true));
-    underTest.insert(session, newMetricDto().setDomain("second-domain").setEnabled(true));
-    underTest.insert(session, newMetricDto().setDomain("second-domain").setEnabled(true));
-    underTest.insert(session, newMetricDto().setDomain("third-domain").setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setDomain("first-domain").setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setDomain("second-domain").setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setDomain("second-domain").setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setDomain("third-domain").setEnabled(true));
 
-    List<String> domains = underTest.selectEnabledDomains(session);
+    List<String> domains = underTest.selectEnabledDomains(dbSession);
 
     assertThat(domains).hasSize(3).containsOnly("first-domain", "second-domain", "third-domain");
   }
 
   @Test
   public void selectByKeys() {
-    underTest.insert(session, newMetricDto().setKey("first-key"));
-    underTest.insert(session, newMetricDto().setKey("second-key"));
-    underTest.insert(session, newMetricDto().setKey("third-key"));
+    underTest.insert(dbSession, newMetricDto().setKey("first-key"));
+    underTest.insert(dbSession, newMetricDto().setKey("second-key"));
+    underTest.insert(dbSession, newMetricDto().setKey("third-key"));
 
-    List<MetricDto> result = underTest.selectByKeys(session, Arrays.asList("first-key", "second-key", "third-key"));
+    List<MetricDto> result = underTest.selectByKeys(dbSession, Arrays.asList("first-key", "second-key", "third-key"));
 
     assertThat(result).hasSize(3)
       .extracting("key").containsOnly("first-key", "second-key", "third-key");
@@ -282,36 +270,36 @@ public class MetricDaoTest {
 
   @Test
   public void disableByIds() {
-    MetricDto metric1 = underTest.insert(session, newMetricDto().setEnabled(true).setUserManaged(true));
-    MetricDto metric2 = underTest.insert(session, newMetricDto().setEnabled(true).setUserManaged(true));
+    MetricDto metric1 = underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
+    MetricDto metric2 = underTest.insert(dbSession, newMetricDto().setEnabled(true).setUserManaged(true));
 
-    underTest.disableCustomByIds(session, Arrays.asList(metric1.getId(), metric2.getId()));
+    underTest.disableCustomByIds(dbSession, Arrays.asList(metric1.getId(), metric2.getId()));
 
-    List<MetricDto> result = underTest.selectByIds(session, newHashSet(metric1.getId(), metric2.getId()));
+    List<MetricDto> result = underTest.selectByIds(dbSession, newHashSet(metric1.getId(), metric2.getId()));
     assertThat(result).hasSize(2);
     assertThat(result).extracting("enabled").containsOnly(false);
   }
 
   @Test
   public void disableByKey() {
-    underTest.insert(session, newMetricDto().setKey("metric-key").setEnabled(true).setUserManaged(true));
+    underTest.insert(dbSession, newMetricDto().setKey("metric-key").setEnabled(true).setUserManaged(true));
 
-    boolean updated = underTest.disableCustomByKey(session, "metric-key");
+    boolean updated = underTest.disableCustomByKey(dbSession, "metric-key");
     assertThat(updated).isTrue();
 
-    MetricDto result = underTest.selectByKey(session, "metric-key");
+    MetricDto result = underTest.selectByKey(dbSession, "metric-key");
     assertThat(result.isEnabled()).isFalse();
 
     // disable again -> zero rows are touched
-    updated = underTest.disableCustomByKey(session, "metric-key");
+    updated = underTest.disableCustomByKey(dbSession, "metric-key");
     assertThat(updated).isFalse();
   }
 
   @Test
   public void selectOrFailByKey() {
-    underTest.insert(session, newMetricDto().setKey("metric-key"));
+    underTest.insert(dbSession, newMetricDto().setKey("metric-key"));
 
-    MetricDto result = underTest.selectOrFailByKey(session, "metric-key");
+    MetricDto result = underTest.selectOrFailByKey(dbSession, "metric-key");
 
     assertThat(result).isNotNull();
     assertThat(result.getKey()).isEqualTo("metric-key");
@@ -319,27 +307,26 @@ public class MetricDaoTest {
 
   @Test
   public void selectEnabled_with_paging_and_custom() {
-    underTest.insert(session, newMetricDto().setUserManaged(true).setEnabled(true));
-    underTest.insert(session, newMetricDto().setUserManaged(true).setEnabled(true));
-    underTest.insert(session, newMetricDto().setUserManaged(true).setEnabled(true));
-    underTest.insert(session, newMetricDto().setUserManaged(false).setEnabled(true));
-    underTest.insert(session, newMetricDto().setUserManaged(true).setEnabled(false));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(false).setEnabled(true));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(false));
 
-    List<MetricDto> result = underTest.selectEnabled(session, true, 0, 100);
+    List<MetricDto> result = underTest.selectEnabled(dbSession, true, 0, 100);
 
     assertThat(result).hasSize(3);
   }
 
   @Test
   public void selectAvailableByComponentUuid() {
-    underTest.insert(session, newMetricDto().setUserManaged(true).setEnabled(true).setKey("metric-key"));
-    underTest.insert(session, newMetricDto().setUserManaged(false).setEnabled(true).setKey("another-metric-key"));
-    underTest.insert(session, newMetricDto().setUserManaged(true).setEnabled(false).setKey("third-metric-key"));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(true).setKey("metric-key"));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(false).setEnabled(true).setKey("another-metric-key"));
+    underTest.insert(dbSession, newMetricDto().setUserManaged(true).setEnabled(false).setKey("third-metric-key"));
 
-    List<MetricDto> result = underTest.selectAvailableCustomMetricsByComponentUuid(session, "project-uuid");
+    List<MetricDto> result = underTest.selectAvailableCustomMetricsByComponentUuid(dbSession, "project-uuid");
 
     assertThat(result).hasSize(1)
       .extracting("key").containsOnly("metric-key");
-
   }
 }
