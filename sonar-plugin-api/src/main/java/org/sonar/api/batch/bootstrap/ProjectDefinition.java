@@ -181,8 +181,8 @@ public class ProjectDefinition {
     String branch = properties.get(CoreProperties.PROJECT_BRANCH_PROPERTY);
     if (StringUtils.isNotBlank(branch)) {
       return branch;
-    } else if (getParent() != null) {
-      return getParent().getBranch();
+    } else if (parent != null) {
+      return parent.getBranch();
     }
     return null;
   }

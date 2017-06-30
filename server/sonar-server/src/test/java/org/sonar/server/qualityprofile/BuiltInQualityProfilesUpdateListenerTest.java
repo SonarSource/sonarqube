@@ -27,8 +27,7 @@ import java.util.stream.IntStream;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.config.MapSettings;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -53,7 +52,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
 
   private static final Random RANDOM = new Random();
   private NotificationManager notificationManager = mock(NotificationManager.class);
-  private Settings settings = new MapSettings();
+  private MapSettings settings = new MapSettings();
 
   @Test
   public void add_profile_to_notification_for_added_rules() throws Exception {
@@ -62,7 +61,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     Languages languages = new Languages();
     Tuple expectedTuple = addProfile(profiles, languages, ACTIVATED);
 
-    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings);
+    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
@@ -80,7 +79,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     Languages languages = new Languages();
     Tuple expectedTuple = addProfile(profiles, languages, UPDATED);
 
-    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings);
+    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
@@ -98,7 +97,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     Languages languages = new Languages();
     Tuple expectedTuple = addProfile(profiles, languages, DEACTIVATED);
 
-    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings);
+    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
@@ -117,7 +116,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     Tuple expectedTuple1 = addProfile(profiles, languages, ACTIVATED);
     Tuple expectedTuple2 = addProfile(profiles, languages, ACTIVATED);
 
-    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings);
+    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, 0, 1);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
@@ -137,7 +136,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     long startDate = RANDOM.nextInt(5000);
     long endDate = startDate + RANDOM.nextInt(5000);
 
-    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings);
+    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, startDate, endDate);
 
     ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
@@ -155,7 +154,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     Languages languages = new Languages();
     addProfile(profiles, languages, ACTIVATED);
 
-    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings);
+    BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, 0, 1);
 
     verifyZeroInteractions(notificationManager);
@@ -176,7 +175,7 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     return randomAlphanumeric(20).toLowerCase();
   }
 
-  private void enableNotificationInGlobalSettings(){
+  private void enableNotificationInGlobalSettings() {
     settings.setProperty(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES, false);
   }
 }
