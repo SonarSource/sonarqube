@@ -134,7 +134,7 @@ public class UserUpdaterReactivateTest {
   }
 
   @Test
-  public void update_external_provider_when_reactivating_user() {
+  public void reactivate_user_with_external_provider() {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
       .setLocal(true)
       .setCreatedAt(PAST)
@@ -149,9 +149,30 @@ public class UserUpdaterReactivateTest {
     session.commit();
 
     UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.isLocal()).isFalse();
     assertThat(dto.getExternalIdentity()).isEqualTo("john");
     assertThat(dto.getExternalIdentityProvider()).isEqualTo("github");
-    assertThat(dto.isLocal()).isFalse();
+  }
+
+  @Test
+  public void reactivate_user_with_local_provider() {
+    db.users().insertUser(newDisabledUser(DEFAULT_LOGIN)
+      .setLocal(true)
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST));
+    createDefaultGroup();
+
+    underTest.create(db.getSession(), NewUser.builder()
+      .setLogin(DEFAULT_LOGIN)
+      .setName("Marius2")
+      .setPassword("password")
+      .build());
+    session.commit();
+
+    UserDto dto = dbClient.userDao().selectByLogin(session, DEFAULT_LOGIN);
+    assertThat(dto.isLocal()).isTrue();
+    assertThat(dto.getExternalIdentity()).isEqualTo(DEFAULT_LOGIN);
+    assertThat(dto.getExternalIdentityProvider()).isEqualTo("sonarqube");
   }
 
   @Test
@@ -226,7 +247,11 @@ public class UserUpdaterReactivateTest {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build());
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin(DEFAULT_LOGIN)
+      .setName("Name")
+      .setPassword("password")
+      .build());
     session.commit();
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isPresent();
@@ -238,7 +263,11 @@ public class UserUpdaterReactivateTest {
     db.users().insertUser(newDisabledUser(DEFAULT_LOGIN));
     createDefaultGroup();
 
-    UserDto dto = underTest.create(db.getSession(), NewUser.builder().setLogin(DEFAULT_LOGIN).setName("Name").build());
+    UserDto dto = underTest.create(db.getSession(), NewUser.builder()
+      .setLogin(DEFAULT_LOGIN)
+      .setName("Name")
+      .setPassword("password")
+      .build());
     session.commit();
 
     assertThat(dbClient.organizationMemberDao().select(db.getSession(), defaultOrganizationProvider.get().getUuid(), dto.getId())).isNotPresent();
@@ -255,6 +284,7 @@ public class UserUpdaterReactivateTest {
     underTest.create(db.getSession(), NewUser.builder()
       .setLogin(user.getLogin())
       .setName("name")
+      .setPassword("password")
       .build());
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isTrue();
@@ -271,6 +301,7 @@ public class UserUpdaterReactivateTest {
     underTest.create(db.getSession(), NewUser.builder()
       .setLogin(user.getLogin())
       .setName("name")
+      .setPassword("password")
       .build());
 
     assertThat(dbClient.userDao().selectByLogin(session, user.getLogin()).isOnboarded()).isFalse();

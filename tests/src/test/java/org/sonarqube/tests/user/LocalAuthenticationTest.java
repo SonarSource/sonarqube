@@ -33,19 +33,21 @@ import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.WsUsers.SearchWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.user.CreateRequest;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
@@ -193,7 +195,7 @@ public class LocalAuthenticationTest {
    */
   @Test
   public void authentication_with_any_ws() throws Exception {
-    User user = tester.users().generate(u -> u.setLogin("test").setPassword("password"));
+    tester.users().generate(u -> u.setLogin("test").setPassword("password"));
 
     assertThat(checkAuthenticationWithAnyWS("test", "password").code()).isEqualTo(200);
     assertThat(checkAuthenticationWithAnyWS("wrong", "password").code()).isEqualTo(401);
@@ -210,6 +212,26 @@ public class LocalAuthenticationTest {
     assertThat(checkAuthenticationWithAnyWS(null, null).code()).isEqualTo(401);
   }
 
+  @Test
+  public void authenticate_on_user_that_was_disabled() {
+    User user = tester.users().generate(u -> u.setLogin("test").setPassword("password"));
+    tester.users().service().deactivate(user.getLogin());
+
+    tester.users().service().create(CreateRequest.builder()
+      .setLogin("test")
+      .setName("Test")
+      .setEmail("test@email.com")
+      .setScmAccounts(asList("test1", "test2"))
+      .setPassword("password")
+      .build());
+
+    assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
+    assertThat(tester.users().getByLogin("test").get())
+      .extracting(SearchWsResponse.User::getLogin, SearchWsResponse.User::getName, SearchWsResponse.User::getEmail, u -> u.getScmAccounts().getScmAccountsList(),
+        SearchWsResponse.User::getExternalIdentity, SearchWsResponse.User::getExternalProvider)
+      .containsOnly("test", "Test", "test@email.com", asList("test1", "test2"), "test", "sonarqube");
+  }
+
   private boolean checkAuthenticationWithAuthenticateWebService(String login, String password) {
     String result = tester.as(login, password).wsClient().wsConnector().call(new PostRequest("/api/authentication/validate")).content();
     return result.contains("{\"valid\":true}");
@@ -219,12 +241,6 @@ public class LocalAuthenticationTest {
     WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).credentials(login, password).build());
     // Call any WS
     return wsClient.wsConnector().call(new GetRequest("api/rules/search"));
-  }
-
-  private void addUserPermission(String login, String permission) {
-    tester.wsClient().permissions().addUser(new AddUserWsRequest()
-      .setLogin(login)
-      .setPermission(permission));
   }
 
 }

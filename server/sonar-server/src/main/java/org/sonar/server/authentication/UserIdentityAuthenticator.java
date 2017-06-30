@@ -124,8 +124,7 @@ public class UserIdentityAuthenticator {
     userUpdater.update(dbSession, UpdateUser.create(userDto.getLogin())
       .setEmail(user.getEmail())
       .setName(user.getName())
-      .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin()))
-      .setPassword(null));
+      .setExternalIdentity(new ExternalIdentity(provider.getKey(), user.getProviderLogin())));
     syncGroups(dbSession, user, userDto);
   }
 
