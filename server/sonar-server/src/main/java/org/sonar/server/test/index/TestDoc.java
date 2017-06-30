@@ -154,7 +154,7 @@ public class TestDoc extends BaseDoc {
   public TestDoc setCoveredFiles(List<CoveredFileDoc> coveredFiles) {
     List<Map<String, Object>> coveredFilesAsMaps = new ArrayList<>();
     for (CoveredFileDoc coveredFile : coveredFiles) {
-      coveredFilesAsMaps.add(coveredFile.getFields());
+      coveredFilesAsMaps.add(coveredFile.getFieldsWithoutId());
     }
     setField(FIELD_COVERED_FILES, coveredFilesAsMaps);
     return this;

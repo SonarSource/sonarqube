@@ -103,7 +103,7 @@ public class UserIndexer implements StartupIndexer {
 
   private static IndexRequest newIndexRequest(UserDoc user) {
     return new IndexRequest(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user.login())
-      .source(user.getFields());
+      .source(user.getFieldsWithoutId());
   }
 
 }

@@ -120,7 +120,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
     return new IndexRequest(INDEX_TYPE_PROJECT_MEASURES.getIndex(), INDEX_TYPE_PROJECT_MEASURES.getType(), projectUuid)
       .routing(projectUuid)
       .parent(projectUuid)
-      .source(doc.getFields());
+      .source(doc.getFieldsWithoutId());
   }
 
   private static ProjectMeasuresDoc toProjectMeasuresDoc(ProjectMeasures projectMeasures) {

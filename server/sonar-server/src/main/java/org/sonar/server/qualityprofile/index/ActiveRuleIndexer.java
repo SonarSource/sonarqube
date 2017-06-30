@@ -131,7 +131,7 @@ public class ActiveRuleIndexer implements StartupIndexer {
   private static IndexRequest newIndexRequest(ActiveRuleDoc doc) {
     return new IndexRequest(INDEX_TYPE_ACTIVE_RULE.getIndex(), INDEX_TYPE_ACTIVE_RULE.getType(), doc.getId())
       .parent(doc.getRuleKey().toString())
-      .source(doc.getFields());
+      .source(doc.getFieldsWithoutId());
   }
 
   private void scrollDbAndIndex(ActiveRuleIterator dbCursor, Size size) {

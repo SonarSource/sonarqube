@@ -116,7 +116,7 @@ public class ViewIndexer implements StartupIndexer {
 
   private static IndexRequest newIndexRequest(ViewDoc doc) {
     return new IndexRequest(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(), ViewIndexDefinition.INDEX_TYPE_VIEW.getType(), doc.uuid())
-      .source(doc.getFields());
+      .source(doc.getFieldsWithoutId());
   }
 
   private void clearLookupCache(String viewUuid) {

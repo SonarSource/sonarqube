@@ -131,7 +131,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
     return new IndexRequest(INDEX_TYPE_COMPONENT.getIndex(), INDEX_TYPE_COMPONENT.getType(), doc.getId())
       .routing(doc.getRouting())
       .parent(doc.getParent())
-      .source(doc.getFields());
+      .source(doc.getFieldsWithoutId());
   }
 
   public static ComponentDoc toDocument(ComponentDto component) {

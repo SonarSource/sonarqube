@@ -167,6 +167,6 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
     return new IndexRequest(INDEX_TYPE_ISSUE.getIndex(), INDEX_TYPE_ISSUE.getType(), issue.key())
       .routing(projectUuid)
       .parent(projectUuid)
-      .source(issue.getFields());
+      .source(issue.getFieldsWithoutId());
   }
 }

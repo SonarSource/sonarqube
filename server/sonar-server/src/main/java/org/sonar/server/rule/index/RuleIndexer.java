@@ -128,7 +128,7 @@ public class RuleIndexer implements StartupIndexer {
 
   private static IndexRequest newIndexRequest(RuleExtensionDoc ruleExtension) {
     return new IndexRequest(INDEX_TYPE_RULE_EXTENSION.getIndex(), INDEX_TYPE_RULE_EXTENSION.getType(), ruleExtension.getId())
-      .source(ruleExtension.getFields())
+      .source(ruleExtension.getFieldsWithoutId())
       .parent(ruleExtension.getParent());
   }
 }

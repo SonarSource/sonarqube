@@ -107,7 +107,7 @@ public class EsTester extends ExternalResource {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
           .parent(doc.getParent())
           .routing(doc.getRouting())
-          .source(doc.getFields()));
+          .source(doc.getFieldsWithoutId()));
       }
       EsUtils.executeBulkRequest(bulk, "");
     } catch (Exception e) {

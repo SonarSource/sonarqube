@@ -103,4 +103,10 @@ public abstract class BaseDoc {
   public Map<String, Object> getFields() {
     return fields;
   }
+
+  public Map<String, Object> getFieldsWithoutId() {
+    Map<String, Object> fieldsWithoutId = new HashMap<>(getFields());
+    fieldsWithoutId.remove("_id");
+    return fields;
+  }
 }
