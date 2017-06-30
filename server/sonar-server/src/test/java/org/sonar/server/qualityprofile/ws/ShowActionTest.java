@@ -23,7 +23,7 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
@@ -46,6 +46,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse.CompareToSonarWay;
+import org.sonarqube.ws.QualityProfiles.ShowResponse.QualityProfile;
 
 import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +54,6 @@ import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.server.language.LanguageTesting.newLanguage;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.QualityProfiles.ShowResponse.QualityProfile;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROFILE;
 
@@ -64,7 +64,7 @@ public class ShowActionTest {
   private static Languages LANGUAGES = new Languages(XOO1, XOO2);
 
   @Rule
-  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public DbTester db = DbTester.create();
   @Rule
@@ -215,7 +215,7 @@ public class ShowActionTest {
     CompareToSonarWay result = call(ws.newRequest()
       .setParam(PARAM_PROFILE, profile.getKee())
       .setParam(PARAM_COMPARE_TO_SONAR_WAY, "true"))
-      .getCompareToSonarWay();
+        .getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)

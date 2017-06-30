@@ -21,6 +21,7 @@ package org.sonar.server.platform;
 
 import java.io.File;
 import java.util.Date;
+import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -46,9 +47,13 @@ public class ServerImpl extends Server {
     this.runtime = runtime;
   }
 
+  /**
+   * Can be null when server is waiting for migration
+   */
   @Override
+  @CheckForNull
   public String getId() {
-    return config.get(CoreProperties.SERVER_ID).get();
+    return config.get(CoreProperties.SERVER_ID).orElse(null);
   }
 
   @Override

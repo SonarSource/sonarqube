@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Multimap;
 import java.util.Collection;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.server.notification.NotificationManager;
@@ -39,16 +39,16 @@ public class BuiltInQualityProfilesUpdateListener {
 
   private final NotificationManager notificationManager;
   private final Languages languages;
-  private final Settings settings;
+  private final Configuration config;
 
-  public BuiltInQualityProfilesUpdateListener(NotificationManager notificationManager, Languages languages, Settings settings) {
+  public BuiltInQualityProfilesUpdateListener(NotificationManager notificationManager, Languages languages, Configuration config) {
     this.notificationManager = notificationManager;
     this.languages = languages;
-    this.settings = settings;
+    this.config = config;
   }
 
   void onChange(Multimap<QProfileName, ActiveRuleChange> changedProfiles, long startDate, long endDate) {
-    if (settings.getBoolean(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES)) {
+    if (config.getBoolean(DISABLE_NOTIFICATION_ON_BUILT_IN_QPROFILES).orElse(false)) {
       return;
     }
     BuiltInQualityProfilesNotification notification = new BuiltInQualityProfilesNotification();
