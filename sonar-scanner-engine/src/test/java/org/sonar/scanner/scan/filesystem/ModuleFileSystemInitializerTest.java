@@ -78,6 +78,28 @@ public class ModuleFileSystemInitializerTest {
     assertThat(path(initializer.tests().get(0))).endsWith("src/test/java");
   }
 
+  @Test
+  public void supportFilenamesWithComma() throws IOException {
+    File baseDir = temp.newFolder("base");
+    File sourceFile = new File(baseDir, "my,File.cs");
+    sourceFile.createNewFile();
+    File testFile = new File(baseDir, "my,TestFile.cs");
+    testFile.createNewFile();
+
+    ProjectDefinition project = ProjectDefinition.create()
+      .setBaseDir(baseDir)
+      .addSources("\"my,File.cs\"")
+      .addTests("\"my,TestFile.cs\"");
+
+    ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempFolder.class), pathResolver);
+
+    assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
+    assertThat(initializer.sources()).hasSize(1);
+    assertThat(initializer.sources().get(0)).isEqualTo(sourceFile);
+    assertThat(initializer.tests()).hasSize(1);
+    assertThat(initializer.tests().get(0)).isEqualTo(testFile);
+  }
+
   private String path(File f) throws IOException {
     return FilenameUtils.separatorsToUnix(f.getCanonicalPath());
   }

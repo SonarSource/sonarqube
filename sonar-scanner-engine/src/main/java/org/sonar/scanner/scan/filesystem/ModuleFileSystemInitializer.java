@@ -28,6 +28,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;
 
+import static org.sonar.scanner.config.DefaultConfiguration.parseAsCsv;
+
 /**
  * @since 3.5
  */
@@ -60,19 +62,25 @@ public class ModuleFileSystemInitializer {
   }
 
   private void initSources(ProjectDefinition module, PathResolver pathResolver) {
-    for (String sourcePath : module.sources()) {
-      File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
-      if (dirOrFile.exists()) {
-        sourceDirsOrFiles.add(dirOrFile);
+    String srcPropValue = module.properties().get(ProjectDefinition.SOURCES_PROPERTY);
+    if (srcPropValue != null) {
+      for (String sourcePath : parseAsCsv(ProjectDefinition.SOURCES_PROPERTY, srcPropValue)) {
+        File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
+        if (dirOrFile.exists()) {
+          sourceDirsOrFiles.add(dirOrFile);
+        }
       }
     }
   }
 
   private void initTests(ProjectDefinition module, PathResolver pathResolver) {
-    for (String testPath : module.tests()) {
-      File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), testPath);
-      if (dirOrFile.exists()) {
-        testDirsOrFiles.add(dirOrFile);
+    String testPropValue = module.properties().get(ProjectDefinition.TESTS_PROPERTY);
+    if (testPropValue != null) {
+      for (String testPath : parseAsCsv(ProjectDefinition.TESTS_PROPERTY, testPropValue)) {
+        File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), testPath);
+        if (dirOrFile.exists()) {
+          testDirsOrFiles.add(dirOrFile);
+        }
       }
     }
   }
