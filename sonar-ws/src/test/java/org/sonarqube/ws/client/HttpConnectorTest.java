@@ -31,6 +31,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,6 +61,11 @@ public class HttpConnectorTest {
     server = new MockWebServer();
     server.start();
     serverUrl = server.url("").url().toString();
+  }
+
+  @After
+  public void stop() throws Exception {
+    server.close();
   }
 
   @Test
@@ -140,23 +146,50 @@ public class HttpConnectorTest {
 
   @Test
   public void use_proxy_authentication() throws Exception {
-    MockWebServer proxy = new MockWebServer();
-    proxy.start();
-    underTest = HttpConnector.newBuilder()
-      .url(serverUrl)
-      .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy.getHostName(), proxy.getPort())))
-      .proxyCredentials("theProxyLogin", "theProxyPassword")
-      .build();
+    try (MockWebServer proxy = new MockWebServer()) {
+      proxy.start();
 
-    GetRequest request = new GetRequest("api/issues/search");
-    proxy.enqueue(new MockResponse().setResponseCode(407));
-    proxy.enqueue(new MockResponse().setBody("OK!"));
-    underTest.call(request);
+      underTest = HttpConnector.newBuilder()
+        .url(serverUrl)
+        .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy.getHostName(), proxy.getPort())))
+        .proxyCredentials("theProxyLogin", "theProxyPassword")
+        .build();
 
-    RecordedRequest recordedRequest = proxy.takeRequest();
-    assertThat(recordedRequest.getHeader("Proxy-Authorization")).isNull();
-    recordedRequest = proxy.takeRequest();
-    assertThat(recordedRequest.getHeader("Proxy-Authorization")).isEqualTo(basic("theProxyLogin", "theProxyPassword"));
+      GetRequest request = new GetRequest("api/issues/search");
+      proxy.enqueue(new MockResponse().setResponseCode(407));
+      proxy.enqueue(new MockResponse().setBody("OK!"));
+      underTest.call(request);
+
+      RecordedRequest recordedRequest = proxy.takeRequest();
+      assertThat(recordedRequest.getHeader("Proxy-Authorization")).isNull();
+      recordedRequest = proxy.takeRequest();
+      assertThat(recordedRequest.getHeader("Proxy-Authorization")).isEqualTo(basic("theProxyLogin", "theProxyPassword"));
+    }
+  }
+
+  @Test
+  public void use_proxy_authentication_wrong_crendentials() throws Exception {
+    try (MockWebServer proxy = new MockWebServer()) {
+      proxy.start();
+
+      underTest = HttpConnector.newBuilder()
+        .url(serverUrl)
+        .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy.getHostName(), proxy.getPort())))
+        .proxyCredentials("theProxyLogin", "wrongPassword")
+        .build();
+
+      GetRequest request = new GetRequest("api/issues/search");
+      proxy.enqueue(new MockResponse().setResponseCode(407));
+      proxy.enqueue(new MockResponse().setResponseCode(407));
+      proxy.enqueue(new MockResponse().setResponseCode(407));
+      underTest.call(request);
+
+      RecordedRequest recordedRequest = proxy.takeRequest();
+      assertThat(recordedRequest.getHeader("Proxy-Authorization")).isNull();
+      recordedRequest = proxy.takeRequest();
+      assertThat(recordedRequest.getHeader("Proxy-Authorization")).isEqualTo(basic("theProxyLogin", "wrongPassword"));
+      assertThat(proxy.getRequestCount()).isEqualTo(2);
+    }
   }
 
   @Test
