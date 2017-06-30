@@ -203,11 +203,12 @@ public class UpdateActionTest {
 
   @Test
   public void fail_when_metric_key_is_not_well_formatted() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
-
     int id = insertMetric(newDefaultMetric());
     dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
     dbSession.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Malformed metric key 'not well formatted key'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
 
     newRequest()
       .setParam(PARAM_ID, String.valueOf(id))

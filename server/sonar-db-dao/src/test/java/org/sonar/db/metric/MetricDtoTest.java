@@ -19,14 +19,21 @@
  */
 package org.sonar.db.metric;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import static com.google.common.base.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 
 public class MetricDtoTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private MetricDto underTest = new MetricDto();
 
   @Test
   public void getters_and_setters() {
@@ -71,5 +78,35 @@ public class MetricDtoTest {
     assertThat(MetricTesting.newMetricDto().setValueType(DATA.name()).isDataType()).isTrue();
     assertThat(MetricTesting.newMetricDto().setValueType(STRING.name()).isDataType()).isTrue();
     assertThat(MetricTesting.newMetricDto().setValueType(STRING.name()).isDataType()).isTrue();
+  }
+
+  @Test
+  public void fail_if_key_longer_than_64_characters() {
+    String a65 = repeat("a", 65);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metric key length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
+
+    underTest.setKey(a65);
+  }
+
+  @Test
+  public void fail_if_name_longer_than_64_characters() {
+    String a65 = repeat("a", 65);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metric name length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
+
+    underTest.setShortName(a65);
+  }
+
+  @Test
+  public void fail_if_description_longer_than_255_characters() {
+    String a256 = repeat("a", 256);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metric description length (256) is longer than the maximum authorized (255). '" + a256 + "' was provided.");
+
+    underTest.setDescription(a256);
   }
 }

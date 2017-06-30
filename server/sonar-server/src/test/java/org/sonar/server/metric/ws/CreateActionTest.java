@@ -258,6 +258,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_ill_formatted_key() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Malformed metric key '123:456'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
 
     newRequest()
       .setParam(PARAM_KEY, "123:456")
