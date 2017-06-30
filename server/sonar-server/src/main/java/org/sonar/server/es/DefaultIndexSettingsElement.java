@@ -126,7 +126,8 @@ public enum DefaultIndexSettingsElement {
       return ImmutableSortedMap.of(
         TYPE, FIELD_TYPE_TEXT,
         INDEX, INDEX_SEARCHABLE,
-        ANALYZER, getName());
+        ANALYZER, getName(),
+        "fielddata", "true");
     }
   },
   INDEX_GRAMS_ANALYZER(ANALYZER) {
