@@ -148,6 +148,10 @@ public class NewIndex {
       return new KeywordFieldBuilder(this, fieldName);
     }
 
+    public TextFieldBuilder textFieldBuilder(String fieldName) {
+      return new TextFieldBuilder(this, fieldName);
+    }
+
     public NestedFieldBuilder nestedFieldBuilder(String fieldName) {
       return new NestedFieldBuilder(this, fieldName);
     }
@@ -200,7 +204,7 @@ public class NewIndex {
   /**
    * Helper to define a string field in mapping of index type
    */
-  public static class KeywordFieldBuilder {
+  public static abstract class StringFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
     private boolean disableSearch = false;
@@ -209,7 +213,7 @@ public class NewIndex {
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
     private boolean store = false;
 
-    private KeywordFieldBuilder(NewIndexType indexType, String fieldName) {
+    private StringFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
       this.fieldName = fieldName;
     }
@@ -218,7 +222,7 @@ public class NewIndex {
      * Add a sub-field. A {@code SortedMap} is required for consistency of the index settings hash.
      * @see IndexDefinitionHash
      */
-    private KeywordFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
+    private StringFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
       subFields.put(fieldName, fieldDefinition);
       return this;
     }
@@ -226,7 +230,7 @@ public class NewIndex {
     /**
      * Add subfields, one for each analyzer.
      */
-    public KeywordFieldBuilder addSubFields(DefaultIndexSettingsElement... analyzers) {
+    public StringFieldBuilder addSubFields(DefaultIndexSettingsElement... analyzers) {
       Arrays.stream(analyzers)
           .forEach(analyzer -> addSubField(analyzer.getSubFieldSuffix(), analyzer.fieldMapping()));
       return this;
@@ -238,7 +242,7 @@ public class NewIndex {
      * https://www.elastic.co/guide/en/elasticsearch/reference/2.3/norms.html
      * https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm
      */
-    public KeywordFieldBuilder disableNorms() {
+    public StringFieldBuilder disableNorms() {
       this.disableNorms = true;
       return this;
     }
@@ -246,7 +250,7 @@ public class NewIndex {
     /**
      * Position offset term vectors are required for the fast_vector_highlighter (fvh).
      */
-    public KeywordFieldBuilder termVectorWithPositionOffsetsForAllSubfields() {
+    public StringFieldBuilder termVectorWithPositionOffsetsForAllSubfields() {
       this.termVectorWithPositionOffsets = true;
       return this;
     }
@@ -256,12 +260,12 @@ public class NewIndex {
      * By default field is "true": it is searchable, but index the value exactly
      * as specified.
      */
-    public KeywordFieldBuilder disableSearch() {
+    public StringFieldBuilder disableSearch() {
       this.disableSearch = true;
       return this;
     }
 
-    public KeywordFieldBuilder store() {
+    public StringFieldBuilder store() {
       this.store = true;
       return this;
     }
@@ -270,12 +274,15 @@ public class NewIndex {
       Map<String, Object> hash = new TreeMap<>();
       if (subFields.isEmpty()) {
         hash.putAll(ImmutableMap.of(
-            "type", FIELD_TYPE_KEYWORD,
+            "type", getFieldType(),
             "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE,
             "norms", String.valueOf(!disableNorms),
             "store", String.valueOf(store)));
+        if (getFieldData()) {
+          hash.put("fielddata", "true");
+        }
       } else {
-        hash.put("type", FIELD_TYPE_KEYWORD);
+        hash.put("type", getFieldType());
 
         Map<String, Object> multiFields = new TreeMap<>(subFields);
 
@@ -290,9 +297,20 @@ public class NewIndex {
             }
           });
         }
+        if (getFieldData()) {
+          multiFields.entrySet().forEach(entry -> {
+            Object subFieldMapping = entry.getValue();
+            if (subFieldMapping instanceof Map) {
+              entry.setValue(
+                addFieldToMapping(
+                  (Map<String, String>) subFieldMapping,
+                  "fielddata", "true"));
+            }
+          });
+        }
 
         multiFields.put(fieldName, ImmutableMap.of(
-            "type", FIELD_TYPE_KEYWORD,
+            "type", getFieldType(),
             "index", INDEX_SEARCHABLE,
             "norms", "false",
             "store", String.valueOf(store)
@@ -304,10 +322,53 @@ public class NewIndex {
       return indexType.setProperty(fieldName, hash);
     }
 
+    protected abstract boolean getFieldData();
+
+    protected abstract String getFieldType();
+
     private static SortedMap<String, String> addFieldToMapping(Map<String, String> source, String key, String value) {
       SortedMap<String, String> mutable = new TreeMap<>(source);
       mutable.put(key, value);
       return ImmutableSortedMap.copyOf(mutable);
+    }
+  }
+
+  public static class KeywordFieldBuilder extends StringFieldBuilder {
+
+    private KeywordFieldBuilder(NewIndexType indexType, String fieldName) {
+      super(indexType, fieldName);
+    }
+
+    @Override
+    protected boolean getFieldData() {
+      return false;
+    }
+
+    protected String getFieldType() {
+      return FIELD_TYPE_KEYWORD;
+    }
+  }
+
+  public static class TextFieldBuilder extends StringFieldBuilder {
+
+    private boolean fieldData = false;
+
+    private TextFieldBuilder(NewIndexType indexType, String fieldName) {
+      super(indexType, fieldName);
+    }
+
+    protected String getFieldType() {
+      return FIELD_TYPE_TEXT;
+    }
+
+    public StringFieldBuilder withFieldData() {
+      this.fieldData = true;
+      return this;
+    }
+
+    @Override
+    protected boolean getFieldData() {
+      return fieldData;
     }
   }
 

@@ -59,7 +59,8 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
     mapping.keywordFieldBuilder(FIELD_PROJECT_UUID).build();
     mapping.keywordFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    mapping.keywordFieldBuilder(FIELD_NAME)
+    mapping.textFieldBuilder(FIELD_NAME)
+      .withFieldData()
       .termVectorWithPositionOffsetsForAllSubfields()
       .addSubFields(NAME_ANALYZERS)
       .build();
