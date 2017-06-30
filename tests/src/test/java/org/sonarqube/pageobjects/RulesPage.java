@@ -21,10 +21,12 @@ package org.sonarqube.pageobjects;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -48,5 +50,15 @@ public class RulesPage extends Navigation {
   public int getTotal() {
     // warning - number is localized
     return Integer.parseInt($("#coding-rules-total").text());
+  }
+
+  public ElementsCollection getSelectedFacetItems(String facetName) {
+    SelenideElement facet = $(".search-navigator-facet-box[data-property='"+ facetName+"']").shouldBe(Condition.visible);
+    return facet.$$(".js-facet.active");
+  }
+
+  public RulesPage shouldHaveTotalRules(Integer total) {
+    $("#coding-rules-total").shouldHave(text(total.toString()));
+    return this;
   }
 }

@@ -22,6 +22,8 @@ package org.sonarqube.tests.qualityProfile;
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import org.sonarqube.pageobjects.QualityProfilePage;
+import org.sonarqube.pageobjects.RulesPage;
 import org.sonarqube.tests.Category6Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -30,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
@@ -135,6 +138,21 @@ public class OrganizationQualityProfilesUiTest {
     deleteProfile("xoo", "empty");
 
     tester.runHtmlTests("/organization/OrganizationQualityProfilesUiTest/should_restore.html");
+  }
+
+  @Test
+  public void testSonarWayComparison() {
+    QualityProfiles.CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
+    tester.qProfiles().activateRule(xooProfile, "xoo:OneBugIssuePerLine");
+    tester.qProfiles().activateRule(xooProfile, "xoo:OneIssuePerLine");
+    Navigation nav = tester.openBrowser();
+    QualityProfilePage qpPage = nav.openQualityProfile(xooProfile.getLanguage(), xooProfile.getName(), organization.getKey());
+    qpPage.shouldHaveMissingSonarWayRules(2);
+    RulesPage rPage = qpPage.showMissingSonarWayRules();
+    rPage.shouldHaveTotalRules(2);
+    rPage.getSelectedFacetItems("qprofile")
+      .shouldHaveSize(2)
+      .findBy(Condition.cssClass("compare")).has(Condition.text("Sonar way"));
   }
 
   private void createProfile(String language, String name) {
