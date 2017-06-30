@@ -142,7 +142,6 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                           deleteEvent={this.props.deleteEvent}
                           isFirst={analysis.key === firstAnalysisKey}
                           key={analysis.key}
-                          version={version.version}
                         />
                       ))}
                   </ul>
