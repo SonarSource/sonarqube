@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,6 +68,8 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
@@ -84,6 +85,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
@@ -148,7 +150,6 @@ public class SearchAction implements RulesWsAction {
       .setPossibleValues(Ordering.natural().sortedCopy(OPTIONAL_FIELDS));
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
     paramFields.setExampleValue(format("%s,%s", it.next(), it.next()));
-
     doDefinition(action);
   }
 
@@ -191,7 +192,7 @@ public class SearchAction implements RulesWsAction {
       "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
       "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
       "</ul>")
-      .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
+      .setResponseExample(getClass().getResource("search-example.json"))
       .setSince("4.4")
       .setHandler(this);
 
@@ -257,9 +258,15 @@ public class SearchAction implements RulesWsAction {
 
     action
       .createParam(PARAM_QPROFILE)
-      .setDescription("Key of Quality profile to filter on. Used only if the parameter '" +
+      .setDescription("Quality profile key to filter on. Used only if the parameter '" +
         PARAM_ACTIVATION + "' is set.")
-      .setExampleValue("sonar-way-cs-12345");
+      .setExampleValue(UUID_EXAMPLE_01);
+
+    action.createParam(PARAM_COMPARE_TO_PROFILE)
+      .setDescription("Quality profile key to filter rules that are activated. Meant to compare easily to profile set in '%s'", PARAM_QPROFILE)
+      .setInternal(true)
+      .setSince("6.5")
+      .setExampleValue(UUID_EXAMPLE_02);
 
     action
       .createParam(PARAM_INHERITANCE)

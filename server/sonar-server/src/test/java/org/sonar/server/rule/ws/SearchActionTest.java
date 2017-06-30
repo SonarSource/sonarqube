@@ -82,36 +82,42 @@ import static org.mockito.Mockito.mock;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.db.rule.RuleTesting.setSystemTags;
 import static org.sonar.db.rule.RuleTesting.setTags;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 
 public class SearchActionTest {
 
+  private static final String JAVA = "java";
+
   @org.junit.Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @org.junit.Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   private System2 system2 = new AlwaysIncreasingSystem2();
   @org.junit.Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
   @org.junit.Rule
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings()));
 
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private RuleIndex ruleIndex = new RuleIndex(es.client());
-  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbTester.getDbClient());
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbTester.getDbClient(), es.client(), new ActiveRuleIteratorFactory(dbTester.getDbClient()));
-  private Languages languages = LanguageTesting.newLanguages("java", "js");
-  private ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(dbTester.getDbClient(), languages);
-  private RuleWsSupport wsSupport = new RuleWsSupport(dbTester.getDbClient(), userSession, defaultOrganizationProvider);
-  private RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(dbTester.getDbClient(), wsSupport);
+  private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client(), new ActiveRuleIteratorFactory(db.getDbClient()));
+  private Languages languages = LanguageTesting.newLanguages(JAVA, "js");
+  private ActiveRuleCompleter activeRuleCompleter = new ActiveRuleCompleter(db.getDbClient(), languages);
+  private RuleWsSupport wsSupport = new RuleWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider);
+  private RuleQueryFactory ruleQueryFactory = new RuleQueryFactory(db.getDbClient(), wsSupport);
   private MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
   private RuleMapper ruleMapper = new RuleMapper(languages, macroInterpreter);
-  private SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, dbTester.getDbClient(), ruleMapper);
+  private SearchAction underTest = new SearchAction(ruleIndex, activeRuleCompleter, ruleQueryFactory, db.getDbClient(), ruleMapper);
 
-  private RuleActivatorContextFactory contextFactory = new RuleActivatorContextFactory(dbTester.getDbClient());
+  private RuleActivatorContextFactory contextFactory = new RuleActivatorContextFactory(db.getDbClient());
   private TypeValidations typeValidations = new TypeValidations(asList(new StringTypeValidation(), new IntegerTypeValidation()));
-  private RuleActivator ruleActivator = new RuleActivator(system2, dbTester.getDbClient(), ruleIndex, contextFactory, typeValidations, activeRuleIndexer,
+  private RuleActivator ruleActivator = new RuleActivator(system2, db.getDbClient(), ruleIndex, contextFactory, typeValidations, activeRuleIndexer,
     userSession);
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -122,10 +128,19 @@ public class SearchActionTest {
 
   @Test
   public void test_definition() {
-    assertThat(ws.getDef().isPost()).isFalse();
-    assertThat(ws.getDef().since()).isEqualTo("4.4");
-    assertThat(ws.getDef().isInternal()).isFalse();
-    assertThat(ws.getDef().params()).hasSize(22);
+    WebService.Action def = ws.getDef();
+
+    assertThat(def.isPost()).isFalse();
+    assertThat(def.since()).isEqualTo("4.4");
+    assertThat(def.isInternal()).isFalse();
+    assertThat(def.responseExampleAsString()).isNotEmpty();
+    assertThat(def.params()).hasSize(23);
+
+    WebService.Param compareToProfile = def.param("compareToProfile");
+    assertThat(compareToProfile.since()).isEqualTo("6.5");
+    assertThat(compareToProfile.isRequired()).isFalse();
+    assertThat(compareToProfile.isInternal()).isTrue();
+    assertThat(compareToProfile.description()).isEqualTo("Quality profile key to filter rules that are activated. Meant to compare easily to profile set in 'qprofile'");
   }
 
   @Test
@@ -208,7 +223,7 @@ public class SearchActionTest {
 
   @Test
   public void should_filter_on_organization_specific_tags() throws IOException {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule1 = createJavaRule();
     RuleMetadataDto metadata1 = insertMetadata(organization, rule1, setTags("tag1", "tag2"));
     RuleDefinitionDto rule2 = createJavaRule();
@@ -224,8 +239,8 @@ public class SearchActionTest {
 
   @Test
   public void should_list_tags_in_tags_facet() throws IOException {
-    OrganizationDto organization = dbTester.organizations().insert();
-    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("tag1", "tag3", "tag5", "tag7", "tag9", "x"));
+    OrganizationDto organization = db.organizations().insert();
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag1", "tag3", "tag5", "tag7", "tag9", "x"));
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag2", "tag4", "tag6", "tag8", "tagA"));
     indexRules();
 
@@ -240,7 +255,7 @@ public class SearchActionTest {
 
   @Test
   public void should_include_selected_matching_tag_in_facet() throws IOException {
-    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA", "x"));
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA", "x"));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -252,7 +267,7 @@ public class SearchActionTest {
 
   @Test
   public void should_included_selected_non_matching_tag_in_facet() throws IOException {
-    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA"));
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tagA"));
     indexRules();
 
     SearchResponse result = ws.newRequest()
@@ -264,7 +279,7 @@ public class SearchActionTest {
 
   @Test
   public void should_return_organization_specific_tags() throws IOException {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto rule = createJavaRule();
     RuleMetadataDto metadata = insertMetadata(organization, rule, setTags("tag1", "tag2"));
     indexRules();
@@ -301,9 +316,9 @@ public class SearchActionTest {
 
   @Test
   public void return_lang_key_field_when_language_name_is_not_available() throws Exception {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     String unknownLanguage = "unknown_" + randomAlphanumeric(5);
-    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setLanguage(unknownLanguage));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setLanguage(unknownLanguage));
 
     indexRules();
 
@@ -321,13 +336,13 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() throws Exception {
-    RuleDefinitionDto rule = dbTester.rules().insert(r ->
+    RuleDefinitionDto rule = db.rules().insert(r ->
       r.setLanguage("java")
         .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setDefRemediationGapMultiplier("1h")
         .setDefRemediationBaseEffort("15min"));
 
-    RuleMetadataDto metadata = insertMetadata(dbTester.getDefaultOrganization(), rule,
+    RuleMetadataDto metadata = insertMetadata(db.getDefaultOrganization(), rule,
       r -> r.setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setRemediationGapMultiplier("2h")
         .setRemediationBaseEffort("25min"));
@@ -356,13 +371,13 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
-    RuleDefinitionDto rule = dbTester.rules().insert(r ->
+    RuleDefinitionDto rule = db.rules().insert(r ->
       r.setLanguage("java")
         .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setDefRemediationGapMultiplier("1h")
         .setDefRemediationBaseEffort("15min"));
 
-    RuleMetadataDto metadata = insertMetadata(dbTester.getDefaultOrganization(), rule,
+    RuleMetadataDto metadata = insertMetadata(db.getDefaultOrganization(), rule,
       r -> r.setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
         .setRemediationGapMultiplier(null)
         .setRemediationBaseEffort("5min"));
@@ -392,13 +407,13 @@ public class SearchActionTest {
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
-    RuleDefinitionDto rule = dbTester.rules().insert(r ->
+    RuleDefinitionDto rule = db.rules().insert(r ->
       r.setLanguage("java")
         .setDefRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setDefRemediationGapMultiplier("1h")
         .setDefRemediationBaseEffort("15min"));
 
-    RuleMetadataDto metadata = insertMetadata(dbTester.getDefaultOrganization(), rule,
+    RuleMetadataDto metadata = insertMetadata(db.getDefaultOrganization(), rule,
       r -> r.setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
         .setRemediationGapMultiplier("1h")
         .setRemediationBaseEffort(null));
@@ -427,10 +442,10 @@ public class SearchActionTest {
 
   @Test
   public void search_template_rules() throws Exception {
-    RuleDefinitionDto templateRule = dbTester.rules().insert(r ->
+    RuleDefinitionDto templateRule = db.rules().insert(r ->
       r.setLanguage("java")
         .setIsTemplate(true));
-    RuleDefinitionDto rule = dbTester.rules().insert(r ->
+    RuleDefinitionDto rule = db.rules().insert(r ->
       r.setLanguage("java")
         .setTemplateId(templateRule.getId()));
 
@@ -451,10 +466,10 @@ public class SearchActionTest {
 
   @Test
   public void search_custom_rules_from_template_key() throws Exception {
-    RuleDefinitionDto templateRule = dbTester.rules().insert(r ->
+    RuleDefinitionDto templateRule = db.rules().insert(r ->
       r.setLanguage("java")
         .setIsTemplate(true));
-    RuleDefinitionDto rule = dbTester.rules().insert(r ->
+    RuleDefinitionDto rule = db.rules().insert(r ->
       r.setLanguage("java")
         .setTemplateId(templateRule.getId()));
 
@@ -475,11 +490,11 @@ public class SearchActionTest {
 
   @Test
   public void search_all_active_rules() throws Exception {
-    OrganizationDto organization = dbTester.organizations().insert();
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
     RuleDefinitionDto rule = createJavaRule();
     RuleActivation activation = RuleActivation.create(rule.getKey(), BLOCKER, null);
-    ruleActivator.activate(dbTester.getSession(), activation, profile);
+    ruleActivator.activate(db.getSession(), activation, profile);
 
     indexRules();
 
@@ -500,38 +515,38 @@ public class SearchActionTest {
 
   @Test
   public void search_profile_active_rules() throws Exception {
-    OrganizationDto organization = dbTester.organizations().insert();
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
-    QProfileDto waterproofProfile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+    QProfileDto waterproofProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
 
     RuleDefinitionDto rule = createJavaRule();
 
-    RuleParamDto ruleParam1 = dbTester.rules().insertRuleParam(rule, p ->
+    RuleParamDto ruleParam1 = db.rules().insertRuleParam(rule, p ->
       p.setDefaultValue("some value")
         .setType("STRING")
         .setDescription("My small description")
         .setName("my_var"));
 
-    RuleParamDto ruleParam2 = dbTester.rules().insertRuleParam(rule, p ->
+    RuleParamDto ruleParam2 = db.rules().insertRuleParam(rule, p ->
       p.setDefaultValue("1")
         .setType("INTEGER")
         .setDescription("My small description")
         .setName("the_var"));
 
     // SONAR-7083
-    RuleParamDto ruleParam3 = dbTester.rules().insertRuleParam(rule, p ->
+    RuleParamDto ruleParam3 = db.rules().insertRuleParam(rule, p ->
       p.setDefaultValue(null)
         .setType("STRING")
         .setDescription("Empty Param")
         .setName("empty_var"));
 
     RuleActivation activation = RuleActivation.create(rule.getKey());
-    List<ActiveRuleChange> activeRuleChanges1 = ruleActivator.activate(dbTester.getSession(), activation, profile);
-    ruleActivator.activate(dbTester.getSession(), activation, waterproofProfile);
+    List<ActiveRuleChange> activeRuleChanges1 = ruleActivator.activate(db.getSession(), activation, profile);
+    ruleActivator.activate(db.getSession(), activation, waterproofProfile);
 
     assertThat(activeRuleChanges1).hasSize(1);
 
-    dbTester.commit();
+    db.commit();
 
     indexRules();
     indexActiveRules();
@@ -559,8 +574,8 @@ public class SearchActionTest {
     );
 
     String unknownProfile = "unknown_profile" + randomAlphanumeric(5);
-    thrown.expect(NotFoundException.class);
-    thrown.expectMessage("The specified qualityProfile '" + unknownProfile + "' does not exist");
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("The specified qualityProfile '" + unknownProfile + "' does not exist");
 
     ws.newRequest()
       .setParam("activation", "true")
@@ -569,26 +584,26 @@ public class SearchActionTest {
   }
 
   @Test
-  public void test_SONAR7083() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    QProfileDto profile = dbTester.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
+  public void search_for_active_rules_when_parameter_value_is_null() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage("java"));
 
     RuleDefinitionDto rule = createJavaRule();
 
-    RuleParamDto ruleParam = dbTester.rules().insertRuleParam(rule, p ->
+    RuleParamDto ruleParam = db.rules().insertRuleParam(rule, p ->
       p.setDefaultValue("some value")
         .setType("STRING")
         .setDescription("My small description")
         .setName("my_var"));
 
     RuleActivation activation = RuleActivation.create(rule.getKey());
-    List<ActiveRuleChange> activeRuleChanges = ruleActivator.activate(dbTester.getSession(), activation, profile);
+    List<ActiveRuleChange> activeRuleChanges = ruleActivator.activate(db.getSession(), activation, profile);
 
     // Insert directly in database a rule parameter with a null value
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam).setValue(null);
-    dbTester.getDbClient().activeRuleDao().insertParam(dbTester.getSession(), activeRuleChanges.get(0).getActiveRule(), activeRuleParam);
+    db.getDbClient().activeRuleDao().insertParam(db.getSession(), activeRuleChanges.get(0).getActiveRule(), activeRuleParam);
 
-    dbTester.commit();
+    db.commit();
 
     indexRules();
     indexActiveRules();
@@ -617,9 +632,9 @@ public class SearchActionTest {
 
   @Test
   public void statuses_facet_should_be_sticky() throws Exception {
-    RuleDefinitionDto rule1 = dbTester.rules().insert(r -> r.setLanguage("java"));
-    RuleDefinitionDto rule2 = dbTester.rules().insert(r -> r.setLanguage("java").setStatus(RuleStatus.BETA));
-    RuleDefinitionDto rule3 = dbTester.rules().insert(r -> r.setLanguage("java").setStatus(RuleStatus.DEPRECATED));
+    RuleDefinitionDto rule1 = db.rules().insert(r -> r.setLanguage("java"));
+    RuleDefinitionDto rule2 = db.rules().insert(r -> r.setLanguage("java").setStatus(RuleStatus.BETA));
+    RuleDefinitionDto rule3 = db.rules().insert(r -> r.setLanguage("java").setStatus(RuleStatus.DEPRECATED));
 
     indexRules();
 
@@ -636,6 +651,39 @@ public class SearchActionTest {
     );
   }
 
+  @Test
+  public void compare_to_another_profile() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(JAVA));
+    QProfileDto anotherProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(JAVA));
+    RuleDefinitionDto commonRule = db.rules().insertRule(r -> r.setLanguage(JAVA)).getDefinition();
+    RuleDefinitionDto profileRule1 = db.rules().insertRule(r -> r.setLanguage(JAVA)).getDefinition();
+    RuleDefinitionDto profileRule2 = db.rules().insertRule(r -> r.setLanguage(JAVA)).getDefinition();
+    RuleDefinitionDto profileRule3 = db.rules().insertRule(r -> r.setLanguage(JAVA)).getDefinition();
+    RuleDefinitionDto anotherProfileRule1 = db.rules().insertRule(r -> r.setLanguage(JAVA)).getDefinition();
+    RuleDefinitionDto anotherProfileRule2 = db.rules().insertRule(r -> r.setLanguage(JAVA)).getDefinition();
+    db.qualityProfiles().activateRule(profile, commonRule);
+    db.qualityProfiles().activateRule(profile, profileRule1);
+    db.qualityProfiles().activateRule(profile, profileRule2);
+    db.qualityProfiles().activateRule(profile, profileRule3);
+    db.qualityProfiles().activateRule(anotherProfile, commonRule);
+    db.qualityProfiles().activateRule(anotherProfile, anotherProfileRule1);
+    db.qualityProfiles().activateRule(anotherProfile, anotherProfileRule2);
+    indexRules();
+    indexActiveRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_QPROFILE, profile.getKee())
+      .setParam(PARAM_ACTIVATION, "false")
+      .setParam(PARAM_COMPARE_TO_PROFILE, anotherProfile.getKee())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesList())
+      .extracting(Rule::getKey)
+      .containsExactlyInAnyOrder(anotherProfileRule1.getKey().toString(), anotherProfileRule2.getKey().toString());
+  }
+
   @SafeVarargs
   private final <T> void checkField(RuleDefinitionDto rule, String fieldName, Extractor<Rule, T> responseExtractor, T... expected) throws IOException {
     SearchResponse result = ws.newRequest()
@@ -647,7 +695,7 @@ public class SearchActionTest {
 
   @SafeVarargs
   private final RuleMetadataDto insertMetadata(OrganizationDto organization, RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
-    RuleMetadataDto metadata = dbTester.rules().insertOrUpdateMetadata(rule, organization, populaters);
+    RuleMetadataDto metadata = db.rules().insertOrUpdateMetadata(rule, organization, populaters);
     ruleIndexer.indexRuleExtension(organization, rule.getKey());
     return metadata;
   }
@@ -680,6 +728,6 @@ public class SearchActionTest {
   }
 
   private RuleDefinitionDto createJavaRule() {
-    return dbTester.rules().insert(r -> r.setLanguage("java"));
+    return db.rules().insert(r -> r.setLanguage("java"));
   }
 }
