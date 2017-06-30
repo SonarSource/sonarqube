@@ -35,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
@@ -101,6 +102,7 @@ public class RulesServiceTest {
       .setPageSize(PAGE_SIZE_VALUE)
       .setQuery(QUERY_VALUE)
       .setQProfile(QPROFILE_VALUE)
+      .setCompareToProfile("CompareTo")
       .setRepositories(REPOSITORIES_VALUE)
       .setRuleKey(RULE_KEY_VALUE)
       .setSort(SORT_VALUE)
@@ -126,6 +128,7 @@ public class RulesServiceTest {
       .hasParam("ps", PAGE_SIZE_VALUE)
       .hasParam("q", QUERY_VALUE)
       .hasParam(PARAM_QPROFILE, QPROFILE_VALUE)
+      .hasParam(PARAM_COMPARE_TO_PROFILE, "CompareTo")
       .hasParam(PARAM_REPOSITORIES, REPOSITORIES_VALUE_INLINED)
       .hasParam(PARAM_RULE_KEY, RULE_KEY_VALUE)
       .hasParam(PARAM_LANGUAGES, LANGUAGES_VALUE_INLINED)
