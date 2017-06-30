@@ -57,6 +57,7 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
     </table>
   </div>
   <ProfileRulesSonarWayComparison
+    language="java"
     organization="foo"
     profile="foo"
     sonarWayMissingRules={4}

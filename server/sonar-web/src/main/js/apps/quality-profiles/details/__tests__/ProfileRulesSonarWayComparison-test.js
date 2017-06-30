@@ -26,6 +26,7 @@ it('should render correctly', () => {
   expect(
     shallow(
       <ProfileRulesSonarWayComparison
+        language="Java"
         organization="foo"
         profile="bar"
         sonarway="baz"

@@ -87,7 +87,7 @@ export default class ProfileContainer extends React.PureComponent {
     });
 
     return (
-      <div>
+      <div id="quality-profile">
         <Helmet title={profile.name} />
         <ProfileHeader
           canAdmin={this.props.canAdmin}

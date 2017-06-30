@@ -194,6 +194,7 @@ export default class ProfileRules extends React.PureComponent {
         {compareToSonarWay != null &&
           compareToSonarWay.missingRuleCount > 0 &&
           <ProfileRulesSonarWayComparison
+            language={profile.language}
             organization={organization}
             profile={profile.key}
             sonarway={compareToSonarWay.profile}
