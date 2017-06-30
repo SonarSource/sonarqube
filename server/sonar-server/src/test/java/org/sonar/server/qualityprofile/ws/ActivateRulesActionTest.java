@@ -82,6 +82,7 @@ public class ActivateRulesActionTest {
       "is_template",
       "inheritance",
       "qprofile",
+      "compareToProfile",
       "targetSeverity",
       "tags",
       "asc",

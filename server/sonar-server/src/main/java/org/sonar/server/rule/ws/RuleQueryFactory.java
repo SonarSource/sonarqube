@@ -21,7 +21,6 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
-import java.util.List;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
@@ -32,13 +31,16 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.ws.WsUtils;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.util.EnumUtils.toEnums;
+import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
@@ -78,30 +80,12 @@ public class RuleQueryFactory {
     Boolean activation = request.paramAsBoolean(PARAM_ACTIVATION);
     query.setActivation(activation);
 
-    String profileUuid = request.param(PARAM_QPROFILE);
-    String organizationKey = request.param(PARAM_ORGANIZATION);
-    OrganizationDto organization;
-    List<String> languages;
-    if (profileUuid == null) {
-      organization = wsSupport.getOrganizationByKey(dbSession, organizationKey);
-      languages = request.paramAsStrings(PARAM_LANGUAGES);
-    } else {
-      QProfileDto profileOptional = dbClient.qualityProfileDao().selectByUuid(dbSession, profileUuid);
-      QProfileDto profile = WsUtils.checkFound(profileOptional, "The specified qualityProfile '%s' does not exist", profileUuid);
-      query.setQProfile(profile);
-      languages = ImmutableList.of(profile.getLanguage());
-      organization = WsUtils.checkFoundWithOptional(dbClient.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()), "No organization with UUID ",
-        profile.getOrganizationUuid());
-      if (organizationKey != null) {
-        OrganizationDto inputOrganization = WsUtils.checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'",
-          organizationKey);
-        if (!organization.getUuid().equals(inputOrganization.getUuid())) {
-          throw new IllegalArgumentException(format("The specified quality profile '%s' is not part of the specified organization '%s'", profileUuid, organizationKey));
-        }
-      }
-    }
-    query.setOrganization(organization);
-    query.setLanguages(languages);
+    // Order is important : 1. Load profile, 2. Load organization either from parameter or from profile, 3. Load compare to profile
+    setProfile(dbSession, query, request);
+    setOrganization(dbSession, query, request);
+    setCompareToProfile(dbSession, query, request);
+    QProfileDto profile = query.getQProfile();
+    query.setLanguages(profile == null ? request.paramAsStrings(PARAM_LANGUAGES) : ImmutableList.of(profile.getLanguage()));
 
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
@@ -117,5 +101,47 @@ public class RuleQueryFactory {
       query.setAscendingSort(request.mandatoryParamAsBoolean(WebService.Param.ASCENDING));
     }
     return query;
+  }
+
+  private void setProfile(DbSession dbSession, RuleQuery query, Request request) {
+    String profileUuid = request.param(PARAM_QPROFILE);
+    if (profileUuid == null) {
+      return;
+    }
+    QProfileDto profileOptional = dbClient.qualityProfileDao().selectByUuid(dbSession, profileUuid);
+    QProfileDto profile = checkFound(profileOptional, "The specified qualityProfile '%s' does not exist", profileUuid);
+    query.setQProfile(profile);
+  }
+
+  private void setOrganization(DbSession dbSession, RuleQuery query, Request request) {
+    String organizationKey = request.param(PARAM_ORGANIZATION);
+    QProfileDto profile = query.getQProfile();
+    if (profile == null) {
+      query.setOrganization(wsSupport.getOrganizationByKey(dbSession, organizationKey));
+      return;
+    }
+    OrganizationDto organization = checkFoundWithOptional(dbClient.organizationDao().selectByUuid(dbSession, profile.getOrganizationUuid()), "No organization with UUID ",
+      profile.getOrganizationUuid());
+    if (organizationKey != null) {
+      OrganizationDto inputOrganization = checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'",
+        organizationKey);
+      checkArgument(organization.getUuid().equals(inputOrganization.getUuid()),
+        format("The specified quality profile '%s' is not part of the specified organization '%s'", profile.getKee(), organizationKey));
+    }
+    query.setOrganization(organization);
+  }
+
+  private void setCompareToProfile(DbSession dbSession, RuleQuery query, Request request) {
+    String compareToProfileUuid = request.param(PARAM_COMPARE_TO_PROFILE);
+    if (compareToProfileUuid == null) {
+      return;
+    }
+    QProfileDto profileOptional = dbClient.qualityProfileDao().selectByUuid(dbSession, compareToProfileUuid);
+    QProfileDto profile = checkFound(profileOptional, "The specified qualityProfile '%s' does not exist", compareToProfileUuid);
+
+    checkArgument(query.getOrganization().getUuid().equals(profile.getOrganizationUuid()),
+      format("The specified quality profile '%s' is not part of the specified organization '%s'", profile.getKee(), query.getOrganization().getKey()));
+
+    query.setCompareToQProfile(profile);
   }
 }

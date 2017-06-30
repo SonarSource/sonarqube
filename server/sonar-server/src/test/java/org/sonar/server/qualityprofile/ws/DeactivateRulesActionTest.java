@@ -28,8 +28,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -81,6 +81,7 @@ public class DeactivateRulesActionTest {
       "is_template",
       "inheritance",
       "qprofile",
+      "compareToProfile",
       "tags",
       "asc",
       "q",
