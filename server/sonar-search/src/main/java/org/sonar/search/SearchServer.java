@@ -159,11 +159,19 @@ public class SearchServer implements Monitored {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return Status.FAILED;
+    return Status.DOWN;
   }
 
   @Override
   public void awaitStop() {
+    try {
+      while (p != null && p.isAlive()) {
+        Thread.sleep(200L);
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     if (p != null) {
       p.destroy();
       try {
