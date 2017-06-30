@@ -110,6 +110,13 @@ exports[`should render correctly 1`] = `
         deleteAnalysis={[Function]}
         deleteEvent={[Function]}
         loading={false}
+        query={
+          Object {
+            "category": "",
+            "graph": "overview",
+            "project": "org.sonarsource.sonarqube:sonarqube",
+          }
+        }
       />
     </div>
     <div

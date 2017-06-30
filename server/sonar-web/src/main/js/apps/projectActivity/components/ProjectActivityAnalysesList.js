@@ -25,8 +25,8 @@ import { throttle } from 'lodash';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import { translate } from '../../../helpers/l10n';
-import { getAnalysesByVersionByDay } from '../utils';
-import type { Analysis } from '../types';
+import { activityQueryChanged, getAnalysesByVersionByDay } from '../utils';
+import type { Analysis, Query } from '../types';
 
 type Props = {
   addCustomEvent: (analysis: string, name: string, category?: string) => Promise<*>,
@@ -38,7 +38,8 @@ type Props = {
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
-  loading: boolean
+  loading: boolean,
+  query: Query
 };
 
 export default class ProjectActivityAnalysesList extends React.PureComponent {
@@ -57,7 +58,9 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.analysis !== this.props.analyses && this.scrollContainer) {
-      this.scrollContainer.scrollTop = 0;
+      if (activityQueryChanged(prevProps.query, this.props.query)) {
+        this.scrollContainer.scrollTop = 0;
+      }
       for (let i = 1; i < this.badges.length; i++) {
         this.badges[i].removeAttribute('originOffsetTop');
         this.badges[i].classList.remove('sticky');
