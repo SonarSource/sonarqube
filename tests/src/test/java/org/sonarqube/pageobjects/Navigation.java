@@ -127,6 +127,11 @@ public class Navigation {
     return open(url, MembersPage.class);
   }
 
+  public QualityProfilePage openQualityProfile(String language, String name, String organization) {
+    String profileUrl = "/quality_profiles/show?language=" + language + "&name=" + name;
+    return open("/organizations/" + organization + profileUrl , QualityProfilePage.class);
+  }
+
   public BackgroundTasksPage openBackgroundTasksPage() {
     return open("/background_tasks", BackgroundTasksPage.class);
   }
