@@ -32,6 +32,7 @@ import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse.CompareToSonarWay;
 import org.sonarqube.ws.QualityProfiles.ShowResponse.QualityProfile;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 import org.sonarqube.ws.client.qualityprofile.ShowRequest;
 
@@ -77,6 +78,29 @@ public class QualityProfilesWsTest {
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
       .containsExactly(sonarWay.getKey(), sonarWay.getName(), 2L);
+  }
+
+  @Test
+  public void bulk_activate_missing_rules_from_sonar_way_profile() {
+    Organization org = tester.organizations().generate();
+    CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(org);
+    tester.qProfiles().activateRule(xooProfile, RULE_ONE_BUG_PER_LINE);
+    tester.qProfiles().activateRule(xooProfile, RULE_ONE_ISSUE_PER_LINE);
+    SearchWsResponse.QualityProfile sonarWay = getProfile(org, p -> "Sonar way".equals(p.getName()) && "xoo".equals(p.getLanguage()) && p.getIsBuiltIn());
+
+    // Bulk activate missing rules from the Sonar way profile
+    tester.wsClient().wsConnector().call(new PostRequest("api/qualityprofiles/activate_rules")
+      .setParam("targetProfile", xooProfile.getKey())
+      .setParam("qprofile", xooProfile.getKey())
+      .setParam("activation", "false")
+      .setParam("compareToProfile", sonarWay.getKey())).failIfNotSuccessful();
+
+    // Check that the profile has no missing rule from the Sonar way profile
+    assertThat(tester.qProfiles().service().show(new ShowRequest()
+      .setProfile(xooProfile.getKey())
+      .setCompareToSonarWay(true)).getCompareToSonarWay())
+        .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
+        .containsExactly(sonarWay.getKey(), sonarWay.getName(), 0L);
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {

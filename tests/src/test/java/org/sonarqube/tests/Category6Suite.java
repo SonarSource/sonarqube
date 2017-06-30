@@ -37,6 +37,7 @@ import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.CustomQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.OrganizationQualityProfilesUiTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesWsTest;
+import org.sonarqube.tests.rule.RulesWsTest;
 import org.sonarqube.tests.ui.OrganizationUiExtensionsTest;
 import org.sonarqube.tests.user.OrganizationIdentityProviderTest;
 
@@ -63,7 +64,8 @@ import static util.ItUtils.xooPlugin;
   BillingTest.class,
   IssueTagsTest.class,
   LeakProjectsPageTest.class,
-  SearchProjectsTest.class
+  SearchProjectsTest.class,
+  RulesWsTest.class
 })
 public class Category6Suite {
 

@@ -37,6 +37,7 @@ public class SearchWsRequest {
   private Integer pageSize;
   private String query;
   private String qProfile;
+  private String compareToProfile;
   private List<String> repositories;
   private String ruleKey;
   private String sort;
@@ -173,6 +174,16 @@ public class SearchWsRequest {
 
   public SearchWsRequest setQProfile(@Nullable String qProfile) {
     this.qProfile = qProfile;
+    return this;
+  }
+
+  @CheckForNull
+  public String getCompareToProfile() {
+    return compareToProfile;
+  }
+
+  public SearchWsRequest setCompareToProfile(@Nullable String compareToProfile) {
+    this.compareToProfile = compareToProfile;
     return this;
   }
 
