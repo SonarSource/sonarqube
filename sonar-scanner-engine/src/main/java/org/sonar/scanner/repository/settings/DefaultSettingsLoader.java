@@ -20,14 +20,15 @@
 package org.sonar.scanner.repository.settings;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -76,7 +77,7 @@ public class DefaultSettingsLoader implements SettingsLoader {
             result.put(s.getKey(), s.getValue());
             break;
           case VALUES:
-            result.put(s.getKey(), Joiner.on(',').join(s.getValues().getValuesList()));
+            result.put(s.getKey(), s.getValues().getValuesList().stream().map(StringEscapeUtils::escapeCsv).collect(Collectors.joining(",")));
             break;
           case FIELDVALUES:
             convertPropertySetToProps(result, s);
@@ -99,6 +100,6 @@ public class DefaultSettingsLoader implements SettingsLoader {
       ids.add(String.valueOf(id));
       id++;
     }
-    result.put(s.getKey(), Joiner.on(',').join(ids));
+    result.put(s.getKey(), ids.stream().collect(Collectors.joining(",")));
   }
 }

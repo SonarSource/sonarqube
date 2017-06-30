@@ -19,20 +19,27 @@
  */
 package org.sonar.scanner.config;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Encryption;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trim;
@@ -40,7 +47,7 @@ import static org.apache.commons.lang.StringUtils.trim;
 @Immutable
 public abstract class DefaultConfiguration implements Configuration {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultConfiguration.class);
+  private static final Logger LOG = Loggers.get(DefaultConfiguration.class);
 
   private final PropertyDefinitions definitions;
   private final Encryption encryption;
@@ -83,7 +90,7 @@ public abstract class DefaultConfiguration implements Configuration {
     String effectiveKey = definitions.validKey(key);
     PropertyDefinition def = definitions.get(effectiveKey);
     if (def != null && def.multiValues()) {
-      LOG.warn("Access to the multi-valued property '{}' should be made using 'getStringArray' method. The SonarQube plugin using this property should be updated.");
+      LOG.warn("Access to the multi-valued property '{}' should be made using 'getStringArray' method. The SonarQube plugin using this property should be updated.", key);
     }
     return getInternal(effectiveKey);
   }
@@ -93,13 +100,30 @@ public abstract class DefaultConfiguration implements Configuration {
     String effectiveKey = definitions.validKey(key);
     PropertyDefinition def = definitions.get(effectiveKey);
     if (def != null && !def.multiValues()) {
-      LOG.warn("Property '{}' is not declared as multi-valued but was read using 'getStringArray' method. The SonarQube plugin declaring this property should be updated.");
+      LOG.warn("Property '{}' is not declared as multi-valued but was read using 'getStringArray' method. The SonarQube plugin declaring this property should be updated.", key);
     }
-    Optional<String> value = getInternal(key);
+    Optional<String> value = getInternal(effectiveKey);
     if (value.isPresent()) {
-      return CsvParser.parseLine(value.get());
+      return parseAsCsv(effectiveKey, value.get());
     }
     return ArrayUtils.EMPTY_STRING_ARRAY;
+  }
+
+  public static String[] parseAsCsv(String key, String value) {
+    List<String> result = new ArrayList<>();
+    try (CSVParser csvParser = CSVFormat.RFC4180
+      .withHeader((String) null)
+      .withIgnoreSurroundingSpaces(true)
+      .parse(new StringReader(value))) {
+      List<CSVRecord> records = csvParser.getRecords();
+      if (records.isEmpty()) {
+        return ArrayUtils.EMPTY_STRING_ARRAY;
+      }
+      records.get(0).iterator().forEachRemaining(result::add);
+      return result.toArray(new String[result.size()]);
+    } catch (IOException e) {
+      throw new IllegalStateException("Property: '" + key + "' doesn't contain a valid CSV value: '" + value + "'", e);
+    }
   }
 
   private Optional<String> getInternal(String key) {

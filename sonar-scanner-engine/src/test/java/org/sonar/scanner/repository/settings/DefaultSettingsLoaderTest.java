@@ -41,6 +41,14 @@ public class DefaultSettingsLoaderTest {
   }
 
   @Test
+  public void should_escape_global_multivalue_settings() {
+    assertThat(DefaultSettingsLoader.toMap(asList(Setting.newBuilder()
+      .setKey("sonar.preview.supportedPlugins")
+      .setValues(Values.newBuilder().addValues("ja,va").addValues("p\"hp")).build())))
+        .containsExactly(entry("sonar.preview.supportedPlugins", "\"ja,va\",\"p\"\"hp\""));
+  }
+
+  @Test
   public void should_load_global_propertyset_settings() {
     Builder valuesBuilder = Value.newBuilder();
     valuesBuilder.getMutableValue().put("filepattern", "**/*.xml");
@@ -60,4 +68,5 @@ public class DefaultSettingsLoaderTest {
           entry("sonar.issue.exclusions.multicriteria.2.filepattern", "**/*.java"),
           entry("sonar.issue.exclusions.multicriteria.2.rulepattern", "*:S456"));
   }
+
 }
