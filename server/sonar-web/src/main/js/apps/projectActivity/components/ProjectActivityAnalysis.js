@@ -34,14 +34,14 @@ type Props = {
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
   deleteEvent: (analysis: string, event: string) => Promise<*>,
-  isFirst: boolean,
-  version: ?string
+  isFirst: boolean
 };
 
 export default function ProjectActivityAnalysis(props: Props) {
   const { date, events } = props.analysis;
   const { isFirst, canAdmin } = props;
   const analysisTitle = translate('project_activity.analysis');
+  const hasVersion = events.find(event => event.category === 'VERSION') != null;
   return (
     <li className="project-activity-analysis clearfix">
       <div className="project-activity-time spacer-right">
@@ -63,7 +63,7 @@ export default function ProjectActivityAnalysis(props: Props) {
               <i className="icon-dropdown" />
             </button>
             <ul className="dropdown-menu dropdown-menu-right">
-              {props.version == null &&
+              {!hasVersion &&
                 <li>
                   <AddEventForm
                     addEvent={props.addVersion}
