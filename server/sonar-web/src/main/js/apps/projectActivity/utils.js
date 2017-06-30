@@ -33,12 +33,11 @@ import type { RawQuery } from '../../helpers/query';
 import type { Serie } from '../../components/charts/AdvancedTimeline';
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
-export const GRAPH_TYPES = ['overview', 'coverage', 'duplications', 'remediation'];
+export const GRAPH_TYPES = ['overview', 'coverage', 'duplications'];
 export const GRAPHS_METRICS = {
   overview: ['bugs', 'code_smells', 'vulnerabilities'],
   coverage: ['uncovered_lines', 'lines_to_cover'],
-  duplications: ['duplicated_lines', 'ncloc'],
-  remediation: ['reliability_remediation_effort', 'sqale_index', 'security_remediation_effort']
+  duplications: ['duplicated_lines', 'ncloc']
 };
 
 export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
