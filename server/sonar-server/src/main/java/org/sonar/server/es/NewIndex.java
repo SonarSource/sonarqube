@@ -296,6 +296,7 @@ public class NewIndex {
                       "term_vector", "with_positions_offsets"));
             }
           });
+          hash.put("term_vector", "with_positions_offsets");
         }
         if (getFieldData()) {
           multiFields.entrySet().forEach(entry -> {
@@ -307,6 +308,7 @@ public class NewIndex {
                   "fielddata", "true"));
             }
           });
+          hash.put("fielddata", "true");
         }
 
         multiFields.put(fieldName, ImmutableMap.of(
