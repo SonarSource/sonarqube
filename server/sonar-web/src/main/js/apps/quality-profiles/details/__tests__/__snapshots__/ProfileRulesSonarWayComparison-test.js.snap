@@ -21,7 +21,7 @@ exports[`should render correctly 1`] = `
     className="pull-right"
     onlyActiveOnIndex={false}
     style={Object {}}
-    to="/organizations/foo/rules#qprofile=bar|activation=false|compareToProfile=baz"
+    to="/organizations/foo/rules#qprofile=bar|activation=false|compareToProfile=baz|languages=Java"
   >
     158
   </Link>

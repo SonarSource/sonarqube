@@ -69,6 +69,15 @@ export default BaseFacet.extend({
         label: profile.name,
         val: profile.key
       }));
+    const compareProfile = this.options.app.state.get('query').compareToProfile;
+    if (compareProfile != null) {
+      const property = this.model.get('property');
+      const selectedProfile = this.options.app.state.get('query')[property];
+      return sortBy(values, [
+        profile => (profile.val === compareProfile || profile.val === selectedProfile ? 0 : 1),
+        'label'
+      ]);
+    }
     return sortBy(values, 'label');
   },
 

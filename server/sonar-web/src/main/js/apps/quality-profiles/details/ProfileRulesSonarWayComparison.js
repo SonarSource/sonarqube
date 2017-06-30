@@ -25,6 +25,7 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
+  language: string,
   organization: ?string,
   profile: string,
   sonarway: string,
@@ -33,7 +34,12 @@ type Props = {
 
 export default function ProfileRulesSonarWayComparison(props: Props) {
   const url = getRulesUrl(
-    { qprofile: props.profile, activation: false, compareToProfile: props.sonarway },
+    {
+      qprofile: props.profile,
+      activation: false,
+      compareToProfile: props.sonarway,
+      languages: props.language
+    },
     props.organization
   );
 
