@@ -207,6 +207,7 @@ public class NewIndex {
     private boolean disableNorms = false;
     private boolean termVectorWithPositionOffsets = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
+    private boolean store = false;
 
     private KeywordFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
@@ -245,7 +246,7 @@ public class NewIndex {
     /**
      * Position offset term vectors are required for the fast_vector_highlighter (fvh).
      */
-    public KeywordFieldBuilder termVectorWithPositionOffsets() {
+    public KeywordFieldBuilder termVectorWithPositionOffsetsForAllSubfields() {
       this.termVectorWithPositionOffsets = true;
       return this;
     }
@@ -260,15 +261,21 @@ public class NewIndex {
       return this;
     }
 
+    public KeywordFieldBuilder store() {
+      this.store = true;
+      return this;
+    }
+
     public NewIndexType build() {
       Map<String, Object> hash = new TreeMap<>();
       if (subFields.isEmpty()) {
         hash.putAll(ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
             "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE,
-            "norms", String.valueOf(!disableNorms)));
+            "norms", String.valueOf(!disableNorms),
+            "store", String.valueOf(store)));
       } else {
-        hash.put("type", "multi_field");
+        hash.put("type", FIELD_TYPE_KEYWORD);
 
         Map<String, Object> multiFields = new TreeMap<>(subFields);
 
@@ -287,9 +294,8 @@ public class NewIndex {
         multiFields.put(fieldName, ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
             "index", INDEX_SEARCHABLE,
-            "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
-            "norms",
-            "false"
+            "norms", "false",
+            "store", String.valueOf(store)
         ));
 
         hash.put("fields", multiFields);

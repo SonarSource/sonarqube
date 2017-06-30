@@ -112,7 +112,7 @@ public class NewIndexTest {
     assertThat(props.get("fields")).isNull();
 
     props = (Map) mapping.getProperty("all_capabilities_field");
-    assertThat(props.get("type")).isEqualTo("multi_field");
+    assertThat(props.get("type")).isEqualTo("keyword");
     // no need to test values, it's not the scope of this test
     assertThat((Map) props.get("fields")).isNotEmpty();
   }
