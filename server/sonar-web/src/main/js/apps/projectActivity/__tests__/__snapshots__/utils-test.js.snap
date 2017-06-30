@@ -1,0 +1,145 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateCoveredLinesMetric should correctly generate covered lines metric 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "x": 2017-04-27T06:21:32.000Z,
+      "y": 88,
+    },
+    Object {
+      "x": 2017-04-30T21:06:24.000Z,
+      "y": 50,
+    },
+  ],
+  "name": "covered_lines",
+  "style": "style",
+  "translatedName": "project_activity.custom_metric.covered_lines",
+}
+`;
+
+exports[`generateSeries should correctly generate the series 1`] = `
+Array [
+  Object {
+    "data": Array [
+      Object {
+        "x": 2017-04-27T06:21:32.000Z,
+        "y": 100,
+      },
+      Object {
+        "x": 2017-04-30T21:06:24.000Z,
+        "y": 100,
+      },
+    ],
+    "name": "lines_to_cover",
+    "style": 1,
+    "translatedName": "metric.lines_to_cover.name",
+  },
+  Object {
+    "data": Array [
+      Object {
+        "x": 2017-04-27T06:21:32.000Z,
+        "y": 88,
+      },
+      Object {
+        "x": 2017-04-30T21:06:24.000Z,
+        "y": 50,
+      },
+    ],
+    "name": "covered_lines",
+    "style": 0,
+    "translatedName": "project_activity.custom_metric.covered_lines",
+  },
+]
+`;
+
+exports[`getAnalysesByVersionByDay should correctly map analysis by versions and by days 1`] = `
+Array [
+  Object {
+    "byDay": Object {
+      "2017-5-9": Array [
+        Object {
+          "date": 2017-06-09T11:06:10.000Z,
+          "events": Array [],
+          "key": "AVyMjlK1HjR_PLDzRbB9",
+        },
+        Object {
+          "date": 2017-06-09T09:12:27.000Z,
+          "events": Array [
+            Object {
+              "category": "VERSION",
+              "key": "AVyM9oI1HjR_PLDzRciU",
+              "name": "1.1-SNAPSHOT",
+            },
+          ],
+          "key": "AVyM9n3cHjR_PLDzRciT",
+        },
+      ],
+    },
+    "key": "AVyM9oI1HjR_PLDzRciU",
+    "version": "1.1-SNAPSHOT",
+  },
+  Object {
+    "byDay": Object {
+      "2017-4-16": Array [
+        Object {
+          "date": 2017-05-16T05:09:59.000Z,
+          "events": Array [
+            Object {
+              "category": "QUALITY_PROFILE",
+              "key": "AVwQF7zXl-nNFgFWOJ3W",
+              "name": "Changes in 'Default - SonarSource conventions' (Java)",
+            },
+            Object {
+              "category": "VERSION",
+              "key": "AVyM9oI1HjR_PLDzRciU",
+              "name": "1.0",
+            },
+          ],
+          "key": "AVwQF7kwl-nNFgFWOJ3V",
+        },
+      ],
+      "2017-4-18": Array [
+        Object {
+          "date": 2017-05-18T12:13:07.000Z,
+          "events": Array [
+            Object {
+              "category": "QUALITY_PROFILE",
+              "key": "AVxZtC-N7841nF4RNEMJ",
+              "name": "Changes in 'Default - SonarSource conventions' (Java)",
+            },
+          ],
+          "key": "AVxZtCpH7841nF4RNEMI",
+        },
+        Object {
+          "date": 2017-05-18T05:17:32.000Z,
+          "events": Array [],
+          "key": "AVwaa1qkpbBde8B6UhYI",
+        },
+      ],
+      "2017-5-9": Array [
+        Object {
+          "date": 2017-06-09T09:12:27.000Z,
+          "events": Array [],
+          "key": "AVyMjlK1HjR_PLDzRbB9",
+        },
+      ],
+    },
+    "key": "AVyM9oI1HjR_PLDzRciU",
+    "version": "1.0",
+  },
+  Object {
+    "byDay": Object {
+      "2017-4-9": Array [
+        Object {
+          "date": 2017-05-09T10:03:59.000Z,
+          "events": Array [],
+          "key": "AVvtGF3IY6vCuQNDdwxI",
+        },
+      ],
+    },
+    "key": undefined,
+    "version": undefined,
+  },
+]
+`;

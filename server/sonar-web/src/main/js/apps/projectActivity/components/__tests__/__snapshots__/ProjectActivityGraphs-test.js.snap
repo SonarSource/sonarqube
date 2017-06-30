@@ -115,6 +115,8 @@ exports[`should render correctly the graph and legends 1`] = `
 
 exports[`should render correctly with filter history on dates 1`] = `
 Object {
+  "graphEndDate": null,
+  "graphStartDate": "2016-10-27T12:21:15+0200",
   "series": Array [
     Object {
       "data": Array [

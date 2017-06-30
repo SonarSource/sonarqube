@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { debounce, sortBy } from 'lodash';
+import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import StaticGraphs from './StaticGraphs';
@@ -52,12 +52,8 @@ export default class ProjectActivityGraphs extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     const series = generateSeries(props.measuresHistory, props.query.graph, props.metricsType);
-    this.state = {
-      graphStartDate: props.query.from || null,
-      graphEndDate: props.query.to || null,
-      series
-    };
-    this.updateQueryDateRange = debounce(this.updateQueryDateRange, 250);
+    this.state = { series, ...this.getStateZoomDates(null, props, series) };
+    this.updateQueryDateRange = debounce(this.updateQueryDateRange, 500);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -65,21 +61,41 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       nextProps.measuresHistory !== this.props.measuresHistory ||
       historyQueryChanged(this.props.query, nextProps.query)
     ) {
-      this.setState({
-        series: generateSeries(
-          nextProps.measuresHistory,
-          nextProps.query.graph,
-          nextProps.metricsType
-        )
-      });
-    }
-    if (
-      nextProps.query !== this.props.query &&
-      datesQueryChanged(this.props.query, nextProps.query)
-    ) {
-      this.setState({ graphStartDate: nextProps.query.from, graphEndDate: nextProps.query.to });
+      const series = generateSeries(
+        nextProps.measuresHistory,
+        nextProps.query.graph,
+        nextProps.metricsType
+      );
+
+      const newDates = this.getStateZoomDates(this.props, nextProps, series);
+      if (newDates) {
+        this.setState({ series, ...newDates });
+      } else {
+        this.setState({ series });
+      }
     }
   }
+
+  getStateZoomDates = (props: ?Props, nextProps: Props, series: Array<Serie>) => {
+    const newDates = { from: nextProps.query.from || null, to: nextProps.query.to || null };
+    if (props && datesQueryChanged(props.query, nextProps.query)) {
+      return { graphEndDate: newDates.to, graphStartDate: newDates.from };
+    }
+    if (newDates.to == null && newDates.from == null) {
+      const firstValid = minBy(series.map(serie => serie.data.find(p => p.y || p.y === 0)), 'x');
+      const lastValid = maxBy(
+        series.map(serie => findLast(serie.data, p => p.y || p.y === 0)),
+        'x'
+      );
+      return {
+        graphEndDate: lastValid ? lastValid.x : newDates.to,
+        graphStartDate: firstValid ? firstValid.x : newDates.from
+      };
+    }
+    if (!props) {
+      return { graphEndDate: newDates.to, graphStartDate: newDates.from };
+    }
+  };
 
   updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) => {
     if (graphEndDate != null && graphStartDate != null) {
