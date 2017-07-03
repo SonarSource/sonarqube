@@ -39,12 +39,16 @@ public class SearchRequestTest {
       .setCategory(QUALITY_GATE)
       .setPage(2)
       .setPageSize(500)
+      .setFrom("2016-01-01")
+      .setTo("2017-07-01")
       .build();
 
     assertThat(result.getProject()).isEqualTo("P1");
     assertThat(result.getPage()).isEqualTo(2);
     assertThat(result.getPageSize()).isEqualTo(500);
     assertThat(result.getCategory()).isEqualTo(QUALITY_GATE);
+    assertThat(result.getFrom()).isEqualTo("2016-01-01");
+    assertThat(result.getTo()).isEqualTo("2017-07-01");
   }
 
   @Test
