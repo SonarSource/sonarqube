@@ -21,16 +21,18 @@ package org.sonarqube.tests.user;
 
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import java.util.UUID;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.LoginPage;
+import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUserTokens;
+import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.PostRequest;
@@ -42,8 +44,6 @@ import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
-import org.sonarqube.pageobjects.LoginPage;
-import org.sonarqube.pageobjects.Navigation;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,24 +53,11 @@ import static util.selenium.Selenese.runSelenese;
 
 public class LocalAuthenticationTest {
 
-  private static final String ADMIN_USER_LOGIN = "admin-user";
-
-  private static final String LOGIN = "george.orwell";
-
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();
-
-  @Before
-  public void setUp() {
-    tester.users().generate(u -> u.setLogin(LOGIN).setPassword("123456"));
-    addUserPermission(LOGIN, "admin");
-
-    tester.users().generate(u -> u.setLogin("simple-user").setPassword("password"));
-    tester.users().generateAdministrator(u -> u.setLogin(ADMIN_USER_LOGIN).setPassword(ADMIN_USER_LOGIN));
-  }
 
   @After
   public void resetProperties() throws Exception {
@@ -79,18 +66,20 @@ public class LocalAuthenticationTest {
 
   @Test
   public void log_in_with_correct_credentials_then_log_out() {
+    User user = tester.users().generate();
     Navigation nav = tester.openBrowser();
     nav.shouldNotBeLoggedIn();
-    nav.logIn().submitCredentials(LOGIN, "123456").shouldBeLoggedIn();
+    nav.logIn().submitCredentials(user.getLogin()).shouldBeLoggedIn();
     nav.logOut().shouldNotBeLoggedIn();
   }
 
   @Test
   public void log_in_with_wrong_credentials() {
+    User user = tester.users().generate();
     Navigation nav = tester.openBrowser();
     LoginPage page = nav
       .logIn()
-      .submitWrongCredentials(LOGIN, "wrong");
+      .submitWrongCredentials(user.getLogin(), "wrong");
     page.getErrorMessage().shouldHave(Condition.text("Authentication failed"));
 
     nav.openHome();
@@ -113,10 +102,11 @@ public class LocalAuthenticationTest {
 
   @Test
   public void basic_authentication_based_on_token() {
+    User user = tester.users().generate();
     String tokenName = "Validate token based authentication";
     UserTokensService tokensService = tester.wsClient().userTokens();
     WsUserTokens.GenerateWsResponse generateWsResponse = tokensService.generate(new GenerateWsRequest()
-      .setLogin(LOGIN)
+      .setLogin(user.getLogin())
       .setName(tokenName));
     WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(orchestrator.getServer().getUrl())
@@ -126,10 +116,10 @@ public class LocalAuthenticationTest {
 
     assertThat(response.content()).isEqualTo("{\"valid\":true}");
 
-    WsUserTokens.SearchWsResponse searchResponse = tokensService.search(new SearchWsRequest().setLogin(LOGIN));
+    WsUserTokens.SearchWsResponse searchResponse = tokensService.search(new SearchWsRequest().setLogin(user.getLogin()));
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(1);
-    tokensService.revoke(new RevokeWsRequest().setLogin(LOGIN).setName(tokenName));
-    searchResponse = tokensService.search(new SearchWsRequest().setLogin(LOGIN));
+    tokensService.revoke(new RevokeWsRequest().setLogin(user.getLogin()).setName(tokenName));
+    searchResponse = tokensService.search(new SearchWsRequest().setLogin(user.getLogin()));
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(0);
   }
 
@@ -161,6 +151,8 @@ public class LocalAuthenticationTest {
 
   @Test
   public void authentication_through_ui() {
+    tester.users().generate(u -> u.setLogin("simple-user").setPassword("password"));
+    tester.users().generateAdministrator(u -> u.setLogin("admin-user").setPassword("admin-user"));
     runSelenese(orchestrator,
       "/user/LocalAuthenticationTest/login_successful.html",
       "/user/LocalAuthenticationTest/login_wrong_password.html",
@@ -181,16 +173,18 @@ public class LocalAuthenticationTest {
 
   @Test
   public void authentication_with_authentication_ws() {
-    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "admin")).isTrue();
-    assertThat(checkAuthenticationWithAuthenticateWebService("wrong", "admin")).isFalse();
-    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "wrong")).isFalse();
+    User user = tester.users().generate(u -> u.setLogin("test").setPassword("password"));
+
+    assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
+    assertThat(checkAuthenticationWithAuthenticateWebService("wrong", "password")).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService("test", "wrong")).isFalse();
     assertThat(checkAuthenticationWithAuthenticateWebService(null, null)).isTrue();
 
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
-    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "admin")).isTrue();
-    assertThat(checkAuthenticationWithAuthenticateWebService("wrong", "admin")).isFalse();
-    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "wrong")).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
+    assertThat(checkAuthenticationWithAuthenticateWebService("wrong", "password")).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService("test", "wrong")).isFalse();
     assertThat(checkAuthenticationWithAuthenticateWebService(null, null)).isFalse();
   }
 
@@ -199,18 +193,20 @@ public class LocalAuthenticationTest {
    */
   @Test
   public void authentication_with_any_ws() throws Exception {
-    assertThat(checkAuthenticationWithAnyWS("admin", "admin").code()).isEqualTo(200);
-    assertThat(checkAuthenticationWithAnyWS("wrong", "admin").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWS("admin", "wrong").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWS("admin", null).code()).isEqualTo(401);
+    User user = tester.users().generate(u -> u.setLogin("test").setPassword("password"));
+
+    assertThat(checkAuthenticationWithAnyWS("test", "password").code()).isEqualTo(200);
+    assertThat(checkAuthenticationWithAnyWS("wrong", "password").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("test", "wrong").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("test", null).code()).isEqualTo(401);
     assertThat(checkAuthenticationWithAnyWS(null, null).code()).isEqualTo(200);
 
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
-    assertThat(checkAuthenticationWithAnyWS("admin", "admin").code()).isEqualTo(200);
-    assertThat(checkAuthenticationWithAnyWS("wrong", "admin").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWS("admin", "wrong").code()).isEqualTo(401);
-    assertThat(checkAuthenticationWithAnyWS("admin", null).code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("test", "password").code()).isEqualTo(200);
+    assertThat(checkAuthenticationWithAnyWS("wrong", "password").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("test", "wrong").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWS("test", null).code()).isEqualTo(401);
     assertThat(checkAuthenticationWithAnyWS(null, null).code()).isEqualTo(401);
   }
 
