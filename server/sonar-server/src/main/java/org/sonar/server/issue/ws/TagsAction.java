@@ -41,7 +41,6 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.ws.WsUtils;
 
-import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 /**
@@ -62,6 +61,14 @@ public class TagsAction implements IssuesWsAction {
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
+  private static void writeResponse(Response response, List<String> tags) {
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject().name("tags").beginArray();
+      tags.forEach(json::value);
+      json.endArray().endObject();
+    }
+  }
+
   @Override
   public void define(WebService.NewController controller) {
     NewAction action = controller.createAction("tags")
@@ -69,13 +76,8 @@ public class TagsAction implements IssuesWsAction {
       .setSince("5.1")
       .setDescription("List tags matching a given query")
       .setResponseExample(Resources.getResource(getClass(), "tags-example.json"));
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription("A pattern to match tags against")
-      .setExampleValue("misra");
-    action.createParam(PAGE_SIZE)
-      .setDescription("The size of the list to return")
-      .setExampleValue("25")
-      .setDefaultValue("10");
+    action.createSearchQuery("misra", "tags");
+    action.createPageSize(10, 100);
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setRequired(false)
@@ -111,14 +113,6 @@ public class TagsAction implements IssuesWsAction {
       return WsUtils.checkFoundWithOptional(
         dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
         "No organization with key '%s'", organizationOrDefaultKey);
-    }
-  }
-
-  private static void writeResponse(Response response, List<String> tags) {
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject().name("tags").beginArray();
-      tags.forEach(json::value);
-      json.endArray().endObject();
     }
   }
 

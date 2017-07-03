@@ -70,7 +70,9 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
@@ -106,8 +108,6 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
  */
 public class IssueIndex {
 
-  private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
-
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
     PARAM_SEVERITIES,
     PARAM_STATUSES,
@@ -126,23 +126,18 @@ public class IssueIndex {
     PARAM_TAGS,
     PARAM_TYPES,
     PARAM_CREATED_AT);
-
+  public static final String AGGREGATION_NAME_FOR_TAGS = "tags__issues";
+  private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
   // TODO to be documented
   // TODO move to Facets ?
   private static final String FACET_SUFFIX_MISSING = "_missing";
-
   private static final String IS_ASSIGNED_FILTER = "__isAssigned";
-
   private static final SumBuilder EFFORT_AGGREGATION = AggregationBuilders.sum(FACET_MODE_EFFORT).field(IssueIndexDefinition.FIELD_ISSUE_EFFORT);
   private static final Order EFFORT_AGGREGATION_ORDER = Order.aggregation(FACET_MODE_EFFORT, false);
-
   private static final int DEFAULT_FACET_SIZE = 15;
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
   private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
   private static final Duration TWENTY_MONTHS = Duration.standardDays(20L * 30L);
-
-  public static final String AGGREGATION_NAME_FOR_TAGS = "tags__issues";
-
   private final Sorting sorting;
   private final EsClient client;
   private final System2 system;
@@ -176,32 +171,6 @@ public class IssueIndex {
     this.sorting.addDefault(IssueIndexDefinition.FIELD_ISSUE_KEY);
   }
 
-  public SearchResponse search(IssueQuery query, SearchOptions options) {
-    SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_TYPE_ISSUE);
-
-    configureSorting(query, requestBuilder);
-    configurePagination(options, requestBuilder);
-    configureRouting(query, options, requestBuilder);
-
-    QueryBuilder esQuery = matchAllQuery();
-    BoolQueryBuilder esFilter = boolQuery();
-    Map<String, QueryBuilder> filters = createFilters(query);
-    for (QueryBuilder filter : filters.values()) {
-      if (filter != null) {
-        esFilter.must(filter);
-      }
-    }
-    if (esFilter.hasClauses()) {
-      requestBuilder.setQuery(boolQuery().must(esQuery).filter(esFilter));
-    } else {
-      requestBuilder.setQuery(esQuery);
-    }
-
-    configureStickyFacets(query, options, filters, esQuery, requestBuilder);
-    requestBuilder.setFetchSource(false);
-    return requestBuilder.get();
-  }
-
   /**
    * Optimization - do not send ES request to all shards when scope is restricted
    * to a set of projects. Because project UUID is used for routing, the request
@@ -216,58 +185,8 @@ public class IssueIndex {
     }
   }
 
-  private void configureSorting(IssueQuery query, SearchRequestBuilder esRequest) {
-    String sortField = query.sort();
-    if (sortField != null) {
-      boolean asc = BooleanUtils.isTrue(query.asc());
-      sorting.fill(esRequest, sortField, asc);
-    } else {
-      sorting.fillDefault(esRequest);
-    }
-  }
-
   private static void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
     esSearch.setFrom(options.getOffset()).setSize(options.getLimit());
-  }
-
-  private Map<String, QueryBuilder> createFilters(IssueQuery query) {
-    Map<String, QueryBuilder> filters = new HashMap<>();
-    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization()));
-
-    // Issue is assigned Filter
-    if (BooleanUtils.isTrue(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
-    } else if (BooleanUtils.isFalse(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE)));
-    }
-
-    // Issue is Resolved Filter
-    String isResolved = "__isResolved";
-    if (BooleanUtils.isTrue(query.resolved())) {
-      filters.put(isResolved, existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
-    } else if (BooleanUtils.isFalse(query.resolved())) {
-      filters.put(isResolved, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)));
-    }
-
-    // Field Filters
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, query.assignees()));
-
-    addComponentRelatedFilters(query, filters);
-
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
-
-    addDatesFilter(filters, query);
-
-    return filters;
   }
 
   private static void addComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
@@ -310,6 +229,176 @@ public class IssueIndex {
         .lookupPath(ViewIndexDefinition.FIELD_PROJECTS));
     }
     return viewsFilter;
+  }
+
+  private static StickyFacetBuilder newStickyFacetBuilder(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
+    if (hasQueryEffortFacet(query)) {
+      return new StickyFacetBuilder(esQuery, filters, EFFORT_AGGREGATION, EFFORT_AGGREGATION_ORDER);
+    }
+    return new StickyFacetBuilder(esQuery, filters);
+  }
+
+  private static void addSimpleStickyFacetIfNeeded(SearchOptions options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
+    String facetName, String fieldName, Object... selectedValues) {
+    if (options.getFacets().contains(facetName)) {
+      esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_FACET_SIZE, selectedValues));
+    }
+  }
+
+  private static AggregationBuilder addEffortAggregationIfNeeded(IssueQuery query, AggregationBuilder aggregation) {
+    if (hasQueryEffortFacet(query)) {
+      aggregation.subAggregation(EFFORT_AGGREGATION);
+    }
+    return aggregation;
+  }
+
+  private static boolean hasQueryEffortFacet(IssueQuery query) {
+    return FACET_MODE_EFFORT.equals(query.facetMode()) || DEPRECATED_FACET_MODE_DEBT.equals(query.facetMode());
+  }
+
+  private static AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
+    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
+    String facetName = PARAM_ASSIGNEES;
+
+    // Same as in super.stickyFacetBuilder
+    Map<String, QueryBuilder> assigneeFilters = Maps.newHashMap(filters);
+    assigneeFilters.remove(IS_ASSIGNED_FILTER);
+    assigneeFilters.remove(fieldName);
+    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, assigneeFilters, queryBuilder);
+    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
+    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
+
+    Collection<String> assigneesEscaped = escapeValuesForFacetInclusion(query.assignees());
+    if (!assigneesEscaped.isEmpty()) {
+      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t, assigneesEscaped.toArray());
+    }
+
+    // Add missing facet for unassigned issues
+    facetTopAggregation.subAggregation(
+      addEffortAggregationIfNeeded(query, AggregationBuilders
+        .missing(facetName + FACET_SUFFIX_MISSING)
+        .field(fieldName)));
+
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(facetTopAggregation);
+  }
+
+  private static Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
+    if (values == null) {
+      return Collections.emptyList();
+    }
+    return values.stream().map(Pattern::quote).collect(MoreCollectors.toArrayList(values.size()));
+  }
+
+  private static AggregationBuilder createResolutionFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
+    String fieldName = IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
+    String facetName = PARAM_RESOLUTIONS;
+
+    // Same as in super.stickyFacetBuilder
+    Map<String, QueryBuilder> resolutionFilters = Maps.newHashMap(filters);
+    resolutionFilters.remove("__isResolved");
+    resolutionFilters.remove(fieldName);
+    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, resolutionFilters, esQuery);
+    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
+    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
+    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t);
+
+    // Add missing facet for unresolved issues
+    facetTopAggregation.subAggregation(
+      addEffortAggregationIfNeeded(query, AggregationBuilders
+        .missing(facetName + FACET_SUFFIX_MISSING)
+        .field(fieldName)));
+
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(facetTopAggregation);
+  }
+
+  @CheckForNull
+  private static QueryBuilder createTermsFilter(String field, Collection<?> values) {
+    return values.isEmpty() ? null : termsQuery(field, values);
+  }
+
+  @CheckForNull
+  private static QueryBuilder createTermFilter(String field, @Nullable String value) {
+    return value == null ? null : termQuery(field, value);
+  }
+
+  public SearchResponse search(IssueQuery query, SearchOptions options) {
+    SearchRequestBuilder requestBuilder = client.prepareSearch(INDEX_TYPE_ISSUE);
+
+    configureSorting(query, requestBuilder);
+    configurePagination(options, requestBuilder);
+    configureRouting(query, options, requestBuilder);
+
+    QueryBuilder esQuery = matchAllQuery();
+    BoolQueryBuilder esFilter = boolQuery();
+    Map<String, QueryBuilder> filters = createFilters(query);
+    for (QueryBuilder filter : filters.values()) {
+      if (filter != null) {
+        esFilter.must(filter);
+      }
+    }
+    if (esFilter.hasClauses()) {
+      requestBuilder.setQuery(boolQuery().must(esQuery).filter(esFilter));
+    } else {
+      requestBuilder.setQuery(esQuery);
+    }
+
+    configureStickyFacets(query, options, filters, esQuery, requestBuilder);
+    requestBuilder.setFetchSource(false);
+    return requestBuilder.get();
+  }
+
+  private void configureSorting(IssueQuery query, SearchRequestBuilder esRequest) {
+    String sortField = query.sort();
+    if (sortField != null) {
+      boolean asc = BooleanUtils.isTrue(query.asc());
+      sorting.fill(esRequest, sortField, asc);
+    } else {
+      sorting.fillDefault(esRequest);
+    }
+  }
+
+  private Map<String, QueryBuilder> createFilters(IssueQuery query) {
+    Map<String, QueryBuilder> filters = new HashMap<>();
+    filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization()));
+
+    // Issue is assigned Filter
+    if (BooleanUtils.isTrue(query.assigned())) {
+      filters.put(IS_ASSIGNED_FILTER, existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
+    } else if (BooleanUtils.isFalse(query.assigned())) {
+      filters.put(IS_ASSIGNED_FILTER, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE)));
+    }
+
+    // Issue is Resolved Filter
+    String isResolved = "__isResolved";
+    if (BooleanUtils.isTrue(query.resolved())) {
+      filters.put(isResolved, existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
+    } else if (BooleanUtils.isFalse(query.resolved())) {
+      filters.put(isResolved, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)));
+    }
+
+    // Field Filters
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, query.assignees()));
+
+    addComponentRelatedFilters(query, filters);
+
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_STATUS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, query.statuses()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, createTermFilter(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, query.organizationUuid()));
+
+    addDatesFilter(filters, query);
+
+    return filters;
   }
 
   private QueryBuilder createAuthorizationFilter(boolean checkAuthorization) {
@@ -395,31 +484,6 @@ public class IssueIndex {
     }
   }
 
-  private static StickyFacetBuilder newStickyFacetBuilder(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
-    if (hasQueryEffortFacet(query)) {
-      return new StickyFacetBuilder(esQuery, filters, EFFORT_AGGREGATION, EFFORT_AGGREGATION_ORDER);
-    }
-    return new StickyFacetBuilder(esQuery, filters);
-  }
-
-  private static void addSimpleStickyFacetIfNeeded(SearchOptions options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
-    String facetName, String fieldName, Object... selectedValues) {
-    if (options.getFacets().contains(facetName)) {
-      esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_FACET_SIZE, selectedValues));
-    }
-  }
-
-  private static AggregationBuilder addEffortAggregationIfNeeded(IssueQuery query, AggregationBuilder aggregation) {
-    if (hasQueryEffortFacet(query)) {
-      aggregation.subAggregation(EFFORT_AGGREGATION);
-    }
-    return aggregation;
-  }
-
-  private static boolean hasQueryEffortFacet(IssueQuery query) {
-    return FACET_MODE_EFFORT.equals(query.facetMode()) || DEPRECATED_FACET_MODE_DEBT.equals(query.facetMode());
-  }
-
   private Optional<AggregationBuilder> getCreatedAtFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     long startTime;
     Date createdAfter = query.createdAfter();
@@ -483,41 +547,6 @@ public class IssueIndex {
     return Optional.of(actualValue.longValue());
   }
 
-  private static AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
-    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
-    String facetName = PARAM_ASSIGNEES;
-
-    // Same as in super.stickyFacetBuilder
-    Map<String, QueryBuilder> assigneeFilters = Maps.newHashMap(filters);
-    assigneeFilters.remove(IS_ASSIGNED_FILTER);
-    assigneeFilters.remove(fieldName);
-    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, assigneeFilters, queryBuilder);
-    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
-
-    Collection<String> assigneesEscaped = escapeValuesForFacetInclusion(query.assignees());
-    if (!assigneesEscaped.isEmpty()) {
-      facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t, assigneesEscaped.toArray());
-    }
-
-    // Add missing facet for unassigned issues
-    facetTopAggregation.subAggregation(
-      addEffortAggregationIfNeeded(query, AggregationBuilders
-        .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName)));
-
-    return AggregationBuilders
-      .global(facetName)
-      .subAggregation(facetTopAggregation);
-  }
-
-  private static Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
-    if (values == null) {
-      return Collections.emptyList();
-    }
-    return values.stream().map(Pattern::quote).collect(MoreCollectors.toArrayList(values.size()));
-  }
-
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
     String login = userSession.getLogin();
 
@@ -544,41 +573,13 @@ public class IssueIndex {
         .subAggregation(facetTopAggregation));
   }
 
-  private static AggregationBuilder createResolutionFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
-    String fieldName = IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
-    String facetName = PARAM_RESOLUTIONS;
+  public List<String> listTags(OrganizationDto organization, @Nullable String textQuery, int size) {
+    int maxPageSize = 500;
+    checkArgument(size <= maxPageSize, "Page size must be lower than or equals to " + maxPageSize);
+    if (size <= 0) {
+      return emptyList();
+    }
 
-    // Same as in super.stickyFacetBuilder
-    Map<String, QueryBuilder> resolutionFilters = Maps.newHashMap(filters);
-    resolutionFilters.remove("__isResolved");
-    resolutionFilters.remove(fieldName);
-    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, resolutionFilters, esQuery);
-    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
-    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, t -> t);
-
-    // Add missing facet for unresolved issues
-    facetTopAggregation.subAggregation(
-      addEffortAggregationIfNeeded(query, AggregationBuilders
-        .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName)));
-
-    return AggregationBuilders
-      .global(facetName)
-      .subAggregation(facetTopAggregation);
-  }
-
-  @CheckForNull
-  private static QueryBuilder createTermsFilter(String field, Collection<?> values) {
-    return values.isEmpty() ? null : termsQuery(field, values);
-  }
-
-  @CheckForNull
-  private static QueryBuilder createTermFilter(String field, @Nullable String value) {
-    return value == null ? null : termQuery(field, value);
-  }
-
-  public List<String> listTags(OrganizationDto organization, @Nullable String textQuery, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = client
       .prepareSearch(INDEX_TYPE_ISSUE)
       .setQuery(boolQuery()
@@ -588,7 +589,7 @@ public class IssueIndex {
 
     TermsBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
       .field(IssueIndexDefinition.FIELD_ISSUE_TAGS)
-      .size(maxNumberOfTags)
+      .size(size)
       .order(Terms.Order.term(true))
       .minDocCount(1L);
     if (textQuery != null) {
