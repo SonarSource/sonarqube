@@ -223,6 +223,26 @@ public class SearchActionTest {
   }
 
   @Test
+  public void when_searching_for_several_tags_combine_them_with_OR() throws IOException {
+    OrganizationDto organization = dbTester.organizations().insert();
+    RuleDefinitionDto bothTagsRule = createJavaRule();
+    insertMetadata(organization, bothTagsRule, setTags("tag1", "tag2"));
+    RuleDefinitionDto oneTagRule = createJavaRule();
+    insertMetadata(organization, oneTagRule, setTags("tag1"));
+    RuleDefinitionDto otherTagRule = createJavaRule();
+    insertMetadata(organization, otherTagRule, setTags("tag2"));
+    RuleDefinitionDto noTagRule = createJavaRule();
+    insertMetadata(organization, noTagRule, setTags());
+    indexRules();
+
+    Consumer<TestRequest> request = r -> r
+      .setParam("f", "repo,name")
+      .setParam("tags", "tag1,tag2")
+      .setParam("organization", organization.getKey());
+    verify(request, bothTagsRule, oneTagRule, otherTagRule);
+  }
+
+  @Test
   public void should_list_tags_in_tags_facet() throws IOException {
     OrganizationDto organization = dbTester.organizations().insert();
     RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("tag1", "tag3", "tag5", "tag7", "tag9", "x"));
@@ -277,6 +297,29 @@ public class SearchActionTest {
     assertThat(result.getRulesList())
       .extracting(Rule::getTags).flatExtracting(Rules.Tags::getTagsList)
       .containsExactly(metadata.getTags().toArray(new String[0]));
+  }
+
+  @Test
+  public void should_not_return_tags_of_foreign_organization() throws IOException {
+    OrganizationDto organizationWithSpecificTags = dbTester.organizations().insert();
+    OrganizationDto myOrganization = dbTester.organizations().insert();
+    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("system1", "system2"));
+    insertMetadata(organizationWithSpecificTags, rule, setTags("tag1", "tag2"));
+    indexRules();
+
+    SearchResponse result = ws.newRequest()
+      .setParam("facets", "tags")
+      .setParam("f", "tags")
+      .setParam("organization", myOrganization.getKey())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(result.getRulesList()).extracting(Rule::getKey).containsExactly(rule.getKey().toString());
+    assertThat(result.getFacets().getFacets(0).getValuesList())
+      .extracting(v -> tuple(v.getVal(), v.getCount()))
+      .containsExactly(
+        tuple("system1", 1L),
+        tuple("system2", 1L)
+      );
   }
 
   @Test
