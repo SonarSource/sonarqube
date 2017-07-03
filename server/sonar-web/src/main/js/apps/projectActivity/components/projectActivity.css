@@ -14,7 +14,7 @@
 
 .project-activity-page-side-outer > .boxed-group-inner {
   padding-left: 12px;
-  padding-right: 12px;
+  padding-right: 15px;
 }
 
 .project-activity-layout-page-main {
@@ -188,7 +188,7 @@
   position: absolute;
   top: 0;
   left: 12px;
-  right: 20px;
+  right: 16px;
   padding-top: 24px;
   z-index: 100;
 }

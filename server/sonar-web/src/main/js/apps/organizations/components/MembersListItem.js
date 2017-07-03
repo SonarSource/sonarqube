@@ -61,7 +61,9 @@ export default class MembersListItem extends React.PureComponent {
         {organization.canAdmin &&
           <td className="nowrap text-middle text-right">
             <div className="dropdown">
-              <button className="dropdown-toggle little-spacer-right" data-toggle="dropdown">
+              <button
+                className="dropdown-toggle little-spacer-right button-compact"
+                data-toggle="dropdown">
                 <i className="icon-settings" />
                 {' '}
                 <i className="icon-dropdown" />
