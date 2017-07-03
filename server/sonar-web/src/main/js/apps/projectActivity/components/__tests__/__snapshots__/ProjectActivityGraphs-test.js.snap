@@ -46,10 +46,32 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     eventFilter=""
+    graph="overview"
     graphEndDate={2016-10-27T14:33:50.000Z}
     graphStartDate={2016-10-26T10:17:29.000Z}
     leakPeriodDate="2017-05-16T13:50:02+0200"
     loading={false}
+    measuresHistory={
+      Array [
+        Object {
+          "history": Array [
+            Object {
+              "date": 2016-10-26T10:17:29.000Z,
+              "value": "2286",
+            },
+            Object {
+              "date": 2016-10-27T10:21:15.000Z,
+              "value": "1749",
+            },
+            Object {
+              "date": 2016-10-27T14:33:50.000Z,
+              "value": "500",
+            },
+          ],
+          "metric": "code_smells",
+        },
+      ]
+    }
     metricsType="INT"
     project="org.sonarsource.sonarqube:sonarqube"
     series={
@@ -75,8 +97,8 @@ exports[`should render correctly the graph and legends 1`] = `
         },
       ]
     }
-    showAreas={false}
     updateGraphZoom={[Function]}
+    updateSelectedDate={[Function]}
   />
   <GraphsZoom
     graphEndDate={2016-10-27T14:33:50.000Z}

@@ -125,10 +125,6 @@
   &.line-chart-path-2 {
     stroke: @serieColor2;
   }
-
-  &:hover {
-    z-index: 120;
-  }
 }
 
 .line-chart-area {
@@ -153,6 +149,18 @@
 
   &.line-chart-legend-2 {
     color: @serieColor2;
+  }
+}
+
+.line-chart-dot {
+  fill: @defaultSerieColor;
+
+  &.line-chart-dot-1 {
+    fill: @serieColor1;
+  }
+
+  &.line-chart-dot-2 {
+    fill: @serieColor2;
   }
 }
 
@@ -288,7 +296,7 @@
   text-anchor: middle;
 }
 
-.chart-wheel-zoom-overlay {
+.chart-mouse-events-overlay {
   fill: none;
   stroke: none;
   pointer-events: all;
@@ -316,4 +324,15 @@
     fill-opacity: 0;
     stroke: none;
   }
+}
+
+/*
+ * Charts tooltips
+ */
+
+.line-tooltip {
+  fill: none;
+  stroke: @secondFontColor;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
 }

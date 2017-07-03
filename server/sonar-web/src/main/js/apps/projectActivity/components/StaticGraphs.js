@@ -22,30 +22,43 @@ import moment from 'moment';
 import { some, sortBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
+import GraphsTooltips from './GraphsTooltips';
 import StaticGraphsLegend from './StaticGraphsLegend';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 import { EVENT_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
-import type { Analysis } from '../types';
+import type { Analysis, MeasureHistory } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
   analyses: Array<Analysis>,
   eventFilter: string,
+  graph: string,
   graphEndDate: ?Date,
   graphStartDate: ?Date,
   leakPeriodDate: Date,
   loading: boolean,
+  measuresHistory: Array<MeasureHistory>,
   metricsType: string,
+  selectedDate?: ?Date => void,
   series: Array<Serie>,
-  showAreas?: boolean,
-  updateGraphZoom: (from: ?Date, to: ?Date) => void
+  updateGraphZoom: (from: ?Date, to: ?Date) => void,
+  updateSelectedDate: (selectedDate: ?Date) => void
+};
+
+type State = {
+  tooltipIdx: ?number,
+  tooltipXPos: ?number
 };
 
 export default class StaticGraphs extends React.PureComponent {
   props: Props;
+  state: State = {
+    tooltipIdx: null,
+    tooltipXPos: null
+  };
 
-  formatYTick = tick => formatMeasure(tick, getShortType(this.props.metricsType));
+  formatValue = tick => formatMeasure(tick, getShortType(this.props.metricsType));
 
   getEvents = () => {
     const { analyses, eventFilter } = this.props;
@@ -73,6 +86,9 @@ export default class StaticGraphs extends React.PureComponent {
 
   hasSeriesData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
 
+  updateTooltipPos = (tooltipXPos: ?number, tooltipIdx: ?number) =>
+    this.setState({ tooltipXPos, tooltipIdx });
+
   render() {
     const { loading } = this.props;
 
@@ -96,27 +112,44 @@ export default class StaticGraphs extends React.PureComponent {
       );
     }
 
-    const { series } = this.props;
+    const { graph, selectedDate, series } = this.props;
     return (
       <div className="project-activity-graph-container">
         <StaticGraphsLegend series={series} />
         <div className="project-activity-graph">
           <AutoSizer>
             {({ height, width }) => (
-              <AdvancedTimeline
-                endDate={this.props.graphEndDate}
-                events={this.getEvents()}
-                height={height}
-                width={width}
-                interpolate="linear"
-                formatYTick={this.formatYTick}
-                leakPeriodDate={this.props.leakPeriodDate}
-                metricType={this.props.metricsType}
-                series={series}
-                showAreas={this.props.showAreas}
-                startDate={this.props.graphStartDate}
-                updateZoom={this.props.updateGraphZoom}
-              />
+              <div>
+                <AdvancedTimeline
+                  endDate={this.props.graphEndDate}
+                  events={this.getEvents()}
+                  height={height}
+                  width={width}
+                  interpolate="linear"
+                  formatYTick={this.formatValue}
+                  leakPeriodDate={this.props.leakPeriodDate}
+                  metricType={this.props.metricsType}
+                  selectedDate={selectedDate}
+                  series={series}
+                  showAreas={['coverage', 'duplications'].includes(graph)}
+                  startDate={this.props.graphStartDate}
+                  updateSelectedDate={this.props.updateSelectedDate}
+                  updateTooltipPos={this.updateTooltipPos}
+                  updateZoom={this.props.updateGraphZoom}
+                />
+                {selectedDate != null &&
+                  this.state.tooltipXPos != null &&
+                  <GraphsTooltips
+                    formatValue={this.formatValue}
+                    graph={graph}
+                    graphWidth={width}
+                    measuresHistory={this.props.measuresHistory}
+                    selectedDate={selectedDate}
+                    series={series}
+                    tooltipIdx={this.state.tooltipIdx}
+                    tooltipPos={this.state.tooltipXPos}
+                  />}
+              </div>
             )}
           </AutoSizer>
         </div>

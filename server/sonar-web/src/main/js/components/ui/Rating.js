@@ -24,6 +24,7 @@ import './Rating.css';
 
 export default class Rating extends React.PureComponent {
   static propTypes = {
+    className: React.PropTypes.string,
     value: (props, propName, componentName) => {
       // allow both numbers and strings
       const numberValue = Number(props[propName]);
@@ -42,10 +43,15 @@ export default class Rating extends React.PureComponent {
 
   render() {
     const formatted = formatMeasure(this.props.value, 'RATING');
-    const className = classNames('rating', 'rating-' + formatted, {
-      'rating-small': this.props.small,
-      'rating-muted': this.props.muted
-    });
+    const className = classNames(
+      'rating',
+      'rating-' + formatted,
+      {
+        'rating-small': this.props.small,
+        'rating-muted': this.props.muted
+      },
+      this.props.className
+    );
     return <span className={className}>{formatted}</span>;
   }
 }
