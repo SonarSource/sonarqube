@@ -45,6 +45,7 @@ type Props = {
 };
 
 type State = {
+  overlayLeftPos: ?number,
   newZoomStart: ?number
 };
 
@@ -56,6 +57,7 @@ export default class ZoomTimeLine extends React.PureComponent {
   };
 
   state: State = {
+    overlayLeftPos: null,
     newZoomStart: null
   };
 
@@ -93,6 +95,10 @@ export default class ZoomTimeLine extends React.PureComponent {
     return `M${half} 0 L${size} ${half} L ${half} ${size} L0 ${half} L${half} 0 L${size} ${half}`;
   };
 
+  handleDoubleClick = (xScale: Scale, xDim: Array<number>) => () => {
+    this.handleZoomUpdate(xScale, xDim);
+  };
+
   handleSelectionDrag = (
     xScale: Scale,
     width: number,
@@ -118,19 +124,20 @@ export default class ZoomTimeLine extends React.PureComponent {
     }
   };
 
-  handleNewZoomDragStart = (xDim: Array<number>) => (e: Event, data: DraggableData) =>
+  handleNewZoomDragStart = (xDim: Array<number>) => (e: Event, data: DraggableData) => {
+    const overlayLeftPos = data.node.getBoundingClientRect().left;
     this.setState({
-      newZoomStart: Math.round(
-        Math.max(xDim[0], Math.min(data.x - data.node.getBoundingClientRect().left, xDim[1]))
-      )
+      overlayLeftPos,
+      newZoomStart: Math.round(Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1])))
     });
+  };
 
   handleNewZoomDrag = (xScale: Scale, xDim: Array<number>) => (e: Event, data: DraggableData) => {
-    const { newZoomStart } = this.state;
-    if (newZoomStart != null && data.deltaX) {
+    const { newZoomStart, overlayLeftPos } = this.state;
+    if (newZoomStart != null && overlayLeftPos != null && data.deltaX) {
       this.handleZoomUpdate(xScale, [
         newZoomStart,
-        Math.max(xDim[0], Math.min(data.x - data.node.getBoundingClientRect().left, xDim[1]))
+        Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1]))
       ]);
     }
   };
@@ -139,14 +146,11 @@ export default class ZoomTimeLine extends React.PureComponent {
     e: Event,
     data: DraggableData
   ) => {
-    const { newZoomStart } = this.state;
-    if (newZoomStart != null) {
-      const x = Math.max(
-        xDim[0],
-        Math.min(data.x - data.node.getBoundingClientRect().left, xDim[1])
-      );
+    const { newZoomStart, overlayLeftPos } = this.state;
+    if (newZoomStart != null && overlayLeftPos != null) {
+      const x = Math.round(Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1])));
       this.handleZoomUpdate(xScale, newZoomStart === x ? xDim : [newZoomStart, x]);
-      this.setState({ newZoomStart: null });
+      this.setState({ newZoomStart: null, overlayLeftPos: null });
     }
   };
 
@@ -300,6 +304,7 @@ export default class ZoomTimeLine extends React.PureComponent {
     const xArray = sortBy([startX, endX]);
     const zoomBoxWidth = xArray[1] - xArray[0];
     const showZoomArea = this.state.newZoomStart == null || this.state.newZoomStart === startX;
+
     return (
       <g className="chart-zoom">
         <DraggableCore
@@ -327,6 +332,7 @@ export default class ZoomTimeLine extends React.PureComponent {
               y={yDim[1] + 1}
               height={yDim[0] - yDim[1]}
               width={zoomBoxWidth}
+              onDoubleClick={this.handleDoubleClick(xScale, xDim)}
             />
           </Draggable>}
         {showZoomArea &&
