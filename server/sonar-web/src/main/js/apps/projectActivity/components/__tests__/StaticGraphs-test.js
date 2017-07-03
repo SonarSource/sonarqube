@@ -81,11 +81,17 @@ const EMPTY_SERIES = [
 const DEFAULT_PROPS = {
   analyses: ANALYSES,
   eventFilter: '',
-  filteredSeries: SERIES,
+  graph: 'overview',
+  graphEndDate: null,
+  graphStartDate: null,
   leakPeriodDate: '2017-05-16T13:50:02+0200',
   loading: false,
+  measuresHistory: [],
+  metricsType: 'INT',
+  selectedDate: null,
   series: SERIES,
-  metricsType: 'INT'
+  updateGraphZoom: () => {},
+  updateSelectedDate: () => {}
 };
 
 it('should show a loading view', () => {

@@ -1,0 +1,191 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly for overview graphs 1`] = `
+<BubblePopup
+  customClass="bubble-popup-right"
+  position={
+    Object {
+      "left": 476,
+      "top": 50,
+      "width": 250,
+    }
+  }
+>
+  <div
+    className="project-activity-graph-tooltip"
+  >
+    <div
+      className="project-activity-graph-tooltip-title spacer-bottom"
+    >
+      <FormattedDate
+        date={2011-10-01T22:01:00.000Z}
+        format="LL"
+      />
+    </div>
+    <table
+      className="width-100"
+    >
+      <tbody>
+        <GraphsTooltipsContentOverview
+          measuresHistory={Array []}
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 18,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 15,
+                },
+              ],
+              "name": "code_smells",
+              "style": 1,
+              "translatedName": "Code Smells",
+            }
+          }
+          tooltipIdx={0}
+          value="Formated.18"
+        />
+        <GraphsTooltipsContentOverview
+          measuresHistory={Array []}
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 3,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 0,
+                },
+              ],
+              "name": "bugs",
+              "style": 0,
+              "translatedName": "Bugs",
+            }
+          }
+          tooltipIdx={0}
+          value="Formated.3"
+        />
+        <GraphsTooltipsContentOverview
+          measuresHistory={Array []}
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 0,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 1,
+                },
+              ],
+              "name": "vulnerabilities",
+              "style": 2,
+              "translatedName": "Vulnerabilities",
+            }
+          }
+          tooltipIdx={0}
+          value="Formated.0"
+        />
+      </tbody>
+    </table>
+  </div>
+</BubblePopup>
+`;
+
+exports[`should render correctly for random graphs 1`] = `
+<BubblePopup
+  customClass="bubble-popup-right"
+  position={
+    Object {
+      "left": 476,
+      "top": 50,
+      "width": 250,
+    }
+  }
+>
+  <div
+    className="project-activity-graph-tooltip"
+  >
+    <div
+      className="project-activity-graph-tooltip-title spacer-bottom"
+    >
+      <FormattedDate
+        date={2011-10-25T10:27:41.000Z}
+        format="LL"
+      />
+    </div>
+    <table
+      className="width-100"
+    >
+      <tbody>
+        <GraphsTooltipsContent
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 18,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 15,
+                },
+              ],
+              "name": "code_smells",
+              "style": 1,
+              "translatedName": "Code Smells",
+            }
+          }
+          value="Formated.15"
+        />
+        <GraphsTooltipsContent
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 3,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 0,
+                },
+              ],
+              "name": "bugs",
+              "style": 0,
+              "translatedName": "Bugs",
+            }
+          }
+          value="Formated.0"
+        />
+        <GraphsTooltipsContent
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 0,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 1,
+                },
+              ],
+              "name": "vulnerabilities",
+              "style": 2,
+              "translatedName": "Vulnerabilities",
+            }
+          }
+          value="Formated.1"
+        />
+      </tbody>
+    </table>
+  </div>
+</BubblePopup>
+`;

@@ -20,8 +20,8 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { flatten, sortBy } from 'lodash';
-import { extent, max } from 'd3-array';
+import { throttle, flatten, sortBy } from 'lodash';
+import { bisector, extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
 
@@ -42,17 +42,32 @@ type Props = {
   height: number,
   width: number,
   leakPeriodDate?: Date,
+  metricType: string,
   padding: Array<number>,
+  selectedDate?: Date,
   series: Array<Serie>,
   showAreas?: boolean,
   showEventMarkers?: boolean,
   startDate: ?Date,
+  updateSelectedDate?: (selectedDate: ?Date) => void,
+  updateTooltipPos?: (tooltipXPos: ?number, tooltipIdx: ?number) => void,
   updateZoom?: (start: ?Date, endDate: ?Date) => void,
   zoomSpeed: number
 };
 
+type State = {
+  maxXRange: Array<number>,
+  mouseOver?: boolean,
+  mouseOverlayPos?: { [string]: number },
+  selectedDateXPos: ?number,
+  selectedDateIdx: ?number,
+  yScale: Scale,
+  xScale: Scale
+};
+
 export default class AdvancedTimeline extends React.PureComponent {
   props: Props;
+  state: State;
 
   static defaultProps = {
     eventSize: 8,
@@ -60,26 +75,60 @@ export default class AdvancedTimeline extends React.PureComponent {
     zoomSpeed: 1
   };
 
+  constructor(props: Props) {
+    super(props);
+    const scales = this.getScales(props);
+    this.state = { ...scales, ...this.getSelectedDatePos(scales.xScale, props.selectedDate) };
+    this.updateSelectedDate = throttle(this.updateSelectedDate, 40);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    let scales;
+    if (
+      nextProps.metricType !== this.props.metricType ||
+      nextProps.startDate !== this.props.startDate ||
+      nextProps.endDate !== this.props.endDate ||
+      nextProps.width !== this.props.width ||
+      nextProps.padding !== this.props.padding ||
+      nextProps.height !== this.props.height ||
+      nextProps.series !== this.props.series
+    ) {
+      scales = this.getScales(nextProps);
+    }
+
+    if (scales || nextProps.selectedDate !== this.props.selectedDate) {
+      const xScale = scales ? scales.xScale : this.state.xScale;
+      const selectedDatePos = this.getSelectedDatePos(xScale, nextProps.selectedDate);
+      this.setState({ ...scales, ...selectedDatePos });
+      if (nextProps.updateTooltipPos) {
+        nextProps.updateTooltipPos(
+          selectedDatePos.selectedDateXPos,
+          selectedDatePos.selectedDateIdx
+        );
+      }
+    }
+  }
+
   getRatingScale = (availableHeight: number) =>
     scalePoint().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
 
   getLevelScale = (availableHeight: number) =>
     scalePoint().domain(['ERROR', 'WARN', 'OK']).range([availableHeight, 0]);
 
-  getYScale = (availableHeight: number, flatData: Array<Point>) => {
-    if (this.props.metricType === 'RATING') {
+  getYScale = (props: Props, availableHeight: number, flatData: Array<Point>) => {
+    if (props.metricType === 'RATING') {
       return this.getRatingScale(availableHeight);
-    } else if (this.props.metricType === 'LEVEL') {
+    } else if (props.metricType === 'LEVEL') {
       return this.getLevelScale(availableHeight);
     } else {
       return scaleLinear().range([availableHeight, 0]).domain([0, max(flatData, d => d.y)]).nice();
     }
   };
 
-  getXScale = (availableWidth: number, flatData: Array<Point>) => {
+  getXScale = (props: Props, availableWidth: number, flatData: Array<Point>) => {
     const dateRange = extent(flatData, d => d.x);
-    const start = this.props.startDate ? this.props.startDate : dateRange[0];
-    const end = this.props.endDate ? this.props.endDate : dateRange[1];
+    const start = props.startDate ? props.startDate : dateRange[0];
+    const end = props.endDate ? props.endDate : dateRange[1];
     const xScale = scaleTime().domain(sortBy([start, end])).range([0, availableWidth]).clamp(false);
     return {
       xScale,
@@ -87,14 +136,34 @@ export default class AdvancedTimeline extends React.PureComponent {
     };
   };
 
-  getScales = () => {
-    const availableWidth = this.props.width - this.props.padding[1] - this.props.padding[3];
-    const availableHeight = this.props.height - this.props.padding[0] - this.props.padding[2];
-    const flatData = flatten(this.props.series.map((serie: Serie) => serie.data));
+  getScales = (props: Props) => {
+    const availableWidth = props.width - props.padding[1] - props.padding[3];
+    const availableHeight = props.height - props.padding[0] - props.padding[2];
+    const flatData = flatten(props.series.map((serie: Serie) => serie.data));
     return {
-      ...this.getXScale(availableWidth, flatData),
-      yScale: this.getYScale(availableHeight, flatData)
+      ...this.getXScale(props, availableWidth, flatData),
+      yScale: this.getYScale(props, availableHeight, flatData)
     };
+  };
+
+  getSelectedDatePos = (xScale: Scale, selectedDate: ?Date) => {
+    const firstSerie = this.props.series[0];
+    if (selectedDate && firstSerie) {
+      const idx = firstSerie.data.findIndex(
+        // $FlowFixMe selectedDate can't be null there
+        p => p.x.valueOf() === selectedDate.valueOf()
+      );
+      if (
+        idx >= 0 &&
+        this.props.series.some(serie => serie.data[idx].y || serie.data[idx].y === 0)
+      ) {
+        return {
+          selectedDateXPos: xScale(selectedDate),
+          selectedDateIdx: idx
+        };
+      }
+    }
+    return { selectedDateXPos: null, selectedDateIdx: null };
   };
 
   getEventMarker = (size: number) => {
@@ -102,12 +171,20 @@ export default class AdvancedTimeline extends React.PureComponent {
     return `M${half} 0 L${size} ${half} L ${half} ${size} L0 ${half} L${half} 0 L${size} ${half}`;
   };
 
-  handleWheel = (xScale: Scale, maxXRange: Array<number>) => (
-    evt: WheelEvent & { target: HTMLElement }
-  ) => {
+  getMouseOverlayPos = (target: HTMLElement) => {
+    if (this.state.mouseOverlayPos) {
+      return this.state.mouseOverlayPos;
+    }
+    const pos = target.getBoundingClientRect();
+    this.setState({ mouseOverlayPos: pos });
+    return pos;
+  };
+
+  handleWheel = (evt: WheelEvent & { target: HTMLElement }) => {
     evt.preventDefault();
-    const parentBbox = evt.target.getBoundingClientRect();
-    const mouseXPos = (evt.clientX - parentBbox.left) / parentBbox.width;
+    const { maxXRange, xScale } = this.state;
+    const parentBbox = this.getMouseOverlayPos(evt.target);
+    const mouseXPos = (evt.pageX - parentBbox.left) / parentBbox.width;
     const xRange = xScale.range();
     const speed = evt.deltaMode ? 25 / evt.deltaMode * this.props.zoomSpeed : this.props.zoomSpeed;
     const leftPos = xRange[0] - Math.round(speed * evt.deltaY * mouseXPos);
@@ -118,8 +195,50 @@ export default class AdvancedTimeline extends React.PureComponent {
     this.props.updateZoom(startDate, endDate);
   };
 
-  renderHorizontalGrid = (xScale: Scale, yScale: Scale) => {
+  handleMouseMove = (evt: MouseEvent & { target: HTMLElement }) => {
+    const parentBbox = this.getMouseOverlayPos(evt.target);
+    this.updateSelectedDate(evt.pageX - parentBbox.left);
+  };
+
+  handleMouseEnter = () => this.setState({ mouseOver: true });
+
+  handleMouseOut = (evt: Event & { relatedTarget: HTMLElement }) => {
+    const { updateSelectedDate } = this.props;
+    const targetClass = evt.relatedTarget && typeof evt.relatedTarget.className === 'string'
+      ? evt.relatedTarget.className
+      : '';
+    if (
+      !updateSelectedDate ||
+      targetClass.includes('bubble-popup') ||
+      targetClass.includes('graph-tooltip')
+    ) {
+      return;
+    }
+    this.setState({ mouseOver: false });
+    updateSelectedDate(null);
+  };
+
+  updateSelectedDate = (xPos: number) => {
+    const { updateSelectedDate } = this.props;
+    const firstSerie = this.props.series[0];
+    if (this.state.mouseOver && firstSerie && updateSelectedDate) {
+      const date = this.state.xScale.invert(xPos);
+      const bisectX = bisector(d => d.x).right;
+      let idx = bisectX(firstSerie.data, date);
+      if (idx >= 0) {
+        const previousPoint = firstSerie.data[idx - 1];
+        const nextPoint = firstSerie.data[idx];
+        if (!nextPoint || (previousPoint && date - previousPoint.x <= nextPoint.x - date)) {
+          idx--;
+        }
+        updateSelectedDate(firstSerie.data[idx].x);
+      }
+    }
+  };
+
+  renderHorizontalGrid = () => {
     const { formatYTick } = this.props;
+    const { xScale, yScale } = this.state;
     const hasTicks = typeof yScale.ticks === 'function';
     const ticks = hasTicks ? yScale.ticks(4) : yScale.domain();
 
@@ -154,7 +273,8 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderXAxisTicks = (xScale: Scale, yScale: Scale) => {
+  renderXAxisTicks = () => {
+    const { xScale, yScale } = this.state;
     const format = xScale.tickFormat(7);
     const ticks = xScale.ticks(7);
     const y = yScale.range()[0];
@@ -173,16 +293,16 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderLeak = (xScale: Scale, yScale: Scale) => {
-    const yRange = yScale.range();
-    const xRange = xScale.range();
-    const leakWidth = xRange[xRange.length - 1] - xScale(this.props.leakPeriodDate);
+  renderLeak = () => {
+    const yRange = this.state.yScale.range();
+    const xRange = this.state.xScale.range();
+    const leakWidth = xRange[xRange.length - 1] - this.state.xScale(this.props.leakPeriodDate);
     if (leakWidth < 0) {
       return null;
     }
     return (
       <rect
-        x={xScale(this.props.leakPeriodDate)}
+        x={this.state.xScale(this.props.leakPeriodDate)}
         y={yRange[yRange.length - 1]}
         width={leakWidth}
         height={yRange[0] - yRange[yRange.length - 1]}
@@ -191,19 +311,19 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderLines = (xScale: Scale, yScale: Scale) => {
+  renderLines = () => {
     const lineGenerator = d3Line()
       .defined(d => d.y || d.y === 0)
-      .x(d => xScale(d.x))
-      .y(d => yScale(d.y));
+      .x(d => this.state.xScale(d.x))
+      .y(d => this.state.yScale(d.y));
     if (this.props.basisCurve) {
       lineGenerator.curve(curveBasis);
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) => (
+        {this.props.series.map(serie => (
           <path
-            key={`${idx}-${serie.name}`}
+            key={serie.name}
             className={classNames('line-chart-path', 'line-chart-path-' + serie.style)}
             d={lineGenerator(serie.data)}
           />
@@ -212,20 +332,20 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderAreas = (xScale: Scale, yScale: Scale) => {
+  renderAreas = () => {
     const areaGenerator = area()
       .defined(d => d.y || d.y === 0)
-      .x(d => xScale(d.x))
-      .y1(d => yScale(d.y))
-      .y0(yScale(0));
+      .x(d => this.state.xScale(d.x))
+      .y1(d => this.state.yScale(d.y))
+      .y0(this.state.yScale(0));
     if (this.props.basisCurve) {
       areaGenerator.curve(curveBasis);
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) => (
+        {this.props.series.map(serie => (
           <path
-            key={`${idx}-${serie.name}`}
+            key={serie.name}
             className={classNames('line-chart-area', 'line-chart-area-' + serie.style)}
             d={areaGenerator(serie.data)}
           />
@@ -234,11 +354,12 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderEvents = (xScale: Scale, yScale: Scale) => {
+  renderEvents = () => {
     const { events, eventSize } = this.props;
     if (!events || !eventSize) {
       return null;
     }
+    const { xScale, yScale } = this.state;
     const inRangeEvents = events.filter(
       event => event.date >= xScale.domain()[0] && event.date <= xScale.domain()[1]
     );
@@ -257,23 +378,67 @@ export default class AdvancedTimeline extends React.PureComponent {
     );
   };
 
-  renderClipPath = (xScale: Scale, yScale: Scale) => {
+  renderSelectedDate = () => {
+    const { selectedDateIdx, selectedDateXPos, yScale } = this.state;
+    const firstSerie = this.props.series[0];
+    if (selectedDateIdx == null || selectedDateXPos == null || !firstSerie) {
+      return null;
+    }
+
+    return (
+      <g>
+        <line
+          className="line-tooltip"
+          x1={selectedDateXPos}
+          x2={selectedDateXPos}
+          y1={yScale.range()[0]}
+          y2={yScale.range()[1]}
+        />
+        {this.props.series.map(serie => {
+          const point = serie.data[selectedDateIdx];
+          if (!point || (!point.y && point.y !== 0)) {
+            return null;
+          }
+          return (
+            <circle
+              key={serie.name}
+              cx={selectedDateXPos}
+              cy={yScale(point.y)}
+              r="4"
+              className={classNames('line-chart-dot', 'line-chart-dot-' + serie.style)}
+            />
+          );
+        })}
+      </g>
+    );
+  };
+
+  renderClipPath = () => {
     return (
       <defs>
         <clipPath id="chart-clip">
-          <rect width={xScale.range()[1]} height={yScale.range()[0] + 10} />
+          <rect width={this.state.xScale.range()[1]} height={this.state.yScale.range()[0] + 10} />
         </clipPath>
       </defs>
     );
   };
 
-  renderZoomOverlay = (xScale: Scale, yScale: Scale, maxXRange: Array<number>) => {
+  renderMouseEventsOverlay = (zoomEnabled: boolean) => {
+    const mouseEvents = {};
+    if (zoomEnabled) {
+      mouseEvents.onWheel = this.handleWheel;
+    }
+    if (this.props.updateSelectedDate) {
+      mouseEvents.onMouseEnter = this.handleMouseEnter;
+      mouseEvents.onMouseMove = this.handleMouseMove;
+      mouseEvents.onMouseOut = this.handleMouseOut;
+    }
     return (
       <rect
-        className="chart-wheel-zoom-overlay"
-        width={xScale.range()[1]}
-        height={yScale.range()[0]}
-        onWheel={this.handleWheel(xScale, maxXRange)}
+        className="chart-mouse-events-overlay"
+        width={this.state.xScale.range()[1]}
+        height={this.state.yScale.range()[0]}
+        {...mouseEvents}
       />
     );
   };
@@ -282,8 +447,6 @@ export default class AdvancedTimeline extends React.PureComponent {
     if (!this.props.width || !this.props.height) {
       return <div />;
     }
-
-    const { maxXRange, xScale, yScale } = this.getScales();
     const zoomEnabled = !this.props.disableZoom && this.props.updateZoom != null;
     const isZoomed = this.props.startDate || this.props.endDate;
     return (
@@ -291,15 +454,16 @@ export default class AdvancedTimeline extends React.PureComponent {
         className={classNames('line-chart', { 'chart-zoomed': isZoomed })}
         width={this.props.width}
         height={this.props.height}>
-        {zoomEnabled && this.renderClipPath(xScale, yScale)}
+        {zoomEnabled && this.renderClipPath()}
         <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>
-          {this.props.leakPeriodDate != null && this.renderLeak(xScale, yScale)}
-          {!this.props.hideGrid && this.renderHorizontalGrid(xScale, yScale)}
-          {!this.props.hideXAxis && this.renderXAxisTicks(xScale, yScale)}
-          {this.props.showAreas && this.renderAreas(xScale, yScale)}
-          {this.renderLines(xScale, yScale)}
-          {zoomEnabled && this.renderZoomOverlay(xScale, yScale, maxXRange)}
-          {this.props.showEventMarkers && this.renderEvents(xScale, yScale)}
+          {this.props.leakPeriodDate != null && this.renderLeak()}
+          {!this.props.hideGrid && this.renderHorizontalGrid()}
+          {!this.props.hideXAxis && this.renderXAxisTicks()}
+          {this.props.showAreas && this.renderAreas()}
+          {this.renderLines()}
+          {this.props.showEventMarkers && this.renderEvents()}
+          {this.renderSelectedDate()}
+          {this.renderMouseEventsOverlay(zoomEnabled)}
         </g>
       </svg>
     );

@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tr
+  className="project-activity-graph-tooltip-line"
+>
+  <td
+    className="thin"
+  >
+    <ChartLegendIcon
+      className="spacer-right line-chart-legend line-chart-legend-1"
+    />
+  </td>
+  <td
+    className="project-activity-graph-tooltip-value text-right spacer-right thin"
+  >
+    1.2k
+  </td>
+  <td>
+    Code Smells
+  </td>
+</tr>
+`;

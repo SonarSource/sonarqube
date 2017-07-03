@@ -40,6 +40,7 @@ type Props = {
 };
 
 type State = {
+  selectedDate?: ?Date,
   graphStartDate: ?Date,
   graphEndDate: ?Date,
   series: Array<Serie>
@@ -66,7 +67,6 @@ export default class ProjectActivityGraphs extends React.PureComponent {
         nextProps.query.graph,
         nextProps.metricsType
       );
-
       const newDates = this.getStateZoomDates(this.props, nextProps, series);
       if (newDates) {
         this.setState({ series, ...newDates });
@@ -96,6 +96,8 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       return { graphEndDate: newDates.to, graphStartDate: newDates.from };
     }
   };
+
+  updateSelectedDate = (selectedDate: ?Date) => this.setState({ selectedDate });
 
   updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) => {
     if (graphEndDate != null && graphStartDate != null) {
@@ -128,15 +130,18 @@ export default class ProjectActivityGraphs extends React.PureComponent {
         <StaticGraphs
           analyses={this.props.analyses}
           eventFilter={query.category}
+          graph={query.graph}
           graphEndDate={this.state.graphEndDate}
           graphStartDate={this.state.graphStartDate}
           leakPeriodDate={leakPeriodDate}
           loading={loading}
+          measuresHistory={this.props.measuresHistory}
           metricsType={metricsType}
           project={this.props.project}
+          selectedDate={this.state.selectedDate}
           series={series}
-          showAreas={['coverage', 'duplications'].includes(query.graph)}
           updateGraphZoom={this.updateGraphZoom}
+          updateSelectedDate={this.updateSelectedDate}
         />
         <GraphsZoom
           graphEndDate={this.state.graphEndDate}
