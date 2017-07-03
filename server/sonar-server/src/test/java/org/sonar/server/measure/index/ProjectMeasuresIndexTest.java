@@ -1269,7 +1269,7 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void facet_tags_size_limited_to_10() {
+  public void facet_tags_returns_10_elements_by_default() {
     index(
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
       newDoc().setTags(newArrayList("finance1", "finance2", "finance3", "finance4", "finance5", "finance6", "finance7", "finance8", "finance9", "finance10")),
@@ -1371,11 +1371,11 @@ public class ProjectMeasuresIndexTest {
   }
 
   @Test
-  public void fail_if_page_size_greater_than_100() {
+  public void fail_if_page_size_greater_than_500() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must be lower than or equals to 100");
+    expectedException.expectMessage("Page size must be lower than or equals to 500");
 
-    underTest.searchTags("whatever", 101);
+    underTest.searchTags("whatever", 501);
   }
 
   private void index(ProjectMeasuresDoc... docs) {
