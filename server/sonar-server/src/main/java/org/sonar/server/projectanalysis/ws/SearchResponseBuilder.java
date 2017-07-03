@@ -19,10 +19,6 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonarqube.ws.ProjectAnalyses.Analysis;
@@ -34,57 +30,59 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.fromLabel;
 
 class SearchResponseBuilder {
-  private final Analysis.Builder analysisBuilder;
-  private final Event.Builder eventBuilder;
+  private final Analysis.Builder wsAnalysis;
+  private final Event.Builder wsEvent;
+  private final SearchData searchData;
 
-  SearchResponseBuilder() {
-    this.analysisBuilder = Analysis.newBuilder();
-    this.eventBuilder = Event.newBuilder();
+  SearchResponseBuilder(SearchData searchData) {
+    this.wsAnalysis = Analysis.newBuilder();
+    this.wsEvent = Event.newBuilder();
+    this.searchData = searchData;
   }
 
-  Function<SearchResults, SearchResponse> buildWsResponse() {
-    return searchResults -> Stream.of(SearchResponse.newBuilder())
-      .peek(addAnalyses(searchResults))
-      .peek(addPagination(searchResults))
-      .map(SearchResponse.Builder::build)
-      .collect(MoreCollectors.toOneElement());
+  SearchResponse build() {
+    SearchResponse.Builder wsResponse = SearchResponse.newBuilder();
+    addAnalyses(wsResponse);
+    addPagination(wsResponse);
+    return wsResponse.build();
   }
 
-  private Consumer<SearchResponse.Builder> addAnalyses(SearchResults searchResults) {
-    return response -> searchResults.analyses.stream()
-      .map(dbToWsAnalysis())
-      .peek(addEvents(searchResults))
-      .forEach(response::addAnalyses);
+  private void addAnalyses(SearchResponse.Builder wsResponse) {
+    searchData.analyses.stream()
+      .map(this::dbToWsAnalysis)
+      .map(this::attachEvents)
+      .forEach(wsResponse::addAnalyses);
   }
 
-  private Function<SnapshotDto, Analysis.Builder> dbToWsAnalysis() {
-    return dbAnalysis -> analysisBuilder.clear()
+  private Analysis.Builder dbToWsAnalysis(SnapshotDto dbAnalysis) {
+    return wsAnalysis.clear()
       .setKey(dbAnalysis.getUuid())
       .setDate(formatDateTime(dbAnalysis.getCreatedAt()));
   }
 
-  private Consumer<Analysis.Builder> addEvents(SearchResults searchResults) {
-    return wsAnalysis -> searchResults.eventsByAnalysis.get(wsAnalysis.getKey()).stream()
-      .map(dbToWsEvent())
-      .forEach(wsAnalysis::addEvents);
+  private Analysis.Builder attachEvents(Analysis.Builder analysis) {
+    searchData.eventsByAnalysis.get(analysis.getKey())
+      .stream()
+      .map(this::dbToWsEvent)
+      .forEach(analysis::addEvents);
+    return analysis;
+
   }
 
-  private Function<EventDto, Event.Builder> dbToWsEvent() {
-    return dbEvent -> {
-      Event.Builder wsEvent = eventBuilder.clear()
-        .setKey(dbEvent.getUuid());
-      setNullable(dbEvent.getName(), wsEvent::setName);
-      setNullable(dbEvent.getDescription(), wsEvent::setDescription);
-      setNullable(dbEvent.getCategory(), cat -> wsEvent.setCategory(fromLabel(cat).name()));
-      return wsEvent;
-    };
+  private Event.Builder dbToWsEvent(EventDto dbEvent) {
+    wsEvent.clear().setKey(dbEvent.getUuid());
+    setNullable(dbEvent.getName(), wsEvent::setName);
+    setNullable(dbEvent.getDescription(), wsEvent::setDescription);
+    setNullable(dbEvent.getCategory(), cat -> wsEvent.setCategory(fromLabel(cat).name()));
+
+    return wsEvent;
   }
 
-  private static Consumer<SearchResponse.Builder> addPagination(SearchResults searchResults) {
-    return response -> response.getPagingBuilder()
-      .setPageIndex(searchResults.paging.pageIndex())
-      .setPageSize(searchResults.paging.pageSize())
-      .setTotal(searchResults.paging.total())
+  private void addPagination(SearchResponse.Builder wsResponse) {
+    wsResponse.getPagingBuilder()
+      .setPageIndex(searchData.paging.pageIndex())
+      .setPageSize(searchData.paging.pageSize())
+      .setTotal(searchData.paging.total())
       .build();
   }
 

@@ -33,12 +33,16 @@ public class SearchRequest {
   private final EventCategory category;
   private final int page;
   private final int pageSize;
+  private final String from;
+  private final String to;
 
   private SearchRequest(Builder builder) {
     this.project = builder.project;
     this.category = builder.category;
     this.page = builder.page;
     this.pageSize = builder.pageSize;
+    this.from = builder.from;
+    this.to = builder.to;
   }
 
   public String getProject() {
@@ -58,6 +62,16 @@ public class SearchRequest {
     return pageSize;
   }
 
+  @CheckForNull
+  public String getFrom() {
+    return from;
+  }
+
+  @CheckForNull
+  public String getTo() {
+    return to;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -67,6 +81,8 @@ public class SearchRequest {
     private EventCategory category;
     private int page = 1;
     private int pageSize = DEFAULT_PAGE_SIZE;
+    private String from;
+    private String to;
 
     private Builder() {
       // enforce static factory method
@@ -89,6 +105,16 @@ public class SearchRequest {
 
     public Builder setPageSize(int pageSize) {
       this.pageSize = pageSize;
+      return this;
+    }
+
+    public Builder setFrom(@Nullable String from) {
+      this.from = from;
+      return this;
+    }
+
+    public Builder setTo(@Nullable String to) {
+      this.to = to;
       return this;
     }
 
