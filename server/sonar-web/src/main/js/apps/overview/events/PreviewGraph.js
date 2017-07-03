@@ -22,7 +22,7 @@ import React from 'react';
 import { map } from 'lodash';
 import { Link } from 'react-router';
 import { AutoSizer } from 'react-virtualized';
-import { generateSeries, GRAPHS_METRICS } from '../../projectActivity/utils';
+import { generateSeries, GRAPHS_METRICS_DISPLAYED } from '../../projectActivity/utils';
 import { getGraph } from '../../../helpers/storage';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -71,12 +71,12 @@ export default class PreviewGraph extends React.PureComponent {
     const measureHistory = map(history, (item, key) => ({
       metric: key,
       history: item.filter(p => p.value != null)
-    })).filter(item => GRAPHS_METRICS[graph].indexOf(item.metric) >= 0);
+    })).filter(item => GRAPHS_METRICS_DISPLAYED[graph].indexOf(item.metric) >= 0);
     return generateSeries(measureHistory, graph, metricsType);
   };
 
   getMetricType = (metrics: Array<Metric>, graph: string) => {
-    const metricKey = GRAPHS_METRICS[graph][0];
+    const metricKey = GRAPHS_METRICS_DISPLAYED[graph][0];
     const metric = metrics.find(metric => metric.key === metricKey);
     return metric ? metric.type : 'INT';
   };

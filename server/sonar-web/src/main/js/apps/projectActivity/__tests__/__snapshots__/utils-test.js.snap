@@ -86,14 +86,14 @@ Array [
           "date": 2017-05-16T05:09:59.000Z,
           "events": Array [
             Object {
-              "category": "QUALITY_PROFILE",
-              "key": "AVwQF7zXl-nNFgFWOJ3W",
-              "name": "Changes in 'Default - SonarSource conventions' (Java)",
-            },
-            Object {
               "category": "VERSION",
               "key": "AVyM9oI1HjR_PLDzRciU",
               "name": "1.0",
+            },
+            Object {
+              "category": "QUALITY_PROFILE",
+              "key": "AVwQF7zXl-nNFgFWOJ3W",
+              "name": "Changes in 'Default - SonarSource conventions' (Java)",
             },
           ],
           "key": "AVwQF7kwl-nNFgFWOJ3V",

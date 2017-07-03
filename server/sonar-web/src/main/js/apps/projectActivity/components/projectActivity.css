@@ -62,6 +62,35 @@
   text-align: center;
 }
 
+.project-activity-graph-tooltip {
+  padding: 8px;
+  pointer-events: none;
+}
+
+.project-activity-graph-tooltip-line {
+  height: 20px;
+  padding-bottom: 4px;
+}
+
+.project-activity-graph-tooltip-overview-line {
+  height: 26px;
+  padding-bottom: 4px;
+}
+
+.project-activity-graph-tooltip-separator {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.project-activity-graph-tooltip-separator hr {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.project-activity-graph-tooltip-title, .project-activity-graph-tooltip-value {
+  font-weight: bold;
+}
+
 .project-activity-days-list {}
 
 .project-activity-day {
@@ -87,6 +116,7 @@
   padding: 4px;
   border-top: 1px solid #e6e6e6;
   border-bottom: 1px solid #e6e6e6;
+  cursor: pointer;
 }
 
 .project-activity-analysis:hover {

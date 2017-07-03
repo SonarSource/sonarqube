@@ -19,41 +19,30 @@
  */
 // @flow
 import React from 'react';
-import { sortBy } from 'lodash';
-import Event from './Event';
-import type { Event as EventType } from '../types';
+import classNames from 'classnames';
+import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
+import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
-  analysis?: string,
-  canAdmin?: boolean,
-  changeEvent?: (event: string, name: string) => Promise<*>,
-  deleteEvent?: (analysis: string, event: string) => Promise<*>,
-  events: Array<EventType>,
-  isFirst?: boolean
+  serie: Serie & { translatedName: string },
+  value: string
 };
 
-export default function Events(props: Props) {
-  const sortedEvents = sortBy(
-    props.events,
-    // versions last
-    event => (event.category === 'VERSION' ? 1 : 0),
-    // then the rest sorted by category
-    'category'
-  );
-
+export default function GraphsTooltipsContent({ serie, value }: Props) {
   return (
-    <div className="project-activity-events">
-      {sortedEvents.map(event => (
-        <Event
-          analysis={props.analysis}
-          canAdmin={props.canAdmin}
-          changeEvent={props.changeEvent}
-          deleteEvent={props.deleteEvent}
-          event={event}
-          isFirst={props.isFirst}
-          key={event.key}
+    <tr key={serie.name} className="project-activity-graph-tooltip-line">
+      <td className="thin">
+        <ChartLegendIcon
+          className={classNames(
+            'spacer-right line-chart-legend',
+            'line-chart-legend-' + serie.style
+          )}
         />
-      ))}
-    </div>
+      </td>
+      <td className="project-activity-graph-tooltip-value text-right spacer-right thin">
+        {value}
+      </td>
+      <td>{serie.translatedName}</td>
+    </tr>
   );
 }
