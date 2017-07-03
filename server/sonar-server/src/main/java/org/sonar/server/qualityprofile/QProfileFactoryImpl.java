@@ -128,14 +128,16 @@ public class QProfileFactoryImpl implements QProfileFactory {
     db.qualityProfileDao().deleteOrgQProfilesByUuids(dbSession, uuids);
 
     // tables related to rules_profiles and active_rules are deleted
-    // only for custom profiles
+    // only for custom profiles. Built-in profiles are never
+    // deleted from table rules_profiles.
     if (!rulesProfileUuidsOfCustomProfiles.isEmpty()) {
       db.activeRuleDao().deleteParametersByRuleProfileUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
       db.activeRuleDao().deleteByRuleProfileUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
       db.qProfileChangeDao().deleteByRulesProfileUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
       db.qualityProfileDao().deleteRulesProfilesByUuids(dbSession, rulesProfileUuidsOfCustomProfiles);
+      activeRuleIndexer.commitDeletionOfProfiles(dbSession, customProfiles);
+    } else {
+      dbSession.commit();
     }
-    dbSession.commit();
-    activeRuleIndexer.deleteByProfiles(customProfiles);
   }
 }

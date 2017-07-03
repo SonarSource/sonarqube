@@ -43,6 +43,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -73,9 +74,9 @@ public class RecoveryIndexerTest {
   @Rule
   public TestRule safeguard = new DisableOnDebug(new Timeout(60, TimeUnit.SECONDS));
 
-
-  private RuleIndexer mockedRuleIndexer = mock(RuleIndexer.class);
   private UserIndexer mockedUserIndexer = mock(UserIndexer.class);
+  private RuleIndexer mockedRuleIndexer = mock(RuleIndexer.class);
+  private ActiveRuleIndexer mockedActiveRuleIndexer = mock(ActiveRuleIndexer.class);
   private RecoveryIndexer underTest;
 
   @After
@@ -103,7 +104,7 @@ public class RecoveryIndexerTest {
     Settings settings = new MapSettings()
       .setProperty("sonar.search.recovery.initialDelayInMs", "0")
       .setProperty("sonar.search.recovery.delayInMs", "1");
-    underTest = spy(new RecoveryIndexer(system2, settings, db.getDbClient(), mockedUserIndexer, mockedRuleIndexer));
+    underTest = spy(new RecoveryIndexer(system2, settings, db.getDbClient(), mockedUserIndexer, mockedRuleIndexer, mockedActiveRuleIndexer));
     AtomicInteger calls = new AtomicInteger(0);
     doAnswer(invocation -> {
       calls.incrementAndGet();
@@ -234,7 +235,7 @@ public class RecoveryIndexerTest {
   }
 
   @Test
-  public void stop_run_if_too_many_failures() throws Exception {
+  public void stop_run_if_too_many_failures() {
     IntStream.range(0, 10).forEach(i -> createUnindexedUser());
     advanceInTime();
 
@@ -254,7 +255,7 @@ public class RecoveryIndexerTest {
   }
 
   @Test
-  public void do_not_stop_run_if_success_rate_is_greater_than_ratio() throws Exception {
+  public void do_not_stop_run_if_success_rate_is_greater_than_ratio() {
     IntStream.range(0, 10).forEach(i -> createUnindexedUser());
     advanceInTime();
 
@@ -294,7 +295,7 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       called.addAll(items);
       return super.index(dbSession, items);
     }
@@ -308,7 +309,7 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       called.addAll(items);
       return super.index(dbSession, items);
     }
@@ -322,7 +323,7 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       called.addAll(items);
       throw new RuntimeException("boom");
     }
@@ -337,7 +338,7 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       try {
         if (counter.getCount() == 2) {
           throw new RuntimeException("boom");
@@ -358,15 +359,15 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      ResilientIndexerResult result = new ResilientIndexerResult();
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       List<EsQueueDto> filteredItems = items.stream().filter(
         i -> !i.getUuid().equals(failing.getUuid())).collect(toArrayList());
+      IndexingResult result = super.index(dbSession, filteredItems);
       if (items.contains(failing)) {
-        result.increaseFailure();
+        result.incrementRequests();
       }
 
-      return result.add(super.index(dbSession, filteredItems));
+      return result;
     }
   }
 
@@ -381,19 +382,17 @@ public class RecoveryIndexerTest {
     }
 
     @Override
-    public ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      System.out.println("called with " + items.size());
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
       called.addAll(items);
       int success = successfulReturns.next();
-      ResilientIndexerResult result = new ResilientIndexerResult();
+      IndexingResult result = new IndexingResult();
       items.stream().limit(success).forEach(i -> {
-        System.out.println(" + success");
         db.getDbClient().esQueueDao().delete(dbSession, i);
-        result.increaseSuccess();
+        result.incrementSuccess();
         indexed.add(i);
       });
 
-      rangeClosed(1, items.size() - success).forEach(i -> result.increaseFailure());
+      rangeClosed(1, items.size()).forEach(i -> result.incrementRequests());
       dbSession.commit();
       return result;
     }
@@ -434,7 +433,7 @@ public class RecoveryIndexerTest {
   }
 
   private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer, Settings settings) {
-    return new RecoveryIndexer(system2, settings, db.getDbClient(), userIndexer, ruleIndexer);
+    return new RecoveryIndexer(system2, settings, db.getDbClient(), userIndexer, ruleIndexer, mockedActiveRuleIndexer);
   }
 
   private EsQueueDto createUnindexedUser() {

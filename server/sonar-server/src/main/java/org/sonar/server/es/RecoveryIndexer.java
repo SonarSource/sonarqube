@@ -38,6 +38,7 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.index.UserIndexer;
 
@@ -66,15 +67,18 @@ public class RecoveryIndexer implements Startable {
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final RuleIndexer ruleIndexer;
+  private final ActiveRuleIndexer activeRuleIndexer;
   private final long minAgeInMs;
   private final long loopLimit;
 
-  public RecoveryIndexer(System2 system2, Settings settings, DbClient dbClient, UserIndexer userIndexer, RuleIndexer ruleIndexer) {
+  public RecoveryIndexer(System2 system2, Settings settings, DbClient dbClient,
+    UserIndexer userIndexer, RuleIndexer ruleIndexer, ActiveRuleIndexer activeRuleIndexer) {
     this.system2 = system2;
     this.settings = settings;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.ruleIndexer = ruleIndexer;
+    this.activeRuleIndexer = activeRuleIndexer;
     this.minAgeInMs = getSetting(PROPERTY_MIN_AGE, DEFAULT_MIN_AGE_IN_MS);
     this.loopLimit = getSetting(PROPERTY_LOOP_LIMIT, DEFAULT_LOOP_LIMIT);
   }
@@ -110,11 +114,11 @@ public class RecoveryIndexer implements Startable {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Profiler profiler = Profiler.create(LOGGER).start();
       long beforeDate = system2.now() - minAgeInMs;
-      ResilientIndexerResult result = new ResilientIndexerResult();
+      IndexingResult result = new IndexingResult();
 
       Collection<EsQueueDto> items = dbClient.esQueueDao().selectForRecovery(dbSession, beforeDate, loopLimit);
       while (!items.isEmpty()) {
-        ResilientIndexerResult loopResult = new ResilientIndexerResult();
+        IndexingResult loopResult = new IndexingResult();
 
         ListMultimap<EsQueueDto.Type, EsQueueDto> itemsByType = groupItemsByType(items);
         for (Map.Entry<EsQueueDto.Type, Collection<EsQueueDto>> entry : itemsByType.asMap().entrySet()) {
@@ -136,7 +140,7 @@ public class RecoveryIndexer implements Startable {
     }
   }
 
-  private ResilientIndexerResult doIndex(DbSession dbSession, EsQueueDto.Type type, Collection<EsQueueDto> typeItems) {
+  private IndexingResult doIndex(DbSession dbSession, EsQueueDto.Type type, Collection<EsQueueDto> typeItems) {
     LOGGER.trace(LOG_PREFIX + "processing {} {}", typeItems.size(), type);
     switch (type) {
       case USER:
@@ -144,9 +148,11 @@ public class RecoveryIndexer implements Startable {
       case RULE_EXTENSION:
       case RULE:
         return ruleIndexer.index(dbSession, typeItems);
+      case ACTIVE_RULE:
+        return activeRuleIndexer.index(dbSession, typeItems);
       default:
         LOGGER.error(LOG_PREFIX + "ignore {} documents with unsupported type {}", typeItems.size(), type);
-        return new ResilientIndexerResult();
+        return new IndexingResult();
     }
   }
 

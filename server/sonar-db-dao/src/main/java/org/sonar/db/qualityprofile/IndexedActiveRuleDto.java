@@ -17,13 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule.index;
+package org.sonar.db.qualityprofile;
 
-import java.util.Iterator;
+import javax.annotation.CheckForNull;
 
-public interface RuleIterator extends Iterator<RuleDocWithSystemScope>, AutoCloseable {
+public class IndexedActiveRuleDto {
+  private long id;
+  private int severity;
+  private String inheritance;
+  private String repository;
+  private String key;
+  private String ruleProfileUuid;
 
-  @Override
-  void close();
+  public long getId() {
+    return id;
+  }
 
+  public int getSeverity() {
+    return severity;
+  }
+
+  @CheckForNull
+  public String getInheritance() {
+    return inheritance;
+  }
+
+  public String getRepository() {
+    return repository;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  public String getRuleProfileUuid() {
+    return ruleProfileUuid;
+  }
 }

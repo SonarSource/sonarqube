@@ -37,5 +37,5 @@ public interface ResilientIndexer {
    * @param items     the items to be indexed
    * @return the number of successful indexation
    */
-  ResilientIndexerResult index(DbSession dbSession, Collection<EsQueueDto> items);
+  IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items);
 }

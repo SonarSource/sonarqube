@@ -62,8 +62,7 @@ public class BuiltInQProfileUpdateImpl implements BuiltInQProfileUpdate {
     toBeDeactivated.forEach(ruleKey ->
       changes.addAll(ruleActivator.deactivateOnBuiltInRulesProfile(dbSession, ruleProfile, ruleKey, false)));
 
-    dbSession.commit();
-    activeRuleIndexer.indexChanges(dbSession, changes);
+    activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;
   }
 

@@ -40,7 +40,7 @@ public class RuleForIndexingDto {
   private boolean isTemplate;
   private String systemTags;
   private String templateRuleKey;
-  private String templateName;
+  private String templateRepository;
   private String internalKey;
   private String language;
   private int type;
@@ -93,8 +93,8 @@ public class RuleForIndexingDto {
     return templateRuleKey;
   }
 
-  public String getTemplateName() {
-    return templateName;
+  public String getTemplateRepository() {
+    return templateRepository;
   }
 
   public String getInternalKey() {

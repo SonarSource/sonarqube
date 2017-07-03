@@ -25,12 +25,12 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.db.es.RuleExtensionId;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.es.RuleExtensionId;
 import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -152,22 +152,36 @@ public class RuleDao implements Dao {
     }
   }
 
-  public void scrollRuleExtensionByRuleKeys(DbSession dbSession, Collection<RuleExtensionId> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
+  public void scrollIndexingRuleExtensionsByIds(DbSession dbSession, Collection<RuleExtensionId> ruleExtensionIds, Consumer<RuleExtensionForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
 
     executeLargeInputsWithoutOutput(ruleExtensionIds,
       pageOfRuleExtensionIds -> mapper
-        .selectRuleExtensionForIndexingByKeys(pageOfRuleExtensionIds)
+        .selectIndexingRuleExtensionsByIds(pageOfRuleExtensionIds)
         .forEach(consumer));
   }
 
-  public void scrollRuleByRuleKeys(DbSession dbSession, Collection<RuleKey> ruleKeys, Consumer<RuleForIndexingDto> consumer) {
+  public void scrollIndexingRuleExtensions(DbSession dbSession, Consumer<RuleExtensionForIndexingDto> consumer) {
+    mapper(dbSession).scrollIndexingRuleExtensions(context -> {
+      RuleExtensionForIndexingDto dto = (RuleExtensionForIndexingDto) context.getResultObject();
+      consumer.accept(dto);
+    });
+  }
+
+  public void scrollIndexingRulesByKeys(DbSession dbSession, Collection<RuleKey> ruleKeys, Consumer<RuleForIndexingDto> consumer) {
     RuleMapper mapper = mapper(dbSession);
 
     executeLargeInputsWithoutOutput(ruleKeys,
       pageOfRuleKeys -> mapper
-        .selectRuleForIndexingByKeys(pageOfRuleKeys)
+        .selectIndexingRulesByKeys(pageOfRuleKeys)
         .forEach(consumer));
+  }
+
+  public void scrollIndexingRules(DbSession dbSession, Consumer<RuleForIndexingDto> consumer) {
+    mapper(dbSession).scrollIndexingRules(context -> {
+      RuleForIndexingDto dto = (RuleForIndexingDto) context.getResultObject();
+      consumer.accept(dto);
+    });
   }
 
   private static RuleMapper mapper(DbSession session) {

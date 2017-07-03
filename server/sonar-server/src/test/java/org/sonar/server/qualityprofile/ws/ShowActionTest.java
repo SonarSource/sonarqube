@@ -35,7 +35,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -73,7 +72,7 @@ public class ShowActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client(), new ActiveRuleIteratorFactory(db.getDbClient()));
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private RuleIndex ruleIndex = new RuleIndex(es.client());
 
   private WsActionTester ws = new WsActionTester(

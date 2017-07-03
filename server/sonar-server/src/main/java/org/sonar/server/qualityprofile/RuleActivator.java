@@ -83,6 +83,12 @@ public class RuleActivator {
     return doActivate(dbSession, activation, context);
   }
 
+  public List<ActiveRuleChange> activateAndCommit(DbSession dbSession, RuleActivation activation, QProfileDto profile) {
+    List<ActiveRuleChange> changes = activate(dbSession, activation, profile);
+    activeRuleIndexer.commitAndIndex(dbSession, changes);
+    return changes;
+  }
+
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QProfileDto profile) {
     RuleActivatorContext context = contextFactory.create(dbSession, activation.getRuleKey(), profile, false);
     return doActivate(dbSession, activation, context);
@@ -333,10 +339,9 @@ public class RuleActivator {
    * Deactivate a rule on a Quality profile. Does nothing if the rule is not activated, but
    * fails (fast) if the rule or the profile does not exist.
    */
-  public void deactivateAndUpdateIndex(DbSession dbSession, QProfileDto profile, RuleKey ruleKey) {
+  public void deactivateAndCommit(DbSession dbSession, QProfileDto profile, RuleKey ruleKey) {
     List<ActiveRuleChange> changes = deactivate(dbSession, profile, ruleKey);
-    dbSession.commit();
-    activeRuleIndexer.indexChanges(dbSession, changes);
+    activeRuleIndexer.commitAndIndex(dbSession, changes);
   }
 
   /**
@@ -418,7 +423,7 @@ public class RuleActivator {
     return value;
   }
 
-  public BulkChangeResult bulkActivate(DbSession dbSession, RuleQuery ruleQuery, QProfileDto profile, @Nullable String severity) {
+  public BulkChangeResult bulkActivateAndCommit(DbSession dbSession, RuleQuery ruleQuery, QProfileDto profile, @Nullable String severity) {
     BulkChangeResult result = new BulkChangeResult();
     Iterator<RuleKey> rules = ruleIndex.searchAll(ruleQuery);
     while (rules.hasNext()) {
@@ -437,12 +442,11 @@ public class RuleActivator {
         result.getErrors().addAll(e.errors());
       }
     }
-    dbSession.commit();
-    activeRuleIndexer.indexChanges(dbSession, result.getChanges());
+    activeRuleIndexer.commitAndIndex(dbSession, result.getChanges());
     return result;
   }
 
-  public BulkChangeResult bulkDeactivate(DbSession dbSession, RuleQuery ruleQuery, QProfileDto profile) {
+  public BulkChangeResult bulkDeactivateAndCommit(DbSession dbSession, RuleQuery ruleQuery, QProfileDto profile) {
     BulkChangeResult result = new BulkChangeResult();
     Iterator<RuleKey> rules = ruleIndex.searchAll(ruleQuery);
     while (rules.hasNext()) {
@@ -459,12 +463,11 @@ public class RuleActivator {
         result.getErrors().addAll(e.errors());
       }
     }
-    dbSession.commit();
-    activeRuleIndexer.indexChanges(dbSession, result.getChanges());
+    activeRuleIndexer.commitAndIndex(dbSession, result.getChanges());
     return result;
   }
 
-  public List<ActiveRuleChange> setParent(DbSession dbSession, QProfileDto profile, @Nullable QProfileDto parent) {
+  public List<ActiveRuleChange> setParentAndCommit(DbSession dbSession, QProfileDto profile, @Nullable QProfileDto parent) {
     checkRequest(
       parent == null || profile.getLanguage().equals(parent.getLanguage()),
       "Cannot set the profile '%s' as the parent of profile '%s' since their languages differ ('%s' != '%s')",
@@ -492,8 +495,7 @@ public class RuleActivator {
         }
       }
     }
-    dbSession.commit();
-    activeRuleIndexer.indexChanges(dbSession, changes);
+    activeRuleIndexer.commitAndIndex(dbSession, changes);
     return changes;
   }
 

@@ -49,7 +49,10 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -285,17 +288,17 @@ public class QProfileFactoryImplTest {
   }
 
   private void verifyNoCallsActiveRuleIndexerDelete() {
-    verifyCallActiveRuleIndexerDelete();
+    verify(activeRuleIndexer, never()).commitDeletionOfProfiles(any(DbSession.class), anyCollection());
   }
 
-  private void verifyCallActiveRuleIndexerDelete(String... expectedProfileUuids) {
+  private void verifyCallActiveRuleIndexerDelete(String... expectedRuleProfileUuids) {
     Class<Set<QProfileDto>> setClass = (Class<Set<QProfileDto>>) (Class) Set.class;
     ArgumentCaptor<Set<QProfileDto>> setCaptor = ArgumentCaptor.forClass(setClass);
-    verify(activeRuleIndexer).deleteByProfiles(setCaptor.capture());
+    verify(activeRuleIndexer).commitDeletionOfProfiles(any(DbSession.class), setCaptor.capture());
 
     assertThat(setCaptor.getValue())
       .extracting(QProfileDto::getKee)
-      .containsExactlyInAnyOrder(expectedProfileUuids);
+      .containsExactlyInAnyOrder(expectedRuleProfileUuids);
   }
 
   private void assertThatRulesProfileExists(RulesProfileDto rulesProfile) {
@@ -325,14 +328,6 @@ public class QProfileFactoryImplTest {
     assertThat(db.countSql(dbSession, "select count(*) from active_rules where profile_id = " + profile.getId())).isGreaterThan(0);
     assertThat(db.countSql(dbSession, "select count(*) from qprofile_changes where rules_profile_uuid = '" + profile.getRulesProfileUuid() + "'")).isGreaterThan(0);
     // TODO active_rule_parameters
-  }
-
-  private void assertThatCustomProfileIsDefault(OrganizationDto org, QProfileDto profile) {
-    assertThat(db.getDbClient().qualityProfileDao().selectDefaultProfile(dbSession, org, profile.getLanguage())).isEqualTo(profile.getKee());
-  }
-
-  private void assertThatCustomProfileIsAssociatedToProject(OrganizationDto org, QProfileDto profile) {
-    assertThat(db.getDbClient().qualityProfileDao().selectProjectAssociations(dbSession, org, profile, null)).isNotEmpty();
   }
 
   private static void assertEqual(QProfileDto p1, QProfileDto p2) {

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import java.util.List;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -30,10 +29,8 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
 
 import static java.lang.String.format;
@@ -51,14 +48,12 @@ public class ActivateRuleAction implements QProfileWsAction {
   private final RuleActivator ruleActivator;
   private final UserSession userSession;
   private final QProfileWsSupport wsSupport;
-  private final ActiveRuleIndexer activeRuleIndexer;
 
-  public ActivateRuleAction(DbClient dbClient, RuleActivator ruleActivator, UserSession userSession, QProfileWsSupport wsSupport, ActiveRuleIndexer activeRuleIndexer) {
+  public ActivateRuleAction(DbClient dbClient, RuleActivator ruleActivator, UserSession userSession, QProfileWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.userSession = userSession;
     this.wsSupport = wsSupport;
-    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   public void define(WebService.NewController controller) {
@@ -104,9 +99,7 @@ public class ActivateRuleAction implements QProfileWsAction {
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
       RuleActivation activation = readActivation(request);
-      List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profile);
-      dbSession.commit();
-      activeRuleIndexer.indexChanges(dbSession, changes);
+      ruleActivator.activateAndCommit(dbSession, activation, profile);
     }
 
     response.noContent();

@@ -84,8 +84,7 @@ public class QProfileResetImpl implements QProfileReset {
         // ignore, probably a rule inherited from parent that can't be deactivated
       }
     }
-    dbSession.commit();
-    activeRuleIndexer.indexChanges(dbSession, changes);
+    activeRuleIndexer.commitAndIndex(dbSession, changes);
     return result;
   }
 

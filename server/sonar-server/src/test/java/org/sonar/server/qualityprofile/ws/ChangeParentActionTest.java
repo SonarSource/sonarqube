@@ -53,7 +53,6 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -104,7 +103,7 @@ public class ChangeParentActionTest {
     EsClient esClient = esTester.client();
     ruleIndex = new RuleIndex(esClient);
     ruleIndexer = new RuleIndexer(esClient, dbClient);
-    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
     ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, ruleIndex, ruleActivatorContextFactory, typeValidations, activeRuleIndexer, userSessionRule);
@@ -191,7 +190,7 @@ public class ChangeParentActionTest {
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent 1
-    ruleActivator.setParent(dbSession, child, parent1);
+    ruleActivator.setParentAndCommit(dbSession, child, parent1);
 
     // Set parent 2 through WS
     ws.newRequest()
@@ -219,7 +218,7 @@ public class ChangeParentActionTest {
     activeRuleIndexer.indexOnStartup(emptySet());
 
     // Set parent
-    ruleActivator.setParent(dbSession, child, parent);
+    ruleActivator.setParentAndCommit(dbSession, child, parent);
 
     // Remove parent through WS
     ws.newRequest()
@@ -308,7 +307,7 @@ public class ChangeParentActionTest {
     assertThat(dbClient.activeRuleDao().selectByProfileUuid(dbSession, child.getKee())).isEmpty();
 
     // Set parent
-    ruleActivator.setParent(dbSession, child, parent);
+    ruleActivator.setParentAndCommit(dbSession, child, parent);
 
     // Remove parent
     ws.newRequest()

@@ -44,7 +44,6 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 
 import static com.google.common.collect.ImmutableSet.of;
 import static java.util.Arrays.asList;
@@ -104,7 +103,7 @@ public class RuleIndexTest {
   @Before
   public void setUp() {
     ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-    activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client(), new ActiveRuleIteratorFactory(db.getDbClient()));
+    activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
     underTest = new RuleIndex(es.client());
   }
 

@@ -143,7 +143,7 @@ public class DeactivateRuleActionTest {
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleKey> ruleKeyCaptor = ArgumentCaptor.forClass(RuleKey.class);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
+    verify(ruleActivator).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), ruleKeyCaptor.capture());
     assertThat(ruleKeyCaptor.getValue()).isEqualTo(ruleKey);
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }
@@ -164,7 +164,7 @@ public class DeactivateRuleActionTest {
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleKey> captor = ArgumentCaptor.forClass(RuleKey.class);
     ArgumentCaptor<QProfileDto> qProfileDtoCaptor = ArgumentCaptor.forClass(QProfileDto.class);
-    verify(ruleActivator).deactivateAndUpdateIndex(any(DbSession.class), qProfileDtoCaptor.capture(), captor.capture());
+    verify(ruleActivator).deactivateAndCommit(any(DbSession.class), qProfileDtoCaptor.capture(), captor.capture());
     assertThat(captor.getValue()).isEqualTo(ruleKey);
     assertThat(qProfileDtoCaptor.getValue().getKee()).isEqualTo(qualityProfile.getKee());
   }

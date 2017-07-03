@@ -52,9 +52,13 @@ public interface RuleMapper {
 
   List<RuleDefinitionDto> selectDefinitionByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
-  List<RuleForIndexingDto> selectRuleForIndexingByKeys(@Param("ruleKeys") List<RuleKey> keys);
+  void scrollIndexingRules(ResultHandler handler);
 
-  List<RuleExtensionForIndexingDto> selectRuleExtensionForIndexingByKeys(@Param("ruleExtensionIds") List<RuleExtensionId> ruleExtensionIds);
+  List<RuleForIndexingDto> selectIndexingRulesByKeys(@Param("ruleKeys") List<RuleKey> keys);
+
+  void scrollIndexingRuleExtensions(ResultHandler handler);
+
+  List<RuleExtensionForIndexingDto> selectIndexingRuleExtensionsByIds(@Param("ruleExtensionIds") List<RuleExtensionId> ruleExtensionIds);
 
   List<RuleDto> selectByQuery(@Param("organizationUuid") String organizationUuid, @Param("query") RuleQuery ruleQuery);
 

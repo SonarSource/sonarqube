@@ -87,7 +87,7 @@ public class ActivateRulesAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, fromKey(qualityProfileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
-      result = ruleActivator.bulkActivate(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile, request.param(PARAM_TARGET_SEVERITY));
+      result = ruleActivator.bulkActivateAndCommit(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile, request.param(PARAM_TARGET_SEVERITY));
     }
 
     writeResponse(result, response);

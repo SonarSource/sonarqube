@@ -20,40 +20,44 @@
 
 package org.sonar.server.es;
 
-/**
- * The type Resilient indexer result.
- */
-public class ResilientIndexerResult {
-  private long total = 0L;
-  private long failures = 0L;
+import java.util.concurrent.atomic.AtomicLong;
 
-  public ResilientIndexerResult clear() {
-    total = 0L;
-    failures = 0L;
+public class IndexingResult {
+
+  // FIXME should be private
+  AtomicLong total = new AtomicLong(0L);
+  private long successes = 0L;
+
+  IndexingResult clear() {
+    total.set(0L);
+    successes = 0L;
     return this;
   }
 
-  public ResilientIndexerResult increaseFailure() {
-    failures += 1;
-    total += 1;
+  void incrementRequests() {
+    total.incrementAndGet();
+  }
+
+  IndexingResult incrementSuccess() {
+    successes += 1;
     return this;
   }
 
-  public ResilientIndexerResult increaseSuccess() {
-    total += 1;
-    return this;
+  public void add(IndexingResult other) {
+    total.addAndGet(other.total.get());
+    successes += other.successes;
   }
 
   public long getFailures() {
-    return failures;
+    return total.get() - successes;
   }
 
   public long getTotal() {
-    return total;
+    return total.get();
   }
 
   public long getSuccess() {
-    return total - failures;
+    return successes;
   }
 
   /**
@@ -62,16 +66,10 @@ public class ResilientIndexerResult {
    * @see {@link RecoveryIndexer#recover()}
    */
   public double getFailureRatio() {
-    return total == 0 ? 1 : 1.0d * failures / total;
+    return total.get() == 0 ? 1 : (1.0d * getFailures()) / total.get();
   }
 
-  public double getSuccessRatio() {
-    return total == 0 ? 0 : 1 -  1.0d * failures / total;
-  }
-
-  public ResilientIndexerResult add(ResilientIndexerResult other) {
-    this.total += other.getTotal();
-    this.failures += other.getFailures();
-    return this;
+  public boolean isSuccess() {
+    return total.get() == successes;
   }
 }

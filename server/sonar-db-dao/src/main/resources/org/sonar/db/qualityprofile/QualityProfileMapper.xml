@@ -109,6 +109,12 @@
     where rp.is_built_in = ${_true}
   </select>
 
+  <select id="selectRuleProfile" resultType="org.sonar.db.qualityprofile.RulesProfileDto">
+    select <include refid="ruleProfileColumns"/>
+    from rules_profiles rp
+    where rp.kee = #{uuid, jdbcType=VARCHAR}
+  </select>
+
   <select id="selectOrderedByOrganizationUuid" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileDto">
     select
     <include refid="qProfileColumns"/>

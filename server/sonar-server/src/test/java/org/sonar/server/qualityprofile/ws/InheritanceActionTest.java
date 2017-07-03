@@ -50,7 +50,6 @@ import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -92,7 +91,7 @@ public class InheritanceActionTest {
     dbSession = dbTester.getSession();
     esClient = es.client();
     ruleIndexer = new RuleIndexer(esClient, dbClient);
-    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     underTest = new InheritanceAction(
       dbClient,
@@ -251,7 +250,7 @@ public class InheritanceActionTest {
   }
 
   private void setParent(QProfileDto profile, QProfileDto parent) {
-    ruleActivator.setParent(dbSession, parent, profile);
+    ruleActivator.setParentAndCommit(dbSession, parent, profile);
   }
 
   private RuleDefinitionDto createRule(String lang, String id) {

@@ -82,10 +82,13 @@ public class BulkIndexerTest {
     for (int i = 0; i < 10; i++) {
       indexer.add(newIndexRequest(i));
     }
-    indexer.stop();
+    IndexingResult result = indexer.stop();
 
+    assertThat(result.isSuccess()).isTrue();
+    assertThat(result.getSuccess()).isEqualTo(10);
+    assertThat(result.getFailures()).isEqualTo(0);
+    assertThat(result.getTotal()).isEqualTo(10);
     assertThat(count()).isEqualTo(10);
-
     // replicas are re-enabled
     assertThat(replicas()).isEqualTo(1);
   }

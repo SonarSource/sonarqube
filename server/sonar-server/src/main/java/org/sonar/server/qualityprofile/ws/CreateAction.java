@@ -132,8 +132,7 @@ public class CreateAction implements QProfileWsAction {
         result.add(exporters.importXml(profile, importerKey, contentToImport, dbSession));
       }
     }
-    dbSession.commit();
-    activeRuleIndexer.indexChanges(dbSession, result.getChanges());
+    activeRuleIndexer.commitAndIndex(dbSession, result.getChanges());
     return buildResponse(result, organization);
   }
 

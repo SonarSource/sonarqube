@@ -17,24 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.es;
 
-package org.sonar.server.rule.index;
+import java.util.Collection;
 
-public class RuleDocWithSystemScope {
+public interface IndexingListener {
 
-  private final RuleDoc ruleDoc;
-  private final RuleExtensionDoc ruleExtensionDoc;
+  void onSuccess(Collection<String> docIds);
 
-  public RuleDocWithSystemScope(RuleDoc ruleDoc, RuleExtensionDoc ruleExtensionDoc) {
-    this.ruleDoc = ruleDoc;
-    this.ruleExtensionDoc = ruleExtensionDoc;
-  }
-
-  public RuleDoc getRuleDoc() {
-    return ruleDoc;
-  }
-
-  public RuleExtensionDoc getRuleExtensionDoc() {
-    return ruleExtensionDoc;
+  static IndexingListener noop() {
+    return docIds -> {};
   }
 }

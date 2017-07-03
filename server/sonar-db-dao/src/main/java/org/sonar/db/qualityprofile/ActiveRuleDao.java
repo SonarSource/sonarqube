@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -31,6 +32,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleParamDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 import static org.sonar.db.KeyLongValue.toMap;
 
 public class ActiveRuleDao implements Dao {
@@ -168,6 +170,30 @@ public class ActiveRuleDao implements Dao {
   public Map<String, Long> countActiveRulesByQuery(DbSession dbSession, ActiveRuleCountQuery query) {
     return toMap(executeLargeInputs(query.getProfileUuids(),
       partition -> mapper(dbSession).countActiveRulesByQuery(query.getOrganization().getUuid(), partition, query.getRuleStatus(), query.getInheritance())));
+  }
+
+  public void scrollAllForIndexing(DbSession dbSession, Consumer<IndexedActiveRuleDto> consumer) {
+    mapper(dbSession).scrollAllForIndexing(context -> {
+      IndexedActiveRuleDto dto = (IndexedActiveRuleDto) context.getResultObject();
+      consumer.accept(dto);
+    });
+  }
+
+  public void scrollByIdsForIndexing(DbSession dbSession, Collection<Long> ids, Consumer<IndexedActiveRuleDto> consumer) {
+    ActiveRuleMapper mapper = mapper(dbSession);
+    executeLargeInputsWithoutOutput(ids,
+      pageOfIds -> mapper
+        .scrollByIdsForIndexing(pageOfIds, context -> {
+          IndexedActiveRuleDto dto = (IndexedActiveRuleDto) context.getResultObject();
+          consumer.accept(dto);
+        }));
+  }
+
+  public void scrollByRuleProfileForIndexing(DbSession dbSession, String ruleProfileUuid, Consumer<IndexedActiveRuleDto> consumer) {
+    mapper(dbSession).scrollByRuleProfileUuidForIndexing(ruleProfileUuid, context -> {
+      IndexedActiveRuleDto dto = (IndexedActiveRuleDto) context.getResultObject();
+      consumer.accept(dto);
+    });
   }
 
   private static ActiveRuleMapper mapper(DbSession dbSession) {

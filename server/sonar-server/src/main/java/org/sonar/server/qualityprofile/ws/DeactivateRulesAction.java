@@ -80,7 +80,7 @@ public class DeactivateRulesAction implements QProfileWsAction {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(qualityProfileKey));
       wsSupport.checkPermission(dbSession, profile);
       wsSupport.checkNotBuiltInt(profile);
-      result = ruleActivator.bulkDeactivate(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile);
+      result = ruleActivator.bulkDeactivateAndCommit(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile);
     }
     writeResponse(result, response);
   }

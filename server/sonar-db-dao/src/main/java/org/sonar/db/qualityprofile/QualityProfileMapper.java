@@ -42,6 +42,9 @@ public interface QualityProfileMapper {
 
   List<RulesProfileDto> selectBuiltInRuleProfiles();
 
+  @CheckForNull
+  RulesProfileDto selectRuleProfile(@Param("uuid") String ruleProfileUuid);
+
   List<QProfileDto> selectOrderedByOrganizationUuid(@Param("organizationUuid") String organizationUuid);
 
   @CheckForNull

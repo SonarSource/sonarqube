@@ -44,7 +44,6 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.text.MacroInterpreter;
@@ -150,7 +149,7 @@ public class ShowActionTest {
       .build();
     Mockito.doReturn(singletonList(active)).when(activeRuleCompleter).completeShow(any(DbSession.class), orgCaptor.capture(), ruleCaptor.capture());
 
-    ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
+    ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
     TestResponse response = actionTester.newRequest().setMethod("GET")
@@ -185,7 +184,7 @@ public class ShowActionTest {
     RuleMetadataDto ruleMetadata = dbTester.rules().insertOrUpdateMetadata(rule, organization);
 
     dbTester.qualityProfiles().activateRule(profile, rule, a -> a.setSeverity("BLOCKER"));
-    ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient, new ActiveRuleIteratorFactory(dbClient));
+    ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     activeRuleIndexer.indexOnStartup(activeRuleIndexer.getIndexTypes());
 
     TestResponse response = actionTester.newRequest().setMethod("GET")

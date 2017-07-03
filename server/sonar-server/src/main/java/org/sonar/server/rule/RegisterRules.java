@@ -131,7 +131,7 @@ public class RegisterRules implements Startable {
 
       persistRepositories(dbSession, context.repositories());
       ruleIndexer.commitAndIndex(dbSession, keysToIndex);
-      activeRuleIndexer.indexChanges(dbSession, changes);
+      activeRuleIndexer.commitAndIndex(dbSession, changes);
       profiler.stopDebug();
 
       webServerRuleFinder.startCaching();

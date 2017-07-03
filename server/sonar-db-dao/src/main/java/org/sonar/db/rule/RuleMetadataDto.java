@@ -135,6 +135,10 @@ public class RuleMetadataDto {
     return tags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
   }
 
+  String getTagsAsString() {
+    return tags;
+  }
+
   public RuleMetadataDto setTags(Set<String> tags) {
     String raw = tags.isEmpty() ? null : StringUtils.join(tags, ',');
     checkArgument(raw == null || raw.length() <= 4000, "Rule tags are too long: %s", raw);

@@ -22,7 +22,7 @@ package org.sonar.server.rule.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.MapSettings;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -56,7 +56,7 @@ public class DeleteActionTest {
   @Rule
   public DbTester dbTester = DbTester.create();
   @Rule
-  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings()));
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 

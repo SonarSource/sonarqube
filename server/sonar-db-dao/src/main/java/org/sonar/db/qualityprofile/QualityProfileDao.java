@@ -74,6 +74,11 @@ public class QualityProfileDao implements Dao {
     return mapper(dbSession).selectBuiltInRuleProfiles();
   }
 
+  @CheckForNull
+  public RulesProfileDto selectRuleProfile(DbSession dbSession, String ruleProfileUuid) {
+    return mapper(dbSession).selectRuleProfile(ruleProfileUuid);
+  }
+
   public void insert(DbSession dbSession, RulesProfileDto dto) {
     QualityProfileMapper mapper = mapper(dbSession);
     mapper.insertRuleProfile(dto, new Date(system.now()));

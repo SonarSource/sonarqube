@@ -7,6 +7,8 @@
     uuid,
     doc_type as docType,
     doc_id as docId,
+    doc_id_type as docIdType,
+    doc_routing as docRouting,
     created_at as createdAt
   </sql>
 
@@ -15,11 +17,15 @@
       uuid,
       doc_type,
       doc_id,
+      doc_id_type,
+      doc_routing,
       created_at
     ) values (
       #{dto.uuid, jdbcType=VARCHAR},
       #{dto.docType, jdbcType=VARCHAR},
       #{dto.docId, jdbcType=VARCHAR},
+      #{dto.docIdType, jdbcType=VARCHAR},
+      #{dto.docRouting, jdbcType=VARCHAR},
       #{now, jdbcType=BIGINT}
     )
   </insert>

@@ -81,19 +81,19 @@ public class BuiltInQProfileInsertImpl implements BuiltInQProfileInsert {
     Date now = new Date(system2.now());
     RulesProfileDto ruleProfile = insertRulesProfile(dbSession, builtInQProfile, now);
 
-    List<ActiveRuleChange> localChanges = builtInQProfile.getActiveRules()
+    List<ActiveRuleChange> changes = builtInQProfile.getActiveRules()
       .stream()
       .map(activeRule -> insertActiveRule(dbSession, ruleProfile, activeRule, now.getTime()))
       .collect(MoreCollectors.toList());
 
-    localChanges.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
+    changes.forEach(change -> dbClient.qProfileChangeDao().insert(batchDbSession, change.toDto(null)));
 
     associateToOrganizations(dbSession, batchDbSession, builtInQProfile, ruleProfile);
 
-    dbSession.commit();
+    // TODO batch statements should be executed through dbSession
     batchDbSession.commit();
 
-    activeRuleIndexer.indexRuleProfile(dbSession, ruleProfile);
+    activeRuleIndexer.commitAndIndex(dbSession, changes);
   }
 
   private void associateToOrganizations(DbSession dbSession, DbSession batchDbSession, BuiltInQProfile builtIn, RulesProfileDto rulesProfileDto) {

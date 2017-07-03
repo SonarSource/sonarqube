@@ -53,7 +53,6 @@ import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -93,7 +92,7 @@ public class CreateActionTest {
   private DbSession dbSession = db.getSession();
   private RuleIndex ruleIndex = new RuleIndex(es.client());
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
-  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client(), new ActiveRuleIteratorFactory(dbClient));
+  private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private ProfileImporter[] profileImporters = createImporters();
   private QProfileExporters qProfileExporters = new QProfileExporters(dbClient, null,
     new RuleActivator(mock(System2.class), dbClient, ruleIndex, new RuleActivatorContextFactory(dbClient), null, activeRuleIndexer, userSession),

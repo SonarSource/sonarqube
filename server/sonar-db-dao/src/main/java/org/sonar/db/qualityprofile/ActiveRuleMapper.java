@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.KeyLongValue;
 
@@ -73,4 +74,9 @@ public interface ActiveRuleMapper {
   List<KeyLongValue> countActiveRulesByQuery(@Param("organizationUuid") String organizationUuid, @Param("profileUuids") List<String> profileUuids,
     @Nullable @Param("ruleStatus") RuleStatus ruleStatus, @Param("inheritance") String inheritance);
 
+  void scrollAllForIndexing(ResultHandler handler);
+
+  void scrollByIdsForIndexing(@Param("ids") Collection<Long> ids, ResultHandler handler);
+
+  void scrollByRuleProfileUuidForIndexing(@Param("ruleProfileUuid") String ruleProfileUuid, ResultHandler handler);
 }

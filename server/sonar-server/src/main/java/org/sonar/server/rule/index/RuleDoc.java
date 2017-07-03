@@ -204,32 +204,32 @@ public class RuleDoc extends BaseDoc {
     return ReflectionToStringBuilder.toString(this);
   }
 
-  public static RuleDoc of(RuleForIndexingDto ruleForIndexingDto) {
+  public static RuleDoc of(RuleForIndexingDto dto) {
     RuleDoc ruleDoc = new RuleDoc()
-      .setKey(ruleForIndexingDto.getRuleKey().toString())
-      .setRepository(ruleForIndexingDto.getRepository())
-      .setInternalKey(ruleForIndexingDto.getInternalKey())
-      .setIsTemplate(ruleForIndexingDto.isTemplate())
-      .setLanguage(ruleForIndexingDto.getLanguage())
-      .setName(ruleForIndexingDto.getName())
-      .setRuleKey(ruleForIndexingDto.getPluginRuleKey())
-      .setSeverity(ruleForIndexingDto.getSeverityAsString())
-      .setStatus(ruleForIndexingDto.getStatus().toString())
-      .setType(ruleForIndexingDto.getTypeAsRuleType())
-      .setCreatedAt(ruleForIndexingDto.getCreatedAt())
-      .setUpdatedAt(ruleForIndexingDto.getUpdatedAt());
+      .setKey(dto.getRuleKey().toString())
+      .setRepository(dto.getRepository())
+      .setInternalKey(dto.getInternalKey())
+      .setIsTemplate(dto.isTemplate())
+      .setLanguage(dto.getLanguage())
+      .setName(dto.getName())
+      .setRuleKey(dto.getPluginRuleKey())
+      .setSeverity(dto.getSeverityAsString())
+      .setStatus(dto.getStatus().toString())
+      .setType(dto.getTypeAsRuleType())
+      .setCreatedAt(dto.getCreatedAt())
+      .setUpdatedAt(dto.getUpdatedAt());
 
-    if (ruleForIndexingDto.getPluginRuleKey() != null && ruleForIndexingDto.getRepository() != null) {
-      ruleDoc.setTemplateKey(RuleKey.of(ruleForIndexingDto.getPluginRuleKey(), ruleForIndexingDto.getRepository()).toString());
+    if (dto.getTemplateRuleKey() != null && dto.getTemplateRepository() != null) {
+      ruleDoc.setTemplateKey(RuleKey.of(dto.getTemplateRepository(), dto.getTemplateRuleKey()).toString());
     } else {
       ruleDoc.setTemplateKey(null);
     }
 
-    if (ruleForIndexingDto.getDescription() != null && ruleForIndexingDto.getDescriptionFormat() != null) {
-      if (RuleDto.Format.HTML == ruleForIndexingDto.getDescriptionFormat()) {
-        ruleDoc.setHtmlDescription(ruleForIndexingDto.getDescription());
+    if (dto.getDescription() != null && dto.getDescriptionFormat() != null) {
+      if (RuleDto.Format.HTML == dto.getDescriptionFormat()) {
+        ruleDoc.setHtmlDescription(dto.getDescription());
       } else {
-        ruleDoc.setHtmlDescription(Markdown.convertToHtml(ruleForIndexingDto.getDescription()));;
+        ruleDoc.setHtmlDescription(Markdown.convertToHtml(dto.getDescription()));
       }
     }
     return ruleDoc;

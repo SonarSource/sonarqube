@@ -272,5 +272,32 @@
     group by oqp.uuid
   </select>
 
+  <select id="scrollAllForIndexing" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    <include refid="scrollAllForIndexingSql"/>
+  </select>
+
+  <select id="scrollByIdsForIndexing" parameterType="map" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    <include refid="scrollAllForIndexingSql"/>
+    where ar.id in
+    <foreach collection="ids" open="(" close=")" item="id" separator=",">#{id, jdbcType=BIGINT}</foreach>
+  </select>
+
+  <select id="scrollByRuleProfileUuidForIndexing" parameterType="String" resultType="org.sonar.db.qualityprofile.IndexedActiveRuleDto" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+    <include refid="scrollAllForIndexingSql"/>
+    where rp.kee = #{ruleProfileUuid, jdbcType=VARCHAR}
+  </select>
+
+  <sql id="scrollAllForIndexingSql">
+    select
+    ar.id as "id",
+    ar.failure_level as "severity",
+    ar.inheritance as "inheritance",
+    r.plugin_name as "repository",
+    r.plugin_rule_key as "key",
+    rp.kee as "ruleProfileUuid"
+    from active_rules ar
+    inner join rules_profiles rp on rp.id = ar.profile_id
+    inner join rules r on r.id = ar.rule_id
+  </sql>
 </mapper>
 

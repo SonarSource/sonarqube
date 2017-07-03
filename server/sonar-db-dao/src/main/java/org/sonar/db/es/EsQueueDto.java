@@ -19,15 +19,20 @@
  */
 package org.sonar.db.es;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public final class EsQueueDto {
 
   public enum Type {
-    USER, RULE, RULE_EXTENSION
+    USER, RULE, RULE_EXTENSION, ACTIVE_RULE
   }
 
   private String uuid;
   private Type docType;
   private String docId;
+  private String docIdType;
+  private String docRouting;
 
   public String getUuid() {
     return uuid;
@@ -56,12 +61,34 @@ public final class EsQueueDto {
     return this;
   }
 
+  @CheckForNull
+  public String getDocIdType() {
+    return docIdType;
+  }
+
+  private EsQueueDto setDocIdType(@Nullable String s) {
+    this.docIdType = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDocRouting() {
+    return docRouting;
+  }
+
+  private EsQueueDto setDocRouting(@Nullable String s) {
+    this.docRouting = s;
+    return this;
+  }
+
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("EsQueueDto{");
     sb.append("uuid='").append(uuid).append('\'');
     sb.append(", docType=").append(docType);
     sb.append(", docId='").append(docId).append('\'');
+    sb.append(", docIdType='").append(docIdType).append('\'');
+    sb.append(", docRouting='").append(docRouting).append('\'');
     sb.append('}');
     return sb.toString();
   }
@@ -87,5 +114,10 @@ public final class EsQueueDto {
 
   public static EsQueueDto create(Type docType, String docUuid) {
     return new EsQueueDto().setDocType(docType).setDocId(docUuid);
+  }
+
+  public static EsQueueDto create(Type docType, String docId, @Nullable String docIdType, @Nullable String docRouting) {
+    return new EsQueueDto().setDocType(docType)
+      .setDocId(docId).setDocIdType(docIdType).setDocRouting(docRouting);
   }
 }

@@ -153,7 +153,6 @@ import org.sonar.server.qualityprofile.QProfileResetImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIteratorFactory;
 import org.sonar.server.qualityprofile.ws.OldRestoreAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
@@ -260,7 +259,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // quality profile
       BuiltInQProfileRepositoryImpl.class,
-      ActiveRuleIteratorFactory.class,
       ActiveRuleIndexer.class,
       XMLProfileParser.class,
       XMLProfileSerializer.class,

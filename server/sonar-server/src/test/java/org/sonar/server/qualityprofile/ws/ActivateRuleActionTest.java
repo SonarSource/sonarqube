@@ -41,7 +41,6 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
@@ -68,9 +67,8 @@ public class ActivateRuleActionTest {
   private DbClient dbClient = dbTester.getDbClient();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
   private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(dbTester));
-  private ActiveRuleIndexer activeRuleIndexer = mock(ActiveRuleIndexer.class);
 
-  private WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, ruleActivator, userSession, wsSupport, activeRuleIndexer));
+  private WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, ruleActivator, userSession, wsSupport));
 
   private OrganizationDto defaultOrganization;
   private OrganizationDto organization;
@@ -152,7 +150,7 @@ public class ActivateRuleActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleActivation> captor = ArgumentCaptor.forClass(RuleActivation.class);
-    verify(ruleActivator).activate(any(DbSession.class), captor.capture(), any(QProfileDto.class));
+    verify(ruleActivator).activateAndCommit(any(DbSession.class), captor.capture(), any(QProfileDto.class));
     RuleActivation value = captor.getValue();
     assertThat(value.getRuleKey()).isEqualTo(ruleKey);
     assertThat(value.getSeverity()).isEqualTo(Severity.BLOCKER);
@@ -176,7 +174,7 @@ public class ActivateRuleActionTest {
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     ArgumentCaptor<RuleActivation> captor = ArgumentCaptor.forClass(RuleActivation.class);
-    verify(ruleActivator).activate(any(DbSession.class), captor.capture(), any(QProfileDto.class));
+    verify(ruleActivator).activateAndCommit(any(DbSession.class), captor.capture(), any(QProfileDto.class));
     assertThat(captor.getValue().getRuleKey()).isEqualTo(ruleKey);
     assertThat(captor.getValue().getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(captor.getValue().isReset()).isFalse();

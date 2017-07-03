@@ -20,14 +20,11 @@
 package org.sonar.server.es;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
@@ -51,12 +48,8 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.ProgressLogger;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.es.EsQueueDto;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Helper to bulk requests in an efficient way :
@@ -76,22 +69,20 @@ public class BulkIndexer {
   private final EsClient client;
   private final String indexName;
   private final BulkProcessor bulkProcessor;
-  private final AtomicLong counter = new AtomicLong(0L);
-  private final ResilientIndexerResult successCounter = new ResilientIndexerResult();
+  private final IndexingResult result = new IndexingResult();
+  private final IndexingListener indexingListener;
   private final SizeHandler sizeHandler;
-  private final BulkProcessorListener bulkProcessorListener;
-  @Nullable
-  private DbClient dbClient;
-  @Nullable
-  private DbSession dbSession;
-  private Collection<EsQueueDto> esQueueDtos;
 
   public BulkIndexer(EsClient client, String indexName, Size size) {
-    this.dbClient = null;
+    this(client, indexName, size, IndexingListener.noop());
+  }
+
+  public BulkIndexer(EsClient client, String indexName, Size size, IndexingListener indexingListener) {
     this.client = client;
     this.indexName = indexName;
     this.sizeHandler = size.createHandler(Runtime2.INSTANCE);
-    this.bulkProcessorListener = new BulkProcessorListener();
+    this.indexingListener = indexingListener;
+    BulkProcessorListener bulkProcessorListener = new BulkProcessorListener();
     this.bulkProcessor = BulkProcessor.builder(client.nativeClient(), bulkProcessorListener)
       .setBackoffPolicy(BackoffPolicy.exponentialBackoff())
       .setBulkSize(FLUSH_BYTE_SIZE)
@@ -101,42 +92,32 @@ public class BulkIndexer {
   }
 
   public void start() {
+    result.clear();
     sizeHandler.beforeStart(this);
-    counter.set(0L);
-    successCounter.clear();
-  }
-
-  public void start(DbSession dbSession, DbClient dbClient, Collection<EsQueueDto> esQueueDtos) {
-    this.dbClient = dbClient;
-    this.dbSession = dbSession;
-    this.esQueueDtos = esQueueDtos;
-    sizeHandler.beforeStart(this);
-    counter.set(0L);
-    successCounter.clear();
   }
 
   /**
    * @return the number of documents successfully indexed
    */
-  public ResilientIndexerResult stop() {
+  public IndexingResult stop() {
     try {
       bulkProcessor.awaitClose(1, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 1 minute", e);
-    } finally {
-      dbSession = null;
     }
     client.prepareRefresh(indexName).get();
     sizeHandler.afterStop(this);
-    return successCounter;
+    return result;
   }
 
   public void add(ActionRequest<?> request) {
+    result.incrementRequests();
     bulkProcessor.add(request);
   }
 
   public void addDeletion(SearchRequestBuilder searchRequest) {
+    // TODO to be replaced by delete_by_query that is back in ES5
     searchRequest
       .addSort("_doc", SortOrder.ASC)
       .setScroll(TimeValue.timeValueMinutes(5))
@@ -171,10 +152,10 @@ public class BulkIndexer {
   }
 
   public void addDeletion(IndexType indexType, String id) {
-    add(client.prepareDelete(indexType, id).setRouting(id).request());
+    add(client.prepareDelete(indexType, id).request());
   }
 
-  public void addDeletion(IndexType indexType, String id, String routing) {
+  public void addDeletion(IndexType indexType, String id, @Nullable String routing) {
     add(client.prepareDelete(indexType, id).setRouting(routing).request());
   }
 
@@ -184,11 +165,11 @@ public class BulkIndexer {
    *
    * Note that the parameter indexName could be removed if progress logs are not needed.
    */
-  public static void delete(EsClient client, String indexName, SearchRequestBuilder searchRequest) {
+  public static IndexingResult delete(EsClient client, String indexName, SearchRequestBuilder searchRequest) {
     BulkIndexer bulk = new BulkIndexer(client, indexName, Size.REGULAR);
     bulk.start();
     bulk.addDeletion(searchRequest);
-    bulk.stop();
+    return bulk.stop();
   }
 
   private final class BulkProcessorListener implements Listener {
@@ -199,36 +180,22 @@ public class BulkIndexer {
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-      counter.addAndGet(response.getItems().length);
-
+      List<String> successDocIds = new ArrayList<>();
       for (BulkItemResponse item : response.getItems()) {
         if (item.isFailed()) {
           LOGGER.error("index [{}], type [{}], id [{}], message [{}]", item.getIndex(), item.getType(), item.getId(), item.getFailureMessage());
-          successCounter.increaseFailure();
         } else {
-          successCounter.increaseSuccess();
+          result.incrementSuccess();
+          successDocIds.add(item.getId());
         }
       }
 
-      deleteSuccessfulItems(response);
+      indexingListener.onSuccess(successDocIds);
     }
 
     @Override
     public void afterBulk(long executionId, BulkRequest req, Throwable e) {
       LOGGER.error("Fail to execute bulk index request: " + req, e);
-    }
-
-    private void deleteSuccessfulItems(BulkResponse bulkResponse) {
-      if (esQueueDtos != null) {
-        List<EsQueueDto> itemsToDelete = Arrays.stream(bulkResponse.getItems())
-          .filter(b -> !b.isFailed())
-          .map(b -> esQueueDtos.stream().filter(t -> b.getId().equals(t.getDocId())).findFirst().orElse(null))
-          .filter(Objects::nonNull)
-          .collect(toList());
-
-        dbClient.esQueueDao().delete(dbSession, itemsToDelete);
-        dbSession.commit();
-      }
     }
   }
 
@@ -303,7 +270,7 @@ public class BulkIndexer {
 
     @Override
     void beforeStart(BulkIndexer bulkIndexer) {
-      this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", bulkIndexer.indexName), bulkIndexer.counter, LOGGER)
+      this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", bulkIndexer.indexName), bulkIndexer.result.total, LOGGER)
         .setPluralLabel("requests");
       this.progress.start();
       Map<String, Object> temporarySettings = new HashMap<>();

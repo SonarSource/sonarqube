@@ -148,6 +148,14 @@ public class QualityProfileDaoTest {
   }
 
   @Test
+  public void selectRuleProfile() {
+    RulesProfileDto rp = insertRulesProfile();
+
+    assertThat(underTest.selectRuleProfile(dbSession, rp.getKee()).getId()).isEqualTo(rp.getId());
+    assertThat(underTest.selectRuleProfile(dbSession, "missing")).isNull();
+  }
+
+  @Test
   public void deleteRulesProfilesByUuids() {
     RulesProfileDto rp1 = insertRulesProfile();
     RulesProfileDto rp2 = insertRulesProfile();
@@ -245,7 +253,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void find_all_is_sorted_by_profile_name() {
+  public void selectOrderedByOrganizationUuid_is_sorted_by_profile_name() {
     QProfileDto dto1 = new QProfileDto()
       .setKee("js_first")
       .setRulesProfileUuid("rp-js_first")
@@ -315,7 +323,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void get_by_name_and_language() {
+  public void selectByNameAndLanguage() {
     List<QProfileDto> sharedData = createSharedData();
 
     QProfileDto dto = underTest.selectByNameAndLanguage(dbSession, organization, "Sonar Way", "java");
@@ -328,7 +336,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void get_by_name_and_languages() {
+  public void selectByNameAndLanguages() {
     createSharedData();
 
     List<QProfileDto> dtos = underTest.selectByNameAndLanguages(dbSession, organization, "Sonar Way", singletonList("java"));
@@ -362,7 +370,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void should_not_find_by_language_in_wrong_organization() {
+  public void should_not_selectByLanguage_in_wrong_organization() {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
@@ -372,7 +380,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void should_not_find_by_language_with_wrong_language() {
+  public void should_not_selectByLanguage_with_wrong_language() {
     QProfileDto profile = QualityProfileTesting.newQualityProfileDto()
       .setOrganizationUuid(organization.getUuid());
     underTest.insert(dbSession, profile);
@@ -382,7 +390,7 @@ public class QualityProfileDaoTest {
   }
 
   @Test
-  public void find_children() {
+  public void selectChildren() {
     QProfileDto original1 = new QProfileDto()
       .setKee("java_child1")
       .setRulesProfileUuid("rp-java_child1")
