@@ -59,13 +59,9 @@ public class TagsAction implements RulesWsAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(getClass(), "example-tags.json"));
 
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription("A pattern to match tags against")
-      .setExampleValue("misra");
-    action.createParam("ps")
-      .setDescription("The size of the list to return, 0 for all tags")
-      .setExampleValue("25")
-      .setDefaultValue("0");
+    action.createSearchQuery("misra", "tags");
+    action.createPageSize(10, 100);
+
     action.createParam(PARAM_ORGANIZATION)
       .setDescription("Organization key")
       .setRequired(false)
