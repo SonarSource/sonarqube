@@ -19,7 +19,6 @@
  */
 // @flow
 import moment from 'moment';
-import { sortBy } from 'lodash';
 import {
   cleanQuery,
   parseAsDate,
@@ -34,10 +33,19 @@ import type { Serie } from '../../components/charts/AdvancedTimeline';
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
 export const GRAPH_TYPES = ['overview', 'coverage', 'duplications'];
-export const GRAPHS_METRICS = {
+export const GRAPHS_METRICS_DISPLAYED = {
   overview: ['bugs', 'code_smells', 'vulnerabilities'],
   coverage: ['uncovered_lines', 'lines_to_cover'],
   duplications: ['duplicated_lines', 'ncloc']
+};
+export const GRAPHS_METRICS = {
+  overview: GRAPHS_METRICS_DISPLAYED['overview'].concat([
+    'reliability_rating',
+    'security_rating',
+    'sqale_rating'
+  ]),
+  coverage: GRAPHS_METRICS_DISPLAYED['coverage'].concat(['coverage']),
+  duplications: GRAPHS_METRICS_DISPLAYED['duplications'].concat(['duplicated_lines_density'])
 };
 
 export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
@@ -75,24 +83,26 @@ export const generateSeries = (
   graph: string,
   dataType: string
 ): Array<Serie> =>
-  measuresHistory.map(measure => {
-    if (measure.metric === 'uncovered_lines') {
-      return generateCoveredLinesMetric(
-        measure,
-        measuresHistory,
-        GRAPHS_METRICS[graph].indexOf(measure.metric)
-      );
-    }
-    return {
-      name: measure.metric,
-      translatedName: translate('metric', measure.metric, 'name'),
-      style: GRAPHS_METRICS[graph].indexOf(measure.metric),
-      data: measure.history.map(analysis => ({
-        x: analysis.date,
-        y: dataType === 'LEVEL' ? analysis.value : Number(analysis.value)
-      }))
-    };
-  });
+  measuresHistory
+    .filter(measure => GRAPHS_METRICS_DISPLAYED[graph].indexOf(measure.metric) >= 0)
+    .map(measure => {
+      if (measure.metric === 'uncovered_lines') {
+        return generateCoveredLinesMetric(
+          measure,
+          measuresHistory,
+          GRAPHS_METRICS_DISPLAYED[graph].indexOf(measure.metric)
+        );
+      }
+      return {
+        name: measure.metric,
+        translatedName: translate('metric', measure.metric, 'name'),
+        style: GRAPHS_METRICS_DISPLAYED[graph].indexOf(measure.metric),
+        data: measure.history.map(analysis => ({
+          x: analysis.date,
+          y: dataType === 'LEVEL' ? analysis.value : Number(analysis.value)
+        }))
+      };
+    });
 
 export const getAnalysesByVersionByDay = (
   analyses: Array<Analysis>
@@ -110,19 +120,12 @@ export const getAnalysesByVersionByDay = (
     if (!currentVersion.byDay[day]) {
       currentVersion.byDay[day] = [];
     }
-    const sortedEvents = sortBy(
-      analysis.events,
-      // versions last
-      event => (event.category === 'VERSION' ? 1 : 0),
-      // then the rest sorted by category
-      'category'
-    );
-    currentVersion.byDay[day].push({ ...analysis, events: sortedEvents });
+    currentVersion.byDay[day].push(analysis);
 
-    const lastEvent = sortedEvents[sortedEvents.length - 1];
-    if (lastEvent && lastEvent.category === 'VERSION') {
-      currentVersion.version = lastEvent.name;
-      currentVersion.key = lastEvent.key;
+    const versionEvent = analysis.events.find(event => event.category === 'VERSION');
+    if (versionEvent && versionEvent.category === 'VERSION') {
+      currentVersion.version = versionEvent.name;
+      currentVersion.key = versionEvent.key;
       acc.push({ version: undefined, key: undefined, byDay: {} });
     }
     return acc;

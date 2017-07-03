@@ -35,7 +35,7 @@ import { getLeakPeriod } from '../../../helpers/periods';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getGraph } from '../../../helpers/storage';
 import { METRICS, HISTORY_METRICS_LIST } from '../utils';
-import { GRAPHS_METRICS } from '../../projectActivity/utils';
+import { GRAPHS_METRICS_DISPLAYED } from '../../projectActivity/utils';
 import type { Component, History, MeasuresList, Period } from '../types';
 import '../styles.css';
 
@@ -101,7 +101,7 @@ export default class OverviewApp extends React.PureComponent {
   }
 
   loadHistory(component: Component) {
-    const metrics = uniq(HISTORY_METRICS_LIST.concat(GRAPHS_METRICS[getGraph()]));
+    const metrics = uniq(HISTORY_METRICS_LIST.concat(GRAPHS_METRICS_DISPLAYED[getGraph()]));
     return getAllTimeMachineData(component.key, metrics).then(r => {
       if (this.mounted) {
         const history: History = {};

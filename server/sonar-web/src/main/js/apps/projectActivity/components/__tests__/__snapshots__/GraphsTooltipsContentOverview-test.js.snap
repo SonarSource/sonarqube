@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tr
+  className="project-activity-graph-tooltip-overview-line"
+>
+  <td
+    className="thin"
+  >
+    <ChartLegendIcon
+      className="spacer-right line-chart-legend line-chart-legend-2"
+    />
+  </td>
+  <td
+    className="text-right spacer-right thin"
+  >
+    <span
+      className="project-activity-graph-tooltip-value"
+    >
+      1.2k
+    </span>
+    <Rating
+      className="spacer-left"
+      muted={false}
+      small={true}
+      value="5.0"
+    />
+  </td>
+  <td>
+    Bugs
+  </td>
+</tr>
+`;
+
+exports[`should render correctly when rating data is missing 1`] = `
+<tr
+  className="project-activity-graph-tooltip-overview-line"
+>
+  <td
+    className="thin"
+  >
+    <ChartLegendIcon
+      className="spacer-right line-chart-legend line-chart-legend-2"
+    />
+  </td>
+  <td
+    className="text-right spacer-right thin"
+  >
+    <span
+      className="project-activity-graph-tooltip-value"
+    >
+      500
+    </span>
+  </td>
+  <td>
+    Bugs
+  </td>
+</tr>
+`;
