@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.version.v66;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
+import org.sonar.server.platform.db.migration.version.v65.FixEmptyIdentityProviderInUsers;
 
 public class DbVersion66 implements DbVersion {
   @Override
@@ -30,6 +31,7 @@ public class DbVersion66 implements DbVersion {
       .add(1800, "Add incremental column to snapthots table", AddIncrementalColumnToSnapshotsTable.class)
       .add(1801, "Create table CE task characteristics", CreateTableCeTaskCharacteristics.class)
       .add(1802, "Delete leak settings on views", DeleteLeakSettingsOnViews.class)
+      .add(1803, "Fix empty USERS.EXTERNAL_IDENTITY and USERS.EXTERNAL_IDENTITY_PROVIDER", FixEmptyIdentityProviderInUsers.class)
     ;
   }
 }
