@@ -256,7 +256,7 @@ public class RuleIndex {
           .filter(QueryBuilders.termQuery(FIELD_RULE_EXTENSION_TAGS, tag))
           .filter(termsQuery(FIELD_RULE_EXTENSION_SCOPE, RuleExtensionScope.system().getScope(), RuleExtensionScope.organization(query.getOrganization()).getScope())))
         .map(childQuery -> QueryBuilders.hasChildQuery(INDEX_TYPE_RULE_EXTENSION.getType(), childQuery))
-        .forEach(q::filter);
+        .forEach(q::should);
       filters.put(FIELD_RULE_EXTENSION_TAGS, q);
     }
 
