@@ -33,12 +33,12 @@ import org.sonarqube.ws.client.projectanalysis.SearchRequest;
 
 import static java.util.Objects.requireNonNull;
 
-class SearchResults {
+class SearchData {
   final List<SnapshotDto> analyses;
   final ListMultimap<String, EventDto> eventsByAnalysis;
   final Paging paging;
 
-  private SearchResults(Builder builder) {
+  private SearchData(Builder builder) {
     this.analyses = builder.analyses;
     this.eventsByAnalysis = buildEvents(builder.events);
     this.paging = Paging
@@ -120,13 +120,13 @@ class SearchResults {
         .collect(MoreCollectors.toList());
     }
 
-    SearchResults build() {
+    SearchData build() {
       requireNonNull(analyses);
       requireNonNull(events);
       if (request.getCategory() != null) {
         filterByCategory();
       }
-      return new SearchResults(this);
+      return new SearchData(this);
     }
   }
 }
