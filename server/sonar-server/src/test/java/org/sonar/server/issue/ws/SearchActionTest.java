@@ -45,11 +45,11 @@ public class SearchActionTest {
   private SearchResponseLoader searchResponseLoader = mock(SearchResponseLoader.class);
   private SearchResponseFormat searchResponseFormat = mock(SearchResponseFormat.class);
   private SearchAction underTest = new SearchAction(userSession, index, issueQueryFactory, searchResponseLoader, searchResponseFormat);
-  private WsActionTester wsTester = new WsActionTester(underTest);
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void test_definition() {
-    WebService.Action def = wsTester.getDef();
+    WebService.Action def = ws.getDef();
     assertThat(def.key()).isEqualTo("search");
     assertThat(def.isInternal()).isFalse();
     assertThat(def.isPost()).isFalse();
