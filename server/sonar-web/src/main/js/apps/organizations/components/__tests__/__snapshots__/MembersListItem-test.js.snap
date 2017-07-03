@@ -35,7 +35,7 @@ exports[`should groups at 0 if the groupCount field is not defined (just added u
       className="dropdown"
     >
       <button
-        className="dropdown-toggle little-spacer-right"
+        className="dropdown-toggle little-spacer-right button-compact"
         data-toggle="dropdown"
       >
         <i
@@ -156,7 +156,7 @@ exports[`should render actions and groups for admin 1`] = `
       className="dropdown"
     >
       <button
-        className="dropdown-toggle little-spacer-right"
+        className="dropdown-toggle little-spacer-right button-compact"
         data-toggle="dropdown"
       >
         <i
