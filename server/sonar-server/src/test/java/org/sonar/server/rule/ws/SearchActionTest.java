@@ -239,7 +239,7 @@ public class SearchActionTest {
 
   @Test
   public void when_searching_for_several_tags_combine_them_with_OR() throws IOException {
-    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto organization = db.organizations().insert();
     RuleDefinitionDto bothTagsRule = createJavaRule();
     insertMetadata(organization, bothTagsRule, setTags("tag1", "tag2"));
     RuleDefinitionDto oneTagRule = createJavaRule();
@@ -316,9 +316,9 @@ public class SearchActionTest {
 
   @Test
   public void should_not_return_tags_of_foreign_organization() throws IOException {
-    OrganizationDto organizationWithSpecificTags = dbTester.organizations().insert();
-    OrganizationDto myOrganization = dbTester.organizations().insert();
-    RuleDefinitionDto rule = dbTester.rules().insert(setSystemTags("system1", "system2"));
+    OrganizationDto organizationWithSpecificTags = db.organizations().insert();
+    OrganizationDto myOrganization = db.organizations().insert();
+    RuleDefinitionDto rule = db.rules().insert(setSystemTags("system1", "system2"));
     insertMetadata(organizationWithSpecificTags, rule, setTags("tag1", "tag2"));
     indexRules();
 
