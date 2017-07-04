@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 
@@ -36,11 +35,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 public class SourceProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(SourceProvider.class);
-  private final FileSystem fs;
-
-  public SourceProvider(FileSystem fs) {
-    this.fs = fs;
-  }
 
   public List<String> getEscapedSource(DefaultInputComponent component) {
     if (!component.isFile()) {
@@ -49,7 +43,7 @@ public class SourceProvider {
     }
     try {
       InputFile inputFile = (InputFile) component;
-      List<String> lines = FileUtils.readLines(inputFile.file(), fs.encoding());
+      List<String> lines = FileUtils.readLines(inputFile.file(), inputFile.charset());
       List<String> escapedLines = new ArrayList<>(lines.size());
       for (String line : lines) {
         escapedLines.add(StringEscapeUtils.escapeHtml(line));
