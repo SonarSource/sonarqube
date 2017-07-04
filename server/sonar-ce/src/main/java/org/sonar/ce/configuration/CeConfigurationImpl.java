@@ -20,10 +20,10 @@
 package org.sonar.ce.configuration;
 
 import org.picocontainer.Startable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.format;
 
@@ -47,13 +47,12 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   private final int workerCount;
 
-  public CeConfigurationImpl(Configuration config) {
-    String workerCountAsStr = config.get(CE_WORKERS_COUNT_PROPERTY).orElse(null);
-    if (workerCountAsStr == null || workerCountAsStr.isEmpty()) {
-      this.workerCount = DEFAULT_WORKER_COUNT;
-    } else {
-      this.workerCount = parseStringValue(workerCountAsStr);
-    }
+  public CeConfigurationImpl(InternalProperties internalProperties) {
+    this.workerCount = internalProperties.read(CE_WORKERS_COUNT_PROPERTY)
+      .map(String::trim)
+      .filter(s -> !s.isEmpty())
+      .map(CeConfigurationImpl::parseStringValue)
+      .orElse(DEFAULT_WORKER_COUNT);
   }
 
   private static int parseStringValue(String workerCountAsStr) {
