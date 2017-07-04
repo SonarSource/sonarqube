@@ -19,9 +19,9 @@
  */
 package org.sonar.scanner.scm;
 
-import com.google.common.base.Joiner;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
@@ -29,13 +29,15 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
+
+import com.google.common.base.Joiner;
 
 @Properties({
   @Property(
@@ -56,15 +58,15 @@ public final class ScmConfiguration implements Startable {
 
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 
-  private final ImmutableProjectReactor projectReactor;
   private final Settings settings;
   private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<>();
   private final AnalysisMode analysisMode;
+  private final InputModuleHierarchy moduleHierarchy;
 
   private ScmProvider provider;
 
-  public ScmConfiguration(ImmutableProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings, ScmProvider... providers) {
-    this.projectReactor = projectReactor;
+  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Settings settings, ScmProvider... providers) {
+    this.moduleHierarchy = moduleHierarchy;
     this.analysisMode = analysisMode;
     this.settings = settings;
     for (ScmProvider scmProvider : providers) {
@@ -72,8 +74,8 @@ public final class ScmConfiguration implements Startable {
     }
   }
 
-  public ScmConfiguration(ImmutableProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings) {
-    this(projectReactor, analysisMode, settings, new ScmProvider[0]);
+  public ScmConfiguration(InputModuleHierarchy moduleHierarchy, AnalysisMode analysisMode, Settings settings) {
+    this(moduleHierarchy, analysisMode, settings, new ScmProvider[0]);
   }
 
   @Override
@@ -124,7 +126,7 @@ public final class ScmConfiguration implements Startable {
 
   private void autodetection() {
     for (ScmProvider installedProvider : providerPerKey.values()) {
-      if (installedProvider.supports(projectReactor.getRoot().getBaseDir())) {
+      if (installedProvider.supports(moduleHierarchy.root().getBaseDir())) {
         if (this.provider == null) {
           this.provider = installedProvider;
         } else {

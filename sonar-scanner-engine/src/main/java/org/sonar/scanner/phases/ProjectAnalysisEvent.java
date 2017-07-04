@@ -34,7 +34,7 @@ class ProjectAnalysisEvent extends AbstractPhaseEvent<ProjectAnalysisHandler>
 
   @Override
   public Project getProject() {
-    return new Project(module.definition());
+    return new Project(module);
   }
 
   @Override

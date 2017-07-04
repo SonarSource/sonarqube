@@ -75,15 +75,17 @@ public class DefaultIndex {
   @CheckForNull
   public <M> M getMeasures(String key, MeasuresFilter<M> filter) {
     Collection<DefaultMeasure<?>> unfiltered = new ArrayList<>();
-    if (filter instanceof MeasuresFilters.MetricFilter) {
-      // optimization
-      DefaultMeasure<?> byMetric = measureCache.byMetric(key, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
-      if (byMetric != null) {
-        unfiltered.add(byMetric);
-      }
-    } else {
-      for (DefaultMeasure<?> measure : measureCache.byComponentKey(key)) {
-        unfiltered.add(measure);
+    synchronized (measureCache) {
+      if (filter instanceof MeasuresFilters.MetricFilter) {
+        // optimization
+        DefaultMeasure<?> byMetric = measureCache.byMetric(key, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+        if (byMetric != null) {
+          unfiltered.add(byMetric);
+        }
+      } else {
+        for (DefaultMeasure<?> measure : measureCache.byComponentKey(key)) {
+          unfiltered.add(measure);
+        }
       }
     }
     return filter.filter(unfiltered.stream().map(DefaultIndex::toDeprecated).collect(Collectors.toList()));
@@ -125,7 +127,7 @@ public class DefaultIndex {
     if (component == null) {
       throw new IllegalStateException("Invalid component key: " + key);
     }
-    if (sensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
+    if (DefaultSensorStorage.isDeprecatedMetric(measure.getMetricKey())) {
       // Ignore deprecated metrics
       return measure;
     }
@@ -189,7 +191,7 @@ public class DefaultIndex {
     } else if (inputComponent instanceof InputFile) {
       r = File.create(((InputFile) inputComponent).relativePath());
     } else if (inputComponent instanceof InputModule) {
-      r = new Project(((DefaultInputModule) inputComponent).definition());
+      r = new Project(((DefaultInputModule) inputComponent));
     } else {
       throw new IllegalArgumentException("Unknow input path type: " + inputComponent);
     }

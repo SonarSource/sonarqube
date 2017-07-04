@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.api.batch.fs.internal.charhandler;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,11 +72,12 @@ class IntArrayList {
   }
 
   private void ensureCapacityInternal(int minCapacity) {
+    int capacity = minCapacity;
     if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-      minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+      capacity = Math.max(DEFAULT_CAPACITY, minCapacity);
     }
 
-    ensureExplicitCapacity(minCapacity);
+    ensureExplicitCapacity(capacity);
   }
 
   private void ensureExplicitCapacity(int minCapacity) {

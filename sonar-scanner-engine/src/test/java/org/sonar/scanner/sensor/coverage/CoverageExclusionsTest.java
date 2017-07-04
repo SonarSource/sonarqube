@@ -45,7 +45,8 @@ public class CoverageExclusionsTest {
   public void shouldExcludeFileBasedOnPattern() {
     InputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
     settings.setProperty("sonar.coverage.exclusions", "src/org/polop/*");
-    coverageExclusions.initPatterns();
+    coverageExclusions = new CoverageExclusions(settings);
+    coverageExclusions.start();
     assertThat(coverageExclusions.isExcluded(file)).isTrue();
   }
 
@@ -53,7 +54,8 @@ public class CoverageExclusionsTest {
   public void shouldNotExcludeFileBasedOnPattern() {
     InputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
     settings.setProperty("sonar.coverage.exclusions", "src/org/other/*");
-    coverageExclusions.initPatterns();
+    coverageExclusions = new CoverageExclusions(settings);
+    coverageExclusions.start();
     assertThat(coverageExclusions.isExcluded(file)).isFalse();
   }
 }

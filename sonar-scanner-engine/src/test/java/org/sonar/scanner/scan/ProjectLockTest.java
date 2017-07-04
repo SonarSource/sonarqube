@@ -19,22 +19,22 @@
  */
 package org.sonar.scanner.scan;
 
-import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.home.cache.DirectoryLock;
-import org.sonar.scanner.scan.ProjectLock;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.home.cache.DirectoryLock;
 
 public class ProjectLockTest {
   @Rule
@@ -50,12 +50,12 @@ public class ProjectLockTest {
   }
 
   private ProjectLock setUpTest(File file) {
-    ProjectReactor projectReactor = mock(ProjectReactor.class);
-    ProjectDefinition projectDefinition = mock(ProjectDefinition.class);
-    when(projectReactor.getRoot()).thenReturn(projectDefinition);
-    when(projectDefinition.getWorkDir()).thenReturn(file);
+    InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
+    DefaultInputModule root = mock(DefaultInputModule.class);
+    when(hierarchy.root()).thenReturn(root);
+    when(root.getWorkDir()).thenReturn(file);
 
-    return new ProjectLock(projectReactor);
+    return new ProjectLock(hierarchy);
   }
 
   @Test

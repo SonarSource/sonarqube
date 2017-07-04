@@ -21,36 +21,66 @@ package org.sonar.scanner.scan;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.scan.filesystem.PathResolver;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMultimap;
 
+@Immutable
 public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
   private final PathResolver pathResolver = new PathResolver();
-  private DefaultInputModule root;
-  private final Map<DefaultInputModule, DefaultInputModule> parents = new HashMap<>();
-  private final Multimap<DefaultInputModule, DefaultInputModule> children = HashMultimap.create();
+  private final DefaultInputModule root;
+  private final Map<DefaultInputModule, DefaultInputModule> parents;
+  private final ImmutableMultimap<DefaultInputModule, DefaultInputModule> children;
 
-  public void setRoot(DefaultInputModule root) {
+  public DefaultInputModuleHierarchy(DefaultInputModule parent, DefaultInputModule child) {
+    this(Collections.singletonMap(child, parent));
+  }
+
+  public DefaultInputModuleHierarchy(DefaultInputModule root) {
+    this.children = new ImmutableMultimap.Builder<DefaultInputModule, DefaultInputModule>().build();
+    this.parents = Collections.emptyMap();
     this.root = root;
   }
 
-  public void index(DefaultInputModule child, DefaultInputModule parent) {
-    Preconditions.checkNotNull(child);
-    Preconditions.checkNotNull(parent);
-    parents.put(child, parent);
-    children.put(parent, child);
+  /**
+   * Map of child->parent. Neither the Keys or values can be null.
+   */
+  public DefaultInputModuleHierarchy(Map<DefaultInputModule, DefaultInputModule> parents) {
+    ImmutableMultimap.Builder<DefaultInputModule, DefaultInputModule> childrenBuilder = new ImmutableMultimap.Builder<>();
+
+    for (Map.Entry<DefaultInputModule, DefaultInputModule> e : parents.entrySet()) {
+      childrenBuilder.put(e.getValue(), e.getKey());
+    }
+
+    this.children = childrenBuilder.build();
+    this.parents = Collections.unmodifiableMap(new HashMap<>(parents));
+    this.root = findRoot(parents);
+  }
+
+  private static DefaultInputModule findRoot(Map<DefaultInputModule, DefaultInputModule> parents) {
+    DefaultInputModule r = null;
+    for (DefaultInputModule parent : parents.values()) {
+      if (!parents.containsKey(parent)) {
+        if (r != null && r != parent) {
+          throw new IllegalStateException(String.format("Found two modules without parent: '%s' and '%s'", r.key(), parent.key()));
+        }
+        r = parent;
+      }
+    }
+    if (r == null) {
+      throw new IllegalStateException("Found no root module");
+    }
+    return r;
   }
 
   @Override
@@ -81,11 +111,8 @@ public class DefaultInputModuleHierarchy implements InputModuleHierarchy {
       return null;
     }
     DefaultInputModule inputModule = (DefaultInputModule) module;
-
-    ProjectDefinition parentDefinition = parent.definition();
-    Path parentBaseDir = parentDefinition.getBaseDir().toPath();
-    ProjectDefinition moduleDefinition = inputModule.definition();
-    Path moduleBaseDir = moduleDefinition.getBaseDir().toPath();
+    Path parentBaseDir = parent.getBaseDir().toPath();
+    Path moduleBaseDir = inputModule.getBaseDir().toPath();
 
     return pathResolver.relativePath(parentBaseDir, moduleBaseDir);
   }

@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Component;
 import org.sonar.api.scan.filesystem.PathResolver;
 
@@ -39,6 +40,10 @@ import org.sonar.api.scan.filesystem.PathResolver;
 public class Project extends Resource implements Component {
   private final ProjectDefinition definition;
 
+  public Project(DefaultInputModule module) {
+    this(module.definition());
+  }
+
   public Project(ProjectDefinition definition) {
     this.definition = definition;
     this.setKey(definition.getKey());
@@ -46,7 +51,10 @@ public class Project extends Resource implements Component {
   }
 
   public ProjectDefinition definition() {
-    return definition;
+    return ProjectDefinition.create()
+      .setProperties(definition.properties())
+      .setBaseDir(definition.getBaseDir())
+      .setWorkDir(definition.getWorkDir());
   }
 
   @Override

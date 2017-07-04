@@ -19,52 +19,6 @@
  */
 package org.sonar.scanner.sensor;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.measure.Metric;
-import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
-import org.sonar.api.batch.sensor.error.AnalysisError;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
-import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.metric.ScannerMetrics;
-import org.sonar.duplications.block.Block;
-import org.sonar.duplications.internal.pmd.PmdBlockChunker;
-import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
-import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
-import org.sonar.scanner.issue.ModuleIssues;
-import org.sonar.scanner.protocol.output.FileStructure;
-import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.report.ReportPublisher;
-import org.sonar.scanner.report.ScannerReportUtils;
-import org.sonar.scanner.repository.ContextPropertiesCache;
-import org.sonar.scanner.scan.measure.MeasureCache;
-import org.sonar.scanner.sensor.coverage.CoverageExclusions;
-
 import static java.util.stream.Collectors.toList;
 import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
@@ -112,6 +66,54 @@ import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
+import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
+import org.sonar.api.batch.sensor.error.AnalysisError;
+import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.metric.ScannerMetrics;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.internal.pmd.PmdBlockChunker;
+import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
+import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.protocol.output.FileStructure;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.report.ReportPublisher;
+import org.sonar.scanner.report.ScannerReportUtils;
+import org.sonar.scanner.repository.ContextPropertiesCache;
+import org.sonar.scanner.scan.measure.MeasureCache;
+import org.sonar.scanner.sensor.coverage.CoverageExclusions;
+
+import com.google.common.annotations.VisibleForTesting;
+
 public class DefaultSensorStorage implements SensorStorage {
 
   private static final Logger LOG = Loggers.get(DefaultSensorStorage.class);
@@ -151,12 +153,10 @@ public class DefaultSensorStorage implements SensorStorage {
   private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new HashMap<>();
   private final Set<Metric<?>> coverageMetrics = new HashSet<>();
   private final Set<Metric<?>> byLineMetrics = new HashSet<>();
-  private Set<String> alreadyLogged = new HashSet<>();
+  private final Set<String> alreadyLogged = new HashSet<>();
 
-  public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
-    Settings settings,
-    CoverageExclusions coverageExclusions, ReportPublisher reportPublisher,
-    MeasureCache measureCache, SonarCpdBlockIndex index,
+  public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues, Settings settings, CoverageExclusions coverageExclusions,
+    ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index,
     ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
@@ -210,18 +210,23 @@ public class DefaultSensorStorage implements SensorStorage {
     saveMeasure(newMeasure.inputComponent(), (DefaultMeasure<?>) newMeasure);
   }
 
+  /**
+   * Thread safe
+   */
   private void logOnce(String metricKey, String msg, Object... params) {
-    if (!alreadyLogged.contains(metricKey)) {
+    if (alreadyLogged.add(metricKey)) {
       LOG.warn(msg, params);
-      alreadyLogged.add(metricKey);
     }
   }
 
+  /**
+   * Thread safe
+   */
   public void saveMeasure(InputComponent component, DefaultMeasure<?> measure) {
     if (component.isFile()) {
       ((DefaultInputFile) component).setPublish(true);
     }
-    
+
     if (isDeprecatedMetric(measure.metric().key())) {
       logOnce(measure.metric().key(), "Metric '{}' is deprecated. Provided value is ignored.", measure.metric().key());
       return;
@@ -313,11 +318,11 @@ public class DefaultSensorStorage implements SensorStorage {
     }
   }
 
-  public boolean isDeprecatedMetric(String metricKey) {
+  public static boolean isDeprecatedMetric(String metricKey) {
     return DEPRECATED_METRICS_KEYS.contains(metricKey);
   }
 
-  public boolean isPlatformMetric(String metricKey) {
+  public static boolean isPlatformMetric(String metricKey) {
     return PLATFORM_METRICS_KEYS.contains(metricKey);
   }
 
@@ -325,7 +330,7 @@ public class DefaultSensorStorage implements SensorStorage {
     return this.byLineMetrics.contains(metric);
   }
 
-  public void validateCoverageMeasure(String value, InputFile inputFile) {
+  public static void validateCoverageMeasure(String value, InputFile inputFile) {
     Map<Integer, Integer> m = KeyValueFormat.parseIntInt(value);
     validatePositiveLine(m, inputFile.absolutePath());
     validateMaxLine(m, inputFile);
@@ -349,6 +354,9 @@ public class DefaultSensorStorage implements SensorStorage {
     }
   }
 
+  /**
+   * Thread safe assuming that each issues for each file are only written once.
+   */
   @Override
   public void store(Issue issue) {
     if (issue.primaryLocation().inputComponent() instanceof DefaultInputFile) {
@@ -357,6 +365,9 @@ public class DefaultSensorStorage implements SensorStorage {
     moduleIssues.initAndAddIssue(issue);
   }
 
+  /**
+   * Thread safe assuming that highlighting of each file is only written once.
+   */
   @Override
   public void store(DefaultHighlighting highlighting) {
     ScannerReportWriter writer = reportPublisher.getWriter();
@@ -382,6 +393,9 @@ public class DefaultSensorStorage implements SensorStorage {
         }).collect(toList()));
   }
 
+  /**
+   * Thread safe assuming that symbol tables of each file is only written once.
+   */
   @Override
   public void store(DefaultSymbolTable symbolTable) {
     ScannerReportWriter writer = reportPublisher.getWriter();
@@ -415,6 +429,9 @@ public class DefaultSensorStorage implements SensorStorage {
         }).collect(Collectors.toList()));
   }
 
+  /**
+   * Not thread safe
+   */
   @Override
   public void store(DefaultCoverage defaultCoverage) {
     DefaultInputFile inputFile = (DefaultInputFile) defaultCoverage.inputFile();
@@ -442,6 +459,9 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   @Override
+  /**
+   * Not thread safe
+   */
   public void store(DefaultCpdTokens defaultCpdTokens) {
     DefaultInputFile inputFile = (DefaultInputFile) defaultCpdTokens.inputFile();
     inputFile.setPublish(true);
@@ -459,12 +479,18 @@ public class DefaultSensorStorage implements SensorStorage {
     return blockSize;
   }
 
+  /**
+   * Thread safe
+   */
   @Override
   public void store(AnalysisError analysisError) {
     ((DefaultInputFile) analysisError.inputFile()).setPublish(true);
     // no op
   }
 
+  /**
+   * Thread safe
+   */
   @Override
   public void storeProperty(String key, String value) {
     contextPropertiesCache.put(key, value);

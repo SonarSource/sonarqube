@@ -21,6 +21,8 @@ package org.sonar.scanner.issue;
 
 import com.google.common.base.Strings;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -39,6 +41,7 @@ import org.sonar.scanner.report.ReportPublisher;
 /**
  * Initialize the issues raised during scan.
  */
+@ThreadSafe
 public class ModuleIssues {
 
   private final ActiveRules activeRules;
@@ -63,9 +66,19 @@ public class ModuleIssues {
       return false;
     }
 
-    String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? rule.name() : issue.primaryLocation().message();
+    ScannerReport.Issue rawIssue = createReportIssue(issue, inputComponent.batchId(), rule.name(), activeRule.severity());
+
+    if (filters.accept(inputComponent.key(), rawIssue)) {
+      write(inputComponent.batchId(), rawIssue);
+      return true;
+    }
+    return false;
+  }
+
+  private static ScannerReport.Issue createReportIssue(Issue issue, int batchId, String ruleName, String activeRuleSeverity) {
+    String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? ruleName : issue.primaryLocation().message();
     org.sonar.api.batch.rule.Severity overriddenSeverity = issue.overriddenSeverity();
-    Severity severity = overriddenSeverity != null ? Severity.valueOf(overriddenSeverity.name()) : Severity.valueOf(activeRule.severity());
+    Severity severity = overriddenSeverity != null ? Severity.valueOf(overriddenSeverity.name()) : Severity.valueOf(activeRuleSeverity);
 
     ScannerReport.Issue.Builder builder = ScannerReport.Issue.newBuilder();
     ScannerReport.IssueLocation.Builder locationBuilder = IssueLocation.newBuilder();
@@ -77,7 +90,7 @@ public class ModuleIssues {
     builder.setMsg(primaryMessage);
     locationBuilder.setMsg(primaryMessage);
 
-    locationBuilder.setComponentRef(inputComponent.batchId());
+    locationBuilder.setComponentRef(batchId);
     TextRange primaryTextRange = issue.primaryLocation().textRange();
     if (primaryTextRange != null) {
       builder.setTextRange(toProtobufTextRange(textRangeBuilder, primaryTextRange));
@@ -87,13 +100,7 @@ public class ModuleIssues {
       builder.setGap(gap);
     }
     applyFlows(builder, locationBuilder, textRangeBuilder, issue);
-    ScannerReport.Issue rawIssue = builder.build();
-
-    if (filters.accept(inputComponent.key(), rawIssue)) {
-      write(inputComponent.batchId(), rawIssue);
-      return true;
-    }
-    return false;
+    return builder.build();
   }
 
   private static void applyFlows(ScannerReport.Issue.Builder builder, ScannerReport.IssueLocation.Builder locationBuilder,

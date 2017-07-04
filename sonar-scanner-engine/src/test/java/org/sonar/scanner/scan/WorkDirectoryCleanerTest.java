@@ -19,20 +19,20 @@
  */
 package org.sonar.scanner.scan;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.home.cache.DirectoryLock;
-import org.sonar.scanner.scan.WorkDirectoryCleaner;
-import java.io.File;
-import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class WorkDirectoryCleanerTest {
   private WorkDirectoryCleaner cleaner;
@@ -51,13 +51,13 @@ public class WorkDirectoryCleanerTest {
     lock.createNewFile();
 
     // mock project
-    ProjectReactor projectReactor = mock(ProjectReactor.class);
-    ProjectDefinition projectDefinition = mock(ProjectDefinition.class);
-    when(projectReactor.getRoot()).thenReturn(projectDefinition);
-    when(projectDefinition.getWorkDir()).thenReturn(temp.getRoot());
+    InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
+    DefaultInputModule root = mock(DefaultInputModule.class);
+    when(hierarchy.root()).thenReturn(root);
+    when(root.getWorkDir()).thenReturn(temp.getRoot());
 
     assertThat(temp.getRoot().list().length).isGreaterThan(1);
-    cleaner = new WorkDirectoryCleaner(projectReactor);
+    cleaner = new WorkDirectoryCleaner(hierarchy);
   }
   
   @Test

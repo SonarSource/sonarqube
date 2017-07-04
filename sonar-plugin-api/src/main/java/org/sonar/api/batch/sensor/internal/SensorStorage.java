@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
@@ -33,6 +35,7 @@ import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
  * @since 5.1
  */
 @ScannerSide
+@ThreadSafe
 public interface SensorStorage {
 
   void store(Measure measure);

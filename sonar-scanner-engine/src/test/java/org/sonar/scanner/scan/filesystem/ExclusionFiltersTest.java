@@ -52,7 +52,7 @@ public class ExclusionFiltersTest {
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(new MapSettings()));
     filter.prepare();
 
-    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java");
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
     assertThat(filter.accept(indexedFile, InputFile.Type.TEST)).isTrue();
   }
@@ -64,10 +64,10 @@ public class ExclusionFiltersTest {
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));
     filter.prepare();
 
-    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java");
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
 
-    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java");
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
   }
 
@@ -79,10 +79,10 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java");
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
 
-    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDto.java");
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDto.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
   }
 
@@ -96,14 +96,14 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java");
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/FooDao.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
 
-    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java");
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/com/mycompany/Foo.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
 
     // source exclusions do not apply to tests
-    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/test/java/com/mycompany/FooDao.java");
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/test/java/com/mycompany/FooDao.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.TEST)).isTrue();
   }
 
@@ -118,10 +118,10 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Foo.java");
+    IndexedFile indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Foo.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isTrue();
 
-    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Bar.java");
+    indexedFile = new DefaultIndexedFile("foo", moduleBaseDir, "src/main/java/org/bar/Bar.java", null);
     assertThat(filter.accept(indexedFile, InputFile.Type.MAIN)).isFalse();
   }
 

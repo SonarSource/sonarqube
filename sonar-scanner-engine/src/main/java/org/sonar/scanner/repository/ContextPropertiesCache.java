@@ -19,16 +19,21 @@
  */
 package org.sonar.scanner.repository;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.batch.ScannerSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 @ScannerSide
+@ThreadSafe
 public class ContextPropertiesCache {
 
-  private final Map<String, String> props = new HashMap<>();
+  private final Map<String, String> props = Collections.synchronizedMap(new HashMap<>());
 
   /**
    * Value is overridden if the key was already stored.

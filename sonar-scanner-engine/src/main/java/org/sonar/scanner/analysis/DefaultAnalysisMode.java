@@ -21,6 +21,8 @@ package org.sonar.scanner.analysis;
 
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -30,6 +32,7 @@ import org.sonar.scanner.bootstrap.GlobalProperties;
 /**
  * @since 4.0
  */
+@Immutable
 public class DefaultAnalysisMode extends AbstractAnalysisMode {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);

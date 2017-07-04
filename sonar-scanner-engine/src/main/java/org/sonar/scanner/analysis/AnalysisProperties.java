@@ -21,6 +21,7 @@ package org.sonar.scanner.analysis;
 
 import java.util.Map;
 import javax.annotation.Nullable;
+
 import org.sonar.scanner.bootstrap.UserProperties;
 
 /**

@@ -19,10 +19,10 @@
  */
 package org.sonar.api.resources;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualifiersTest {
 

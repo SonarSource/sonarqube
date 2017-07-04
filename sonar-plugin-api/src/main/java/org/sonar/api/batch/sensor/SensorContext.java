@@ -164,5 +164,13 @@ public interface SensorContext {
    * @since 6.3
    */
   void markForPublishing(InputFile inputFile);
-
+  
+  /**
+   * Whether the sensor should parallelize its execution. 
+   * @return False if the sensor should use a single thread, true otherwise.
+   * 
+   * @since 6.5
+   */
+  boolean parallel();
+  
 }

@@ -36,6 +36,8 @@ import org.sonar.api.CoreProperties;
  * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point} and must not be used
  * by other standard extensions.
  *
+ * Since 6.5, plugins should no longer manipulate the project's structure.
+ *
  * @since 2.9
  */
 public class ProjectDefinition {
@@ -186,7 +188,7 @@ public class ProjectDefinition {
     }
     return null;
   }
-  
+
   @CheckForNull
   public String getOriginalVersion() {
     return properties.get(CoreProperties.PROJECT_VERSION_PROPERTY);
@@ -199,7 +201,7 @@ public class ProjectDefinition {
     }
     return version;
   }
-  
+
   @CheckForNull
   public String getOriginalName() {
     return properties.get(CoreProperties.PROJECT_NAME_PROPERTY);

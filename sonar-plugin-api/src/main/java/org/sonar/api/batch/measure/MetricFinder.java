@@ -23,12 +23,15 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.batch.ScannerSide;
 
 /**
  * @since 4.5
  */
 @ScannerSide
+@ThreadSafe
 public interface MetricFinder {
 
   @CheckForNull

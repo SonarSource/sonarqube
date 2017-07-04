@@ -19,22 +19,20 @@
  */
 package org.sonar.scanner.analysis;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.junit.Before;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.scanner.analysis.AnalysisTempFolderProvider;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.utils.TempFolder;
 
 public class AnalysisTempFolderProviderTest {
 
@@ -42,22 +40,22 @@ public class AnalysisTempFolderProviderTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private AnalysisTempFolderProvider tempFolderProvider;
-  private ProjectReactor projectReactor;
+  private InputModuleHierarchy moduleHierarchy;
 
   @Before
   public void setUp() {
     tempFolderProvider = new AnalysisTempFolderProvider();
-    projectReactor = mock(ProjectReactor.class);
-    ProjectDefinition projectDefinition = mock(ProjectDefinition.class);
-    when(projectReactor.getRoot()).thenReturn(projectDefinition);
-    when(projectDefinition.getWorkDir()).thenReturn(temp.getRoot());
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    DefaultInputModule module = mock(DefaultInputModule.class);
+    when(moduleHierarchy.root()).thenReturn(module);
+    when(module.getWorkDir()).thenReturn(temp.getRoot());
   }
 
   @Test
   public void createTempFolder() throws IOException {
     File defaultDir = new File(temp.getRoot(), AnalysisTempFolderProvider.TMP_NAME);
 
-    TempFolder tempFolder = tempFolderProvider.provide(projectReactor);
+    TempFolder tempFolder = tempFolderProvider.provide(moduleHierarchy);
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(defaultDir).exists();

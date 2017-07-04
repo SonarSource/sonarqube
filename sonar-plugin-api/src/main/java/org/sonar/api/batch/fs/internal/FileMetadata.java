@@ -20,251 +20,33 @@
 package org.sonar.api.batch.fs.internal;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
+import org.sonar.api.batch.fs.internal.charhandler.FileHashComputer;
+import org.sonar.api.batch.fs.internal.charhandler.LineCounter;
+import org.sonar.api.batch.fs.internal.charhandler.LineHashComputer;
+import org.sonar.api.batch.fs.internal.charhandler.LineOffsetCounter;
 
 /**
  * Computes hash of files. Ends of Lines are ignored, so files with
  * same content but different EOL encoding have the same hash.
  */
 @ScannerSide
+@Immutable
 public class FileMetadata {
-
-  private static final Logger LOG = Loggers.get(FileMetadata.class);
-
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
-
-  public abstract static class CharHandler {
-
-    protected void handleAll(char c) {
-    }
-
-    protected void handleIgnoreEoL(char c) {
-    }
-
-    protected void newLine() {
-    }
-
-    protected void eof() {
-    }
-  }
-
-  private static class LineCounter extends CharHandler {
-    private int lines = 1;
-    private int nonBlankLines = 0;
-    private boolean blankLine = true;
-    boolean alreadyLoggedInvalidCharacter = false;
-    private final String filePath;
-    private final Charset encoding;
-
-    LineCounter(String filePath, Charset encoding) {
-      this.filePath = filePath;
-      this.encoding = encoding;
-    }
-
-    @Override
-    protected void handleAll(char c) {
-      if (!alreadyLoggedInvalidCharacter && c == '\ufffd') {
-        LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '{}'.", filePath,
-          lines, encoding, CoreProperties.ENCODING_PROPERTY);
-        alreadyLoggedInvalidCharacter = true;
-      }
-    }
-
-    @Override
-    protected void newLine() {
-      lines++;
-      if (!blankLine) {
-        nonBlankLines++;
-      }
-      blankLine = true;
-    }
-
-    @Override
-    protected void handleIgnoreEoL(char c) {
-      if (!Character.isWhitespace(c)) {
-        blankLine = false;
-      }
-    }
-
-    @Override
-    protected void eof() {
-      if (!blankLine) {
-        nonBlankLines++;
-      }
-    }
-
-    public int lines() {
-      return lines;
-    }
-
-    public int nonBlankLines() {
-      return nonBlankLines;
-    }
-
-  }
-
-  private static class FileHashComputer extends CharHandler {
-    private MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
-    private StringBuilder sb = new StringBuilder();
-    private final CharsetEncoder encoder;
-    private final String filePath;
-
-    public FileHashComputer(String filePath) {
-      encoder = StandardCharsets.UTF_8.newEncoder()
-        .onMalformedInput(CodingErrorAction.REPLACE)
-        .onUnmappableCharacter(CodingErrorAction.REPLACE);
-      this.filePath = filePath;
-    }
-
-    @Override
-    protected void handleIgnoreEoL(char c) {
-      sb.append(c);
-    }
-
-    @Override
-    protected void newLine() {
-      sb.append(LINE_FEED);
-      processBuffer();
-      sb.setLength(0);
-    }
-
-    @Override
-    protected void eof() {
-      if (sb.length() > 0) {
-        processBuffer();
-      }
-    }
-
-    private void processBuffer() {
-      try {
-        if (sb.length() > 0) {
-          ByteBuffer encoded = encoder.encode(CharBuffer.wrap(sb));
-          globalMd5Digest.update(encoded.array(), 0, encoded.limit());
-        }
-      } catch (CharacterCodingException e) {
-        throw new IllegalStateException("Error encoding line hash in file: " + filePath, e);
-      }
-    }
-
-    @CheckForNull
-    public String getHash() {
-      return Hex.encodeHexString(globalMd5Digest.digest());
-    }
-  }
-
-  private static class LineHashComputer extends CharHandler {
-    private final MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
-    private final CharsetEncoder encoder;
-    private final StringBuilder sb = new StringBuilder();
-    private final LineHashConsumer consumer;
-    private final File file;
-    private int line = 1;
-
-    public LineHashComputer(LineHashConsumer consumer, File f) {
-      this.consumer = consumer;
-      this.file = f;
-      this.encoder = StandardCharsets.UTF_8.newEncoder()
-        .onMalformedInput(CodingErrorAction.REPLACE)
-        .onUnmappableCharacter(CodingErrorAction.REPLACE);
-    }
-
-    @Override
-    protected void handleIgnoreEoL(char c) {
-      if (!Character.isWhitespace(c)) {
-        sb.append(c);
-      }
-    }
-
-    @Override
-    protected void newLine() {
-      processBuffer();
-      sb.setLength(0);
-      line++;
-    }
-
-    @Override
-    protected void eof() {
-      if (this.line > 0) {
-        processBuffer();
-      }
-    }
-
-    private void processBuffer() {
-      try {
-        if (sb.length() > 0) {
-          ByteBuffer encoded = encoder.encode(CharBuffer.wrap(sb));
-          lineMd5Digest.update(encoded.array(), 0, encoded.limit());
-          consumer.consume(line, lineMd5Digest.digest());
-        }
-      } catch (CharacterCodingException e) {
-        throw new IllegalStateException("Error encoding line hash in file: " + file.getAbsolutePath(), e);
-      }
-    }
-  }
-
-  private static class LineOffsetCounter extends CharHandler {
-    private long currentOriginalOffset = 0;
-    private IntArrayList originalLineOffsets = new IntArrayList();
-    private long lastValidOffset = 0;
-
-    public LineOffsetCounter() {
-      originalLineOffsets.add(0);
-    }
-
-    @Override
-    protected void handleAll(char c) {
-      currentOriginalOffset++;
-    }
-
-    @Override
-    protected void newLine() {
-      if (currentOriginalOffset > Integer.MAX_VALUE) {
-        throw new IllegalStateException("File is too big: " + currentOriginalOffset);
-      }
-      originalLineOffsets.add((int) currentOriginalOffset);
-    }
-
-    @Override
-    protected void eof() {
-      lastValidOffset = currentOriginalOffset;
-    }
-
-    public int[] getOriginalLineOffsets() {
-      return originalLineOffsets.trimAndGet();
-    }
-
-    public int getLastValidOffset() {
-      if (lastValidOffset > Integer.MAX_VALUE) {
-        throw new IllegalStateException("File is too big: " + lastValidOffset);
-      }
-      return (int) lastValidOffset;
-    }
-
-  }
 
   /**
    * Compute hash of a file ignoring line ends differences.

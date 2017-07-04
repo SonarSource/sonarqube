@@ -27,8 +27,10 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
  * Context that is passed to {@link org.sonar.api.batch.bootstrap.ProjectBuilder} as parameter.
  * Important - plugins must use this class only for unit test needs.
  *
+ * @deprecated since 6.5
  * @since 3.7
  */
+@Deprecated
 public class ProjectBuilderContext implements ProjectBuilder.Context {
 
   private final ProjectReactor reactor;

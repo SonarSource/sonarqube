@@ -26,8 +26,11 @@ import java.util.List;
 
 /**
  * Mutable project definitions that can be modified by {@link ProjectBuilder} extensions.
+ * 
+ * @deprecated since 6.5 plugins should no longer modify the project's structure
  * @since 2.9
  */
+@Deprecated
 @ScannerSide
 public class ProjectReactor implements ProjectKey {
 
@@ -41,7 +44,7 @@ public class ProjectReactor implements ProjectKey {
   }
 
   public List<ProjectDefinition> getProjects() {
-    return collectProjects(root, new ArrayList<ProjectDefinition>());
+    return collectProjects(root, new ArrayList<>());
   }
 
   /**

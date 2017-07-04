@@ -673,6 +673,7 @@ public class FileSystemMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
+    System.out.println(logs.getAsString());
     assertThat(result.inputFiles()).hasSize(4);
     assertThat(result.inputDirs()).hasSize(4);
   }
