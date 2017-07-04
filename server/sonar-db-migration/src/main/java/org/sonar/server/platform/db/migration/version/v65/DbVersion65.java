@@ -62,6 +62,7 @@ public class DbVersion65 implements DbVersion {
       .add(1732, "Make USERS.ONBOARDED not nullable", MakeUsersOnboardedNotNullable.class)
       .add(1733, "Create table es_queue", CreateEsQueueTable.class)
       .add(1734, "Add index on es_queue.created_at", AddIndexOnEsQueueCreatedAt.class)
+      .add(1735, "Delete sonar.ce.workerCount setting", DeleteCeWorkerCountSetting.class)
     ;
   }
 }
