@@ -94,8 +94,20 @@ public class CharsetDetectorTest {
   @Test
   public void no_encoding_found() throws IOException {
     Path filePath = temp.newFile().toPath();
-    byte[] b = new byte[512];
+    byte[] b = new byte[4096];
     new Random().nextBytes(b);
+    // avoid accidental BOM matching
+    b[0] = 1;
+    
+    // avoid UTF-8 / UTF-16
+    b[100] = 0;
+    b[101] = 0;
+    b[102] = 0;
+    b[103] = 0;
+    
+    // invalid in win-1258
+    b[200] = (byte) 129;
+    
     Files.write(filePath, b);
 
     CharsetDetector detector = new CharsetDetector(filePath, UTF_8);
