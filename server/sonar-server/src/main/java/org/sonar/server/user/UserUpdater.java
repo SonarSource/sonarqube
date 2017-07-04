@@ -110,15 +110,11 @@ public class UserUpdater {
     UpdateUser updateUser = UpdateUser.create(login)
       .setName(newUser.name())
       .setEmail(newUser.email())
-      .setScmAccounts(newUser.scmAccounts());
+      .setScmAccounts(newUser.scmAccounts())
+      .setExternalIdentity(newUser.externalIdentity());
     if (newUser.password() != null) {
       updateUser.setPassword(newUser.password());
     }
-    if (newUser.externalIdentity() != null) {
-      updateUser.setExternalIdentity(newUser.externalIdentity());
-    }
-    // Hack to allow to change the password of the user
-    existingUser.setLocal(true);
     setOnboarded(existingUser);
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
@@ -206,8 +202,6 @@ public class UserUpdater {
     ExternalIdentity externalIdentity = updateUser.externalIdentity();
     if (updateUser.isExternalIdentityChanged() && !isSameExternalIdentity(userDto, externalIdentity)) {
       setExternalIdentity(userDto, externalIdentity);
-      userDto.setSalt(null);
-      userDto.setCryptedPassword(null);
       return true;
     }
     return false;
@@ -215,7 +209,7 @@ public class UserUpdater {
 
   private static boolean updatePassword(UpdateUser updateUser, UserDto userDto, List<String> messages) {
     String password = updateUser.password();
-    if (!updateUser.isExternalIdentityChanged() && updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
+    if (updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
       setEncryptedPassWord(password, userDto);
       return true;
     }
@@ -241,10 +235,9 @@ public class UserUpdater {
   }
 
   private static boolean isSameExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
-    return (externalIdentity == null && dto.getExternalIdentity() == null) ||
-      (externalIdentity != null
+    return externalIdentity != null
         && Objects.equals(dto.getExternalIdentity(), externalIdentity.getId())
-        && Objects.equals(dto.getExternalIdentityProvider(), externalIdentity.getProvider()));
+        && Objects.equals(dto.getExternalIdentityProvider(), externalIdentity.getProvider());
   }
 
   private static void setExternalIdentity(UserDto dto, @Nullable ExternalIdentity externalIdentity) {
@@ -256,6 +249,8 @@ public class UserUpdater {
       dto.setExternalIdentity(externalIdentity.getId());
       dto.setExternalIdentityProvider(externalIdentity.getProvider());
       dto.setLocal(false);
+      dto.setSalt(null);
+      dto.setCryptedPassword(null);
     }
   }
 
