@@ -25,7 +25,7 @@ import org.sonar.server.ws.WsAction;
 /**
  * Used by {@link CeWs} to loop over all its actions
  */
-interface CeWsAction extends WsAction {
+public interface CeWsAction extends WsAction {
   @Override
   void define(WebService.NewController controller);
 }
