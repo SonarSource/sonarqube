@@ -68,7 +68,6 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -154,7 +153,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new HashMap<>();
   private final Set<Metric<?>> coverageMetrics = new HashSet<>();
   private final Set<Metric<?>> byLineMetrics = new HashSet<>();
-  private final Set<String> alreadyLogged = Collections.synchronizedSet(new HashSet<>());
+  private final Set<String> alreadyLogged = new HashSet<>();
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues, Settings settings, CoverageExclusions coverageExclusions,
     ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index,
@@ -265,33 +264,27 @@ public class DefaultSensorStorage implements SensorStorage {
       }
       saveCoverageMetricInternal((InputFile) component, metric, measureToSave);
     } else {
-      synchronized (measureCache) {
-        if (measureCache.contains(component.key(), metric.key())) {
-          throw new UnsupportedOperationException("Can not add the same measure twice on " + component + ": " + measure);
-        }
-        measureCache.put(component.key(), metric.key(), measureToSave);
+      if (measureCache.contains(component.key(), metric.key())) {
+        throw new UnsupportedOperationException("Can not add the same measure twice on " + component + ": " + measure);
       }
+      measureCache.put(component.key(), metric.key(), measureToSave);
     }
   }
 
   private void saveCoverageMetricInternal(InputFile file, Metric<?> metric, DefaultMeasure<?> measure) {
     if (isLineMetrics(metric)) {
       validateCoverageMeasure((String) measure.value(), file);
-      synchronized (measureCache) {
-        DefaultMeasure<?> previousMeasure = measureCache.byMetric(file.key(), metric.key());
-        if (previousMeasure != null) {
-          measureCache.put(file.key(), metric.key(), new DefaultMeasure<String>()
-            .forMetric((Metric<String>) metric)
-            .withValue(mergeCoverageLineMetric(metric, (String) previousMeasure.value(), (String) measure.value())));
-        } else {
-          measureCache.put(file.key(), metric.key(), measure);
-        }
-      }
-    } else {
-      synchronized (measureCache) {
-        // Other coverage metrics are all integer values. Just erase value, it will be recomputed at the end anyway
+      DefaultMeasure<?> previousMeasure = measureCache.byMetric(file.key(), metric.key());
+      if (previousMeasure != null) {
+        measureCache.put(file.key(), metric.key(), new DefaultMeasure<String>()
+          .forMetric((Metric<String>) metric)
+          .withValue(mergeCoverageLineMetric(metric, (String) previousMeasure.value(), (String) measure.value())));
+      } else {
         measureCache.put(file.key(), metric.key(), measure);
       }
+    } else {
+      // Other coverage metrics are all integer values. Just erase value, it will be recomputed at the end anyway
+      measureCache.put(file.key(), metric.key(), measure);
     }
   }
 
@@ -437,7 +430,7 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   /**
-   * Thread safe
+   * Not thread safe
    */
   @Override
   public void store(DefaultCoverage defaultCoverage) {
@@ -446,36 +439,35 @@ public class DefaultSensorStorage implements SensorStorage {
     if (coverageExclusions.isExcluded(inputFile)) {
       return;
     }
-    synchronized (measureCache) {
-      if (defaultCoverage.linesToCover() > 0) {
-        saveCoverageMetricInternal(inputFile, LINES_TO_COVER, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(defaultCoverage.linesToCover()));
-        saveCoverageMetricInternal(inputFile, UNCOVERED_LINES,
-          new DefaultMeasure<Integer>().forMetric(UNCOVERED_LINES).withValue(defaultCoverage.linesToCover() - defaultCoverage.coveredLines()));
-        saveCoverageMetricInternal(inputFile, COVERAGE_LINE_HITS_DATA,
-          new DefaultMeasure<String>().forMetric(COVERAGE_LINE_HITS_DATA).withValue(KeyValueFormat.format(defaultCoverage.hitsByLine())));
-      }
-      if (defaultCoverage.conditions() > 0) {
-        saveCoverageMetricInternal(inputFile, CONDITIONS_TO_COVER,
-          new DefaultMeasure<Integer>().forMetric(CONDITIONS_TO_COVER).withValue(defaultCoverage.conditions()));
-        saveCoverageMetricInternal(inputFile, UNCOVERED_CONDITIONS,
-          new DefaultMeasure<Integer>().forMetric(UNCOVERED_CONDITIONS).withValue(defaultCoverage.conditions() - defaultCoverage.coveredConditions()));
-        saveCoverageMetricInternal(inputFile, COVERED_CONDITIONS_BY_LINE,
-          new DefaultMeasure<String>().forMetric(COVERED_CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.coveredConditionsByLine())));
-        saveCoverageMetricInternal(inputFile, CONDITIONS_BY_LINE,
-          new DefaultMeasure<String>().forMetric(CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.conditionsByLine())));
-      }
+    if (defaultCoverage.linesToCover() > 0) {
+      saveCoverageMetricInternal(inputFile, LINES_TO_COVER, new DefaultMeasure<Integer>().forMetric(LINES_TO_COVER).withValue(defaultCoverage.linesToCover()));
+      saveCoverageMetricInternal(inputFile, UNCOVERED_LINES,
+        new DefaultMeasure<Integer>().forMetric(UNCOVERED_LINES).withValue(defaultCoverage.linesToCover() - defaultCoverage.coveredLines()));
+      saveCoverageMetricInternal(inputFile, COVERAGE_LINE_HITS_DATA,
+        new DefaultMeasure<String>().forMetric(COVERAGE_LINE_HITS_DATA).withValue(KeyValueFormat.format(defaultCoverage.hitsByLine())));
+    }
+    if (defaultCoverage.conditions() > 0) {
+      saveCoverageMetricInternal(inputFile, CONDITIONS_TO_COVER,
+        new DefaultMeasure<Integer>().forMetric(CONDITIONS_TO_COVER).withValue(defaultCoverage.conditions()));
+      saveCoverageMetricInternal(inputFile, UNCOVERED_CONDITIONS,
+        new DefaultMeasure<Integer>().forMetric(UNCOVERED_CONDITIONS).withValue(defaultCoverage.conditions() - defaultCoverage.coveredConditions()));
+      saveCoverageMetricInternal(inputFile, COVERED_CONDITIONS_BY_LINE,
+        new DefaultMeasure<String>().forMetric(COVERED_CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.coveredConditionsByLine())));
+      saveCoverageMetricInternal(inputFile, CONDITIONS_BY_LINE,
+        new DefaultMeasure<String>().forMetric(CONDITIONS_BY_LINE).withValue(KeyValueFormat.format(defaultCoverage.conditionsByLine())));
     }
   }
 
   @Override
+  /**
+   * Not thread safe
+   */
   public void store(DefaultCpdTokens defaultCpdTokens) {
     DefaultInputFile inputFile = (DefaultInputFile) defaultCpdTokens.inputFile();
     inputFile.setPublish(true);
     PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
     List<Block> blocks = blockChunker.chunk(inputFile.key(), defaultCpdTokens.getTokenLines());
-    synchronized (index) {
-      index.insert(inputFile, blocks);
-    }
+    index.insert(inputFile, blocks);
   }
 
   @VisibleForTesting
