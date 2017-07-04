@@ -440,11 +440,6 @@
         <version>${sonarUpdateCenter.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-ce-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-server</artifactId>
         <version>${project.version}</version>
