@@ -64,7 +64,7 @@ public class InputFileBuilderTest {
     DefaultInputFile inputFile = builder.create(filePath, Type.MAIN, StandardCharsets.UTF_8);
 
     assertThat(inputFile.moduleKey()).isEqualTo("module1");
-    assertThat(inputFile.absolutePath()).isEqualTo(filePath.toString());
+    assertThat(inputFile.absolutePath()).isEqualTo(filePath.toString().replaceAll("\\\\", "/"));
     assertThat(inputFile.key()).isEqualTo("module1:src/File1.xoo");
     assertThat(inputFile.publish()).isFalse();
   }
