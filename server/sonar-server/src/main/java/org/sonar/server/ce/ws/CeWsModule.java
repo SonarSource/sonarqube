@@ -35,6 +35,7 @@ public class CeWsModule extends Module {
       SubmitAction.class,
       TaskFormatter.class,
       TaskAction.class,
-      TaskTypesAction.class);
+      TaskTypesAction.class,
+      WorkerCountAction.class);
   }
 }
