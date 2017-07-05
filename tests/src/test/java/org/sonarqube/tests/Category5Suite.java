@@ -21,6 +21,7 @@ package org.sonarqube.tests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.tests.ce.WorkerCountTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
 import org.sonarqube.tests.serverSystem.ClusterTest;
 import org.sonarqube.tests.serverSystem.RestartTest;
@@ -49,7 +50,9 @@ import org.sonarqube.tests.user.SsoAuthenticationTest;
   RealmAuthenticationTest.class,
   SsoAuthenticationTest.class,
   OnboardingTest.class,
-  BuiltInQualityProfilesNotificationTest.class
+  BuiltInQualityProfilesNotificationTest.class,
+  // ce
+  WorkerCountTest.class
 })
 public class Category5Suite {
 
