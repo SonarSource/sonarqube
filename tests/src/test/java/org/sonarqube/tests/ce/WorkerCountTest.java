@@ -27,8 +27,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Test;
+import org.sonarqube.ws.WsCe.WorkerCountResponse;
 
+import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.pluginArtifact;
 
 public class WorkerCountTest {
@@ -58,5 +61,9 @@ public class WorkerCountTest {
     assertThat(line)
       .hasSize(1);
     assertThat(line.iterator().next()).contains(workerCount);
+
+    assertThat(newAdminWsClient(orchestrator).ce().workerCount())
+      .extracting(WorkerCountResponse::getValue, WorkerCountResponse::getCanSetWorkerCount)
+      .containsOnly(parseInt(workerCount), true);
   }
 }

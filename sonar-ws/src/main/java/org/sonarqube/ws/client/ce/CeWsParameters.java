@@ -20,6 +20,9 @@
 package org.sonarqube.ws.client.ce;
 
 public class CeWsParameters {
+
+  public static final String ACTION_WORKER_COUNT = "worker_count";
+
   public static final String PARAM_COMPONENT_ID = "componentId";
   public static final String PARAM_COMPONENT_KEY = "componentKey";
   public static final String PARAM_COMPONENT_QUERY = "componentQuery";

@@ -133,4 +133,12 @@ public class CeServiceTest {
     assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
     assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"), entry("additionalFields", "stacktrace"));
   }
+
+  @Test
+  public void worker_count() {
+    underTest.workerCount();
+
+    assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/worker_count");
+    assertThat(serviceTester.getGetParser()).isSameAs(WsCe.WorkerCountResponse.parser());
+  }
 }
