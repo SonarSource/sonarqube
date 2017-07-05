@@ -40,7 +40,6 @@ type Props = {
 };
 
 type State = {
-  selectedDate?: ?Date,
   graphStartDate: ?Date,
   graphEndDate: ?Date,
   series: Array<Serie>
@@ -97,7 +96,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     }
   };
 
-  updateSelectedDate = (selectedDate: ?Date) => this.setState({ selectedDate });
+  updateSelectedDate = (selectedDate: ?Date) => this.props.updateQuery({ selectedDate });
 
   updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) => {
     if (graphEndDate != null && graphStartDate != null) {
@@ -138,7 +137,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
           measuresHistory={this.props.measuresHistory}
           metricsType={metricsType}
           project={this.props.project}
-          selectedDate={this.state.selectedDate}
+          selectedDate={this.props.query.selectedDate}
           series={series}
           updateGraphZoom={this.updateGraphZoom}
           updateSelectedDate={this.updateSelectedDate}
