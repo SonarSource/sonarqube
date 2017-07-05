@@ -117,6 +117,7 @@ exports[`should render correctly 1`] = `
             "project": "org.sonarsource.sonarqube:sonarqube",
           }
         }
+        updateQuery={[Function]}
       />
     </div>
     <div

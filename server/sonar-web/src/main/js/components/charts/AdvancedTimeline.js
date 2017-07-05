@@ -50,7 +50,7 @@ type Props = {
   showEventMarkers?: boolean,
   startDate: ?Date,
   updateSelectedDate?: (selectedDate: ?Date) => void,
-  updateTooltipPos?: (tooltipXPos: ?number, tooltipIdx: ?number) => void,
+  updateTooltip?: (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) => void,
   updateZoom?: (start: ?Date, endDate: ?Date) => void,
   zoomSpeed: number
 };
@@ -59,6 +59,7 @@ type State = {
   maxXRange: Array<number>,
   mouseOver?: boolean,
   mouseOverlayPos?: { [string]: number },
+  selectedDate: ?Date,
   selectedDateXPos: ?number,
   selectedDateIdx: ?number,
   yScale: Scale,
@@ -78,8 +79,9 @@ export default class AdvancedTimeline extends React.PureComponent {
   constructor(props: Props) {
     super(props);
     const scales = this.getScales(props);
-    this.state = { ...scales, ...this.getSelectedDatePos(scales.xScale, props.selectedDate) };
-    this.updateSelectedDate = throttle(this.updateSelectedDate, 40);
+    const selectedDatePos = this.getSelectedDatePos(scales.xScale, props.selectedDate);
+    this.state = { ...scales, ...selectedDatePos };
+    this.updateTooltipPos = throttle(this.updateTooltipPos, 40);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -100,8 +102,9 @@ export default class AdvancedTimeline extends React.PureComponent {
       const xScale = scales ? scales.xScale : this.state.xScale;
       const selectedDatePos = this.getSelectedDatePos(xScale, nextProps.selectedDate);
       this.setState({ ...scales, ...selectedDatePos });
-      if (nextProps.updateTooltipPos) {
-        nextProps.updateTooltipPos(
+      if (nextProps.updateTooltip) {
+        nextProps.updateTooltip(
+          selectedDatePos.selectedDate,
           selectedDatePos.selectedDateXPos,
           selectedDatePos.selectedDateIdx
         );
@@ -158,12 +161,13 @@ export default class AdvancedTimeline extends React.PureComponent {
         this.props.series.some(serie => serie.data[idx].y || serie.data[idx].y === 0)
       ) {
         return {
+          selectedDate,
           selectedDateXPos: xScale(selectedDate),
           selectedDateIdx: idx
         };
       }
     }
-    return { selectedDateXPos: null, selectedDateIdx: null };
+    return { selectedDate: null, selectedDateXPos: null, selectedDateIdx: null };
   };
 
   getEventMarker = (size: number) => {
@@ -197,31 +201,43 @@ export default class AdvancedTimeline extends React.PureComponent {
 
   handleMouseMove = (evt: MouseEvent & { target: HTMLElement }) => {
     const parentBbox = this.getMouseOverlayPos(evt.target);
-    this.updateSelectedDate(evt.pageX - parentBbox.left);
+    this.updateTooltipPos(evt.pageX - parentBbox.left);
   };
 
   handleMouseEnter = () => this.setState({ mouseOver: true });
 
   handleMouseOut = (evt: Event & { relatedTarget: HTMLElement }) => {
-    const { updateSelectedDate } = this.props;
+    const { updateTooltip } = this.props;
     const targetClass = evt.relatedTarget && typeof evt.relatedTarget.className === 'string'
       ? evt.relatedTarget.className
       : '';
     if (
-      !updateSelectedDate ||
+      !updateTooltip ||
       targetClass.includes('bubble-popup') ||
       targetClass.includes('graph-tooltip')
     ) {
       return;
     }
-    this.setState({ mouseOver: false });
-    updateSelectedDate(null);
+    this.setState({
+      mouseOver: false,
+      selectedDate: null,
+      selectedDateXPos: null,
+      selectedDateIdx: null
+    });
+    updateTooltip(null, null, null);
   };
 
-  updateSelectedDate = (xPos: number) => {
+  handleClick = () => {
     const { updateSelectedDate } = this.props;
+    if (updateSelectedDate) {
+      updateSelectedDate(this.state.selectedDate);
+    }
+  };
+
+  updateTooltipPos = (xPos: number) => {
     const firstSerie = this.props.series[0];
-    if (this.state.mouseOver && firstSerie && updateSelectedDate) {
+    if (this.state.mouseOver && firstSerie) {
+      const { updateTooltip } = this.props;
       const date = this.state.xScale.invert(xPos);
       const bisectX = bisector(d => d.x).right;
       let idx = bisectX(firstSerie.data, date);
@@ -231,7 +247,12 @@ export default class AdvancedTimeline extends React.PureComponent {
         if (!nextPoint || (previousPoint && date - previousPoint.x <= nextPoint.x - date)) {
           idx--;
         }
-        updateSelectedDate(firstSerie.data[idx].x);
+        const selectedDate = firstSerie.data[idx].x;
+        const xPos = this.state.xScale(selectedDate);
+        this.setState({ selectedDate, selectedDateXPos: xPos, selectedDateIdx: idx });
+        if (updateTooltip) {
+          updateTooltip(selectedDate, xPos, idx);
+        }
       }
     }
   };
@@ -428,10 +449,13 @@ export default class AdvancedTimeline extends React.PureComponent {
     if (zoomEnabled) {
       mouseEvents.onWheel = this.handleWheel;
     }
-    if (this.props.updateSelectedDate) {
+    if (this.props.updateTooltip) {
       mouseEvents.onMouseEnter = this.handleMouseEnter;
       mouseEvents.onMouseMove = this.handleMouseMove;
       mouseEvents.onMouseOut = this.handleMouseOut;
+    }
+    if (this.props.updateSelectedDate) {
+      mouseEvents.onClick = this.handleClick;
     }
     return (
       <rect

@@ -49,15 +49,24 @@ export const GRAPHS_METRICS = {
 };
 
 export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
-  prevQuery.category !== nextQuery.category ||
-  prevQuery.from !== nextQuery.from ||
-  prevQuery.to !== nextQuery.to;
+  prevQuery.category !== nextQuery.category || datesQueryChanged(prevQuery, nextQuery);
 
-export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
-  prevQuery.from !== nextQuery.from || prevQuery.to !== nextQuery.to;
+export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean => {
+  const nextFrom = nextQuery.from ? nextQuery.from.valueOf() : null;
+  const previousFrom = prevQuery.from ? prevQuery.from.valueOf() : null;
+  const nextTo = nextQuery.to ? nextQuery.to.valueOf() : null;
+  const previousTo = prevQuery.to ? prevQuery.to.valueOf() : null;
+  return previousFrom !== nextFrom || previousTo !== nextTo;
+};
 
 export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   prevQuery.graph !== nextQuery.graph;
+
+export const selectedDateQueryChanged = (prevQuery: Query, nextQuery: Query): boolean => {
+  const nextSelectedDate = nextQuery.selectedDate ? nextQuery.selectedDate.valueOf() : null;
+  const previousSelectedDate = prevQuery.selectedDate ? prevQuery.selectedDate.valueOf() : null;
+  return nextSelectedDate !== previousSelectedDate;
+};
 
 export const generateCoveredLinesMetric = (
   uncoveredLines: MeasureHistory,
@@ -143,7 +152,8 @@ export const parseQuery = (urlQuery: RawQuery): Query => ({
   from: parseAsDate(urlQuery['from']),
   graph: parseGraph(urlQuery['graph']),
   project: parseAsString(urlQuery['id']),
-  to: parseAsDate(urlQuery['to'])
+  to: parseAsDate(urlQuery['to']),
+  selectedDate: parseAsDate(urlQuery['selected_date'])
 });
 
 export const serializeQuery = (query: Query): RawQuery =>
@@ -160,6 +170,7 @@ export const serializeUrlQuery = (query: Query): RawQuery => {
     from: serializeDate(query.from),
     graph: serializeGraph(query.graph),
     id: serializeString(query.project),
-    to: serializeDate(query.to)
+    to: serializeDate(query.to),
+    selected_date: serializeDate(query.selectedDate)
   });
 };

@@ -119,6 +119,14 @@
   cursor: pointer;
 }
 
+.project-activity-analysis.selected {
+  background-color: #ecf6fe;
+}
+
+.project-activity-analysis:focus {
+  outline: none;
+}
+
 .project-activity-analysis:hover {
   background-color: #ecf6fe;
 }
