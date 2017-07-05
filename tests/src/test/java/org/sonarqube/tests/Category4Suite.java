@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.analysis.FileExclusionsTest;
 import org.sonarqube.tests.analysis.IssueExclusionsTest;
+import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.component.ComponentsWsTest;
 import org.sonarqube.tests.component.ProjectsWsTest;
 import org.sonarqube.tests.dbCleaner.PurgeTest;
@@ -97,7 +98,9 @@ import static util.ItUtils.xooPlugin;
   WsTest.class,
   // quality profiles
   QualityProfilesUiTest.class,
-  LogsTest.class
+  LogsTest.class,
+  // ce
+  CeWsTest.class
 })
 public class Category4Suite {
 
