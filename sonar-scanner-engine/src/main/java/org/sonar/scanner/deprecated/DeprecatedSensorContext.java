@@ -46,7 +46,8 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   private final DefaultIndex index;
   private final InputModule module;
 
-  public DeprecatedSensorContext(InputModule module, DefaultIndex index, Configuration config, org.sonar.api.config.Settings mutableSettings, FileSystem fs, ActiveRules activeRules,
+  public DeprecatedSensorContext(InputModule module, DefaultIndex index, Configuration config, org.sonar.api.config.Settings mutableSettings,
+    FileSystem fs, ActiveRules activeRules,
     AnalysisMode analysisMode, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
     super(module, config, mutableSettings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
     this.index = index;

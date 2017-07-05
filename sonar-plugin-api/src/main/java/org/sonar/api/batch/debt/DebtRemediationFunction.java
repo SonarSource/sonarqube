@@ -27,6 +27,7 @@ import org.sonar.api.utils.Duration;
  * @since 4.3
  * @deprecated since 6.5 debt model will soon be unavailable on batch side
  */
+@Deprecated
 public class DebtRemediationFunction {
 
   public enum Type {

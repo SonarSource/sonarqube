@@ -33,6 +33,7 @@ public interface PostJobContext {
   /**
    * @deprecated since 6.5 use {@link PostJobContext#config()}
    */
+  @Deprecated
   Settings settings();
 
   /**

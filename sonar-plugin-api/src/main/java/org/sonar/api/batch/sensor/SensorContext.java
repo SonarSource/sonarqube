@@ -36,8 +36,8 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
 
 /**
@@ -50,6 +50,7 @@ public interface SensorContext {
   /**
    * @deprecated since 6.5 use {@link PostJobContext#config()}
    */
+  @Deprecated
   Settings settings();
 
   /**

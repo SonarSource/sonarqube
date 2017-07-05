@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,23 +67,10 @@ public class MutableModuleSettings extends Settings {
   }
 
   private void addBuildProperties(ProjectDefinition project) {
-    List<ProjectDefinition> orderedProjects = getTopDownParentProjects(project);
+    List<ProjectDefinition> orderedProjects = ModuleSettingsProvider.getTopDownParentProjects(project);
     for (ProjectDefinition p : orderedProjects) {
       addProperties(p.properties());
     }
-  }
-
-  /**
-   * From root to given project
-   */
-  static List<ProjectDefinition> getTopDownParentProjects(ProjectDefinition project) {
-    List<ProjectDefinition> result = new ArrayList<>();
-    ProjectDefinition p = project;
-    while (p != null) {
-      result.add(0, p);
-      p = p.getParent();
-    }
-    return result;
   }
 
   @Override

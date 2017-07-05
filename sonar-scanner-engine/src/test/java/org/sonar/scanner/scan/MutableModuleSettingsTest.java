@@ -76,7 +76,7 @@ public class MutableModuleSettingsTest {
     grandParent.addSubProject(parent);
     parent.addSubProject(child);
 
-    List<ProjectDefinition> hierarchy = MutableModuleSettings.getTopDownParentProjects(child);
+    List<ProjectDefinition> hierarchy = ModuleSettingsProvider.getTopDownParentProjects(child);
     assertThat(hierarchy.get(0)).isEqualTo(grandParent);
     assertThat(hierarchy.get(1)).isEqualTo(parent);
     assertThat(hierarchy.get(2)).isEqualTo(child);

@@ -50,7 +50,7 @@ public class ModuleSettingsProvider extends ProviderAdapter {
     return projectSettings;
   }
 
-  private Map<String, String> addServerSidePropertiesIfModuleExists(ProjectRepositories projectRepos, ProjectDefinition def) {
+  private static Map<String, String> addServerSidePropertiesIfModuleExists(ProjectRepositories projectRepos, ProjectDefinition def) {
     if (projectRepos.moduleExists(def.getKeyWithBranch())) {
       return projectRepos.settings(def.getKeyWithBranch());
     } else {
@@ -63,7 +63,7 @@ public class ModuleSettingsProvider extends ProviderAdapter {
     }
   }
 
-  private void addScannerSideProperties(Map<String, String> settings, ProjectDefinition project) {
+  private static void addScannerSideProperties(Map<String, String> settings, ProjectDefinition project) {
     List<ProjectDefinition> orderedProjects = getTopDownParentProjects(project);
     for (ProjectDefinition p : orderedProjects) {
       settings.putAll(p.properties());
