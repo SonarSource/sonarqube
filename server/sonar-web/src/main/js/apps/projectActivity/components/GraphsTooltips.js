@@ -22,13 +22,15 @@ import React from 'react';
 import BubblePopup from '../../../components/common/BubblePopup';
 import FormattedDate from '../../../components/ui/FormattedDate';
 import GraphsTooltipsContent from './GraphsTooltipsContent';
+import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
 import GraphsTooltipsContentOverview from './GraphsTooltipsContentOverview';
-import type { MeasureHistory } from '../types';
+import type { Event, MeasureHistory } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
+  events: Array<Event>,
   formatValue: (number | string) => string,
   graph: string,
   graphWidth: number,
@@ -45,7 +47,7 @@ export default class GraphsTooltips extends React.PureComponent {
   props: Props;
 
   render() {
-    const { measuresHistory, tooltipIdx } = this.props;
+    const { events, measuresHistory, tooltipIdx } = this.props;
     const top = 50;
     let left = this.props.tooltipPos + 60;
     let customClass;
@@ -91,6 +93,7 @@ export default class GraphsTooltips extends React.PureComponent {
                 measuresHistory={measuresHistory}
                 tooltipIdx={tooltipIdx}
               />}
+            {events && events.length > 0 && <GraphsTooltipsContentEvents events={events} />}
           </table>
         </div>
       </BubblePopup>

@@ -85,6 +85,20 @@ export default class StaticGraphs extends React.PureComponent {
     return sortBy(filteredEvents, 'date');
   };
 
+  getSelectedDateEvents = () => {
+    const { selectedDate } = this.state;
+    const { analyses } = this.props;
+    if (analyses && selectedDate) {
+      const analysis = analyses.find(
+        analysis => analysis.date.valueOf() === selectedDate.valueOf()
+      );
+      if (analysis) {
+        return analysis.events;
+      }
+    }
+    return [];
+  };
+
   hasSeriesData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
 
   updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) =>
@@ -123,7 +137,6 @@ export default class StaticGraphs extends React.PureComponent {
               <div>
                 <AdvancedTimeline
                   endDate={this.props.graphEndDate}
-                  events={this.getEvents()}
                   height={height}
                   width={width}
                   interpolate="linear"
@@ -141,6 +154,7 @@ export default class StaticGraphs extends React.PureComponent {
                 {selectedDate != null &&
                   tooltipXPos != null &&
                   <GraphsTooltips
+                    events={this.getSelectedDateEvents()}
                     formatValue={this.formatValue}
                     graph={graph}
                     graphWidth={width}
