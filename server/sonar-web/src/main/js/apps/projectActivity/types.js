@@ -53,5 +53,6 @@ export type Query = {
   from?: Date,
   graph: string,
   project: string,
-  to?: Date
+  to?: Date,
+  selectedDate?: Date
 };

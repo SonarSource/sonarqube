@@ -112,6 +112,7 @@ export default class ProjectActivityApp extends React.PureComponent {
               deleteEvent={this.props.deleteEvent}
               loading={this.props.loading}
               query={this.props.query}
+              updateQuery={this.props.updateQuery}
             />
           </div>
           <div className="project-activity-layout-page-main">

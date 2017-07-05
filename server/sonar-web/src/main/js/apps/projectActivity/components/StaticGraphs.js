@@ -47,6 +47,7 @@ type Props = {
 };
 
 type State = {
+  selectedDate?: ?Date,
   tooltipIdx: ?number,
   tooltipXPos: ?number
 };
@@ -86,8 +87,8 @@ export default class StaticGraphs extends React.PureComponent {
 
   hasSeriesData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
 
-  updateTooltipPos = (tooltipXPos: ?number, tooltipIdx: ?number) =>
-    this.setState({ tooltipXPos, tooltipIdx });
+  updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) =>
+    this.setState({ selectedDate, tooltipXPos, tooltipIdx });
 
   render() {
     const { loading } = this.props;
@@ -111,8 +112,8 @@ export default class StaticGraphs extends React.PureComponent {
         </div>
       );
     }
-
-    const { graph, selectedDate, series } = this.props;
+    const { selectedDate, tooltipIdx, tooltipXPos } = this.state;
+    const { graph, series } = this.props;
     return (
       <div className="project-activity-graph-container">
         <StaticGraphsLegend series={series} />
@@ -129,16 +130,16 @@ export default class StaticGraphs extends React.PureComponent {
                   formatYTick={this.formatValue}
                   leakPeriodDate={this.props.leakPeriodDate}
                   metricType={this.props.metricsType}
-                  selectedDate={selectedDate}
+                  selectedDate={this.props.selectedDate}
                   series={series}
                   showAreas={['coverage', 'duplications'].includes(graph)}
                   startDate={this.props.graphStartDate}
                   updateSelectedDate={this.props.updateSelectedDate}
-                  updateTooltipPos={this.updateTooltipPos}
+                  updateTooltip={this.updateTooltip}
                   updateZoom={this.props.updateGraphZoom}
                 />
                 {selectedDate != null &&
-                  this.state.tooltipXPos != null &&
+                  tooltipXPos != null &&
                   <GraphsTooltips
                     formatValue={this.formatValue}
                     graph={graph}
@@ -146,8 +147,8 @@ export default class StaticGraphs extends React.PureComponent {
                     measuresHistory={this.props.measuresHistory}
                     selectedDate={selectedDate}
                     series={series}
-                    tooltipIdx={this.state.tooltipIdx}
-                    tooltipPos={this.state.tooltipXPos}
+                    tooltipIdx={tooltipIdx}
+                    tooltipPos={tooltipXPos}
                   />}
               </div>
             )}
