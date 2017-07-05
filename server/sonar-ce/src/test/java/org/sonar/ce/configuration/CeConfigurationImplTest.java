@@ -24,101 +24,82 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
-import org.sonar.server.property.InternalProperties;
-import org.sonar.server.property.MapInternalProperties;
 
 import static java.lang.Math.abs;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeConfigurationImplTest {
-  private static final String CE_WORKERS_COUNT_PROPERTY = "sonar.ce.workerCount";
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private InternalProperties settings = new MapInternalProperties();
+  private SimpleWorkerCountProvider workerCountProvider = new SimpleWorkerCountProvider();
 
   @Test
-  public void getWorkerCount_returns_1_when_worker_property_is_not_defined() {
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
+  public void getWorkerCount_returns_1_when_there_is_no_WorkerCountProvider() {
+    assertThat(new CeConfigurationImpl().getWorkerCount()).isEqualTo(1);
   }
 
   @Test
-  public void getWorkerCount_returns_1_when_worker_property_is_empty() {
-    settings.write(CE_WORKERS_COUNT_PROPERTY, "");
+  public void getWorkerCount_returns_value_returned_by_WorkerCountProvider_when_available() {
+    int value = 1 + Math.abs(new Random().nextInt());
+    workerCountProvider.set(value);
 
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerCount()).isEqualTo(value);
   }
 
   @Test
-  public void getWorkerCount_returns_1_when_worker_property_is_space_chars() {
-    settings.write(CE_WORKERS_COUNT_PROPERTY, "  \n  ");
+  public void constructor_throws_MessageException_when_WorkerCountProvider_returns_0() {
+    workerCountProvider.set(0);
 
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
+    expectMessageException(0);
+
+    new CeConfigurationImpl(workerCountProvider);
   }
 
   @Test
-  public void getWorkerCount_returns_1_when_worker_property_is_1() {
-    settings.write(CE_WORKERS_COUNT_PROPERTY, String.valueOf(1));
-
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(1);
-  }
-
-  @Test
-  public void getWorkerCount_returns_value_when_worker_property_is_integer_greater_than_1() {
-    int value = abs(new Random().nextInt()) + 2;
-    settings.write(CE_WORKERS_COUNT_PROPERTY, String.valueOf(value));
-
-    assertThat(new CeConfigurationImpl(settings).getWorkerCount()).isEqualTo(value);
-  }
-
-  @Test
-  public void constructor_throws_MessageException_when_worker_property_is_0() {
-    int value = 0;
-    settings.write(CE_WORKERS_COUNT_PROPERTY, String.valueOf(value));
+  public void constructor_throws_MessageException_when_WorkerCountProvider_returns_less_than_0() {
+    int value = -1 - abs(new Random().nextInt());
+    workerCountProvider.set(value);
 
     expectMessageException(value);
 
-    new CeConfigurationImpl(settings);
-  }
-
-  @Test
-  public void constructor_throws_MessageException_when_worker_property_is_less_than_0() {
-    int value = -1 * abs(new Random().nextInt());
-    settings.write(CE_WORKERS_COUNT_PROPERTY, String.valueOf(value));
-
-    expectMessageException(value);
-
-    new CeConfigurationImpl(settings);
-  }
-
-  @Test
-  public void constructor_throws_MessageException_when_worker_property_is_a_double() {
-    double value = 3.5;
-    settings.write(CE_WORKERS_COUNT_PROPERTY, String.valueOf(value));
-
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("value '" + value + "' of property " + CE_WORKERS_COUNT_PROPERTY + " is invalid. " +
-        "It must an integer strictly greater than 0");
-
-    new CeConfigurationImpl(settings);
+    new CeConfigurationImpl(workerCountProvider);
   }
 
   private void expectMessageException(int value) {
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("value '" + value + "' of property " + CE_WORKERS_COUNT_PROPERTY + " is invalid. " +
+    expectedException.expectMessage("Worker count '" + value + "' is invalid. " +
         "It must an integer strictly greater than 0");
   }
 
   @Test
   public void getCleanCeTasksInitialDelay_returns_1() {
-    assertThat(new CeConfigurationImpl(settings).getCleanCeTasksInitialDelay())
+    assertThat(new CeConfigurationImpl().getCleanCeTasksInitialDelay())
+        .isEqualTo(1L);
+    workerCountProvider.set(1);
+    assertThat(new CeConfigurationImpl(workerCountProvider).getCleanCeTasksInitialDelay())
         .isEqualTo(1L);
   }
 
   @Test
   public void getCleanCeTasksDelay_returns_10() {
-    assertThat(new CeConfigurationImpl(settings).getCleanCeTasksDelay())
+    assertThat(new CeConfigurationImpl().getCleanCeTasksDelay())
         .isEqualTo(10L);
+    workerCountProvider.set(1);
+    assertThat(new CeConfigurationImpl(workerCountProvider).getCleanCeTasksDelay())
+        .isEqualTo(10L);
+  }
+
+  private static final class SimpleWorkerCountProvider implements WorkerCountProvider {
+    private int value = 0;
+
+    void set(int value) {
+      this.value = value;
+    }
+
+    @Override
+    public int get() {
+      return value;
+    }
   }
 }

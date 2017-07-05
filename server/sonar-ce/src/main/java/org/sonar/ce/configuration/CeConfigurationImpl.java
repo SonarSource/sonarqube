@@ -23,18 +23,16 @@ import org.picocontainer.Startable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.format;
 
 /**
- * Immutable implementation of {@link CeConfiguration} which takes value returned by
- * {@link CeConfiguration#getWorkerCount()} from property {@link CeConfigurationImpl#CE_WORKERS_COUNT_PROPERTY} and
- * always returns {@link #DEFAULT_QUEUE_POLLING_DELAY} when {@link CeConfiguration#getQueuePollingDelay()} is called.
+ * Immutable implementation of {@link CeConfiguration} which takes value returned by an implementation of
+ * {@link WorkerCountProvider}, if any is available, or use the {@link #DEFAULT_WORKER_COUNT default worker count}.
+ * In addition, it always returns {@link #DEFAULT_QUEUE_POLLING_DELAY} when
+ * {@link CeConfiguration#getQueuePollingDelay()} is called.
  */
 public class CeConfigurationImpl implements CeConfiguration, Startable {
-  private static final String CE_WORKERS_COUNT_PROPERTY = "sonar.ce.workerCount";
-
   private static final Logger LOG = Loggers.get(CeConfigurationImpl.class);
 
   private static final int DEFAULT_WORKER_COUNT = 1;
@@ -47,31 +45,22 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   private final int workerCount;
 
-  public CeConfigurationImpl(InternalProperties internalProperties) {
-    this.workerCount = internalProperties.read(CE_WORKERS_COUNT_PROPERTY)
-      .map(String::trim)
-      .filter(s -> !s.isEmpty())
-      .map(CeConfigurationImpl::parseStringValue)
-      .orElse(DEFAULT_WORKER_COUNT);
+  public CeConfigurationImpl() {
+    this.workerCount = DEFAULT_WORKER_COUNT;
   }
 
-  private static int parseStringValue(String workerCountAsStr) {
-    try {
-      int value = Integer.parseInt(workerCountAsStr);
-      if (value < 1) {
-        throw parsingError(workerCountAsStr);
-      }
-      return value;
-    } catch (NumberFormatException e) {
-      throw parsingError(workerCountAsStr);
+  public CeConfigurationImpl(WorkerCountProvider workerCountProvider) {
+    int value = workerCountProvider.get();
+    if (value < 1) {
+      throw parsingError(value);
     }
+    this.workerCount = value;
   }
 
-  private static MessageException parsingError(String workerCountAsStr) {
+  private static MessageException parsingError(int value) {
     return MessageException.of(format(
-      "value '%s' of property %s is invalid. It must an integer strictly greater than 0.",
-      workerCountAsStr,
-      CE_WORKERS_COUNT_PROPERTY));
+        "Worker count '%s' is invalid. It must an integer strictly greater than 0.",
+        value));
   }
 
   @Override
