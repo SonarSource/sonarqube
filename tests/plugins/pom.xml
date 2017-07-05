@@ -41,6 +41,7 @@
     <module>batch-plugin</module>
     <module>extension-lifecycle-plugin</module>
     <module>fake-billing-plugin</module>
+    <module>fake-governance-plugin</module>
     <module>foo-plugin-v1</module>
     <module>foo-plugin-v2</module>
     <module>global-property-change-plugin</module>
