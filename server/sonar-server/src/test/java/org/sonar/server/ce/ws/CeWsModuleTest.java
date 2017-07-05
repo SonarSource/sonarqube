@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
 public class CeWsModuleTest {
 
@@ -30,6 +31,6 @@ public class CeWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new CeWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(11 + 2 /* injected by ComponentContainer */);
+    assertThat(container.size()).isEqualTo(12 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
   }
 }
