@@ -61,6 +61,12 @@ message TaskTypesWsResponse {
   repeated string taskTypes = 1;
 }
 
+// GET api/ce/worker_count
+message WorkerCountResponse {
+  optional int32 value = 1;
+  optional bool canSetWorkerCount = 2;
+}
+
 message Task {
   optional string organization = 20;
   optional string id = 1;
