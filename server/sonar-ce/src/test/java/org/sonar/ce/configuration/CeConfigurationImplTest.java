@@ -40,11 +40,24 @@ public class CeConfigurationImplTest {
   }
 
   @Test
+  public void getWorkerThreadCount_returns_1_when_there_is_no_WorkerCountProvider() {
+    assertThat(new CeConfigurationImpl().getWorkerMaxCount()).isEqualTo(1);
+  }
+
+  @Test
   public void getWorkerCount_returns_value_returned_by_WorkerCountProvider_when_available() {
     int value = 1 + Math.abs(new Random().nextInt());
     workerCountProvider.set(value);
 
     assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerCount()).isEqualTo(value);
+  }
+
+  @Test
+  public void getWorkerThreadCount_returns_10_whichever_the_value_returned_by_WorkerCountProvider() {
+    int value = 1 + Math.abs(new Random().nextInt(10));
+    workerCountProvider.set(value);
+    
+    assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerMaxCount()).isEqualTo(10);
   }
 
   @Test

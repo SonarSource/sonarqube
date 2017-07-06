@@ -27,10 +27,21 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Mutable implementation of {@link CeConfiguration} as {@link org.junit.Rule}.
  */
 public class CeConfigurationRule extends ExternalResource implements CeConfiguration {
+  private int workerThreadCount = 1;
   private int workerCount = 1;
   private long queuePollingDelay = 2 * 1000L;
   private long cancelWornOutsInitialDelay = 1L;
   private long cancelWornOutsDelay = 10L;
+
+  @Override
+  public int getWorkerMaxCount() {
+    return workerThreadCount;
+  }
+
+  public void setWorkerThreadCount(int workerThreadCount) {
+    checkArgument(workerThreadCount >= 1, "worker thread count must be >= 1");
+    this.workerThreadCount = workerThreadCount;
+  }
 
   @Override
   public int getWorkerCount() {
