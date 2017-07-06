@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import StaticGraphs from '../StaticGraphs';
+import GraphsHistory from '../GraphsHistory';
 
 const ANALYSES = [
   {
@@ -95,20 +95,20 @@ const DEFAULT_PROPS = {
 };
 
 it('should show a loading view', () => {
-  expect(shallow(<StaticGraphs {...DEFAULT_PROPS} loading={true} />)).toMatchSnapshot();
+  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} loading={true} />)).toMatchSnapshot();
 });
 
 it('should show that there is no data', () => {
-  expect(shallow(<StaticGraphs {...DEFAULT_PROPS} series={EMPTY_SERIES} />)).toMatchSnapshot();
+  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} series={EMPTY_SERIES} />)).toMatchSnapshot();
 });
 
 it('should correctly render a graph', () => {
-  expect(shallow(<StaticGraphs {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
 
 it('should correctly filter events', () => {
-  expect(shallow(<StaticGraphs {...DEFAULT_PROPS} />).instance().getEvents()).toMatchSnapshot();
+  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} />).instance().getEvents()).toMatchSnapshot();
   expect(
-    shallow(<StaticGraphs {...DEFAULT_PROPS} eventFilter="OTHER" />).instance().getEvents()
+    shallow(<GraphsHistory {...DEFAULT_PROPS} eventFilter="OTHER" />).instance().getEvents()
   ).toMatchSnapshot();
 });

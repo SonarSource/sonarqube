@@ -37,6 +37,8 @@ export type HistoryItem = { date: Date, value: string };
 export type MeasureHistory = { metric: string, history: Array<HistoryItem> };
 
 export type Metric = {
+  custom?: boolean,
+  hidden?: boolean,
   key: string,
   name: string,
   type: string

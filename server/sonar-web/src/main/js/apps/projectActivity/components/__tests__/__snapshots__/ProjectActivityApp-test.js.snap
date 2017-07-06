@@ -179,6 +179,15 @@ exports[`should render correctly 1`] = `
             },
           ]
         }
+        metrics={
+          Array [
+            Object {
+              "key": "code_smells",
+              "name": "Code Smells",
+              "type": "INT",
+            },
+          ]
+        }
         metricsType="INT"
         project="org.sonarsource.sonarqube:sonarqube"
         query={

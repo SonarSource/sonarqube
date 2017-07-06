@@ -98,7 +98,9 @@ export default class AddMemberForm extends React.PureComponent {
           </div>
           <footer className="modal-foot">
             <div>
-              <button type="submit">{translate('organization.members.add_to_members')}</button>
+              <button type="submit" disabled={!this.state.selectedMember}>
+                {translate('organization.members.add_to_members')}
+              </button>
               <button type="reset" className="button-link" onClick={this.closeForm}>
                 {translate('cancel')}
               </button>

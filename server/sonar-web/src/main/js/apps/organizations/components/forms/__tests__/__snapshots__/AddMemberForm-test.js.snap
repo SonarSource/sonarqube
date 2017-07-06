@@ -61,6 +61,7 @@ exports[`should render and open the modal 2`] = `
       >
         <div>
           <button
+            disabled={true}
             type="submit"
           >
             organization.members.add_to_members

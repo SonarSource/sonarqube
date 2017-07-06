@@ -22,7 +22,7 @@ import React from 'react';
 import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
-import StaticGraphs from './StaticGraphs';
+import GraphsHistory from './GraphsHistory';
 import {
   datesQueryChanged,
   generateSeries,
@@ -30,7 +30,7 @@ import {
   historyQueryChanged
 } from '../utils';
 import type { RawQuery } from '../../../helpers/query';
-import type { Analysis, MeasureHistory, Query } from '../types';
+import type { Analysis, MeasureHistory, Metric, Query } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
@@ -38,6 +38,7 @@ type Props = {
   leakPeriodDate: Date,
   loading: boolean,
   measuresHistory: Array<MeasureHistory>,
+  metrics: Array<Metric>,
   metricsType: string,
   project: string,
   query: Query,
@@ -136,8 +137,13 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     const { series } = this.state;
     return (
       <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
-        <ProjectActivityGraphsHeader graph={query.graph} updateQuery={this.props.updateQuery} />
-        <StaticGraphs
+        <ProjectActivityGraphsHeader
+          graph={query.graph}
+          metrics={this.props.metrics}
+          selectedMetrics={this.props.query.customMetrics}
+          updateQuery={this.props.updateQuery}
+        />
+        <GraphsHistory
           analyses={this.props.analyses}
           eventFilter={query.category}
           graph={query.graph}

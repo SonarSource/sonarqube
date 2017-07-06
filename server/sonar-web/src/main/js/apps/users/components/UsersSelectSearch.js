@@ -24,7 +24,6 @@ import { debounce } from 'lodash';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import UsersSelectSearchOption from './UsersSelectSearchOption';
 import UsersSelectSearchValue from './UsersSelectSearchValue';
-import './UsersSelectSearch.css';
 
 export type Option = {
   login: string,

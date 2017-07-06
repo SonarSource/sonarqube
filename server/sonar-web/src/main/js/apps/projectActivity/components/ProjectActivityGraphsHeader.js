@@ -20,13 +20,17 @@
 // @flow
 import React from 'react';
 import Select from 'react-select';
-import { GRAPH_TYPES } from '../utils';
+import AddGraphMetric from './forms/AddGraphMetric';
+import { isCustomGraph, GRAPH_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
+import type { Metric } from '../types';
 import type { RawQuery } from '../../../helpers/query';
 
 type Props = {
-  updateQuery: RawQuery => void,
-  graph: string
+  graph: string,
+  metrics: Array<Metric>,
+  selectedMetrics: Array<string>,
+  updateQuery: RawQuery => void
 };
 
 export default class ProjectActivityGraphsHeader extends React.PureComponent {
@@ -36,6 +40,11 @@ export default class ProjectActivityGraphsHeader extends React.PureComponent {
     if (option.value !== this.props.graph) {
       this.props.updateQuery({ graph: option.value });
     }
+  };
+
+  handleAddMetric = (metric: string) => {
+    const selectedMetrics = [...this.props.selectedMetrics, metric];
+    this.props.updateQuery({ customMetrics: selectedMetrics });
   };
 
   render() {
@@ -54,6 +63,13 @@ export default class ProjectActivityGraphsHeader extends React.PureComponent {
           options={selectOptions}
           onChange={this.handleGraphChange}
         />
+        {isCustomGraph(this.props.graph) &&
+          <AddGraphMetric
+            addMetric={this.handleAddMetric}
+            className="spacer-left"
+            metrics={this.props.metrics}
+            selectedMetrics={this.props.selectedMetrics}
+          />}
       </header>
     );
   }

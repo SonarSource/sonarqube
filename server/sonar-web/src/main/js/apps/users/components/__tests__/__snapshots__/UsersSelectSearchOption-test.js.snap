@@ -7,25 +7,21 @@ exports[`should render correctly with email instead of hash 1`] = `
   onMouseMove={[Function]}
   title="Administrator"
 >
-  <div
-    className="little-spacer-bottom little-spacer-top"
+  <Connect(Avatar)
+    email="admin@admin.ch"
+    name="Administrator"
+    size={20}
+  />
+  <strong
+    className="spacer-left"
   >
-    <Connect(Avatar)
-      email="admin@admin.ch"
-      name="Administrator"
-      size={20}
-    />
-    <strong
-      className="spacer-left"
-    >
-      Administrator
-    </strong>
-    <span
-      className="note little-spacer-left"
-    >
-      admin
-    </span>
-  </div>
+    Administrator
+  </strong>
+  <span
+    className="note little-spacer-left"
+  >
+    admin
+  </span>
 </div>
 `;
 
@@ -36,24 +32,20 @@ exports[`should render correctly without all parameters 1`] = `
   onMouseMove={[Function]}
   title="Administrator"
 >
-  <div
-    className="little-spacer-bottom little-spacer-top"
+  <Connect(Avatar)
+    hash="7daf6c79d4802916d83f6266e24850af"
+    name="Administrator"
+    size={20}
+  />
+  <strong
+    className="spacer-left"
   >
-    <Connect(Avatar)
-      hash="7daf6c79d4802916d83f6266e24850af"
-      name="Administrator"
-      size={20}
-    />
-    <strong
-      className="spacer-left"
-    >
-      Administrator
-    </strong>
-    <span
-      className="note little-spacer-left"
-    >
-      admin
-    </span>
-  </div>
+    Administrator
+  </strong>
+  <span
+    className="note little-spacer-left"
+  >
+    admin
+  </span>
 </div>
 `;

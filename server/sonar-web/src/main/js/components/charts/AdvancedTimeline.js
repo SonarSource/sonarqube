@@ -124,7 +124,10 @@ export default class AdvancedTimeline extends React.PureComponent {
     } else if (props.metricType === 'LEVEL') {
       return this.getLevelScale(availableHeight);
     } else {
-      return scaleLinear().range([availableHeight, 0]).domain([0, max(flatData, d => d.y)]).nice();
+      return scaleLinear()
+        .range([availableHeight, 0])
+        .domain([0, max(flatData, d => d.y) || 0])
+        .nice();
     }
   };
 

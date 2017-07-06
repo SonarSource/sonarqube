@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import StaticGraphsLegend from '../StaticGraphsLegend';
+import GraphsLegendStatic from '../GraphsLegendStatic';
 
 const SERIES = [
   { name: 'bugs', translatedName: 'Bugs', style: '2', data: [] },
@@ -27,5 +27,5 @@ const SERIES = [
 ];
 
 it('should render correctly the list of series', () => {
-  expect(shallow(<StaticGraphsLegend series={SERIES} />)).toMatchSnapshot();
+  expect(shallow(<GraphsLegendStatic series={SERIES} />)).toMatchSnapshot();
 });

@@ -29,7 +29,7 @@ exports[`should correctly render a graph 1`] = `
 <div
   className="project-activity-graph-container"
 >
-  <StaticGraphsLegend
+  <GraphsLegendStatic
     series={
       Array [
         Object {
