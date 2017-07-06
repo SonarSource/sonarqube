@@ -67,7 +67,7 @@
     <jetty.version>8.1.12.v20130726</jetty.version>
     <logback.version>1.1.7</logback.version>
     <slf4j.version>1.7.21</slf4j.version>
-    <tomcat.version>8.5.11</tomcat.version>
+    <tomcat.version>8.5.16</tomcat.version>
     <elasticsearch.version>2.4.4</elasticsearch.version>
     <orchestrator.version>3.15.0.1090</orchestrator.version>
     <okhttp.version>3.7.0</okhttp.version>
@@ -1050,14 +1050,13 @@
         <groupId>org.apache.tomcat.embed</groupId>
         <artifactId>tomcat-embed-core</artifactId>
         <version>${tomcat.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-jasper</artifactId>
-        <version>${tomcat.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.eclipse.jdt.core.compiler</groupId>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jdt</groupId>
             <artifactId>ecj</artifactId>
           </exclusion>
         </exclusions>

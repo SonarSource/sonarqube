@@ -21,7 +21,6 @@ package org.sonarqube.tests.serverSystem;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -29,28 +28,24 @@ import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONValue;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.pageobjects.ServerIdPage;
+import org.sonarqube.tests.Category4Suite;
+import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.ServerId.ShowWsResponse;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.ServerIdPage;
 import util.ItUtils;
-import util.user.UserRule;
 
 import static org.apache.commons.lang.StringUtils.startsWithAny;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.call;
-import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newWsClient;
-import static util.selenium.Selenese.runSelenese;
 
 public class ServerSystemTest {
 
@@ -60,16 +55,11 @@ public class ServerSystemTest {
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Before
   public void initAdminUser() {
-    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
-  }
-
-  @After
-  public void deleteAdminUser() {
-    userRule.resetUsers();
+    tester.users().generateAdministrator(u -> u.setLogin(ADMIN_USER_LOGIN).setPassword(ADMIN_USER_LOGIN));
   }
 
   @Test
@@ -90,7 +80,7 @@ public class ServerSystemTest {
 
   @Test
   public void generate_server_id() throws IOException {
-    Navigation nav = Navigation.create(orchestrator).openHome().logIn().submitCredentials(ADMIN_USER_LOGIN);
+    Navigation nav = tester.openBrowser().openHome().logIn().submitCredentials(ADMIN_USER_LOGIN);
     String validIpAddress = getValidIpAddress();
 
     nav.openServerId()
@@ -115,20 +105,20 @@ public class ServerSystemTest {
   }
 
   private Map<String, Object> callStatus() {
-    WsResponse statusResponse = newWsClient(orchestrator).wsConnector().call(new GetRequest("api/system/status"));
+    WsResponse statusResponse = tester.wsClient().wsConnector().call(new GetRequest("api/system/status"));
     return ItUtils.jsonToMap(statusResponse.content());
   }
 
   @Test
   public void display_system_info() {
-    runSelenese(orchestrator, "/serverSystem/ServerSystemTest/system_info.html");
+    tester.runHtmlTests("/serverSystem/ServerSystemTest/system_info.html");
   }
 
   @Test
   public void download_system_info() throws Exception {
     waitForComputeEngineToBeUp(orchestrator);
 
-    WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
+    WsResponse response = tester.wsClient().wsConnector().call(
       new GetRequest("api/system/info"));
 
     assertThat(response.code()).isEqualTo(200);
@@ -162,8 +152,9 @@ public class ServerSystemTest {
    */
   @Test
   public void display_warnings_when_using_h2() {
-    if (orchestrator.getConfiguration().getString("sonar.jdbc.dialect").equals("h2")) {
-      runSelenese(orchestrator, "/serverSystem/ServerSystemTest/derby-warning.html");
+    String dialect = orchestrator.getConfiguration().getString("sonar.jdbc.dialect");
+    if (dialect == null || dialect.equals("h2") || dialect.equals("embedded")) {
+      tester.runHtmlTests("/serverSystem/ServerSystemTest/derby-warning.html");
     }
   }
 
@@ -172,7 +163,7 @@ public class ServerSystemTest {
    */
   @Test
   public void hide_jdbc_settings_to_non_admin() {
-    runSelenese(orchestrator, "/serverSystem/ServerSystemTest/hide-jdbc-settings.html");
+    tester.runHtmlTests( "/serverSystem/ServerSystemTest/hide-jdbc-settings.html");
   }
 
   @Test
@@ -190,13 +181,12 @@ public class ServerSystemTest {
   /**
    * SONAR-3962
    */
-  // TODO should be moved elsewhere
   @Test
   public void not_fail_with_url_ending_by_jsp() {
     orchestrator.executeBuild(SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "myproject.jsp"));
     // Access dashboard
-    runSelenese(orchestrator, "/serverSystem/ServerSystemTest/url_ending_by_jsp.html");
+    tester.runHtmlTests("/serverSystem/ServerSystemTest/url_ending_by_jsp.html");
   }
 
   /**
@@ -213,8 +203,7 @@ public class ServerSystemTest {
   }
 
   private String getValidIpAddress() throws IOException {
-    WsClient adminWsClient = newAdminWsClient(orchestrator);
-    ShowWsResponse response = ShowWsResponse.parseFrom(adminWsClient.wsConnector().call(
+    ShowWsResponse response = ShowWsResponse.parseFrom(tester.wsClient().wsConnector().call(
       new GetRequest("api/server_id/show").setMediaType(MediaTypes.PROTOBUF)).contentStream());
     assertThat(response.getValidIpAddressesCount()).isGreaterThan(0);
     return response.getValidIpAddresses(0);
