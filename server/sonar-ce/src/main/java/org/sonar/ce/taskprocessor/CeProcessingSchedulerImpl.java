@@ -51,7 +51,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
     this.delayBetweenTasks = ceConfiguration.getQueuePollingDelay();
     this.timeUnit = MILLISECONDS;
 
-    int workerCount = ceConfiguration.getWorkerCount();
+    int workerCount = ceConfiguration.getWorkerMaxCount();
     this.chainingCallbacks = new ChainingCallback[workerCount];
     for (int i = 0; i < workerCount; i++) {
       CeWorker worker = ceCeWorkerFactory.create();

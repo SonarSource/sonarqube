@@ -125,6 +125,11 @@ public class CeTasksMBeanImplTest {
 
   private static class DumbCeConfiguration implements CeConfiguration {
     @Override
+    public int getWorkerMaxCount() {
+      throw new UnsupportedOperationException("getWorkerMaxCount is not implemented");
+    }
+
+    @Override
     public int getWorkerCount() {
       return WORKER_COUNT;
     }
