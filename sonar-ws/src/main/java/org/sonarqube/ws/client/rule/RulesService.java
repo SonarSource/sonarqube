@@ -24,6 +24,7 @@ import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
@@ -81,5 +82,18 @@ public class RulesService extends BaseService {
       .setParam("organization", organization)
       .setParam("key", key);
     return call(request, Rules.ShowResponse.parser());
+  }
+
+  public void create(CreateWsRequest request) {
+    PostRequest httpRequest = new PostRequest(path("create"));
+    httpRequest.setParam("custom_key", request.getCustomKey());
+    httpRequest.setParam("markdown_description", request.getMarkdownDescription());
+    httpRequest.setParam("name", request.getName());
+    httpRequest.setParam("params", request.getParams());
+    httpRequest.setParam("prevent_reactivation", request.getPreventReactivation());
+    httpRequest.setParam("severity", request.getSeverity());
+    httpRequest.setParam("status", request.getStatus());
+    httpRequest.setParam("template_key", request.getTemplateKey());
+    call(httpRequest);
   }
 }

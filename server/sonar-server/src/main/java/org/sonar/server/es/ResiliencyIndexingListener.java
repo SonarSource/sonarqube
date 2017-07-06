@@ -19,16 +19,14 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.collect.Multimap;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
-
-import static java.util.stream.Collectors.toMap;
 
 /**
  * Clean-up the db table es_queue when documents
@@ -50,11 +48,12 @@ public class ResiliencyIndexingListener implements IndexingListener {
   @Override
   public void onSuccess(Collection<String> docIds) {
     if (!docIds.isEmpty()) {
-      Map<String, EsQueueDto> itemsById = items.stream().collect(toMap(EsQueueDto::getDocId, Function.identity()));
+      Multimap<String, EsQueueDto> itemsById = items.stream().collect(MoreCollectors.index(EsQueueDto::getDocId, Function.identity()));
 
       Collection<EsQueueDto> itemsToDelete = docIds
         .stream()
         .map(itemsById::get)
+        .flatMap(Collection::stream)
         .filter(Objects::nonNull)
         .collect(MoreCollectors.toArrayList(docIds.size()));
       dbClient.esQueueDao().delete(dbSession, itemsToDelete);

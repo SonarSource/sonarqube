@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.Startable;
-import org.sonar.api.config.Settings;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -63,7 +63,7 @@ public class RecoveryIndexer implements Startable {
       .setNameFormat("RecoveryIndexer-%d")
       .build());
   private final System2 system2;
-  private final Settings settings;
+  private final Configuration config;
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final RuleIndexer ruleIndexer;
@@ -71,10 +71,10 @@ public class RecoveryIndexer implements Startable {
   private final long minAgeInMs;
   private final long loopLimit;
 
-  public RecoveryIndexer(System2 system2, Settings settings, DbClient dbClient,
+  public RecoveryIndexer(System2 system2, Configuration config, DbClient dbClient,
     UserIndexer userIndexer, RuleIndexer ruleIndexer, ActiveRuleIndexer activeRuleIndexer) {
     this.system2 = system2;
-    this.settings = settings;
+    this.config = config;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.ruleIndexer = ruleIndexer;
@@ -161,10 +161,7 @@ public class RecoveryIndexer implements Startable {
   }
 
   private long getSetting(String key, long defaultValue) {
-    long val = settings.getLong(key);
-    if (val <= 0) {
-      val = defaultValue;
-    }
+    long val = config.getLong(key).orElse(defaultValue);
     LOGGER.debug(LOG_PREFIX + "{}={}", key, val);
     return val;
   }

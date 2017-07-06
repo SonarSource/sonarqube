@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.qualityProfile;
+package org.sonarqube.tests.rule;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.concurrent.TimeUnit;
@@ -29,21 +29,20 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.tests.Byteman;
 import org.sonarqube.tests.Tester;
-import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.client.rule.CreateWsRequest;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
 import util.ItUtils;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActiveRuleEsResilienceTest {
-  private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
+public class RuleEsResilienceTest {
 
   @ClassRule
   public static final Orchestrator orchestrator;
 
   static {
-    orchestrator = Byteman.enableScript(Orchestrator.builderEnv(), "active_rule_indexer.btm")
+    orchestrator = Byteman.enableScript(Orchestrator.builderEnv(), "rule_indexer.btm")
       .addPlugin(ItUtils.xooPlugin())
       .build();
   }
@@ -55,34 +54,37 @@ public class ActiveRuleEsResilienceTest {
     .build());
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator)
+    // custom rules are not supported when organizations are enabled
+    .disableOrganizations();
 
   @Test
-  public void activation_and_deactivation_of_rule_is_resilient_to_indexing_errors() throws Exception {
-    Organizations.Organization organization = tester.organizations().generate();
-    QualityProfiles.CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(organization);
+  public void creation_of_custom_rule_is_resilient_to_elasticsearch_errors() throws Exception {
+    CreateWsRequest request = new CreateWsRequest.Builder()
+      .setCustomKey("my_custom_rule")
+      .setName("My custom rule")
+      .setTemplateKey("xoo:xoo-template")
+      .setMarkdownDescription("The *initial* rule")
+      .setSeverity("MAJOR")
+      .build();
+    tester.wsClient().rules().create(request);
 
-    // step 1. activation
-    tester.qProfiles().activateRule(profile.getKey(), RULE_ONE_BUG_PER_LINE);
+    // rule exists in db but is not indexed. Search returns no results.
+    assertThat(nameFoundInSearch("initial rule")).isFalse();
 
-    assertThat(searchActiveRules(profile)).isEqualTo(0);
-    while (searchActiveRules(profile) == 0) {
+    // rule already exists in db, can't be created twice
+    ItUtils.expectHttpError(400, () -> tester.wsClient().rules().create(request));
+
+    while (!nameFoundInSearch("initial rule")) {
       // rule is indexed by the recovery daemon, which runs every 3 seconds
       Thread.sleep(500L);
     }
-    assertThat(searchActiveRules(profile)).isEqualTo(1);
-
-    // step 2. deactivation
-    tester.qProfiles().deactivateRule(profile, RULE_ONE_BUG_PER_LINE);
-    while (searchActiveRules(profile) == 1) {
-      // rule is indexed by the recovery daemon, which runs every 3 seconds
-      Thread.sleep(500L);
-    }
-    assertThat(searchActiveRules(profile)).isEqualTo(0);
   }
 
-  private long searchActiveRules(QualityProfiles.CreateWsResponse.QualityProfile profile) {
-    SearchWsRequest request = new SearchWsRequest().setActivation(true).setQProfile(profile.getKey());
-    return tester.wsClient().rules().search(request).getRulesCount();
+  private boolean nameFoundInSearch(String query) {
+    SearchWsRequest request = new SearchWsRequest()
+      .setQuery(query)
+      .setRepositories(singletonList("xoo"));
+    return tester.wsClient().rules().search(request).getRulesCount() > 0;
   }
 }

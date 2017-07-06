@@ -20,7 +20,6 @@
 package org.sonarqube.tests.user;
 
 import com.sonar.orchestrator.Orchestrator;
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -28,24 +27,23 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonarqube.tests.Byteman;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.user.SearchRequest;
 import org.sonarqube.ws.client.user.UpdateRequest;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.expectHttpError;
 
 public class UserEsResilienceTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setServerProperty("sonar.web.javaAdditionalOpts",
-      format("-javaagent:%s=script:%s,boot:%s", findBytemanJar(), findBytemanScript(), findBytemanJar()))
-    .setServerProperty("sonar.search.recovery.delayInMs", "1000")
-    .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
-    .build();
+  public static final Orchestrator orchestrator;
+
+  static {
+    orchestrator = Byteman.enableScript(Orchestrator.builderEnv(), "user_index.btm").build();
+  }
 
   @Rule
   public TestRule timeout = new DisableOnDebug(Timeout.builder()
@@ -123,21 +121,4 @@ public class UserEsResilienceTest {
     return tester.users().service().search(SearchRequest.builder().setQuery(name).build()).getUsersCount() == 1L;
   }
 
-  private static String findBytemanJar() {
-    // see pom.xml, Maven copies and renames the artifact.
-    File jar = new File("target/byteman.jar");
-    if (!jar.exists()) {
-      throw new IllegalStateException("Can't find " + jar + ". Please execute 'mvn generate-test-resources' on integration tests once.");
-    }
-    return jar.getAbsolutePath();
-  }
-
-  private static String findBytemanScript() {
-    // see pom.xml, Maven copies and renames the artifact.
-    File script = new File("resilience/user_indexer.btm");
-    if (!script.exists()) {
-      throw new IllegalStateException("Can't find " + script);
-    }
-    return script.getAbsolutePath();
-  }
 }

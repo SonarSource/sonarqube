@@ -93,25 +93,6 @@ public final class EsQueueDto {
     return sb.toString();
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof EsQueueDto)) {
-      return false;
-    }
-
-    EsQueueDto that = (EsQueueDto) o;
-
-    return uuid.equals(that.uuid);
-  }
-
-  @Override
-  public int hashCode() {
-    return uuid.hashCode();
-  }
-
   public static EsQueueDto create(Type docType, String docUuid) {
     return new EsQueueDto().setDocType(docType).setDocId(docUuid);
   }

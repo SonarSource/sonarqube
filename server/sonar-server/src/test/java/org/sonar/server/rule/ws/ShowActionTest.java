@@ -236,7 +236,7 @@ public class ShowActionTest {
   @SafeVarargs
   private final RuleMetadataDto insertMetadata(OrganizationDto organization, RuleDefinitionDto rule, Consumer<RuleMetadataDto>... populaters) {
     RuleMetadataDto metadata = dbTester.rules().insertOrUpdateMetadata(rule, organization, populaters);
-    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, rule.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), rule.getKey(), organization);
     return metadata;
   }
 }

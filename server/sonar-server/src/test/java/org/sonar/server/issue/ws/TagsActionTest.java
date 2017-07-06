@@ -96,12 +96,12 @@ public class TagsActionTest {
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag1"));
     ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag2"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey(), organization);
 
     RuleDefinitionDto r2 = dbTester.rules().insert(setSystemTags("tag3"));
     ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getKey());
     dbTester.rules().insertOrUpdateMetadata(r2, organization, setTags("tag4", "tag5"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, r2.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r2.getKey(), organization);
 
     String result = tester.newRequest()
       .setParam("organization", organization.getKey())
@@ -118,7 +118,7 @@ public class TagsActionTest {
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("tag6"));
     ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag7"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey(), organization);
 
     String result = tester.newRequest()
       .setParam("organization", organization.getKey())
@@ -180,7 +180,7 @@ public class TagsActionTest {
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags("cwe"));
     ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("security"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey(), organization);
 
     String result = tester.newRequest()
       .setParam("organization", organization.getKey())

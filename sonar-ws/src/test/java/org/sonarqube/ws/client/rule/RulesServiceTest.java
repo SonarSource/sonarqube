@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -151,6 +152,33 @@ public class RulesServiceTest {
       .hasPath("show")
       .hasParam("organization", "the-org")
       .hasParam("key", "the-rule/key")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void test_create() {
+    underTest.create(new CreateWsRequest.Builder()
+      .setTemplateKey("the-template-key")
+      .setCustomKey("the-custom-key")
+      .setSeverity("BLOCKER")
+      .setParams("the-params")
+      .setPreventReactivation(true)
+      .setMarkdownDescription("the-desc")
+      .setStatus("BETA")
+      .setName("the-name")
+      .build());
+
+    PostRequest postRequest = serviceTester.getPostRequest();
+    serviceTester.assertThat(postRequest)
+      .hasPath("create")
+      .hasParam("template_key", "the-template-key")
+      .hasParam("custom_key", "the-custom-key")
+      .hasParam("severity", "BLOCKER")
+      .hasParam("params", "the-params")
+      .hasParam("prevent_reactivation", "true")
+      .hasParam("markdown_description", "the-desc")
+      .hasParam("status", "BETA")
+      .hasParam("name", "the-name")
       .andNoOtherParam();
   }
 }
