@@ -60,6 +60,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
 public class CeProcessingSchedulerImplTest {
   private static final Error ERROR_TO_INTERRUPT_CHAINING = new Error("Error should stop scheduling");
@@ -81,15 +83,14 @@ public class CeProcessingSchedulerImplTest {
   @Test
   public void polls_without_delay_when_CeWorkerCallable_returns_true() throws Exception {
     when(ceWorker.call())
-      .thenReturn(true)
+      .thenReturn(TASK_PROCESSED)
       .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
     assertThat(processingExecutorService.getSchedulerCalls()).containsOnly(
       regularDelayedPoll,
-      notDelayedPoll
-      );
+      notDelayedPoll);
   }
 
   @Test
@@ -102,36 +103,34 @@ public class CeProcessingSchedulerImplTest {
 
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
       regularDelayedPoll,
-      notDelayedPoll
-      );
+      notDelayedPoll);
   }
 
   @Test
   public void polls_with_regular_delay_when_CeWorkerCallable_returns_false() throws Exception {
     when(ceWorker.call())
-      .thenReturn(false)
+      .thenReturn(NO_TASK)
       .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
       regularDelayedPoll,
-      regularDelayedPoll
-      );
+      regularDelayedPoll);
   }
 
   @Test
   public void startScheduling_schedules_CeWorkerCallable_at_fixed_rate_run_head_of_queue() throws Exception {
     when(ceWorker.call())
-      .thenReturn(true)
-      .thenReturn(true)
-      .thenReturn(false)
-      .thenReturn(true)
-      .thenReturn(false)
+      .thenReturn(TASK_PROCESSED)
+      .thenReturn(TASK_PROCESSED)
+      .thenReturn(NO_TASK)
+      .thenReturn(TASK_PROCESSED)
+      .thenReturn(NO_TASK)
       .thenThrow(new Exception("IAE should not cause scheduling to stop"))
-      .thenReturn(false)
-      .thenReturn(false)
-      .thenReturn(false)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
       .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
@@ -146,20 +145,19 @@ public class CeProcessingSchedulerImplTest {
       notDelayedPoll,
       regularDelayedPoll,
       regularDelayedPoll,
-      regularDelayedPoll
-      );
+      regularDelayedPoll);
   }
 
   @Test
   public void stop_cancels_next_polling_and_does_not_add_any_new_one() throws Exception {
     when(ceWorker.call())
-      .thenReturn(false)
-      .thenReturn(true)
-      .thenReturn(false)
-      .thenReturn(false)
-      .thenReturn(false)
-      .thenReturn(false)
-      .thenReturn(false)
+      .thenReturn(NO_TASK)
+      .thenReturn(TASK_PROCESSED)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
+      .thenReturn(NO_TASK)
       .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     underTest.startScheduling();
@@ -185,8 +183,7 @@ public class CeProcessingSchedulerImplTest {
       regularDelayedPoll,
       regularDelayedPoll,
       notDelayedPoll,
-      regularDelayedPoll
-      );
+      regularDelayedPoll);
   }
 
   @Test
@@ -198,18 +195,18 @@ public class CeProcessingSchedulerImplTest {
     for (int i = 0; i < workerCount; i++) {
       workers[i] = mock(CeWorker.class);
       when(workers[i].call())
-        .thenReturn(false)
+        .thenReturn(NO_TASK)
         .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
     }
 
     ListenableScheduledFuture listenableScheduledFuture = mock(ListenableScheduledFuture.class);
     CeProcessingSchedulerExecutorService processingExecutorService = mock(CeProcessingSchedulerExecutorService.class);
-    when(processingExecutorService.schedule(any(CeWorker.class), any(Long.class),any(TimeUnit.class))).thenReturn(listenableScheduledFuture);
+    when(processingExecutorService.schedule(any(CeWorker.class), any(Long.class), any(TimeUnit.class))).thenReturn(listenableScheduledFuture);
 
     CeWorkerFactory ceWorkerFactory = spy(new TestCeWorkerFactory(workers));
     CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory);
     when(processingExecutorService.schedule(ceWorker, ceConfiguration.getQueuePollingDelay(), MILLISECONDS))
-        .thenReturn(listenableScheduledFuture);
+      .thenReturn(listenableScheduledFuture);
 
     underTest.startScheduling();
     // No exception from TestCeWorkerFactory must be thrown

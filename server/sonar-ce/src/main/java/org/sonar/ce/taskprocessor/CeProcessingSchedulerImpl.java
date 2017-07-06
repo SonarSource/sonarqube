@@ -34,6 +34,7 @@ import org.sonar.ce.configuration.CeConfiguration;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startable {
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
@@ -67,7 +68,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
   @Override
   public void startScheduling() {
     for (ChainingCallback chainingCallback : chainingCallbacks) {
-      ListenableScheduledFuture<Boolean> future = executorService.schedule(chainingCallback.worker, delayBetweenTasks, timeUnit);
+      ListenableScheduledFuture<CeWorker.Result> future = executorService.schedule(chainingCallback.worker, delayBetweenTasks, timeUnit);
       addCallback(future, chainingCallback, executorService);
     }
   }
@@ -79,20 +80,20 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
     }
   }
 
-  private class ChainingCallback implements FutureCallback<Boolean> {
+  private class ChainingCallback implements FutureCallback<CeWorker.Result> {
     private final AtomicBoolean keepRunning = new AtomicBoolean(true);
     private final CeWorker worker;
 
     @CheckForNull
-    private ListenableFuture<Boolean> workerFuture;
+    private ListenableFuture<CeWorker.Result> workerFuture;
 
     public ChainingCallback(CeWorker worker) {
       this.worker = worker;
     }
 
     @Override
-    public void onSuccess(@Nullable Boolean result) {
-      if (result != null && result) {
+    public void onSuccess(@Nullable CeWorker.Result result) {
+      if (result != null && result == TASK_PROCESSED) {
         chainWithoutDelay();
       } else {
         chainWithDelay();
