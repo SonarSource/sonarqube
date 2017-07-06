@@ -36,6 +36,7 @@ public class CeTasksMBeanImplTest {
   private static final long ERROR_COUNT = 10;
   private static final long SUCCESS_COUNT = 13;
   private static final long PROCESSING_TIME = 987;
+  private static final int WORKER_MAX_COUNT = 666;
   private static final int WORKER_COUNT = 56;
 
   private CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration());
@@ -66,10 +67,15 @@ public class CeTasksMBeanImplTest {
   }
 
   @Test
+  public void getWorkerMaxCount_delegates_to_the_CEConfiguration_instance() {
+    assertThat(underTest.getWorkerMaxCount()).isEqualTo(WORKER_MAX_COUNT);
+  }
+
+  @Test
   public void export_system_info() {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(section.getName()).isEqualTo("Compute Engine Tasks");
-    assertThat(section.getAttributesCount()).isEqualTo(6);
+    assertThat(section.getAttributesCount()).isEqualTo(7);
   }
 
   /**
@@ -126,7 +132,7 @@ public class CeTasksMBeanImplTest {
   private static class DumbCeConfiguration implements CeConfiguration {
     @Override
     public int getWorkerMaxCount() {
-      throw new UnsupportedOperationException("getWorkerMaxCount is not implemented");
+      return WORKER_MAX_COUNT;
     }
 
     @Override
