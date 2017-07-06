@@ -46,6 +46,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
 public class CeWorkerImplTest {
 
@@ -73,7 +75,7 @@ public class CeWorkerImplTest {
   public void no_pending_tasks_in_queue() throws Exception {
     when(queue.peek(anyString())).thenReturn(Optional.empty());
 
-    assertThat(underTest.call()).isFalse();
+    assertThat(underTest.call()).isEqualTo(NO_TASK);
 
     verifyZeroInteractions(taskProcessor, ceLogging);
   }
@@ -84,7 +86,7 @@ public class CeWorkerImplTest {
     taskProcessorRepository.setNoProcessorForTask(CeTaskTypes.REPORT);
     when(queue.peek(anyString())).thenReturn(Optional.of(task));
 
-    assertThat(underTest.call()).isTrue();
+    assertThat(underTest.call()).isEqualTo(TASK_PROCESSED);
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);
@@ -98,7 +100,7 @@ public class CeWorkerImplTest {
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     when(queue.peek(anyString())).thenReturn(Optional.of(task));
 
-    assertThat(underTest.call()).isTrue();
+    assertThat(underTest.call()).isEqualTo(TASK_PROCESSED);
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);
@@ -114,7 +116,7 @@ public class CeWorkerImplTest {
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     Throwable error = makeTaskProcessorFail(task);
 
-    assertThat(underTest.call()).isTrue();
+    assertThat(underTest.call()).isEqualTo(TASK_PROCESSED);
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);

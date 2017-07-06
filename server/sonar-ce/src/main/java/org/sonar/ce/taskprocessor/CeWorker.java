@@ -28,7 +28,14 @@ import org.sonar.ce.queue.CeTask;
  * {@link Callable#call()} returns a Boolean which is {@code true} when some a {@link CeTask} was processed,
  * {@code false} otherwise.
  */
-public interface CeWorker extends Callable<Boolean> {
+public interface CeWorker extends Callable<CeWorker.Result> {
+  enum Result {
+    /** Worker found no task to process */
+    NO_TASK,
+    /** Worker found a task and processed it (either successfully or not) */
+    TASK_PROCESSED
+  }
+
   /**
    * Position of the current CeWorker among all the running workers.
    */
