@@ -35,6 +35,8 @@ import static java.lang.String.format;
 public class CeConfigurationImpl implements CeConfiguration, Startable {
   private static final Logger LOG = Loggers.get(CeConfigurationImpl.class);
 
+  private static final int DEFAULT_WORKER_THREAD_COUNT = 1;
+  private static final int MAX_WORKER_THREAD_COUNT = 10;
   private static final int DEFAULT_WORKER_COUNT = 1;
   // 2 seconds
   private static final long DEFAULT_QUEUE_POLLING_DELAY = 2 * 1000L;
@@ -43,9 +45,11 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   // 10 minutes
   private static final long CANCEL_WORN_OUTS_DELAY = 10;
 
+  private final int workerThreadCount;
   private final int workerCount;
 
   public CeConfigurationImpl() {
+    this.workerThreadCount = DEFAULT_WORKER_THREAD_COUNT;
     this.workerCount = DEFAULT_WORKER_COUNT;
   }
 
@@ -54,6 +58,7 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
     if (value < 1) {
       throw parsingError(value);
     }
+    this.workerThreadCount = MAX_WORKER_THREAD_COUNT;
     this.workerCount = value;
   }
 
@@ -73,6 +78,11 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   @Override
   public void stop() {
     // nothing to do
+  }
+
+  @Override
+  public int getWorkerMaxCount() {
+    return workerThreadCount;
   }
 
   @Override
