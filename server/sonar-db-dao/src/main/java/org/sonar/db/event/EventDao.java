@@ -45,6 +45,10 @@ public class EventDao implements Dao {
     return executeLargeInputs(analyses, mapper(dbSession)::selectByAnalysisUuids);
   }
 
+  public List<EventDto> selectByQuery(DbSession dbSession, EventQuery query) {
+    return executeLargeInputs(query.getProjectAndDates(), partition -> mapper(dbSession).selectByQuery(partition), i -> i / 2);
+  }
+
   public EventDto insert(DbSession session, EventDto dto) {
     session.getMapper(EventMapper.class).insert(dto);
 

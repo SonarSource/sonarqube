@@ -22,6 +22,7 @@ package org.sonar.db.event;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.sonar.db.event.EventQuery.ProjectAndDate;
 
 public interface EventMapper {
 
@@ -40,4 +41,6 @@ public interface EventMapper {
   void deleteById(long id);
 
   void deleteByUuid(String uuid);
+
+  List<EventDto> selectByQuery(@Param("projectAndDates") List<ProjectAndDate> projectAndDates);
 }

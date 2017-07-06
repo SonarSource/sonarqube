@@ -51,6 +51,18 @@
     </where>
   </select>
 
+
+  <select id="selectByQuery" parameterType="map" resultType="Event">
+    select
+    <include refid="eventColumns"/>
+    from events e
+    where
+      <foreach collection="projectAndDates" open="(" close=")" item="projectAndDate" separator=" or ">
+        (e.component_uuid = #{projectAndDate.componentUuid} and e.event_date >= #{projectAndDate.from})
+      </foreach>
+    order by e.event_date
+  </select>
+
   <insert id="insert" parameterType="Event" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO events (uuid, analysis_uuid, component_uuid, name, category, description, event_data, event_date, created_at)
     VALUES (
