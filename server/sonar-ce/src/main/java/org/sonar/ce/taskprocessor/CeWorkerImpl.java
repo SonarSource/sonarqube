@@ -31,6 +31,8 @@ import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
 
 import static java.lang.String.format;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
 public class CeWorkerImpl implements CeWorker {
 
@@ -52,10 +54,10 @@ public class CeWorkerImpl implements CeWorker {
   }
 
   @Override
-  public Boolean call() throws Exception {
+  public Result call() throws Exception {
     Optional<CeTask> ceTask = tryAndFindTaskToExecute();
     if (!ceTask.isPresent()) {
-      return false;
+      return NO_TASK;
     }
 
     try {
@@ -63,7 +65,7 @@ public class CeWorkerImpl implements CeWorker {
     } catch (Exception e) {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
     }
-    return true;
+    return TASK_PROCESSED;
   }
 
   private Optional<CeTask> tryAndFindTaskToExecute() {
