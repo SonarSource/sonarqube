@@ -71,7 +71,6 @@ const DEFAULT_PROPS = {
     }
   ],
   metricsType: 'INT',
-  project: 'org.sonarsource.sonarqube:sonarqube',
   query: { category: '', graph: 'overview', project: 'org.sonarsource.sonarqube:sonarqube' },
   updateQuery: () => {}
 };

@@ -18,24 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import GraphsLegendItem from './GraphsLegendItem';
+import { shallow } from 'enzyme';
+import GraphsLegendItem from '../GraphsLegendItem';
 
-type Props = {
-  series: Array<{ name: string, translatedName: string, style: string }>
-};
+it('should render correctly a legend', () => {
+  expect(shallow(<GraphsLegendItem metric="bugs" name="Bugs" style="2" />)).toMatchSnapshot();
+});
 
-export default function GraphsLegendStatic({ series }: Props) {
-  return (
-    <div className="project-activity-graph-legends">
-      {series.map(serie => (
-        <GraphsLegendItem
-          className="big-spacer-left big-spacer-right"
-          key={serie.name}
-          metric={serie.name}
-          name={serie.translatedName}
-          style={serie.style}
-        />
-      ))}
-    </div>
-  );
-}
+it('should render correctly an actionable legend', () => {
+  expect(
+    shallow(
+      <GraphsLegendItem
+        className="myclass"
+        metric="foo"
+        name="Foo"
+        style="1"
+        removeMetric={() => {}}
+      />
+    )
+  ).toMatchSnapshot();
+});

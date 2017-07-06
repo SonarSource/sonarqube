@@ -18,24 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import GraphsLegendItem from './GraphsLegendItem';
+import { shallow } from 'enzyme';
+import GraphsLegendCustom from '../GraphsLegendCustom';
 
-type Props = {
-  series: Array<{ name: string, translatedName: string, style: string }>
-};
+const SERIES = [
+  { name: 'bugs', translatedName: 'Bugs', style: '2', data: [] },
+  { name: 'my_metric', translatedName: 'metric.my_metric.name', style: '1', data: [] },
+  { name: 'foo', translatedName: 'Foo', style: '0', data: [] }
+];
 
-export default function GraphsLegendStatic({ series }: Props) {
-  return (
-    <div className="project-activity-graph-legends">
-      {series.map(serie => (
-        <GraphsLegendItem
-          className="big-spacer-left big-spacer-right"
-          key={serie.name}
-          metric={serie.name}
-          name={serie.translatedName}
-          style={serie.style}
-        />
-      ))}
-    </div>
-  );
-}
+const METRICS = [
+  { key: 'bugs', name: 'Bugs' },
+  { key: 'my_metric', name: 'My Metric', custom: true }
+];
+
+it('should render correctly the list of series', () => {
+  expect(
+    shallow(<GraphsLegendCustom metrics={METRICS} removeMetric={() => {}} series={SERIES} />)
+  ).toMatchSnapshot();
+});

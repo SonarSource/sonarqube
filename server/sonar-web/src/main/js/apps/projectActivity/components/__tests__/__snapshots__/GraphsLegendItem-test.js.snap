@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly a legend 1`] = `
+<span
+  className=""
+>
+  <ChartLegendIcon
+    className="spacer-right line-chart-legend line-chart-legend-2"
+  />
+  Bugs
+</span>
+`;
+
+exports[`should render correctly an actionable legend 1`] = `
+<span
+  className="project-activity-graph-legend-actionable myclass"
+>
+  <ChartLegendIcon
+    className="spacer-right line-chart-legend line-chart-legend-1"
+  />
+  Foo
+  <a
+    className="spacer-left button-clean text-text-top"
+    href="#"
+    onClick={[Function]}
+  >
+    <CloseIcon
+      className="text-danger"
+    />
+  </a>
+</span>
+`;
