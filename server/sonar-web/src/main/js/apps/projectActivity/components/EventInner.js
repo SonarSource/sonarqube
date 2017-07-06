@@ -32,7 +32,7 @@ export default function EventInner(props: { event: EventType }) {
       <div className="project-activity-event-inner">
         <div className="project-activity-event-inner-icon little-spacer-right">
           <ProjectEventIcon
-            className={'text-text-bottom project-activity-event-icon ' + event.category}
+            className={'project-activity-event-icon margin-align ' + event.category}
           />
         </div>
         <span className="project-activity-event-inner-text">

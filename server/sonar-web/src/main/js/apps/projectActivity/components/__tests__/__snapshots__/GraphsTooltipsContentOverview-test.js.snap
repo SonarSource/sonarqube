@@ -12,7 +12,7 @@ exports[`should render correctly 1`] = `
     />
   </td>
   <td
-    className="text-right spacer-right thin"
+    className="text-right spacer-right"
   >
     <span
       className="project-activity-graph-tooltip-value"
@@ -44,7 +44,7 @@ exports[`should render correctly when rating data is missing 1`] = `
     />
   </td>
   <td
-    className="text-right spacer-right thin"
+    className="text-right spacer-right"
   >
     <span
       className="project-activity-graph-tooltip-value"
