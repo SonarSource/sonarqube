@@ -110,7 +110,7 @@ public class TagsActionTest {
     RuleDefinitionDto r = dbTester.rules().insert(setSystemTags());
     ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey());
     dbTester.rules().insertOrUpdateMetadata(r, organization, setTags("tag"));
-    ruleIndexer.commitAndIndex(dbTester.getSession(), organization, r.getKey());
+    ruleIndexer.commitAndIndex(dbTester.getSession(), r.getKey(), organization);
 
     String result = tester.newRequest().setParam("organization", organization.getKey()).execute().getInput();
     assertJson(result).isSimilarTo("{\"tags\":[\"tag\"]}");

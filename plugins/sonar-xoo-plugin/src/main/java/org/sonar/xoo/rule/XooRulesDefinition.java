@@ -138,6 +138,12 @@ public class XooRulesDefinition implements RulesDefinition {
       .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
         "then it's about one hour per module.");
 
+    repo
+      .createRule("xoo-template")
+      .setTemplate(true)
+      .setName("Template of rule")
+      .setHtmlDescription("Template to be overridden by custom rules");
+
     repo.done();
 
   }

@@ -81,8 +81,7 @@ public class RuleUpdater {
     apply(update, rule, userSession);
     update(dbSession, rule);
     updateParameters(dbSession, organization, update, rule);
-    ruleIndexer.commitAndIndex(dbSession, rule.getKey());
-    ruleIndexer.commitAndIndex(dbSession, organization, rule.getKey());
+    ruleIndexer.commitAndIndex(dbSession, rule.getKey(), organization);
 
     return true;
   }

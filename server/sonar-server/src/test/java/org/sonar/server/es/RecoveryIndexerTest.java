@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
@@ -49,6 +48,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -72,7 +72,7 @@ public class RecoveryIndexerTest {
   @Rule
   public final LogTester logTester = new LogTester().setLevel(TRACE);
   @Rule
-  public TestRule safeguard = new DisableOnDebug(new Timeout(60, TimeUnit.SECONDS));
+  public TestRule safeguard = new DisableOnDebug(Timeout.builder().withTimeout(60, TimeUnit.SECONDS).withLookingForStuckThread(true).build());
 
   private UserIndexer mockedUserIndexer = mock(UserIndexer.class);
   private RuleIndexer mockedRuleIndexer = mock(RuleIndexer.class);
@@ -101,10 +101,10 @@ public class RecoveryIndexerTest {
 
   @Test
   public void start_triggers_recovery_run_at_fixed_rate() throws Exception {
-    Settings settings = new MapSettings()
+    MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.initialDelayInMs", "0")
       .setProperty("sonar.search.recovery.delayInMs", "1");
-    underTest = spy(new RecoveryIndexer(system2, settings, db.getDbClient(), mockedUserIndexer, mockedRuleIndexer, mockedActiveRuleIndexer));
+    underTest = spy(new RecoveryIndexer(system2, settings.asConfig(), db.getDbClient(), mockedUserIndexer, mockedRuleIndexer, mockedActiveRuleIndexer));
     AtomicInteger calls = new AtomicInteger(0);
     doAnswer(invocation -> {
       calls.incrementAndGet();
@@ -242,7 +242,7 @@ public class RecoveryIndexerTest {
     // 10 docs to process, by groups of 3.
     // The first group successfully recovers only 1 docs --> above 30% of failures --> stop run
     PartiallyFailingUserIndexer failingAboveRatioUserIndexer = new PartiallyFailingUserIndexer(1);
-    Settings settings = new MapSettings()
+    MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.loopLimit", "3");
     underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, mockedRuleIndexer, settings);
     underTest.recover();
@@ -262,7 +262,7 @@ public class RecoveryIndexerTest {
     // 10 docs to process, by groups of 5.
     // Each group successfully recovers 4 docs --> below 30% of failures --> continue run
     PartiallyFailingUserIndexer failingAboveRatioUserIndexer = new PartiallyFailingUserIndexer(4, 4, 2);
-    Settings settings = new MapSettings()
+    MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.loopLimit", "5");
     underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, mockedRuleIndexer, settings);
     underTest.recover();
@@ -285,6 +285,29 @@ public class RecoveryIndexerTest {
 
     assertThatLogsContain(ERROR, "Elasticsearch recovery - too many failures [1/1 documents], waiting for next run");
     assertThatQueueHasSize(1);
+  }
+
+  @Test
+  public void recover_multiple_times_the_same_document() {
+    UserDto user = db.users().insertUser();
+    EsQueueDto item1 = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
+    EsQueueDto item2 = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
+    EsQueueDto item3 = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
+    db.getDbClient().esQueueDao().insert(db.getSession(), asList(item1, item2, item3));
+    db.commit();
+
+    ProxyUserIndexer userIndexer = new ProxyUserIndexer();
+    advanceInTime();
+    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
+    underTest.recover();
+
+    assertThatQueueHasSize(0);
+    assertThat(userIndexer.called)
+      .extracting(EsQueueDto::getUuid)
+      .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid(), item3.getUuid());
+
+    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 3 USER");
+    assertThatLogsContain(INFO, "Elasticsearch recovery - 3 documents processed [0 failures]");
   }
 
   private class ProxyUserIndexer extends UserIndexer {
@@ -363,7 +386,8 @@ public class RecoveryIndexerTest {
       List<EsQueueDto> filteredItems = items.stream().filter(
         i -> !i.getUuid().equals(failing.getUuid())).collect(toArrayList());
       IndexingResult result = super.index(dbSession, filteredItems);
-      if (items.contains(failing)) {
+      if (result.getTotal() == items.size() - 1) {
+        // the failing item was in the items list
         result.incrementRequests();
       }
 
@@ -425,15 +449,15 @@ public class RecoveryIndexerTest {
   }
 
   private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer) {
-    Settings settings = new MapSettings()
+    MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.initialDelayInMs", "0")
       .setProperty("sonar.search.recovery.delayInMs", "1")
       .setProperty("sonar.search.recovery.minAgeInMs", "1");
     return newRecoveryIndexer(userIndexer, ruleIndexer, settings);
   }
 
-  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer, Settings settings) {
-    return new RecoveryIndexer(system2, settings, db.getDbClient(), userIndexer, ruleIndexer, mockedActiveRuleIndexer);
+  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer, MapSettings settings) {
+    return new RecoveryIndexer(system2, settings.asConfig(), db.getDbClient(), userIndexer, ruleIndexer, mockedActiveRuleIndexer);
   }
 
   private EsQueueDto createUnindexedUser() {

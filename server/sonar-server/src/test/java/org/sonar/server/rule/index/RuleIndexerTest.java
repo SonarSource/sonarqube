@@ -102,7 +102,7 @@ public class RuleIndexerTest {
     underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
     OrganizationDto organization = dbTester.organizations().insert();
     dbTester.rules().insertOrUpdateMetadata(rule, organization, m -> m.setTags(ImmutableSet.of("bla")));
-    underTest.commitAndIndex(dbTester.getSession(), organization, rule.getKey());
+    underTest.commitAndIndex(dbTester.getSession(), rule.getKey(), organization);
 
     RuleExtensionDoc doc = new RuleExtensionDoc()
       .setRuleKey(rule.getKey())
