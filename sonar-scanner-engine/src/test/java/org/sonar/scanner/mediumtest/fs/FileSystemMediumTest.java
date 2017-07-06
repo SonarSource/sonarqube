@@ -373,7 +373,7 @@ public class FileSystemMediumTest {
         .put("sonar.sources", "src")
         .build())
       .start();
-    
+
     assertThat(logs.getAllAsString()).containsOnlyOnce("- Exclusion pattern 'pattern'");
     assertThat(logs.getAllAsString()).containsOnlyOnce("'src/myfile.binary' generating issue exclusions");
   }
@@ -672,6 +672,37 @@ public class FileSystemMediumTest {
 
     assertThat(result.inputFiles()).hasSize(4);
     assertThat(result.inputDirs()).hasSize(4);
+  }
+
+  @Test
+  public void scanProjectWithCommaInSourcePath() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample,1.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    File xooFile2 = new File(baseDir, "another,2.xoo");
+    FileUtils.write(xooFile2, "Sample xoo 2\ncontent");
+
+    File testDir = new File(baseDir, "test");
+    testDir.mkdir();
+
+    File xooTestFile = new File(testDir, "sampleTest,1.xoo");
+    FileUtils.write(xooTestFile, "Sample test xoo\ncontent");
+
+    File xooTestFile2 = new File(baseDir, "sampleTest,2.xoo");
+    FileUtils.write(xooTestFile2, "Sample test xoo 2\ncontent");
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src,\"another,2.xoo\"")
+        .put("sonar.tests", "\"test\",\"sampleTest,2.xoo\"")
+        .build())
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(4);
+    assertThat(result.inputDirs()).hasSize(3);
   }
 
 }
