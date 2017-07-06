@@ -121,6 +121,12 @@ public abstract class Request {
     return values;
   }
 
+  public Date mandatoryParamAsDateTime(String key) {
+    Date date = paramAsDateTime(key);
+    checkArgument(date != null, format(MSG_PARAMETER_MISSING, key));
+    return date;
+  }
+
   @CheckForNull
   public abstract List<String> paramAsStrings(String key);
 
