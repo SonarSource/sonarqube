@@ -127,7 +127,6 @@ export default class ProjectActivityApp extends React.PureComponent {
               measuresHistory={measuresHistory}
               metrics={this.props.metrics}
               metricsType={this.getMetricType()}
-              project={this.props.project.key}
               query={query}
               updateQuery={this.props.updateQuery}
             />

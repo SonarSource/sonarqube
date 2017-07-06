@@ -189,7 +189,6 @@ exports[`should render correctly 1`] = `
           ]
         }
         metricsType="INT"
-        project="org.sonarsource.sonarqube:sonarqube"
         query={
           Object {
             "category": "",

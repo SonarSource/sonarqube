@@ -138,7 +138,10 @@ export default class AddGraphMetric extends React.PureComponent {
 
   render() {
     return (
-      <button className={this.props.className} onClick={this.openForm}>
+      <button
+        className={this.props.className}
+        onClick={this.openForm}
+        disabled={this.props.selectedMetrics.length >= 3}>
         {translate('project_activity.graphs.custom.add')}
         {this.state.open && this.renderModal()}
       </button>

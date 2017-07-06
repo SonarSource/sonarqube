@@ -4,21 +4,17 @@ exports[`should render correctly the list of series 1`] = `
 <div
   className="project-activity-graph-legends"
 >
-  <span
+  <GraphsLegendItem
     className="big-spacer-left big-spacer-right"
-  >
-    <ChartLegendIcon
-      className="spacer-right line-chart-legend line-chart-legend-2"
-    />
-    Bugs
-  </span>
-  <span
+    metric="bugs"
+    name="Bugs"
+    style="2"
+  />
+  <GraphsLegendItem
     className="big-spacer-left big-spacer-right"
-  >
-    <ChartLegendIcon
-      className="spacer-right line-chart-legend line-chart-legend-1"
-    />
-    Code Smells
-  </span>
+    metric="code_smells"
+    name="Code Smells"
+    style="1"
+  />
 </div>
 `;
