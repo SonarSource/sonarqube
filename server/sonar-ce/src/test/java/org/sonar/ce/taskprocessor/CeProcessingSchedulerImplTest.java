@@ -219,7 +219,9 @@ public class CeProcessingSchedulerImplTest {
       verify(processingExecutorService).schedule(workers[i], ceConfiguration.getQueuePollingDelay(), MILLISECONDS);
     }
     verify(listenableScheduledFuture, times(workerCount)).addListener(any(Runnable.class), eq(processingExecutorService));
-    verify(ceWorkerFactory, times(workerCount)).create();
+    for (int i = 0; i < workerCount; i++) {
+      verify(ceWorkerFactory).create(i);
+    }
   }
 
   private void startSchedulingAndRun() throws ExecutionException, InterruptedException {
@@ -237,7 +239,7 @@ public class CeProcessingSchedulerImplTest {
     }
 
     @Override
-    public CeWorker create() {
+    public CeWorker create(int ordinal) {
       // This will throw an NoSuchElementException if there are too many calls
       return ceWorkers.next();
     }

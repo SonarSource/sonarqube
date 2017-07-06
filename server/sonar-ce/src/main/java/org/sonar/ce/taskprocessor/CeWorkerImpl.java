@@ -36,16 +36,19 @@ public class CeWorkerImpl implements CeWorker {
 
   private static final Logger LOG = Loggers.get(CeWorkerImpl.class);
 
+  private final int ordinal;
+  private final String uuid;
   private final InternalCeQueue queue;
   private final CeLogging ceLogging;
   private final CeTaskProcessorRepository taskProcessorRepository;
-  private final String uuid;
 
-  public CeWorkerImpl(InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository, String uuid) {
+  public CeWorkerImpl(int ordinal, String uuid,
+    InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository) {
+    this.ordinal = ordinal;
+    this.uuid = uuid;
     this.queue = queue;
     this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;
-    this.uuid = uuid;
   }
 
   @Override
@@ -63,7 +66,6 @@ public class CeWorkerImpl implements CeWorker {
     return true;
   }
 
-
   private Optional<CeTask> tryAndFindTaskToExecute() {
     try {
       return queue.peek(uuid);
@@ -71,6 +73,11 @@ public class CeWorkerImpl implements CeWorker {
       LOG.error("Failed to pop the queue of analysis reports", e);
     }
     return Optional.empty();
+  }
+
+  @Override
+  public int getOrdinal() {
+    return ordinal;
   }
 
   @Override
