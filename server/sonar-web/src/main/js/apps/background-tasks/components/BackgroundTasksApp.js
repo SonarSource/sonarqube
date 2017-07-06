@@ -214,7 +214,7 @@ class BackgroundTasksApp extends React.PureComponent {
     return (
       <div className="page page-limited">
         <Helmet title={translate('background_tasks.page')} />
-        <Header />
+        <Header component={component} />
 
         <Stats
           component={component}
