@@ -21,6 +21,7 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -57,13 +58,14 @@ public class CeWorkerImplTest {
   private ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   private CeLogging ceLogging = spy(CeLogging.class);
   private ArgumentCaptor<String> workerUuid = ArgumentCaptor.forClass(String.class);
-  private CeWorker underTest = new CeWorkerImpl(queue, ceLogging, taskProcessorRepository, UUID.randomUUID().toString());
+  private int randomOrdinal = new Random().nextInt();
+  private CeWorker underTest = new CeWorkerImpl(randomOrdinal, UUID.randomUUID().toString(), queue, ceLogging, taskProcessorRepository);
   private InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
 
   @Test
   public void getUUID_must_return_the_uuid_of_constructor() {
     String uuid = UUID.randomUUID().toString();
-    CeWorker underTest = new CeWorkerImpl(queue, ceLogging, taskProcessorRepository, uuid);
+    CeWorker underTest = new CeWorkerImpl(randomOrdinal, uuid, queue, ceLogging, taskProcessorRepository);
     assertThat(underTest.getUUID()).isEqualTo(uuid);
   }
 

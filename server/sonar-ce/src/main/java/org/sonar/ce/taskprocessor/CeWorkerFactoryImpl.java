@@ -43,10 +43,10 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
   }
 
   @Override
-  public CeWorker create() {
+  public CeWorker create(int ordinal) {
     String uuid = uuidFactory.create();
     ceWorkerUUIDs.add(uuid);
-    return new CeWorkerImpl(queue, ceLogging, taskProcessorRepository, uuid);
+    return new CeWorkerImpl(ordinal, uuid, queue, ceLogging, taskProcessorRepository);
   }
 
   @Override
