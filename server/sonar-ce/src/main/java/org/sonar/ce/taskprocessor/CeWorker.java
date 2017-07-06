@@ -29,5 +29,13 @@ import org.sonar.ce.queue.CeTask;
  * {@code false} otherwise.
  */
 public interface CeWorker extends Callable<Boolean> {
+  /**
+   * Position of the current CeWorker among all the running workers.
+   */
+  int getOrdinal();
+
+  /**
+   * UUID of the current CeWorker.
+   */
   String getUUID();
 }
