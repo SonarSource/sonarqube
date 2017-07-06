@@ -49,6 +49,11 @@ public interface CeTasksMBean {
   long getProcessingTime();
 
   /**
+   * Configured maximum number of workers.
+   */
+  int getWorkerMaxCount();
+
+  /**
    * Configured number of Workers.
    */
   int getWorkerCount();
