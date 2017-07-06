@@ -18,3 +18,12 @@
 .bt-search-form-right {
   margin-left: auto !important;
 }
+
+.bt-workers-warning-icon {
+  position: relative;
+  top: -1px;
+}
+
+.bt-workers-warning-icon::before {
+  color: #d3d3d3;
+}

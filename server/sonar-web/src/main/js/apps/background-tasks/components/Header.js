@@ -19,19 +19,26 @@
  */
 /* @flow */
 import React from 'react';
+import Workers from './Workers';
 import { translate } from '../../../helpers/l10n';
 
-const Header = () => {
+type Props = {
+  component?: Object
+};
+
+export default function Header(props: Props) {
   return (
     <header className="page-header">
       <h1 className="page-title">
         {translate('background_tasks.page')}
       </h1>
+      {!props.component &&
+        <div className="page-actions">
+          <Workers />
+        </div>}
       <p className="page-description">
         {translate('background_tasks.page.description')}
       </p>
     </header>
   );
-};
-
-export default Header;
+}

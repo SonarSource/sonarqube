@@ -1,0 +1,175 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`opens form 1`] = `
+<div>
+  background_tasks.number_of_workers
+  <strong
+    className="little-spacer-left"
+  >
+    1
+  </strong>
+  <Tooltip
+    overlay="background_tasks.change_number_of_workers"
+    placement="bottom"
+  >
+    <a
+      className="icon-edit spacer-left"
+      href="#"
+      onClick={[Function]}
+    />
+  </Tooltip>
+</div>
+`;
+
+exports[`opens form 2`] = `
+<div>
+  background_tasks.number_of_workers
+  <strong
+    className="little-spacer-left"
+  >
+    1
+  </strong>
+  <Tooltip
+    overlay="background_tasks.change_number_of_workers"
+    placement="bottom"
+  >
+    <a
+      className="icon-edit spacer-left"
+      href="#"
+      onClick={[Function]}
+    />
+  </Tooltip>
+  <WorkersForm
+    onClose={[Function]}
+    workerCount={1}
+  />
+</div>
+`;
+
+exports[`renders 1`] = `
+<div>
+  background_tasks.number_of_workers
+  <i
+    className="spinner little-spacer-left"
+  />
+</div>
+`;
+
+exports[`renders 2`] = `
+<div>
+  background_tasks.number_of_workers
+  <strong
+    className="little-spacer-left"
+  >
+    1
+  </strong>
+  <Tooltip
+    overlay="background_tasks.change_number_of_workers"
+    placement="bottom"
+  >
+    <a
+      className="icon-edit spacer-left"
+      href="#"
+      onClick={[Function]}
+    />
+  </Tooltip>
+</div>
+`;
+
+exports[`renders 3`] = `
+<div>
+  background_tasks.number_of_workers
+  <strong
+    className="little-spacer-left"
+  >
+    1
+  </strong>
+  <a
+    className="button button-promote spacer-left"
+    href="https://redirect.sonarsource.com/plugins/governance.html"
+    target="_blank"
+  >
+    background_tasks.add_more_with_governance
+  </a>
+</div>
+`;
+
+exports[`renders 4`] = `
+<div>
+  <Tooltip
+    overlay="background_tasks.number_of_workers.warning"
+    placement="bottom"
+  >
+    <i
+      className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
+    />
+  </Tooltip>
+  background_tasks.number_of_workers
+  <strong
+    className="little-spacer-left"
+  >
+    2
+  </strong>
+  <a
+    className="button button-promote spacer-left"
+    href="https://redirect.sonarsource.com/plugins/governance.html"
+    target="_blank"
+  >
+    background_tasks.add_more_with_governance
+  </a>
+</div>
+`;
+
+exports[`updates worker count 1`] = `
+<div>
+  background_tasks.number_of_workers
+  <strong
+    className="little-spacer-left"
+  >
+    1
+  </strong>
+  <Tooltip
+    overlay="background_tasks.change_number_of_workers"
+    placement="bottom"
+  >
+    <a
+      className="icon-edit spacer-left"
+      href="#"
+      onClick={[Function]}
+    />
+  </Tooltip>
+  <WorkersForm
+    onClose={[Function]}
+    workerCount={1}
+  />
+</div>
+`;
+
+exports[`updates worker count 2`] = `
+<div>
+  <Tooltip
+    overlay="background_tasks.number_of_workers.warning"
+    placement="bottom"
+  >
+    <i
+      className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
+    />
+  </Tooltip>
+  background_tasks.number_of_workers
+  <strong
+    className="little-spacer-left"
+  >
+    7
+  </strong>
+  <Tooltip
+    overlay="background_tasks.change_number_of_workers"
+    placement="bottom"
+  >
+    <a
+      className="icon-edit spacer-left"
+      href="#"
+      onClick={[Function]}
+    />
+  </Tooltip>
+</div>
+`;

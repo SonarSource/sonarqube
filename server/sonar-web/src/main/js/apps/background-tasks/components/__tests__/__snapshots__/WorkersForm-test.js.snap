@@ -1,0 +1,283 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`changes select 1`] = `
+<Modal
+  ariaHideApp={true}
+  className="modal"
+  closeTimeoutMS={0}
+  contentLabel="background_tasks.change_number_of_workers"
+  isOpen={true}
+  onRequestClose={[Function]}
+  overlayClassName="modal-overlay"
+  parentSelector={[Function]}
+  portalClassName="ReactModalPortal"
+  shouldCloseOnOverlayClick={true}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      background_tasks.change_number_of_workers
+    </h2>
+  </header>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      <Select
+        addLabelText="Add \\"{label}\\"?"
+        arrowRenderer={[Function]}
+        autosize={true}
+        backspaceRemoves={true}
+        backspaceToRemoveMessage="Press backspace to remove {label}"
+        className="input-tiny spacer-top"
+        clearAllText="Clear all"
+        clearValueText="Clear value"
+        clearable={false}
+        delimiter=","
+        disabled={false}
+        escapeClearsValue={true}
+        filterOptions={[Function]}
+        ignoreAccents={true}
+        ignoreCase={true}
+        inputProps={Object {}}
+        isLoading={false}
+        joinValues={false}
+        labelKey="label"
+        matchPos="any"
+        matchProp="any"
+        menuBuffer={0}
+        menuRenderer={[Function]}
+        multi={false}
+        noResultsText="No results found"
+        onBlurResetsInput={true}
+        onChange={[Function]}
+        onCloseResetsInput={true}
+        openAfterFocus={false}
+        optionComponent={[Function]}
+        options={
+          Array [
+            Object {
+              "label": 1,
+              "value": 1,
+            },
+            Object {
+              "label": 2,
+              "value": 2,
+            },
+            Object {
+              "label": 3,
+              "value": 3,
+            },
+            Object {
+              "label": 4,
+              "value": 4,
+            },
+            Object {
+              "label": 5,
+              "value": 5,
+            },
+            Object {
+              "label": 6,
+              "value": 6,
+            },
+            Object {
+              "label": 7,
+              "value": 7,
+            },
+            Object {
+              "label": 8,
+              "value": 8,
+            },
+            Object {
+              "label": 9,
+              "value": 9,
+            },
+            Object {
+              "label": 10,
+              "value": 10,
+            },
+          ]
+        }
+        pageSize={5}
+        placeholder="Select..."
+        required={false}
+        scrollMenuIntoView={true}
+        searchable={false}
+        simpleValue={false}
+        tabSelectsValue={true}
+        value={1}
+        valueComponent={[Function]}
+        valueKey="value"
+      />
+      <div
+        className="big-spacer-top alert alert-success markdown"
+      >
+        background_tasks.change_number_of_workers.hint
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <div>
+        <button
+          disabled={false}
+          type="submit"
+        >
+          save
+        </button>
+        <button
+          className="button-link"
+          onClick={[Function]}
+          type="reset"
+        >
+          cancel
+        </button>
+      </div>
+    </footer>
+  </form>
+</Modal>
+`;
+
+exports[`changes select 2`] = `
+<Modal
+  ariaHideApp={true}
+  className="modal"
+  closeTimeoutMS={0}
+  contentLabel="background_tasks.change_number_of_workers"
+  isOpen={true}
+  onRequestClose={[Function]}
+  overlayClassName="modal-overlay"
+  parentSelector={[Function]}
+  portalClassName="ReactModalPortal"
+  shouldCloseOnOverlayClick={true}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      background_tasks.change_number_of_workers
+    </h2>
+  </header>
+  <form
+    onSubmit={[Function]}
+  >
+    <div
+      className="modal-body"
+    >
+      <Select
+        addLabelText="Add \\"{label}\\"?"
+        arrowRenderer={[Function]}
+        autosize={true}
+        backspaceRemoves={true}
+        backspaceToRemoveMessage="Press backspace to remove {label}"
+        className="input-tiny spacer-top"
+        clearAllText="Clear all"
+        clearValueText="Clear value"
+        clearable={false}
+        delimiter=","
+        disabled={false}
+        escapeClearsValue={true}
+        filterOptions={[Function]}
+        ignoreAccents={true}
+        ignoreCase={true}
+        inputProps={Object {}}
+        isLoading={false}
+        joinValues={false}
+        labelKey="label"
+        matchPos="any"
+        matchProp="any"
+        menuBuffer={0}
+        menuRenderer={[Function]}
+        multi={false}
+        noResultsText="No results found"
+        onBlurResetsInput={true}
+        onChange={[Function]}
+        onCloseResetsInput={true}
+        openAfterFocus={false}
+        optionComponent={[Function]}
+        options={
+          Array [
+            Object {
+              "label": 1,
+              "value": 1,
+            },
+            Object {
+              "label": 2,
+              "value": 2,
+            },
+            Object {
+              "label": 3,
+              "value": 3,
+            },
+            Object {
+              "label": 4,
+              "value": 4,
+            },
+            Object {
+              "label": 5,
+              "value": 5,
+            },
+            Object {
+              "label": 6,
+              "value": 6,
+            },
+            Object {
+              "label": 7,
+              "value": 7,
+            },
+            Object {
+              "label": 8,
+              "value": 8,
+            },
+            Object {
+              "label": 9,
+              "value": 9,
+            },
+            Object {
+              "label": 10,
+              "value": 10,
+            },
+          ]
+        }
+        pageSize={5}
+        placeholder="Select..."
+        required={false}
+        scrollMenuIntoView={true}
+        searchable={false}
+        simpleValue={false}
+        tabSelectsValue={true}
+        value={7}
+        valueComponent={[Function]}
+        valueKey="value"
+      />
+      <div
+        className="big-spacer-top alert alert-success markdown"
+      >
+        background_tasks.change_number_of_workers.hint
+      </div>
+    </div>
+    <footer
+      className="modal-foot"
+    >
+      <div>
+        <button
+          disabled={false}
+          type="submit"
+        >
+          save
+        </button>
+        <button
+          className="button-link"
+          onClick={[Function]}
+          type="reset"
+        >
+          cancel
+        </button>
+      </div>
+    </footer>
+  </form>
+</Modal>
+`;
