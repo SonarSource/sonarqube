@@ -73,6 +73,11 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
   }
 
   @Override
+  public int getWorkerMaxCount() {
+    return ceConfiguration.getWorkerMaxCount();
+  }
+
+  @Override
   public int getWorkerCount() {
     return ceConfiguration.getWorkerCount();
   }
@@ -87,6 +92,7 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
     builder.addAttributesBuilder().setKey("Processed With Success").setLongValue(getSuccessCount()).build();
     builder.addAttributesBuilder().setKey("Processing Time (ms)").setLongValue(getProcessingTime()).build();
     builder.addAttributesBuilder().setKey("Worker Count").setLongValue(getWorkerCount()).build();
+    builder.addAttributesBuilder().setKey("Max Worker Count").setLongValue(getWorkerMaxCount()).build();
     return builder.build();
   }
 }
