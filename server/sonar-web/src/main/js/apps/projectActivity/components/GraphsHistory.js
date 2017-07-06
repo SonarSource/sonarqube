@@ -19,13 +19,13 @@
  */
 import React from 'react';
 import moment from 'moment';
-import { some, sortBy } from 'lodash';
+import { sortBy } from 'lodash';
 import { AutoSizer } from 'react-virtualized';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import GraphsTooltips from './GraphsTooltips';
-import StaticGraphsLegend from './StaticGraphsLegend';
+import GraphsLegendStatic from './GraphsLegendStatic';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
-import { EVENT_TYPES, isCustomGraph } from '../utils';
+import { EVENT_TYPES, hasHistoryData, isCustomGraph } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { Analysis, MeasureHistory } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -52,7 +52,7 @@ type State = {
   tooltipXPos: ?number
 };
 
-export default class StaticGraphs extends React.PureComponent {
+export default class GraphsHistory extends React.PureComponent {
   props: Props;
   state: State = {
     tooltipIdx: null,
@@ -99,13 +99,12 @@ export default class StaticGraphs extends React.PureComponent {
     return [];
   };
 
-  hasSeriesData = () => some(this.props.series, serie => serie.data && serie.data.length > 2);
-
   updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) =>
     this.setState({ selectedDate, tooltipXPos, tooltipIdx });
 
   render() {
     const { loading } = this.props;
+    const { graph, series } = this.props;
 
     if (loading) {
       return (
@@ -117,7 +116,7 @@ export default class StaticGraphs extends React.PureComponent {
       );
     }
 
-    if (!this.hasSeriesData()) {
+    if (!hasHistoryData(series)) {
       return (
         <div className="project-activity-graph-container">
           <div className="note text-center">
@@ -132,10 +131,9 @@ export default class StaticGraphs extends React.PureComponent {
     }
 
     const { selectedDate, tooltipIdx, tooltipXPos } = this.state;
-    const { graph, series } = this.props;
     return (
       <div className="project-activity-graph-container">
-        <StaticGraphsLegend series={series} />
+        <GraphsLegendStatic series={series} />
         <div className="project-activity-graph">
           <AutoSizer>
             {({ height, width }) => (

@@ -125,6 +125,7 @@ export default class ProjectActivityApp extends React.PureComponent {
               leakPeriodDate={moment(this.props.project.leakPeriodDate).toDate()}
               loading={this.props.graphLoading}
               measuresHistory={measuresHistory}
+              metrics={this.props.metrics}
               metricsType={this.getMetricType()}
               project={this.props.project.key}
               query={query}

@@ -25,7 +25,7 @@ type Props = {
   series: Array<{ name: string, translatedName: string, style: string }>
 };
 
-export default function StaticGraphsLegend({ series }: Props) {
+export default function GraphsLegendStatic({ series }: Props) {
   return (
     <div className="project-activity-graph-legends">
       {series.map(serie => (
