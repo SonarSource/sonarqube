@@ -69,7 +69,7 @@ const emptyState = {
   measuresHistory: [],
   measures: [],
   metrics: [],
-  query: { category: '', graph: '', project: '' }
+  query: { category: '', graph: '', project: '', customMetrics: [] }
 };
 
 const state = { ...emptyState, analyses: ANALYSES };

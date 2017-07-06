@@ -50,6 +50,7 @@ export type Paging = {
 
 export type Query = {
   category: string,
+  customMetrics: Array<string>,
   from?: Date,
   graph: string,
   project: string,

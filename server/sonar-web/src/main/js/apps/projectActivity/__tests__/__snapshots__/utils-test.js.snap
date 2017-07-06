@@ -32,7 +32,7 @@ Array [
       },
     ],
     "name": "lines_to_cover",
-    "style": 1,
+    "style": "0",
     "translatedName": "metric.lines_to_cover.name",
   },
   Object {
@@ -47,7 +47,7 @@ Array [
       },
     ],
     "name": "covered_lines",
-    "style": 0,
+    "style": "1",
     "translatedName": "project_activity.custom_metric.covered_lines",
   },
 ]

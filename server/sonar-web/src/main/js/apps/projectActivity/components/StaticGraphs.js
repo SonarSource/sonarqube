@@ -25,7 +25,7 @@ import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
 import GraphsTooltips from './GraphsTooltips';
 import StaticGraphsLegend from './StaticGraphsLegend';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
-import { EVENT_TYPES } from '../utils';
+import { EVENT_TYPES, isCustomGraph } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { Analysis, MeasureHistory } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -121,11 +121,16 @@ export default class StaticGraphs extends React.PureComponent {
       return (
         <div className="project-activity-graph-container">
           <div className="note text-center">
-            {translate('component_measures.no_history')}
+            {translate(
+              isCustomGraph(this.props.graph)
+                ? 'project_activity.graphs.custom.no_history'
+                : 'component_measures.no_history'
+            )}
           </div>
         </div>
       );
     }
+
     const { selectedDate, tooltipIdx, tooltipXPos } = this.state;
     const { graph, series } = this.props;
     return (

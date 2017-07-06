@@ -30,7 +30,13 @@ import { getMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
 import { getGraph, saveGraph } from '../../../helpers/storage';
-import { GRAPHS_METRICS, parseQuery, serializeQuery, serializeUrlQuery } from '../utils';
+import {
+  customMetricsChanged,
+  getHistoryMetrics,
+  parseQuery,
+  serializeQuery,
+  serializeUrlQuery
+} from '../utils';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Metric, Paging, Query } from '../types';
 
@@ -89,8 +95,8 @@ class ProjectActivityAppContainer extends React.PureComponent {
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.location.query !== this.props.location.query) {
       const query = parseQuery(nextProps.location.query);
-      if (query.graph !== this.state.query.graph) {
-        this.updateGraphData(query.graph);
+      if (query.graph !== this.state.query.graph || customMetricsChanged(this.state.query, query)) {
+        this.updateGraphData(query.graph, query.customMetrics);
       }
       this.setState({ query });
     }
@@ -158,6 +164,9 @@ class ProjectActivityAppContainer extends React.PureComponent {
   };
 
   fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> => {
+    if (metrics.length <= 0) {
+      return Promise.resolve([]);
+    }
     return getAllTimeMachineData(this.props.project.key, metrics).then(
       ({ measures }) =>
         measures.map(measure => ({
@@ -197,7 +206,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
 
   firstLoadData() {
     const { query } = this.state;
-    const graphMetrics = GRAPHS_METRICS[query.graph];
+    const graphMetrics = getHistoryMetrics(query.graph, query.customMetrics);
     const ignoreHistory = this.shouldRedirect();
     Promise.all([
       this.fetchActivity(query.project, 1, 100, serializeQuery(query)),
@@ -237,11 +246,10 @@ class ProjectActivityAppContainer extends React.PureComponent {
     });
   }
 
-  updateGraphData = (graph: string) => {
+  updateGraphData = (graph: string, customMetrics: Array<string>) => {
+    const graphMetrics = getHistoryMetrics(graph, customMetrics);
     this.setState({ graphLoading: true });
-    return this.fetchMeasuresHistory(
-      GRAPHS_METRICS[graph]
-    ).then((measuresHistory: Array<MeasureHistory>) =>
+    this.fetchMeasuresHistory(graphMetrics).then((measuresHistory: Array<MeasureHistory>) =>
       this.setState({ graphLoading: false, measuresHistory })
     );
   };
