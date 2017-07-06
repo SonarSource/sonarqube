@@ -59,9 +59,10 @@ public class CeWorkerImplTest {
   private InternalCeQueue queue = mock(InternalCeQueue.class);
   private ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   private CeLogging ceLogging = spy(CeLogging.class);
-  private ArgumentCaptor<String> workerUuid = ArgumentCaptor.forClass(String.class);
+  private ArgumentCaptor<String> workerUuidCaptor = ArgumentCaptor.forClass(String.class);
   private int randomOrdinal = new Random().nextInt();
-  private CeWorker underTest = new CeWorkerImpl(randomOrdinal, UUID.randomUUID().toString(), queue, ceLogging, taskProcessorRepository);
+  private String workerUuid = UUID.randomUUID().toString();
+  private CeWorker underTest = new CeWorkerImpl(randomOrdinal, workerUuid, queue, ceLogging, taskProcessorRepository);
   private InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
 
   @Test
@@ -237,8 +238,8 @@ public class CeWorkerImplTest {
   }
 
   private void verifyWorkerUuid() {
-    verify(queue).peek(workerUuid.capture());
-    assertThat(workerUuid.getValue()).startsWith(workerUuid.getValue());
+    verify(queue).peek(workerUuidCaptor.capture());
+    assertThat(workerUuidCaptor.getValue()).isEqualTo(workerUuid);
   }
 
   private static CeTask createCeTask(@Nullable String submitterLogin) {
