@@ -192,7 +192,7 @@ public class CeProcessingSchedulerImplTest {
   @Test
   public void when_workerCount_is_more_than_1_as_many_CeWorkerCallable_are_scheduled() throws Exception {
     int workerCount = Math.abs(new Random().nextInt(10)) + 1;
-    ceConfiguration.setWorkerCount(workerCount);
+    ceConfiguration.setWorkerThreadCount(workerCount);
 
     CeWorker[] workers = new CeWorker[workerCount];
     for (int i = 0; i < workerCount; i++) {

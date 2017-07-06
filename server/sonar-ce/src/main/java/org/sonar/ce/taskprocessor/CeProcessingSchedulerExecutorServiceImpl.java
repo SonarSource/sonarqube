@@ -37,7 +37,7 @@ public class CeProcessingSchedulerExecutorServiceImpl extends AbstractStoppableE
   public CeProcessingSchedulerExecutorServiceImpl(CeConfiguration ceConfiguration) {
     super(
       MoreExecutors.listeningDecorator(
-        Executors.newScheduledThreadPool(ceConfiguration.getWorkerCount(),
+        Executors.newScheduledThreadPool(ceConfiguration.getWorkerMaxCount(),
           new ThreadFactoryBuilder()
             .setNameFormat(THREAD_NAME_PREFIX + "%d")
             .setPriority(Thread.MIN_PRIORITY)
