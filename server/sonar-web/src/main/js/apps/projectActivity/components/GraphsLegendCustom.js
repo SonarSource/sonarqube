@@ -19,23 +19,30 @@
  */
 import React from 'react';
 import GraphsLegendItem from './GraphsLegendItem';
+import type { Metric } from '../types';
 
 type Props = {
+  metrics: Array<Metric>,
+  removeMetric: string => void,
   series: Array<{ name: string, translatedName: string, style: string }>
 };
 
-export default function GraphsLegendStatic({ series }: Props) {
+export default function GraphsLegendCustom({ metrics, removeMetric, series }: Props) {
   return (
     <div className="project-activity-graph-legends">
-      {series.map(serie => (
-        <GraphsLegendItem
-          className="big-spacer-left big-spacer-right"
-          key={serie.name}
-          metric={serie.name}
-          name={serie.translatedName}
-          style={serie.style}
-        />
-      ))}
+      {series.map(serie => {
+        const metric = metrics.find(metric => metric.key === serie.name);
+        return (
+          <span className="spacer-left spacer-right" key={serie.name}>
+            <GraphsLegendItem
+              metric={serie.name}
+              name={metric && metric.custom ? metric.name : serie.translatedName}
+              style={serie.style}
+              removeMetric={removeMetric}
+            />
+          </span>
+        );
+      })}
     </div>
   );
 }

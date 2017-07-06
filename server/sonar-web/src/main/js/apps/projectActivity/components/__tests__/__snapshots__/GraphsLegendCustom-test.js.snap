@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly the list of series 1`] = `
+<div
+  className="project-activity-graph-legends"
+>
+  <span
+    className="spacer-left spacer-right"
+  >
+    <GraphsLegendItem
+      metric="bugs"
+      name="Bugs"
+      removeMetric={[Function]}
+      style="2"
+    />
+  </span>
+  <span
+    className="spacer-left spacer-right"
+  >
+    <GraphsLegendItem
+      metric="my_metric"
+      name="My Metric"
+      removeMetric={[Function]}
+      style="1"
+    />
+  </span>
+  <span
+    className="spacer-left spacer-right"
+  >
+    <GraphsLegendItem
+      metric="foo"
+      name="Foo"
+      removeMetric={[Function]}
+      style="0"
+    />
+  </span>
+</div>
+`;

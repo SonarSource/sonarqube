@@ -5,8 +5,9 @@ exports[`should render correctly the graph and legends 1`] = `
   className="project-activity-layout-page-main-inner boxed-group boxed-group-inner"
 >
   <ProjectActivityGraphsHeader
+    addCustomMetric={[Function]}
     graph="overview"
-    updateQuery={[Function]}
+    updateGraph={[Function]}
   />
   <GraphsHistory
     analyses={
@@ -73,7 +74,7 @@ exports[`should render correctly the graph and legends 1`] = `
       ]
     }
     metricsType="INT"
-    project="org.sonarsource.sonarqube:sonarqube"
+    removeCustomMetric={[Function]}
     series={
       Array [
         Object {
