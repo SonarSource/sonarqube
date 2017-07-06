@@ -20,6 +20,7 @@
 package org.sonar.ce.taskprocessor;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -55,6 +56,10 @@ public class CeWorkerImpl implements CeWorker {
 
   @Override
   public Result call() throws Exception {
+    return withCustomizedThreadName(this::findAndProcessTask);
+  }
+
+  private Result findAndProcessTask() {
     Optional<CeTask> ceTask = tryAndFindTaskToExecute();
     if (!ceTask.isPresent()) {
       return NO_TASK;
@@ -66,6 +71,17 @@ public class CeWorkerImpl implements CeWorker {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
     }
     return TASK_PROCESSED;
+  }
+
+  private <T> T withCustomizedThreadName(Supplier<T> supplier) {
+    Thread currentThread = Thread.currentThread();
+    String oldName = currentThread.getName();
+    try {
+      currentThread.setName(String.format("Worker %s (UUID=%s) on %s", getOrdinal(), getUUID(), oldName));
+      return supplier.get();
+    } finally {
+      currentThread.setName(oldName);
+    }
   }
 
   private Optional<CeTask> tryAndFindTaskToExecute() {

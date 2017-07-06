@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -235,6 +236,68 @@ public class CeWorkerImplTest {
     assertThat(logs.get(0)).isEqualTo("Failed to execute task " + ceTask.getUuid());
     assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
+  }
+
+  @Test
+  public void call_sets_and_restores_thread_name_with_information_of_worker_when_there_is_no_task_to_process() throws Exception {
+    String threadName = RandomStringUtils.randomAlphabetic(3);
+    when(queue.peek(anyString())).thenAnswer(invocation -> {
+      assertThat(Thread.currentThread().getName())
+        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+      return Optional.empty();
+    });
+    Thread newThread = createThreadNameVerifyingThread(threadName);
+
+    newThread.start();
+    newThread.join();
+  }
+
+  @Test
+  public void call_sets_and_restores_thread_name_with_information_of_worker_when_a_task_is_processed() throws Exception {
+    String threadName = RandomStringUtils.randomAlphabetic(3);
+    when(queue.peek(anyString())).thenAnswer(invocation -> {
+      assertThat(Thread.currentThread().getName())
+        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+      return Optional.of(createCeTask("FooBar"));
+    });
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    Thread newThread = createThreadNameVerifyingThread(threadName);
+
+    newThread.start();
+    newThread.join();
+  }
+
+  @Test
+  public void call_sets_and_restores_thread_name_with_information_of_worker_when_an_error_occurs() throws Exception {
+    String threadName = RandomStringUtils.randomAlphabetic(3);
+    CeTask ceTask = createCeTask("FooBar");
+    when(queue.peek(anyString())).thenAnswer(invocation -> {
+      assertThat(Thread.currentThread().getName())
+        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+      return Optional.of(ceTask);
+    });
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    makeTaskProcessorFail(ceTask);
+    Thread newThread = createThreadNameVerifyingThread(threadName);
+
+    newThread.start();
+    newThread.join();
+  }
+
+  private Thread createThreadNameVerifyingThread(String threadName) {
+    return new Thread(() -> {
+      verifyUnchangedThreadName(threadName);
+      try {
+        underTest.call();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      verifyUnchangedThreadName(threadName);
+    }, threadName);
+  }
+
+  private void verifyUnchangedThreadName(String threadName) {
+    assertThat(Thread.currentThread().getName()).isEqualTo(threadName);
   }
 
   private void verifyWorkerUuid() {
