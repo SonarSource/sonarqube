@@ -8,7 +8,7 @@ exports[`should render correctly the graph and legends 1`] = `
     graph="overview"
     updateQuery={[Function]}
   />
-  <StaticGraphs
+  <GraphsHistory
     analyses={
       Array [
         Object {

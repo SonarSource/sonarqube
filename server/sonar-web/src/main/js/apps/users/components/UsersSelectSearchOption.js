@@ -62,11 +62,9 @@ export default class UsersSelectSearchOption extends React.PureComponent {
         onMouseEnter={this.handleMouseEnter}
         onMouseMove={this.handleMouseMove}
         title={user.name}>
-        <div className="little-spacer-bottom little-spacer-top">
-          <Avatar hash={user.avatar} email={user.email} name={user.name} size={AVATAR_SIZE} />
-          <strong className="spacer-left">{this.props.children}</strong>
-          <span className="note little-spacer-left">{user.login}</span>
-        </div>
+        <Avatar hash={user.avatar} email={user.email} name={user.name} size={AVATAR_SIZE} />
+        <strong className="spacer-left">{this.props.children}</strong>
+        <span className="note little-spacer-left">{user.login}</span>
       </div>
     );
   }
