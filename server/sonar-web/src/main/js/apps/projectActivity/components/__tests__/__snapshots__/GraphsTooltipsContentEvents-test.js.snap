@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<tbody>
+  <tr>
+    <td
+      className="project-activity-graph-tooltip-separator"
+      colSpan="3"
+    >
+      <hr />
+    </td>
+  </tr>
+  <tr
+    className="project-activity-graph-tooltip-line"
+  >
+    <td
+      className="text-top spacer-right thin"
+    >
+      <ProjectEventIcon
+        className="project-activity-event-icon margin-align VERSION"
+      />
+    </td>
+    <td
+      colSpan="2"
+    >
+      <span
+        className="little-spacer-right"
+      >
+        event.category.VERSION
+        :
+      </span>
+      6.5
+    </td>
+  </tr>
+  <tr
+    className="project-activity-graph-tooltip-line"
+  >
+    <td
+      className="text-top spacer-right thin"
+    >
+      <ProjectEventIcon
+        className="project-activity-event-icon margin-align OTHER"
+      />
+    </td>
+    <td
+      colSpan="2"
+    >
+      <span
+        className="little-spacer-right"
+      >
+        event.category.OTHER
+        :
+      </span>
+      Foo
+    </td>
+  </tr>
+</tbody>
+`;
