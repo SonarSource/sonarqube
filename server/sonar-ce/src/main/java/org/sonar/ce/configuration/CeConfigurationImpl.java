@@ -55,7 +55,7 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   public CeConfigurationImpl(WorkerCountProvider workerCountProvider) {
     int value = workerCountProvider.get();
-    if (value < 1) {
+    if (value < DEFAULT_WORKER_COUNT || value > MAX_WORKER_THREAD_COUNT) {
       throw parsingError(value);
     }
     this.workerThreadCount = MAX_WORKER_THREAD_COUNT;
@@ -64,7 +64,7 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   private static MessageException parsingError(int value) {
     return MessageException.of(format(
-        "Worker count '%s' is invalid. It must an integer strictly greater than 0.",
+        "Worker count '%s' is invalid. It must an integer strictly greater than 0 and less or equal to 10",
         value));
   }
 

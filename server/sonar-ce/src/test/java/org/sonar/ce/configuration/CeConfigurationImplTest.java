@@ -46,7 +46,7 @@ public class CeConfigurationImplTest {
 
   @Test
   public void getWorkerCount_returns_value_returned_by_WorkerCountProvider_when_available() {
-    int value = 1 + Math.abs(new Random().nextInt());
+    int value = 1 + Math.abs(new Random().nextInt(10));
     workerCountProvider.set(value);
 
     assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerCount()).isEqualTo(value);
@@ -56,7 +56,7 @@ public class CeConfigurationImplTest {
   public void getWorkerThreadCount_returns_10_whichever_the_value_returned_by_WorkerCountProvider() {
     int value = 1 + Math.abs(new Random().nextInt(10));
     workerCountProvider.set(value);
-    
+
     assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerMaxCount()).isEqualTo(10);
   }
 
@@ -79,10 +79,20 @@ public class CeConfigurationImplTest {
     new CeConfigurationImpl(workerCountProvider);
   }
 
+  @Test
+  public void constructor_throws_MessageException_when_WorkerCountProvider_returns_more_then_10() {
+    int value = 10 + abs(new Random().nextInt());
+    workerCountProvider.set(value);
+
+    expectMessageException(value);
+
+    new CeConfigurationImpl(workerCountProvider);
+  }
+
   private void expectMessageException(int value) {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Worker count '" + value + "' is invalid. " +
-        "It must an integer strictly greater than 0");
+        "It must an integer strictly greater than 0 and less or equal to 10");
   }
 
   @Test
