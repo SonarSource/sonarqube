@@ -535,8 +535,16 @@ public class ProjectReactorBuilderTest {
   public void shouldGetList() {
     Map<String, String> props = new HashMap<>();
 
-    props.put("prop", "  foo  ,,  bar  , \n\ntoto,tutu");
-    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
+    props.put("prop", "  foo  ,,  bar  , toto,tutu");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "", "bar", "toto", "tutu");
+  }
+
+  @Test
+  public void shouldGetListWithComma() {
+    Map<String, String> props = new HashMap<>();
+
+    props.put("prop", "\"foo,bar\",  toto,tutu");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo,bar", "toto", "tutu");
   }
 
   @Test
@@ -552,7 +560,7 @@ public class ProjectReactorBuilderTest {
     String filePath = "shouldGetList/foo.properties";
     Map<String, String> props = loadPropsFromFile(filePath);
 
-    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu", "");
   }
 
   @Test

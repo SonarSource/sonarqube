@@ -35,7 +35,6 @@ import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -46,6 +45,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.analysis.AnalysisProperties;
 import org.sonar.scanner.bootstrap.DroppedPropertyChecker;
+import org.sonar.scanner.config.DefaultConfiguration;
 import org.sonar.scanner.util.ScannerUtils;
 
 /**
@@ -406,7 +406,11 @@ public class ProjectReactorBuilder {
    *
    */
   static String[] getListFromProperty(Map<String, String> properties, String key) {
-    return (String[]) ObjectUtils.defaultIfNull(StringUtils.stripAll(StringUtils.split(properties.get(key), ',')), new String[0]);
+    String propValue = properties.get(key);
+    if (propValue != null) {
+      return DefaultConfiguration.parseAsCsv(ProjectDefinition.SOURCES_PROPERTY, propValue);
+    }
+    return new String[0];
   }
 
 }
