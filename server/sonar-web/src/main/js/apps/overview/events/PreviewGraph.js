@@ -67,16 +67,24 @@ export default class PreviewGraph extends React.PureComponent {
     }
   }
 
+  getDisplayedMetrics = (graph: string) => {
+    const metrics = GRAPHS_METRICS_DISPLAYED[graph];
+    if (!metrics || metrics.length <= 0) {
+      return GRAPHS_METRICS_DISPLAYED['overview'];
+    }
+    return metrics;
+  };
+
   getSeries = (history: History, graph: string, metricsType: string): Array<Serie> => {
     const measureHistory = map(history, (item, key) => ({
       metric: key,
       history: item.filter(p => p.value != null)
-    })).filter(item => GRAPHS_METRICS_DISPLAYED[graph].indexOf(item.metric) >= 0);
-    return generateSeries(measureHistory, graph, metricsType);
+    }));
+    return generateSeries(measureHistory, graph, metricsType, this.getDisplayedMetrics(graph));
   };
 
   getMetricType = (metrics: Array<Metric>, graph: string) => {
-    const metricKey = GRAPHS_METRICS_DISPLAYED[graph][0];
+    const metricKey = this.getDisplayedMetrics(graph)[0];
     const metric = metrics.find(metric => metric.key === metricKey);
     return metric ? metric.type : 'INT';
   };

@@ -77,7 +77,9 @@ const QUERY = {
   from: new Date('2017-04-27T08:21:32+0200'),
   graph: 'overview',
   project: 'foo',
-  to: undefined
+  to: undefined,
+  selectedDate: undefined,
+  customMetrics: ['foo', 'bar', 'baz']
 };
 
 jest.mock('moment', () => date => ({
@@ -97,7 +99,9 @@ describe('generateCoveredLinesMetric', () => {
 
 describe('generateSeries', () => {
   it('should correctly generate the series', () => {
-    expect(utils.generateSeries(HISTORY, 'coverage', 'INT')).toMatchSnapshot();
+    expect(
+      utils.generateSeries(HISTORY, 'coverage', 'INT', ['lines_to_cover', 'uncovered_lines'])
+    ).toMatchSnapshot();
   });
 });
 
@@ -107,12 +111,51 @@ describe('getAnalysesByVersionByDay', () => {
   });
 });
 
+describe('getDisplayedHistoryMetrics', () => {
+  const customMetrics = ['foo', 'bar'];
+  it('should return only displayed metrics on the graph', () => {
+    expect(utils.getDisplayedHistoryMetrics('overview', [])).toEqual([
+      'bugs',
+      'code_smells',
+      'vulnerabilities'
+    ]);
+    expect(utils.getDisplayedHistoryMetrics('coverage', customMetrics)).toEqual([
+      'uncovered_lines',
+      'lines_to_cover'
+    ]);
+  });
+  it('should return all custom metrics for the custom graph', () => {
+    expect(utils.getDisplayedHistoryMetrics('custom', customMetrics)).toEqual(customMetrics);
+  });
+});
+
+describe('getHistoryMetrics', () => {
+  const customMetrics = ['foo', 'bar'];
+  it('should return all metrics', () => {
+    expect(utils.getHistoryMetrics('overview', [])).toEqual([
+      'bugs',
+      'code_smells',
+      'vulnerabilities',
+      'reliability_rating',
+      'security_rating',
+      'sqale_rating'
+    ]);
+    expect(utils.getHistoryMetrics('coverage', customMetrics)).toEqual([
+      'uncovered_lines',
+      'lines_to_cover',
+      'coverage'
+    ]);
+    expect(utils.getHistoryMetrics('custom', customMetrics)).toEqual(customMetrics);
+  });
+});
+
 describe('parseQuery', () => {
   it('should parse query with default values', () => {
     expect(
       utils.parseQuery({
         from: '2017-04-27T08:21:32+0200',
-        id: 'foo'
+        id: 'foo',
+        custom_metrics: 'foo,bar,baz'
       })
     ).toEqual(QUERY);
   });
@@ -136,9 +179,12 @@ describe('serializeUrlQuery', () => {
   it('should serialize query for url', () => {
     expect(utils.serializeUrlQuery(QUERY)).toEqual({
       from: '2017-04-27T06:21:32.000Z',
-      id: 'foo'
+      id: 'foo',
+      custom_metrics: 'foo,bar,baz'
     });
-    expect(utils.serializeUrlQuery({ ...QUERY, graph: 'coverage', category: 'test' })).toEqual({
+    expect(
+      utils.serializeUrlQuery({ ...QUERY, graph: 'coverage', category: 'test', customMetrics: [] })
+    ).toEqual({
       from: '2017-04-27T06:21:32.000Z',
       id: 'foo',
       graph: 'coverage',

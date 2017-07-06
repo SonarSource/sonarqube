@@ -92,7 +92,7 @@ exports[`should render correctly the graph and legends 1`] = `
             },
           ],
           "name": "code_smells",
-          "style": 1,
+          "style": "1",
           "translatedName": "metric.code_smells.name",
         },
       ]
@@ -124,7 +124,7 @@ exports[`should render correctly the graph and legends 1`] = `
             },
           ],
           "name": "code_smells",
-          "style": 1,
+          "style": "1",
           "translatedName": "metric.code_smells.name",
         },
       ]
@@ -156,7 +156,7 @@ Object {
         },
       ],
       "name": "code_smells",
-      "style": 1,
+      "style": "1",
       "translatedName": "metric.code_smells.name",
     },
   ],

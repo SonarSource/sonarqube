@@ -23,7 +23,12 @@ import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import StaticGraphs from './StaticGraphs';
-import { datesQueryChanged, generateSeries, historyQueryChanged } from '../utils';
+import {
+  datesQueryChanged,
+  generateSeries,
+  getDisplayedHistoryMetrics,
+  historyQueryChanged
+} from '../utils';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Query } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -51,7 +56,12 @@ export default class ProjectActivityGraphs extends React.PureComponent {
 
   constructor(props: Props) {
     super(props);
-    const series = generateSeries(props.measuresHistory, props.query.graph, props.metricsType);
+    const series = generateSeries(
+      props.measuresHistory,
+      props.query.graph,
+      props.metricsType,
+      getDisplayedHistoryMetrics(props.query.graph, props.query.customMetrics)
+    );
     this.state = { series, ...this.getStateZoomDates(null, props, series) };
     this.updateQueryDateRange = debounce(this.updateQueryDateRange, 500);
   }
@@ -64,7 +74,8 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       const series = generateSeries(
         nextProps.measuresHistory,
         nextProps.query.graph,
-        nextProps.metricsType
+        nextProps.metricsType,
+        getDisplayedHistoryMetrics(nextProps.query.graph, nextProps.query.customMetrics)
       );
       const newDates = this.getStateZoomDates(this.props, nextProps, series);
       if (newDates) {

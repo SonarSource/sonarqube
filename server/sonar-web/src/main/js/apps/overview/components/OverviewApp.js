@@ -101,7 +101,11 @@ export default class OverviewApp extends React.PureComponent {
   }
 
   loadHistory(component: Component) {
-    const metrics = uniq(HISTORY_METRICS_LIST.concat(GRAPHS_METRICS_DISPLAYED[getGraph()]));
+    let graphMetrics = GRAPHS_METRICS_DISPLAYED[getGraph()];
+    if (!graphMetrics || graphMetrics.length <= 0) {
+      graphMetrics = GRAPHS_METRICS_DISPLAYED['overview'];
+    }
+    const metrics = uniq(HISTORY_METRICS_LIST.concat(graphMetrics));
     return getAllTimeMachineData(component.key, metrics).then(r => {
       if (this.mounted) {
         const history: History = {};
