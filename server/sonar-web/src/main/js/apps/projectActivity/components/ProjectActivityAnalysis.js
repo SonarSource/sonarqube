@@ -60,12 +60,9 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
         role="listitem"
         tabIndex="0">
         <div className="project-activity-time spacer-right">
-          <FormattedDate date={date} format="LT" tooltipFormat="LTS" />
+          <FormattedDate className="text-middle" date={date} format="LT" tooltipFormat="LTS" />
         </div>
-        <div
-          className="project-activity-analysis-icon little-spacer-top big-spacer-right"
-          title={analysisTitle}
-        />
+        <div className="project-activity-analysis-icon big-spacer-right" title={analysisTitle} />
 
         {canAdmin &&
           <div className="project-activity-analysis-actions spacer-left">

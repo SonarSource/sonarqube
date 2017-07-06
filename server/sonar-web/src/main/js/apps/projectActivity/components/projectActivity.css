@@ -153,7 +153,7 @@
   float: left;
   width: 10px;
   height: 10px;
-  margin-top: 4px;
+  margin-top: 5px;
   border: 2px solid #4b9fd5;
   border-radius: 10px;
   box-sizing: border-box;
@@ -197,6 +197,10 @@
 
 .project-activity-event-actions button + button {
   margin-left: 4px;
+}
+
+.project-activity-event-icon.margin-align {
+  margin-top: 3px;
 }
 
 .project-activity-event-icon.VERSION {

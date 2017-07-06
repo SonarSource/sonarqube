@@ -17,33 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
-import moment from 'moment';
+import { shallow } from 'enzyme';
+import GraphsTooltipsContentEvents from '../GraphsTooltipsContentEvents';
 
-export default class FormattedDate extends React.PureComponent {
-  props: {
-    className?: string,
-    date: string | number,
-    format?: string,
-    tooltipFormat?: string
-  };
-
-  static defaultProps = {
-    format: 'LLL'
-  };
-
-  render() {
-    const { className, date, format, tooltipFormat } = this.props;
-
-    const m = moment(date);
-
-    const title = tooltipFormat ? m.format(tooltipFormat) : undefined;
-
-    return (
-      <time className={className} dateTime={m.format()} title={title}>
-        {m.format(format)}
-      </time>
-    );
+const EVENTS = [
+  {
+    key: '1',
+    category: 'VERSION',
+    name: '6.5'
+  },
+  {
+    key: '2',
+    category: 'OTHER',
+    name: 'Foo'
   }
-}
+];
+
+it('should render correctly', () => {
+  expect(shallow(<GraphsTooltipsContentEvents events={EVENTS} />)).toMatchSnapshot();
+});
