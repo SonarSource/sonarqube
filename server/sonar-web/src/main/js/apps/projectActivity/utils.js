@@ -19,10 +19,13 @@
  */
 // @flow
 import moment from 'moment';
+import { isEqual } from 'lodash';
 import {
   cleanQuery,
+  parseAsArray,
   parseAsDate,
   parseAsString,
+  serializeStringArray,
   serializeDate,
   serializeString
 } from '../../helpers/query';
@@ -32,7 +35,7 @@ import type { RawQuery } from '../../helpers/query';
 import type { Serie } from '../../components/charts/AdvancedTimeline';
 
 export const EVENT_TYPES = ['VERSION', 'QUALITY_GATE', 'QUALITY_PROFILE', 'OTHER'];
-export const GRAPH_TYPES = ['overview', 'coverage', 'duplications'];
+export const GRAPH_TYPES = ['overview', 'coverage', 'duplications', 'custom'];
 export const GRAPHS_METRICS_DISPLAYED = {
   overview: ['bugs', 'code_smells', 'vulnerabilities'],
   coverage: ['uncovered_lines', 'lines_to_cover'],
@@ -51,6 +54,9 @@ export const GRAPHS_METRICS = {
 export const activityQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   prevQuery.category !== nextQuery.category || datesQueryChanged(prevQuery, nextQuery);
 
+export const customMetricsChanged = (prevQuery: Query, nextQuery: Query): boolean =>
+  !isEqual(prevQuery.customMetrics, nextQuery.customMetrics);
+
 export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean => {
   const nextFrom = nextQuery.from ? nextQuery.from.valueOf() : null;
   const previousFrom = prevQuery.from ? prevQuery.from.valueOf() : null;
@@ -61,6 +67,8 @@ export const datesQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =
 
 export const historyQueryChanged = (prevQuery: Query, nextQuery: Query): boolean =>
   prevQuery.graph !== nextQuery.graph;
+
+export const isCustomGraph = (graph: string) => graph === 'custom';
 
 export const selectedDateQueryChanged = (prevQuery: Query, nextQuery: Query): boolean => {
   const nextSelectedDate = nextQuery.selectedDate ? nextQuery.selectedDate.valueOf() : null;
@@ -90,28 +98,33 @@ export const generateCoveredLinesMetric = (
 export const generateSeries = (
   measuresHistory: Array<MeasureHistory>,
   graph: string,
-  dataType: string
-): Array<Serie> =>
-  measuresHistory
-    .filter(measure => GRAPHS_METRICS_DISPLAYED[graph].indexOf(measure.metric) >= 0)
+  dataType: string,
+  displayedMetrics: Array<string>
+): Array<Serie> => {
+  if (displayedMetrics.length <= 0) {
+    return [];
+  }
+  return measuresHistory
+    .filter(measure => displayedMetrics.indexOf(measure.metric) >= 0)
     .map(measure => {
-      if (measure.metric === 'uncovered_lines') {
+      if (measure.metric === 'uncovered_lines' && !isCustomGraph(graph)) {
         return generateCoveredLinesMetric(
           measure,
           measuresHistory,
-          GRAPHS_METRICS_DISPLAYED[graph].indexOf(measure.metric)
+          displayedMetrics.indexOf(measure.metric).toString()
         );
       }
       return {
         name: measure.metric,
         translatedName: translate('metric', measure.metric, 'name'),
-        style: GRAPHS_METRICS_DISPLAYED[graph].indexOf(measure.metric),
+        style: displayedMetrics.indexOf(measure.metric).toString(),
         data: measure.history.map(analysis => ({
           x: analysis.date,
           y: dataType === 'LEVEL' ? analysis.value : Number(analysis.value)
         }))
       };
     });
+};
 
 export const getAnalysesByVersionByDay = (
   analyses: Array<Analysis>
@@ -140,6 +153,14 @@ export const getAnalysesByVersionByDay = (
     return acc;
   }, []);
 
+export const getDisplayedHistoryMetrics = (
+  graph: string,
+  customMetrics: Array<string>
+): Array<string> => (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS_DISPLAYED[graph]);
+
+export const getHistoryMetrics = (graph: string, customMetrics: Array<string>): Array<string> =>
+  (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph]);
+
 const parseGraph = (value?: string): string => {
   const graph = parseAsString(value);
   return GRAPH_TYPES.includes(graph) ? graph : 'overview';
@@ -149,6 +170,7 @@ const serializeGraph = (value: string): ?string => (value === 'overview' ? undef
 
 export const parseQuery = (urlQuery: RawQuery): Query => ({
   category: parseAsString(urlQuery['category']),
+  customMetrics: parseAsArray(urlQuery['custom_metrics'], parseAsString),
   from: parseAsDate(urlQuery['from']),
   graph: parseGraph(urlQuery['graph']),
   project: parseAsString(urlQuery['id']),
@@ -167,6 +189,7 @@ export const serializeQuery = (query: Query): RawQuery =>
 export const serializeUrlQuery = (query: Query): RawQuery => {
   return cleanQuery({
     category: serializeString(query.category),
+    custom_metrics: serializeStringArray(query.customMetrics),
     from: serializeDate(query.from),
     graph: serializeGraph(query.graph),
     id: serializeString(query.project),

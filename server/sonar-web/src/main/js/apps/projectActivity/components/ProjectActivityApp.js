@@ -24,7 +24,7 @@ import moment from 'moment';
 import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityGraphs from './ProjectActivityGraphs';
-import { GRAPHS_METRICS_DISPLAYED, activityQueryChanged } from '../utils';
+import { getDisplayedHistoryMetrics, activityQueryChanged } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import './projectActivity.css';
 import type { Analysis, MeasureHistory, Metric, Query } from '../types';
@@ -82,7 +82,11 @@ export default class ProjectActivityApp extends React.PureComponent {
   };
 
   getMetricType = () => {
-    const metricKey = GRAPHS_METRICS_DISPLAYED[this.props.query.graph][0];
+    const historyMetrics = getDisplayedHistoryMetrics(
+      this.props.query.graph,
+      this.props.query.customMetrics
+    );
+    const metricKey = historyMetrics.length > 0 ? historyMetrics[0] : '';
     const metric = this.props.metrics.find(metric => metric.key === metricKey);
     return metric ? metric.type : 'INT';
   };
