@@ -19,6 +19,7 @@
  */
 // @flow
 import { getJSON, post } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export const getActivity = (data?: Object): Promise<*> => getJSON('/api/ce/activity', data);
 
@@ -42,3 +43,9 @@ export const getTasksForComponent = (componentKey: string): Promise<*> =>
   getJSON('/api/ce/component', { componentKey });
 
 export const getTypes = (): Promise<*> => getJSON('/api/ce/task_types').then(r => r.taskTypes);
+
+export const getWorkers = (): Promise<{ canSetWorkerCount: boolean, value: number }> =>
+  getJSON('/api/ce/worker_count').catch(throwGlobalError);
+
+export const setWorkerCount = (count: number): Promise<void> =>
+  post('/api/ce/set_worker_count', { count }).catch(throwGlobalError);
