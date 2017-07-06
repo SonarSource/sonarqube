@@ -106,6 +106,8 @@ public class TomcatContexts {
       context.setJarScanner(new NullJarScanner());
       context.setAllowCasualMultipartParsing(true);
       context.setCookies(false);
+      // disable JSP and WebSocket support
+      context.setContainerSciFilter("org.apache.tomcat.websocket.server.WsSci|org.apache.jasper.servlet.JasperInitializer");
       return context;
     } catch (ServletException e) {
       throw new IllegalStateException("Fail to configure webapp from " + dir, e);
