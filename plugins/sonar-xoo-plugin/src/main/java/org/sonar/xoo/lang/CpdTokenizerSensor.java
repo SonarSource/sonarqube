@@ -74,7 +74,7 @@ public class CpdTokenizerSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Cpd Tokenizer Sensor")
-      .requireProperty(ENABLE_PROP)
+      .onlyWhenConfiguration(conf -> conf.hasKey(ENABLE_PROP) || conf.hasKey(ENABLE_PROP + ".old"))
       .onlyOnLanguages(Xoo.KEY);
   }
 
