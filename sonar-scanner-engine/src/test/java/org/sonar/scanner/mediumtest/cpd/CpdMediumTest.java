@@ -53,7 +53,7 @@ public class CpdMediumTest {
   @Parameters(name = "new api: {0}")
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-      {true}, {false}
+      {true, false}, {true, true}, {false, false}
     });
   }
 
@@ -79,9 +79,11 @@ public class CpdMediumTest {
   private ImmutableMap.Builder<String, String> builder;
 
   private boolean useNewSensorApi;
+  private boolean useDeprecatedProperty;
 
-  public CpdMediumTest(boolean useNewSensorApi) {
+  public CpdMediumTest(boolean useNewSensorApi, boolean useDeprecatedProperty) {
     this.useNewSensorApi = useNewSensorApi;
+    this.useDeprecatedProperty = useDeprecatedProperty;
   }
 
   @Before
@@ -99,7 +101,7 @@ public class CpdMediumTest {
       .put("sonar.projectVersion", "1.0-SNAPSHOT")
       .put("sonar.projectDescription", "Description of Foo Project");
     if (useNewSensorApi) {
-      builder.put(CpdTokenizerSensor.ENABLE_PROP, "true");
+      builder.put(CpdTokenizerSensor.ENABLE_PROP + (useDeprecatedProperty ? ".deprecated" : ""), "true");
     }
   }
 
