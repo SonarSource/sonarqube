@@ -126,7 +126,7 @@ export default class AdvancedTimeline extends React.PureComponent {
     } else {
       return scaleLinear()
         .range([availableHeight, 0])
-        .domain([0, max(flatData, d => d.y) || 0])
+        .domain([0, max(flatData, d => d.y) || 1])
         .nice();
     }
   };
