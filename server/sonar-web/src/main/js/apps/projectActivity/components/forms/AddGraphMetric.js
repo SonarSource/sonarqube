@@ -21,6 +21,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select';
+import { isDiffMetric } from '../../../../helpers/measures';
 import { translate } from '../../../../helpers/l10n';
 import type { Metric } from '../../types';
 
@@ -55,7 +56,7 @@ export default class AddGraphMetric extends React.PureComponent {
     const selectedType = this.getMetricsType();
     return this.props.metrics
       .filter(metric => {
-        if (metric.hidden) {
+        if (metric.hidden || isDiffMetric(metric.key)) {
           return false;
         }
         if (selectedType) {
