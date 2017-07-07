@@ -30,6 +30,8 @@ import org.sonar.ce.queue.CeTask;
  */
 public interface CeWorker extends Callable<CeWorker.Result> {
   enum Result {
+    /** Worker is disabled */
+    DISABLED,
     /** Worker found no task to process */
     NO_TASK,
     /** Worker found a task and processed it (either successfully or not) */
