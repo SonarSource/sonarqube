@@ -56,7 +56,8 @@ export default class Event extends React.PureComponent {
     this.mounted = false;
   }
 
-  startChanging = () => {
+  startChanging = (e: MouseEvent) => {
+    e.stopPropagation();
     this.setState({ changing: true });
   };
 
@@ -66,7 +67,8 @@ export default class Event extends React.PureComponent {
     }
   };
 
-  startDeleting = () => {
+  startDeleting = (e: MouseEvent) => {
+    e.stopPropagation();
     this.setState({ deleting: true });
   };
 
