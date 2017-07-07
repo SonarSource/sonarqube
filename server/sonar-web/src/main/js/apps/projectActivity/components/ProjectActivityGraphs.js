@@ -23,8 +23,10 @@ import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import GraphsHistory from './GraphsHistory';
+import { getCustomGraph, saveCustomGraph, saveGraph } from '../../../helpers/storage';
 import {
   datesQueryChanged,
+  isCustomGraph,
   generateSeries,
   getDisplayedHistoryMetrics,
   historyQueryChanged
@@ -107,15 +109,26 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     }
   };
 
-  addCustomMetric = (metric: string) =>
-    this.props.updateQuery({ customMetrics: [...this.props.query.customMetrics, metric] });
+  addCustomMetric = (metric: string) => {
+    const customMetrics = [...this.props.query.customMetrics, metric];
+    saveCustomGraph(customMetrics);
+    this.props.updateQuery({ customMetrics });
+  };
 
-  removeCustomMetric = (removedMetric: string) =>
-    this.props.updateQuery({
-      customMetrics: this.props.query.customMetrics.filter(metric => metric !== removedMetric)
-    });
+  removeCustomMetric = (removedMetric: string) => {
+    const customMetrics = this.props.query.customMetrics.filter(metric => metric !== removedMetric);
+    saveCustomGraph(customMetrics);
+    this.props.updateQuery({ customMetrics });
+  };
 
-  updateGraph = (graph: string) => this.props.updateQuery({ graph });
+  updateGraph = (graph: string) => {
+    saveGraph(graph);
+    if (isCustomGraph(graph) && this.props.query.customMetrics.length <= 0) {
+      this.props.updateQuery({ graph, customMetrics: getCustomGraph() });
+    } else {
+      this.props.updateQuery({ graph, customMetrics: [] });
+    }
+  };
 
   updateGraphZoom = (graphStartDate: ?Date, graphEndDate: ?Date) => {
     if (graphEndDate != null && graphStartDate != null) {
