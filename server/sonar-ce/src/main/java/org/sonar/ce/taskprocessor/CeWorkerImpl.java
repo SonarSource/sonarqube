@@ -31,6 +31,7 @@ import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
@@ -47,11 +48,16 @@ public class CeWorkerImpl implements CeWorker {
 
   public CeWorkerImpl(int ordinal, String uuid,
     InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository) {
-    this.ordinal = ordinal;
+    this.ordinal = checkOrdinal(ordinal);
     this.uuid = uuid;
     this.queue = queue;
     this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;
+  }
+
+  private static int checkOrdinal(int ordinal) {
+    checkArgument(ordinal >= 0, "Ordinal must be >= 0");
+    return ordinal;
   }
 
   @Override
