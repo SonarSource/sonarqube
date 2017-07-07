@@ -76,6 +76,7 @@ class Coverage extends React.PureComponent {
 
           <div className="overview-domain-measure-label">
             {getMetricName('coverage')}
+            {this.props.renderHistoryLink('coverage')}
           </div>
         </div>
       </div>

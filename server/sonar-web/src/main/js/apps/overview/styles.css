@@ -246,8 +246,25 @@
   margin-top: 10px;
 }
 
+.overview-domain-measure-label > svg {
+  margin-top: 3px;
+}
+
 .overview-domain-leak .overview-domain-measure-label {
   text-align: center;
+}
+
+.overview-domain-leak .overview-domain-measure-label > svg {
+  margin-top: 0;
+}
+
+.overview-domain-measure-history-link {
+  vertical-align: bottom;
+  visibility: hidden;
+}
+
+.overview-domain-measure:hover .overview-domain-measure-history-link {
+  visibility: visible;
 }
 
 .overview-domain-measure-sup {

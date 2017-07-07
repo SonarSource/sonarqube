@@ -34,8 +34,10 @@ import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.ProjectDashboardPage;
 import util.user.UserRule;
 
+import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
@@ -119,6 +121,20 @@ public class ProjectDashboardTest {
     page
       .sendKeysToTagsInput(Keys.ENTER)
       .shouldHaveTags("test");
+  }
+
+  @Test
+  public void display_project_activity_shortcut() {
+    executeBuild("shared/xoo-sample", "sample-with-tags", "Sample with tags");
+    // Add some tags to another project to have them in the list
+    wsClient.wsConnector().call(
+      new PostRequest("api/project_tags/set")
+        .setParam("project", "sample-with-tags")
+        .setParam("tags", "foo,bar,baz"));
+
+    executeBuild("shared/xoo-sample", "sample", "Sample");
+    ProjectDashboardPage page = nav.logIn().submitCredentials(adminUser).openProjectDashboard("sample");
+    page.getOverviewMeasure("Debt").$(".overview-domain-measure-history-link").should(exist);
   }
 
   @Test

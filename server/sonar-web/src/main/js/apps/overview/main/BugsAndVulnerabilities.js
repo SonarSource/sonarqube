@@ -69,7 +69,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
               {this.props.renderRating('new_reliability_rating')}
             </div>
             <div className="overview-domain-measure-label">
-              <span className="little-spacer-right"><BugIcon /></span>
+              <BugIcon className="little-spacer-right" />
               {getMetricName('new_bugs')}
             </div>
           </div>
@@ -82,7 +82,7 @@ class BugsAndVulnerabilities extends React.PureComponent {
               {this.props.renderRating('new_security_rating')}
             </div>
             <div className="overview-domain-measure-label">
-              <span className="little-spacer-right"><VulnerabilityIcon /></span>
+              <VulnerabilityIcon className="little-spacer-right" />
               {getMetricName('new_vulnerabilities')}
             </div>
           </div>
@@ -103,8 +103,9 @@ class BugsAndVulnerabilities extends React.PureComponent {
                 {this.props.renderRating('reliability_rating')}
               </div>
               <div className="overview-domain-measure-label">
-                <span className="little-spacer-right"><BugIcon /></span>
+                <BugIcon className="little-spacer-right " />
                 {getMetricName('bugs')}
+                {this.props.renderHistoryLink('bugs')}
               </div>
             </div>
           </div>
@@ -116,8 +117,9 @@ class BugsAndVulnerabilities extends React.PureComponent {
                 {this.props.renderRating('security_rating')}
               </div>
               <div className="overview-domain-measure-label">
-                <span className="little-spacer-right"><VulnerabilityIcon /></span>
+                <VulnerabilityIcon className="little-spacer-right " />
                 {getMetricName('vulnerabilities')}
+                {this.props.renderHistoryLink('vulnerabilities')}
               </div>
             </div>
           </div>
