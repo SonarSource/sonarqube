@@ -17,12 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { hasHistory } from './utils';
+import { isDiffMetric } from '../../helpers/measures';
 
 export function checkHistoryExistence(nextState, replace) {
   const { metricKey } = nextState.params;
 
-  if (!hasHistory(metricKey)) {
+  if (isDiffMetric(metricKey)) {
     replace({
       pathname: metricKey,
       query: nextState.location.query

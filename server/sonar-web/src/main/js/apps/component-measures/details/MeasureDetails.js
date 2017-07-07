@@ -110,10 +110,11 @@ export default class MeasureDetails extends React.PureComponent {
         </div>
 
         <MeasureDetailsHeader
+          component={component}
+          leakPeriod={period}
           measure={measure}
           metric={metric}
           secondaryMeasure={secondaryMeasure}
-          leakPeriod={period}
         />
 
         {measure &&
