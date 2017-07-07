@@ -118,8 +118,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
       .createEvent(analysis, name, category)
       .then(
         ({ analysis, ...event }) =>
-          this.mounted && this.setState(actions.addCustomEvent(analysis, event)),
-        throwGlobalError
+          this.mounted && this.setState(actions.addCustomEvent(analysis, event))
       );
 
   addVersion = (analysis: string, version: string): Promise<*> =>
@@ -130,25 +129,21 @@ class ProjectActivityAppContainer extends React.PureComponent {
       .changeEvent(event, name)
       .then(
         ({ analysis, ...event }) =>
-          this.mounted && this.setState(actions.changeEvent(analysis, event)),
-        throwGlobalError
+          this.mounted && this.setState(actions.changeEvent(analysis, event))
       );
 
   deleteAnalysis = (analysis: string): Promise<*> =>
-    api
-      .deleteAnalysis(analysis)
-      .then(
-        () => this.mounted && this.setState(actions.deleteAnalysis(analysis)),
-        throwGlobalError
-      );
+    api.deleteAnalysis(analysis).then(() => {
+      if (this.mounted) {
+        this.updateGraphData(this.state.query.graph, this.state.query.customMetrics);
+        this.setState(actions.deleteAnalysis(analysis));
+      }
+    });
 
   deleteEvent = (analysis: string, event: string): Promise<*> =>
     api
       .deleteEvent(event)
-      .then(
-        () => this.mounted && this.setState(actions.deleteEvent(analysis, event)),
-        throwGlobalError
-      );
+      .then(() => this.mounted && this.setState(actions.deleteEvent(analysis, event)));
 
   fetchActivity = (
     project: string,
@@ -159,13 +154,12 @@ class ProjectActivityAppContainer extends React.PureComponent {
     }
   ): Promise<{ analyses: Array<Analysis>, paging: Paging }> => {
     const parameters = { project, p, ps };
-    return api.getProjectActivity({ ...parameters, ...additional }).then(
-      ({ analyses, paging }) => ({
+    return api
+      .getProjectActivity({ ...parameters, ...additional })
+      .then(({ analyses, paging }) => ({
         analyses: analyses.map(analysis => ({ ...analysis, date: moment(analysis.date).toDate() })),
         paging
-      }),
-      throwGlobalError
-    );
+      }));
   };
 
   fetchMeasuresHistory = (metrics: Array<string>): Promise<Array<MeasureHistory>> => {

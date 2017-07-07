@@ -45,6 +45,8 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
 
   handleClick = () => this.props.updateSelectedDate(this.props.analysis.date);
 
+  stopPropagation = (e: Event) => e.stopPropagation();
+
   render() {
     const { analysis, isFirst, canAdmin } = this.props;
     const { date, events } = analysis;
@@ -69,7 +71,8 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
             <div className="dropdown display-inline-block">
               <button
                 className="js-analysis-actions button-small button-compact dropdown-toggle"
-                data-toggle="dropdown">
+                data-toggle="dropdown"
+                onClick={this.stopPropagation}>
                 <i className="icon-settings" />
                 {' '}
                 <i className="icon-dropdown" />

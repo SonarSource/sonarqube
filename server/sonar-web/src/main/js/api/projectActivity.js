@@ -19,6 +19,7 @@
  */
 // @flow
 import { getJSON, postJSON, post } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 type GetProjectActivityResponse = {
   analyses: Array<Object>,
@@ -38,7 +39,8 @@ type GetProjectActivityOptions = {
 
 export const getProjectActivity = (
   data: GetProjectActivityOptions
-): Promise<GetProjectActivityResponse> => getJSON('/api/project_analyses/search', data);
+): Promise<GetProjectActivityResponse> =>
+  getJSON('/api/project_analyses/search', data).catch(throwGlobalError);
 
 type CreateEventResponse = {
   analysis: string,
@@ -61,11 +63,11 @@ export const createEvent = (
   if (description) {
     data.description = description;
   }
-  return postJSON('/api/project_analyses/create_event', data).then(r => r.event);
+  return postJSON('/api/project_analyses/create_event', data).then(r => r.event, throwGlobalError);
 };
 
 export const deleteEvent = (event: string): Promise<*> =>
-  post('/api/project_analyses/delete_event', { event });
+  post('/api/project_analyses/delete_event', { event }).catch(throwGlobalError);
 
 export const changeEvent = (
   event: string,
@@ -79,8 +81,8 @@ export const changeEvent = (
   if (description) {
     data.description = description;
   }
-  return postJSON('/api/project_analyses/update_event', data).then(r => r.event);
+  return postJSON('/api/project_analyses/update_event', data).then(r => r.event, throwGlobalError);
 };
 
 export const deleteAnalysis = (analysis: string): Promise<*> =>
-  post('/api/project_analyses/delete', { analysis });
+  post('/api/project_analyses/delete', { analysis }).catch(throwGlobalError);

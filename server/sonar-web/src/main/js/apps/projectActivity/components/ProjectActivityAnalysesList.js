@@ -118,6 +118,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
       }
     }
   };
+
   handleScroll = () => this.updateStickyBadges(true);
 
   resetScrollTop = (newScrollTop: number, forceBadgeAlignement?: boolean) => {

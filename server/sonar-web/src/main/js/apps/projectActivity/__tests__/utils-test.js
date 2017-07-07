@@ -88,7 +88,8 @@ jest.mock('moment', () => date => ({
       valueOf: () => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
     };
   },
-  toDate: () => new Date(date)
+  toDate: () => new Date(date),
+  format: format => `Formated.${format}:${date.valueOf()}`
 }));
 
 describe('generateCoveredLinesMetric', () => {
@@ -164,11 +165,11 @@ describe('parseQuery', () => {
 describe('serializeQuery', () => {
   it('should serialize query for api request', () => {
     expect(utils.serializeQuery(QUERY)).toEqual({
-      from: '2017-04-27T06:21:32.000Z',
+      from: 'Formated.YYYY-MM-DDTHH:mm:ssZZ:1493274092000',
       project: 'foo'
     });
     expect(utils.serializeQuery({ ...QUERY, graph: 'coverage', category: 'test' })).toEqual({
-      from: '2017-04-27T06:21:32.000Z',
+      from: 'Formated.YYYY-MM-DDTHH:mm:ssZZ:1493274092000',
       project: 'foo',
       category: 'test'
     });
@@ -178,14 +179,14 @@ describe('serializeQuery', () => {
 describe('serializeUrlQuery', () => {
   it('should serialize query for url', () => {
     expect(utils.serializeUrlQuery(QUERY)).toEqual({
-      from: '2017-04-27T06:21:32.000Z',
+      from: 'Formated.YYYY-MM-DDTHH:mm:ssZZ:1493274092000',
       id: 'foo',
       custom_metrics: 'foo,bar,baz'
     });
     expect(
       utils.serializeUrlQuery({ ...QUERY, graph: 'coverage', category: 'test', customMetrics: [] })
     ).toEqual({
-      from: '2017-04-27T06:21:32.000Z',
+      from: 'Formated.YYYY-MM-DDTHH:mm:ssZZ:1493274092000',
       id: 'foo',
       graph: 'coverage',
       category: 'test'
