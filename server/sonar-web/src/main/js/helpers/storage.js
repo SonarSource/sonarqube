@@ -27,6 +27,7 @@ const PROJECTS_VISUALIZATION = 'sonarqube.projects.visualization';
 const PROJECTS_SORT = 'sonarqube.projects.sort';
 
 const PROJECT_ACTIVITY_GRAPH = 'sonarqube.project_activity.graph';
+const PROJECT_ACTIVITY_GRAPH_CUSTOM = 'sonarqube.project_activity.graph.custom';
 
 const save = (key: string, value: ?string) => {
   try {
@@ -63,5 +64,11 @@ export const getVisualization = () => window.localStorage.getItem(PROJECTS_VISUA
 export const saveSort = (sort: ?string) => save(PROJECTS_SORT, sort);
 export const getSort = () => window.localStorage.getItem(PROJECTS_SORT);
 
+export const saveCustomGraph = (metrics: ?Array<string>) =>
+  save(PROJECT_ACTIVITY_GRAPH_CUSTOM, metrics ? metrics.join(',') : '');
+export const getCustomGraph = (): Array<string> =>
+  (window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH_CUSTOM) || '').split(',');
+
 export const saveGraph = (graph: ?string) => save(PROJECT_ACTIVITY_GRAPH, graph);
-export const getGraph = () => window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'overview';
+export const getGraph = (): string =>
+  window.localStorage.getItem(PROJECT_ACTIVITY_GRAPH) || 'overview';
