@@ -19,13 +19,16 @@
  */
 package org.sonarqube.pageobjects;
 
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import java.util.Arrays;
 
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.hasText;
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class ProjectDashboardPage {
 
@@ -42,6 +45,12 @@ public class ProjectDashboardPage {
   public SelenideElement getLanguageDistribution() {
     SelenideElement element = $("#overview-language-distribution");
     element.shouldBe(visible);
+    return element;
+  }
+
+  public SelenideElement getOverviewMeasure(String measure) {
+    ElementsCollection measures = $$(".overview-domain-measure");
+    SelenideElement element = measures.find(text(measure)).shouldBe(visible);
     return element;
   }
 
