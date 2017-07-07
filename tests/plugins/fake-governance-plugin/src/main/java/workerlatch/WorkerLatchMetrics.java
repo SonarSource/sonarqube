@@ -1,4 +1,3 @@
-
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -18,29 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package workerlatch;
 
-import org.sonar.api.Plugin;
-import workerlatch.LatchControllerWorkerMeasureComputer;
-import workerlatch.WorkerLatchMetrics;
+import java.util.Collections;
+import java.util.List;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 
-public class FakeGovernancePlugin implements Plugin {
+public class WorkerLatchMetrics implements Metrics {
+  static final String METRIC_KEY = "WORKER_LATCH";
 
   @Override
-  public void define(Context context) {
-    // Nothing should be loaded when the plugin is running within by the scanner
-    if (isRunningInSQ()) {
-      context.addExtension(FakeWorkerCountProviderImpl.class);
-      context.addExtension(WorkerLatchMetrics.class);
-      context.addExtension(LatchControllerWorkerMeasureComputer.class);
-    }
-  }
-
-  private static boolean isRunningInSQ() {
-    try {
-      Class.forName("org.sonar.plugin.PrivilegedPluginBridge");
-      return true;
-    } catch (ClassNotFoundException e) {
-      return false;
-    }
+  public List<Metric> getMetrics() {
+    return Collections.singletonList(
+      new Metric.Builder(METRIC_KEY, "Worker latch", Metric.ValueType.BOOL)
+        .setHidden(true)
+        .create());
   }
 }
