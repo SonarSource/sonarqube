@@ -99,7 +99,7 @@ class CodeSmells extends React.PureComponent {
               {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
             </div>
             <div className="overview-domain-measure-label">
-              <span className="little-spacer-right"><CodeSmellIcon /></span>
+              <CodeSmellIcon className="little-spacer-right" />
               {getMetricName('new_code_smells')}
             </div>
           </div>
@@ -123,6 +123,7 @@ class CodeSmells extends React.PureComponent {
               </div>
               <div className="overview-domain-measure-label">
                 {getMetricName('effort')}
+                {this.props.renderHistoryLink('sqale_rating')}
               </div>
             </div>
           </div>
@@ -133,8 +134,9 @@ class CodeSmells extends React.PureComponent {
                 {this.props.renderIssues('code_smells', 'CODE_SMELL')}
               </div>
               <div className="overview-domain-measure-label">
-                <span className="little-spacer-right"><CodeSmellIcon /></span>
+                <CodeSmellIcon className="little-spacer-right " />
                 {getMetricName('code_smells')}
+                {this.props.renderHistoryLink('code_smells')}
               </div>
             </div>
           </div>

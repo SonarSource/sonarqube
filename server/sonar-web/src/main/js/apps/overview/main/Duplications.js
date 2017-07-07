@@ -58,6 +58,7 @@ class Duplications extends React.PureComponent {
 
           <div className="overview-domain-measure-label">
             {getMetricName('duplications')}
+            {this.props.renderHistoryLink('duplicated_lines_density')}
           </div>
         </div>
       </div>

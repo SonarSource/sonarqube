@@ -21,6 +21,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import moment from 'moment';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
+import HistoryIcon from '../../../components/icons-components/HistoryIcon';
 import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import {
@@ -33,13 +34,13 @@ import {
 } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
-import { getComponentIssuesUrl } from '../../../helpers/urls';
+import { getComponentIssuesUrl, getComponentMeasureHistory } from '../../../helpers/urls';
 
 export default function enhance(ComposedComponent) {
   return class extends React.PureComponent {
     static displayName = `enhance(${ComposedComponent.displayName})}`;
 
-    getValue(measure) {
+    getValue = measure => {
       const { leakPeriod } = this.props;
 
       if (!measure) {
@@ -49,9 +50,9 @@ export default function enhance(ComposedComponent) {
       return isDiffMetric(measure.metric.key)
         ? getPeriodValue(measure, leakPeriod.index)
         : measure.value;
-    }
+    };
 
-    renderHeader(domain, label) {
+    renderHeader = (domain, label) => {
       const { component } = this.props;
       const domainUrl = {
         pathname: `/component_measures/domain/${domain}`,
@@ -65,9 +66,9 @@ export default function enhance(ComposedComponent) {
           </div>
         </div>
       );
-    }
+    };
 
-    renderMeasure(metricKey) {
+    renderMeasure = metricKey => {
       const { measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
 
@@ -87,12 +88,13 @@ export default function enhance(ComposedComponent) {
 
           <div className="overview-domain-measure-label">
             {measure.metric.name}
+            {this.renderHistoryLink(measure.metric.key)}
           </div>
         </div>
       );
-    }
+    };
 
-    renderMeasureVariation(metricKey, customLabel) {
+    renderMeasureVariation = (metricKey, customLabel) => {
       const NO_VALUE = '—';
       const { measures, leakPeriod } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
@@ -111,8 +113,8 @@ export default function enhance(ComposedComponent) {
           </div>
         </div>
       );
-    }
-    renderRating(metricKey) {
+    };
+    renderRating = metricKey => {
       const { component, measures } = this.props;
       const measure = measures.find(measure => measure.metric.key === metricKey);
       if (!measure) {
@@ -127,8 +129,8 @@ export default function enhance(ComposedComponent) {
           </DrilldownLink>
         </div>
       );
-    }
-    renderIssues(metric, type) {
+    };
+    renderIssues = (metric, type) => {
       const { measures, component } = this.props;
       const measure = measures.find(measure => measure.metric.key === metric);
       const value = this.getValue(measure);
@@ -148,8 +150,19 @@ export default function enhance(ComposedComponent) {
           </span>
         </Link>
       );
-    }
-    renderTimeline(metricKey, range, children) {
+    };
+    renderHistoryLink = metricKey => {
+      const linkClass =
+        'button button-small button-compact spacer-left overview-domain-measure-history-link';
+      return (
+        <Link
+          className={linkClass}
+          to={getComponentMeasureHistory(this.props.component.key, metricKey)}>
+          <HistoryIcon />
+        </Link>
+      );
+    };
+    renderTimeline = (metricKey, range, children) => {
       if (!this.props.history) {
         return null;
       }
@@ -167,18 +180,19 @@ export default function enhance(ComposedComponent) {
           {children}
         </div>
       );
-    }
+    };
     render() {
       return (
         <ComposedComponent
           {...this.props}
-          getValue={this.getValue.bind(this)}
-          renderHeader={this.renderHeader.bind(this)}
-          renderMeasure={this.renderMeasure.bind(this)}
-          renderMeasureVariation={this.renderMeasureVariation.bind(this)}
-          renderRating={this.renderRating.bind(this)}
-          renderIssues={this.renderIssues.bind(this)}
-          renderTimeline={this.renderTimeline.bind(this)}
+          getValue={this.getValue}
+          renderHeader={this.renderHeader}
+          renderHistoryLink={this.renderHistoryLink}
+          renderMeasure={this.renderMeasure}
+          renderMeasureVariation={this.renderMeasureVariation}
+          renderRating={this.renderRating}
+          renderIssues={this.renderIssues}
+          renderTimeline={this.renderTimeline}
         />
       );
     }
