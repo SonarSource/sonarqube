@@ -34,19 +34,22 @@ public class CeWorkerFactoryImpl implements CeWorkerFactory {
   private final InternalCeQueue queue;
   private final CeLogging ceLogging;
   private final CeTaskProcessorRepository taskProcessorRepository;
+  private final EnabledCeWorkerController enabledCeWorkerController;
 
-  public CeWorkerFactoryImpl(InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository, UuidFactory uuidFactory) {
+  public CeWorkerFactoryImpl(InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository,
+    UuidFactory uuidFactory, EnabledCeWorkerController enabledCeWorkerController) {
     this.queue = queue;
     this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;
-    this.uuidFactory= uuidFactory;
+    this.uuidFactory = uuidFactory;
+    this.enabledCeWorkerController = enabledCeWorkerController;
   }
 
   @Override
   public CeWorker create(int ordinal) {
     String uuid = uuidFactory.create();
     ceWorkerUUIDs.add(uuid);
-    return new CeWorkerImpl(ordinal, uuid, queue, ceLogging, taskProcessorRepository);
+    return new CeWorkerImpl(ordinal, uuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
   }
 
   @Override

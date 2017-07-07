@@ -19,16 +19,24 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.sonar.core.platform.Module;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.sonar.ce.configuration.CeConfiguration;
 
-public class CeTaskProcessorModule extends Module {
+public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController {
+  private final AtomicInteger workerCount;
+
+  public EnabledCeWorkerControllerImpl(CeConfiguration ceConfiguration) {
+    this.workerCount = new AtomicInteger(ceConfiguration.getWorkerCount());
+  }
+
+  /**
+   * Returns {@code true} if {@link CeWorker#getOrdinal() worker ordinal} is strictly less than
+   * {@link CeConfiguration#getWorkerCount()}.
+   *
+   * This method does not fail if ordinal is invalid (ie. < 0).
+   */
   @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeWorkerFactoryImpl.class,
-      EnabledCeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class);
+  public boolean isEnabled(CeWorker ceWorker) {
+    return ceWorker.getOrdinal() < workerCount.get();
   }
 }
