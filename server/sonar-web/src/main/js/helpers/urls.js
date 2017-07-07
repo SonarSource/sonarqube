@@ -69,6 +69,19 @@ export function getComponentDrilldownUrl(componentKey, metric) {
 }
 
 /**
+ * Generate URL for a component's measure history
+ * @param {string} componentKey
+ * @param {string} metric
+ * @returns {Object}
+ */
+export function getComponentMeasureHistory(componentKey, metric) {
+  return {
+    pathname: '/project/activity',
+    query: { id: componentKey, graph: 'custom', custom_metrics: metric }
+  };
+}
+
+/**
  * Generate URL for a component's permissions page
  * @param {string} componentKey
  * @returns {Object}

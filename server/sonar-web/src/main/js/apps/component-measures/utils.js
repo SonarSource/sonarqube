@@ -21,12 +21,9 @@ import bubbles from './config/bubbles';
 import {
   formatMeasure,
   formatMeasureVariation,
-  getRatingTooltip as nextGetRatingTooltip
+  getRatingTooltip as nextGetRatingTooltip,
+  isDiffMetric
 } from '../../helpers/measures';
-
-export function isDiffMetric(metric) {
-  return metric.key.indexOf('new_') === 0;
-}
 
 export function getLeakValue(measure, periodIndex = 1) {
   if (!measure) {
@@ -63,7 +60,7 @@ export function getSingleLeakValue(measures, periodIndex = 1) {
 }
 
 export function formatLeak(value, metric, options) {
-  if (isDiffMetric(metric)) {
+  if (isDiffMetric(metric.key)) {
     return formatMeasure(value, metric.type, options);
   } else {
     return formatMeasureVariation(value, metric.type, options);
@@ -100,10 +97,6 @@ export function enhanceWithMeasure(components, metric, periodIndex = 1) {
     const leak = measure ? measure.leak : null;
     return { ...component, value, leak, measures: measuresWithLeak };
   });
-}
-
-export function hasHistory(metricKey) {
-  return metricKey.indexOf('new_') !== 0;
 }
 
 export function hasBubbleChart(domainName) {

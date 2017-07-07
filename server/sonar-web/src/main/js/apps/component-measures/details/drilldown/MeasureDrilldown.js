@@ -23,8 +23,7 @@ import IconList from './../../components/IconList';
 import IconTree from './../../components/IconTree';
 import IconBubbles from './../../components/IconBubbles';
 import IconTreemap from './../../components/IconTreemap';
-import IconHistory from './../../components/IconHistory';
-import { hasHistory, hasBubbleChart, hasTreemap } from '../../utils';
+import { hasBubbleChart, hasTreemap } from '../../utils';
 import { translate } from '../../../../helpers/l10n';
 
 export default function MeasureDrilldown(props) {
@@ -83,19 +82,6 @@ export default function MeasureDrilldown(props) {
               }}>
               <IconTreemap />
               {translate('component_measures.tab.treemap')}
-            </Link>
-          </li>}
-
-        {hasHistory(metric.key) &&
-          <li>
-            <Link
-              activeClassName="active"
-              to={{
-                pathname: `/component_measures/metric/${metric.key}/history`,
-                query: { id: component.key }
-              }}>
-              <IconHistory />
-              {translate('component_measures.tab.history')}
             </Link>
           </li>}
       </ul>

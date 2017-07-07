@@ -18,24 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { Link } from 'react-router';
 import Measure from './../components/Measure';
 import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
-import { ComplexityDistribution } from '../../../components/shared/complexity-distribution';
-import { isDiffMetric } from '../utils';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
-import { getLocalizedMetricName } from '../../../helpers/l10n';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
+import HistoryIcon from '../../../components/icons-components/HistoryIcon';
+import { ComplexityDistribution } from '../../../components/shared/complexity-distribution';
+import { isDiffMetric } from '../../../helpers/measures';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import { getComponentMeasureHistory } from '../../../helpers/urls';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
 
-export default function MeasureDetailsHeader({ measure, metric, secondaryMeasure, leakPeriod }) {
+export default function MeasureDetailsHeader({
+  component,
+  measure,
+  metric,
+  secondaryMeasure,
+  leakPeriod
+}) {
+  const isDiff = isDiffMetric(metric.key);
   return (
     <header className="measure-details-header">
       <h2 className="measure-details-metric">
         <IssueTypeIcon query={metric.key} className="little-spacer-right" />
         {getLocalizedMetricName(metric)}
+        {!isDiff &&
+          <Link
+            to={getComponentMeasureHistory(component.key, metric.key)}
+            className="spacer-left button button-small button-compact">
+            <HistoryIcon />
+          </Link>}
       </h2>
 
-      {isDiffMetric(metric) &&
+      {isDiff &&
         <div className="pull-right">
           <LeakPeriodLegend period={leakPeriod} />
         </div>}
@@ -43,7 +59,7 @@ export default function MeasureDetailsHeader({ measure, metric, secondaryMeasure
       <TooltipsContainer options={{ html: false }}>
         <div className="measure-details-value">
 
-          {isDiffMetric(metric)
+          {isDiff
             ? <div className="measure-details-value-leak">
                 <Measure measure={measure} metric={metric} />
               </div>
