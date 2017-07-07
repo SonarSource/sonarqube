@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -56,6 +57,8 @@ public class CeWorkerImplTest {
   public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private InternalCeQueue queue = mock(InternalCeQueue.class);
   private ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
@@ -65,6 +68,14 @@ public class CeWorkerImplTest {
   private String workerUuid = UUID.randomUUID().toString();
   private CeWorker underTest = new CeWorkerImpl(randomOrdinal, workerUuid, queue, ceLogging, taskProcessorRepository);
   private InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
+
+  @Test
+  public void constructor_throws_IAE_if_ordinal_is_less_than_zero() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Ordinal must be >= 0");
+
+    new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, ceLogging, taskProcessorRepository);
+  }
 
   @Test
   public void getUUID_must_return_the_uuid_of_constructor() {

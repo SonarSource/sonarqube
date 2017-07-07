@@ -37,7 +37,7 @@ public interface CeWorker extends Callable<CeWorker.Result> {
   }
 
   /**
-   * Position of the current CeWorker among all the running workers.
+   * Position of the current CeWorker among all the running workers, starts with 0.
    */
   int getOrdinal();
 
