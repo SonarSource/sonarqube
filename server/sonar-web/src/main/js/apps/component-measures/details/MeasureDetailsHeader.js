@@ -45,8 +45,8 @@ export default function MeasureDetailsHeader({
         {getLocalizedMetricName(metric)}
         {!isDiff &&
           <Link
-            to={getComponentMeasureHistory(component.key, metric.key)}
-            className="spacer-left button button-small button-compact">
+            className="js-show-history spacer-left button button-small button-compact"
+            to={getComponentMeasureHistory(component.key, metric.key)}>
             <HistoryIcon />
           </Link>}
       </h2>

@@ -82,10 +82,15 @@ const routes = [
           },
           {
             path: 'history',
-            getComponent(_, callback) {
-              require.ensure([], require =>
-                callback(null, require('./details/history/MeasureHistoryContainer').default)
-              );
+            onEnter(nextState, replace) {
+              replace({
+                pathname: '/project/activity',
+                query: {
+                  id: nextState.location.query.id,
+                  graph: 'custom',
+                  custom_metrics: nextState.params.metricKey
+                }
+              });
             }
           },
           {
