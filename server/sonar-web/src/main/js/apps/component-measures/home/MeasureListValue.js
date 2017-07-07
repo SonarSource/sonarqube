@@ -19,12 +19,12 @@
  */
 import React from 'react';
 import Measure from '../components/Measure';
-import { isDiffMetric } from '../utils';
+import { isDiffMetric } from '../../../helpers/measures';
 
 const MeasureListValue = ({ measure }) => {
   const { metric } = measure;
 
-  if (isDiffMetric(metric)) {
+  if (isDiffMetric(metric.key)) {
     return (
       <div
         id={`measure-${measure.metric.key}-leak`}

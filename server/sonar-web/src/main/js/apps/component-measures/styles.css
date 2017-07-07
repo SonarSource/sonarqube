@@ -147,12 +147,12 @@
   margin-bottom: 10px;
 }
 
-.measure-details-metric > a {
+.measure-details-metric > a:not(.button) {
   border: none;
   color: #444;
 }
 
-.measure-details-metric > a:hover {
+.measure-details-metric > a:not(.button):hover {
   color: #236a97;
 }
 
