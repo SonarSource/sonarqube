@@ -54,6 +54,7 @@
 
 .project-activity-graph {
   flex: 1;
+  overflow: hidden;
 }
 
 .project-activity-graph-legends {

@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { flatten, sortBy } from 'lodash';
+import { flatten, sortBy, throttle } from 'lodash';
 import { extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
@@ -51,15 +51,18 @@ type State = {
 
 export default class ZoomTimeLine extends React.PureComponent {
   props: Props;
+  state: State;
+
   static defaultProps = {
     padding: [0, 0, 18, 0],
     showXTicks: true
   };
 
-  state: State = {
-    overlayLeftPos: null,
-    newZoomStart: null
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = { overlayLeftPos: null, newZoomStart: null };
+    this.handleZoomUpdate = throttle(this.handleZoomUpdate, 40);
+  }
 
   getRatingScale = (availableHeight: number) =>
     scalePoint().domain([5, 4, 3, 2, 1]).range([availableHeight, 0]);
@@ -135,10 +138,10 @@ export default class ZoomTimeLine extends React.PureComponent {
   handleNewZoomDrag = (xScale: Scale, xDim: Array<number>) => (e: Event, data: DraggableData) => {
     const { newZoomStart, overlayLeftPos } = this.state;
     if (newZoomStart != null && overlayLeftPos != null && data.deltaX) {
-      this.handleZoomUpdate(xScale, [
-        newZoomStart,
-        Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1]))
-      ]);
+      this.handleZoomUpdate(
+        xScale,
+        sortBy([newZoomStart, Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1]))])
+      );
     }
   };
 
@@ -149,7 +152,7 @@ export default class ZoomTimeLine extends React.PureComponent {
     const { newZoomStart, overlayLeftPos } = this.state;
     if (newZoomStart != null && overlayLeftPos != null) {
       const x = Math.round(Math.max(xDim[0], Math.min(data.x - overlayLeftPos, xDim[1])));
-      this.handleZoomUpdate(xScale, newZoomStart === x ? xDim : [newZoomStart, x]);
+      this.handleZoomUpdate(xScale, newZoomStart === x ? xDim : sortBy([newZoomStart, x]));
       this.setState({ newZoomStart: null, overlayLeftPos: null });
     }
   };
@@ -303,7 +306,10 @@ export default class ZoomTimeLine extends React.PureComponent {
     const endX = Math.round(this.props.endDate ? xScale(this.props.endDate) : xDim[1]);
     const xArray = sortBy([startX, endX]);
     const zoomBoxWidth = xArray[1] - xArray[0];
-    const showZoomArea = this.state.newZoomStart == null || this.state.newZoomStart === startX;
+    const showZoomArea =
+      this.state.newZoomStart == null ||
+      this.state.newZoomStart === startX ||
+      this.state.newZoomStart === endX;
 
     return (
       <g className="chart-zoom">

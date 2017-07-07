@@ -49,8 +49,9 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = (evt: Event) => {
-    evt.preventDefault();
+  openForm = (e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (this.mounted) {
       this.setState({ open: true });
     }
@@ -74,7 +75,7 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     }
   };
 
-  handleSubmit = (e: Object) => {
+  handleSubmit = (e: Event) => {
     e.preventDefault();
     this.setState({ processing: true });
     this.props
@@ -104,7 +105,9 @@ export default class RemoveAnalysisForm extends React.PureComponent {
             {this.state.processing
               ? <i className="spinner" />
               : <div>
-                  <button type="submit" className="button-red">{translate('delete')}</button>
+                  <button type="submit" className="button-red" autoFocus={true}>
+                    {translate('delete')}
+                  </button>
                   <button type="reset" className="button-link" onClick={this.closeForm}>
                     {translate('cancel')}
                   </button>

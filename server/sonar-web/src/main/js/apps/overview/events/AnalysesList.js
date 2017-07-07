@@ -22,7 +22,6 @@ import React from 'react';
 import { Link } from 'react-router';
 import Analysis from './Analysis';
 import PreviewGraph from './PreviewGraph';
-import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getMetrics } from '../../../api/metrics';
 import { getProjectActivity } from '../../../api/projectActivity';
 import { translate } from '../../../helpers/l10n';
@@ -72,7 +71,7 @@ export default class AnalysesList extends React.PureComponent {
       if (this.mounted) {
         this.setState({ analyses: response[0].analyses, metrics: response[1], loading: false });
       }
-    }, throwGlobalError);
+    });
   }
 
   renderList(analyses: Array<AnalysisType>) {

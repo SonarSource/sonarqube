@@ -72,7 +72,7 @@ export const parseAsArray = <T>(value: ?string, itemParser: string => T): Array<
 
 export const serializeDate = (value: ?Date): ?string => {
   if (value != null && value.toISOString) {
-    return value.toISOString();
+    return moment(value).format('YYYY-MM-DDTHH:mm:ssZZ');
   }
 };
 

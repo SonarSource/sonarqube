@@ -52,8 +52,9 @@ export default class AddEventForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = (e: Object) => {
+  openForm = (e: Event) => {
     e.preventDefault();
+    e.stopPropagation();
     if (this.mounted) {
       this.setState({ open: true });
     }

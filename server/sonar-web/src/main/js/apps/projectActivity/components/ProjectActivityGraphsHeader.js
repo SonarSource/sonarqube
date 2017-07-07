@@ -51,7 +51,7 @@ export default class ProjectActivityGraphsHeader extends React.PureComponent {
     return (
       <header className="page-header">
         <Select
-          className="input-medium"
+          className="pull-left input-medium"
           clearable={false}
           searchable={false}
           value={this.props.graph}
@@ -61,7 +61,7 @@ export default class ProjectActivityGraphsHeader extends React.PureComponent {
         {isCustomGraph(this.props.graph) &&
           <AddGraphMetric
             addMetric={this.props.addCustomMetric}
-            className="spacer-left"
+            className="pull-left spacer-left"
             metrics={this.props.metrics}
             selectedMetrics={this.props.selectedMetrics}
           />}
