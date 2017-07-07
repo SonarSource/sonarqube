@@ -134,6 +134,10 @@ public class ClusterSettingsLoopbackTest {
     @FromDataPoints("key") Key propertyKey,
     @FromDataPoints("parameter") ValueAndResult valueAndResult) {
     // Skip the test if the value is a list and if the key is not accepting a list
+    if (settings == null) {
+      System.out.println("No network found, skipping the test");
+      return;
+    }
     if ((valueAndResult.isList() && propertyKey.acceptList) || !valueAndResult.isList()) {
       settings.set(propertyKey.getKey(), valueAndResult.getValue());
 
@@ -157,11 +161,11 @@ public class ClusterSettingsLoopbackTest {
         }
       }
       if (localAddress == null) {
-        throw new RuntimeException("Cannot find a non loopback card required for tests");
+        return null;
       }
 
     } catch (SocketException e) {
-      throw new RuntimeException("Cannot find a non loopback card required for tests");
+      return null;
     }
 
     TestAppSettings testAppSettings = new TestAppSettings()
