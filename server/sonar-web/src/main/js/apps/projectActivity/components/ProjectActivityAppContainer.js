@@ -29,10 +29,11 @@ import { getAllTimeMachineData } from '../../../api/time-machine';
 import { getMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
-import { getGraph, saveGraph } from '../../../helpers/storage';
+import { getCustomGraph, getGraph } from '../../../helpers/storage';
 import {
   customMetricsChanged,
   getHistoryMetrics,
+  isCustomGraph,
   parseQuery,
   serializeQuery,
   serializeUrlQuery
@@ -78,9 +79,13 @@ class ProjectActivityAppContainer extends React.PureComponent {
     };
 
     if (this.shouldRedirect()) {
+      const newQuery = { ...this.state.query, graph: getGraph() };
+      if (isCustomGraph(newQuery.graph)) {
+        newQuery.customMetrics = getCustomGraph();
+      }
       this.props.router.replace({
         pathname: props.location.pathname,
-        query: serializeUrlQuery({ ...this.state.query, graph: getGraph() })
+        query: serializeUrlQuery(newQuery)
       });
     }
   }
@@ -259,7 +264,6 @@ class ProjectActivityAppContainer extends React.PureComponent {
       ...this.state.query,
       ...newQuery
     });
-    saveGraph(query.graph);
     this.props.router.push({
       pathname: this.props.location.pathname,
       query: {
