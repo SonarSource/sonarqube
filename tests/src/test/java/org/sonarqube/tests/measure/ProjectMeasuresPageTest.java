@@ -30,6 +30,8 @@ import org.sonarqube.pageobjects.Navigation;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.WebDriverRunner.url;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
@@ -70,11 +72,23 @@ public class ProjectMeasuresPageTest {
   }
 
   @Test
-  public void should_show_history() {
+  public void should_redirect_history_to_project_activity() {
     Navigation nav = Navigation.create(orchestrator);
     nav.open("/component_measures/metric/reliability_rating/history?id=project-measures-page-test-project");
-    $(".line-chart").shouldBe(visible);
-    $$(".line-chart-tick-x").shouldHaveSize(5);
+    assertThat(url())
+      .contains("/project/activity")
+      .contains("id=project-measures-page-test-project")
+      .contains("graph=custom")
+      .contains("custom_metrics=reliability_rating");
+  }
+
+
+  @Test
+  public void should_show_link_to_history() {
+    Navigation nav = Navigation.create(orchestrator);
+    nav.open("/component_measures/metric/reliability_rating/list?id=project-measures-page-test-project");
+    $(".js-show-history").shouldBe(visible).click();
+    $("#project-activity").shouldBe(visible);
   }
 
 }
