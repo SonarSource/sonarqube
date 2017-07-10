@@ -83,11 +83,11 @@ public class RestoreAction implements QProfileWsAction {
     userSession.checkLoggedIn();
 
     InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
+    checkArgument(backup != null, "A backup file must be provided");
     String organizationKey = request.param(PARAM_ORGANIZATION);
     InputStreamReader reader = null;
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkArgument(backup != null, "A backup file must be provided");
       reader = new InputStreamReader(backup, UTF_8);
 
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, organizationKey);
