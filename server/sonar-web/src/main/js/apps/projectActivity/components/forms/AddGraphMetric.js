@@ -22,7 +22,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select';
 import { isDiffMetric } from '../../../../helpers/measures';
-import { translate } from '../../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import type { Metric } from '../../types';
 
 type Props = {
@@ -52,8 +52,7 @@ export default class AddGraphMetric extends React.PureComponent {
     }
   };
 
-  getMetricsOptions = () => {
-    const selectedType = this.getMetricsType();
+  getMetricsOptions = (selectedType: ?string) => {
     return this.props.metrics
       .filter(metric => {
         if (metric.hidden || isDiffMetric(metric.key)) {
@@ -95,6 +94,7 @@ export default class AddGraphMetric extends React.PureComponent {
   };
 
   renderModal() {
+    const metricType = this.getMetricsType();
     return (
       <Modal
         isOpen={true}
@@ -115,11 +115,18 @@ export default class AddGraphMetric extends React.PureComponent {
                 clearable={false}
                 noResultsText={translate('no_results')}
                 onChange={this.handleChange}
-                options={this.getMetricsOptions()}
+                options={this.getMetricsOptions(metricType)}
                 placeholder=""
                 searchable={true}
                 value={this.state.selectedMetric}
               />
+              {metricType != null &&
+                <span className="note">
+                  {translateWithParameters(
+                    'project_activity.graphs.custom.type_x_message',
+                    translate('metric.type', metricType)
+                  )}
+                </span>}
             </div>
           </div>
           <footer className="modal-foot">
