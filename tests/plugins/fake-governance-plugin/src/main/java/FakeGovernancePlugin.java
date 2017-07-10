@@ -20,6 +20,8 @@
  */
 
 import org.sonar.api.Plugin;
+import workerCount.FakeWorkerCountProviderImpl;
+import workerCount.RefreshWorkerCountAction;
 import workerlatch.LatchControllerWorkerMeasureComputer;
 import workerlatch.WorkerLatchMetrics;
 
@@ -32,6 +34,7 @@ public class FakeGovernancePlugin implements Plugin {
       context.addExtension(FakeWorkerCountProviderImpl.class);
       context.addExtension(WorkerLatchMetrics.class);
       context.addExtension(LatchControllerWorkerMeasureComputer.class);
+      context.addExtension(RefreshWorkerCountAction.class);
     }
   }
 
