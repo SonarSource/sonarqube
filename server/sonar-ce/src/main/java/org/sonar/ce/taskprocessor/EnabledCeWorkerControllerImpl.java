@@ -20,13 +20,30 @@
 package org.sonar.ce.taskprocessor;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.configuration.CeConfiguration;
 
 public class EnabledCeWorkerControllerImpl implements EnabledCeWorkerController {
+  private final CeConfiguration ceConfiguration;
   private final AtomicInteger workerCount;
 
   public EnabledCeWorkerControllerImpl(CeConfiguration ceConfiguration) {
+    this.ceConfiguration = ceConfiguration;
     this.workerCount = new AtomicInteger(ceConfiguration.getWorkerCount());
+    logEnabledWorkerCount();
+  }
+
+  private void logEnabledWorkerCount() {
+    if (workerCount.get() > 1) {
+      Loggers.get(EnabledCeWorkerController.class).info("Compute Engine will use {} concurrent workers to process tasks", this.workerCount);
+    }
+  }
+
+  @Override
+  public void refresh() {
+    ceConfiguration.refresh();
+    this.workerCount.set(ceConfiguration.getWorkerCount());
+    logEnabledWorkerCount();
   }
 
   /**

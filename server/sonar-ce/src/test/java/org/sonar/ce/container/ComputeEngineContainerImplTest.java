@@ -116,7 +116,7 @@ public class ComputeEngineContainerImplTest {
           + 73 // level 4
           + 4 // content of CeConfigurationModule
           + 4 // content of CeQueueModule
-          + 3 // content of CeHttpModule
+          + 4 // content of CeHttpModule
           + 3 // content of CeTaskCommonsModule
           + 4 // content of ProjectAnalysisTaskModule
           + 5 // content of CeTaskProcessorModule
