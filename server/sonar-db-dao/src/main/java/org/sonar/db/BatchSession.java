@@ -30,7 +30,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
-public class BatchSession extends DbSession {
+public class BatchSession extends DbSessionImpl {
 
   public static final int MAX_BATCH_SIZE = 250;
 

@@ -255,7 +255,7 @@ public class MyBatis implements Startable {
       return new BatchSession(session);
     }
     SqlSession session = sessionFactory.openSession(ExecutorType.REUSE);
-    return new DbSession(session);
+    return new DbSessionImpl(session);
   }
 
   /**
