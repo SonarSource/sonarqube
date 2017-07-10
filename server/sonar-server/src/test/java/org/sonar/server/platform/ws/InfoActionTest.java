@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.ce.http.CeHttpClient;
+import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.tester.UserSessionRule;
@@ -46,7 +47,7 @@ public class InfoActionTest {
 
   private Monitor monitor1 = mock(Monitor.class);
   private Monitor monitor2 = mock(Monitor.class);
-  private CeHttpClient ceHttpClient = mock(CeHttpClient.class, Mockito.RETURNS_MOCKS);
+  private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
 
   private InfoAction underTest = new InfoAction(userSessionRule, ceHttpClient, monitor1, monitor2);
   private WsActionTester actionTester = new WsActionTester(underTest);

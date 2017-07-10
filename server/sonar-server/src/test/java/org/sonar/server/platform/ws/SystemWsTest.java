@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.http.CeHttpClient;
+import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.mock;
 
 public class SystemWsTest {
 
-  CeHttpClient ceHttpClient = mock(CeHttpClient.class);
+  CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class);
 
   @Test
   public void define() {

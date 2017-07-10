@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.http.CeHttpClient;
+import org.sonar.ce.http.CeHttpClientImpl;
 import org.sonar.db.Database;
 import org.sonar.server.app.WebServerProcessLogging;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -43,7 +44,7 @@ public class ChangeLogLevelActionTest {
 
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private Database db = mock(Database.class);
-  private CeHttpClient ceHttpClient = mock(CeHttpClient.class);
+  private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class);
   private WebServerProcessLogging webServerProcessLogging = new WebServerProcessLogging();
   private ChangeLogLevelAction underTest = new ChangeLogLevelAction(userSession, serverLogging, db, ceHttpClient, webServerProcessLogging);
   private WsActionTester actionTester = new WsActionTester(underTest);
