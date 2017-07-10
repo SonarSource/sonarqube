@@ -29,6 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
 import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -99,7 +100,8 @@ public class ServletRequest extends ValidatingRequest {
       }
       return new PartImpl(part.getInputStream(), part.getSubmittedFileName());
     } catch (Exception e) {
-      throw new IllegalStateException("Can't read file part", e);
+      Loggers.get(ServletRequest.class).warn("Can't read file part for parameter " + key, e);
+      return null;
     }
   }
 

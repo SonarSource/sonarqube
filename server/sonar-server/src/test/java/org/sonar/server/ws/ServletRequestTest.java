@@ -156,7 +156,7 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void throw_ISE_when_invalid_part() throws Exception {
+  public void returns_null_when_invalid_part() throws Exception {
     when(source.getContentType()).thenReturn("multipart/form-data");
     InputStream file = mock(InputStream.class);
     Part part = mock(Part.class);
@@ -164,10 +164,7 @@ public class ServletRequestTest {
     when(part.getInputStream()).thenReturn(file);
     doThrow(IllegalArgumentException.class).when(source).getPart("param1");
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't read file part");
-
-    underTest.readInputStreamParam("param1");
+    assertThat(underTest.readInputStreamParam("param1")).isNull();
   }
 
   @Test
