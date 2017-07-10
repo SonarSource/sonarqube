@@ -125,7 +125,7 @@ public interface Configuration {
    * If the property does not have value nor default value, then {@code empty} is returned.
    */
   default Optional<Boolean> getBoolean(String key) {
-    return get(key).map(Boolean::parseBoolean);
+    return get(key).map(String::trim).map(Boolean::parseBoolean);
   }
 
   /**
@@ -135,7 +135,7 @@ public interface Configuration {
    */
   default Optional<Integer> getInt(String key) {
     try {
-      return get(key).map(Integer::parseInt);
+      return get(key).map(String::trim).map(Integer::parseInt);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(String.format("The property '%s' is not an int value: %s", key, e.getMessage()));
     }
@@ -148,7 +148,7 @@ public interface Configuration {
    */
   default Optional<Long> getLong(String key) {
     try {
-      return get(key).map(Long::parseLong);
+      return get(key).map(String::trim).map(Long::parseLong);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(String.format("The property '%s' is not an long value: %s", key, e.getMessage()));
     }
@@ -161,7 +161,7 @@ public interface Configuration {
    */
   default Optional<Float> getFloat(String key) {
     try {
-      return get(key).map(Float::valueOf);
+      return get(key).map(String::trim).map(Float::valueOf);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(String.format("The property '%s' is not an float value: %s", key, e.getMessage()));
     }
@@ -174,7 +174,7 @@ public interface Configuration {
    */
   default Optional<Double> getDouble(String key) {
     try {
-      return get(key).map(Double::valueOf);
+      return get(key).map(String::trim).map(Double::valueOf);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(String.format("The property '%s' is not an double value: %s", key, e.getMessage()));
     }
