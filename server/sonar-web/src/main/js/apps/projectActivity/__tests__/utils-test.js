@@ -108,7 +108,34 @@ describe('generateSeries', () => {
 
 describe('getAnalysesByVersionByDay', () => {
   it('should correctly map analysis by versions and by days', () => {
-    expect(utils.getAnalysesByVersionByDay(ANALYSES)).toMatchSnapshot();
+    expect(
+      utils.getAnalysesByVersionByDay(ANALYSES, {
+        category: '',
+        customMetrics: [],
+        graph: 'overview',
+        project: 'foo'
+      })
+    ).toMatchSnapshot();
+  });
+  it('should also filter analysis based on the query', () => {
+    expect(
+      utils.getAnalysesByVersionByDay(ANALYSES, {
+        category: 'QUALITY_PROFILE',
+        customMetrics: [],
+        graph: 'overview',
+        project: 'foo'
+      })
+    ).toMatchSnapshot();
+    expect(
+      utils.getAnalysesByVersionByDay(ANALYSES, {
+        category: '',
+        customMetrics: [],
+        graph: 'overview',
+        project: 'foo',
+        to: new Date('2017-06-09T11:12:27+0200'),
+        from: new Date('2017-05-18T14:13:07+0200')
+      })
+    ).toMatchSnapshot();
   });
 });
 

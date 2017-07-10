@@ -130,7 +130,8 @@ export const generateSeries = (
 };
 
 export const getAnalysesByVersionByDay = (
-  analyses: Array<Analysis>
+  analyses: Array<Analysis>,
+  query: Query
 ): Array<{
   version: ?string,
   key: ?string,
@@ -142,16 +143,30 @@ export const getAnalysesByVersionByDay = (
     }
     const currentVersion = acc[acc.length - 1];
     const day = moment(analysis.date).startOf('day').valueOf().toString();
-    if (!currentVersion.byDay[day]) {
-      currentVersion.byDay[day] = [];
+
+    let matchFilters = true;
+    if (query.category || query.from || query.to) {
+      const isAfterFrom = !query.from || analysis.date >= query.from;
+      const isBeforeTo = !query.to || analysis.date <= query.to;
+      const hasSelectedCategoryEvents =
+        !query.category || analysis.events.find(event => event.category === query.category) != null;
+      matchFilters = isAfterFrom && isBeforeTo && hasSelectedCategoryEvents;
     }
-    currentVersion.byDay[day].push(analysis);
+
+    if (matchFilters) {
+      if (!currentVersion.byDay[day]) {
+        currentVersion.byDay[day] = [];
+      }
+      currentVersion.byDay[day].push(analysis);
+    }
 
     const versionEvent = analysis.events.find(event => event.category === 'VERSION');
     if (versionEvent && versionEvent.category === 'VERSION') {
       currentVersion.version = versionEvent.name;
       currentVersion.key = versionEvent.key;
-      acc.push({ version: undefined, key: undefined, byDay: {} });
+      if (Object.keys(currentVersion.byDay).length > 0) {
+        acc.push({ version: undefined, key: undefined, byDay: {} });
+      }
     }
     return acc;
   }, []);

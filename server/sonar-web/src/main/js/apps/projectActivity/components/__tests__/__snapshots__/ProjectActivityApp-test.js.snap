@@ -1,51 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should correctly filter analyses by category 1`] = `
-Object {
-  "filteredAnalyses": Array [
-    Object {
-      "date": 2016-10-27T14:33:50.000Z,
-      "events": Array [
-        Object {
-          "category": "VERSION",
-          "key": "E1",
-          "name": "6.5-SNAPSHOT",
-        },
-      ],
-      "key": "A1",
-    },
-    Object {
-      "date": 2016-10-26T10:17:29.000Z,
-      "events": Array [
-        Object {
-          "category": "VERSION",
-          "key": "E2",
-          "name": "6.4",
-        },
-        Object {
-          "category": "OTHER",
-          "key": "E3",
-          "name": "foo",
-        },
-      ],
-      "key": "A3",
-    },
-  ],
-}
-`;
-
-exports[`should correctly filter analyses by date range 1`] = `
-Object {
-  "filteredAnalyses": Array [
-    Object {
-      "date": 2016-10-27T10:21:15.000Z,
-      "events": Array [],
-      "key": "A2",
-    },
-  ],
-}
-`;
-
 exports[`should render correctly 1`] = `
 <div
   className="page page-limited"
