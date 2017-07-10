@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<BubblePopup
+  customClass="bubble-popup-right"
+  position={
+    Object {
+      "left": -125,
+      "top": 16,
+      "width": 150,
+    }
+  }
+>
+  <div
+    className="overview-analysis-graph-tooltip"
+  >
+    <div
+      className="overview-analysis-graph-tooltip-title"
+    >
+      <FormattedDate
+        date={2011-10-25T10:27:41.000Z}
+        format="LL"
+      />
+    </div>
+    <table
+      className="width-100"
+    >
+      <tbody>
+        <PreviewGraphTooltipsContent
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 18,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 15,
+                },
+              ],
+              "name": "code_smells",
+              "style": 1,
+              "translatedName": "Code Smells",
+            }
+          }
+          translatedName="Code Smells"
+          value="Formated.15"
+        />
+        <PreviewGraphTooltipsContent
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 3,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 0,
+                },
+              ],
+              "name": "bugs",
+              "style": 0,
+              "translatedName": "Bugs",
+            }
+          }
+          translatedName="Bugs"
+          value="Formated.0"
+        />
+        <PreviewGraphTooltipsContent
+          serie={
+            Object {
+              "data": Array [
+                Object {
+                  "x": "2011-10-01T22:01:00.000Z",
+                  "y": 0,
+                },
+                Object {
+                  "x": "2011-10-25T10:27:41.000Z",
+                  "y": 1,
+                },
+              ],
+              "name": "vulnerabilities",
+              "style": 2,
+              "translatedName": "Vulnerabilities",
+            }
+          }
+          translatedName="Vulnerabilities"
+          value="Formated.1"
+        />
+      </tbody>
+    </table>
+  </div>
+</BubblePopup>
+`;

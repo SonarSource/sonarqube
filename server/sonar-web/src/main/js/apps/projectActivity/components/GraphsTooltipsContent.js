@@ -24,11 +24,12 @@ import ChartLegendIcon from '../../../components/icons-components/ChartLegendIco
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
-  serie: Serie & { translatedName: string },
+  serie: Serie,
+  translatedName: string,
   value: string
 };
 
-export default function GraphsTooltipsContent({ serie, value }: Props) {
+export default function GraphsTooltipsContent({ serie, translatedName, value }: Props) {
   return (
     <tr key={serie.name} className="project-activity-graph-tooltip-line">
       <td className="thin">
@@ -42,7 +43,7 @@ export default function GraphsTooltipsContent({ serie, value }: Props) {
       <td className="project-activity-graph-tooltip-value text-right spacer-right thin">
         {value}
       </td>
-      <td>{serie.translatedName}</td>
+      <td>{translatedName}</td>
     </tr>
   );
 }
