@@ -70,6 +70,10 @@ public class IssueDao implements Dao {
     return from(keys).transform(new KeyToIssue(unordered)).filter(Predicates.notNull()).toList();
   }
 
+  public List<IssueDto> selectUnresolvedIssues(DbSession session, List<String> projectUuids, long from, String assignee) {
+    return executeLargeInputs(projectUuids, projectUuidsChunk -> mapper(session).selectUnresolvedIssues(projectUuidsChunk, from, assignee));
+  }
+
   private static class KeyToIssue implements Function<String, IssueDto> {
     private final Map<String, IssueDto> map = new HashMap<>();
 

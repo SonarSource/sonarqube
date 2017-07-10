@@ -39,4 +39,6 @@ public interface IssueMapper {
   int update(IssueDto issue);
 
   int updateIfBeforeSelectedDate(IssueDto issue);
+
+  List<IssueDto> selectUnresolvedIssues(@Param("projectUuids") List<String> projectUuids, @Param("from") long from, @Param("assignee") String assignee);
 }

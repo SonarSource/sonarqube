@@ -34,7 +34,9 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 
 public class IssueDaoTest {
 
@@ -120,6 +122,31 @@ public class IssueDaoTest {
 
     issues = underTest.selectByOrderedKeys(dbTester.getSession(), asList("I2", "I3", "I1"));
     assertThat(issues).extracting("key").containsExactly("I2", "I1");
+  }
+
+  @Test
+  public void selectUnresolvedIssues() {
+    ComponentDto project1 = dbTester.components().insertPrivateProject();
+    ComponentDto project2 = dbTester.components().insertPrivateProject();
+    List<String> projectUuids = asList(project1.uuid(), project2.uuid());
+    String assignee = randomAlphanumeric(20);
+    long from = 1_600_000_000_000L;
+
+    IssueDto issue1 = dbTester.issues().insertIssue(i -> i.setProject(project1).setAssignee(assignee).setCreatedAt(from));
+    IssueDto issue2 = dbTester.issues().insertIssue(i -> i.setProject(project1).setAssignee(assignee).setCreatedAt(from).setResolution(RESOLUTION_FIXED));
+    IssueDto issue3 = dbTester.issues().insertIssue(i -> i.setProject(project2).setAssignee(assignee).setCreatedAt(from - 1));
+    IssueDto issue4 = dbTester.issues().insertIssue(i -> i.setProject(project2).setAssignee(assignee).setCreatedAt(from));
+    IssueDto issue5 = dbTester.issues().insertIssue(i -> i.setProject(project2).setAssignee(assignee).setCreatedAt(from + 1));
+
+    List<IssueDto> result = underTest.selectUnresolvedIssues(dbTester.getSession(), projectUuids, from, assignee);
+
+    assertThat(result)
+      .extracting(IssueDto::getKey)
+      .containsExactlyInAnyOrder(
+        issue1.getKey(),
+        issue4.getKey(),
+        issue5.getKey()
+      );
   }
 
   private static IssueDto newIssueDto(String key) {

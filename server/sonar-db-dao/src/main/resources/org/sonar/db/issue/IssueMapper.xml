@@ -180,5 +180,21 @@
       #{key,jdbcType=VARCHAR}
     </foreach>
   </select>
+
+  <select id="selectUnresolvedIssues" parameterType="map" resultType="Issue">
+    select
+    <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.uuid=i.component_uuid
+    inner join projects root on root.uuid=i.project_uuid
+    where i.project_uuid in
+    <foreach collection="projectUuids" open="(" close=")" item="projectUuid" separator=",">
+      #{projectUuid,jdbcType=VARCHAR}
+    </foreach>
+    and i.created_at >= #{from,jdbcType=BIGINT}
+    and i.assignee = #{assignee,jdbcType=VARCHAR}
+    and i.resolution is null
+  </select>
 </mapper>
 
