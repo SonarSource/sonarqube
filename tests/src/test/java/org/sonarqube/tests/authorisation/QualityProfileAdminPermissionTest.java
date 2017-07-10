@@ -20,19 +20,15 @@
 package org.sonarqube.tests.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.tests.Category1Suite;
+import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import util.user.UserRule;
+import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
-import static util.selenium.Selenese.runSelenese;
 
 /**
  * SONAR-4210
@@ -42,42 +38,30 @@ public class QualityProfileAdminPermissionTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
-
-  private static WsClient adminWsClient;
-
-  @BeforeClass
-  public static void init() {
-    orchestrator.resetData();
-    adminWsClient = newAdminWsClient(orchestrator);
-    runProjectAnalysis(orchestrator, "shared/xoo-sample");
-  }
-
-  @AfterClass
-  public static void clearUsers() throws Exception {
-    userRule.resetUsers();
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
   public void permission_should_grant_access_to_profile() {
-    userRule.createUser("not_profileadm", "userpwd");
-    userRule.createUser("profileadm", "papwd");
-    adminWsClient.permissions().addUser(new AddUserWsRequest().setLogin("profileadm").setPermission("profileadmin"));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
+
+    tester.users().generate(u -> u.setLogin("not_profileadm").setPassword("userpwd"));
+    tester.users().generate(u -> u.setLogin("profileadm").setPassword("papwd"));
+    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin("profileadm").setPermission("profileadmin"));
     createProfile("xoo", "foo");
 
-    runSelenese(orchestrator,
+    tester.runHtmlTests(
       // Verify normal user is not allowed to do any modification
       "/authorisation/QualityProfileAdminPermissionTest/normal-user.html",
       // Verify profile admin is allowed to do modifications
       "/authorisation/QualityProfileAdminPermissionTest/profile-admin.html");
   }
 
-  private static void createProfile(String language, String name) {
-    adminWsClient.wsConnector().call(
-      new PostRequest("api/qualityprofiles/create")
-        .setParam("language", language)
-        .setParam("name", name));
+  private void createProfile(String language, String name) {
+    tester.wsClient().qualityProfiles().create(CreateRequest.builder()
+      .setLanguage(language)
+      .setProfileName(name)
+      .build());
   }
 
 }
