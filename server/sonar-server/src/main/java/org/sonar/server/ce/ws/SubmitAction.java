@@ -96,15 +96,13 @@ public class SubmitAction implements CeWsAction {
     String projectBranch = wsRequest.param(PARAM_PROJECT_BRANCH);
     String projectName = StringUtils.defaultIfBlank(wsRequest.param(PARAM_PROJECT_NAME), projectKey);
 
-    CeTask task;
-    try (InputStream report = new BufferedInputStream(wsRequest.paramAsInputStream(PARAM_REPORT_DATA))) {
-      task = reportSubmitter.submit(organizationKey, projectKey, projectBranch, projectName, report);
+    try (InputStream report = new BufferedInputStream(wsRequest.mandatoryParamAsPart(PARAM_REPORT_DATA).getInputStream())) {
+      CeTask task = reportSubmitter.submit(organizationKey, projectKey, projectBranch, projectName, report);
+      WsCe.SubmitResponse submitResponse = WsCe.SubmitResponse.newBuilder()
+        .setTaskId(task.getUuid())
+        .setProjectId(task.getComponentUuid())
+        .build();
+      WsUtils.writeProtobuf(submitResponse, wsRequest, wsResponse);
     }
-
-    WsCe.SubmitResponse submitResponse = WsCe.SubmitResponse.newBuilder()
-      .setTaskId(task.getUuid())
-      .setProjectId(task.getComponentUuid())
-      .build();
-    WsUtils.writeProtobuf(submitResponse, wsRequest, wsResponse);
   }
 }

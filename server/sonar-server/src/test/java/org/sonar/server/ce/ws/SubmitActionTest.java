@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ce.ws;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -63,7 +64,7 @@ public class SubmitActionTest {
     WsCe.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
-      .setParam("report", "{binary}")
+      .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
       .setMethod("POST")
       .executeProtobuf(WsCe.SubmitResponse.class);
 
@@ -81,7 +82,7 @@ public class SubmitActionTest {
     TestResponse wsResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
-      .setParam("report", "{binary}")
+      .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
       .setMediaType(MediaTypes.JSON)
       .setMethod("POST")
       .execute();
@@ -99,7 +100,7 @@ public class SubmitActionTest {
 
     tester.newRequest()
       .setParam("projectKey", "my_project")
-      .setParam("report", "{binary}")
+      .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
       .setMediaType(MediaTypes.PROTOBUF)
       .setMethod("POST")
       .execute();
