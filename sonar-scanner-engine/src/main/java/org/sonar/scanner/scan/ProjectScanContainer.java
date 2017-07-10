@@ -19,7 +19,6 @@
  */
 package org.sonar.scanner.scan;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -42,6 +41,7 @@ import org.sonar.scanner.bootstrap.ExtensionMatcher;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.bootstrap.MetricProvider;
 import org.sonar.scanner.cpd.CpdExecutor;
+import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
@@ -86,11 +86,13 @@ import org.sonar.scanner.rule.DefaultRulesLoader;
 import org.sonar.scanner.rule.RulesLoader;
 import org.sonar.scanner.rule.RulesProvider;
 import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
-import org.sonar.scanner.scan.filesystem.InputComponentStore;
+import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
 import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.storage.Storages;
+
+import com.google.common.annotations.VisibleForTesting;
 
 public class ProjectScanContainer extends ComponentContainer {
 
@@ -106,10 +108,10 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     addBatchComponents();
+    addBatchExtensions();
     ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoryCleaner.class).execute();
-    addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       add(PhasesSumUpTimeProfiler.class);
@@ -126,7 +128,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectReactorBuilder.class,
       WorkDirectoryCleaner.class,
       new MutableProjectReactorProvider(),
-      new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
       ProjectLock.class,
       EventBus.class,
@@ -145,9 +146,9 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // file system
       ModuleIndexer.class,
-      InputComponentStore.class,
+      new InputComponentStoreProvider(),
       PathResolver.class,
-      DefaultInputModuleHierarchy.class,
+      new InputModuleHierarchyProvider(),
       DefaultComponentTree.class,
       BatchIdGenerator.class,
 
@@ -197,6 +198,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Cpd
       CpdExecutor.class,
+      CpdSettings.class,
       SonarCpdBlockIndex.class,
 
       ScanTaskObservers.class);

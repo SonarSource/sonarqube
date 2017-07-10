@@ -157,9 +157,10 @@ public class FileIndexer {
     DefaultInputFile inputFile = inputFileBuilder.create(realFile, type, fileSystem.encoding());
     if (inputFile != null) {
       if (exclusionFilters.accept(inputFile, type) && accept(inputFile)) {
+        String parentRelativePath = getParentRelativePath(fileSystem, inputFile);
         synchronized (this) {
           fileSystem.add(inputFile);
-          indexParentDir(fileSystem, inputFile);
+          indexParentDir(fileSystem, inputFile, parentRelativePath);
           progress.markAsIndexed(inputFile);
         }
         LOG.debug("'{}' indexed {}with language '{}'", inputFile.relativePath(), type == Type.TEST ? "as test " : "", inputFile.language());
@@ -171,16 +172,19 @@ public class FileIndexer {
     return null;
   }
 
-  private void indexParentDir(DefaultModuleFileSystem fileSystem, InputFile inputFile) {
+  private static String getParentRelativePath(DefaultModuleFileSystem fileSystem, InputFile inputFile) {
     Path parentDir = inputFile.path().getParent();
     String relativePath = new PathResolver().relativePath(fileSystem.baseDirPath(), parentDir);
     if (relativePath == null) {
       throw new IllegalStateException("Failed to compute relative path of file: " + inputFile);
     }
+    return relativePath;
+  }
 
-    DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), relativePath);
+  private void indexParentDir(DefaultModuleFileSystem fileSystem, InputFile inputFile, String parentRelativePath) {
+    DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), parentRelativePath);
     if (inputDir == null) {
-      inputDir = new DefaultInputDir(fileSystem.moduleKey(), relativePath, batchIdGenerator.get());
+      inputDir = new DefaultInputDir(fileSystem.moduleKey(), parentRelativePath, batchIdGenerator.get());
       inputDir.setModuleBaseDir(fileSystem.baseDirPath());
       fileSystem.add(inputDir);
       componentTree.index(inputDir, module);

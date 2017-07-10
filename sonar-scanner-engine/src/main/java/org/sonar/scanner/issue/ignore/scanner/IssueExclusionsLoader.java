@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.internal.FileMetadata.CharHandler;
+import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
 import org.sonar.scanner.issue.ignore.pattern.BlockIssuePattern;
 import org.sonar.scanner.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.scanner.issue.ignore.pattern.IssuePattern;

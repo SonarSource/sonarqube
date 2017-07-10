@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.internal.FileMetadata.CharHandler;
+import org.sonar.api.batch.fs.internal.charhandler.CharHandler;
 import org.sonar.scanner.issue.ignore.pattern.LineRange;
 import org.sonar.scanner.issue.ignore.pattern.PatternMatcher;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader.DoubleRegexpMatcher;
@@ -57,19 +57,19 @@ public class IssueExclusionsRegexpScanner extends CharHandler {
   }
 
   @Override
-  protected void handleIgnoreEoL(char c) {
+  public void handleIgnoreEoL(char c) {
     sb.append(c);
   }
 
   @Override
-  protected void newLine() {
+  public void newLine() {
     processLine(sb.toString());
     sb.setLength(0);
     lineIndex++;
   }
 
   @Override
-  protected void eof() {
+  public void eof() {
     processLine(sb.toString());
 
     if (currentMatcher != null && !currentMatcher.hasSecondPattern()) {

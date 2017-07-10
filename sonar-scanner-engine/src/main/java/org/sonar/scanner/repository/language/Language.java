@@ -22,6 +22,9 @@ package org.sonar.scanner.repository.language;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class Language {
 
   private final String key;

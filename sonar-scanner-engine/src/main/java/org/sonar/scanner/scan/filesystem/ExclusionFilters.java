@@ -84,7 +84,7 @@ public class ExclusionFilters {
     if (inclusionPatterns.length > 0) {
       boolean matchInclusion = false;
       for (PathPattern pattern : inclusionPatterns) {
-        matchInclusion |= pattern.match(indexedFile);
+        matchInclusion |= pattern.match(indexedFile.absolutePath(), indexedFile.relativePath());
       }
       if (!matchInclusion) {
         return false;
@@ -92,7 +92,7 @@ public class ExclusionFilters {
     }
     if (exclusionPatterns.length > 0) {
       for (PathPattern pattern : exclusionPatterns) {
-        if (pattern.match(indexedFile)) {
+        if (pattern.match(indexedFile.absolutePath(), indexedFile.relativePath())) {
           return false;
         }
       }

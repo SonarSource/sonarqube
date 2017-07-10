@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -46,13 +45,10 @@ public class LineMeasureSensor implements Sensor {
 
   private static final String MEASURES_EXTENSION = ".linemeasures";
 
-  private MetricFinder metricFinder;
-
   private FileLinesContextFactory contextFactory;
 
   public LineMeasureSensor(FileLinesContextFactory contextFactory) {
     this.contextFactory = contextFactory;
-    this.metricFinder = metricFinder;
   }
 
   private void processFileMeasures(InputFile inputFile, SensorContext context) {

@@ -25,7 +25,6 @@ import com.google.common.collect.HashBasedTable;
 import org.sonar.api.batch.rule.Rule;
 import com.google.common.collect.Table;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
@@ -39,9 +38,7 @@ import java.util.List;
 
 @Immutable
 class DefaultRules implements Rules {
-
-  // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
-  private final ListMultimap<String, Rule> rulesByRepository;
+  private final ImmutableListMultimap<String, Rule> rulesByRepository;
   private final ImmutableTable<String, String, List<Rule>> rulesByRepositoryAndInternalKey;
 
   DefaultRules(Collection<NewRule> newRules) {

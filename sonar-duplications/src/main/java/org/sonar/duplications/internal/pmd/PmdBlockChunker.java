@@ -21,6 +21,9 @@ package org.sonar.duplications.internal.pmd;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 
@@ -29,6 +32,7 @@ import org.sonar.duplications.block.ByteArray;
  * works with {@link TokensLine},
  * sets {@link Block#getStartUnit() startUnit} and {@link Block#getEndUnit() endUnit} - indexes of first and last token for this block.
  */
+@Immutable
 public class PmdBlockChunker {
 
   private static final long PRIME_BASE = 31;

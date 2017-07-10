@@ -57,7 +57,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
     this.inputFile = requireNonNull(inputFile, "file can't be null");
     String[] cpdExclusions = config.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     for (PathPattern cpdExclusion : PathPattern.create(cpdExclusions)) {
-      if (cpdExclusion.match(inputFile)) {
+      if (cpdExclusion.match(inputFile.absolutePath(), inputFile.relativePath())) {
         this.excluded = true;
       }
     }

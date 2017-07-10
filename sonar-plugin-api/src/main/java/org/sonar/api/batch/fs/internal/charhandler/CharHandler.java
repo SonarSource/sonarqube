@@ -17,25 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.scanner.scan;
+package org.sonar.api.batch.fs.internal.charhandler;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+public abstract class CharHandler {
 
-public class ImmutableProjectReactorProvider extends ProviderAdapter {
+  public void handleAll(char c) {
+  }
 
-  private ImmutableProjectReactor singleton;
+  public void handleIgnoreEoL(char c) {
+  }
 
-  public ImmutableProjectReactor provide(ProjectReactor reactor, ProjectBuildersExecutor projectBuildersExecutor, ProjectReactorValidator validator) {
-    if (singleton == null) {
-      // 1 Apply project builders
-      projectBuildersExecutor.execute(reactor);
+  public void newLine() {
+  }
 
-      // 2 Validate final reactor
-      validator.validate(reactor);
-
-      singleton = new ImmutableProjectReactor(reactor.getRoot());
-    }
-    return singleton;
+  public void eof() {
   }
 }

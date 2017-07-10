@@ -19,6 +19,10 @@
  */
 package org.sonar.scanner.index;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Before;
@@ -43,10 +47,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DefaultIndexTest {
 
@@ -83,10 +83,10 @@ public class DefaultIndexTest {
     rootDef.addSubProject(moduleBDef);
     moduleBDef.addSubProject(moduleB1Def);
 
-    project = new Project(rootDef);
-    moduleA = new Project(moduleADef);
-    moduleB = new Project(moduleBDef);
-    moduleB1 = new Project(moduleB1Def);
+    project = new Project(new DefaultInputModule(rootDef));
+    moduleA = new Project(new DefaultInputModule(moduleADef));
+    moduleB = new Project(new DefaultInputModule(moduleBDef));
+    moduleB1 = new Project(new DefaultInputModule(moduleB1Def));
 
     RulesProfile rulesProfile = RulesProfile.create();
     rule = Rule.create("repoKey", "ruleKey", "Rule");

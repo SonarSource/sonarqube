@@ -21,16 +21,16 @@ package org.sonar.scanner.issue.tracking;
 
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.scanner.repository.ServerIssuesLoader;
-import org.sonar.scanner.scan.ImmutableProjectReactor;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 import org.sonar.scanner.storage.Storage;
 import org.sonar.scanner.storage.Storages;
@@ -45,21 +45,20 @@ public class ServerIssueRepository {
   private final Storages caches;
   private Storage<ServerIssue> issuesCache;
   private final ServerIssuesLoader previousIssuesLoader;
-  private final ImmutableProjectReactor reactor;
-  private final InputComponentStore resourceCache;
+  private final InputComponentStore componentStore;
 
-  public ServerIssueRepository(Storages caches, ServerIssuesLoader previousIssuesLoader, ImmutableProjectReactor reactor, InputComponentStore resourceCache) {
+  public ServerIssueRepository(Storages caches, ServerIssuesLoader previousIssuesLoader, InputComponentStore componentStore) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
-    this.reactor = reactor;
-    this.resourceCache = resourceCache;
+    this.componentStore = componentStore;
   }
 
   public void load() {
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     this.issuesCache = caches.createCache("previousIssues");
     caches.registerValueCoder(ServerIssue.class, new ServerIssueValueCoder());
-    previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), this::store);
+    DefaultInputModule root = (DefaultInputModule) componentStore.root();
+    previousIssuesLoader.load(root.getKeyWithBranch(), this::store);
     profiler.stopInfo();
   }
 
@@ -69,10 +68,10 @@ public class ServerIssueRepository {
 
   private void store(ServerIssue issue) {
     String moduleKeyWithBranch = issue.getModuleKey();
-    ProjectDefinition projectDefinition = reactor.getProjectDefinition(moduleKeyWithBranch);
-    if (projectDefinition != null) {
-      String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(projectDefinition.getKey(), issue.hasPath() ? issue.getPath() : null);
-      DefaultInputComponent r = (DefaultInputComponent) resourceCache.getByKey(componentKeyWithoutBranch);
+    InputModule module = componentStore.getModule(moduleKeyWithBranch);
+    if (module != null) {
+      String componentKeyWithoutBranch = ComponentKeys.createEffectiveKey(module.key(), issue.hasPath() ? issue.getPath() : null);
+      DefaultInputComponent r = (DefaultInputComponent) componentStore.getByKey(componentKeyWithoutBranch);
       if (r != null) {
         issuesCache.put(r.batchId(), issue.getKey(), issue);
         return;

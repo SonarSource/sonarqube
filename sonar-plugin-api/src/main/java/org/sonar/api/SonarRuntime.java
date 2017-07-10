@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -141,6 +143,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @ServerSide
 @ComputeEngineSide
 @SonarLintSide
+@Immutable
 public interface SonarRuntime {
 
   /**

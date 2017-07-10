@@ -47,12 +47,13 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
   private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
   private final DefaultIndexedFile indexedFile;
+  private final String contents;
   private final Consumer<DefaultInputFile> metadataGenerator;
+
   private Status status;
   private Charset charset;
   private Metadata metadata;
   private boolean publish;
-  private String contents;
 
   public DefaultInputFile(DefaultIndexedFile indexedFile, Consumer<DefaultInputFile> metadataGenerator) {
     this(indexedFile, metadataGenerator, null);

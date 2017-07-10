@@ -23,6 +23,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
 
 import java.util.Collection;
 
@@ -33,6 +34,7 @@ import java.util.Collection;
  * @since 4.2
  */
 @ScannerSide
+@Immutable
 public interface Rules {
 
   /**

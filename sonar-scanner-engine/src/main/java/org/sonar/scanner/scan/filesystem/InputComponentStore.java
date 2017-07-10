@@ -58,14 +58,17 @@ public class InputComponentStore {
   private final Table<String, String, InputFile> inputFileCache = TreeBasedTable.create();
   private final Map<String, InputDir> globalInputDirCache = new HashMap<>();
   private final Table<String, String, InputDir> inputDirCache = TreeBasedTable.create();
+  // indexed by key with branch
   private final Map<String, InputModule> inputModuleCache = new HashMap<>();
   private final Map<String, InputComponent> inputComponents = new HashMap<>();
   private final SetMultimap<String, InputFile> filesByNameCache = LinkedHashMultimap.create();
   private final SetMultimap<String, InputFile> filesByExtensionCache = LinkedHashMultimap.create();
-  private InputModule root;
+  private final InputModule root;
 
-  public InputComponentStore(PathResolver pathResolver) {
+  public InputComponentStore(PathResolver pathResolver, DefaultInputModule root) {
     this.pathResolver = pathResolver;
+    this.root = root;
+    this.put(root);
   }
 
   public Collection<InputComponent> all() {
@@ -90,7 +93,6 @@ public class InputComponentStore {
     return inputComponents.get(key);
   }
 
-  @CheckForNull
   public InputModule root() {
     return root;
   }
@@ -157,7 +159,7 @@ public class InputComponentStore {
   }
 
   private Path getProjectBaseDir() {
-    return ((DefaultInputModule) root).definition().getBaseDir().toPath();
+    return ((DefaultInputModule) root).getBaseDir().toPath();
   }
 
   @CheckForNull
@@ -181,22 +183,18 @@ public class InputComponentStore {
   }
 
   @CheckForNull
-  public InputModule getModule(String moduleKey) {
-    return inputModuleCache.get(moduleKey);
+  public InputModule getModule(String moduleKeyWithBranch) {
+    return inputModuleCache.get(moduleKeyWithBranch);
   }
 
   public void put(DefaultInputModule inputModule) {
     String key = inputModule.key();
+    String keyWithBranch = inputModule.getKeyWithBranch();
+    Preconditions.checkNotNull(inputModule);
     Preconditions.checkState(!inputComponents.containsKey(key), "Module '%s' already indexed", key);
-    Preconditions.checkState(!inputModuleCache.containsKey(key), "Module '%s' already indexed", key);
+    Preconditions.checkState(!inputModuleCache.containsKey(keyWithBranch), "Module '%s' already indexed", keyWithBranch);
     inputComponents.put(key, inputModule);
-    inputModuleCache.put(key, inputModule);
-    if (inputModule.definition().getParent() == null) {
-      if (root != null) {
-        throw new IllegalStateException("Root module already indexed: '" + root.key() + "', '" + key + "'");
-      }
-      root = inputModule;
-    }
+    inputModuleCache.put(keyWithBranch, inputModule);
   }
 
   public Iterable<InputFile> getFilesByName(String filename) {

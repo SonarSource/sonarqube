@@ -19,11 +19,13 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.utils.WildcardPattern;
 
+@ThreadSafe
 public abstract class PathPattern {
 
   final WildcardPattern pattern;
@@ -32,9 +34,9 @@ public abstract class PathPattern {
     this.pattern = WildcardPattern.create(pattern);
   }
 
-  public abstract boolean match(IndexedFile inputFile);
+  public abstract boolean match(String absolutePath, String relativePath);
 
-  public abstract boolean match(IndexedFile inputFile, boolean caseSensitiveFileExtension);
+  public abstract boolean match(String absolutePath, String relativePath, boolean caseSensitiveFileExtension);
 
   public static PathPattern create(String s) {
     String trimmed = StringUtils.trim(s);
@@ -58,15 +60,15 @@ public abstract class PathPattern {
     }
 
     @Override
-    public boolean match(IndexedFile inputFile) {
-      return match(inputFile, true);
+    public boolean match(String absolutePath, String relativePath) {
+      return match(absolutePath, relativePath, true);
     }
 
     @Override
-    public boolean match(IndexedFile inputFile, boolean caseSensitiveFileExtension) {
-      String path = inputFile.absolutePath();
+    public boolean match(String absolutePath, String relativePath, boolean caseSensitiveFileExtension) {
+      String path = absolutePath;
       if (!caseSensitiveFileExtension) {
-        String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
+        String extension = sanitizeExtension(FilenameUtils.getExtension(relativePath));
         if (StringUtils.isNotBlank(extension)) {
           path = StringUtils.removeEndIgnoreCase(path, extension);
           path = path + extension;
@@ -90,15 +92,15 @@ public abstract class PathPattern {
     }
 
     @Override
-    public boolean match(IndexedFile inputFile) {
-      return match(inputFile, true);
+    public boolean match(String absolutePath, String relativePath) {
+      return match(absolutePath, relativePath, true);
     }
 
     @Override
-    public boolean match(IndexedFile inputFile, boolean caseSensitiveFileExtension) {
-      String path = inputFile.relativePath();
+    public boolean match(String absolutePath, String relativePath, boolean caseSensitiveFileExtension) {
+      String path = relativePath;
       if (!caseSensitiveFileExtension) {
-        String extension = sanitizeExtension(FilenameUtils.getExtension(inputFile.file().getName()));
+        String extension = sanitizeExtension(FilenameUtils.getExtension(relativePath));
         if (StringUtils.isNotBlank(extension)) {
           path = StringUtils.removeEndIgnoreCase(path, extension);
           path = path + extension;

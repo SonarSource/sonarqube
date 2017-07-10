@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -55,8 +56,8 @@ public class SourcePublisherTest {
       .setCharset(StandardCharsets.ISO_8859_1)
       .build();
 
-    InputComponentStore componentStore = new InputComponentStore(new PathResolver());
-    componentStore.put(TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir));
+    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(moduleKey, baseDir);
+    InputComponentStore componentStore = new InputComponentStore(new PathResolver(), rootModule);
     componentStore.put(inputFile);
 
     publisher = new SourcePublisher(componentStore);

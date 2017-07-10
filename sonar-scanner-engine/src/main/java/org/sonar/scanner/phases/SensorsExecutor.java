@@ -27,6 +27,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
@@ -40,12 +41,12 @@ public class SensorsExecutor {
   private final SensorStrategy strategy;
   private final boolean isRoot;
 
-  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus, SensorStrategy strategy) {
+  public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy, EventBus eventBus, SensorStrategy strategy) {
     this.selector = selector;
     this.module = module;
     this.eventBus = eventBus;
     this.strategy = strategy;
-    this.isRoot = module.definition().getParent() == null;
+    this.isRoot = hierarchy.isRoot(module);
   }
 
   public void execute(SensorContext context) {
@@ -84,7 +85,7 @@ public class SensorsExecutor {
 
   private void executeSensor(SensorContext context, Sensor sensor) {
     eventBus.fireEvent(new SensorExecutionEvent(sensor, true));
-    sensor.analyse(new Project(module.definition()), context);
+    sensor.analyse(new Project(module), context);
     eventBus.fireEvent(new SensorExecutionEvent(sensor, false));
   }
 }

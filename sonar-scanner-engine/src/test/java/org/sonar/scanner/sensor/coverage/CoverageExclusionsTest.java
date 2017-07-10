@@ -37,14 +37,13 @@ public class CoverageExclusionsTest {
   @Before
   public void prepare() {
     settings = new MapSettings(new PropertyDefinitions(ExclusionProperties.all()));
-    coverageExclusions = new CoverageExclusions(settings.asConfig());
   }
 
   @Test
   public void shouldExcludeFileBasedOnPattern() {
     InputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
     settings.setProperty("sonar.coverage.exclusions", "src/org/polop/*");
-    coverageExclusions.initPatterns();
+    coverageExclusions = new CoverageExclusions(settings.asConfig());
     assertThat(coverageExclusions.isExcluded(file)).isTrue();
   }
 
@@ -52,7 +51,7 @@ public class CoverageExclusionsTest {
   public void shouldNotExcludeFileBasedOnPattern() {
     InputFile file = new TestInputFileBuilder("foo", "src/org/polop/File.php").build();
     settings.setProperty("sonar.coverage.exclusions", "src/org/other/*");
-    coverageExclusions.initPatterns();
+    coverageExclusions = new CoverageExclusions(settings.asConfig());
     assertThat(coverageExclusions.isExcluded(file)).isFalse();
   }
 }

@@ -27,6 +27,7 @@ import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
@@ -44,16 +45,20 @@ public class InputComponentStoreTest {
 
   @Test
   public void should_add_input_file() throws Exception {
-    InputComponentStore cache = new InputComponentStore(new PathResolver());
-
     String rootModuleKey = "struts";
-    File rootBaseDir = temp.newFolder();
-    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootModuleKey, rootBaseDir);
-    cache.put(rootModule);
-
     String subModuleKey = "struts-core";
-    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(subModuleKey, temp.newFolder());
-    rootModule.definition().addSubProject(subModule.definition());
+
+    File rootBaseDir = temp.newFolder();
+
+    ProjectDefinition moduleDef = ProjectDefinition.create()
+      .setKey(subModuleKey).setBaseDir(rootBaseDir);
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey(rootModuleKey).setBaseDir(rootBaseDir).addSubProject(moduleDef);
+
+    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
+    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
+
+    InputComponentStore cache = new InputComponentStore(new PathResolver(), rootModule);
     cache.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -97,9 +102,7 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
-      super(new PathResolver());
-      DefaultInputModule root = TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder());
-      put(root);
+      super(new PathResolver(), TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()));
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {
