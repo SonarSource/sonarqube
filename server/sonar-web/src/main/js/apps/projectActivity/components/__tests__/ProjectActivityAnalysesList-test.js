@@ -19,12 +19,12 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import ProjectActivityApp from '../ProjectActivityApp';
+import ProjectActivityAnalysesList from '../ProjectActivityAnalysesList';
 
 const ANALYSES = [
   {
     key: 'A1',
-    date: new Date('2016-10-27T16:33:50+0200'),
+    date: new Date('2016-10-27T16:33:50+0000'),
     events: [
       {
         key: 'E1',
@@ -35,12 +35,12 @@ const ANALYSES = [
   },
   {
     key: 'A2',
-    date: new Date('2016-10-27T12:21:15+0200'),
+    date: new Date('2016-10-27T12:21:15+0000'),
     events: []
   },
   {
     key: 'A3',
-    date: new Date('2016-10-26T12:17:29+0200'),
+    date: new Date('2016-10-26T12:17:29+0000'),
     events: [
       {
         key: 'E2',
@@ -53,6 +53,17 @@ const ANALYSES = [
         name: 'foo'
       }
     ]
+  },
+  {
+    key: 'A4',
+    date: new Date('2016-10-24T16:33:50+0000'),
+    events: [
+      {
+        key: 'E1',
+        category: 'QUALITY_GATE',
+        name: 'Quality gate changed to red...'
+      }
+    ]
   }
 ];
 
@@ -61,29 +72,45 @@ const DEFAULT_PROPS = {
   addVersion: () => {},
   analyses: ANALYSES,
   analysesLoading: false,
+  canAdmin: false,
   changeEvent: () => {},
   deleteAnalysis: () => {},
   deleteEvent: () => {},
-  graphLoading: false,
   loading: false,
-  project: {
-    key: 'org.sonarsource.sonarqube:sonarqube',
-    leakPeriodDate: '2017-05-16T13:50:02+0200'
-  },
-  metrics: [{ key: 'code_smells', name: 'Code Smells', type: 'INT' }],
-  measuresHistory: [
-    {
-      metric: 'code_smells',
-      history: [
-        { date: new Date('Fri Mar 04 2016 10:40:12 GMT+0100 (CET)'), value: '1749' },
-        { date: new Date('Fri Mar 04 2016 18:40:16 GMT+0100 (CET)'), value: '2286' }
-      ]
-    }
-  ],
   query: { category: '', graph: 'overview', project: 'org.sonarsource.sonarqube:sonarqube' },
   updateQuery: () => {}
 };
 
+jest.mock('moment', () => date => ({
+  startOf: () => {
+    return {
+      valueOf: () => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+    };
+  },
+  toDate: () => new Date(date),
+  format: format => `Formated.${format}:${date}`
+}));
+
+window.Number = val => val;
+
 it('should render correctly', () => {
-  expect(shallow(<ProjectActivityApp {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />)).toMatchSnapshot();
+});
+
+it('should correctly filter analyses by category', () => {
+  const wrapper = shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />);
+  wrapper.setProps({ query: { ...DEFAULT_PROPS.query, category: 'QUALITY_GATE' } });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should correctly filter analyses by date range', () => {
+  const wrapper = shallow(<ProjectActivityAnalysesList {...DEFAULT_PROPS} />);
+  wrapper.setProps({
+    query: {
+      ...DEFAULT_PROPS.query,
+      from: new Date('2016-10-27T16:33:50+0000'),
+      to: new Date('2016-10-27T16:33:50+0000')
+    }
+  });
+  expect(wrapper).toMatchSnapshot();
 });
