@@ -19,12 +19,12 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import GraphsTooltips from '../GraphsTooltips';
+import PreviewGraphTooltips from '../PreviewGraphTooltips';
 
 const SERIES_OVERVIEW = [
   {
     name: 'code_smells',
-    translatedName: 'metric.code_smells.name',
+    translatedName: 'Code Smells',
     style: 1,
     data: [
       {
@@ -39,7 +39,7 @@ const SERIES_OVERVIEW = [
   },
   {
     name: 'bugs',
-    translatedName: 'metric.bugs.name',
+    translatedName: 'Bugs',
     style: 0,
     data: [
       {
@@ -54,7 +54,7 @@ const SERIES_OVERVIEW = [
   },
   {
     name: 'vulnerabilities',
-    translatedName: 'metric.vulnerabilities.name',
+    translatedName: 'Vulnerabilities',
     style: 2,
     data: [
       {
@@ -77,23 +77,18 @@ const METRICS = [
 const DEFAULT_PROPS = {
   formatValue: val => 'Formated.' + val,
   graph: 'overview',
-  graphWidth: 500,
-  measuresHistory: [],
+  graphWidth: 150,
   metrics: METRICS,
   selectedDate: new Date('2011-10-01T22:01:00.000Z'),
   series: SERIES_OVERVIEW,
   tooltipIdx: 0,
-  tooltipPos: 666
+  tooltipPos: 25
 };
 
-it('should render correctly for overview graphs', () => {
-  expect(shallow(<GraphsTooltips {...DEFAULT_PROPS} />)).toMatchSnapshot();
-});
-
-it('should render correctly for random graphs', () => {
+it('should render correctly', () => {
   expect(
     shallow(
-      <GraphsTooltips
+      <PreviewGraphTooltips
         {...DEFAULT_PROPS}
         graph="random"
         selectedDate={new Date('2011-10-25T10:27:41.000Z')}

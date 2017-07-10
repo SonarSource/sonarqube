@@ -31,7 +31,8 @@ import type { History, Metric } from '../types';
 
 type Props = {
   history: History,
-  project: string
+  project: string,
+  router: { replace: ({ pathname: string, query?: {} }) => void }
 };
 
 type State = {
@@ -107,6 +108,7 @@ export default class AnalysesList extends React.PureComponent {
           history={this.props.history}
           project={this.props.project}
           metrics={this.state.metrics}
+          router={this.props.router}
         />
 
         {this.renderList(analyses)}

@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import GraphsTooltipsContent from '../GraphsTooltipsContent';
+import PreviewGraphTooltipsContent from '../PreviewGraphTooltipsContent';
 
 const DEFAULT_PROPS = {
   serie: {
@@ -32,5 +32,5 @@ const DEFAULT_PROPS = {
 };
 
 it('should render correctly', () => {
-  expect(shallow(<GraphsTooltipsContent {...DEFAULT_PROPS} />)).toMatchSnapshot();
+  expect(shallow(<PreviewGraphTooltipsContent {...DEFAULT_PROPS} />)).toMatchSnapshot();
 });
