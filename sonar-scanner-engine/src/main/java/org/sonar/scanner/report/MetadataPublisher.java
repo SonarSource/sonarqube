@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Configuration;
 import org.sonar.scanner.ProjectAnalysisInfo;
-import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
+import org.sonar.scanner.cpd.CpdSettings;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
@@ -37,12 +37,15 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ModuleQProfiles qProfiles;
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final InputModuleHierarchy moduleHierarchy;
+  private final CpdSettings cpdSettings;
 
-  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings, ModuleQProfiles qProfiles) {
+  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.qProfiles = qProfiles;
+    this.cpdSettings = cpdSettings;
   }
 
   @Override
@@ -53,7 +56,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setAnalysisDate(projectAnalysisInfo.analysisDate().getTime())
       // Here we want key without branch
       .setProjectKey(rootDef.getKey())
-      .setCrossProjectDuplicationActivated(SonarCpdBlockIndex.isCrossProjectDuplicationEnabled(settings))
+      .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
       .setRootComponentRef(rootProject.batchId());
 
     settings.get(CoreProperties.PROJECT_ORGANIZATION_PROPERTY).ifPresent(builder::setOrganizationKey);

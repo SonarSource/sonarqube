@@ -22,6 +22,7 @@ package org.sonar.scanner.report;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;

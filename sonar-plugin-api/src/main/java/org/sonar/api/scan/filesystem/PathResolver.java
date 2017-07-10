@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
+
 import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.utils.PathUtils;
@@ -35,6 +37,7 @@ import static java.util.stream.Collectors.joining;
  * @since 3.5
  */
 @ScannerSide
+@Immutable
 public class PathResolver {
 
   public File relativeFile(File dir, String path) {

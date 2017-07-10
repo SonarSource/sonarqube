@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
@@ -51,9 +52,10 @@ public class DefaultPostJobContextTest {
   private AnalysisMode analysisMode;
 
   @Before
-  public void prepare() {
+  public void setUp() throws IOException {
     issueCache = mock(IssueCache.class);
-    componentStore = new InputComponentStore(new PathResolver());
+    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule("foo", temp.newFolder());
+    componentStore = new InputComponentStore(new PathResolver(), rootModule);
     settings = new MapSettings();
     analysisMode = mock(AnalysisMode.class);
     context = new DefaultPostJobContext(settings.asConfig(), settings, issueCache, componentStore, analysisMode);
@@ -85,8 +87,6 @@ public class DefaultPostJobContextTest {
     assertThat(issue.inputComponent()).isNull();
 
     String moduleKey = "foo";
-    componentStore.put(TestInputFileBuilder.newDefaultInputModule("foo", temp.newFolder()));
-
     componentStore.put(new TestInputFileBuilder(moduleKey, "src/Foo.php").build());
     assertThat(issue.inputComponent()).isNotNull();
 

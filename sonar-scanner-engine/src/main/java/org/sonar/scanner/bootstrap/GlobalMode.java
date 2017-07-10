@@ -19,10 +19,13 @@
  */
 package org.sonar.scanner.bootstrap;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 
+@Immutable
 public class GlobalMode extends AbstractAnalysisMode {
   private static final Logger LOG = LoggerFactory.getLogger(GlobalMode.class);
 

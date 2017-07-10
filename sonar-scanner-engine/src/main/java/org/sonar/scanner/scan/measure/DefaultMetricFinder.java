@@ -22,21 +22,28 @@ package org.sonar.scanner.scan.measure;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.scanner.repository.MetricsRepository;
 
+@ThreadSafe
 public class DefaultMetricFinder implements MetricFinder {
 
-  private Map<String, Metric<Serializable>> metricsByKey = new LinkedHashMap<>();
+  private Map<String, Metric<Serializable>> metricsByKey;
 
   public DefaultMetricFinder(MetricsRepository metricsRepository) {
+    Map<String, Metric<Serializable>> metrics = new LinkedHashMap<>();
     for (org.sonar.api.measures.Metric metric : metricsRepository.metrics()) {
-      metricsByKey.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), metric.getType()).create());
+      metrics.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), metric.getType()).create());
     }
+    metricsByKey = Collections.unmodifiableMap(metrics);
   }
 
   @Override

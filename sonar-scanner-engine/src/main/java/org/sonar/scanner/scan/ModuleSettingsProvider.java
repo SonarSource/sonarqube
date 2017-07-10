@@ -27,6 +27,7 @@ import java.util.Map;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.report.AnalysisContextReportPublisher;
 import org.sonar.scanner.repository.ProjectRepositories;
@@ -35,15 +36,15 @@ public class ModuleSettingsProvider extends ProviderAdapter {
 
   private ModuleSettings projectSettings;
 
-  public ModuleSettings provide(GlobalConfiguration globalSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectRepos,
+  public ModuleSettings provide(GlobalConfiguration globalSettings, DefaultInputModule module, ProjectRepositories projectRepos,
     AnalysisMode analysisMode, AnalysisContextReportPublisher contextReportPublisher) {
     if (projectSettings == null) {
 
       Map<String, String> settings = new LinkedHashMap<>();
       settings.putAll(globalSettings.getProperties());
-      settings.putAll(addServerSidePropertiesIfModuleExists(projectRepos, moduleDefinition));
-      addScannerSideProperties(settings, moduleDefinition);
-      contextReportPublisher.dumpModuleSettings(moduleDefinition);
+      settings.putAll(addServerSidePropertiesIfModuleExists(projectRepos, module.definition()));
+      addScannerSideProperties(settings, module.definition());
+      contextReportPublisher.dumpModuleSettings(module);
 
       projectSettings = new ModuleSettings(globalSettings.getDefinitions(), globalSettings.getEncryption(), analysisMode, settings);
     }

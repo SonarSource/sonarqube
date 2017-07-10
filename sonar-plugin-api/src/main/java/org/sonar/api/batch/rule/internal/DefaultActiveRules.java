@@ -20,7 +20,6 @@
 package org.sonar.api.batch.rule.internal;
 
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ListMultimap;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
@@ -28,35 +27,32 @@ import org.sonar.api.rule.RuleKey;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 @Immutable
 public class DefaultActiveRules implements ActiveRules {
-
-  // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
-  private final ListMultimap<String, ActiveRule> activeRulesByRepository;
+  private final ImmutableListMultimap<String, ActiveRule> activeRulesByRepository;
   private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndKey = new HashMap<>();
   private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndInternalKey = new HashMap<>();
-  private final ListMultimap<String, ActiveRule> activeRulesByLanguage;
+  private final ImmutableListMultimap<String, ActiveRule> activeRulesByLanguage;
 
   public DefaultActiveRules(Collection<NewActiveRule> newActiveRules) {
     ImmutableListMultimap.Builder<String, ActiveRule> repoBuilder = ImmutableListMultimap.builder();
     ImmutableListMultimap.Builder<String, ActiveRule> langBuilder = ImmutableListMultimap.builder();
     for (NewActiveRule newAR : newActiveRules) {
       DefaultActiveRule ar = new DefaultActiveRule(newAR);
-      repoBuilder.put(ar.ruleKey().repository(), ar);
+      String repo = ar.ruleKey().repository();
+      repoBuilder.put(repo, ar);
       if (ar.language() != null) {
         langBuilder.put(ar.language(), ar);
       }
-      if (!activeRulesByRepositoryAndKey.containsKey(ar.ruleKey().repository())) {
-        activeRulesByRepositoryAndKey.put(ar.ruleKey().repository(), new HashMap<String, ActiveRule>());
-        activeRulesByRepositoryAndInternalKey.put(ar.ruleKey().repository(), new HashMap<String, ActiveRule>());
-      }
-      activeRulesByRepositoryAndKey.get(ar.ruleKey().repository()).put(ar.ruleKey().rule(), ar);
+
+      activeRulesByRepositoryAndKey.computeIfAbsent(repo, r -> new HashMap<>()).put(ar.ruleKey().rule(), ar);
       String internalKey = ar.internalKey();
       if (internalKey != null) {
-        activeRulesByRepositoryAndInternalKey.get(ar.ruleKey().repository()).put(internalKey, ar);
+        activeRulesByRepositoryAndInternalKey.computeIfAbsent(repo, r -> new HashMap<>()).put(internalKey, ar);
       }
     }
     activeRulesByRepository = repoBuilder.build();
@@ -65,11 +61,8 @@ public class DefaultActiveRules implements ActiveRules {
 
   @Override
   public ActiveRule find(RuleKey ruleKey) {
-    Map<String, ActiveRule> map = activeRulesByRepositoryAndKey.get(ruleKey.repository());
-    if(map != null) {
-      return map.get(ruleKey.rule());
-    }
-    return null;
+    return activeRulesByRepositoryAndKey.getOrDefault(ruleKey.repository(), Collections.emptyMap())
+      .get(ruleKey.rule());
   }
 
   @Override

@@ -20,6 +20,8 @@
 package org.sonar.scanner.scan.report;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.rule.Rule;
@@ -27,6 +29,7 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 
 @ScannerSide
+@Immutable
 public class RuleNameProvider {
   private Rules rules;
 

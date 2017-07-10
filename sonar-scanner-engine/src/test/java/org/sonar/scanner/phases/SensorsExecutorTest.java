@@ -19,26 +19,29 @@
  */
 package org.sonar.scanner.phases;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.sensor.SensorStrategy;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SensorsExecutorTest {
   @Rule
@@ -83,12 +86,17 @@ public class SensorsExecutorTest {
     when(selector.selectSensors(any(DefaultInputModule.class), eq(false))).thenReturn(Collections.singleton(perModuleSensor));
     when(selector.selectSensors(any(DefaultInputModule.class), eq(true))).thenReturn(Collections.singleton(globalSensor));
 
-    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder());
-    rootModuleExecutor = new SensorsExecutor(selector, rootModule, mock(EventBus.class), strategy);
+    ProjectDefinition childDef = ProjectDefinition.create().setKey("sub").setBaseDir(temp.newFolder());
+    ProjectDefinition rootDef = ProjectDefinition.create().setKey("root").setBaseDir(temp.newFolder());
 
-    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule("sub", temp.newFolder());
-    rootModule.definition().addSubProject(subModule.definition());
-    subModuleExecutor = new SensorsExecutor(selector, subModule, mock(EventBus.class), strategy);
+    DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
+    DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(childDef);
+
+    InputModuleHierarchy hierarchy = mock(InputModuleHierarchy.class);
+    when(hierarchy.isRoot(rootModule)).thenReturn(true);
+
+    rootModuleExecutor = new SensorsExecutor(selector, rootModule, hierarchy, mock(EventBus.class), strategy);
+    subModuleExecutor = new SensorsExecutor(selector, subModule, hierarchy, mock(EventBus.class), strategy);
   }
 
   @Test

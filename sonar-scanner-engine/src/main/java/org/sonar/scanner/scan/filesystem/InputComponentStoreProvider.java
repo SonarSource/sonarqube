@@ -17,39 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.fs.internal;
+package org.sonar.scanner.scan.filesystem;
 
-import org.junit.Test;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.scan.filesystem.PathResolver;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class InputComponentStoreProvider extends ProviderAdapter {
+  private InputComponentStore store;
 
-public class IntArrayListTest {
-
-  @Test
-  public void addElements() {
-    IntArrayList list = new IntArrayList();
-    assertThat(list.trimAndGet()).isEmpty();
-    list.add(1);
-    list.add(2);
-    assertThat(list.trimAndGet()).containsExactly(1, 2);
-  }
-
-  @Test
-  public void trimIfNeeded() {
-    IntArrayList list = new IntArrayList();
-    list.add(1);
-    list.add(2);
-    assertThat(list.trimAndGet()).isSameAs(list.trimAndGet());
-  }
-
-  @Test
-  public void grow() {
-    // Default capacity is 10
-    IntArrayList list = new IntArrayList();
-    for (int i = 1; i <= 11; i++) {
-      list.add(i);
+  public InputComponentStore provide(PathResolver pathResolver, InputModuleHierarchy hierarchy) {
+    if (store == null) {
+      store = new InputComponentStore(pathResolver, hierarchy.root());
     }
-    assertThat(list.trimAndGet()).hasSize(11);
+    return store;
   }
-
 }

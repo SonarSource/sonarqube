@@ -21,7 +21,10 @@ package org.sonar.scanner.repository.language;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
+
 import org.picocontainer.Startable;
 import org.sonar.api.resources.Languages;
 
@@ -29,6 +32,7 @@ import org.sonar.api.resources.Languages;
  * Languages repository using {@link Languages}
  * @since 4.4
  */
+@Immutable
 public class DefaultLanguagesRepository implements LanguagesRepository, Startable {
 
   private Languages languages;

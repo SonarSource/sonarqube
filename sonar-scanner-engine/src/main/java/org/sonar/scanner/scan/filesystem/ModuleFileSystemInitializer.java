@@ -22,6 +22,7 @@ package org.sonar.scanner.scan.filesystem;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;

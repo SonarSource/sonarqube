@@ -66,7 +66,7 @@ public class TestInputFileBuilder {
   private int lastValidOffset = -1;
   private String hash;
   private int nonBlankLines;
-  private int[] originalLineOffsets;
+  private int[] originalLineOffsets = new int[0];
   private boolean publish = true;
   private String contents;
 
@@ -194,8 +194,7 @@ public class TestInputFileBuilder {
   }
 
   public DefaultInputFile build() {
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, id);
-    indexedFile.setLanguage(language);
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, language, id);
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
       f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)),
       contents);
@@ -206,8 +205,11 @@ public class TestInputFileBuilder {
   }
 
   public static DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
-    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey);
-    definition.setBaseDir(baseDir);
-    return new DefaultInputModule(definition, TestInputFileBuilder.nextBatchId());
+    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey).setBaseDir(baseDir);
+    return newDefaultInputModule(definition);
+  }
+
+  public static DefaultInputModule newDefaultInputModule(ProjectDefinition projectDefinition) {
+    return new DefaultInputModule(projectDefinition, TestInputFileBuilder.nextBatchId());
   }
 }

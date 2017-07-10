@@ -39,7 +39,7 @@ public class RulesProfileProviderTest {
 
   @Test
   public void merge_profiles() {
-    QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
+    QProfile qProfile = new QProfile("java-sw", "Sonar way", "java", null);
     when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
 
     RulesProfile profile = provider.provide(qProfiles, new ActiveRulesBuilder().build(), settings.asConfig());
@@ -61,7 +61,7 @@ public class RulesProfileProviderTest {
   public void keep_compatibility_with_single_language_projects() {
     settings.setProperty("sonar.language", "java");
 
-    QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
+    QProfile qProfile = new QProfile("java-sw", "Sonar way", "java", null);
     when(qProfiles.findByLanguage("java")).thenReturn(qProfile);
 
     RulesProfile profile = provider.provide(qProfiles, new ActiveRulesBuilder().build(), settings.asConfig());
@@ -74,7 +74,7 @@ public class RulesProfileProviderTest {
 
   @Test
   public void support_rule_templates() {
-    QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
+    QProfile qProfile = new QProfile("java-sw", "Sonar way", "java", null);
     when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
     ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
     activeRulesBuilder.create(RuleKey.of("java", "S001")).setTemplateRuleKey("T001").setLanguage("java").activate();

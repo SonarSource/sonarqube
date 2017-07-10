@@ -22,12 +22,14 @@ package org.sonar.api.batch.debt;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.Duration;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * @since 4.3
  * @deprecated since 6.5 debt model will soon be unavailable on batch side
  */
 @Deprecated
+@Immutable
 public class DebtRemediationFunction {
 
   public enum Type {

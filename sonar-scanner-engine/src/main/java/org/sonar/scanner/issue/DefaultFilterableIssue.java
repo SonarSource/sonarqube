@@ -20,6 +20,9 @@
 package org.sonar.scanner.issue;
 
 import java.util.Date;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputModule;
@@ -29,6 +32,7 @@ import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
 
+@ThreadSafe
 public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
   private final ProjectAnalysisInfo projectAnalysisInfo;

@@ -19,10 +19,13 @@
  */
 package org.sonar.api.utils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -54,12 +57,12 @@ import org.apache.commons.lang.StringUtils;
  * <a href="https://github.com/JetBrains/intellij-community/blob/idea/107.743/platform/util/src/com/intellij/openapi/util/io/FileUtil.java#L847">FileUtil</a>
  * from IntelliJ OpenAPI.
  * 
- * 
  * @since 1.10
  */
+@ThreadSafe
 public class WildcardPattern {
 
-  private static final Map<String, WildcardPattern> CACHE = new HashMap<>();
+  private static final Map<String, WildcardPattern> CACHE = Collections.synchronizedMap(new HashMap<>());
   private static final String SPECIAL_CHARS = "()[]^$.{}+|";
 
   private Pattern pattern;
@@ -196,11 +199,6 @@ public class WildcardPattern {
    */
   public static WildcardPattern create(String pattern, String directorySeparator) {
     String key = pattern + directorySeparator;
-    WildcardPattern wildcardPattern = CACHE.get(key);
-    if (wildcardPattern == null) {
-      wildcardPattern = new WildcardPattern(pattern, directorySeparator);
-      CACHE.put(key, wildcardPattern);
-    }
-    return wildcardPattern;
+    return CACHE.computeIfAbsent(key, k -> new WildcardPattern(pattern, directorySeparator));
   }
 }

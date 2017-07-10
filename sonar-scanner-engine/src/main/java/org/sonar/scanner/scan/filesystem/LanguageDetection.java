@@ -19,29 +19,34 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
-import com.google.common.base.Joiner;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.language.Language;
 import org.sonar.scanner.repository.language.LanguagesRepository;
 
+import com.google.common.base.Joiner;
+
 /**
  * Detect language of a source file based on its suffix and configured patterns.
  */
 @ScannerSide
+@ThreadSafe
 public class LanguageDetection {
 
   private static final Logger LOG = LoggerFactory.getLogger(LanguageDetection.class);
@@ -49,16 +54,17 @@ public class LanguageDetection {
   /**
    * Lower-case extension -> languages
    */
-  private final Map<String, PathPattern[]> patternsByLanguage = new LinkedHashMap<>();
-  private final List<String> languagesToConsider = new ArrayList<>();
+  private final Map<String, PathPattern[]> patternsByLanguage;
+  private final List<String> languagesToConsider;
   private final String forcedLanguage;
 
   public LanguageDetection(Configuration settings, LanguagesRepository languages) {
+    Map<String, PathPattern[]> patternsByLanguageBuilder = new LinkedHashMap<>();
     for (Language language : languages.all()) {
       String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.key()));
       PathPattern[] pathPatterns = PathPattern.create(filePatterns);
       if (pathPatterns.length > 0) {
-        patternsByLanguage.put(language.key(), pathPatterns);
+        patternsByLanguageBuilder.put(language.key(), pathPatterns);
       } else {
         // If no custom language pattern is defined then fallback to suffixes declared by language
         String[] patterns = language.fileSuffixes().toArray(new String[language.fileSuffixes().size()]);
@@ -68,22 +74,24 @@ public class LanguageDetection {
           patterns[i] = new StringBuilder().append("**/*.").append(extension).toString();
         }
         PathPattern[] defaultLanguagePatterns = PathPattern.create(patterns);
-        patternsByLanguage.put(language.key(), defaultLanguagePatterns);
-        LOG.debug("Declared extensions of language {} were converted to {}", language, getDetails(language.key()));
+        patternsByLanguageBuilder.put(language.key(), defaultLanguagePatterns);
+        LOG.debug("Declared extensions of language {} were converted to {}", language, getDetails(language.key(), defaultLanguagePatterns));
       }
     }
 
     forcedLanguage = StringUtils.defaultIfBlank(settings.get(CoreProperties.PROJECT_LANGUAGE_PROPERTY).orElse(null), null);
     // First try with lang patterns
     if (forcedLanguage != null) {
-      if (!patternsByLanguage.containsKey(forcedLanguage)) {
+      if (!patternsByLanguageBuilder.containsKey(forcedLanguage)) {
         throw MessageException.of("You must install a plugin that supports the language '" + forcedLanguage + "'");
       }
       LOG.info("Language is forced to {}", forcedLanguage);
-      languagesToConsider.add(forcedLanguage);
+      languagesToConsider = Collections.singletonList(forcedLanguage);
     } else {
-      languagesToConsider.addAll(patternsByLanguage.keySet());
+      languagesToConsider = Collections.unmodifiableList(new ArrayList<>(patternsByLanguageBuilder.keySet()));
     }
+
+    patternsByLanguage = Collections.unmodifiableMap(patternsByLanguageBuilder);
   }
 
   public String forcedLanguage() {
@@ -95,16 +103,16 @@ public class LanguageDetection {
   }
 
   @CheckForNull
-  String language(DefaultIndexedFile inputFile) {
+  String language(String absolutePath, String relativePath) {
     String detectedLanguage = null;
     for (String languageKey : languagesToConsider) {
-      if (isCandidateForLanguage(inputFile, languageKey)) {
+      if (isCandidateForLanguage(absolutePath, relativePath, languageKey)) {
         if (detectedLanguage == null) {
           detectedLanguage = languageKey;
         } else {
           // Language was already forced by another pattern
           throw MessageException.of(MessageFormat.format("Language of file ''{0}'' can not be decided as the file matches patterns of both {1} and {2}",
-            inputFile.relativePath(), getDetails(detectedLanguage), getDetails(languageKey)));
+            relativePath, getDetails(detectedLanguage), getDetails(languageKey)));
         }
       }
     }
@@ -120,11 +128,11 @@ public class LanguageDetection {
     return null;
   }
 
-  private boolean isCandidateForLanguage(DefaultIndexedFile inputFile, String languageKey) {
+  private boolean isCandidateForLanguage(String absolutePath, String relativePath, String languageKey) {
     PathPattern[] patterns = patternsByLanguage.get(languageKey);
     if (patterns != null) {
       for (PathPattern pathPattern : patterns) {
-        if (pathPattern.match(inputFile, false)) {
+        if (pathPattern.match(absolutePath, relativePath, false)) {
           return true;
         }
       }
@@ -137,7 +145,11 @@ public class LanguageDetection {
   }
 
   private String getDetails(String detectedLanguage) {
-    return getFileLangPatternPropKey(detectedLanguage) + " : " + Joiner.on(",").join(patternsByLanguage.get(detectedLanguage));
+    return getDetails(detectedLanguage, patternsByLanguage.get(detectedLanguage));
+  }
+
+  private static String getDetails(String detectedLanguage, PathPattern[] patterns) {
+    return getFileLangPatternPropKey(detectedLanguage) + " : " + Joiner.on(",").join(patterns);
   }
 
   static String sanitizeExtension(String suffix) {

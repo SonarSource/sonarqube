@@ -60,14 +60,13 @@ public class InputFileBuilder {
       LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.toAbsolutePath(), moduleBaseDir);
       return null;
     }
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, idGenerator.get());
-    String language = langDetection.language(indexedFile);
+    String language = langDetection.language(file.toAbsolutePath().normalize().toString(), relativePath);
     if (language == null && langDetection.forcedLanguage() != null) {
       LOG.warn("File '{}' is ignored because it doesn't belong to the forced language '{}'", file.toAbsolutePath(), langDetection.forcedLanguage());
       return null;
     }
-    indexedFile.setLanguage(language);
 
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleKey, moduleBaseDir, relativePath, type, language, idGenerator.get());
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile, f -> metadataGenerator.setMetadata(f, defaultEncoding));
     if (language != null) {
       inputFile.setPublish(true);

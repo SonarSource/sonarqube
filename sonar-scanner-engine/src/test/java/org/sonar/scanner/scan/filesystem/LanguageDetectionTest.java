@@ -19,25 +19,25 @@
  */
 package org.sonar.scanner.scan.filesystem;
 
+import static junit.framework.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+
 import java.io.File;
 import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.fs.internal.DefaultIndexedFile;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.repository.language.DefaultLanguagesRepository;
 import org.sonar.scanner.repository.language.LanguagesRepository;
-
-import static junit.framework.Assert.fail;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.spy;
 
 public class LanguageDetectionTest {
 
@@ -67,23 +67,23 @@ public class LanguageDetectionTest {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("java", "java", "jav"), new MockLanguage("cobol", "cbl", "cob")));
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
 
-    assertThat(detection.language(newIndexedFile("Foo.java"))).isEqualTo("java");
-    assertThat(detection.language(newIndexedFile("src/Foo.java"))).isEqualTo("java");
-    assertThat(detection.language(newIndexedFile("Foo.JAVA"))).isEqualTo("java");
-    assertThat(detection.language(newIndexedFile("Foo.jav"))).isEqualTo("java");
-    assertThat(detection.language(newIndexedFile("Foo.Jav"))).isEqualTo("java");
+    assertThat(detectLanguage(detection, "Foo.java")).isEqualTo("java");
+    assertThat(detectLanguage(detection, "src/Foo.java")).isEqualTo("java");
+    assertThat(detectLanguage(detection, "Foo.JAVA")).isEqualTo("java");
+    assertThat(detectLanguage(detection, "Foo.jav")).isEqualTo("java");
+    assertThat(detectLanguage(detection, "Foo.Jav")).isEqualTo("java");
 
-    assertThat(detection.language(newIndexedFile("abc.cbl"))).isEqualTo("cobol");
-    assertThat(detection.language(newIndexedFile("abc.CBL"))).isEqualTo("cobol");
+    assertThat(detectLanguage(detection, "abc.cbl")).isEqualTo("cobol");
+    assertThat(detectLanguage(detection, "abc.CBL")).isEqualTo("cobol");
 
-    assertThat(detection.language(newIndexedFile("abc.php"))).isNull();
-    assertThat(detection.language(newIndexedFile("abc"))).isNull();
+    assertThat(detectLanguage(detection, "abc.php")).isNull();
+    assertThat(detectLanguage(detection, "abc")).isNull();
   }
 
   @Test
   public void should_not_fail_if_no_language() throws Exception {
     LanguageDetection detection = spy(new LanguageDetection(settings.asConfig(), new DefaultLanguagesRepository(new Languages())));
-    assertThat(detection.language(newIndexedFile("Foo.java"))).isNull();
+    assertThat(detectLanguage(detection, "Foo.java")).isNull();
   }
 
   @Test
@@ -91,7 +91,7 @@ public class LanguageDetectionTest {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("abap", "abap", "ABAP")));
 
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
-    assertThat(detection.language(newIndexedFile("abc.abap"))).isEqualTo("abap");
+    assertThat(detectLanguage(detection, "abc.abap")).isEqualTo("abap");
   }
 
   @Test
@@ -102,15 +102,15 @@ public class LanguageDetectionTest {
 
     // No side-effect on non-ABAP projects
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
-    assertThat(detection.language(newIndexedFile("abc"))).isNull();
-    assertThat(detection.language(newIndexedFile("abc.abap"))).isNull();
-    assertThat(detection.language(newIndexedFile("abc.java"))).isEqualTo("java");
+    assertThat(detectLanguage(detection, "abc")).isNull();
+    assertThat(detectLanguage(detection, "abc.abap")).isNull();
+    assertThat(detectLanguage(detection, "abc.java")).isEqualTo("java");
 
     settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "abap");
     detection = new LanguageDetection(settings.asConfig(), languages);
-    assertThat(detection.language(newIndexedFile("abc"))).isEqualTo("abap");
-    assertThat(detection.language(newIndexedFile("abc.txt"))).isEqualTo("abap");
-    assertThat(detection.language(newIndexedFile("abc.java"))).isEqualTo("abap");
+    assertThat(detectLanguage(detection, "abc")).isEqualTo("abap");
+    assertThat(detectLanguage(detection, "abc.txt")).isEqualTo("abap");
+    assertThat(detectLanguage(detection, "abc.java")).isEqualTo("abap");
   }
 
   @Test
@@ -119,10 +119,10 @@ public class LanguageDetectionTest {
 
     settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "java");
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
-    assertThat(detection.language(newIndexedFile("abc"))).isNull();
-    assertThat(detection.language(newIndexedFile("abc.php"))).isNull();
-    assertThat(detection.language(newIndexedFile("abc.java"))).isEqualTo("java");
-    assertThat(detection.language(newIndexedFile("src/abc.java"))).isEqualTo("java");
+    assertThat(detectLanguage(detection, "abc")).isNull();
+    assertThat(detectLanguage(detection, "abc.php")).isNull();
+    assertThat(detectLanguage(detection, "abc.java")).isEqualTo("java");
+    assertThat(detectLanguage(detection, "src/abc.java")).isEqualTo("java");
   }
 
   @Test
@@ -140,7 +140,7 @@ public class LanguageDetectionTest {
     LanguagesRepository languages = new DefaultLanguagesRepository(new Languages(new MockLanguage("xml", "xhtml"), new MockLanguage("web", "xhtml")));
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
     try {
-      detection.language(newIndexedFile("abc.xhtml"));
+      detectLanguage(detection, "abc.xhtml");
       fail();
     } catch (MessageException e) {
       assertThat(e.getMessage())
@@ -157,8 +157,8 @@ public class LanguageDetectionTest {
     settings.setProperty("sonar.lang.patterns.xml", "xml/**");
     settings.setProperty("sonar.lang.patterns.web", "web/**");
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
-    assertThat(detection.language(newIndexedFile("xml/abc.xhtml"))).isEqualTo("xml");
-    assertThat(detection.language(newIndexedFile("web/abc.xhtml"))).isEqualTo("web");
+    assertThat(detectLanguage(detection, "xml/abc.xhtml")).isEqualTo("xml");
+    assertThat(detectLanguage(detection, "web/abc.xhtml")).isEqualTo("web");
   }
 
   @Test
@@ -169,10 +169,10 @@ public class LanguageDetectionTest {
 
     LanguageDetection detection = new LanguageDetection(settings.asConfig(), languages);
 
-    assertThat(detection.language(newIndexedFile("abc.abap"))).isEqualTo("abap");
-    assertThat(detection.language(newIndexedFile("abc.cobol"))).isEqualTo("cobol");
+    assertThat(detectLanguage(detection, "abc.abap")).isEqualTo("abap");
+    assertThat(detectLanguage(detection, "abc.cobol")).isEqualTo("cobol");
     try {
-      detection.language(newIndexedFile("abc.txt"));
+      detectLanguage(detection, "abc.txt");
       fail();
     } catch (MessageException e) {
       assertThat(e.getMessage())
@@ -182,9 +182,8 @@ public class LanguageDetectionTest {
     }
   }
 
-  private DefaultIndexedFile newIndexedFile(String path) throws IOException {
-    File basedir = temp.newFolder();
-    return new DefaultIndexedFile("foo", basedir.toPath(), path);
+  private String detectLanguage(LanguageDetection detection, String path) {
+    return detection.language(new File(temp.getRoot(), path).getAbsolutePath(), path);
   }
 
   static class MockLanguage implements Language {

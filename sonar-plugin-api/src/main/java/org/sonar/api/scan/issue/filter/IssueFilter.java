@@ -19,6 +19,9 @@
  */
 package org.sonar.api.scan.issue.filter;
 
+
+import javax.annotation.concurrent.ThreadSafe;
+
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
 import org.sonarsource.api.sonarlint.SonarLintSide;
@@ -27,6 +30,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 @ExtensionPoint
 @FunctionalInterface
+@ThreadSafe
 /**
  * @since 5.3
  */
@@ -40,6 +44,9 @@ public interface IssueFilter {
    * </ul>
    * The <code>chain</code> parameter allows for fine control of the filtering logic: it is each filter's duty to either pass the issue to the next filter, by calling
    * the {@link IssueFilterChain#accept} method, or return directly if the issue has to be accepted or not
+   * 
+   * Implementations should be thread safe.
+   * 
    * @param issue the issue being filtered
    * @param chain the rest of the filters
    * @return <code>true</code> to accept the issue, <code>false</code> to reject it, {@link IssueFilterChain#accept} to let the other filters decide.

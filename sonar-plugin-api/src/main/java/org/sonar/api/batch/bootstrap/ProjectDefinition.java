@@ -36,6 +36,8 @@ import org.sonar.api.CoreProperties;
  * {@link org.sonar.api.batch.bootstrap.ProjectBuilder extension point} and must not be used
  * by other standard extensions.
  *
+ * Since 6.5, plugins should no longer manipulate the project's structure.
+ *
  * @since 2.9
  */
 public class ProjectDefinition {

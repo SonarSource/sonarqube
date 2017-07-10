@@ -19,6 +19,8 @@
  */
 package org.sonar.api.scan.issue.filter;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * A filter chain is an object provided to issues filters for fine control over the filtering logic. Each filter has the choice to:
  * <ul>
@@ -29,6 +31,7 @@ package org.sonar.api.scan.issue.filter;
  * 
  * @since 5.3
  */
+@ThreadSafe
 public interface IssueFilterChain {
   /**
    * Called by a filter to let downstream filters decide the fate of the issue

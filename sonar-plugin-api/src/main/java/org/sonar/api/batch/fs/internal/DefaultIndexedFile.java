@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
 import org.sonar.api.batch.fs.IndexedFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.utils.PathUtils;
@@ -33,35 +36,34 @@ import org.sonar.api.utils.PathUtils;
 /**
  * @since 6.3
  */
+@Immutable
 public class DefaultIndexedFile extends DefaultInputComponent implements IndexedFile {
   private final String relativePath;
   private final String moduleKey;
   private final Path moduleBaseDir;
-  private String language;
+  private final String language;
   private final Type type;
+  private final Path path;
 
   /**
    * Testing purposes only!
    */
-  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath) {
-    this(moduleKey, moduleBaseDir, relativePath, TestInputFileBuilder.nextBatchId());
+  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, @Nullable String language) {
+    this(moduleKey, moduleBaseDir, relativePath, language, TestInputFileBuilder.nextBatchId());
   }
 
-  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, int batchId) {
-    this(moduleKey, moduleBaseDir, relativePath, Type.MAIN, batchId);
+  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, @Nullable String language, int batchId) {
+    this(moduleKey, moduleBaseDir, relativePath, Type.MAIN, language, batchId);
   }
 
-  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, Type type, int batchId) {
+  public DefaultIndexedFile(String moduleKey, Path moduleBaseDir, String relativePath, Type type, @Nullable String language, int batchId) {
     super(batchId);
     this.moduleKey = moduleKey;
     this.relativePath = PathUtils.sanitize(relativePath);
     this.moduleBaseDir = moduleBaseDir.normalize();
     this.type = type;
-  }
-
-  public DefaultIndexedFile setLanguage(@Nullable String language) {
     this.language = language;
-    return this;
+    this.path = this.moduleBaseDir.resolve(this.relativePath);
   }
 
   @Override
@@ -81,7 +83,7 @@ public class DefaultIndexedFile extends DefaultInputComponent implements Indexed
 
   @Override
   public Path path() {
-    return moduleBaseDir.resolve(relativePath);
+    return path;
   }
 
   @Override

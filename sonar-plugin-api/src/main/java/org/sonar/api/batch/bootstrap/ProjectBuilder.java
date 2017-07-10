@@ -33,17 +33,20 @@ import org.sonar.api.batch.ScannerSide;
  *   <li>Change project metadata like description or source directories.</li>
  * </ul>
  *
+ * @deprecated since 6.5. It won't be possible to manipulate the project's structure.
  * @since 2.9
  */
 @ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ExtensionPoint
+@Deprecated
 public abstract class ProjectBuilder {
 
   /**
    * Plugins can use the implementation {@link org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext}
    * for their unit tests.
    */
+  @Deprecated
   public interface Context {
     ProjectReactor projectReactor();
   }

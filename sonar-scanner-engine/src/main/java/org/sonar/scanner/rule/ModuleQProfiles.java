@@ -19,19 +19,24 @@
  */
 package org.sonar.scanner.rule;
 
+import org.sonar.api.utils.DateUtils;
+
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonar.api.batch.ScannerSide;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.utils.DateUtils;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 /**
  * Lists the Quality profiles enabled on the current module.
  */
 @ScannerSide
+@Immutable
 public class ModuleQProfiles {
 
   public static final String SONAR_PROFILE_PROP = "sonar.profile";
@@ -42,11 +47,11 @@ public class ModuleQProfiles {
 
     for (QualityProfile qProfile : profiles) {
       map.put(qProfile.getLanguage(),
-        new QProfile()
+        new QProfile.Builder()
           .setKey(qProfile.getKey())
           .setName(qProfile.getName())
           .setLanguage(qProfile.getLanguage())
-          .setRulesUpdatedAt(DateUtils.parseDateTime(qProfile.getRulesUpdatedAt())));
+          .setRulesUpdatedAt(DateUtils.parseDateTime(qProfile.getRulesUpdatedAt())).build());
     }
     byLanguage = Collections.unmodifiableMap(map);
   }

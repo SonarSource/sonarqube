@@ -21,6 +21,7 @@ package org.sonar.scanner;
 
 import java.util.Date;
 import java.util.Optional;
+
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.ScannerSide;
@@ -31,6 +32,8 @@ import org.sonar.api.utils.System2;
 
 /**
  * @since 6.3
+ * 
+ * Immutable after {@link #start()}
  */
 @ScannerSide
 public class ProjectAnalysisInfo implements Startable {
