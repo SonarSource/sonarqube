@@ -1,4 +1,4 @@
-
+package workerCount;
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -24,7 +24,7 @@ import org.sonar.ce.configuration.WorkerCountProvider;
 
 public class FakeWorkerCountProviderImpl implements WorkerCountProvider {
 
-  private static final String PROPERTY_WORKER_COUNT = "fakeGovernance.workerCount";
+  static final String PROPERTY_WORKER_COUNT = "fakeGovernance.workerCount";
 
   private final Configuration configuration;
 
