@@ -17,20 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
-import { shallow } from 'enzyme';
-import GraphsTooltipsContent from '../GraphsTooltipsContent';
+import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
+import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
-const DEFAULT_PROPS = {
-  serie: {
-    name: 'code_smells',
-    translatedName: 'metric.code_smells.name',
-    style: 1
-  },
-  translatedName: 'Code Smells',
-  value: '1.2k'
+type Props = {
+  serie: Serie,
+  translatedName: string,
+  value: string
 };
 
-it('should render correctly', () => {
-  expect(shallow(<GraphsTooltipsContent {...DEFAULT_PROPS} />)).toMatchSnapshot();
-});
+export default function PreviewGraphTooltipsContent({ serie, translatedName, value }: Props) {
+  return (
+    <tr className="overview-analysis-graph-tooltip-line">
+      <td className="thin">
+        <ChartLegendIcon
+          className={'little-spacer-right line-chart-legend line-chart-legend-' + serie.style}
+        />
+      </td>
+      <td className="overview-analysis-graph-tooltip-value text-right little-spacer-right thin">
+        {value}
+      </td>
+      <td className="text-ellipsis">{translatedName}</td>
+    </tr>
+  );
+}

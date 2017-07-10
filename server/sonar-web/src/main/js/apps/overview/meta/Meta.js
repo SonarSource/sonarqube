@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import MetaKey from './MetaKey';
 import MetaOrganizationKey from './MetaOrganizationKey';
@@ -29,7 +30,7 @@ import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
 import { areThereCustomOrganizations } from '../../../store/rootReducer';
 
-const Meta = ({ component, history, measures, areThereCustomOrganizations }) => {
+const Meta = ({ component, history, measures, areThereCustomOrganizations, router }) => {
   const { qualifier, description, qualityProfiles, qualityGate } = component;
 
   const isProject = qualifier === 'TRK';
@@ -70,7 +71,7 @@ const Meta = ({ component, history, measures, areThereCustomOrganizations }) => 
 
       {shouldShowOrganizationKey && <MetaOrganizationKey component={component} />}
 
-      {isProject && <AnalysesList project={component.key} history={history} />}
+      {isProject && <AnalysesList project={component.key} history={history} router={router} />}
     </div>
   );
 };
@@ -79,4 +80,4 @@ const mapStateToProps = state => ({
   areThereCustomOrganizations: areThereCustomOrganizations(state)
 });
 
-export default connect(mapStateToProps)(Meta);
+export default connect(mapStateToProps)(withRouter(Meta));

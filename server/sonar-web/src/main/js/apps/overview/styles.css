@@ -347,8 +347,34 @@
 
 .overview-analysis-graph {
   display: block;
+  cursor: pointer;
   outline: none;
   border: none;
+}
+
+.overview-analysis-graph .bubble-popup {
+  opacity: 0.8;
+  padding: 0;
+}
+
+.overview-analysis-graph-tooltip {
+  padding: 4px;
+  pointer-events: none;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.overview-analysis-graph-tooltip-line {
+  padding-bottom: 2px;
+}
+
+.overview-analysis-graph-tooltip-title {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.overview-analysis-graph-tooltip-value {
+  font-weight: bold;
 }
 
 .overview-analysis-event {}

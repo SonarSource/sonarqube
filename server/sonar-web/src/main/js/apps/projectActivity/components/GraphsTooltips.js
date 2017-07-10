@@ -26,7 +26,7 @@ import GraphsTooltipsContentEvents from './GraphsTooltipsContentEvents';
 import GraphsTooltipsContentCoverage from './GraphsTooltipsContentCoverage';
 import GraphsTooltipsContentDuplication from './GraphsTooltipsContentDuplication';
 import GraphsTooltipsContentOverview from './GraphsTooltipsContentOverview';
-import type { Event, MeasureHistory } from '../types';
+import type { Event, MeasureHistory, Metric } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
@@ -35,6 +35,7 @@ type Props = {
   graph: string,
   graphWidth: number,
   measuresHistory: Array<MeasureHistory>,
+  metrics: Array<Metric>,
   selectedDate: Date,
   series: Array<Serie & { translatedName: string }>,
   tooltipIdx: number,
@@ -68,19 +69,27 @@ export default class GraphsTooltips extends React.PureComponent {
                 if (!point || (!point.y && point.y !== 0)) {
                   return null;
                 }
-                return this.props.graph === 'overview'
-                  ? <GraphsTooltipsContentOverview
+                if (this.props.graph === 'overview') {
+                  return (
+                    <GraphsTooltipsContentOverview
                       key={serie.name}
                       measuresHistory={measuresHistory}
                       serie={serie}
                       tooltipIdx={tooltipIdx}
                       value={this.props.formatValue(point.y)}
                     />
-                  : <GraphsTooltipsContent
+                  );
+                } else {
+                  const metric = this.props.metrics.find(metric => metric.key === serie.name);
+                  return (
+                    <GraphsTooltipsContent
                       key={serie.name}
                       serie={serie}
+                      translatedName={metric && metric.custom ? metric.name : serie.translatedName}
                       value={this.props.formatValue(point.y)}
-                    />;
+                    />
+                  );
+                }
               })}
             </tbody>
             {this.props.graph === 'coverage' &&

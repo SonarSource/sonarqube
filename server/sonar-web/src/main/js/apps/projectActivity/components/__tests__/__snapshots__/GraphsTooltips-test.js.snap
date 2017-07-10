@@ -42,7 +42,7 @@ exports[`should render correctly for overview graphs 1`] = `
               ],
               "name": "code_smells",
               "style": 1,
-              "translatedName": "Code Smells",
+              "translatedName": "metric.code_smells.name",
             }
           }
           tooltipIdx={0}
@@ -64,7 +64,7 @@ exports[`should render correctly for overview graphs 1`] = `
               ],
               "name": "bugs",
               "style": 0,
-              "translatedName": "Bugs",
+              "translatedName": "metric.bugs.name",
             }
           }
           tooltipIdx={0}
@@ -86,7 +86,7 @@ exports[`should render correctly for overview graphs 1`] = `
               ],
               "name": "vulnerabilities",
               "style": 2,
-              "translatedName": "Vulnerabilities",
+              "translatedName": "metric.vulnerabilities.name",
             }
           }
           tooltipIdx={0}
@@ -139,9 +139,10 @@ exports[`should render correctly for random graphs 1`] = `
               ],
               "name": "code_smells",
               "style": 1,
-              "translatedName": "Code Smells",
+              "translatedName": "metric.code_smells.name",
             }
           }
+          translatedName="metric.code_smells.name"
           value="Formated.15"
         />
         <GraphsTooltipsContent
@@ -159,9 +160,10 @@ exports[`should render correctly for random graphs 1`] = `
               ],
               "name": "bugs",
               "style": 0,
-              "translatedName": "Bugs",
+              "translatedName": "metric.bugs.name",
             }
           }
+          translatedName="metric.bugs.name"
           value="Formated.0"
         />
         <GraphsTooltipsContent
@@ -179,9 +181,10 @@ exports[`should render correctly for random graphs 1`] = `
               ],
               "name": "vulnerabilities",
               "style": 2,
-              "translatedName": "Vulnerabilities",
+              "translatedName": "metric.vulnerabilities.name",
             }
           }
+          translatedName="Vulnerabilities"
           value="Formated.1"
         />
       </tbody>

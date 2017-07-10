@@ -20,25 +20,32 @@
 // @flow
 import React from 'react';
 import { map } from 'lodash';
-import { Link } from 'react-router';
 import { AutoSizer } from 'react-virtualized';
 import { generateSeries, GRAPHS_METRICS_DISPLAYED } from '../../projectActivity/utils';
 import { getGraph } from '../../../helpers/storage';
 import AdvancedTimeline from '../../../components/charts/AdvancedTimeline';
+import PreviewGraphTooltips from './PreviewGraphTooltips';
+import { formatMeasure, getShortType } from '../../../helpers/measures';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 import type { History, Metric } from '../types';
 
 type Props = {
   history: History,
   metrics: Array<Metric>,
-  project: string
+  project: string,
+  router: { replace: ({ pathname: string, query?: {} }) => void }
 };
 
 type State = {
   graph: string,
   metricsType: string,
-  series: Array<Serie>
+  selectedDate: ?Date,
+  series: Array<Serie>,
+  tooltipIdx: ?number,
+  tooltipXPos: ?number
 };
+
+const GRAPH_PADDING = [4, 0, 4, 0];
 
 export default class PreviewGraph extends React.PureComponent {
   props: Props;
@@ -51,7 +58,10 @@ export default class PreviewGraph extends React.PureComponent {
     this.state = {
       graph,
       metricsType,
-      series: this.getSeries(props.history, graph, metricsType)
+      selectedDate: null,
+      series: this.getSeries(props.history, graph, metricsType),
+      tooltipIdx: null,
+      tooltipXPos: null
     };
   }
 
@@ -67,15 +77,18 @@ export default class PreviewGraph extends React.PureComponent {
     }
   }
 
-  getDisplayedMetrics = (graph: string) => {
-    const metrics = GRAPHS_METRICS_DISPLAYED[graph];
+  formatValue = (tick: number | string) =>
+    formatMeasure(tick, getShortType(this.state.metricsType));
+
+  getDisplayedMetrics = (graph: string): Array<string> => {
+    const metrics: Array<string> = GRAPHS_METRICS_DISPLAYED[graph];
     if (!metrics || metrics.length <= 0) {
       return GRAPHS_METRICS_DISPLAYED['overview'];
     }
     return metrics;
   };
 
-  getSeries = (history: History, graph: string, metricsType: string): Array<Serie> => {
+  getSeries = (history: History, graph: string, metricsType: string) => {
     const measureHistory = map(history, (item, key) => ({
       metric: key,
       history: item.filter(p => p.value != null)
@@ -89,14 +102,24 @@ export default class PreviewGraph extends React.PureComponent {
     return metric ? metric.type : 'INT';
   };
 
+  handleClick = () => {
+    this.props.router.replace({ pathname: '/project/activity', query: { id: this.props.project } });
+  };
+
+  updateTooltip = (selectedDate: ?Date, tooltipXPos: ?number, tooltipIdx: ?number) =>
+    this.setState({ selectedDate, tooltipXPos, tooltipIdx });
+
   render() {
+    const { graph, selectedDate, tooltipIdx, tooltipXPos } = this.state;
     return (
-      <div className="big-spacer-bottom spacer-top">
-        <Link
-          className="overview-analysis-graph"
-          to={{ pathname: '/project/activity', query: { id: this.props.project } }}>
-          <AutoSizer disableHeight={true}>
-            {({ width }) => (
+      <div
+        className="overview-analysis-graph big-spacer-bottom spacer-top"
+        onClick={this.handleClick}
+        tabIndex={0}
+        role="link">
+        <AutoSizer disableHeight={true}>
+          {({ width }) => (
+            <div>
               <AdvancedTimeline
                 endDate={null}
                 startDate={null}
@@ -106,13 +129,27 @@ export default class PreviewGraph extends React.PureComponent {
                 hideXAxis={true}
                 interpolate="linear"
                 metricType={this.state.metricsType}
-                padding={[4, 0, 4, 0]}
+                padding={GRAPH_PADDING}
                 series={this.state.series}
-                showAreas={['coverage', 'duplications'].includes(this.state.graph)}
+                showAreas={['coverage', 'duplications'].includes(graph)}
+                updateTooltip={this.updateTooltip}
               />
-            )}
-          </AutoSizer>
-        </Link>
+              {selectedDate != null &&
+                tooltipXPos != null &&
+                tooltipIdx != null &&
+                <PreviewGraphTooltips
+                  formatValue={this.formatValue}
+                  graph={graph}
+                  graphWidth={width}
+                  metrics={this.props.metrics}
+                  selectedDate={selectedDate}
+                  series={this.state.series}
+                  tooltipIdx={tooltipIdx}
+                  tooltipPos={tooltipXPos}
+                />}
+            </div>
+          )}
+        </AutoSizer>
       </div>
     );
   }

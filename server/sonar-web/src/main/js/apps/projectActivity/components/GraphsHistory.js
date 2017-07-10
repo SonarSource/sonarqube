@@ -43,7 +43,7 @@ type Props = {
   metrics: Array<Metric>,
   metricsType: string,
   removeCustomMetric: (metric: string) => void,
-  selectedDate?: ?Date => void,
+  selectedDate: ?Date,
   series: Array<Serie>,
   updateGraphZoom: (from: ?Date, to: ?Date) => void,
   updateSelectedDate: (selectedDate: ?Date) => void
@@ -62,7 +62,8 @@ export default class GraphsHistory extends React.PureComponent {
     tooltipXPos: null
   };
 
-  formatValue = tick => formatMeasure(tick, getShortType(this.props.metricsType));
+  formatValue = (tick: string | number) =>
+    formatMeasure(tick, getShortType(this.props.metricsType));
 
   getEvents = () => {
     const { analyses, eventFilter } = this.props;
@@ -172,6 +173,7 @@ export default class GraphsHistory extends React.PureComponent {
                     graph={graph}
                     graphWidth={width}
                     measuresHistory={this.props.measuresHistory}
+                    metrics={this.props.metrics}
                     selectedDate={selectedDate}
                     series={series}
                     tooltipIdx={tooltipIdx}
