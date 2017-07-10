@@ -131,6 +131,11 @@ public class CeTasksMBeanImplTest {
 
   private static class DumbCeConfiguration implements CeConfiguration {
     @Override
+    public void refresh() {
+      throw new UnsupportedOperationException("Refresh is not implemented");
+    }
+
+    @Override
     public int getWorkerMaxCount() {
       return WORKER_MAX_COUNT;
     }

@@ -20,6 +20,7 @@
 package org.sonar.ce.configuration;
 
 import java.util.Random;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,21 +41,21 @@ public class CeConfigurationImplTest {
   }
 
   @Test
-  public void getWorkerThreadCount_returns_1_when_there_is_no_WorkerCountProvider() {
+  public void getWorkerMaxCount_returns_1_when_there_is_no_WorkerCountProvider() {
     assertThat(new CeConfigurationImpl().getWorkerMaxCount()).isEqualTo(1);
   }
 
   @Test
   public void getWorkerCount_returns_value_returned_by_WorkerCountProvider_when_available() {
-    int value = 1 + Math.abs(new Random().nextInt(10));
+    int value = randomValidWorkerCount();
     workerCountProvider.set(value);
 
     assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerCount()).isEqualTo(value);
   }
 
   @Test
-  public void getWorkerThreadCount_returns_10_whichever_the_value_returned_by_WorkerCountProvider() {
-    int value = 1 + Math.abs(new Random().nextInt(10));
+  public void getWorkerMaxCount_returns_10_whichever_the_value_returned_by_WorkerCountProvider() {
+    int value = randomValidWorkerCount();
     workerCountProvider.set(value);
 
     assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerMaxCount()).isEqualTo(10);
@@ -92,25 +93,69 @@ public class CeConfigurationImplTest {
   private void expectMessageException(int value) {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Worker count '" + value + "' is invalid. " +
-        "It must an integer strictly greater than 0 and less or equal to 10");
+      "It must an integer strictly greater than 0 and less or equal to 10");
   }
 
   @Test
   public void getCleanCeTasksInitialDelay_returns_1() {
     assertThat(new CeConfigurationImpl().getCleanCeTasksInitialDelay())
-        .isEqualTo(1L);
+      .isEqualTo(1L);
     workerCountProvider.set(1);
     assertThat(new CeConfigurationImpl(workerCountProvider).getCleanCeTasksInitialDelay())
-        .isEqualTo(1L);
+      .isEqualTo(1L);
   }
 
   @Test
   public void getCleanCeTasksDelay_returns_10() {
     assertThat(new CeConfigurationImpl().getCleanCeTasksDelay())
-        .isEqualTo(10L);
+      .isEqualTo(10L);
     workerCountProvider.set(1);
     assertThat(new CeConfigurationImpl(workerCountProvider).getCleanCeTasksDelay())
-        .isEqualTo(10L);
+      .isEqualTo(10L);
+  }
+
+  @Test
+  public void refresh_does_not_change_any_value_when_there_is_no_WorkerCountProvider() {
+    CeConfigurationImpl underTest = new CeConfigurationImpl();
+    long cleanCeTasksInitialDelay = underTest.getCleanCeTasksInitialDelay();
+    long cleanCeTasksDelay = underTest.getCleanCeTasksDelay();
+    long queuePollingDelay = underTest.getQueuePollingDelay();
+    int workerThreadCount = underTest.getWorkerMaxCount();
+    int workerCount = underTest.getWorkerCount();
+
+    IntStream.range(0, 1 + abs(new Random().nextInt(10)))
+      .forEach(ignored -> {
+        underTest.refresh();
+        assertThat(underTest.getCleanCeTasksInitialDelay()).isEqualTo(cleanCeTasksInitialDelay);
+        assertThat(underTest.getCleanCeTasksDelay()).isEqualTo(cleanCeTasksDelay);
+        assertThat(underTest.getQueuePollingDelay()).isEqualTo(queuePollingDelay);
+        assertThat(underTest.getWorkerMaxCount()).isEqualTo(workerThreadCount);
+        assertThat(underTest.getWorkerCount()).isEqualTo(workerCount);
+      });
+  }
+
+  @Test
+  public void refresh_updates_only_workerCount_from_WorkerCountProvider_when_there_WorkerCountProvider_is_present() {
+    workerCountProvider.set(randomValidWorkerCount());
+    CeConfigurationImpl underTest = new CeConfigurationImpl(workerCountProvider);
+    long cleanCeTasksInitialDelay = underTest.getCleanCeTasksInitialDelay();
+    long cleanCeTasksDelay = underTest.getCleanCeTasksDelay();
+    long queuePollingDelay = underTest.getQueuePollingDelay();
+    int workerThreadCount = underTest.getWorkerMaxCount();
+
+    IntStream.range(0, 1 + abs(new Random().nextInt(10)))
+      .forEach(ignored -> {
+        int newWorkerCount = randomValidWorkerCount();
+        workerCountProvider.set(newWorkerCount);
+
+        underTest.refresh();
+
+        assertThat(underTest.getCleanCeTasksInitialDelay()).isEqualTo(cleanCeTasksInitialDelay);
+        assertThat(underTest.getCleanCeTasksDelay()).isEqualTo(cleanCeTasksDelay);
+        assertThat(underTest.getQueuePollingDelay()).isEqualTo(queuePollingDelay);
+        assertThat(underTest.getWorkerMaxCount()).isEqualTo(workerThreadCount);
+        assertThat(underTest.getWorkerCount()).isEqualTo(newWorkerCount);
+      });
   }
 
   private static final class SimpleWorkerCountProvider implements WorkerCountProvider {
@@ -124,5 +169,9 @@ public class CeConfigurationImplTest {
     public int get() {
       return value;
     }
+  }
+
+  private static int randomValidWorkerCount() {
+    return 1 + Math.abs(new Random().nextInt(10));
   }
 }
