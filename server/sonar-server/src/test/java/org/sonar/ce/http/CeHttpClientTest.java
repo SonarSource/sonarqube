@@ -57,7 +57,7 @@ public class CeHttpClientTest {
     ipcSharedDir = temp.newFolder();
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, ipcSharedDir.getAbsolutePath());
-    underTest = new CeHttpClient(settings.asConfig());
+    underTest = new CeHttpClientImpl(settings.asConfig());
   }
 
   @Test
