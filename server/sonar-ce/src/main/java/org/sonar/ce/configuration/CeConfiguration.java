@@ -22,6 +22,11 @@ package org.sonar.ce.configuration;
 public interface CeConfiguration {
 
   /**
+   * Requests {@link CeConfiguration} to refresh its state, if it has any.
+   */
+  void refresh();
+
+  /**
    * The maximum number of workers to process CeTasks concurrently, integer strictly greater than 0.
    */
   int getWorkerMaxCount();
