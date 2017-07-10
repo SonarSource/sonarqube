@@ -24,7 +24,7 @@ import moment from 'moment';
 import ProjectActivityPageHeader from './ProjectActivityPageHeader';
 import ProjectActivityAnalysesList from './ProjectActivityAnalysesList';
 import ProjectActivityGraphs from './ProjectActivityGraphs';
-import { getDisplayedHistoryMetrics, activityQueryChanged } from '../utils';
+import { getDisplayedHistoryMetrics } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import './projectActivity.css';
 import type { Analysis, MeasureHistory, Metric, Query } from '../types';
@@ -46,40 +46,8 @@ type Props = {
   updateQuery: (newQuery: Query) => void
 };
 
-type State = {
-  filteredAnalyses: Array<Analysis>
-};
-
 export default class ProjectActivityApp extends React.PureComponent {
   props: Props;
-  state: State;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { filteredAnalyses: this.filterAnalyses(props.analyses, props.query) };
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (
-      nextProps.analyses !== this.props.analyses ||
-      activityQueryChanged(this.props.query, nextProps.query)
-    ) {
-      this.setState({ filteredAnalyses: this.filterAnalyses(nextProps.analyses, nextProps.query) });
-    }
-  }
-
-  filterAnalyses = (analyses: Array<Analysis>, query: Query): Array<Analysis> => {
-    if (!query.category && !query.from && !query.to) {
-      return analyses;
-    }
-    return analyses.filter(analysis => {
-      const isAfterFrom = !query.from || analysis.date >= query.from;
-      const isBeforeTo = !query.to || analysis.date <= query.to;
-      const hasSelectedCategoryEvents =
-        !query.category || analysis.events.find(event => event.category === query.category) != null;
-      return isAfterFrom && isBeforeTo && hasSelectedCategoryEvents;
-    });
-  };
 
   getMetricType = () => {
     const historyMetrics = getDisplayedHistoryMetrics(
@@ -92,8 +60,7 @@ export default class ProjectActivityApp extends React.PureComponent {
   };
 
   render() {
-    const { measuresHistory, query } = this.props;
-    const { filteredAnalyses } = this.state;
+    const { analyses, measuresHistory, query } = this.props;
     const { configuration } = this.props.project;
     const canAdmin = configuration ? configuration.showHistory : false;
     return (
@@ -113,7 +80,7 @@ export default class ProjectActivityApp extends React.PureComponent {
               addCustomEvent={this.props.addCustomEvent}
               addVersion={this.props.addVersion}
               analysesLoading={this.props.analysesLoading}
-              analyses={filteredAnalyses}
+              analyses={analyses}
               canAdmin={canAdmin}
               className="boxed-group-inner"
               changeEvent={this.props.changeEvent}
@@ -126,7 +93,7 @@ export default class ProjectActivityApp extends React.PureComponent {
           </div>
           <div className="project-activity-layout-page-main">
             <ProjectActivityGraphs
-              analyses={filteredAnalyses}
+              analyses={analyses}
               leakPeriodDate={moment(this.props.project.leakPeriodDate).toDate()}
               loading={this.props.graphLoading}
               measuresHistory={measuresHistory}

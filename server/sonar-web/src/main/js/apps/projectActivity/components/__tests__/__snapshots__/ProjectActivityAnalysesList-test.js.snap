@@ -1,0 +1,336 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly filter analyses by category 1`] = `
+<ul
+  className="project-activity-versions-list"
+  onScroll={[Function]}
+>
+  <li>
+    <div
+      className="project-activity-version-badge first"
+    >
+      <span
+        className="badge"
+      >
+        6.4
+      </span>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="Formated.YYYY-MM-DD:2016-9-24"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <FormattedDate
+            date="2016-9-24"
+            format="LL"
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[Function]}
+            addVersion={[Function]}
+            analysis={
+              Object {
+                "date": 2016-10-24T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "QUALITY_GATE",
+                    "key": "E1",
+                    "name": "Quality gate changed to red...",
+                  },
+                ],
+                "key": "A4",
+              }
+            }
+            canAdmin={false}
+            changeEvent={[Function]}
+            deleteAnalysis={[Function]}
+            deleteEvent={[Function]}
+            isFirst={false}
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;
+
+exports[`should correctly filter analyses by date range 1`] = `
+<ul
+  className="project-activity-versions-list"
+  onScroll={[Function]}
+>
+  <li>
+    <div
+      className="project-activity-version-badge first"
+    >
+      <span
+        className="badge"
+      >
+        6.5-SNAPSHOT
+      </span>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="Formated.YYYY-MM-DD:2016-9-27"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <FormattedDate
+            date="2016-9-27"
+            format="LL"
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[Function]}
+            addVersion={[Function]}
+            analysis={
+              Object {
+                "date": 2016-10-27T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E1",
+                    "name": "6.5-SNAPSHOT",
+                  },
+                ],
+                "key": "A1",
+              }
+            }
+            canAdmin={false}
+            changeEvent={[Function]}
+            deleteAnalysis={[Function]}
+            deleteEvent={[Function]}
+            isFirst={true}
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;
+
+exports[`should render correctly 1`] = `
+<ul
+  className="project-activity-versions-list"
+  onScroll={[Function]}
+>
+  <li>
+    <div
+      className="project-activity-version-badge first"
+    >
+      <span
+        className="badge"
+      >
+        6.5-SNAPSHOT
+      </span>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="Formated.YYYY-MM-DD:2016-9-27"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <FormattedDate
+            date="2016-9-27"
+            format="LL"
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[Function]}
+            addVersion={[Function]}
+            analysis={
+              Object {
+                "date": 2016-10-27T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E1",
+                    "name": "6.5-SNAPSHOT",
+                  },
+                ],
+                "key": "A1",
+              }
+            }
+            canAdmin={false}
+            changeEvent={[Function]}
+            deleteAnalysis={[Function]}
+            deleteEvent={[Function]}
+            isFirst={true}
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <div
+      className="project-activity-version-badge"
+    >
+      <span
+        className="badge"
+      >
+        6.4
+      </span>
+    </div>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="Formated.YYYY-MM-DD:2016-9-27"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <FormattedDate
+            date="2016-9-27"
+            format="LL"
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[Function]}
+            addVersion={[Function]}
+            analysis={
+              Object {
+                "date": 2016-10-27T12:21:15.000Z,
+                "events": Array [],
+                "key": "A2",
+              }
+            }
+            canAdmin={false}
+            changeEvent={[Function]}
+            deleteAnalysis={[Function]}
+            deleteEvent={[Function]}
+            isFirst={false}
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+      <li
+        className="project-activity-day"
+        data-day="Formated.YYYY-MM-DD:2016-9-26"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <FormattedDate
+            date="2016-9-26"
+            format="LL"
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[Function]}
+            addVersion={[Function]}
+            analysis={
+              Object {
+                "date": 2016-10-26T12:17:29.000Z,
+                "events": Array [
+                  Object {
+                    "category": "VERSION",
+                    "key": "E2",
+                    "name": "6.4",
+                  },
+                  Object {
+                    "category": "OTHER",
+                    "key": "E3",
+                    "name": "foo",
+                  },
+                ],
+                "key": "A3",
+              }
+            }
+            canAdmin={false}
+            changeEvent={[Function]}
+            deleteAnalysis={[Function]}
+            deleteEvent={[Function]}
+            isFirst={false}
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <ul
+      className="project-activity-days-list"
+    >
+      <li
+        className="project-activity-day"
+        data-day="Formated.YYYY-MM-DD:2016-9-24"
+      >
+        <div
+          className="project-activity-date"
+        >
+          <FormattedDate
+            date="2016-9-24"
+            format="LL"
+          />
+        </div>
+        <ul
+          className="project-activity-analyses-list"
+        >
+          <ProjectActivityAnalysis
+            addCustomEvent={[Function]}
+            addVersion={[Function]}
+            analysis={
+              Object {
+                "date": 2016-10-24T16:33:50.000Z,
+                "events": Array [
+                  Object {
+                    "category": "QUALITY_GATE",
+                    "key": "E1",
+                    "name": "Quality gate changed to red...",
+                  },
+                ],
+                "key": "A4",
+              }
+            }
+            canAdmin={false}
+            changeEvent={[Function]}
+            deleteAnalysis={[Function]}
+            deleteEvent={[Function]}
+            isFirst={false}
+            selected={false}
+            updateSelectedDate={[Function]}
+          />
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+`;

@@ -65,30 +65,48 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.scrollContainer) {
-      const selectedDateChanged = selectedDateQueryChanged(prevProps.query, this.props.query);
-      if (selectedDateChanged || prevProps.analysis !== this.props.analyses) {
-        if (selectedDateChanged && this.props.query.selectedDate) {
-          const selectedDate = this.props.query.selectedDate.valueOf();
-          for (let i = 1; i < this.analyses.length; i++) {
-            if (Number(this.analyses[i].getAttribute('data-date')) === selectedDate) {
-              const containerHeight = this.scrollContainer.offsetHeight - 100;
-              const scrollDiff = Math.abs(
-                this.scrollContainer.scrollTop - this.analyses[i].offsetTop
-              );
-              // Center only the extremities and the ones outside of the container
-              if (scrollDiff > containerHeight || scrollDiff < 100) {
-                this.resetScrollTop(this.analyses[i].offsetTop - containerHeight / 2);
-              }
-              break;
-            }
-          }
-        } else if (activityQueryChanged(prevProps.query, this.props.query)) {
-          this.resetScrollTop(0, true);
-        }
-      }
+    if (!this.scrollContainer) {
+      return;
+    }
+    if (
+      this.props.query.selectedDate &&
+      (selectedDateQueryChanged(prevProps.query, this.props.query) ||
+        prevProps.analyses !== this.props.analyses)
+    ) {
+      this.scrollToDate(this.props.query.selectedDate);
+    } else if (activityQueryChanged(prevProps.query, this.props.query)) {
+      this.resetScrollTop(0, true);
     }
   }
+
+  handleScroll = () => this.updateStickyBadges(true);
+
+  resetScrollTop = (newScrollTop: number, forceBadgeAlignement?: boolean) => {
+    this.scrollContainer.scrollTop = newScrollTop;
+    for (let i = 1; i < this.badges.length; i++) {
+      this.badges[i].removeAttribute('originOffsetTop');
+      this.badges[i].classList.remove('sticky');
+    }
+    this.updateStickyBadges(forceBadgeAlignement);
+  };
+
+  scrollToDate = (targetDate: ?Date) => {
+    if (!this.scrollContainer || !targetDate) {
+      return;
+    }
+    const date = targetDate.valueOf();
+    for (let i = 1; i < this.analyses.length; i++) {
+      if (Number(this.analyses[i].getAttribute('data-date')) === date) {
+        const containerHeight = this.scrollContainer.offsetHeight - 100;
+        const scrollDiff = Math.abs(this.scrollContainer.scrollTop - this.analyses[i].offsetTop);
+        // Center only the extremities and the ones outside of the container
+        if (scrollDiff > containerHeight || scrollDiff < 100) {
+          this.resetScrollTop(this.analyses[i].offsetTop - containerHeight / 2);
+        }
+        break;
+      }
+    }
+  };
 
   updateStickyBadges = (forceBadgeAlignement?: boolean) => {
     if (this.scrollContainer && this.badges) {
@@ -119,23 +137,14 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
     }
   };
 
-  handleScroll = () => this.updateStickyBadges(true);
-
-  resetScrollTop = (newScrollTop: number, forceBadgeAlignement?: boolean) => {
-    this.scrollContainer.scrollTop = newScrollTop;
-    for (let i = 1; i < this.badges.length; i++) {
-      this.badges[i].removeAttribute('originOffsetTop');
-      this.badges[i].classList.remove('sticky');
-    }
-    this.updateStickyBadges(forceBadgeAlignement);
-  };
-
-  updateSelectedDate = (date: Date) => {
-    this.props.updateQuery({ selectedDate: date });
-  };
+  updateSelectedDate = (date: Date) => this.props.updateQuery({ selectedDate: date });
 
   render() {
-    if (this.props.analyses.length === 0) {
+    const byVersionByDay = getAnalysesByVersionByDay(this.props.analyses, this.props.query);
+    const hasFilteredData =
+      byVersionByDay.length > 1 ||
+      (byVersionByDay.length === 1 && Object.keys(byVersionByDay[0].byDay).length > 0);
+    if (this.props.analyses.length === 0 || !hasFilteredData) {
       return (
         <div className={this.props.className}>
           {this.props.loading
@@ -146,7 +155,6 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
     }
 
     const firstAnalysisKey = this.props.analyses[0].key;
-    const byVersionByDay = getAnalysesByVersionByDay(this.props.analyses);
     const selectedDate = this.props.query.selectedDate
       ? this.props.query.selectedDate.valueOf()
       : null;
@@ -155,46 +163,52 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
         className={classNames('project-activity-versions-list', this.props.className)}
         onScroll={this.handleScroll}
         ref={element => (this.scrollContainer = element)}>
-        {byVersionByDay.map((version, idx) => (
-          <li key={version.key || 'noversion'}>
-            {version.version &&
-              <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
-                <span className="badge">
-                  {version.version}
-                </span>
-              </div>}
-            <ul className="project-activity-days-list">
-              {Object.keys(version.byDay).map(day => (
-                <li
-                  key={day}
-                  className="project-activity-day"
-                  data-day={moment(Number(day)).format('YYYY-MM-DD')}>
-                  <div className="project-activity-date">
-                    <FormattedDate date={Number(day)} format="LL" />
-                  </div>
-                  <ul className="project-activity-analyses-list">
-                    {version.byDay[day] != null &&
-                      version.byDay[day].map(analysis => (
-                        <ProjectActivityAnalysis
-                          addCustomEvent={this.props.addCustomEvent}
-                          addVersion={this.props.addVersion}
-                          analysis={analysis}
-                          canAdmin={this.props.canAdmin}
-                          changeEvent={this.props.changeEvent}
-                          deleteAnalysis={this.props.deleteAnalysis}
-                          deleteEvent={this.props.deleteEvent}
-                          isFirst={analysis.key === firstAnalysisKey}
-                          key={analysis.key}
-                          selected={analysis.date.valueOf() === selectedDate}
-                          updateSelectedDate={this.updateSelectedDate}
-                        />
-                      ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
+        {byVersionByDay.map((version, idx) => {
+          const days = Object.keys(version.byDay);
+          if (days.length <= 0) {
+            return null;
+          }
+          return (
+            <li key={version.key || 'noversion'}>
+              {version.version &&
+                <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
+                  <span className="badge">
+                    {version.version}
+                  </span>
+                </div>}
+              <ul className="project-activity-days-list">
+                {days.map(day => (
+                  <li
+                    key={day}
+                    className="project-activity-day"
+                    data-day={moment(Number(day)).format('YYYY-MM-DD')}>
+                    <div className="project-activity-date">
+                      <FormattedDate date={Number(day)} format="LL" />
+                    </div>
+                    <ul className="project-activity-analyses-list">
+                      {version.byDay[day] != null &&
+                        version.byDay[day].map(analysis => (
+                          <ProjectActivityAnalysis
+                            addCustomEvent={this.props.addCustomEvent}
+                            addVersion={this.props.addVersion}
+                            analysis={analysis}
+                            canAdmin={this.props.canAdmin}
+                            changeEvent={this.props.changeEvent}
+                            deleteAnalysis={this.props.deleteAnalysis}
+                            deleteEvent={this.props.deleteEvent}
+                            isFirst={analysis.key === firstAnalysisKey}
+                            key={analysis.key}
+                            selected={analysis.date.valueOf() === selectedDate}
+                            updateSelectedDate={this.updateSelectedDate}
+                          />
+                        ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        })}
         {this.props.analysesLoading && <li className="text-center"><i className="spinner" /></li>}
       </ul>
     );
