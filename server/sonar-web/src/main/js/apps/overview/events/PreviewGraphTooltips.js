@@ -45,7 +45,7 @@ export default class PreviewGraphTooltips extends React.PureComponent {
     const top = 16;
     let left = this.props.tooltipPos;
     let customClass;
-    if (left > this.props.graphWidth - TOOLTIP_WIDTH + 20) {
+    if (left > this.props.graphWidth - TOOLTIP_WIDTH) {
       left -= TOOLTIP_WIDTH;
       customClass = 'bubble-popup-right';
     }

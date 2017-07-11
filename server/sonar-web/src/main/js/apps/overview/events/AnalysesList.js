@@ -29,7 +29,7 @@ import type { Analysis as AnalysisType } from '../../projectActivity/types';
 import type { History, Metric } from '../types';
 
 type Props = {
-  history: History,
+  history: ?History,
   project: string,
   router: { replace: ({ pathname: string, query?: {} }) => void }
 };
