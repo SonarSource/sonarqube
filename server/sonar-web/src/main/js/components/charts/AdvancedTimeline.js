@@ -131,10 +131,10 @@ export default class AdvancedTimeline extends React.PureComponent {
     }
   };
 
-  getXScale = (props: Props, availableWidth: number, flatData: Array<Point>) => {
+  getXScale = ({ startDate, endDate }: Props, availableWidth: number, flatData: Array<Point>) => {
     const dateRange = extent(flatData, d => d.x);
-    const start = props.startDate ? props.startDate : dateRange[0];
-    const end = props.endDate ? props.endDate : dateRange[1];
+    const start = startDate && startDate > dateRange[0] ? startDate : dateRange[0];
+    const end = endDate && endDate < dateRange[1] ? endDate : dateRange[1];
     const xScale = scaleTime().domain(sortBy([start, end])).range([0, availableWidth]).clamp(false);
     return {
       xScale,

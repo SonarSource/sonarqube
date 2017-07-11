@@ -69,26 +69,42 @@ export default class ProjectActivityGraphs extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps: Props) {
+    let newSeries;
     if (
       nextProps.measuresHistory !== this.props.measuresHistory ||
       historyQueryChanged(this.props.query, nextProps.query)
     ) {
-      const series = generateSeries(
+      newSeries = generateSeries(
         nextProps.measuresHistory,
         nextProps.query.graph,
         nextProps.metricsType,
         getDisplayedHistoryMetrics(nextProps.query.graph, nextProps.query.customMetrics)
       );
-      const newDates = this.getStateZoomDates(this.props, nextProps, series);
-      if (newDates) {
-        this.setState({ series, ...newDates });
-      } else {
-        this.setState({ series });
+    }
+
+    const newDates = this.getStateZoomDates(
+      this.props,
+      nextProps,
+      newSeries ? newSeries : this.state.series
+    );
+
+    if (newSeries || newDates) {
+      let newState = {};
+      if (newSeries) {
+        newState.series = newSeries;
       }
+      if (newDates) {
+        newState = { ...newState, ...newDates };
+      }
+      this.setState(newState);
     }
   }
 
-  getStateZoomDates = (props: ?Props, nextProps: Props, series: Array<Serie>) => {
+  getStateZoomDates = (
+    props: ?Props,
+    nextProps: Props,
+    series: Array<Serie>
+  ): ?{ graphEndDate: ?Date, graphStartDate: ?Date } => {
     const newDates = { from: nextProps.query.from || null, to: nextProps.query.to || null };
     if (props && datesQueryChanged(props.query, nextProps.query)) {
       return { graphEndDate: newDates.to, graphStartDate: newDates.from };

@@ -100,7 +100,12 @@ export default class ProjectActivityApp extends React.PureComponent {
       <div id="project-activity" className="page page-limited">
         <Helmet title={translate('project_activity.page')} />
 
-        <ProjectActivityPageHeader category={query.category} updateQuery={this.props.updateQuery} />
+        <ProjectActivityPageHeader
+          category={query.category}
+          from={query.from}
+          to={query.to}
+          updateQuery={this.props.updateQuery}
+        />
 
         <div className="layout-page project-activity-page">
           <div className="layout-page-side-outer project-activity-page-side-outer boxed-group">

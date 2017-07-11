@@ -239,7 +239,7 @@
   left: 12px;
   right: 16px;
   padding-top: 24px;
-  z-index: 100;
+  z-index: 1;
 }
 
 .project-activity-version-badge.sticky + .project-activity-days-list {
