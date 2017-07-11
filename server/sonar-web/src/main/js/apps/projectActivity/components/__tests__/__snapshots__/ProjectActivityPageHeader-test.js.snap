@@ -10,7 +10,7 @@ exports[`should render correctly the list of series 1`] = `
     autosize={true}
     backspaceRemoves={true}
     backspaceToRemoveMessage="Press backspace to remove {label}"
-    className="input-medium"
+    className="input-medium pull-left spacer-right"
     clearAllText="Clear all"
     clearValueText="Clear value"
     clearable={true}
@@ -65,6 +65,11 @@ exports[`should render correctly the list of series 1`] = `
     value=""
     valueComponent={[Function]}
     valueKey="value"
+  />
+  <ProjectActivityDateInput
+    className="pull-left"
+    from={2016-10-27T10:21:15.000Z}
+    onChange={[Function]}
   />
 </header>
 `;

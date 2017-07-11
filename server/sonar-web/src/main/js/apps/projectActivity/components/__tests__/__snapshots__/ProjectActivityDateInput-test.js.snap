@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly the date inputs 1`] = `
+<div>
+  <DateInput
+    className="little-spacer-right"
+    format="yy-mm-dd"
+    name="from"
+    onChange={[Function]}
+    placeholder="from"
+    value="2016-10-27"
+  />
+  —
+  <DateInput
+    className="little-spacer-left"
+    format="yy-mm-dd"
+    name="to"
+    onChange={[Function]}
+    placeholder="to"
+    value="2016-12-27"
+  />
+  <button
+    className="spacer-left"
+    disabled={false}
+    onClick={[Function]}
+  >
+    reset_verb
+  </button>
+</div>
+`;
