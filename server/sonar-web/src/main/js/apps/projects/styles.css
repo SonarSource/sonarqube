@@ -104,11 +104,7 @@
   background-color: #eae3c7;
 }
 
-.project-card-measures .project-card-measure {
-  width: 120px;
-}
-
-.project-card-leak-measures .project-card-measure {
+.project-card-measure {
   width: 130px;
 }
 
