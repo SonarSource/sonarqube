@@ -22,6 +22,11 @@ package org.sonar.server.language.ws;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import java.util.Collection;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -31,13 +36,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.regex.Pattern;
 
 /**
  * @since 5.1
@@ -56,11 +54,13 @@ public class ListAction implements RequestHandler {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
 
-    JsonWriter json = response.newJsonWriter().beginObject().name("languages").beginArray();
-    for (Language language : listMatchingLanguages(query, pageSize)) {
-      json.beginObject().prop("key", language.getKey()).prop("name", language.getName()).endObject();
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject().name("languages").beginArray();
+      for (Language language : listMatchingLanguages(query, pageSize)) {
+        json.beginObject().prop("key", language.getKey()).prop("name", language.getName()).endObject();
+      }
+      json.endArray().endObject();
     }
-    json.endArray().endObject().close();
   }
 
   void define(WebService.NewController controller) {

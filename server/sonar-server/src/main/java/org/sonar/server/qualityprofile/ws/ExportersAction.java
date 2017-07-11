@@ -51,18 +51,20 @@ public class ExportersAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    JsonWriter json = response.newJsonWriter().beginObject().name("exporters").beginArray();
-    for (ProfileExporter exporter : exporters) {
-      json.beginObject()
-        .prop("key", exporter.getKey())
-        .prop("name", exporter.getName());
-      json.name("languages").beginArray();
-      for (String language : exporter.getSupportedLanguages()) {
-        json.value(language);
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject().name("exporters").beginArray();
+      for (ProfileExporter exporter : exporters) {
+        json.beginObject()
+          .prop("key", exporter.getKey())
+          .prop("name", exporter.getName());
+        json.name("languages").beginArray();
+        for (String language : exporter.getSupportedLanguages()) {
+          json.value(language);
+        }
+        json.endArray().endObject();
       }
       json.endArray().endObject();
     }
-    json.endArray().endObject().close();
   }
 
 }
