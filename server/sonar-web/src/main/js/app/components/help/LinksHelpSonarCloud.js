@@ -49,6 +49,10 @@ export default function LinksHelpSonarCloud({ onClose }: Props) {
         <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
       </p>
 
+      <p className="spacer-bottom">
+        <Link to="/web_api" onClick={onClose}>{translate('footer.web_api')}</Link>
+      </p>
+
       <p>
         <Link to="/about" onClick={onClose}>{translate('footer.about')}</Link>
       </p>
