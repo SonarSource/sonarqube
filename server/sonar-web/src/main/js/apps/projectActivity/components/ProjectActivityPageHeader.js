@@ -22,13 +22,16 @@ import React from 'react';
 import Select from 'react-select';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
 import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
+import ProjectActivityDateInput from './ProjectActivityDateInput';
 import { EVENT_TYPES } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import type { RawQuery } from '../../../helpers/query';
 
 type Props = {
-  updateQuery: RawQuery => void,
-  category?: string
+  category?: string,
+  from: ?Date,
+  to: ?Date,
+  updateQuery: RawQuery => void
 };
 
 export default class ProjectActivityPageHeader extends React.PureComponent {
@@ -43,15 +46,14 @@ export default class ProjectActivityPageHeader extends React.PureComponent {
     }));
   }
 
-  handleCategoryChange = (option: ?{ value: string }) => {
+  handleCategoryChange = (option: ?{ value: string }) =>
     this.props.updateQuery({ category: option ? option.value : '' });
-  };
 
   render() {
     return (
       <header className="page-header">
         <Select
-          className="input-medium"
+          className="input-medium pull-left spacer-right"
           placeholder={translate('project_activity.filter_events') + '...'}
           clearable={true}
           searchable={false}
@@ -60,6 +62,12 @@ export default class ProjectActivityPageHeader extends React.PureComponent {
           valueComponent={ProjectActivityEventSelectValue}
           options={this.options}
           onChange={this.handleCategoryChange}
+        />
+        <ProjectActivityDateInput
+          className="pull-left"
+          from={this.props.from}
+          to={this.props.to}
+          onChange={this.props.updateQuery}
         />
       </header>
     );

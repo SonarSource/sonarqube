@@ -19,15 +19,15 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import ProjectActivityPageHeader from '../ProjectActivityPageHeader';
+import ProjectActivityDateInput from '../ProjectActivityDateInput';
 
-it('should render correctly the list of series', () => {
+it('should render correctly the date inputs', () => {
   expect(
     shallow(
-      <ProjectActivityPageHeader
-        category=""
-        from={new Date('2016-10-27T12:21:15+0200')}
-        updateQuery={() => {}}
+      <ProjectActivityDateInput
+        from={new Date('2016-10-27T12:21:15+0000')}
+        to={new Date('2016-12-27T12:21:15+0000')}
+        onChange={() => {}}
       />
     )
   ).toMatchSnapshot();
