@@ -91,10 +91,11 @@ public class ShowAction implements SourcesWsAction {
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
 
       Iterable<String> linesHtml = checkFoundWithOptional(sourceService.getLinesAsHtml(dbSession, file.uuid(), from, to), "No source found for file '%s'", fileKey);
-      JsonWriter json = response.newJsonWriter().beginObject();
-      writeSource(linesHtml, from, json);
-      json.endObject().close();
-
+      try (JsonWriter json = response.newJsonWriter()) {
+        json.beginObject();
+        writeSource(linesHtml, from, json);
+        json.endObject();
+      }
     }
   }
 

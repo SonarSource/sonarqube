@@ -59,20 +59,20 @@ public class SettingsAction implements NavigationWsAction {
   public void handle(Request request, Response response) throws Exception {
     boolean isSysAdmin = userSession.isSystemAdministrator();
 
-    JsonWriter json = response.newJsonWriter().beginObject();
-    json.prop("showUpdateCenter", isSysAdmin && config.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE).orElse(false));
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject();
+      json.prop("showUpdateCenter", isSysAdmin && config.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE).orElse(false));
 
-    json.name("extensions").beginArray();
-    if (isSysAdmin) {
-      for (Page page : pageRepository.getGlobalPages(true)) {
-        json.beginObject()
-          .prop("key", page.getKey())
-          .prop("name", page.getName())
-          .endObject();
+      json.name("extensions").beginArray();
+      if (isSysAdmin) {
+        for (Page page : pageRepository.getGlobalPages(true)) {
+          json.beginObject()
+            .prop("key", page.getKey())
+            .prop("name", page.getName())
+            .endObject();
+        }
       }
+      json.endArray().endObject();
     }
-    json.endArray();
-
-    json.endObject().close();
   }
 }

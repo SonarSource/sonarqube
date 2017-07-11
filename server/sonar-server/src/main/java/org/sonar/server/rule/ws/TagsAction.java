@@ -96,9 +96,10 @@ public class TagsAction implements RulesWsAction {
   }
 
   private static void writeResponse(Response response, List<String> tags) {
-    JsonWriter json = response.newJsonWriter().beginObject();
-    json.name("tags").beginArray();
-    tags.forEach(json::value);
-    json.endArray().endObject().close();
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject().name("tags").beginArray();
+      tags.forEach(json::value);
+      json.endArray().endObject();
+    }
   }
 }

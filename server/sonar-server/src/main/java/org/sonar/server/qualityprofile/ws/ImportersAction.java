@@ -48,17 +48,19 @@ public class ImportersAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    JsonWriter json = response.newJsonWriter().beginObject().name("importers").beginArray();
-    for (ProfileImporter importer : importers) {
-      json.beginObject()
-        .prop("key", importer.getKey())
-        .prop("name", importer.getName())
-        .name("languages").beginArray();
-      for (String languageKey : importer.getSupportedLanguages()) {
-        json.value(languageKey);
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject().name("importers").beginArray();
+      for (ProfileImporter importer : importers) {
+        json.beginObject()
+          .prop("key", importer.getKey())
+          .prop("name", importer.getName())
+          .name("languages").beginArray();
+        for (String languageKey : importer.getSupportedLanguages()) {
+          json.value(languageKey);
+        }
+        json.endArray().endObject();
       }
       json.endArray().endObject();
     }
-    json.endArray().endObject().close();
   }
 }

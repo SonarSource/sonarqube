@@ -81,15 +81,17 @@ public class IndexAction implements SourcesWsAction {
       ComponentDto component = componentFinder.getByKey(session, fileKey);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, component);
       Optional<Iterable<String>> lines = sourceService.getLinesAsRawText(session, component.uuid(), from, to == null ? Integer.MAX_VALUE : (to - 1));
-      JsonWriter json = response.newJsonWriter().beginArray().beginObject();
-      if (lines.isPresent()) {
-        int lineCounter = from;
-        for (String line : lines.get()) {
-          json.prop(String.valueOf(lineCounter), line);
-          lineCounter++;
+      try (JsonWriter json = response.newJsonWriter()) {
+        json.beginArray().beginObject();
+        if (lines.isPresent()) {
+          int lineCounter = from;
+          for (String line : lines.get()) {
+            json.prop(String.valueOf(lineCounter), line);
+            lineCounter++;
+          }
         }
+        json.endObject().endArray();
       }
-      json.endObject().endArray().close();
     }
   }
 }
