@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -35,20 +34,22 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonarqube.tests.Category1Suite;
+import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
@@ -58,7 +59,6 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.concat;
 import static util.ItUtils.extractCeTaskId;
 import static util.ItUtils.getMeasure;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
 
@@ -70,25 +70,29 @@ public class QualityGateTest {
   private static final String QG_STATUS_ERROR = "ERROR";
   private static final String QG_STATUS_WARN = "WARN";
 
-  private static long DEFAULT_QUALITY_GATE;
-
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-  private static WsClient wsClient;
 
-  @BeforeClass
-  public static void startOrchestrator() {
-    wsClient = newAdminWsClient(orchestrator);
-    DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
+  @Rule
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
+
+  private QualityGate defaultGate;
+
+  @Before
+  public void setUp() {
+    defaultGate = qgClient().list().defaultGate();
   }
 
-  @AfterClass
-  public static void restoreDefaultQualitGate() throws Exception {
-    qgClient().setDefault(DEFAULT_QUALITY_GATE);
+  @After
+  public void tearDown() {
+    if (defaultGate != null) {
+      qgClient().setDefault(defaultGate.id());
+    }
   }
 
   @Test
-  public void do_not_compute_status_if_no_gate() throws IOException {
+  public void do_not_compute_status_if_no_gate() throws Exception {
+    qgClient().unsetDefault();
     String projectKey = newProjectKey();
     BuildResult buildResult = executeAnalysis(projectKey);
 
@@ -98,7 +102,7 @@ public class QualityGateTest {
   }
 
   @Test
-  public void status_ok_if_empty_gate() throws IOException {
+  public void status_ok_if_empty_gate() throws Exception {
     QualityGate empty = qgClient().create("Empty");
     qgClient().setDefault(empty.id());
 
@@ -238,7 +242,7 @@ public class QualityGateTest {
       String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
       String analysisId = getAnalysisId(taskId);
 
-      ProjectStatusWsResponse projectStatusWsResponse = wsClient.qualityGates().projectStatus(new ProjectStatusWsRequest().setAnalysisId(analysisId));
+      ProjectStatusWsResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusWsRequest().setAnalysisId(analysisId));
       ProjectStatusWsResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
       assertThat(projectStatus.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
       assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
@@ -252,14 +256,14 @@ public class QualityGateTest {
   }
 
   @Test
-  public void does_not_fail_when_condition_is_on_removed_metric() throws IOException {
+  public void does_not_fail_when_condition_is_on_removed_metric() throws Exception {
     String customMetricKey = randomAlphabetic(10);
-    createCustomIntMetric(orchestrator, customMetricKey);
+    createCustomIntMetric(customMetricKey);
     QualityGate simple = qgClient().create("OnCustomMetric");
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
     try {
-      deleteCustomMetric(orchestrator, customMetricKey);
+      deleteCustomMetric(customMetricKey);
       String projectKey = newProjectKey();
       BuildResult buildResult = executeAnalysis(projectKey);
 
@@ -267,7 +271,7 @@ public class QualityGateTest {
 
       assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
     } finally {
-      deleteCustomMetric(orchestrator, customMetricKey);
+      deleteCustomMetric(customMetricKey);
       qgClient().unsetDefault();
       qgClient().destroy(simple.id());
     }
@@ -290,7 +294,7 @@ public class QualityGateTest {
   }
 
   private String getAnalysisId(String taskId) throws IOException {
-    WsResponse activity = wsClient
+    WsResponse activity = tester.wsClient()
       .wsConnector()
       .call(new GetRequest("api/ce/task")
         .setParam("id", taskId)
@@ -318,8 +322,8 @@ public class QualityGateTest {
     return orchestrator.getServer().adminWsClient().qualityGateClient();
   }
 
-  private static void associateQualityGateToProject(long qGateId, String projectKey) {
-    newAdminWsClient(orchestrator).wsConnector()
+  private void associateQualityGateToProject(long qGateId, String projectKey) {
+    tester.wsClient().wsConnector()
       .call(new PostRequest("api/qualitygates/select")
         .setParam("gateId", qGateId)
         .setParam("projectKey", projectKey))
@@ -333,16 +337,16 @@ public class QualityGateTest {
       .collect(Collectors.toList());
   }
 
-  private static void createCustomIntMetric(Orchestrator orchestrator, String metricKey) {
-    newAdminWsClient(orchestrator).wsConnector().call(new PostRequest("api/metrics/create")
+  private void createCustomIntMetric(String metricKey) {
+    tester.wsClient().wsConnector().call(new PostRequest("api/metrics/create")
       .setParam("key", metricKey)
       .setParam("name", metricKey)
       .setParam("type", "INT"))
       .failIfNotSuccessful();
   }
 
-  private static void deleteCustomMetric(Orchestrator orchestrator, String metricKey) {
-    newAdminWsClient(orchestrator).wsConnector().call(new PostRequest("api/metrics/delete")
+  private void deleteCustomMetric(String metricKey) {
+    tester.wsClient().wsConnector().call(new PostRequest("api/metrics/delete")
       .setParam("keys", metricKey))
       .failIfNotSuccessful();
   }
