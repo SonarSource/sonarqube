@@ -34,14 +34,13 @@ import org.sonar.ce.configuration.CeConfiguration;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startable {
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
+  private static final long DELAY_BETWEEN_DISABLED_TASKS = 30 * 1000L; // 30 seconds
 
   private final CeProcessingSchedulerExecutorService executorService;
-
-  private final long delayBetweenTasks;
+  private final long delayBetweenEnabledTasks;
   private final TimeUnit timeUnit;
   private final ChainingCallback[] chainingCallbacks;
 
@@ -49,7 +48,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
     CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory) {
     this.executorService = processingExecutorService;
 
-    this.delayBetweenTasks = ceConfiguration.getQueuePollingDelay();
+    this.delayBetweenEnabledTasks = ceConfiguration.getQueuePollingDelay();
     this.timeUnit = MILLISECONDS;
 
     int threadWorkerCount = ceConfiguration.getWorkerMaxCount();
@@ -68,7 +67,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
   @Override
   public void startScheduling() {
     for (ChainingCallback chainingCallback : chainingCallbacks) {
-      ListenableScheduledFuture<CeWorker.Result> future = executorService.schedule(chainingCallback.worker, delayBetweenTasks, timeUnit);
+      ListenableScheduledFuture<CeWorker.Result> future = executorService.schedule(chainingCallback.worker, delayBetweenEnabledTasks, timeUnit);
       addCallback(future, chainingCallback, executorService);
     }
   }
@@ -93,10 +92,20 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
 
     @Override
     public void onSuccess(@Nullable CeWorker.Result result) {
-      if (result != null && result == TASK_PROCESSED) {
-        chainWithoutDelay();
+      if (result == null) {
+        chainWithEnabledTaskDelay();
       } else {
-        chainWithDelay();
+        switch (result) {
+          case DISABLED:
+            chainWithDisabledTaskDelay();
+            break;
+          case NO_TASK:
+            chainWithEnabledTaskDelay();
+            break;
+          case TASK_PROCESSED:
+          default:
+            chainWithoutDelay();
+        }
       }
     }
 
@@ -116,9 +125,16 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
       addCallback();
     }
 
-    private void chainWithDelay() {
+    private void chainWithEnabledTaskDelay() {
       if (keepRunning()) {
-        workerFuture = executorService.schedule(worker, delayBetweenTasks, timeUnit);
+        workerFuture = executorService.schedule(worker, delayBetweenEnabledTasks, timeUnit);
+      }
+      addCallback();
+    }
+
+    private void chainWithDisabledTaskDelay() {
+      if (keepRunning()) {
+        workerFuture = executorService.schedule(worker, DELAY_BETWEEN_DISABLED_TASKS, timeUnit);
       }
       addCallback();
     }

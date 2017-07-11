@@ -60,6 +60,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.DISABLED;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
 import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
@@ -76,12 +77,13 @@ public class CeProcessingSchedulerImplTest {
   private CeWorkerFactory ceWorkerFactory = new TestCeWorkerFactory(ceWorker);
   private StubCeProcessingSchedulerExecutorService processingExecutorService = new StubCeProcessingSchedulerExecutorService();
   private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorker, 2000L, MILLISECONDS);
+  private SchedulerCall extendedDelayedPoll = new SchedulerCall(ceWorker, 30000L, MILLISECONDS);
   private SchedulerCall notDelayedPoll = new SchedulerCall(ceWorker);
 
   private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerFactory);
 
   @Test
-  public void polls_without_delay_when_CeWorkerCallable_returns_true() throws Exception {
+  public void polls_without_delay_when_CeWorkerCallable_returns_TASK_PROCESSED() throws Exception {
     when(ceWorker.call())
       .thenReturn(TASK_PROCESSED)
       .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
@@ -107,7 +109,7 @@ public class CeProcessingSchedulerImplTest {
   }
 
   @Test
-  public void polls_with_regular_delay_when_CeWorkerCallable_returns_false() throws Exception {
+  public void polls_with_regular_delay_when_CeWorkerCallable_returns_NO_TASK() throws Exception {
     when(ceWorker.call())
       .thenReturn(NO_TASK)
       .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
@@ -117,6 +119,19 @@ public class CeProcessingSchedulerImplTest {
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
       regularDelayedPoll,
       regularDelayedPoll);
+  }
+
+  @Test
+  public void polls_with_extended_delay_when_CeWorkerCallable_returns_DISABLED() throws Exception {
+    when(ceWorker.call())
+      .thenReturn(DISABLED)
+      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+
+    startSchedulingAndRun();
+
+    assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
+      regularDelayedPoll,
+      extendedDelayedPoll);
   }
 
   @Test
