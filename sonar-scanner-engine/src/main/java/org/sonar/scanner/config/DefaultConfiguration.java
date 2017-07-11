@@ -89,8 +89,9 @@ public abstract class DefaultConfiguration implements Configuration {
   public Optional<String> get(String key) {
     String effectiveKey = definitions.validKey(key);
     PropertyDefinition def = definitions.get(effectiveKey);
-    if (def != null && def.multiValues()) {
-      LOG.warn("Access to the multi-valued property '{}' should be made using 'getStringArray' method. The SonarQube plugin using this property should be updated.", key);
+    if (def != null && (def.multiValues() || !def.fields().isEmpty())) {
+      LOG.warn("Access to the multi-values/property set property '{}' should be made using 'getStringArray' method. The SonarQube plugin using this property should be updated.",
+        key);
     }
     return getInternal(effectiveKey);
   }
@@ -99,8 +100,10 @@ public abstract class DefaultConfiguration implements Configuration {
   public String[] getStringArray(String key) {
     String effectiveKey = definitions.validKey(key);
     PropertyDefinition def = definitions.get(effectiveKey);
-    if (def != null && !def.multiValues()) {
-      LOG.warn("Property '{}' is not declared as multi-valued but was read using 'getStringArray' method. The SonarQube plugin declaring this property should be updated.", key);
+    if (def != null && !def.multiValues() && def.fields().isEmpty()) {
+      LOG.warn(
+        "Property '{}' is not declared as multi-values/property set but was read using 'getStringArray' method. The SonarQube plugin declaring this property should be updated.",
+        key);
     }
     Optional<String> value = getInternal(effectiveKey);
     if (value.isPresent()) {
