@@ -34,22 +34,10 @@ export default BaseFacet.extend({
   },
 
   onRender() {
-    this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
-    this.$el.attr('data-property', this.model.get('property'));
-    const that = this;
-    const property = this.model.get('property');
-    const value = this.options.app.state.get('query')[property];
-    if (typeof value === 'string') {
-      value.split(',').forEach(s => {
-        const facet = that.$('.js-facet').filter(`[data-value="${s}"]`);
-        if (facet.length > 0) {
-          facet.addClass('active');
-        }
-      });
-    }
+    BaseFacet.prototype.onRender.apply(this, arguments);
     const compareToProfile = this.options.app.state.get('query').compareToProfile;
     if (typeof compareToProfile === 'string') {
-      const facet = that.$('.js-facet').filter(`[data-value="${compareToProfile}"]`);
+      const facet = this.$('.js-facet').filter(`[data-value="${compareToProfile}"]`);
       if (facet.length > 0) {
         facet.addClass('active compare');
       }
