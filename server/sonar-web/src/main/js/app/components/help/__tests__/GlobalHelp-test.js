@@ -52,6 +52,19 @@ it('does not show tutorials for anonymous', () => {
   ).toMatchSnapshot();
 });
 
+it('display special links page for SonarCloud', () => {
+  const wrapper = shallow(
+    <GlobalHelp
+      currentUser={{ isLoggedIn: false }}
+      onClose={jest.fn()}
+      onTutorialSelect={jest.fn()}
+      sonarCloud={true}
+    />
+  );
+  clickOnSection(wrapper, 'links');
+  expect(wrapper.find('LinksHelpSonarCloud')).toHaveLength(1);
+});
+
 function clickOnSection(wrapper: Object, section: string) {
   click(wrapper.find(`[data-section="${section}"]`), { currentTarget: { dataset: { section } } });
 }
