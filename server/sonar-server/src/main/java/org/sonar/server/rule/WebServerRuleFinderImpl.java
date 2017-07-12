@@ -54,7 +54,7 @@ public class WebServerRuleFinderImpl implements WebServerRuleFinder {
   @Override
   @CheckForNull
   @Deprecated
-  public org.sonar.api.rules.Rule findById(int ruleId) {
+  public Rule findById(int ruleId) {
     return delegate.findById(ruleId);
   }
 

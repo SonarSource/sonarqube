@@ -162,7 +162,7 @@ public class CachingRuleFinder implements RuleFinder {
     String description = ruleDefinition.getDescription();
     RuleDto.Format descriptionFormat = ruleDefinition.getDescriptionFormat();
 
-    org.sonar.api.rules.Rule apiRule = new org.sonar.api.rules.Rule();
+    Rule apiRule = new Rule();
     apiRule
       .setName(ruleDefinition.getName())
       .setLanguage(ruleDefinition.getLanguage())
