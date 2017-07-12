@@ -11,6 +11,7 @@ exports[`should render correctly the list of series 1`] = `
       metric="bugs"
       name="Bugs"
       removeMetric={[Function]}
+      showWarning={false}
       style="2"
     />
   </span>
@@ -21,18 +22,25 @@ exports[`should render correctly the list of series 1`] = `
       metric="my_metric"
       name="My Metric"
       removeMetric={[Function]}
+      showWarning={false}
       style="1"
     />
   </span>
-  <span
-    className="spacer-left spacer-right"
+  <Tooltip
+    overlay="project_activity.graphs.custom.metric_no_history"
+    placement="bottom"
   >
-    <GraphsLegendItem
-      metric="foo"
-      name="Foo"
-      removeMetric={[Function]}
-      style="0"
-    />
-  </span>
+    <span
+      className="spacer-left spacer-right"
+    >
+      <GraphsLegendItem
+        metric="foo"
+        name="Foo"
+        removeMetric={[Function]}
+        showWarning={true}
+        style="0"
+      />
+    </span>
+  </Tooltip>
 </div>
 `;
