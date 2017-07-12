@@ -19,8 +19,10 @@
  */
 // @flow
 import React from 'react';
+import classNames from 'classnames';
 import Modal from 'react-modal';
 import Select from 'react-select';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { isDiffMetric } from '../../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import type { Metric } from '../../types';
@@ -120,13 +122,14 @@ export default class AddGraphMetric extends React.PureComponent {
                 searchable={true}
                 value={this.state.selectedMetric}
               />
-              {metricType != null &&
-                <span className="note">
-                  {translateWithParameters(
-                    'project_activity.graphs.custom.type_x_message',
-                    translate('metric.type', metricType)
-                  )}
-                </span>}
+              <span className="alert alert-info">
+                {metricType != null
+                  ? translateWithParameters(
+                      'project_activity.graphs.custom.type_x_message',
+                      translate('metric.type', metricType)
+                    )
+                  : translate('project_activity.graphs.custom.add_metric_info')}
+              </span>
             </div>
           </div>
           <footer className="modal-foot">
@@ -145,11 +148,22 @@ export default class AddGraphMetric extends React.PureComponent {
   }
 
   render() {
+    if (this.props.selectedMetrics.length >= 3) {
+      // Use the class .disabled instead of the property to prevent a bug from
+      // rc-tooltip : https://github.com/react-component/tooltip/issues/18
+      return (
+        <Tooltip
+          placement="right"
+          overlay={translate('project_activity.graphs.custom.add_metric_info')}>
+          <button className={classNames('disabled', this.props.className)}>
+            {translate('project_activity.graphs.custom.add')}
+          </button>
+        </Tooltip>
+      );
+    }
+
     return (
-      <button
-        className={this.props.className}
-        onClick={this.openForm}
-        disabled={this.props.selectedMetrics.length >= 3}>
+      <button className={this.props.className} onClick={this.openForm}>
         {translate('project_activity.graphs.custom.add')}
         {this.state.open && this.renderModal()}
       </button>
