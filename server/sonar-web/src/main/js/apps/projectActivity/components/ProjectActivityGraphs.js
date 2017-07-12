@@ -82,11 +82,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       );
     }
 
-    const newDates = this.getStateZoomDates(
-      this.props,
-      nextProps,
-      newSeries ? newSeries : this.state.series
-    );
+    const newDates = this.getStateZoomDates(this.props, nextProps, newSeries);
 
     if (newSeries || newDates) {
       let newState = {};
@@ -103,13 +99,15 @@ export default class ProjectActivityGraphs extends React.PureComponent {
   getStateZoomDates = (
     props: ?Props,
     nextProps: Props,
-    series: Array<Serie>
+    newSeries: ?Array<Serie>
   ): ?{ graphEndDate: ?Date, graphStartDate: ?Date } => {
     const newDates = { from: nextProps.query.from || null, to: nextProps.query.to || null };
-    if (props && datesQueryChanged(props.query, nextProps.query)) {
+    if (!props || datesQueryChanged(props.query, nextProps.query)) {
       return { graphEndDate: newDates.to, graphStartDate: newDates.from };
     }
-    if (newDates.to == null && newDates.from == null) {
+
+    if (newDates.to == null && newDates.from == null && newSeries != null) {
+      const series = newSeries ? newSeries : this.state.series;
       const firstValid = minBy(series.map(serie => serie.data.find(p => p.y || p.y === 0)), 'x');
       const lastValid = maxBy(
         series.map(serie => findLast(serie.data, p => p.y || p.y === 0)),
@@ -119,9 +117,6 @@ export default class ProjectActivityGraphs extends React.PureComponent {
         graphEndDate: lastValid ? lastValid.x : newDates.to,
         graphStartDate: firstValid ? firstValid.x : newDates.from
       };
-    }
-    if (!props) {
-      return { graphEndDate: newDates.to, graphStartDate: newDates.from };
     }
   };
 
