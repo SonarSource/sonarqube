@@ -645,19 +645,98 @@ public class RuleDaoTest {
     assertThat(accumulator.list)
       .extracting(RuleForIndexingDto::getId, RuleForIndexingDto::getRuleKey)
       .containsExactlyInAnyOrder(tuple(r1.getId(), r1.getKey()), tuple(r2.getId(), r2.getKey()));
+    RuleForIndexingDto firstRule = accumulator.list.iterator().next();
+
+    assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
+    assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
+    assertThat(firstRule.getName()).isEqualTo(r1.getName());
+    assertThat(firstRule.getDescription()).isEqualTo(r1.getDescription());
+    assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
+    assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
+    assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
+    assertThat(firstRule.isTemplate()).isEqualTo(r1.isTemplate());
+    assertThat(firstRule.getSystemTagsAsSet()).isEqualTo(r1.getSystemTags());
+    assertThat(firstRule.getTemplateRuleKey()).isNull();
+    assertThat(firstRule.getTemplateRepository()).isNull();
+    assertThat(firstRule.getInternalKey()).isEqualTo(r1.getConfigKey());
+    assertThat(firstRule.getLanguage()).isEqualTo(r1.getLanguage());
+    assertThat(firstRule.getType()).isEqualTo(r1.getType());
+    assertThat(firstRule.getCreatedAt()).isEqualTo(r1.getCreatedAt());
+    assertThat(firstRule.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
+  }
+
+  @Test
+  public void scrollIndexingRules_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
+    Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
+    RuleDefinitionDto r1 = db.rules().insert();
+    RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateId(r1.getId()));
+
+    underTest.scrollIndexingRules(db.getSession(), accumulator);
+
+    assertThat(accumulator.list).hasSize(2);
+    RuleForIndexingDto firstRule = accumulator.list.get(0);
+    RuleForIndexingDto secondRule = accumulator.list.get(1);
+
+    assertRuleDefinitionFieldsAreEquals(r1, firstRule);
+    assertThat(firstRule.getTemplateRuleKey()).isNull();
+    assertThat(firstRule.getTemplateRepository()).isNull();
+    assertRuleDefinitionFieldsAreEquals(r2, secondRule);
+    assertThat(secondRule.getTemplateRuleKey()).isEqualTo(r1.getRuleKey());
+    assertThat(secondRule.getTemplateRepository()).isEqualTo(r1.getRepositoryKey());
   }
 
   @Test
   public void scrollIndexingRulesByKeys() {
     Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
     RuleDefinitionDto r1 = db.rules().insert();
-    RuleDefinitionDto r2 = db.rules().insert();
+    db.rules().insert();
 
     underTest.scrollIndexingRulesByKeys(db.getSession(), singletonList(r1.getKey()), accumulator);
 
     assertThat(accumulator.list)
       .extracting(RuleForIndexingDto::getId, RuleForIndexingDto::getRuleKey)
       .containsExactlyInAnyOrder(tuple(r1.getId(), r1.getKey()));
+  }
+
+  @Test
+  public void scrollIndexingRulesByKeys_maps_rule_definition_fields_for_regular_rule_and_template_rule() {
+    Accumulator<RuleForIndexingDto> accumulator = new Accumulator<>();
+    RuleDefinitionDto r1 = db.rules().insert();
+    RuleDefinitionDto r2 = db.rules().insert(rule -> rule.setTemplateId(r1.getId()));
+
+    underTest.scrollIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getKey(), r2.getKey()), accumulator);
+
+    assertThat(accumulator.list).hasSize(2);
+    RuleForIndexingDto firstRule = accumulator.list.get(0);
+    RuleForIndexingDto secondRule = accumulator.list.get(1);
+
+    assertRuleDefinitionFieldsAreEquals(r1, firstRule);
+    assertThat(firstRule.getTemplateRuleKey()).isNull();
+    assertThat(firstRule.getTemplateRepository()).isNull();
+    assertRuleDefinitionFieldsAreEquals(r2, secondRule);
+    assertThat(secondRule.getTemplateRuleKey()).isEqualTo(r1.getRuleKey());
+    assertThat(secondRule.getTemplateRepository()).isEqualTo(r1.getRepositoryKey());
+  }
+
+  private void assertRuleDefinitionFieldsAreEquals(RuleDefinitionDto r1, RuleForIndexingDto firstRule) {
+    assertThat(firstRule.getId()).isEqualTo(r1.getId());
+    assertThat(firstRule.getRuleKey()).isEqualTo(r1.getKey());
+    assertThat(firstRule.getRepository()).isEqualTo(r1.getRepositoryKey());
+    assertThat(firstRule.getPluginRuleKey()).isEqualTo(r1.getRuleKey());
+    assertThat(firstRule.getName()).isEqualTo(r1.getName());
+    assertThat(firstRule.getDescription()).isEqualTo(r1.getDescription());
+    assertThat(firstRule.getDescriptionFormat()).isEqualTo(r1.getDescriptionFormat());
+    assertThat(firstRule.getSeverity()).isEqualTo(r1.getSeverity());
+    assertThat(firstRule.getSeverityAsString()).isEqualTo(SeverityUtil.getSeverityFromOrdinal(r1.getSeverity()));
+    assertThat(firstRule.getStatus()).isEqualTo(r1.getStatus());
+    assertThat(firstRule.isTemplate()).isEqualTo(r1.isTemplate());
+    assertThat(firstRule.getSystemTagsAsSet()).isEqualTo(r1.getSystemTags());
+    assertThat(firstRule.getInternalKey()).isEqualTo(r1.getConfigKey());
+    assertThat(firstRule.getLanguage()).isEqualTo(r1.getLanguage());
+    assertThat(firstRule.getType()).isEqualTo(r1.getType());
+    assertThat(firstRule.getTypeAsRuleType()).isEqualTo(RuleType.valueOf(r1.getType()));
+    assertThat(firstRule.getCreatedAt()).isEqualTo(r1.getCreatedAt());
+    assertThat(firstRule.getUpdatedAt()).isEqualTo(r1.getUpdatedAt());
   }
 
   @Test
