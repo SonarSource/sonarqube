@@ -215,15 +215,15 @@
 }
 
 .project-activity-event-icon.QUALITY_GATE {
-  color: #00aa00;
+  color: #9139d4;
 }
 
 .project-activity-event-icon.QUALITY_PROFILE {
-  color: #ed7d20;
+  color: #cccccc;
 }
 
 .project-activity-event-icon.OTHER {
-  color: #9139d4;
+  color: #442d1b;
 }
 
 .project-activity-version-badge {
