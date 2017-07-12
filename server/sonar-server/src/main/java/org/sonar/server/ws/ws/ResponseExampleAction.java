@@ -22,6 +22,7 @@ package org.sonar.server.ws.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -66,13 +67,12 @@ public class ResponseExampleAction implements WebServicesWsAction {
       return;
     }
 
-    response
-      .newJsonWriter()
-      .beginObject()
-      .prop("format", action.responseExampleFormat())
-      .prop("example", action.responseExampleAsString())
-      .endObject()
-      .close();
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject()
+        .prop("format", action.responseExampleFormat())
+        .prop("example", action.responseExampleAsString())
+        .endObject();
+    }
   }
 
   @Override

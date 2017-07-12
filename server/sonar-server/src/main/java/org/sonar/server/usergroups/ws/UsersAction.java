@@ -92,10 +92,12 @@ public class UsersAction implements UserGroupsWsAction {
       Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
       List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query, paging.offset(), paging.pageSize());
 
-      JsonWriter json = response.newJsonWriter().beginObject();
-      writeMembers(json, users);
-      writePaging(json, paging);
-      json.endObject().close();
+      try (JsonWriter json = response.newJsonWriter()) {
+        json.beginObject();
+        writeMembers(json, users);
+        writePaging(json, paging);
+        json.endObject();
+      }
     }
   }
 
