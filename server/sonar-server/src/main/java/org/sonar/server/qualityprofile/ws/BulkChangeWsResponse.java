@@ -31,10 +31,12 @@ class BulkChangeWsResponse {
   }
 
   static void writeResponse(BulkChangeResult result, Response response) {
-    JsonWriter json = response.newJsonWriter().beginObject();
-    json.prop("succeeded", result.countSucceeded());
-    json.prop("failed", result.countFailed());
-    WebServiceEngine.writeErrors(json, result.getErrors());
-    json.endObject().close();
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject();
+      json.prop("succeeded", result.countSucceeded());
+      json.prop("failed", result.countFailed());
+      WebServiceEngine.writeErrors(json, result.getErrors());
+      json.endObject();
+    }
   }
 }

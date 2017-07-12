@@ -100,10 +100,12 @@ public class GhostsAction implements ProjectsWsAction {
       long nbOfProjects = dbClient.componentDao().countGhostProjects(dbSession, organization.getUuid(), query);
       List<ComponentDto> projects = dbClient.componentDao().selectGhostProjects(dbSession, organization.getUuid(), query,
         searchOptions.getOffset(), searchOptions.getLimit());
-      JsonWriter json = response.newJsonWriter().beginObject();
-      writeProjects(json, projects, desiredFields);
-      searchOptions.writeJson(json, nbOfProjects);
-      json.endObject().close();
+      try (JsonWriter json = response.newJsonWriter()) {
+        json.beginObject();
+        writeProjects(json, projects, desiredFields);
+        searchOptions.writeJson(json, nbOfProjects);
+        json.endObject();
+      }
     }
   }
 
