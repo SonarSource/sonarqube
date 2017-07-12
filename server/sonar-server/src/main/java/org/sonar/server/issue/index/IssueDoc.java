@@ -272,4 +272,5 @@ public class IssueDoc extends BaseDoc {
     setField(IssueIndexDefinition.FIELD_ISSUE_ORGANIZATION_UUID, s);
     return this;
   }
+
 }

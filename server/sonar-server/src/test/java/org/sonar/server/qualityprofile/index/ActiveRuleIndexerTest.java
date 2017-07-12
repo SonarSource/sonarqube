@@ -125,7 +125,7 @@ public class ActiveRuleIndexerTest {
 
     commitAndIndex(ar);
 
-    EsQueueDto expectedItem = EsQueueDto.create(EsQueueDto.Type.ACTIVE_RULE, "" + ar.getId(), "activeRuleId", ar.getRuleKey().toString());
+    EsQueueDto expectedItem = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "" + ar.getId(), "activeRuleId", ar.getRuleKey().toString());
     assertThatEsQueueContainsExactly(expectedItem);
   }
 
@@ -144,7 +144,7 @@ public class ActiveRuleIndexerTest {
 
   @Test
   public void index_fails_and_deletes_doc_if_docIdType_is_unsupported() {
-    EsQueueDto item = EsQueueDto.create(EsQueueDto.Type.ACTIVE_RULE, "the_id", "unsupported", "the_routing");
+    EsQueueDto item = EsQueueDto.create(INDEX_TYPE_ACTIVE_RULE.format(), "the_id", "unsupported", "the_routing");
     db.getDbClient().esQueueDao().insert(db.getSession(), item);
 
     underTest.index(db.getSession(), asList(item));

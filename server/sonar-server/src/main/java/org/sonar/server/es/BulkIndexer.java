@@ -67,19 +67,19 @@ public class BulkIndexer {
   private static final int DEFAULT_NUMBER_OF_SHARDS = 5;
 
   private final EsClient client;
-  private final String indexName;
+  private final IndexType indexType;
   private final BulkProcessor bulkProcessor;
   private final IndexingResult result = new IndexingResult();
   private final IndexingListener indexingListener;
   private final SizeHandler sizeHandler;
 
-  public BulkIndexer(EsClient client, String indexName, Size size) {
-    this(client, indexName, size, IndexingListener.noop());
+  public BulkIndexer(EsClient client, IndexType indexType, Size size) {
+    this(client, indexType, size, IndexingListener.NOOP);
   }
 
-  public BulkIndexer(EsClient client, String indexName, Size size, IndexingListener indexingListener) {
+  public BulkIndexer(EsClient client, IndexType indexType, Size size, IndexingListener indexingListener) {
     this.client = client;
-    this.indexName = indexName;
+    this.indexType = indexType;
     this.sizeHandler = size.createHandler(Runtime2.INSTANCE);
     this.indexingListener = indexingListener;
     BulkProcessorListener bulkProcessorListener = new BulkProcessorListener();
@@ -89,6 +89,10 @@ public class BulkIndexer {
       .setBulkActions(FLUSH_ACTIONS)
       .setConcurrentRequests(sizeHandler.getConcurrentRequests())
       .build();
+  }
+
+  public IndexType getIndexType() {
+    return indexType;
   }
 
   public void start() {
@@ -106,12 +110,13 @@ public class BulkIndexer {
       Thread.currentThread().interrupt();
       throw new IllegalStateException("Elasticsearch bulk requests still being executed after 1 minute", e);
     }
-    client.prepareRefresh(indexName).get();
+    client.prepareRefresh(indexType.getIndex()).get();
     sizeHandler.afterStop(this);
+    indexingListener.onFinish(result);
     return result;
   }
 
-  public void add(ActionRequest<?> request) {
+  public void add(ActionRequest request) {
     result.incrementRequests();
     bulkProcessor.add(request);
   }
@@ -163,10 +168,10 @@ public class BulkIndexer {
    * Delete all the documents matching the given search request. This method is blocking.
    * Index is refreshed, so docs are not searchable as soon as method is executed.
    *
-   * Note that the parameter indexName could be removed if progress logs are not needed.
+   * Note that the parameter indexType could be removed if progress logs are not needed.
    */
-  public static IndexingResult delete(EsClient client, String indexName, SearchRequestBuilder searchRequest) {
-    BulkIndexer bulk = new BulkIndexer(client, indexName, Size.REGULAR);
+  public static IndexingResult delete(EsClient client, IndexType indexType, SearchRequestBuilder searchRequest) {
+    BulkIndexer bulk = new BulkIndexer(client, indexType, Size.REGULAR);
     bulk.start();
     bulk.addDeletion(searchRequest);
     return bulk.stop();
@@ -180,16 +185,15 @@ public class BulkIndexer {
 
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-      List<String> successDocIds = new ArrayList<>();
+      List<DocId> successDocIds = new ArrayList<>();
       for (BulkItemResponse item : response.getItems()) {
         if (item.isFailed()) {
           LOGGER.error("index [{}], type [{}], id [{}], message [{}]", item.getIndex(), item.getType(), item.getId(), item.getFailureMessage());
         } else {
           result.incrementSuccess();
-          successDocIds.add(item.getId());
+          successDocIds.add(new DocId(item.getIndex(), item.getType(), item.getId()));
         }
       }
-
       indexingListener.onSuccess(successDocIds);
     }
 
@@ -270,21 +274,21 @@ public class BulkIndexer {
 
     @Override
     void beforeStart(BulkIndexer bulkIndexer) {
-      this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", bulkIndexer.indexName), bulkIndexer.result.total, LOGGER)
+      this.progress = new ProgressLogger(format("Progress[BulkIndexer[%s]]", bulkIndexer.indexType.getIndex()), bulkIndexer.result.total, LOGGER)
         .setPluralLabel("requests");
       this.progress.start();
       Map<String, Object> temporarySettings = new HashMap<>();
-      GetSettingsResponse settingsResp = bulkIndexer.client.nativeClient().admin().indices().prepareGetSettings(bulkIndexer.indexName).get();
+      GetSettingsResponse settingsResp = bulkIndexer.client.nativeClient().admin().indices().prepareGetSettings(bulkIndexer.indexType.getIndex()).get();
 
       // deactivate replicas
-      int initialReplicas = Integer.parseInt(settingsResp.getSetting(bulkIndexer.indexName, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
+      int initialReplicas = Integer.parseInt(settingsResp.getSetting(bulkIndexer.indexType.getIndex(), IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
       if (initialReplicas > 0) {
         initialSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
         temporarySettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
       }
 
       // deactivate periodical refresh
-      String refreshInterval = settingsResp.getSetting(bulkIndexer.indexName, REFRESH_INTERVAL_SETTING);
+      String refreshInterval = settingsResp.getSetting(bulkIndexer.indexType.getIndex(), REFRESH_INTERVAL_SETTING);
       initialSettings.put(REFRESH_INTERVAL_SETTING, refreshInterval);
       temporarySettings.put(REFRESH_INTERVAL_SETTING, "-1");
 
@@ -296,14 +300,14 @@ public class BulkIndexer {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
       // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      bulkIndexer.client.prepareForceMerge(bulkIndexer.indexName).get();
+      bulkIndexer.client.prepareForceMerge(bulkIndexer.indexType.getIndex()).get();
 
       updateSettings(bulkIndexer, initialSettings);
       this.progress.stop();
     }
 
     private static void updateSettings(BulkIndexer bulkIndexer, Map<String, Object> settings) {
-      UpdateSettingsRequestBuilder req = bulkIndexer.client.nativeClient().admin().indices().prepareUpdateSettings(bulkIndexer.indexName);
+      UpdateSettingsRequestBuilder req = bulkIndexer.client.nativeClient().admin().indices().prepareUpdateSettings(bulkIndexer.indexType.getIndex());
       req.setSettings(settings);
       req.get();
     }

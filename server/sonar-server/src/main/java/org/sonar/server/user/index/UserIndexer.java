@@ -39,16 +39,14 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
 import org.sonar.server.es.IndexingListener;
 import org.sonar.server.es.IndexingResult;
-import org.sonar.server.es.ResiliencyIndexingListener;
+import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ResilientIndexer;
-import org.sonar.server.es.StartupIndexer;
 
 import static java.util.Collections.singletonList;
-import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
-public class UserIndexer implements StartupIndexer, ResilientIndexer {
+public class UserIndexer implements ResilientIndexer {
 
   private final DbClient dbClient;
   private final EsClient esClient;
@@ -69,7 +67,7 @@ public class UserIndexer implements StartupIndexer, ResilientIndexer {
       ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();
       dbClient.organizationMemberDao().selectAllForUserIndexing(dbSession, organizationUuidsByLogin::put);
 
-      BulkIndexer bulkIndexer = newBulkIndexer(Size.LARGE, IndexingListener.noop());
+      BulkIndexer bulkIndexer = newBulkIndexer(Size.LARGE, IndexingListener.NOOP);
       bulkIndexer.start();
       dbClient.userDao().scrollAll(dbSession,
         // only index requests, no deletion requests.
@@ -89,7 +87,7 @@ public class UserIndexer implements StartupIndexer, ResilientIndexer {
 
   public void commitAndIndexByLogins(DbSession dbSession, Collection<String> logins) {
     List<EsQueueDto> items = logins.stream()
-      .map(l -> EsQueueDto.create(EsQueueDto.Type.USER, l))
+      .map(l -> EsQueueDto.create(INDEX_TYPE_USER.format(), l))
       .collect(MoreCollectors.toArrayList());
 
     dbClient.esQueueDao().insert(dbSession, items);
@@ -115,17 +113,13 @@ public class UserIndexer implements StartupIndexer, ResilientIndexer {
     }
     Set<String> logins = items
       .stream()
-      .filter(i -> {
-        requireNonNull(i.getDocId(), () -> "BUG - " + i + " has not been persisted before indexing");
-        return i.getDocType() == EsQueueDto.Type.USER;
-      })
       .map(EsQueueDto::getDocId)
       .collect(toHashSet(items.size()));
 
     ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();
     dbClient.organizationMemberDao().selectForUserIndexing(dbSession, logins, organizationUuidsByLogin::put);
 
-    BulkIndexer bulkIndexer = newBulkIndexer(Size.REGULAR, new ResiliencyIndexingListener(dbClient, dbSession, items));
+    BulkIndexer bulkIndexer = newBulkIndexer(Size.REGULAR, new OneToOneResilientIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
     dbClient.userDao().scrollByLogins(dbSession, logins,
       // only index requests, no deletion requests.
@@ -137,12 +131,12 @@ public class UserIndexer implements StartupIndexer, ResilientIndexer {
 
     // the remaining logins reference rows that don't exist in db. They must
     // be deleted from index.
-    logins.forEach(l -> bulkIndexer.addDeletion(UserIndexDefinition.INDEX_TYPE_USER, l));
+    logins.forEach(l -> bulkIndexer.addDeletion(INDEX_TYPE_USER, l));
     return bulkIndexer.stop();
   }
 
   private BulkIndexer newBulkIndexer(Size bulkSize, IndexingListener listener) {
-    return new BulkIndexer(esClient, UserIndexDefinition.INDEX_TYPE_USER.getIndex(), bulkSize, listener);
+    return new BulkIndexer(esClient, INDEX_TYPE_USER, bulkSize, listener);
   }
 
   private static IndexRequest newIndexRequest(UserDto user, ListMultimap<String, String> organizationUuidsByLogins) {
@@ -155,7 +149,7 @@ public class UserIndexer implements StartupIndexer, ResilientIndexer {
     doc.setScmAccounts(UserDto.decodeScmAccounts(user.getScmAccounts()));
     doc.setOrganizationUuids(organizationUuidsByLogins.get(user.getLogin()));
 
-    return new IndexRequest(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType())
+    return new IndexRequest(INDEX_TYPE_USER.getIndex(), INDEX_TYPE_USER.getType())
       .id(doc.getId())
       .routing(doc.getRouting())
       .source(doc.getFields());

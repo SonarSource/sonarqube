@@ -20,9 +20,12 @@
 
 package org.sonar.server.es;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ListMultimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,9 +41,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.user.index.UserIndexer;
 
 import static java.lang.String.format;
 
@@ -55,7 +55,7 @@ public class RecoveryIndexer implements Startable {
   private static final long DEFAULT_DELAY_IN_MS = 5L * 60 * 1000;
   private static final long DEFAULT_MIN_AGE_IN_MS = 5L * 60 * 1000;
   private static final int DEFAULT_LOOP_LIMIT = 10_000;
-  private static final double CIRCUIT_BREAKER_IN_PERCENT = 0.3;
+  private static final double CIRCUIT_BREAKER_IN_PERCENT = 0.7;
 
   private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1,
     new ThreadFactoryBuilder()
@@ -65,20 +65,16 @@ public class RecoveryIndexer implements Startable {
   private final System2 system2;
   private final Configuration config;
   private final DbClient dbClient;
-  private final UserIndexer userIndexer;
-  private final RuleIndexer ruleIndexer;
-  private final ActiveRuleIndexer activeRuleIndexer;
+  private final Map<IndexType, ResilientIndexer> indexersByType;
   private final long minAgeInMs;
   private final long loopLimit;
 
-  public RecoveryIndexer(System2 system2, Configuration config, DbClient dbClient,
-    UserIndexer userIndexer, RuleIndexer ruleIndexer, ActiveRuleIndexer activeRuleIndexer) {
+  public RecoveryIndexer(System2 system2, Configuration config, DbClient dbClient, ResilientIndexer... indexers) {
     this.system2 = system2;
     this.config = config;
     this.dbClient = dbClient;
-    this.userIndexer = userIndexer;
-    this.ruleIndexer = ruleIndexer;
-    this.activeRuleIndexer = activeRuleIndexer;
+    this.indexersByType = new HashMap<>();
+    Arrays.stream(indexers).forEach(i -> i.getIndexTypes().forEach(indexType -> indexersByType.put(indexType, i)));
     this.minAgeInMs = getSetting(PROPERTY_MIN_AGE, DEFAULT_MIN_AGE_IN_MS);
     this.loopLimit = getSetting(PROPERTY_LOOP_LIMIT, DEFAULT_LOOP_LIMIT);
   }
@@ -110,6 +106,7 @@ public class RecoveryIndexer implements Startable {
     }
   }
 
+  @VisibleForTesting
   void recover() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Profiler profiler = Profiler.create(LOGGER).start();
@@ -120,16 +117,18 @@ public class RecoveryIndexer implements Startable {
       while (!items.isEmpty()) {
         IndexingResult loopResult = new IndexingResult();
 
-        ListMultimap<EsQueueDto.Type, EsQueueDto> itemsByType = groupItemsByType(items);
-        for (Map.Entry<EsQueueDto.Type, Collection<EsQueueDto>> entry : itemsByType.asMap().entrySet()) {
-          loopResult.add(doIndex(dbSession, entry.getKey(), entry.getValue()));
-        }
-
+        groupItemsByType(items).asMap().forEach((type, typeItems) -> loopResult.add(doIndex(dbSession, type, typeItems)));
         result.add(loopResult);
-        if (loopResult.getFailureRatio() >= CIRCUIT_BREAKER_IN_PERCENT) {
+
+        if (loopResult.getSuccessRatio() <= CIRCUIT_BREAKER_IN_PERCENT) {
           LOGGER.error(LOG_PREFIX + "too many failures [{}/{} documents], waiting for next run", loopResult.getFailures(), loopResult.getTotal());
           break;
         }
+
+        if (loopResult.getTotal() == 0L) {
+          break;
+        }
+
         items = dbClient.esQueueDao().selectForRecovery(dbSession, beforeDate, loopLimit);
       }
       if (result.getTotal() > 0L) {
@@ -140,24 +139,19 @@ public class RecoveryIndexer implements Startable {
     }
   }
 
-  private IndexingResult doIndex(DbSession dbSession, EsQueueDto.Type type, Collection<EsQueueDto> typeItems) {
+  private IndexingResult doIndex(DbSession dbSession, IndexType type, Collection<EsQueueDto> typeItems) {
     LOGGER.trace(LOG_PREFIX + "processing {} {}", typeItems.size(), type);
-    switch (type) {
-      case USER:
-        return userIndexer.index(dbSession, typeItems);
-      case RULE_EXTENSION:
-      case RULE:
-        return ruleIndexer.index(dbSession, typeItems);
-      case ACTIVE_RULE:
-        return activeRuleIndexer.index(dbSession, typeItems);
-      default:
-        LOGGER.error(LOG_PREFIX + "ignore {} documents with unsupported type {}", typeItems.size(), type);
-        return new IndexingResult();
+
+    ResilientIndexer indexer = indexersByType.get(type);
+    if (indexer == null) {
+      LOGGER.error(LOG_PREFIX + "ignore {} items with unsupported type {}", typeItems.size(), type);
+      return new IndexingResult();
     }
+    return indexer.index(dbSession, typeItems);
   }
 
-  private static ListMultimap<EsQueueDto.Type, EsQueueDto> groupItemsByType(Collection<EsQueueDto> items) {
-    return items.stream().collect(MoreCollectors.index(EsQueueDto::getDocType));
+  private static ListMultimap<IndexType, EsQueueDto> groupItemsByType(Collection<EsQueueDto> items) {
+    return items.stream().collect(MoreCollectors.index(i -> IndexType.parse(i.getDocType())));
   }
 
   private long getSetting(String key, long defaultValue) {

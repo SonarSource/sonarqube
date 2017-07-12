@@ -42,7 +42,7 @@ public class IndexAnalysisStep implements ComputationStep {
     String projectUuid = treeRootHolder.getRoot().getUuid();
     for (ProjectIndexer indexer : indexers) {
       LOGGER.debug("Call {}", indexer);
-      indexer.indexProject(projectUuid, ProjectIndexer.Cause.NEW_ANALYSIS);
+      indexer.indexOnAnalysis(projectUuid);
     }
   }
 

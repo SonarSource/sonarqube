@@ -53,7 +53,7 @@ public class IndexerStartupTask {
   public void execute() {
     if (indexesAreEnabled()) {
       stream(indexers)
-        .forEach(this::indexEmptyTypes);
+        .forEach(this::indexUninitializedTypes);
     }
   }
 
@@ -61,7 +61,7 @@ public class IndexerStartupTask {
     return !config.getBoolean("sonar.internal.es.disableIndexes").orElse(false);
   }
 
-  private void indexEmptyTypes(StartupIndexer indexer) {
+  private void indexUninitializedTypes(StartupIndexer indexer) {
     Set<IndexType> uninizializedTypes = getUninitializedTypes(indexer);
     if (!uninizializedTypes.isEmpty()) {
       Profiler profiler = Profiler.create(LOG);
@@ -80,7 +80,7 @@ public class IndexerStartupTask {
     return isUninitialized(indexType, esClient);
   }
 
-  public static boolean isUninitialized(IndexType indexType, EsClient esClient) {
+  private static boolean isUninitialized(IndexType indexType, EsClient esClient) {
     String setting = esClient.nativeClient().admin().indices().prepareGetSettings(indexType.getIndex()).get().getSetting(indexType.getIndex(),
       getInitializedSettingName(indexType));
     return !"true".equals(setting);

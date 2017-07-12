@@ -21,237 +21,465 @@ package org.sonar.server.issue.index;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
-import org.apache.commons.lang.StringUtils;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import org.elasticsearch.search.SearchHit;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.utils.System2;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.es.EsQueueDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.permission.index.AuthorizationScope;
+import org.sonar.server.permission.index.PermissionIndexerDao;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
+import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
+import static org.sonar.server.permission.index.AuthorizationTypeSupport.TYPE_AUTHORIZATION;
 
 public class IssueIndexerTest {
 
-  private static final String A_PROJECT_UUID = "P1";
-
-  private System2 system2 = System2.INSTANCE;
-
   @Rule
-  public EsTester esTester = new EsTester(IssueIndexDefinition.createForTest(new MapSettings().asConfig()));
+  public EsTester es = new EsTester(IssueIndexDefinition.createForTest(new MapSettings().asConfig()));
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
 
-  private IssueIndexer underTest = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbTester.getDbClient()));
+  private OrganizationDto organization;
+  private IssueIndexer underTest = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
 
-  @Test
-  public void index_on_startup() {
-    IssueIndexer indexer = spy(underTest);
-    doNothing().when(indexer).indexOnStartup(null);
-    indexer.indexOnStartup(null);
-    verify(indexer).indexOnStartup(null);
+  @Before
+  public void setUp() {
+    organization = db.organizations().insert();
   }
 
   @Test
-  public void index_nothing() {
-    underTest.index(Collections.emptyIterator());
-
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0L);
+  public void test_getIndexTypes() {
+    assertThat(underTest.getIndexTypes()).containsExactly(INDEX_TYPE_ISSUE);
   }
 
   @Test
-  public void indexOnStartup_loads_and_indexes_all_issues() {
-    OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(org);
-    ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir, "F1"));
-    RuleDto rule = dbTester.rules().insertRule();
-    IssueDto issue = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
+  public void test_getAuthorizationScope() {
+    AuthorizationScope scope = underTest.getAuthorizationScope();
+    assertThat(scope.getIndexType().getIndex()).isEqualTo(INDEX_TYPE_ISSUE.getIndex());
+    assertThat(scope.getIndexType().getType()).isEqualTo(TYPE_AUTHORIZATION);
 
-    underTest.indexOnStartup(null);
-
-    List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
-    assertThat(docs).hasSize(1);
-    verifyDoc(docs.get(0), org, project, file, rule, issue);
+    Predicate<PermissionIndexerDao.Dto> projectPredicate = scope.getProjectPredicate();
+    PermissionIndexerDao.Dto project = new PermissionIndexerDao.Dto("P1", 1_000, Qualifiers.PROJECT);
+    PermissionIndexerDao.Dto file = new PermissionIndexerDao.Dto("F1", 1_000, Qualifiers.FILE);
+    assertThat(projectPredicate.test(project)).isTrue();
+    assertThat(projectPredicate.test(file)).isFalse();
   }
 
   @Test
-  public void index_loads_and_indexes_issues_with_specified_keys() {
-    OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(org);
-    ComponentDto dir = dbTester.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project, dir, "F1"));
-    RuleDto rule = dbTester.rules().insertRule();
-    IssueDto issue1 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
-    IssueDto issue2 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
+  public void indexOnStartup_scrolls_db_and_adds_all_issues_to_index() {
+    IssueDto issue1 = db.issues().insertIssue(organization);
+    IssueDto issue2 = db.issues().insertIssue(organization);
 
-    underTest.index(asList(issue1.getKey()));
+    underTest.indexOnStartup(emptySet());
 
-    List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
-    assertThat(docs).hasSize(1);
-    verifyDoc(docs.get(0), org, project, file, rule, issue1);
+    assertThatIndexHasOnly(issue1, issue2);
   }
 
   @Test
-  public void index_throws_NoSuchElementException_if_the_specified_key_does_not_exist() {
-    try {
-      underTest.index(asList("does_not_exist"));
-      fail();
-    } catch (NoSuchElementException e) {
-      assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
-    }
-  }
+  public void verify_indexed_fields() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java/foo"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, dir, "F1"));
+    IssueDto issue = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
 
-  @Test
-  public void indexProject_loads_and_indexes_issues_with_specified_project_uuid() {
-    OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project1 = dbTester.components().insertPrivateProject(org);
-    ComponentDto file1 = dbTester.components().insertComponent(ComponentTesting.newFileDto(project1));
-    ComponentDto project2 = dbTester.components().insertPrivateProject(org);
-    ComponentDto file2 = dbTester.components().insertComponent(ComponentTesting.newFileDto(project2));
-    RuleDto rule = dbTester.rules().insertRule();
-    IssueDto issue1 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file1, project1));
-    IssueDto issue2 = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file2, project2));
+    underTest.indexOnStartup(emptySet());
 
-    underTest.indexProject(project1.projectUuid(), ProjectIndexer.Cause.NEW_ANALYSIS);
-
-    List<IssueDoc> docs = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
-    assertThat(docs).hasSize(1);
-    verifyDoc(docs.get(0), org, project1, file1, rule, issue1);
-  }
-
-  @Test
-  public void indexProject_does_nothing_when_project_is_being_created() {
-    verifyThatProjectIsNotIndexed(ProjectIndexer.Cause.PROJECT_CREATION);
-  }
-
-  @Test
-  public void indexProject_does_nothing_when_project_is_being_renamed() {
-    verifyThatProjectIsNotIndexed(ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
-  }
-
-  private void verifyThatProjectIsNotIndexed(ProjectIndexer.Cause cause) {
-    OrganizationDto org = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPrivateProject(org);
-    ComponentDto file = dbTester.components().insertComponent(ComponentTesting.newFileDto(project));
-    RuleDto rule = dbTester.rules().insertRule();
-    IssueDto issue = dbTester.issues().insertIssue(IssueTesting.newDto(rule, file, project));
-
-    underTest.indexProject(project.projectUuid(), cause);
-
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(0);
-  }
-
-  private static void verifyDoc(IssueDoc doc, OrganizationDto org, ComponentDto project, ComponentDto file, RuleDto rule, IssueDto issue) {
-    assertThat(doc.key()).isEqualTo(issue.getKey());
-    assertThat(doc.projectUuid()).isEqualTo(project.uuid());
-    assertThat(doc.componentUuid()).isEqualTo(file.uuid());
-    assertThat(doc.moduleUuid()).isEqualTo(project.uuid());
-    assertThat(doc.modulePath()).isEqualTo(file.moduleUuidPath());
-    assertThat(doc.directoryPath()).isEqualTo(StringUtils.substringBeforeLast(file.path(), "/"));
-    assertThat(doc.severity()).isEqualTo(issue.getSeverity());
-    assertThat(doc.ruleKey()).isEqualTo(rule.getKey());
-    assertThat(doc.organizationUuid()).isEqualTo(org.getUuid());
+    IssueDoc doc = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class).get(0);
+    assertThat(doc.getId()).isEqualTo(issue.getKey());
+    assertThat(doc.organizationUuid()).isEqualTo(organization.getUuid());
+    assertThat(doc.assignee()).isEqualTo(issue.getAssignee());
+    assertThat(doc.authorLogin()).isEqualTo(issue.getAuthorLogin());
+    assertThat(doc.componentUuid()).isEqualTo(issue.getComponentUuid());
+    assertThat(doc.closeDate()).isEqualTo(issue.getIssueCloseDate());
+    assertThat(doc.creationDate()).isEqualTo(issue.getIssueCreationDate());
+    assertThat(doc.directoryPath()).isEqualTo(dir.path());
+    assertThat(doc.filePath()).isEqualTo(file.path());
+    assertThat(doc.getParent()).isEqualTo(project.uuid());
+    assertThat(doc.getRouting()).isEqualTo(project.uuid());
+    assertThat(doc.language()).isEqualTo(issue.getLanguage());
+    assertThat(doc.line()).isEqualTo(issue.getLine());
     // functional date
     assertThat(doc.updateDate().getTime()).isEqualTo(issue.getIssueUpdateTime());
   }
 
   @Test
-  public void deleteProject_deletes_issues_of_a_specific_project() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
+  public void indexOnStartup_does_not_fail_on_errors_and_does_enable_recovery_mode() {
+    es.lockWrites(INDEX_TYPE_ISSUE);
+    db.issues().insertIssue(organization);
 
-    underTest.indexOnStartup(null);
+    underTest.indexOnStartup(emptySet());
 
-    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(1);
-
-    underTest.deleteProject("THE_PROJECT");
-
-    assertThat(esTester.countDocuments("issues", "issue")).isZero();
+    assertThatIndexHasSize(0);
+    assertThatEsQueueTableHasSize(0);
   }
 
   @Test
-  public void deleteByKeys_deletes_docs_by_keys() throws Exception {
-    addIssue("P1", "Issue1");
-    addIssue("P1", "Issue2");
-    addIssue("P1", "Issue3");
-    addIssue("P2", "Issue4");
+  public void indexOnAnalysis_indexes_the_issues_of_project() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto issue = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
+    ComponentDto otherProject = db.components().insertPrivateProject(organization);
+    ComponentDto fileOnOtherProject = db.components().insertComponent(newFileDto(otherProject));
 
-    verifyIssueKeys("Issue1", "Issue2", "Issue3", "Issue4");
+    underTest.indexOnAnalysis(project.uuid());
+
+    assertThatIndexHasOnly(issue);
+  }
+
+  @Test
+  public void indexOnAnalysis_does_not_delete_orphan_docs() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto issue = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
+
+    // orphan in the project
+    addIssueToIndex(project.uuid(), "orphan");
+
+    underTest.indexOnAnalysis(project.uuid());
+
+    assertThat(es.getDocuments(INDEX_TYPE_ISSUE))
+      .extracting(SearchHit::getId)
+      .containsExactlyInAnyOrder(issue.getKey(), "orphan");
+  }
+
+  /**
+   * Indexing recovery is handled by Compute Engine, without using
+   * the table es_queue
+   */
+  @Test
+  public void indexOnAnalysis_does_not_fail_on_errors_and_does_not_enable_recovery_mode() {
+    es.lockWrites(INDEX_TYPE_ISSUE);
+    IssueDto issue = db.issues().insertIssue(organization);
+
+    underTest.indexOnAnalysis(issue.getProjectUuid());
+
+    assertThatIndexHasSize(0);
+    assertThatEsQueueTableHasSize(0);
+  }
+
+
+  @Test
+  public void index_is_not_updated_when_creating_project() {
+    // it's impossible to already have an issue on a project
+    // that is being created, but it's just to verify that
+    // indexing is disabled
+    IssueDto issue = db.issues().insertIssue(organization);
+
+    IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    assertThat(result.getTotal()).isEqualTo(0L);
+    assertThatIndexHasSize(0);
+  }
+
+  @Test
+  public void index_is_not_updated_when_updating_project_key() {
+    // issue is inserted to verify that indexing of project is not triggered
+    IssueDto issue = db.issues().insertIssue(organization);
+
+    IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    assertThat(result.getTotal()).isEqualTo(0L);
+    assertThatIndexHasSize(0);
+  }
+
+  @Test
+  public void index_is_not_updated_when_updating_tags() {
+    // issue is inserted to verify that indexing of project is not triggered
+    IssueDto issue = db.issues().insertIssue(organization);
+
+    IndexingResult result = indexProject(issue.getProjectUuid(), ProjectIndexer.Cause.PROJECT_TAGS_UPDATE);
+    assertThat(result.getTotal()).isEqualTo(0L);
+    assertThatIndexHasSize(0);
+  }
+
+  @Test
+  public void index_is_updated_when_deleting_project() {
+    addIssueToIndex("P1", "I1");
+    assertThatIndexHasSize(1);
+
+    IndexingResult result = indexProject("P1", ProjectIndexer.Cause.PROJECT_DELETION);
+
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getSuccess()).isEqualTo(1L);
+    assertThatIndexHasSize(0);
+  }
+
+  @Test
+  public void errors_during_project_deletion_are_recovered() {
+    addIssueToIndex("P1", "I1");
+    assertThatIndexHasSize(1);
+    es.lockWrites(INDEX_TYPE_ISSUE);
+
+    IndexingResult result = indexProject("P1", ProjectIndexer.Cause.PROJECT_DELETION);
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getFailures()).isEqualTo(1L);
+
+    // index is still read-only, fail to recover
+    result = recover();
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getFailures()).isEqualTo(1L);
+    assertThatIndexHasSize(1);
+
+    es.unlockWrites(INDEX_TYPE_ISSUE);
+
+    result = recover();
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getFailures()).isEqualTo(0L);
+    assertThatIndexHasSize(0);
+  }
+
+  @Test
+  public void commitAndIndexIssues_commits_db_transaction_and_adds_issues_to_index() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    // insert issues in db without committing
+    IssueDto issue1 = IssueTesting.newIssue(rule, project, file);
+    IssueDto issue2 = IssueTesting.newIssue(rule, project, file);
+    db.getDbClient().issueDao().insert(db.getSession(), issue1, issue2);
+
+    underTest.commitAndIndexIssues(db.getSession(), asList(issue1, issue2));
+
+    // issues are persisted and indexed
+    assertThatIndexHasOnly(issue1, issue2);
+    assertThatDbHasOnly(issue1, issue2);
+    assertThatEsQueueTableHasSize(0);
+  }
+
+  @Test
+  public void commitAndIndexIssues_removes_issue_from_index_if_it_does_not_exist_in_db() {
+    IssueDto issue1 = new IssueDto().setKee("I1").setProjectUuid("P1");
+    addIssueToIndex(issue1.getProjectUuid(), issue1.getKey());
+    IssueDto issue2 = db.issues().insertIssue(organization);
+
+    underTest.commitAndIndexIssues(db.getSession(), asList(issue1, issue2));
+
+    // issue1 is removed from index, issue2 is persisted and indexed
+    assertThatIndexHasOnly(issue2);
+    assertThatDbHasOnly(issue2);
+    assertThatEsQueueTableHasSize(0);
+  }
+
+  @Test
+  public void indexing_errors_during_commitAndIndexIssues_are_recovered() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+
+    // insert issues in db without committing
+    IssueDto issue1 = IssueTesting.newIssue(rule, project, file);
+    IssueDto issue2 = IssueTesting.newIssue(rule, project, file);
+    db.getDbClient().issueDao().insert(db.getSession(), issue1, issue2);
+
+    // index is read-only
+    es.lockWrites(INDEX_TYPE_ISSUE);
+
+    underTest.commitAndIndexIssues(db.getSession(), asList(issue1, issue2));
+
+    // issues are persisted but not indexed
+    assertThatIndexHasSize(0);
+    assertThatDbHasOnly(issue1, issue2);
+    assertThatEsQueueTableHasSize(2);
+
+    // re-enable write on index
+    es.unlockWrites(INDEX_TYPE_ISSUE);
+
+    // emulate the recovery daemon
+    IndexingResult result = recover();
+
+    assertThatEsQueueTableHasSize(0);
+    assertThatIndexHasOnly(issue1, issue2);
+    assertThat(result.isSuccess()).isTrue();
+    assertThat(result.getTotal()).isEqualTo(2L);
+  }
+
+  @Test
+  public void recovery_does_not_fail_if_unsupported_docIdType() {
+    EsQueueDto item = EsQueueDto.create(INDEX_TYPE_ISSUE.format(), "I1", "unknown", "P1");
+    db.getDbClient().esQueueDao().insert(db.getSession(), item);
+    db.commit();
+
+    recover();
+
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .filteredOn(l -> l.contains("Unsupported es_queue.doc_id_type for issues. Manual fix is required: "))
+      .hasSize(1);
+    assertThatEsQueueTableHasSize(1);
+  }
+
+  @Test
+  public void indexing_recovers_multiple_errors_on_the_same_issue() {
+    es.lockWrites(INDEX_TYPE_ISSUE);
+    IssueDto issue = db.issues().insertIssue(organization);
+
+    // three changes on the same issue
+    underTest.commitAndIndexIssues(db.getSession(), asList(issue));
+    underTest.commitAndIndexIssues(db.getSession(), asList(issue));
+    underTest.commitAndIndexIssues(db.getSession(), asList(issue));
+
+    assertThatIndexHasSize(0);
+    // three attempts of indexing are stored in es_queue recovery table
+    assertThatEsQueueTableHasSize(3);
+
+    es.unlockWrites(INDEX_TYPE_ISSUE);
+    recover();
+
+    assertThatIndexHasOnly(issue);
+    assertThatEsQueueTableHasSize(0);
+  }
+
+  @Test
+  public void indexing_recovers_multiple_errors_on_the_same_project() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto issue1 = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
+    IssueDto issue2 = db.issues().insertIssue(IssueTesting.newIssue(rule, project, file));
+
+    es.lockWrites(INDEX_TYPE_ISSUE);
+
+    IndexingResult result = indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_DELETION);
+    assertThat(result.getTotal()).isEqualTo(2L);
+    assertThat(result.getFailures()).isEqualTo(2L);
+
+    // index is still read-only, fail to recover
+    result = recover();
+    assertThat(result.getTotal()).isEqualTo(2L);
+    assertThat(result.getFailures()).isEqualTo(2L);
+    assertThatIndexHasSize(0);
+
+    es.unlockWrites(INDEX_TYPE_ISSUE);
+
+    result = recover();
+    assertThat(result.getTotal()).isEqualTo(2L);
+    assertThat(result.getFailures()).isEqualTo(0L);
+    assertThatIndexHasSize(2);
+    assertThatEsQueueTableHasSize(0);
+  }
+
+  private IndexingResult indexProject(String projectUuid, ProjectIndexer.Cause cause) {
+    Collection<EsQueueDto> items = underTest.prepareForRecovery(db.getSession(), asList(projectUuid), cause);
+    db.commit();
+    return underTest.index(db.getSession(), items);
+  }
+
+  @Test
+  public void deleteByKeys_deletes_docs_by_keys() {
+    addIssueToIndex("P1", "Issue1");
+    addIssueToIndex("P1", "Issue2");
+    addIssueToIndex("P1", "Issue3");
+    addIssueToIndex("P2", "Issue4");
+
+    assertThatIndexHasOnly("Issue1", "Issue2", "Issue3", "Issue4");
 
     underTest.deleteByKeys("P1", asList("Issue1", "Issue2"));
 
-    verifyIssueKeys("Issue3", "Issue4");
+    assertThatIndexHasOnly("Issue3", "Issue4");
   }
 
   @Test
-  public void deleteByKeys_deletes_more_than_one_thousand_issues_by_keys() throws Exception {
-    int numberOfIssues = 1010;
-    List<String> keys = new ArrayList<>(numberOfIssues);
-    IssueDoc[] issueDocs = new IssueDoc[numberOfIssues];
-    for (int i = 0; i < numberOfIssues; i++) {
-      String key = "Issue" + i;
-      issueDocs[i] = newDoc().setKey(key).setProjectUuid(A_PROJECT_UUID);
-      keys.add(key);
-    }
-    esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, issueDocs);
+  public void deleteByKeys_does_not_recover_from_errors() {
+    addIssueToIndex("P1", "Issue1");
+    es.lockWrites(INDEX_TYPE_ISSUE);
 
-    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(numberOfIssues);
-    underTest.deleteByKeys(A_PROJECT_UUID, keys);
-    assertThat(esTester.countDocuments("issues", "issue")).isZero();
+    underTest.deleteByKeys("P1", asList("Issue1"));
+
+    assertThatIndexHasOnly("Issue1");
+    assertThatEsQueueTableHasSize(0);
   }
 
   @Test
-  public void nothing_to_do_when_delete_issues_on_empty_list() throws Exception {
-    addIssue("P1", "Issue1");
-    addIssue("P1", "Issue2");
-    addIssue("P1", "Issue3");
+  public void nothing_to_do_when_delete_issues_on_empty_list() {
+    addIssueToIndex("P1", "Issue1");
+    addIssueToIndex("P1", "Issue2");
+    addIssueToIndex("P1", "Issue3");
 
-    verifyIssueKeys("Issue1", "Issue2", "Issue3");
+    underTest.deleteByKeys("P1", emptyList());
 
-    underTest.deleteByKeys("P1", Collections.emptyList());
-
-    verifyIssueKeys("Issue1", "Issue2", "Issue3");
+    assertThatIndexHasOnly("Issue1", "Issue2", "Issue3");
   }
 
   /**
    * This is a technical constraint, to ensure, that the indexers can be called in any order, during startup.
    */
   @Test
-  public void index_issue_without_parent_should_work() {
+  public void parent_child_relationship_does_not_require_ordering_of_index_requests() {
     IssueDoc issueDoc = new IssueDoc();
     issueDoc.setKey("key");
-    issueDoc.setProjectUuid("non-exitsing-parent");
-    new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbTester.getDbClient()))
+    issueDoc.setProjectUuid("parent-does-not-exist");
+    new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()))
       .index(asList(issueDoc).iterator());
 
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE)).isEqualTo(1L);
+    assertThat(es.countDocuments(INDEX_TYPE_ISSUE)).isEqualTo(1L);
   }
 
-  private void addIssue(String projectUuid, String issueKey) throws Exception {
-    esTester.putDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE,
+  private void addIssueToIndex(String projectUuid, String issueKey) {
+    es.putDocuments(INDEX_TYPE_ISSUE,
       newDoc().setKey(issueKey).setProjectUuid(projectUuid));
   }
 
-  private void verifyIssueKeys(String... expectedKeys) {
-    List<IssueDoc> issues = esTester.getDocuments(IssueIndexDefinition.INDEX_TYPE_ISSUE, IssueDoc.class);
+  private void assertThatIndexHasSize(long expectedSize) {
+    assertThat(es.countDocuments(INDEX_TYPE_ISSUE)).isEqualTo(expectedSize);
+  }
+
+  private void assertThatIndexHasOnly(IssueDto... expectedIssues) {
+    assertThat(es.getDocuments(INDEX_TYPE_ISSUE))
+      .extracting(SearchHit::getId)
+      .containsExactlyInAnyOrder(Arrays.stream(expectedIssues).map(IssueDto::getKey).toArray(String[]::new));
+  }
+
+  private void assertThatIndexHasOnly(String... expectedKeys) {
+    List<IssueDoc> issues = es.getDocuments(INDEX_TYPE_ISSUE, IssueDoc.class);
     assertThat(issues).extracting(IssueDoc::key).containsOnly(expectedKeys);
+  }
+
+  private void assertThatEsQueueTableHasSize(int expectedSize) {
+    assertThat(db.countRowsOfTable("es_queue")).isEqualTo(expectedSize);
+  }
+
+  private void assertThatDbHasOnly(IssueDto... expectedIssues) {
+    try (DbSession otherSession = db.getDbClient().openSession(false)) {
+      List<String> keys = Arrays.stream(expectedIssues).map(IssueDto::getKey).collect(Collectors.toList());
+      assertThat(db.getDbClient().issueDao().selectByKeys(otherSession, keys)).hasSize(expectedIssues.length);
+    }
+  }
+
+  private IndexingResult recover() {
+    Collection<EsQueueDto> items = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), System.currentTimeMillis() + 1_000L, 10);
+    return underTest.index(db.getSession(), items);
   }
 }

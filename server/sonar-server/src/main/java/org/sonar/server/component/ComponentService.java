@@ -25,8 +25,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.singletonList;
 import static org.sonar.core.component.ComponentKeys.isValidModuleKey;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -35,35 +37,27 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class ComponentService {
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final ProjectIndexer[] projectIndexers;
+  private final ProjectIndexers projectIndexers;
 
-  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexer... projectIndexers) {
+  public ComponentService(DbClient dbClient, UserSession userSession, ProjectIndexers projectIndexers) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.projectIndexers = projectIndexers;
   }
 
-  // TODO should be moved to ComponentUpdater
+  // TODO should be moved to UpdateKeyAction
   public void updateKey(DbSession dbSession, ComponentDto component, String newKey) {
     userSession.checkComponentPermission(UserRole.ADMIN, component);
     checkIsProjectOrModule(component);
     checkProjectOrModuleKeyFormat(newKey);
     dbClient.componentKeyUpdaterDao().updateKey(dbSession, component.uuid(), newKey);
-    dbSession.commit();
-    index(component.uuid());
+    projectIndexers.commitAndIndex(dbSession, singletonList(component.uuid()), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
   }
 
-  // TODO should be moved to ComponentUpdater
+  // TODO should be moved to BulkUpdateKeyAction
   public void bulkUpdateKey(DbSession dbSession, String projectUuid, String stringToReplace, String replacementString) {
     dbClient.componentKeyUpdaterDao().bulkUpdateKey(dbSession, projectUuid, stringToReplace, replacementString);
-    dbSession.commit();
-    index(projectUuid);
-  }
-
-  private void index(String projectUuid) {
-    for (ProjectIndexer projectIndexer : projectIndexers) {
-      projectIndexer.indexProject(projectUuid, ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
-    }
+    projectIndexers.commitAndIndex(dbSession, singletonList(projectUuid), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
   }
 
   private static void checkProjectOrModuleKeyFormat(String key) {

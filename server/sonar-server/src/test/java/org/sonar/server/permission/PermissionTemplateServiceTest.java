@@ -38,13 +38,13 @@ import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.es.ProjectIndexers;
+import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.permission.ws.template.DefaultTemplatesResolverRule;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 public class PermissionTemplateServiceTest {
@@ -59,7 +59,7 @@ public class PermissionTemplateServiceTest {
   private UserSessionRule userSession = UserSessionRule.standalone();
   private PermissionTemplateDbTester templateDb = dbTester.permissionTemplates();
   private DbSession session = dbTester.getSession();
-  private PermissionIndexer permissionIndexer = mock(PermissionIndexer.class);
+  private ProjectIndexers projectIndexers = new TestProjectIndexers();
 
   private OrganizationDto organization;
   private ComponentDto privateProject;
@@ -68,7 +68,7 @@ public class PermissionTemplateServiceTest {
   private UserDto user;
   private UserDto creator;
 
-  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), permissionIndexer, userSession, defaultTemplatesResolver);
+  private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver);
 
   @Before
   public void setUp() throws Exception {
@@ -85,7 +85,7 @@ public class PermissionTemplateServiceTest {
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
 
-    underTest.apply(session, permissionTemplate, singletonList(privateProject));
+    underTest.applyAndCommit(session, permissionTemplate, singletonList(privateProject));
 
     assertThat(selectProjectPermissionsOfGroup(organization, null, privateProject)).isEmpty();
   }
@@ -108,7 +108,7 @@ public class PermissionTemplateServiceTest {
       .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
 
-    underTest.apply(session, permissionTemplate, singletonList(publicProject));
+    underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfGroup(organization, null, publicProject))
       .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
@@ -135,7 +135,7 @@ public class PermissionTemplateServiceTest {
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
 
-    underTest.apply(session, permissionTemplate, singletonList(privateProject));
+    underTest.applyAndCommit(session, permissionTemplate, singletonList(privateProject));
 
     assertThat(selectProjectPermissionsOfGroup(organization, group, privateProject))
       .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
@@ -162,7 +162,7 @@ public class PermissionTemplateServiceTest {
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
 
-    underTest.apply(session, permissionTemplate, singletonList(publicProject));
+    underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfGroup(organization, group, publicProject))
       .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
@@ -189,7 +189,7 @@ public class PermissionTemplateServiceTest {
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
 
-    underTest.apply(session, permissionTemplate, singletonList(publicProject));
+    underTest.applyAndCommit(session, permissionTemplate, singletonList(publicProject));
 
     assertThat(selectProjectPermissionsOfUser(user, publicProject))
       .containsOnly("p1", UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
@@ -216,7 +216,7 @@ public class PermissionTemplateServiceTest {
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
 
-    underTest.apply(session, permissionTemplate, singletonList(privateProject));
+    underTest.applyAndCommit(session, permissionTemplate, singletonList(privateProject));
 
     assertThat(selectProjectPermissionsOfUser(user, privateProject))
       .containsOnly("p1", UserRole.USER, UserRole.CODEVIEWER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION);
@@ -286,7 +286,7 @@ public class PermissionTemplateServiceTest {
     assertThat(selectProjectPermissionsOfGroup(organization, null, project)).isEmpty();
     assertThat(selectProjectPermissionsOfUser(user, project)).isEmpty();
 
-    underTest.apply(session, permissionTemplate, singletonList(project));
+    underTest.applyAndCommit(session, permissionTemplate, singletonList(project));
 
     assertThat(selectProjectPermissionsOfGroup(organization, adminGroup, project)).containsOnly("admin", "issueadmin");
     assertThat(selectProjectPermissionsOfGroup(organization, userGroup, project)).containsOnly("user", "codeviewer");

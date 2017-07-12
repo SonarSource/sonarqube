@@ -1119,7 +1119,7 @@ public class SearchProjectsActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     Arrays.stream(measures).forEach(m -> db.measureDbTester().insertMeasure(project, analysis, m.metric, m.consumer));
     authorizationIndexerTester.allowOnlyAnyone(project);
-    projectMeasuresIndexer.indexProject(project.uuid(), PROJECT_CREATION);
+    projectMeasuresIndexer.indexOnAnalysis(project.uuid());
     return project;
   }
 

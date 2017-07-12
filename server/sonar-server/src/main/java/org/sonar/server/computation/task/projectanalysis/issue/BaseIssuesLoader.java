@@ -53,7 +53,7 @@ public class BaseIssuesLoader {
   public List<DefaultIssue> loadForComponentUuid(String componentUuid) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<DefaultIssue> result = new ArrayList<>();
-      dbSession.getMapper(IssueMapper.class).selectNonClosedByComponentUuid(componentUuid, resultContext -> {
+      dbSession.getMapper(IssueMapper.class).scrollNonClosedByComponentUuid(componentUuid, resultContext -> {
         DefaultIssue issue = (resultContext.getResultObject()).toDefaultIssue();
 
         // TODO this field should be set outside this class

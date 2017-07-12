@@ -32,7 +32,7 @@ import util.user.UserRule;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
-public class BulkDeletionTest {
+public class ProjectBulkDeletionPageTest {
 
   private static final String ADMIN_USER_LOGIN = "admin-user";
 
@@ -63,7 +63,7 @@ public class BulkDeletionTest {
     executeBuild("cameleon-2", "Foo-Application");
     executeBuild("cameleon-3", "Bar-Sonar-Plugin");
 
-    runSelenese(orchestrator, "/projectAdministration/BulkDeletionTest/bulk-delete-filter-projects.html");
+    runSelenese(orchestrator, "/projectAdministration/ProjectBulkDeletionPageTest/bulk-delete-filter-projects.html");
   }
 
   private void executeBuild(String projectKey, String projectName) {

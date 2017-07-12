@@ -54,7 +54,7 @@ public class IndexAnalysisStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    verify(componentIndexer).indexProject(PROJECT_UUID, ProjectIndexer.Cause.NEW_ANALYSIS);
+    verify(componentIndexer).indexOnAnalysis(PROJECT_UUID);
   }
 
   @Test
@@ -64,7 +64,7 @@ public class IndexAnalysisStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    verify(componentIndexer).indexProject(PROJECT_UUID, ProjectIndexer.Cause.NEW_ANALYSIS);
+    verify(componentIndexer).indexOnAnalysis(PROJECT_UUID);
   }
 
   @Override

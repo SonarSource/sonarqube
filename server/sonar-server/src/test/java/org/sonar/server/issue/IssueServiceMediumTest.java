@@ -48,7 +48,6 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
@@ -148,10 +147,15 @@ public class IssueServiceMediumTest {
     tester.get(ComponentDao.class).insert(session, project);
     session.commit();
 
-    tester.get(PermissionIndexer.class).indexProjectsByUuids(session, singletonList(project.uuid()));
+    indexPermissions();
     userSessionRule.logIn();
 
     return project;
+  }
+
+  private void indexPermissions() {
+    PermissionIndexer permissionIndexer = tester.get(PermissionIndexer.class);
+    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
   }
 
   private ComponentDto newFile(ComponentDto project) {
@@ -164,7 +168,7 @@ public class IssueServiceMediumTest {
   private IssueDto saveIssue(IssueDto issue) {
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
-    tester.get(IssueIndexer.class).index(asList(issue.getKey()));
+    tester.get(IssueIndexer.class).commitAndIndexIssues(session, asList(issue));
     return issue;
   }
 }

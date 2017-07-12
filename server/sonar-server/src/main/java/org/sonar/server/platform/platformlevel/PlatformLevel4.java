@@ -53,6 +53,7 @@ import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
+import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.es.RecoveryIndexer;
 import org.sonar.server.event.NewAlerts;
 import org.sonar.server.favorite.FavoriteModule;
@@ -521,7 +522,8 @@ public class PlatformLevel4 extends PlatformLevel {
       // Http Request ID
       HttpRequestIdModule.class,
 
-      RecoveryIndexer.class);
+      RecoveryIndexer.class,
+      ProjectIndexersImpl.class);
     addAll(level4AddedComponents);
   }
 

@@ -116,7 +116,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         .build();
       List<ComponentDto> projects = dbClient.componentDao().selectByQuery(dbSession, template.getOrganizationUuid(), componentQuery, 0, Integer.MAX_VALUE);
 
-      permissionTemplateService.apply(dbSession, template, projects);
+      permissionTemplateService.applyAndCommit(dbSession, template, projects);
     }
   }
 

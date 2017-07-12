@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -176,7 +177,7 @@ public class PermissionIndexerDao {
     return doSelectByProjects(dbClient, session, Collections.emptyList());
   }
 
-  List<Dto> selectByUuids(DbClient dbClient, DbSession session, List<String> projectOrViewUuids) {
+  List<Dto> selectByUuids(DbClient dbClient, DbSession session, Collection<String> projectOrViewUuids) {
     return executeLargeInputs(projectOrViewUuids, subProjectOrViewUuids -> doSelectByProjects(dbClient, session, subProjectOrViewUuids));
   }
 

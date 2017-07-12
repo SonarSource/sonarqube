@@ -23,16 +23,20 @@ import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -110,7 +114,10 @@ public class EsTester extends ExternalResource {
           .routing(doc.getRouting())
           .source(doc.getFields()));
       }
-      EsUtils.executeBulkRequest(bulk, "");
+      BulkResponse bulkResponse = bulk.get();
+      if (bulkResponse.hasFailures()) {
+        throw new IllegalStateException(bulkResponse.buildFailureMessage());
+      }
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
@@ -228,5 +235,22 @@ public class EsTester extends ExternalResource {
         throw Throwables.propagate(e);
       }
     }
+  }
+
+  public EsTester lockWrites(IndexType index) {
+    return setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "true"));
+  }
+
+  public EsTester unlockWrites(IndexType index) {
+    return setIndexSettings(index.getIndex(), ImmutableMap.of("index.blocks.write", "false"));
+  }
+
+  private EsTester setIndexSettings(String index, Map<String, Object> settings) {
+    UpdateSettingsResponse response = client.nativeClient().admin().indices()
+      .prepareUpdateSettings(index)
+      .setSettings(settings)
+      .get();
+    checkState(response.isAcknowledged());
+    return this;
   }
 }

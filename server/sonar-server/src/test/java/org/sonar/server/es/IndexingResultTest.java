@@ -26,7 +26,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexingResultTest {
 
+  private static final Offset<Double> DOUBLE_OFFSET = Offset.offset(0.000001d);
+
   private final IndexingResult underTest = new IndexingResult();
+
+  @Test
+  public void test_empty() {
+    assertThat(underTest.getFailures()).isEqualTo(0);
+    assertThat(underTest.getSuccess()).isEqualTo(0);
+    assertThat(underTest.getTotal()).isEqualTo(0);
+    assertThat(underTest.getSuccessRatio()).isEqualTo(1.0, DOUBLE_OFFSET);
+    assertThat(underTest.isSuccess()).isTrue();
+  }
 
   @Test
   public void test_success() {
@@ -38,7 +49,7 @@ public class IndexingResultTest {
     assertThat(underTest.getFailures()).isEqualTo(0);
     assertThat(underTest.getSuccess()).isEqualTo(2);
     assertThat(underTest.getTotal()).isEqualTo(2);
-    assertThat(underTest.getFailureRatio()).isEqualTo(0.0, Offset.offset(0.000001d));
+    assertThat(underTest.getSuccessRatio()).isEqualTo(1.0, DOUBLE_OFFSET);
     assertThat(underTest.isSuccess()).isTrue();
   }
 
@@ -50,7 +61,7 @@ public class IndexingResultTest {
     assertThat(underTest.getFailures()).isEqualTo(2);
     assertThat(underTest.getSuccess()).isEqualTo(0);
     assertThat(underTest.getTotal()).isEqualTo(2);
-    assertThat(underTest.getFailureRatio()).isEqualTo(1.0, Offset.offset(0.000001d));
+    assertThat(underTest.getSuccessRatio()).isEqualTo(0.0, DOUBLE_OFFSET);
     assertThat(underTest.isSuccess()).isFalse();
   }
 
@@ -58,12 +69,14 @@ public class IndexingResultTest {
   public void test_partial_failure() {
     underTest.incrementRequests();
     underTest.incrementRequests();
+    underTest.incrementRequests();
+    underTest.incrementRequests();
     underTest.incrementSuccess();
 
-    assertThat(underTest.getFailures()).isEqualTo(1);
+    assertThat(underTest.getFailures()).isEqualTo(3);
     assertThat(underTest.getSuccess()).isEqualTo(1);
-    assertThat(underTest.getTotal()).isEqualTo(2);
-    assertThat(underTest.getFailureRatio()).isEqualTo(0.5, Offset.offset(0.000001d));
+    assertThat(underTest.getTotal()).isEqualTo(4);
+    assertThat(underTest.getSuccessRatio()).isEqualTo(0.25, DOUBLE_OFFSET);
     assertThat(underTest.isSuccess()).isFalse();
   }
 
@@ -72,7 +85,7 @@ public class IndexingResultTest {
     assertThat(underTest.getFailures()).isEqualTo(0);
     assertThat(underTest.getSuccess()).isEqualTo(0);
     assertThat(underTest.getTotal()).isEqualTo(0);
-    assertThat(underTest.getFailureRatio()).isEqualTo(1);
+    assertThat(underTest.getSuccessRatio()).isEqualTo(1.0);
     assertThat(underTest.isSuccess()).isTrue();
   }
 }

@@ -417,7 +417,7 @@
     </if>
   </sql>
 
-  <select id="selectForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollForIndexing" parameterType="map" resultType="Component" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
       <include refid="componentColumns"/>
     from projects p

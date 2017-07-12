@@ -44,7 +44,8 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
-import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.permission.ws.template.DefaultTemplatesResolver;
 import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.user.UserSession;
@@ -59,14 +60,14 @@ import static org.sonar.api.security.DefaultGroups.isAnyone;
 public class PermissionTemplateService {
 
   private final DbClient dbClient;
-  private final PermissionIndexer permissionIndexer;
+  private final ProjectIndexers projectIndexers;
   private final UserSession userSession;
   private final DefaultTemplatesResolver defaultTemplatesResolver;
 
-  public PermissionTemplateService(DbClient dbClient, PermissionIndexer permissionIndexer, UserSession userSession,
+  public PermissionTemplateService(DbClient dbClient, ProjectIndexers projectIndexers, UserSession userSession,
     DefaultTemplatesResolver defaultTemplatesResolver) {
     this.dbClient = dbClient;
-    this.permissionIndexer = permissionIndexer;
+    this.projectIndexers = projectIndexers;
     this.userSession = userSession;
     this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
@@ -95,7 +96,7 @@ public class PermissionTemplateService {
    * is not verified. The projects must exist, so the "project creator" permissions defined in the
    * template are ignored.
    */
-  public void apply(DbSession dbSession, PermissionTemplateDto template, Collection<ComponentDto> projects) {
+  public void applyAndCommit(DbSession dbSession, PermissionTemplateDto template, Collection<ComponentDto> projects) {
     if (projects.isEmpty()) {
       return;
     }
@@ -103,8 +104,7 @@ public class PermissionTemplateService {
     for (ComponentDto project : projects) {
       copyPermissions(dbSession, template, project, null);
     }
-    dbSession.commit();
-    indexProjectPermissions(dbSession, projects.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList()));
+    projectIndexers.commitAndIndex(dbSession, projects.stream().map(ComponentDto::uuid).collect(MoreCollectors.toList()), ProjectIndexer.Cause.PERMISSION_CHANGE);
   }
 
   /**
@@ -116,8 +116,6 @@ public class PermissionTemplateService {
     PermissionTemplateDto template = findTemplate(dbSession, organizationUuid, component);
     checkArgument(template != null, "Cannot retrieve default permission template");
     copyPermissions(dbSession, template, component, projectCreatorUserId);
-    dbSession.commit();
-    indexProjectPermissions(dbSession, asList(component.uuid()));
   }
 
   public boolean hasDefaultTemplateWithPermissionOnProjectCreator(DbSession dbSession, String organizationUuid, ComponentDto component) {
@@ -128,10 +126,6 @@ public class PermissionTemplateService {
   private boolean hasProjectCreatorPermission(DbSession dbSession, @Nullable PermissionTemplateDto template) {
     return template != null && dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, singletonList(template.getId())).stream()
       .anyMatch(PermissionTemplateCharacteristicDto::getWithProjectCreator);
-  }
-
-  private void indexProjectPermissions(DbSession dbSession, List<String> projectOrViewUuids) {
-    permissionIndexer.indexProjectsByUuids(dbSession, projectOrViewUuids);
   }
 
   private void copyPermissions(DbSession dbSession, PermissionTemplateDto template, ComponentDto project, @Nullable Integer projectCreatorUserId) {

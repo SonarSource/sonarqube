@@ -65,6 +65,38 @@
     </if>
   </sql>
 
+  <sql id="issueForIndexingColumns">
+    i.kee as "key",
+    root.uuid as "projectUuid",
+    i.updated_at as "updatedAt",
+    i.assignee,
+    i.gap,
+    i.issue_attributes as "attributes",
+    i.line,
+    i.message,
+    i.resolution,
+    i.severity,
+    i.manual_severity as "manualSeverity",
+    i.checksum,
+    i.status,
+    i.effort,
+    i.author_login as "authorLogin",
+    i.issue_close_date as "issueCloseDate",
+    i.issue_creation_date as "issueCreationDate",
+    i.issue_update_date as "issueUpdateDate",
+    r.plugin_name as "pluginName",
+    r.plugin_rule_key as "pluginRuleKey",
+    r.language,
+    p.uuid as "projectUuid",
+    p.module_uuid_path as "moduleUuidPath",
+    p.path,
+    p.scope,
+    p.organization_uuid as "organizationUuid",
+    i.tags,
+    i.issue_type as "issueType"
+  </sql>
+
+
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
     INSERT INTO issues (kee, rule_id, severity, manual_severity,
     message, line, locations, gap, effort, status, tags,
@@ -150,7 +182,7 @@
     where i.kee=#{kee,jdbcType=VARCHAR}
   </select>
 
-  <select id="selectNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
+  <select id="scrollNonClosedByComponentUuid" parameterType="String" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="issueColumns"/>
     from issues i

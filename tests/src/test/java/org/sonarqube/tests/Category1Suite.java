@@ -38,7 +38,7 @@ import org.sonarqube.tests.measure.SincePreviousVersionHistoryTest;
 import org.sonarqube.tests.measure.SinceXDaysHistoryTest;
 import org.sonarqube.tests.measure.TimeMachineTest;
 import org.sonarqube.tests.projectAdministration.BackgroundTasksTest;
-import org.sonarqube.tests.projectAdministration.BulkDeletionTest;
+import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
 import org.sonarqube.tests.projectAdministration.ProjectAdministrationTest;
 import org.sonarqube.tests.projectAdministration.ProjectLinksPageTest;
 import org.sonarqube.tests.projectSearch.ProjectsPageTest;
@@ -65,7 +65,7 @@ import static util.ItUtils.xooPlugin;
   UsersPageTest.class,
   ProjectVisibilityTest.class,
   // project administration
-  BulkDeletionTest.class,
+  ProjectBulkDeletionPageTest.class,
   ProjectAdministrationTest.class,
   ProjectLinksPageTest.class,
   BackgroundTasksTest.class,

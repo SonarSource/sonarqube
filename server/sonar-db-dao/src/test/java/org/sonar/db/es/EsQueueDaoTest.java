@@ -48,7 +48,7 @@ public class EsQueueDaoTest {
     int nbOfInsert = 10 + new Random().nextInt(20);
     List<EsQueueDto> esQueueDtos = new ArrayList<>();
     IntStream.rangeClosed(1, nbOfInsert).forEach(
-      i -> esQueueDtos.add(EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()))
+      i -> esQueueDtos.add(EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()))
     );
     underTest.insert(dbSession, esQueueDtos);
 
@@ -60,11 +60,11 @@ public class EsQueueDaoTest {
     int nbOfInsert = 10 + new Random().nextInt(20);
     List<EsQueueDto> esQueueDtos = new ArrayList<>();
     IntStream.rangeClosed(1, nbOfInsert).forEach(
-      i -> esQueueDtos.add(EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()))
+      i -> esQueueDtos.add(EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()))
     );
     underTest.insert(dbSession, esQueueDtos);
 
-    underTest.delete(dbSession, EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()));
+    underTest.delete(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
 
     assertThat(dbTester.countSql(dbSession, "select count(*) from es_queue")).isEqualTo(nbOfInsert);
   }
@@ -74,7 +74,7 @@ public class EsQueueDaoTest {
     int nbOfInsert = 10 + new Random().nextInt(20);
     List<EsQueueDto> esQueueDtos = new ArrayList<>();
     IntStream.rangeClosed(1, nbOfInsert).forEach(
-      i -> esQueueDtos.add(EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()))
+      i -> esQueueDtos.add(EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()))
     );
     underTest.insert(dbSession, esQueueDtos);
     assertThat(dbTester.countSql(dbSession, "select count(*) from es_queue")).isEqualTo(nbOfInsert);
@@ -87,11 +87,11 @@ public class EsQueueDaoTest {
   @Test
   public void selectForRecovery_must_return_limit_when_there_are_more_rows()  {
     system2.setNow(1_000L);
-    EsQueueDto i1 = underTest.insert(dbSession, EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()));
+    EsQueueDto i1 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
     system2.setNow(1_001L);
-    EsQueueDto i2 = underTest.insert(dbSession, EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()));
+    EsQueueDto i2 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
     system2.setNow(1_002L);
-    EsQueueDto i3 = underTest.insert(dbSession, EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()));
+    EsQueueDto i3 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
 
     assertThat(underTest.selectForRecovery(dbSession, 2_000, 1))
       .extracting(EsQueueDto::getUuid)
@@ -109,11 +109,11 @@ public class EsQueueDaoTest {
   @Test
   public void selectForRecovery_returns_ordered_rows_created_before_date()  {
     system2.setNow(1_000L);
-    EsQueueDto i1 = underTest.insert(dbSession, EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()));
+    EsQueueDto i1 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
     system2.setNow(1_001L);
-    EsQueueDto i2 = underTest.insert(dbSession, EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()));
+    EsQueueDto i2 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
     system2.setNow(1_002L);
-    EsQueueDto i3 = underTest.insert(dbSession, EsQueueDto.create(EsQueueDto.Type.USER, UuidFactoryFast.getInstance().create()));
+    EsQueueDto i3 = underTest.insert(dbSession, EsQueueDto.create("foo", UuidFactoryFast.getInstance().create()));
 
     assertThat(underTest.selectForRecovery(dbSession, 999, LIMIT)).hasSize(0);
     assertThat(underTest.selectForRecovery(dbSession, 1_000, LIMIT))

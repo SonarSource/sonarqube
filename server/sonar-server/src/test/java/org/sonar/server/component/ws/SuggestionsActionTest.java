@@ -42,7 +42,6 @@ import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -339,7 +338,7 @@ public class SuggestionsActionTest {
   @Test
   public void suggestions_without_query_should_return_empty_qualifiers() throws Exception {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
-    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project.projectUuid());
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -356,7 +355,7 @@ public class SuggestionsActionTest {
   public void suggestions_should_filter_allowed_qualifiers() {
     resourceTypes.setAllQualifiers(PROJECT, MODULE, FILE);
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
-    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project.projectUuid());
     userSessionRule.addProjectPermission(USER, project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -444,7 +443,7 @@ public class SuggestionsActionTest {
     OrganizationDto organization1 = db.organizations().insert(o -> o.setKey("org-1").setName("Organization One"));
 
     ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organization1).setName("Project1"));
-    componentIndexer.indexProject(project1.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project1.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project1);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -464,11 +463,11 @@ public class SuggestionsActionTest {
     OrganizationDto organization2 = db.organizations().insert(o -> o.setKey("org-2").setName("Organization Two"));
 
     ComponentDto project1 = db.components().insertComponent(newPrivateProjectDto(organization1).setName("Project1"));
-    componentIndexer.indexProject(project1.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project1.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project1);
 
     ComponentDto project2 = db.components().insertComponent(newPrivateProjectDto(organization2).setName("Project2"));
-    componentIndexer.indexProject(project2.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project2.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project2);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -488,7 +487,7 @@ public class SuggestionsActionTest {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
     db.components().insertComponent(newModuleDto(project).setName("Module1"));
     db.components().insertComponent(newModuleDto(project).setName("Module2"));
-    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -514,7 +513,7 @@ public class SuggestionsActionTest {
     db.components().insertComponent(module1);
     ComponentDto module2 = newModuleDto(project).setName("Module2");
     db.components().insertComponent(module2);
-    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -538,7 +537,7 @@ public class SuggestionsActionTest {
 
     ComponentDto nonFavorite = newModuleDto(project).setName("Module2");
     db.components().insertComponent(nonFavorite);
-    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()
@@ -555,7 +554,7 @@ public class SuggestionsActionTest {
   @Test
   public void should_return_empty_qualifiers() throws Exception {
     ComponentDto project = db.components().insertComponent(newPrivateProjectDto(organization));
-    componentIndexer.indexProject(project.projectUuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    componentIndexer.indexOnAnalysis(project.projectUuid());
     authorizationIndexerTester.allowOnlyAnyone(project);
 
     SuggestionsWsResponse response = ws.newRequest()

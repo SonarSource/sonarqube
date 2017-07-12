@@ -27,7 +27,7 @@ import org.sonar.db.es.EsQueueDto;
 /**
  * This kind of indexers that are resilient
  */
-public interface ResilientIndexer {
+public interface ResilientIndexer extends StartupIndexer {
 
   /**
    * Index the items and delete them from es_queue table when the indexation

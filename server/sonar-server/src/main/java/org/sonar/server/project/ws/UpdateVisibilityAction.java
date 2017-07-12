@@ -34,7 +34,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.GroupPermissionDto;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.ProjectIndexers;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.project.ProjectsWsParameters;
@@ -53,15 +54,15 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
-  private final PermissionIndexer permissionIndexer;
+  private final ProjectIndexers projectIndexers;
   private final ProjectsWsSupport projectsWsSupport;
 
   public UpdateVisibilityAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession,
-    PermissionIndexer permissionIndexer, ProjectsWsSupport projectsWsSupport) {
+                                ProjectIndexers projectIndexers, ProjectsWsSupport projectsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.permissionIndexer = permissionIndexer;
+    this.projectIndexers = projectIndexers;
     this.projectsWsSupport = projectsWsSupport;
   }
 
@@ -108,8 +109,7 @@ public class UpdateVisibilityAction implements ProjectsWsAction {
         } else {
           updatePermissionsToPublic(dbSession, component);
         }
-        dbSession.commit();
-        permissionIndexer.indexProjectsByUuids(dbSession, singletonList(component.uuid()));
+        projectIndexers.commitAndIndex(dbSession, singletonList(component.uuid()), ProjectIndexer.Cause.PERMISSION_CHANGE);
       }
     }
   }

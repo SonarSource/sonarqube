@@ -20,6 +20,8 @@
 package org.sonarqube.tests;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.util.NetworkUtils;
+import java.net.InetAddress;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -31,6 +33,8 @@ import org.sonarqube.tests.organization.OrganizationMembershipUiTest;
 import org.sonarqube.tests.organization.OrganizationTest;
 import org.sonarqube.tests.organization.PersonalOrganizationTest;
 import org.sonarqube.tests.organization.RootUserOnOrganizationTest;
+import org.sonarqube.tests.projectAdministration.ProjectDeletionTest;
+import org.sonarqube.tests.projectAdministration.ProjectProvisioningTest;
 import org.sonarqube.tests.projectSearch.LeakProjectsPageTest;
 import org.sonarqube.tests.projectSearch.SearchProjectsTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
@@ -65,12 +69,22 @@ import static util.ItUtils.xooPlugin;
   IssueTagsTest.class,
   LeakProjectsPageTest.class,
   SearchProjectsTest.class,
-  RulesWsTest.class
+  RulesWsTest.class,
+  ProjectDeletionTest.class,
+  ProjectProvisioningTest.class
 })
 public class Category6Suite {
 
+  public static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+
+    // for ES resiliency tests
+    .setServerProperty("sonar.search.httpPort", "" + SEARCH_HTTP_PORT)
+    .setServerProperty("sonar.search.recovery.delayInMs", "1000")
+    .setServerProperty("sonar.search.recovery.minAgeInMs", "3000")
+
     .addPlugin(xooPlugin())
     .addPlugin(pluginArtifact("base-auth-plugin"))
     .addPlugin(pluginArtifact("fake-billing-plugin"))

@@ -85,7 +85,7 @@ public abstract class IssueStorage {
     }
   }
 
-  private Collection<IssueDto> doSave(DbSession session, Iterable<DefaultIssue> issues) {
+  private Collection<IssueDto> doSave(DbSession dbSession, Iterable<DefaultIssue> issues) {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
     long now = system2.now();
@@ -94,18 +94,17 @@ public abstract class IssueStorage {
     List<DefaultIssue> issuesToInsert = firstNonNull(issuesNewOrUpdated.get(true), emptyList());
     List<DefaultIssue> issuesToUpdate = firstNonNull(issuesNewOrUpdated.get(false), emptyList());
 
-    Collection<IssueDto> inserted = insert(session, issuesToInsert, now);
+    Collection<IssueDto> inserted = insert(dbSession, issuesToInsert, now);
     Collection<IssueDto> updated = update(issuesToUpdate, now);
 
-    doAfterSave(Stream.concat(inserted.stream(), updated.stream())
-      .map(IssueDto::getKey)
+    doAfterSave(dbSession, Stream.concat(inserted.stream(), updated.stream())
       .collect(toSet(issuesToInsert.size() + issuesToUpdate.size())));
 
     return Stream.concat(inserted.stream(), updated.stream())
       .collect(toSet(issuesToInsert.size() + issuesToUpdate.size()));
   }
 
-  protected void doAfterSave(Collection<String> issues) {
+  protected void doAfterSave(DbSession dbSession, Collection<IssueDto> issues) {
     // overridden on server-side to index ES
   }
 

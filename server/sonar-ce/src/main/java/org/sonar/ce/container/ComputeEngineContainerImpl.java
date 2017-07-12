@@ -22,7 +22,6 @@ package org.sonar.ce.container;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.db.DBSessionsImpl;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.config.EmailSettings;
@@ -67,6 +66,7 @@ import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
@@ -74,7 +74,6 @@ import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
@@ -350,7 +349,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ComponentFinder.class, // used in ComponentService
       NewAlerts.class,
       NewAlerts.newMetadata(),
-      ComponentCleanerService.class,
       ProjectMeasuresIndexer.class,
       ComponentIndexer.class,
 

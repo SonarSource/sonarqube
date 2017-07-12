@@ -102,7 +102,7 @@ public class DoTransitionActionTest {
   private IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
   private TransitionService transitionService = new TransitionService(userSession, workflow);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
     new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class));
   private ComponentDto project;

@@ -19,11 +19,12 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -33,50 +34,43 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.es.EsQueueDto;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.user.UserDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.rangeClosed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.sonar.api.utils.log.LoggerLevel.ERROR;
 import static org.sonar.api.utils.log.LoggerLevel.INFO;
 import static org.sonar.api.utils.log.LoggerLevel.TRACE;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 
 public class RecoveryIndexerTest {
 
   private static final long PAST = 1_000L;
+  private static final IndexType FOO_TYPE = new IndexType("foos", "foo");
+
   private TestSystem2 system2 = new TestSystem2().setNow(PAST);
   private MapSettings emptySettings = new MapSettings();
 
   @Rule
-  public final EsTester es = new EsTester(new UserIndexDefinition(emptySettings.asConfig()), new RuleIndexDefinition(emptySettings.asConfig()));
+  public EsTester es = new EsTester();
   @Rule
-  public final DbTester db = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
   @Rule
-  public final LogTester logTester = new LogTester().setLevel(TRACE);
+  public LogTester logTester = new LogTester().setLevel(TRACE);
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.builder().withTimeout(60, TimeUnit.SECONDS).withLookingForStuckThread(true).build());
 
-  private UserIndexer mockedUserIndexer = mock(UserIndexer.class);
-  private RuleIndexer mockedRuleIndexer = mock(RuleIndexer.class);
-  private ActiveRuleIndexer mockedActiveRuleIndexer = mock(ActiveRuleIndexer.class);
   private RecoveryIndexer underTest;
 
   @After
@@ -88,9 +82,7 @@ public class RecoveryIndexerTest {
 
   @Test
   public void display_default_configuration_at_startup() {
-    UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
-    RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
-    underTest = newRecoveryIndexer(userIndexer, ruleIndexer, emptySettings);
+    underTest = newRecoveryIndexer(emptySettings.asConfig());
 
     underTest.start();
 
@@ -104,7 +96,7 @@ public class RecoveryIndexerTest {
     MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.initialDelayInMs", "0")
       .setProperty("sonar.search.recovery.delayInMs", "1");
-    underTest = spy(new RecoveryIndexer(system2, settings.asConfig(), db.getDbClient(), mockedUserIndexer, mockedRuleIndexer, mockedActiveRuleIndexer));
+    underTest = spy(new RecoveryIndexer(system2, settings.asConfig(), db.getDbClient()));
     AtomicInteger calls = new AtomicInteger(0);
     doAnswer(invocation -> {
       calls.incrementAndGet();
@@ -120,58 +112,50 @@ public class RecoveryIndexerTest {
   }
 
   @Test
-  public void successfully_index_RULE_records() {
-    EsQueueDto item1 = createUnindexedRule();
-    EsQueueDto item2 = createUnindexedRule();
+  public void successfully_recover_indexing_requests() {
+    IndexType type1 = new IndexType("foos", "foo");
+    EsQueueDto item1a = insertItem(type1, "f1");
+    EsQueueDto item1b = insertItem(type1, "f2");
+    IndexType type2 = new IndexType("bars", "bar");
+    EsQueueDto item2 = insertItem(type2, "b1");
 
-    ProxyRuleIndexer ruleIndexer = new ProxyRuleIndexer();
+    SuccessfulFakeIndexer indexer1 = new SuccessfulFakeIndexer(type1);
+    SuccessfulFakeIndexer indexer2 = new SuccessfulFakeIndexer(type2);
     advanceInTime();
 
-    underTest = newRecoveryIndexer(mockedUserIndexer, ruleIndexer);
+    underTest = newRecoveryIndexer(indexer1, indexer2);
     underTest.recover();
 
     assertThatQueueHasSize(0);
-    assertThat(ruleIndexer.called)
+    assertThatLogsContain(INFO, "Elasticsearch recovery - 3 documents processed [0 failures]");
+
+    assertThat(indexer1.called).hasSize(1);
+    assertThat(indexer1.called.get(0))
       .extracting(EsQueueDto::getUuid)
-      .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid());
+      .containsExactlyInAnyOrder(item1a.getUuid(), item1b.getUuid());
+    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 2 [foos/foo]");
 
-    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 2 RULE");
-    assertThatLogsContain(INFO, "Elasticsearch recovery - 4 documents processed [0 failures]");
-  }
-
-  @Test
-  public void successfully_index_USER_records() {
-    EsQueueDto item1 = createUnindexedUser();
-    EsQueueDto item2 = createUnindexedUser();
-
-    ProxyUserIndexer userIndexer = new ProxyUserIndexer();
-    advanceInTime();
-    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
-    underTest.recover();
-
-    assertThatQueueHasSize(0);
-    assertThat(userIndexer.called)
+    assertThat(indexer2.called).hasSize(1);
+    assertThat(indexer2.called.get(0))
       .extracting(EsQueueDto::getUuid)
-      .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid());
-
-    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 2 USER");
-    assertThatLogsContain(INFO, "Elasticsearch recovery - 2 documents processed [0 failures]");
+      .containsExactlyInAnyOrder(item2.getUuid());
+    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 1 [bars/bar]");
   }
 
   @Test
   public void recent_records_are_not_recovered() {
-    createUnindexedUser();
-    createUnindexedUser();
+    EsQueueDto item = insertItem(FOO_TYPE, "f1");
 
-    ProxyUserIndexer userIndexer = new ProxyUserIndexer();
+    SuccessfulFakeIndexer indexer = new SuccessfulFakeIndexer(FOO_TYPE);
     // do not advance in time
-    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
+
+    underTest = newRecoveryIndexer(indexer);
     underTest.recover();
 
-    assertThatQueueHasSize(2);
-    assertThat(userIndexer.called).isEmpty();
+    assertThatQueueHasSize(1);
+    assertThat(indexer.called).isEmpty();
 
-    assertThatLogsDoNotContain(TRACE, "Elasticsearch recovery - processing 2 USER");
+    assertThatLogsDoNotContain(TRACE, "Elasticsearch recovery - processing 2 [foos/foo]");
     assertThatLogsDoNotContain(INFO, "documents processed");
   }
 
@@ -187,13 +171,20 @@ public class RecoveryIndexerTest {
   }
 
   @Test
-  public void log_exception_on_recovery_failure() {
-    createUnindexedUser();
-    FailingOnceUserIndexer failingOnceUserIndexer = new FailingOnceUserIndexer();
+  public void hard_failures_are_logged_and_do_not_stop_recovery_scheduling() throws Exception {
+    insertItem(FOO_TYPE, "f1");
+
+    HardFailingFakeIndexer indexer = new HardFailingFakeIndexer(FOO_TYPE);
     advanceInTime();
 
-    underTest = newRecoveryIndexer(failingOnceUserIndexer, mockedRuleIndexer);
-    underTest.recover();
+    underTest = newRecoveryIndexer(indexer);
+    underTest.start();
+
+    // all runs fail, but they are still scheduled
+    // -> waiting for 2 runs
+    while (indexer.called.size() < 2) {
+      Thread.sleep(1L);
+    }
 
     // No rows treated
     assertThatQueueHasSize(1);
@@ -201,86 +192,87 @@ public class RecoveryIndexerTest {
   }
 
   @Test
-  public void scheduler_is_not_stopped_on_failures() throws Exception {
-    createUnindexedUser();
-    advanceInTime();
-    FailingUserIndexer userIndexer = new FailingUserIndexer();
+  public void soft_failures_are_logged_and_do_not_stop_recovery_scheduling() throws Exception {
+    insertItem(FOO_TYPE, "f1");
 
-    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
+    SoftFailingFakeIndexer indexer = new SoftFailingFakeIndexer(FOO_TYPE);
+    advanceInTime();
+
+    underTest = newRecoveryIndexer(indexer);
     underTest.start();
 
     // all runs fail, but they are still scheduled
     // -> waiting for 2 runs
-    while (userIndexer.called.size() < 2) {
+    while (indexer.called.size() < 2) {
       Thread.sleep(1L);
     }
+
+    // No rows treated
+    assertThatQueueHasSize(1);
+    assertThatLogsContain(INFO, "Elasticsearch recovery - 1 documents processed [1 failures]");
   }
 
   @Test
-  public void recovery_retries_on_next_run_if_failure() throws Exception {
-    createUnindexedUser();
+  public void unsupported_types_are_kept_in_queue_for_manual_fix_operation() throws Exception {
+    insertItem(FOO_TYPE, "f1");
+
+    ResilientIndexer indexer = new SuccessfulFakeIndexer(new IndexType("bars", "bar"));
     advanceInTime();
-    FailingOnceUserIndexer userIndexer = new FailingOnceUserIndexer();
 
-    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
-    underTest.start();
+    underTest = newRecoveryIndexer(indexer);
+    underTest.recover();
 
-    // first run fails, second run succeeds
-    userIndexer.counter.await(30, TimeUnit.SECONDS);
-
-    // First we expecting an exception at first run
-    // Then the second run must have treated all records
-    assertThatLogsContain(ERROR, "Elasticsearch recovery - fail to recover documents");
-    assertThatQueueHasSize(0);
+    assertThatQueueHasSize(1);
+    assertThatLogsContain(ERROR, "Elasticsearch recovery - ignore 1 items with unsupported type [foos/foo]");
   }
 
   @Test
   public void stop_run_if_too_many_failures() {
-    IntStream.range(0, 10).forEach(i -> createUnindexedUser());
+    IntStream.range(0, 10).forEach(i -> insertItem(FOO_TYPE, "" + i));
     advanceInTime();
 
     // 10 docs to process, by groups of 3.
     // The first group successfully recovers only 1 docs --> above 30% of failures --> stop run
-    PartiallyFailingUserIndexer failingAboveRatioUserIndexer = new PartiallyFailingUserIndexer(1);
+    PartiallyFailingIndexer indexer = new PartiallyFailingIndexer(FOO_TYPE, 1);
     MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.loopLimit", "3");
-    underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, mockedRuleIndexer, settings);
+    underTest = newRecoveryIndexer(settings.asConfig(), indexer);
     underTest.recover();
 
     assertThatLogsContain(ERROR, "Elasticsearch recovery - too many failures [2/3 documents], waiting for next run");
     assertThatQueueHasSize(9);
 
     // The indexer must have been called once and only once.
-    assertThat(failingAboveRatioUserIndexer.called).hasSize(3);
+    assertThat(indexer.called).hasSize(3);
   }
 
   @Test
-  public void do_not_stop_run_if_success_rate_is_greater_than_ratio() {
-    IntStream.range(0, 10).forEach(i -> createUnindexedUser());
+  public void do_not_stop_run_if_success_rate_is_greater_than_circuit_breaker() {
+    IntStream.range(0, 10).forEach(i -> insertItem(FOO_TYPE, "" + i));
     advanceInTime();
 
     // 10 docs to process, by groups of 5.
     // Each group successfully recovers 4 docs --> below 30% of failures --> continue run
-    PartiallyFailingUserIndexer failingAboveRatioUserIndexer = new PartiallyFailingUserIndexer(4, 4, 2);
+    PartiallyFailingIndexer indexer = new PartiallyFailingIndexer(FOO_TYPE, 4, 4, 2);
     MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.loopLimit", "5");
-    underTest = newRecoveryIndexer(failingAboveRatioUserIndexer, mockedRuleIndexer, settings);
+    underTest = newRecoveryIndexer(settings.asConfig(), indexer);
     underTest.recover();
 
     assertThatLogsDoNotContain(ERROR, "too many failures");
     assertThatQueueHasSize(0);
-    assertThat(failingAboveRatioUserIndexer.indexed).hasSize(10);
-    assertThat(failingAboveRatioUserIndexer.called).hasSize(10 + 2 /* retries */);
+    assertThat(indexer.indexed).hasSize(10);
+    assertThat(indexer.called).hasSize(10 + 2 /* retries */);
   }
 
   @Test
   public void failing_always_on_same_document_does_not_generate_infinite_loop() {
-    EsQueueDto buggy = createUnindexedUser();
-    IntStream.range(0, 10).forEach(i -> createUnindexedUser());
+    EsQueueDto buggy = insertItem(FOO_TYPE, "buggy");
+    IntStream.range(0, 10).forEach(i -> insertItem(FOO_TYPE, "" + i));
     advanceInTime();
 
-    FailingAlwaysOnSameElementIndexer indexer = new FailingAlwaysOnSameElementIndexer(buggy);
-    underTest = newRecoveryIndexer(indexer, mockedRuleIndexer);
+    FailingAlwaysOnSameElementIndexer indexer = new FailingAlwaysOnSameElementIndexer(FOO_TYPE, buggy);
+    underTest = newRecoveryIndexer(indexer);
     underTest.recover();
 
     assertThatLogsContain(ERROR, "Elasticsearch recovery - too many failures [1/1 documents], waiting for next run");
@@ -289,119 +281,66 @@ public class RecoveryIndexerTest {
 
   @Test
   public void recover_multiple_times_the_same_document() {
-    UserDto user = db.users().insertUser();
-    EsQueueDto item1 = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
-    EsQueueDto item2 = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
-    EsQueueDto item3 = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
-    db.getDbClient().esQueueDao().insert(db.getSession(), asList(item1, item2, item3));
-    db.commit();
-
-    ProxyUserIndexer userIndexer = new ProxyUserIndexer();
+    EsQueueDto item1 = insertItem(FOO_TYPE, "f1");
+    EsQueueDto item2 = insertItem(FOO_TYPE, item1.getDocId());
+    EsQueueDto item3 = insertItem(FOO_TYPE, item1.getDocId());
     advanceInTime();
-    underTest = newRecoveryIndexer(userIndexer, mockedRuleIndexer);
+
+    SuccessfulFakeIndexer indexer = new SuccessfulFakeIndexer(FOO_TYPE);
+    underTest = newRecoveryIndexer(indexer);
     underTest.recover();
 
     assertThatQueueHasSize(0);
-    assertThat(userIndexer.called)
-      .extracting(EsQueueDto::getUuid)
+    assertThat(indexer.called).hasSize(1);
+    assertThat(indexer.called.get(0)).extracting(EsQueueDto::getUuid)
       .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid(), item3.getUuid());
 
-    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 3 USER");
-    assertThatLogsContain(INFO, "Elasticsearch recovery - 1 documents processed [0 failures]");
+    assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 3 [foos/foo]");
+    assertThatLogsContain(INFO, "Elasticsearch recovery - 3 documents processed [0 failures]");
   }
 
-  private class ProxyUserIndexer extends UserIndexer {
-    private final List<EsQueueDto> called = new ArrayList<>();
-
-    ProxyUserIndexer() {
-      super(db.getDbClient(), es.client());
-    }
-
-    @Override
-    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      called.addAll(items);
-      return super.index(dbSession, items);
-    }
-  }
-
-  private class ProxyRuleIndexer extends RuleIndexer {
-    private final List<EsQueueDto> called = new ArrayList<>();
-
-    ProxyRuleIndexer() {
-      super(es.client(), db.getDbClient());
-    }
-
-    @Override
-    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      called.addAll(items);
-      return super.index(dbSession, items);
-    }
-  }
-
-  private class FailingUserIndexer extends UserIndexer {
-    private final List<EsQueueDto> called = new ArrayList<>();
-
-    FailingUserIndexer() {
-      super(db.getDbClient(), es.client());
-    }
-
-    @Override
-    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      called.addAll(items);
-      throw new RuntimeException("boom");
-    }
-
-  }
-
-  private class FailingOnceUserIndexer extends UserIndexer {
-    private final CountDownLatch counter = new CountDownLatch(2);
-
-    FailingOnceUserIndexer() {
-      super(db.getDbClient(), es.client());
-    }
-
-    @Override
-    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      try {
-        if (counter.getCount() == 2) {
-          throw new RuntimeException("boom");
-        }
-        return super.index(dbSession, items);
-      } finally {
-        counter.countDown();
-      }
-    }
-  }
-
-  private class FailingAlwaysOnSameElementIndexer extends UserIndexer {
+  private class FailingAlwaysOnSameElementIndexer implements ResilientIndexer {
+    private final IndexType indexType;
     private final EsQueueDto failing;
 
-    FailingAlwaysOnSameElementIndexer(EsQueueDto failing) {
-      super(db.getDbClient(), es.client());
+    FailingAlwaysOnSameElementIndexer(IndexType indexType, EsQueueDto failing) {
+      this.indexType = indexType;
       this.failing = failing;
     }
 
     @Override
     public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
-      List<EsQueueDto> filteredItems = items.stream().filter(
-        i -> !i.getUuid().equals(failing.getUuid())).collect(toArrayList());
-      IndexingResult result = super.index(dbSession, filteredItems);
-      if (result.getTotal() == items.size() - 1) {
-        // the failing item was in the items list
+      IndexingResult result = new IndexingResult();
+      items.forEach(item -> {
         result.incrementRequests();
-      }
-
+        if (!item.getUuid().equals(failing.getUuid())) {
+          result.incrementSuccess();
+          db.getDbClient().esQueueDao().delete(dbSession, item);
+          dbSession.commit();
+        }
+      });
       return result;
+    }
+
+    @Override
+    public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<IndexType> getIndexTypes() {
+      return ImmutableSet.of(indexType);
     }
   }
 
-  private class PartiallyFailingUserIndexer extends UserIndexer {
+  private class PartiallyFailingIndexer implements ResilientIndexer {
+    private final IndexType indexType;
     private final List<EsQueueDto> called = new ArrayList<>();
     private final List<EsQueueDto> indexed = new ArrayList<>();
     private final Iterator<Integer> successfulReturns;
 
-    PartiallyFailingUserIndexer(int... successfulReturns) {
-      super(db.getDbClient(), es.client());
+    PartiallyFailingIndexer(IndexType indexType, int... successfulReturns) {
+      this.indexType = indexType;
       this.successfulReturns = IntStream.of(successfulReturns).iterator();
     }
 
@@ -419,6 +358,16 @@ public class RecoveryIndexerTest {
       rangeClosed(1, items.size()).forEach(i -> result.incrementRequests());
       dbSession.commit();
       return result;
+    }
+
+    @Override
+    public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<IndexType> getIndexTypes() {
+      return ImmutableSet.of(indexType);
     }
   }
 
@@ -448,33 +397,104 @@ public class RecoveryIndexerTest {
     return newRecoveryIndexer(userIndexer, ruleIndexer);
   }
 
-  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer) {
+  private RecoveryIndexer newRecoveryIndexer(ResilientIndexer... indexers) {
     MapSettings settings = new MapSettings()
       .setProperty("sonar.search.recovery.initialDelayInMs", "0")
       .setProperty("sonar.search.recovery.delayInMs", "1")
       .setProperty("sonar.search.recovery.minAgeInMs", "1");
-    return newRecoveryIndexer(userIndexer, ruleIndexer, settings);
+    return newRecoveryIndexer(settings.asConfig(), indexers);
   }
 
-  private RecoveryIndexer newRecoveryIndexer(UserIndexer userIndexer, RuleIndexer ruleIndexer, MapSettings settings) {
-    return new RecoveryIndexer(system2, settings.asConfig(), db.getDbClient(), userIndexer, ruleIndexer, mockedActiveRuleIndexer);
+  private RecoveryIndexer newRecoveryIndexer(Configuration config, ResilientIndexer... indexers) {
+    return new RecoveryIndexer(system2, config, db.getDbClient(), indexers);
   }
 
-  private EsQueueDto createUnindexedUser() {
-    UserDto user = db.users().insertUser();
-    EsQueueDto item = EsQueueDto.create(EsQueueDto.Type.USER, user.getLogin());
+  private EsQueueDto insertItem(IndexType indexType, String docUuid) {
+    EsQueueDto item = EsQueueDto.create(indexType.format(), docUuid);
     db.getDbClient().esQueueDao().insert(db.getSession(), item);
     db.commit();
-
     return item;
   }
 
-  private EsQueueDto createUnindexedRule() {
-    RuleDto rule = db.rules().insertRule();
-    EsQueueDto item = EsQueueDto.create(EsQueueDto.Type.RULE, rule.getKey().toString());
-    db.getDbClient().esQueueDao().insert(db.getSession(), item);
-    db.commit();
+  private class SuccessfulFakeIndexer implements ResilientIndexer {
+    private final Set<IndexType> types;
+    private final List<Collection<EsQueueDto>> called = new ArrayList<>();
 
-    return item;
+    private SuccessfulFakeIndexer(IndexType type) {
+      this.types = ImmutableSet.of(type);
+    }
+
+    @Override
+    public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<IndexType> getIndexTypes() {
+      return types;
+    }
+
+    @Override
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+      called.add(items);
+      IndexingResult result = new IndexingResult();
+      items.forEach(i -> result.incrementSuccess().incrementRequests());
+      db.getDbClient().esQueueDao().delete(dbSession, items);
+      dbSession.commit();
+      return result;
+    }
+  }
+
+  private class HardFailingFakeIndexer implements ResilientIndexer {
+    private final Set<IndexType> types;
+    private final List<Collection<EsQueueDto>> called = new ArrayList<>();
+
+    private HardFailingFakeIndexer(IndexType type) {
+      this.types = ImmutableSet.of(type);
+    }
+
+    @Override
+    public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<IndexType> getIndexTypes() {
+      return types;
+    }
+
+    @Override
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+      called.add(items);
+      // MessageException is used just to reduce noise in test logs
+      throw MessageException.of("BOOM");
+    }
+  }
+
+  private class SoftFailingFakeIndexer implements ResilientIndexer {
+    private final Set<IndexType> types;
+    private final List<Collection<EsQueueDto>> called = new ArrayList<>();
+
+    private SoftFailingFakeIndexer(IndexType type) {
+      this.types = ImmutableSet.of(type);
+    }
+
+    @Override
+    public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<IndexType> getIndexTypes() {
+      return types;
+    }
+
+    @Override
+    public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+      called.add(items);
+      IndexingResult result = new IndexingResult();
+      items.forEach(i -> result.incrementRequests());
+      return result;
+    }
   }
 }

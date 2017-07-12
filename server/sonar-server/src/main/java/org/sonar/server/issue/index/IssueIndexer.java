@@ -19,42 +19,63 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ListMultimap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.IndexingListener;
+import org.sonar.server.es.IndexingResult;
+import org.sonar.server.es.OneToManyResilientIndexingListener;
+import org.sonar.server.es.OneToOneResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
-import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.permission.index.AuthorizationScope;
 import org.sonar.server.permission.index.NeedAuthorizationIndexer;
 
+import static java.util.Collections.emptyList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX_TYPE_ISSUE;
 
-public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, StartupIndexer {
+public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
 
-  private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
-  private static final int MAX_BATCH_SIZE = 1000;
+  /**
+   * Indicates that es_queue.doc_id references an issue. Only this issue must be indexed.
+   */
+  private static final String ID_TYPE_ISSUE_KEY = "issueKey";
+  /**
+   * Indicates that es_queue.doc_id references a project. All the issues of the project must be indexed.
+   */
+  private static final String ID_TYPE_PROJECT_UUID = "projectUuid";
+  private static final Logger LOGGER = Loggers.get(IssueIndexer.class);
   private static final AuthorizationScope AUTHORIZATION_SCOPE = new AuthorizationScope(INDEX_TYPE_ISSUE, project -> Qualifiers.PROJECT.equals(project.getQualifier()));
+  private static final ImmutableSet<IndexType> INDEX_TYPES = ImmutableSet.of(INDEX_TYPE_ISSUE);
 
   private final EsClient esClient;
+  private final DbClient dbClient;
   private final IssueIteratorFactory issueIteratorFactory;
 
-  public IssueIndexer(EsClient esClient, IssueIteratorFactory issueIteratorFactory) {
+  public IssueIndexer(EsClient esClient, DbClient dbClient, IssueIteratorFactory issueIteratorFactory) {
     this.esClient = esClient;
+    this.dbClient = dbClient;
     this.issueIteratorFactory = issueIteratorFactory;
   }
 
@@ -65,26 +86,40 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
 
   @Override
   public Set<IndexType> getIndexTypes() {
-    return ImmutableSet.of(INDEX_TYPE_ISSUE);
+    return INDEX_TYPES;
   }
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    doIndex(createBulkIndexer(Size.LARGE), (String) null);
+    try (IssueIterator issues = issueIteratorFactory.createForAll()) {
+      doIndex(issues, Size.LARGE, IndexingListener.NOOP);
+    }
   }
 
   @Override
-  public void indexProject(String projectUuid, Cause cause) {
+  public void indexOnAnalysis(String projectUuid) {
+    try (IssueIterator issues = issueIteratorFactory.createForProject(projectUuid)) {
+      doIndex(issues, Size.REGULAR, IndexingListener.NOOP);
+    }
+  }
+
+  @Override
+  public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause) {
     switch (cause) {
       case PROJECT_CREATION:
         // nothing to do, issues do not exist at project creation
       case PROJECT_KEY_UPDATE:
       case PROJECT_TAGS_UPDATE:
-        // nothing to do, project key and tags are not used in this index
-        break;
-      case NEW_ANALYSIS:
-        doIndex(createBulkIndexer(Size.REGULAR), projectUuid);
-        break;
+      case PERMISSION_CHANGE:
+        // nothing to do, permissions, project key and tags are not used in type issues/issue
+        return emptyList();
+
+      case PROJECT_DELETION:
+        List<EsQueueDto> items = projectUuids.stream()
+          .map(projectUuid -> createQueueDto(projectUuid, ID_TYPE_PROJECT_UUID, projectUuid))
+          .collect(MoreCollectors.toArrayList(projectUuids.size()));
+        return dbClient.esQueueDao().insert(dbSession, items);
+
       default:
         // defensive case
         throw new IllegalStateException("Unsupported cause: " + cause);
@@ -92,29 +127,118 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
   }
 
   /**
-   * For benchmarks
+   * Commits the DB transaction and adds the issues to Elasticsearch index.
+   * <p>
+   * If indexing fails, then the recovery daemon will retry later and this
+   * method successfully returns. Meanwhile these issues will be "eventually
+   * consistent" when requesting the index.
    */
-  public void index(Iterator<IssueDoc> issues) {
-    doIndex(createBulkIndexer(Size.REGULAR), issues);
+  public void commitAndIndexIssues(DbSession dbSession, Collection<IssueDto> issues) {
+    ListMultimap<String, EsQueueDto> itemsByIssueKey = ArrayListMultimap.create();
+    issues.stream()
+      .map(issue -> createQueueDto(issue.getKey(), ID_TYPE_ISSUE_KEY, issue.getProjectUuid()))
+      // a mutable ListMultimap is needed for doIndexIssueItems, so MoreCollectors.index() is
+      // not used
+      .forEach(i -> itemsByIssueKey.put(i.getDocId(), i));
+    dbClient.esQueueDao().insert(dbSession, itemsByIssueKey.values());
+
+    dbSession.commit();
+
+    doIndexIssueItems(dbSession, itemsByIssueKey);
   }
 
-  public void index(Collection<String> issueKeys) {
-    doIndex(createBulkIndexer(Size.REGULAR), issueKeys);
+  @Override
+  public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+    ListMultimap<String, EsQueueDto> itemsByIssueKey = ArrayListMultimap.create();
+    ListMultimap<String, EsQueueDto> itemsByProjectKey = ArrayListMultimap.create();
+    items.forEach(i -> {
+      if (ID_TYPE_ISSUE_KEY.equals(i.getDocIdType())) {
+        itemsByIssueKey.put(i.getDocId(), i);
+      } else if (ID_TYPE_PROJECT_UUID.equals(i.getDocIdType())) {
+        itemsByProjectKey.put(i.getDocId(), i);
+      } else {
+        LOGGER.error("Unsupported es_queue.doc_id_type for issues. Manual fix is required: " + i);
+      }
+    });
+
+    IndexingResult result = new IndexingResult();
+    result.add(doIndexIssueItems(dbSession, itemsByIssueKey));
+    result.add(doIndexProjectItems(dbSession, itemsByProjectKey));
+    return result;
   }
 
-  private void doIndex(BulkIndexer bulk, Collection<String> issueKeys) {
-    try (IssueIterator issues = issueIteratorFactory.createForIssueKeys(issueKeys)) {
-      doIndex(bulk, issues);
+  private IndexingResult doIndexIssueItems(DbSession dbSession, ListMultimap<String, EsQueueDto> itemsByIssueKey) {
+    if (itemsByIssueKey.isEmpty()) {
+      return new IndexingResult();
     }
-  }
+    IndexingListener listener = new OneToOneResilientIndexingListener(dbClient, dbSession, itemsByIssueKey.values());
+    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, listener);
+    bulkIndexer.start();
 
-  private void doIndex(BulkIndexer bulk, @Nullable String projectUuid) {
-    try (IssueIterator issues = issueIteratorFactory.createForProject(projectUuid)) {
-      doIndex(bulk, issues);
+    try (IssueIterator issues = issueIteratorFactory.createForIssueKeys(itemsByIssueKey.keySet())) {
+      while (issues.hasNext()) {
+        IssueDoc issue = issues.next();
+        bulkIndexer.add(newIndexRequest(issue));
+        itemsByIssueKey.removeAll(issue.getId());
+      }
     }
+
+    // the remaining uuids reference issues that don't exist in db. They must
+    // be deleted from index.
+    itemsByIssueKey.values().forEach(
+      item -> bulkIndexer.addDeletion(INDEX_TYPE_ISSUE, item.getDocId(), item.getDocRouting()));
+
+    return bulkIndexer.stop();
   }
 
-  private static void doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
+  private IndexingResult doIndexProjectItems(DbSession dbSession, ListMultimap<String, EsQueueDto> itemsByProjectUuid) {
+    if (itemsByProjectUuid.isEmpty()) {
+      return new IndexingResult();
+    }
+
+    // one project, referenced by es_queue.doc_id = many issues
+    IndexingListener listener = new OneToManyResilientIndexingListener(dbClient, dbSession, itemsByProjectUuid.values());
+    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, listener);
+    bulkIndexer.start();
+
+    for (String projectUuid : itemsByProjectUuid.keySet()) {
+      // TODO support loading of multiple projects in a single SQL request
+      try (IssueIterator issues = issueIteratorFactory.createForProject(projectUuid)) {
+        if (issues.hasNext()) {
+          do {
+            IssueDoc doc = issues.next();
+            bulkIndexer.add(newIndexRequest(doc));
+          } while (issues.hasNext());
+        } else {
+          // project does not exist or has no issues. In both case
+          // all the documents related to this project are deleted.
+          addProjectDeletionToBulkIndexer(bulkIndexer, projectUuid);
+        }
+      }
+    }
+
+    return bulkIndexer.stop();
+  }
+
+  // Used by Compute Engine, no need to recovery on errors
+  public void deleteByKeys(String projectUuid, Collection<String> issueKeys) {
+    if (issueKeys.isEmpty()) {
+      return;
+    }
+
+    BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, IndexingListener.NOOP);
+    bulkIndexer.start();
+    issueKeys.forEach(issueKey -> bulkIndexer.addDeletion(INDEX_TYPE_ISSUE, issueKey, projectUuid));
+    bulkIndexer.stop();
+  }
+
+  @VisibleForTesting
+  protected void index(Iterator<IssueDoc> issues) {
+    doIndex(issues, Size.LARGE, IndexingListener.NOOP);
+  }
+
+  private void doIndex(Iterator<IssueDoc> issues, Size size, IndexingListener listener) {
+    BulkIndexer bulk = createBulkIndexer(size, listener);
     bulk.start();
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
@@ -123,49 +247,28 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer, S
     bulk.stop();
   }
 
-  @Override
-  public void deleteProject(String uuid) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_ISSUE.getIndex(), Size.REGULAR);
-    bulk.start();
-    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ISSUE)
-      .setRouting(uuid)
-      .setQuery(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, uuid)));
-    bulk.addDeletion(search);
-    bulk.stop();
-  }
-
-  public void deleteByKeys(String projectUuid, List<String> issueKeys) {
-    if (issueKeys.isEmpty()) {
-      return;
-    }
-
-    int count = 0;
-    BulkRequestBuilder builder = esClient.prepareBulk();
-    for (String issueKey : issueKeys) {
-      builder.add(esClient.prepareDelete(INDEX_TYPE_ISSUE, issueKey)
-        .setRefresh(false)
-        .setRouting(projectUuid));
-      count++;
-      if (count >= MAX_BATCH_SIZE) {
-        EsUtils.executeBulkRequest(builder, DELETE_ERROR_MESSAGE, projectUuid);
-        builder = esClient.prepareBulk();
-        count = 0;
-      }
-    }
-    EsUtils.executeBulkRequest(builder, DELETE_ERROR_MESSAGE, projectUuid);
-    esClient.prepareRefresh(INDEX_TYPE_ISSUE.getIndex()).get();
-  }
-
-  private BulkIndexer createBulkIndexer(Size bulkSize) {
-    return new BulkIndexer(esClient, INDEX_TYPE_ISSUE.getIndex(), bulkSize);
-  }
-
-  private static IndexRequest newIndexRequest(IssueDoc issue) {
+  private IndexRequest newIndexRequest(IssueDoc issue) {
     String projectUuid = issue.projectUuid();
+    return esClient.prepareIndex(INDEX_TYPE_ISSUE)
+      .setId(issue.key())
+      .setRouting(projectUuid)
+      .setParent(projectUuid)
+      .setSource(issue.getFields())
+      .request();
+  }
 
-    return new IndexRequest(INDEX_TYPE_ISSUE.getIndex(), INDEX_TYPE_ISSUE.getType(), issue.key())
-      .routing(projectUuid)
-      .parent(projectUuid)
-      .source(issue.getFields());
+  private void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
+    SearchRequestBuilder search = esClient.prepareSearch(INDEX_TYPE_ISSUE)
+      .setRouting(projectUuid)
+      .setQuery(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, projectUuid)));
+    bulkIndexer.addDeletion(search);
+  }
+
+  private static EsQueueDto createQueueDto(String docId, String docIdType, String projectUuid) {
+    return EsQueueDto.create(INDEX_TYPE_ISSUE.format(), docId, docIdType, projectUuid);
+  }
+
+  private BulkIndexer createBulkIndexer(Size size, IndexingListener listener) {
+    return new BulkIndexer(esClient, INDEX_TYPE_ISSUE, size, listener);
   }
 }

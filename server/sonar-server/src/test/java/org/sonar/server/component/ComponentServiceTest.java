@@ -29,11 +29,10 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -49,9 +48,9 @@ public class ComponentServiceTest {
   private ComponentDbTester componentDb = new ComponentDbTester(dbTester);
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
+  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexer);
+  private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexers);
 
   @Test
   public void bulk_update() {

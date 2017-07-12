@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import org.sonar.core.util.stream.MoreCollectors;
@@ -29,35 +30,43 @@ import org.sonar.db.DbSession;
 import org.sonar.db.es.EsQueueDto;
 
 /**
- * Clean-up the db table es_queue when documents
+ * Clean-up the db table "es_queue" when documents
  * are successfully indexed so that the recovery
  * daemon does not re-index them.
+ *
+ * This implementation assumes that one row in table es_queue
+ * is associated to one index document and that es_queue.doc_id
+ * equals document id.
  */
-public class ResiliencyIndexingListener implements IndexingListener {
+public class OneToOneResilientIndexingListener implements IndexingListener {
 
   private final DbClient dbClient;
   private final DbSession dbSession;
-  private final Collection<EsQueueDto> items;
+  private final Multimap<DocId, EsQueueDto> itemsById;
 
-  public ResiliencyIndexingListener(DbClient dbClient, DbSession dbSession, Collection<EsQueueDto> items) {
+  public OneToOneResilientIndexingListener(DbClient dbClient, DbSession dbSession, Collection<EsQueueDto> items) {
     this.dbClient = dbClient;
     this.dbSession = dbSession;
-    this.items = items;
+    this.itemsById = items.stream()
+      .collect(MoreCollectors.index(i -> new DocId(IndexType.parse(i.getDocType()), i.getDocId()), Function.identity()));
   }
 
   @Override
-  public void onSuccess(Collection<String> docIds) {
-    if (!docIds.isEmpty()) {
-      Multimap<String, EsQueueDto> itemsById = items.stream().collect(MoreCollectors.index(EsQueueDto::getDocId, Function.identity()));
-
-      Collection<EsQueueDto> itemsToDelete = docIds
-        .stream()
+  public void onSuccess(List<DocId> successDocIds) {
+    if (!successDocIds.isEmpty()) {
+      Collection<EsQueueDto> itemsToDelete = successDocIds.stream()
         .map(itemsById::get)
         .flatMap(Collection::stream)
         .filter(Objects::nonNull)
-        .collect(MoreCollectors.toArrayList(docIds.size()));
+        .collect(MoreCollectors.toArrayList());
       dbClient.esQueueDao().delete(dbSession, itemsToDelete);
       dbSession.commit();
     }
+  }
+
+  @Override
+  public void onFinish(IndexingResult result) {
+    // nothing to do, items that have been successfully indexed
+    // are already deleted from db (see method onSuccess())
   }
 }
