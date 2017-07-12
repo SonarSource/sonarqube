@@ -159,10 +159,7 @@ export default class AdvancedTimeline extends React.PureComponent {
         // $FlowFixMe selectedDate can't be null there
         p => p.x.valueOf() === selectedDate.valueOf()
       );
-      if (
-        idx >= 0 &&
-        this.props.series.some(serie => serie.data[idx].y || serie.data[idx].y === 0)
-      ) {
+      if (idx >= 0) {
         return {
           selectedDate,
           selectedDateXPos: xScale(selectedDate),
