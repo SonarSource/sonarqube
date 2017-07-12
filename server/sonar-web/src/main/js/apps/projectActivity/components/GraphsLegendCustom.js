@@ -19,6 +19,9 @@
  */
 import React from 'react';
 import GraphsLegendItem from './GraphsLegendItem';
+import Tooltip from '../../../components/controls/Tooltip';
+import { hasDataValues } from '../utils';
+import { translate } from '../../../helpers/l10n';
 import type { Metric } from '../types';
 
 type Props = {
@@ -32,14 +35,31 @@ export default function GraphsLegendCustom({ metrics, removeMetric, series }: Pr
     <div className="project-activity-graph-legends">
       {series.map(serie => {
         const metric = metrics.find(metric => metric.key === serie.name);
+        const hasData = hasDataValues(serie);
+        const legendItem = (
+          <GraphsLegendItem
+            metric={serie.name}
+            name={metric && metric.custom ? metric.name : serie.translatedName}
+            showWarning={!hasData}
+            style={serie.style}
+            removeMetric={removeMetric}
+          />
+        );
+        if (!hasData) {
+          return (
+            <Tooltip
+              key={serie.name}
+              overlay={translate('project_activity.graphs.custom.metric_no_history')}
+              placement="bottom">
+              <span className="spacer-left spacer-right">
+                {legendItem}
+              </span>
+            </Tooltip>
+          );
+        }
         return (
           <span className="spacer-left spacer-right" key={serie.name}>
-            <GraphsLegendItem
-              metric={serie.name}
-              name={metric && metric.custom ? metric.name : serie.translatedName}
-              style={serie.style}
-              removeMetric={removeMetric}
-            />
+            {legendItem}
           </span>
         );
       })}

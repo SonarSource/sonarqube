@@ -17,15 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import classNames from 'classnames';
-import CloseIcon from '../../../components/icons-components/CloseIcon';
+import AlertWarnIcon from '../../../components/icons-components/AlertWarnIcon';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
+import CloseIcon from '../../../components/icons-components/CloseIcon';
 
 type Props = {
   className?: string,
   metric: string,
   name: string,
+  showWarning?: boolean,
   style: string,
   removeMetric?: string => void
 };
@@ -35,26 +38,30 @@ export default class GraphsLegendItem extends React.PureComponent {
 
   handleClick = (e: Event) => {
     e.preventDefault();
-    this.props.removeMetric(this.props.metric);
+    if (this.props.removeMetric) {
+      this.props.removeMetric(this.props.metric);
+    }
   };
 
   render() {
     const isActionable = this.props.removeMetric != null;
     const legendClass = classNames(
       {
-        'project-activity-graph-legend-actionable': isActionable
+        'project-activity-graph-legend-actionable': isActionable,
+        'alert-warning': this.props.showWarning
       },
       this.props.className
     );
-
     return (
       <span className={legendClass}>
-        <ChartLegendIcon
-          className={classNames(
-            'spacer-right line-chart-legend',
-            'line-chart-legend-' + this.props.style
-          )}
-        />
+        {this.props.showWarning
+          ? <AlertWarnIcon className="spacer-right" />
+          : <ChartLegendIcon
+              className={classNames(
+                'spacer-right line-chart-legend',
+                'line-chart-legend-' + this.props.style
+              )}
+            />}
         {this.props.name}
         {isActionable &&
           <a className="spacer-left button-clean text-text-top" href="#" onClick={this.handleClick}>
