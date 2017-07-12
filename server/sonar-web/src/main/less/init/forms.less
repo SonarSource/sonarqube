@@ -121,6 +121,7 @@ input[type=button] {
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   }
 
+  &.disabled,
   &:disabled,
   &:disabled:hover,
   &:disabled:active,
@@ -129,6 +130,7 @@ input[type=button] {
     border-color: #ddd;
     background: #ebebeb;
     cursor: not-allowed;
+    box-shadow: none;
   }
 }
 
