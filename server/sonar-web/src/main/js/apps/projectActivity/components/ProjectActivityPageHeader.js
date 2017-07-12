@@ -53,7 +53,7 @@ export default class ProjectActivityPageHeader extends React.PureComponent {
     return (
       <header className="page-header">
         <Select
-          className="input-medium pull-left spacer-right"
+          className="input-medium pull-left big-spacer-right"
           placeholder={translate('project_activity.filter_events') + '...'}
           clearable={true}
           searchable={false}
