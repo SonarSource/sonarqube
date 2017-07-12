@@ -17,29 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.configuration;
+package org.sonar.ce.taskprocessor;
 
-public interface CeConfiguration {
+/**
+ * This class is responsible of knowing/deciding which {@link CeWorker} is enabled and should actually try and find a
+ * task to process.
+ */
+public interface EnabledCeWorkerController {
+  /**
+   * Requests the {@link EnabledCeWorkerController} to refresh its state, if it has any.
+   */
+  void refresh();
 
   /**
-   * The number of workers to process CeTasks concurrently.
+   * Returns {@code true} if the specified {@link CeWorker} is enabled
    */
-  int getWorkerCount();
-
-  /**
-   * The delay in millisecond before a {@link org.sonar.ce.taskprocessor.CeWorker} shall try and find a task
-   * to process when it's previous execution had nothing to do.
-   */
-  long getQueuePollingDelay();
-
-  /**
-   * Delay before running job that cleans CE tasks for the first time (in minutes).
-   */
-  long getCleanCeTasksInitialDelay();
-
-  /**
-   * Delay between the end of a run and the start of the next one of the job that cleans CE tasks (in minutes).
-   */
-  long getCleanCeTasksDelay();
-
+  boolean isEnabled(CeWorker ceWorker);
 }

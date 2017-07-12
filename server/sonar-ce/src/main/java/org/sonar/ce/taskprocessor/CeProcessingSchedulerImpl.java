@@ -37,10 +37,10 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startable {
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
+  private static final long DELAY_BETWEEN_DISABLED_TASKS = 30 * 1000L; // 30 seconds
 
   private final CeProcessingSchedulerExecutorService executorService;
-
-  private final long delayBetweenTasks;
+  private final long delayBetweenEnabledTasks;
   private final TimeUnit timeUnit;
   private final ChainingCallback[] chainingCallbacks;
 
@@ -48,13 +48,13 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
     CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory) {
     this.executorService = processingExecutorService;
 
-    this.delayBetweenTasks = ceConfiguration.getQueuePollingDelay();
+    this.delayBetweenEnabledTasks = ceConfiguration.getQueuePollingDelay();
     this.timeUnit = MILLISECONDS;
 
-    int workerCount = ceConfiguration.getWorkerCount();
-    this.chainingCallbacks = new ChainingCallback[workerCount];
-    for (int i = 0; i < workerCount; i++) {
-      CeWorker worker = ceCeWorkerFactory.create();
+    int threadWorkerCount = ceConfiguration.getWorkerMaxCount();
+    this.chainingCallbacks = new ChainingCallback[threadWorkerCount];
+    for (int i = 0; i < threadWorkerCount; i++) {
+      CeWorker worker = ceCeWorkerFactory.create(i);
       chainingCallbacks[i] = new ChainingCallback(worker);
     }
   }
@@ -67,7 +67,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
   @Override
   public void startScheduling() {
     for (ChainingCallback chainingCallback : chainingCallbacks) {
-      ListenableScheduledFuture<Boolean> future = executorService.schedule(chainingCallback.worker, delayBetweenTasks, timeUnit);
+      ListenableScheduledFuture<CeWorker.Result> future = executorService.schedule(chainingCallback.worker, delayBetweenEnabledTasks, timeUnit);
       addCallback(future, chainingCallback, executorService);
     }
   }
@@ -79,23 +79,33 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
     }
   }
 
-  private class ChainingCallback implements FutureCallback<Boolean> {
+  private class ChainingCallback implements FutureCallback<CeWorker.Result> {
     private final AtomicBoolean keepRunning = new AtomicBoolean(true);
     private final CeWorker worker;
 
     @CheckForNull
-    private ListenableFuture<Boolean> workerFuture;
+    private ListenableFuture<CeWorker.Result> workerFuture;
 
     public ChainingCallback(CeWorker worker) {
       this.worker = worker;
     }
 
     @Override
-    public void onSuccess(@Nullable Boolean result) {
-      if (result != null && result) {
-        chainWithoutDelay();
+    public void onSuccess(@Nullable CeWorker.Result result) {
+      if (result == null) {
+        chainWithEnabledTaskDelay();
       } else {
-        chainWithDelay();
+        switch (result) {
+          case DISABLED:
+            chainWithDisabledTaskDelay();
+            break;
+          case NO_TASK:
+            chainWithEnabledTaskDelay();
+            break;
+          case TASK_PROCESSED:
+          default:
+            chainWithoutDelay();
+        }
       }
     }
 
@@ -115,9 +125,16 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
       addCallback();
     }
 
-    private void chainWithDelay() {
+    private void chainWithEnabledTaskDelay() {
       if (keepRunning()) {
-        workerFuture = executorService.schedule(worker, delayBetweenTasks, timeUnit);
+        workerFuture = executorService.schedule(worker, delayBetweenEnabledTasks, timeUnit);
+      }
+      addCallback();
+    }
+
+    private void chainWithDisabledTaskDelay() {
+      if (keepRunning()) {
+        workerFuture = executorService.schedule(worker, DELAY_BETWEEN_DISABLED_TASKS, timeUnit);
       }
       addCallback();
     }

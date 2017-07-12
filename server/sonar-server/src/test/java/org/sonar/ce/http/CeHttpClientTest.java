@@ -57,7 +57,7 @@ public class CeHttpClientTest {
     ipcSharedDir = temp.newFolder();
     MapSettings settings = new MapSettings();
     settings.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, ipcSharedDir.getAbsolutePath());
-    underTest = new CeHttpClient(settings.asConfig());
+    underTest = new CeHttpClientImpl(settings.asConfig());
   }
 
   @Test
@@ -131,6 +131,31 @@ public class CeHttpClientTest {
   @Test
   public void changelogLevel_does_not_fail_if_process_is_down() {
     underTest.changeLogLevel(LoggerLevel.INFO);
+  }
+
+  @Test
+  public void refreshCeWorkerCount_throws_ISE_if_http_error() {
+    String message = "blah";
+    server.enqueue(new MockResponse().setResponseCode(500).setBody(message));
+    // initialize registration of process
+    setUpWithHttpUrl(ProcessId.COMPUTE_ENGINE);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Failed to call HTTP server of process " + ProcessId.COMPUTE_ENGINE);
+    expectedException.expectCause(hasType(IOException.class)
+        .andMessage(format("Failed to trigger refresh of CE Worker count. Code was '500' and response was 'blah' for url " +
+            "'http://%s:%s/refreshWorkerCount'", server.getHostName(), server.getPort())));
+
+    underTest.refreshCeWorkerCount();
+  }
+
+  @Test
+  public void refreshCeWorkerCount_does_not_fail_when_http_code_is_200() {
+    server.enqueue(new MockResponse().setResponseCode(200));
+
+    setUpWithHttpUrl(ProcessId.COMPUTE_ENGINE);
+
+    underTest.refreshCeWorkerCount();
   }
 
   private void setUpWithHttpUrl(ProcessId processId) {

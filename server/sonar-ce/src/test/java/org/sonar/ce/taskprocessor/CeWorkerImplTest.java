@@ -21,10 +21,14 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -38,13 +42,18 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.task.projectanalysis.taskprocessor.ReportTaskProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.DISABLED;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
 public class CeWorkerImplTest {
 
@@ -52,26 +61,54 @@ public class CeWorkerImplTest {
   public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private InternalCeQueue queue = mock(InternalCeQueue.class);
   private ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   private CeLogging ceLogging = spy(CeLogging.class);
-  private ArgumentCaptor<String> workerUuid = ArgumentCaptor.forClass(String.class);
-  private CeWorker underTest = new CeWorkerImpl(queue, ceLogging, taskProcessorRepository, UUID.randomUUID().toString());
+  private EnabledCeWorkerController enabledCeWorkerController = mock(EnabledCeWorkerController.class);
+  private ArgumentCaptor<String> workerUuidCaptor = ArgumentCaptor.forClass(String.class);
+  private int randomOrdinal = new Random().nextInt(50);
+  private String workerUuid = UUID.randomUUID().toString();
+  private CeWorker underTest = new CeWorkerImpl(randomOrdinal, workerUuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
   private InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
+
+  @Before
+  public void setUp() throws Exception {
+    when(enabledCeWorkerController.isEnabled(any(CeWorker.class))).thenReturn(true);
+  }
+
+  @Test
+  public void constructor_throws_IAE_if_ordinal_is_less_than_zero() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Ordinal must be >= 0");
+
+    new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
+  }
 
   @Test
   public void getUUID_must_return_the_uuid_of_constructor() {
     String uuid = UUID.randomUUID().toString();
-    CeWorker underTest = new CeWorkerImpl(queue, ceLogging, taskProcessorRepository, uuid);
+    CeWorker underTest = new CeWorkerImpl(randomOrdinal, uuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
     assertThat(underTest.getUUID()).isEqualTo(uuid);
+  }
+
+  @Test
+  public void worker_disabled() throws Exception {
+    reset(enabledCeWorkerController);
+    when(enabledCeWorkerController.isEnabled(underTest)).thenReturn(false);
+
+    assertThat(underTest.call()).isEqualTo(DISABLED);
+
+    verifyZeroInteractions(taskProcessor, ceLogging);
   }
 
   @Test
   public void no_pending_tasks_in_queue() throws Exception {
     when(queue.peek(anyString())).thenReturn(Optional.empty());
 
-    assertThat(underTest.call()).isFalse();
+    assertThat(underTest.call()).isEqualTo(NO_TASK);
 
     verifyZeroInteractions(taskProcessor, ceLogging);
   }
@@ -82,7 +119,7 @@ public class CeWorkerImplTest {
     taskProcessorRepository.setNoProcessorForTask(CeTaskTypes.REPORT);
     when(queue.peek(anyString())).thenReturn(Optional.of(task));
 
-    assertThat(underTest.call()).isTrue();
+    assertThat(underTest.call()).isEqualTo(TASK_PROCESSED);
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);
@@ -96,7 +133,7 @@ public class CeWorkerImplTest {
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     when(queue.peek(anyString())).thenReturn(Optional.of(task));
 
-    assertThat(underTest.call()).isTrue();
+    assertThat(underTest.call()).isEqualTo(TASK_PROCESSED);
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);
@@ -112,7 +149,7 @@ public class CeWorkerImplTest {
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     Throwable error = makeTaskProcessorFail(task);
 
-    assertThat(underTest.call()).isTrue();
+    assertThat(underTest.call()).isEqualTo(TASK_PROCESSED);
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);
@@ -232,9 +269,83 @@ public class CeWorkerImplTest {
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
   }
 
+  @Test
+  public void call_sets_and_restores_thread_name_with_information_of_worker_when_there_is_no_task_to_process() throws Exception {
+    String threadName = RandomStringUtils.randomAlphabetic(3);
+    when(queue.peek(anyString())).thenAnswer(invocation -> {
+      assertThat(Thread.currentThread().getName())
+        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+      return Optional.empty();
+    });
+    Thread newThread = createThreadNameVerifyingThread(threadName);
+
+    newThread.start();
+    newThread.join();
+  }
+
+  @Test
+  public void call_sets_and_restores_thread_name_with_information_of_worker_when_a_task_is_processed() throws Exception {
+    String threadName = RandomStringUtils.randomAlphabetic(3);
+    when(queue.peek(anyString())).thenAnswer(invocation -> {
+      assertThat(Thread.currentThread().getName())
+        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+      return Optional.of(createCeTask("FooBar"));
+    });
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    Thread newThread = createThreadNameVerifyingThread(threadName);
+
+    newThread.start();
+    newThread.join();
+  }
+
+  @Test
+  public void call_sets_and_restores_thread_name_with_information_of_worker_when_an_error_occurs() throws Exception {
+    String threadName = RandomStringUtils.randomAlphabetic(3);
+    CeTask ceTask = createCeTask("FooBar");
+    when(queue.peek(anyString())).thenAnswer(invocation -> {
+      assertThat(Thread.currentThread().getName())
+        .isEqualTo("Worker " + randomOrdinal + " (UUID=" + workerUuid + ") on " + threadName);
+      return Optional.of(ceTask);
+    });
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    makeTaskProcessorFail(ceTask);
+    Thread newThread = createThreadNameVerifyingThread(threadName);
+
+    newThread.start();
+    newThread.join();
+  }
+
+  @Test
+  public void call_sets_and_restores_thread_name_with_information_of_worker_when_worker_is_disabled() throws Exception {
+    reset(enabledCeWorkerController);
+    when(enabledCeWorkerController.isEnabled(underTest)).thenReturn(false);
+
+    String threadName = RandomStringUtils.randomAlphabetic(3);
+    Thread newThread = createThreadNameVerifyingThread(threadName);
+
+    newThread.start();
+    newThread.join();
+  }
+
+  private Thread createThreadNameVerifyingThread(String threadName) {
+    return new Thread(() -> {
+      verifyUnchangedThreadName(threadName);
+      try {
+        underTest.call();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      verifyUnchangedThreadName(threadName);
+    }, threadName);
+  }
+
+  private void verifyUnchangedThreadName(String threadName) {
+    assertThat(Thread.currentThread().getName()).isEqualTo(threadName);
+  }
+
   private void verifyWorkerUuid() {
-    verify(queue).peek(workerUuid.capture());
-    assertThat(workerUuid.getValue()).startsWith(workerUuid.getValue());
+    verify(queue).peek(workerUuidCaptor.capture());
+    assertThat(workerUuidCaptor.getValue()).isEqualTo(workerUuid);
   }
 
   private static CeTask createCeTask(@Nullable String submitterLogin) {

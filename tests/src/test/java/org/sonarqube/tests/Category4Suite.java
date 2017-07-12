@@ -20,8 +20,12 @@
 package org.sonarqube.tests;
 
 import com.sonar.orchestrator.Orchestrator;
+import org.junit.ClassRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.sonarqube.tests.analysis.FileExclusionsTest;
 import org.sonarqube.tests.analysis.IssueExclusionsTest;
+import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.component.ComponentsWsTest;
 import org.sonarqube.tests.component.ProjectsWsTest;
 import org.sonarqube.tests.dbCleaner.PurgeTest;
@@ -38,8 +42,8 @@ import org.sonarqube.tests.serverSystem.LogsTest;
 import org.sonarqube.tests.serverSystem.PingTest;
 import org.sonarqube.tests.serverSystem.ServerSystemTest;
 import org.sonarqube.tests.ui.SourceViewerTest;
-import org.sonarqube.tests.ui.UiTest;
 import org.sonarqube.tests.ui.UiExtensionsTest;
+import org.sonarqube.tests.ui.UiTest;
 import org.sonarqube.tests.user.BaseIdentityProviderTest;
 import org.sonarqube.tests.user.FavoritesWsTest;
 import org.sonarqube.tests.user.ForceAuthenticationTest;
@@ -48,9 +52,6 @@ import org.sonarqube.tests.user.MyAccountPageTest;
 import org.sonarqube.tests.user.OAuth2IdentityProviderTest;
 import org.sonarqube.tests.ws.WsLocalCallTest;
 import org.sonarqube.tests.ws.WsTest;
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
@@ -97,7 +98,9 @@ import static util.ItUtils.xooPlugin;
   WsTest.class,
   // quality profiles
   QualityProfilesUiTest.class,
-  LogsTest.class
+  LogsTest.class,
+  // ce
+  CeWsTest.class
 })
 public class Category4Suite {
 

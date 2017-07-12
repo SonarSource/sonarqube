@@ -22,7 +22,6 @@ package org.sonar.ce.container;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.db.DBSessionsImpl;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.config.EmailSettings;
@@ -48,6 +47,7 @@ import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.cluster.HazelcastClientWrapperImpl;
+import org.sonar.ce.configuration.CeWorkerCountSettingWarning;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
@@ -67,6 +67,7 @@ import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.util.UuidFactoryImpl;
+import org.sonar.db.DBSessionsImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
@@ -420,7 +421,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       LogServerId.class,
       ServerLifecycleNotifier.class,
       PurgeCeActivities.class,
-      CeQueueCleaner.class
+      CeQueueCleaner.class,
+      CeWorkerCountSettingWarning.class
     };
   }
 

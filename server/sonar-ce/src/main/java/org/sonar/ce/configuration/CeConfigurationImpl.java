@@ -19,24 +19,21 @@
  */
 package org.sonar.ce.configuration;
 
+import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
-import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
 
 /**
- * Immutable implementation of {@link CeConfiguration} which takes value returned by
- * {@link CeConfiguration#getWorkerCount()} from property {@link CeConfigurationImpl#CE_WORKERS_COUNT_PROPERTY} and
- * always returns {@link #DEFAULT_QUEUE_POLLING_DELAY} when {@link CeConfiguration#getQueuePollingDelay()} is called.
+ * Immutable implementation of {@link CeConfiguration} which takes value returned by an implementation of
+ * {@link WorkerCountProvider}, if any is available, or use the {@link #DEFAULT_WORKER_COUNT default worker count}.
+ * In addition, it always returns {@link #DEFAULT_QUEUE_POLLING_DELAY} when
+ * {@link CeConfiguration#getQueuePollingDelay()} is called.
  */
 public class CeConfigurationImpl implements CeConfiguration, Startable {
-  private static final String CE_WORKERS_COUNT_PROPERTY = "sonar.ce.workerCount";
-
-  private static final Logger LOG = Loggers.get(CeConfigurationImpl.class);
-
+  private static final int DEFAULT_WORKER_THREAD_COUNT = 1;
+  private static final int MAX_WORKER_THREAD_COUNT = 10;
   private static final int DEFAULT_WORKER_COUNT = 1;
   // 2 seconds
   private static final long DEFAULT_QUEUE_POLLING_DELAY = 2 * 1000L;
@@ -45,46 +42,57 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   // 10 minutes
   private static final long CANCEL_WORN_OUTS_DELAY = 10;
 
-  private final int workerCount;
+  @CheckForNull
+  private final WorkerCountProvider workerCountProvider;
+  private final int workerThreadCount;
+  private int workerCount;
 
-  public CeConfigurationImpl(Configuration config) {
-    String workerCountAsStr = config.get(CE_WORKERS_COUNT_PROPERTY).orElse(null);
-    if (workerCountAsStr == null || workerCountAsStr.isEmpty()) {
-      this.workerCount = DEFAULT_WORKER_COUNT;
-    } else {
-      this.workerCount = parseStringValue(workerCountAsStr);
-    }
+  public CeConfigurationImpl() {
+    this.workerCountProvider = null;
+    this.workerThreadCount = DEFAULT_WORKER_THREAD_COUNT;
+    this.workerCount = DEFAULT_WORKER_COUNT;
   }
 
-  private static int parseStringValue(String workerCountAsStr) {
-    try {
-      int value = Integer.parseInt(workerCountAsStr);
-      if (value < 1) {
-        throw parsingError(workerCountAsStr);
-      }
-      return value;
-    } catch (NumberFormatException e) {
-      throw parsingError(workerCountAsStr);
-    }
+  public CeConfigurationImpl(WorkerCountProvider workerCountProvider) {
+    this.workerCountProvider = workerCountProvider;
+    this.workerThreadCount = MAX_WORKER_THREAD_COUNT;
+    this.workerCount = readWorkerCount(workerCountProvider);
   }
 
-  private static MessageException parsingError(String workerCountAsStr) {
+  private static int readWorkerCount(WorkerCountProvider workerCountProvider) {
+    int value = workerCountProvider.get();
+    if (value < DEFAULT_WORKER_COUNT || value > MAX_WORKER_THREAD_COUNT) {
+      throw parsingError(value);
+    }
+    return value;
+  }
+
+  private static MessageException parsingError(int value) {
     return MessageException.of(format(
-      "value '%s' of property %s is invalid. It must an integer strictly greater than 0.",
-      workerCountAsStr,
-      CE_WORKERS_COUNT_PROPERTY));
+        "Worker count '%s' is invalid. It must an integer strictly greater than 0 and less or equal to 10",
+        value));
   }
 
   @Override
   public void start() {
-    if (this.workerCount > 1) {
-      LOG.info("Compute Engine will use {} concurrent workers to process tasks", this.workerCount);
-    }
+    //
   }
 
   @Override
   public void stop() {
     // nothing to do
+  }
+
+  @Override
+  public void refresh() {
+    if (workerCountProvider != null) {
+      this.workerCount = readWorkerCount(workerCountProvider);
+    }
+  }
+
+  @Override
+  public int getWorkerMaxCount() {
+    return workerThreadCount;
   }
 
   @Override

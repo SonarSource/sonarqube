@@ -47,7 +47,7 @@ public class ChangeLogLevelHttpActionTest {
   private ChangeLogLevelHttpAction underTest = new ChangeLogLevelHttpAction(serverLogging, database, ceProcessLogging);
 
   @Test
-  public void register_to_path_systemInfo() {
+  public void register_to_path_changeLogLevel() {
     HttpAction.ActionRegistry actionRegistry = mock(HttpAction.ActionRegistry.class);
 
     underTest.register(actionRegistry);

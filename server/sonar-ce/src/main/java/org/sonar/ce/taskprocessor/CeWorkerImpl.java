@@ -20,6 +20,7 @@
 package org.sonar.ce.taskprocessor;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -30,29 +31,51 @@ import org.sonar.ce.queue.InternalCeQueue;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.DISABLED;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.NO_TASK;
+import static org.sonar.ce.taskprocessor.CeWorker.Result.TASK_PROCESSED;
 
 public class CeWorkerImpl implements CeWorker {
 
   private static final Logger LOG = Loggers.get(CeWorkerImpl.class);
 
+  private final int ordinal;
+  private final String uuid;
   private final InternalCeQueue queue;
   private final CeLogging ceLogging;
   private final CeTaskProcessorRepository taskProcessorRepository;
-  private final String uuid;
+  private final EnabledCeWorkerController enabledCeWorkerController;
 
-  public CeWorkerImpl(InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository, String uuid) {
+  public CeWorkerImpl(int ordinal, String uuid,
+    InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository,
+    EnabledCeWorkerController enabledCeWorkerController) {
+    this.ordinal = checkOrdinal(ordinal);
+    this.uuid = uuid;
     this.queue = queue;
     this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;
-    this.uuid = uuid;
+    this.enabledCeWorkerController = enabledCeWorkerController;
+  }
+
+  private static int checkOrdinal(int ordinal) {
+    checkArgument(ordinal >= 0, "Ordinal must be >= 0");
+    return ordinal;
   }
 
   @Override
-  public Boolean call() throws Exception {
+  public Result call() throws Exception {
+    return withCustomizedThreadName(this::findAndProcessTask);
+  }
+
+  private Result findAndProcessTask() {
+    if (!enabledCeWorkerController.isEnabled(this)) {
+      return DISABLED;
+    }
     Optional<CeTask> ceTask = tryAndFindTaskToExecute();
     if (!ceTask.isPresent()) {
-      return false;
+      return NO_TASK;
     }
 
     try {
@@ -60,9 +83,19 @@ public class CeWorkerImpl implements CeWorker {
     } catch (Exception e) {
       LOG.error(format("An error occurred while executing task with uuid '%s'", ceTask.get().getUuid()), e);
     }
-    return true;
+    return TASK_PROCESSED;
   }
 
+  private <T> T withCustomizedThreadName(Supplier<T> supplier) {
+    Thread currentThread = Thread.currentThread();
+    String oldName = currentThread.getName();
+    try {
+      currentThread.setName(String.format("Worker %s (UUID=%s) on %s", getOrdinal(), getUUID(), oldName));
+      return supplier.get();
+    } finally {
+      currentThread.setName(oldName);
+    }
+  }
 
   private Optional<CeTask> tryAndFindTaskToExecute() {
     try {
@@ -71,6 +104,11 @@ public class CeWorkerImpl implements CeWorker {
       LOG.error("Failed to pop the queue of analysis reports", e);
     }
     return Optional.empty();
+  }
+
+  @Override
+  public int getOrdinal() {
+    return ordinal;
   }
 
   @Override
