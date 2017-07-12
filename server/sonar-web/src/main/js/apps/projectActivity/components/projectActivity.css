@@ -65,8 +65,13 @@
 
 .project-activity-graph-legend-actionable {
   padding: 4px 12px;
-  border: 1px solid #e6e6e6;
+  border-width: 1px;
+  border-style: solid;
   border-radius: 12px;
+}
+
+.project-activity-graph-legend-actionable:not(.alert-warning) {
+  border-color: #e6e6e6;
 }
 
 .project-activity-graph-tooltip {

@@ -22,8 +22,13 @@ import { shallow } from 'enzyme';
 import GraphsLegendCustom from '../GraphsLegendCustom';
 
 const SERIES = [
-  { name: 'bugs', translatedName: 'Bugs', style: '2', data: [] },
-  { name: 'my_metric', translatedName: 'metric.my_metric.name', style: '1', data: [] },
+  { name: 'bugs', translatedName: 'Bugs', style: '2', data: [{ x: 1, y: 1 }] },
+  {
+    name: 'my_metric',
+    translatedName: 'metric.my_metric.name',
+    style: '1',
+    data: [{ x: 1, y: 1 }]
+  },
   { name: 'foo', translatedName: 'Foo', style: '0', data: [] }
 ];
 
