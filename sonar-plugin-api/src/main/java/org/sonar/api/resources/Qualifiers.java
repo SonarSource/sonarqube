@@ -30,14 +30,19 @@ import org.apache.commons.lang.StringUtils;
 public final class Qualifiers {
 
   /**
-   * Root views. Scope of views is Scopes.PROJECT
+   * Root portfolios. Scope of portfolios is Scopes.PROJECT
    */
   public static final String VIEW = "VW";
 
   /**
-   * Sub-views, defined in root views. Scope of sub-views is Scopes.PROJECT
+   * Sub-portfolios, defined in root portfolios. Scope of sub-portfolios is Scopes.PROJECT
    */
   public static final String SUBVIEW = "SVW";
+
+  /**
+   * Application portfolios. Scope of application is Scopes.PROJECT
+   */
+  public static final String APP = "APP";
 
   /**
    * Library, for example a JAR dependency of Java projects.
