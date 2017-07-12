@@ -24,11 +24,12 @@ import LanguageDistribution from '../../../components/charts/LanguageDistributio
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 import HistoryIcon from '../../../components/icons-components/HistoryIcon';
+import Tooltip from '../../../components/controls/Tooltip';
 import { ComplexityDistribution } from '../../../components/shared/complexity-distribution';
 import { isDiffMetric } from '../../../helpers/measures';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getComponentMeasureHistory } from '../../../helpers/urls';
-import { getLocalizedMetricName } from '../../../helpers/l10n';
+import { getLocalizedMetricName, translate } from '../../../helpers/l10n';
 
 export default function MeasureDetailsHeader({
   component,
@@ -44,11 +45,13 @@ export default function MeasureDetailsHeader({
         <IssueTypeIcon query={metric.key} className="little-spacer-right" />
         {getLocalizedMetricName(metric)}
         {!isDiff &&
-          <Link
-            className="js-show-history spacer-left button button-small button-compact"
-            to={getComponentMeasureHistory(component.key, metric.key)}>
-            <HistoryIcon />
-          </Link>}
+          <Tooltip placement="right" overlay={translate('component_measures.show_metric_history')}>
+            <Link
+              className="js-show-history spacer-left button button-small button-compact"
+              to={getComponentMeasureHistory(component.key, metric.key)}>
+              <HistoryIcon />
+            </Link>
+          </Tooltip>}
       </h2>
 
       {isDiff &&
