@@ -24,7 +24,7 @@ exports[`should render correctly the date inputs 1`] = `
     disabled={false}
     onClick={[Function]}
   >
-    reset_verb
+    project_activity.reset_dates
   </button>
 </div>
 `;
