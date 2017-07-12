@@ -122,6 +122,7 @@ public abstract class IssueStorage {
       insertChanges(issueChangeMapper, issue);
       if (count > BatchSession.MAX_BATCH_SIZE) {
         session.commit();
+        count = 0;
       }
       count++;
     }
