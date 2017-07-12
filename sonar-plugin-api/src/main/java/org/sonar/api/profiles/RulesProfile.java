@@ -21,7 +21,6 @@ package org.sonar.api.profiles;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -359,16 +358,4 @@ public class RulesProfile implements Cloneable {
     return new RulesProfile();
   }
 
-  private static class MatchRule implements Predicate<ActiveRule> {
-    private final Rule rule;
-
-    public MatchRule(Rule rule) {
-      this.rule = rule;
-    }
-
-    @Override
-    public boolean test(ActiveRule input) {
-      return input.getRule().equals(rule);
-    }
-  }
 }
