@@ -21,21 +21,47 @@ package org.sonar.api.batch.fs.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.InputFile.Type;
 
 public class TestInputFileBuilderTest {
 
   @Test
   public void setContent() throws IOException {
-    DefaultInputFile builder = TestInputFileBuilder.create("module", "invalidPath")
+    DefaultInputFile file = TestInputFileBuilder.create("module", "invalidPath")
       .setContents("my content")
       .setCharset(StandardCharsets.UTF_8)
       .build();
-    assertThat(builder.contents()).isEqualTo("my content");
-    assertThat(IOUtils.toString(builder.inputStream())).isEqualTo("my content");
+    assertThat(file.contents()).isEqualTo("my content");
+    assertThat(IOUtils.toString(file.inputStream())).isEqualTo("my content");
+  }
+
+  @Test
+  public void testGetters() {
+    DefaultInputFile file = TestInputFileBuilder.create("module", new File("baseDir"), new File("baseDir", "path"))
+      .setStatus(Status.SAME)
+      .setType(Type.MAIN)
+      .build();
+
+    assertThat(file.type()).isEqualTo(Type.MAIN);
+    assertThat(file.status()).isEqualTo(Status.SAME);
+    assertThat(file.publish()).isTrue();
+    assertThat(file.type()).isEqualTo(Type.MAIN);
+    assertThat(file.relativePath()).isEqualTo("path");
+    assertThat(file.absolutePath()).isEqualTo(new File("baseDir", "path").toString());
+
+  }
+
+  @Test
+  public void testCreateInputModule() {
+    DefaultInputModule module = TestInputFileBuilder.newDefaultInputModule("key", new File("baseDir"));
+    assertThat(module.key()).isEqualTo("key");
+    assertThat(module.getBaseDir()).isEqualTo(new File("baseDir"));
   }
 }
