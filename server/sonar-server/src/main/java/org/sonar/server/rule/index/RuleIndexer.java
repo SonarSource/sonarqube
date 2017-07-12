@@ -83,9 +83,9 @@ public class RuleIndexer implements StartupIndexer, ResilientIndexer {
 
       // index all organization extensions
       if (uninitializedIndexTypes.contains(INDEX_TYPE_RULE_EXTENSION)) {
-        dbClient.ruleDao().scrollIndexingRuleExtensions(dbSession, dto -> {
-          bulk.add(newRuleExtensionDocIndexRequest(dto));
-        });
+        dbClient.ruleDao().scrollIndexingRuleExtensions(dbSession, dto ->
+          bulk.add(newRuleExtensionDocIndexRequest(dto))
+        );
       }
 
       bulk.stop();

@@ -66,7 +66,7 @@ public class IndexingResult {
    * @see {@link RecoveryIndexer#recover()}
    */
   public double getFailureRatio() {
-    return total.get() == 0 ? 1 : (1.0d * getFailures()) / total.get();
+    return total.get() == 0 ? 1 : ((1.0d * getFailures()) / total.get());
   }
 
   public boolean isSuccess() {
