@@ -32,6 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.log.CeLogging;
@@ -327,6 +328,33 @@ public class CeWorkerImplTest {
     newThread.join();
   }
 
+  @Test
+  public void log_error_when_task_fails_with_not_MessageException() throws Exception {
+    CeTask ceTask = createCeTask("FooBar");
+    when(queue.peek(anyString())).thenReturn(Optional.of(ceTask));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    makeTaskProcessorFail(ceTask);
+
+    underTest.call();
+    List<String> logs = logTester.logs(LoggerLevel.ERROR);
+    assertThat(logs).hasSize(2);
+    assertThat(logs.get(0)).isEqualTo("Failed to execute task " + ceTask.getUuid());
+    assertThat(logs.get(1)).contains(" | submitter=FooBar | time=");
+  }
+
+  @Test
+  public void do_no_log_error_when_task_fails_with_MessageException() throws Exception {
+    CeTask ceTask = createCeTask("FooBar");
+    when(queue.peek(anyString())).thenReturn(Optional.of(ceTask));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
+    makeTaskProcessorFail(ceTask, MessageException.of("simulate MessageException thrown by TaskProcessor#process"));
+
+    underTest.call();
+    List<String> logs = logTester.logs(LoggerLevel.ERROR);
+    assertThat(logs).hasSize(1);
+    assertThat(logs.get(0)).contains(" | submitter=FooBar | time=");
+  }
+
   private Thread createThreadNameVerifyingThread(String threadName) {
     return new Thread(() -> {
       verifyUnchangedThreadName(threadName);
@@ -358,8 +386,11 @@ public class CeWorkerImplTest {
   }
 
   private IllegalStateException makeTaskProcessorFail(CeTask task) {
-    IllegalStateException error = new IllegalStateException("simulate exception thrown by TaskProcessor#process");
-    doThrow(error).when(taskProcessor).process(task);
-    return error;
+    return makeTaskProcessorFail(task, new IllegalStateException("simulate exception thrown by TaskProcessor#process"));
+  }
+
+  private <T extends Throwable> T makeTaskProcessorFail(CeTask task, T t) {
+    doThrow(t).when(taskProcessor).process(task);
+    return t;
   }
 }
