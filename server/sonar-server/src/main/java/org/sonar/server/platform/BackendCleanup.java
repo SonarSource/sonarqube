@@ -36,6 +36,7 @@ import org.sonar.db.version.SqTables;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IndexType;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.property.InternalProperties;
@@ -95,7 +96,7 @@ public class BackendCleanup {
       esClient.prepareClearCache().get();
 
       for (String index : esClient.prepareState().get().getState().getMetaData().concreteAllIndices()) {
-        clearIndex(index);
+        clearIndex(new IndexType(index, index)); // FIXME this is incorrect
       }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to clear indexes", e);
@@ -120,10 +121,10 @@ public class BackendCleanup {
       throw new IllegalStateException("Fail to reset data", e);
     }
 
-    clearIndex(IssueIndexDefinition.INDEX_TYPE_ISSUE.getIndex());
-    clearIndex(ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex());
-    clearIndex(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES.getIndex());
-    clearIndex(ComponentIndexDefinition.INDEX_TYPE_COMPONENT.getIndex());
+    clearIndex(IssueIndexDefinition.INDEX_TYPE_ISSUE);
+    clearIndex(ViewIndexDefinition.INDEX_TYPE_VIEW);
+    clearIndex(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES);
+    clearIndex(ComponentIndexDefinition.INDEX_TYPE_COMPONENT);
   }
 
   private void truncateAnalysisTables(Connection connection) throws SQLException {
@@ -165,8 +166,8 @@ public class BackendCleanup {
   /**
    * Completely remove a index with all types
    */
-  public void clearIndex(String indexName) {
-    BulkIndexer.delete(esClient, indexName, esClient.prepareSearch(indexName).setQuery(matchAllQuery()));
+  public void clearIndex(IndexType indexType) {
+    BulkIndexer.delete(esClient, indexType, esClient.prepareSearch(indexType.getIndex()).setQuery(matchAllQuery()));
   }
 
   @FunctionalInterface

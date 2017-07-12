@@ -668,7 +668,7 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "selectForIndexing.xml");
 
     List<ComponentDto> components = new ArrayList<>();
-    underTest.selectForIndexing(dbSession, projectUuid, context -> components.add(context.getResultObject()));
+    underTest.scrollForIndexing(dbSession, projectUuid, context -> components.add(context.getResultObject()));
     return assertThat(components).extracting(ComponentDto::uuid);
   }
 

@@ -40,7 +40,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 @ComputeEngineSide
 public class AuthorizationTypeSupport {
 
-  private static final String TYPE_AUTHORIZATION = "authorization";
+  public static final String TYPE_AUTHORIZATION = "authorization";
   public static final String FIELD_GROUP_IDS = "groupIds";
   public static final String FIELD_USER_IDS = "userIds";
   public static final String FIELD_UPDATED_AT = "updatedAt";

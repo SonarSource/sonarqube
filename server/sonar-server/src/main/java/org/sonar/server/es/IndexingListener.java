@@ -19,13 +19,23 @@
  */
 package org.sonar.server.es;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface IndexingListener {
 
-  void onSuccess(Collection<String> docIds);
+  void onSuccess(List<DocId> docIds);
 
-  static IndexingListener noop() {
-    return docIds -> {};
-  }
+  void onFinish(IndexingResult result);
+
+  IndexingListener NOOP = new IndexingListener() {
+    @Override
+    public void onSuccess(List<DocId> docIds) {
+
+    }
+
+    @Override
+    public void onFinish(IndexingResult result) {
+
+    }
+  };
 }

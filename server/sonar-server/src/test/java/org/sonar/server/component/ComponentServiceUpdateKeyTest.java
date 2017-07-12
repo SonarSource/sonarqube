@@ -31,13 +31,12 @@ import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 
@@ -55,8 +54,8 @@ public class ComponentServiceUpdateKeyTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
-  private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexer);
+  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
+  private ComponentService underTest = new ComponentService(dbClient, userSession, projectIndexers);
 
   @Test
   public void update_project_key() {
@@ -80,7 +79,7 @@ public class ComponentServiceUpdateKeyTest {
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, inactiveFile.getKey())).isPresent();
 
-    verify(projectIndexer).indexProject(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(project.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test
@@ -100,7 +99,7 @@ public class ComponentServiceUpdateKeyTest {
     assertComponentKeyHasBeenUpdated(module.key(), "sample:root2:module");
     assertComponentKeyHasBeenUpdated(file.key(), "sample:root2:module:src/File.xoo");
 
-    verify(projectIndexer).indexProject(module.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(module.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test
@@ -114,7 +113,7 @@ public class ComponentServiceUpdateKeyTest {
     dbSession.commit();
 
     assertComponentKeyHasBeenUpdated(provisionedProject.key(), "provisionedProject2");
-    verify(projectIndexer).indexProject(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE);
+    org.assertj.core.api.Assertions.assertThat(projectIndexers.hasBeenCalled(provisionedProject.uuid(), ProjectIndexer.Cause.PROJECT_KEY_UPDATE)).isTrue();
   }
 
   @Test

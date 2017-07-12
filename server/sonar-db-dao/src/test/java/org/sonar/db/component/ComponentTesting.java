@@ -41,10 +41,11 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newFileDto(ComponentDto module, @Nullable ComponentDto directory, String fileUuid) {
-    String path = "src/main/xoo/org/sonar/samples/File.xoo";
+    String filename = "NAME_" + fileUuid;
+    String path = directory != null ? directory.path() + "/" + filename : module.path() + "/" + filename;
     return newChildComponent(fileUuid, module, directory == null ? module : directory)
       .setKey("KEY_" + fileUuid)
-      .setName("NAME_" + fileUuid)
+      .setName(filename)
       .setLongName(path)
       .setScope(Scopes.FILE)
       .setQualifier(Qualifiers.FILE)

@@ -79,6 +79,6 @@ public class ViewIndex {
   public void delete(Collection<String> viewUuids) {
     SearchRequestBuilder searchRequest = esClient.prepareSearch(ViewIndexDefinition.INDEX_TYPE_VIEW)
       .setQuery(boolQuery().must(matchAllQuery()).filter(termsQuery(ViewIndexDefinition.FIELD_UUID, viewUuids)));
-    BulkIndexer.delete(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW.getIndex(), searchRequest);
+    BulkIndexer.delete(esClient, ViewIndexDefinition.INDEX_TYPE_VIEW, searchRequest);
   }
 }

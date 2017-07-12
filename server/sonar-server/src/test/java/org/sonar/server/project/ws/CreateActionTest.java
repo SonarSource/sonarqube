@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
-import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.favorite.FavoriteUpdater;
@@ -82,13 +82,13 @@ public class CreateActionTest {
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private BillingValidationsProxy billingValidations = mock(BillingValidationsProxy.class);
-
+  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private WsActionTester ws = new WsActionTester(
     new CreateAction(
       new ProjectsWsSupport(db.getDbClient(), billingValidations),
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
-        mock(ProjectIndexer.class)),
+        projectIndexers),
       defaultOrganizationProvider));
 
   @Test

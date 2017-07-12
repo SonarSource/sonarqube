@@ -22,23 +22,24 @@ package org.sonarqube.tests;
 import com.sonar.orchestrator.Orchestrator;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.ws.client.WsClient;
 import util.selenium.Selenese;
 
+import static java.util.Objects.requireNonNull;
 import static util.ItUtils.newUserWsClient;
 
 /**
  * This JUnit rule wraps an {@link Orchestrator} instance and provides :
  * <ul>
- *   <li>enabling the organization feature by default</li>
- *   <li>clean-up of organizations between tests</li>
- *   <li>clean-up of users between tests</li>
- *   <li>clean-up of session when opening a browser (cookies, local storage)</li>
- *   <li>quick access to {@link WsClient} instances</li>
- *   <li>helpers to generate organizations and users</li>
+ * <li>enabling the organization feature by default</li>
+ * <li>clean-up of organizations between tests</li>
+ * <li>clean-up of users between tests</li>
+ * <li>clean-up of session when opening a browser (cookies, local storage)</li>
+ * <li>quick access to {@link WsClient} instances</li>
+ * <li>helpers to generate organizations and users</li>
  * </ul>
- *
+ * <p>
  * Recommendation is to define a {@code @Rule} instance. If not possible, then
  * {@code @ClassRule} must be used through a {@link org.junit.rules.RuleChain}
  * around {@link Orchestrator}.
@@ -49,6 +50,7 @@ public class Tester extends ExternalResource implements Session {
 
   // configuration before startup
   private boolean disableOrganizations = false;
+  private Elasticsearch elasticsearch = null;
 
   // initialized in #before()
   private boolean beforeCalled = false;
@@ -61,6 +63,18 @@ public class Tester extends ExternalResource implements Session {
   public Tester disableOrganizations() {
     verifyNotStarted();
     disableOrganizations = true;
+    return this;
+  }
+
+  /**
+   * Enables Elasticsearch debugging, see {@link #elasticsearch()}.
+   *
+   * The property "sonar.search.httpPort" must be defined before
+   * starting SonarQube server.
+   */
+  public Tester setElasticsearchHttpPort(int port) {
+    verifyNotStarted();
+    elasticsearch = new Elasticsearch(port);
     return this;
   }
 
@@ -96,6 +110,10 @@ public class Tester extends ExternalResource implements Session {
   public Session as(String login, String password) {
     verifyStarted();
     return new SessionImpl(orchestrator, login, password);
+  }
+
+  public Elasticsearch elasticsearch() {
+    return requireNonNull(elasticsearch, "Elasticsearch HTTP port is not defined. See #setElasticsearchHttpPort()");
   }
 
   /**

@@ -49,7 +49,7 @@ import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViewIndexerTest {
@@ -67,13 +67,13 @@ public class ViewIndexerTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
+  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
   private PermissionIndexer permissionIndexer = new PermissionIndexer(dbClient, esTester.client(), issueIndexer);
   private ViewIndexer underTest = new ViewIndexer(dbClient, esTester.client());
 
   @Test
   public void index_nothing() {
-    underTest.indexOnStartup(null);
+    underTest.indexOnStartup(emptySet());
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW)).isEqualTo(0L);
   }
 
@@ -81,7 +81,7 @@ public class ViewIndexerTest {
   public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
-    underTest.indexOnStartup(null);
+    underTest.indexOnStartup(emptySet());
 
     List<ViewDoc> docs = esTester.getDocuments(ViewIndexDefinition.INDEX_TYPE_VIEW, ViewDoc.class);
     assertThat(docs).hasSize(4);
@@ -124,7 +124,7 @@ public class ViewIndexerTest {
   @Test
   public void clear_views_lookup_cache_on_index_view_uuid() {
     IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-    IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbClient));
+    IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
 
     String viewUuid = "ABCD";
 
@@ -132,7 +132,7 @@ public class ViewIndexerTest {
     dbClient.ruleDao().insert(dbSession, rule.getDefinition());
     ComponentDto project1 = addProjectWithIssue(rule, dbTester.organizations().insert());
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
-    permissionIndexer.indexProjectsByUuids(dbSession, asList(project1.uuid()));
+    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto view = ComponentTesting.newView(organizationDto, "ABCD");
@@ -150,7 +150,7 @@ public class ViewIndexerTest {
     // Add a project to the view and index it again
     ComponentDto project2 = addProjectWithIssue(rule, organizationDto);
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
-    permissionIndexer.indexProjectsByUuids(dbSession, asList(project2.uuid()));
+    permissionIndexer.indexOnStartup(permissionIndexer.getIndexTypes());
 
     ComponentDto techProject2 = ComponentTesting.newProjectCopy("EFGH", project2, view);
     dbClient.componentDao().insert(dbSession, techProject2);

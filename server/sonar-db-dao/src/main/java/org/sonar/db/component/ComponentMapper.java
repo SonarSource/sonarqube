@@ -130,7 +130,7 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectProjectsByNameQuery(@Param("nameQuery") @Nullable String nameQuery, @Param("includeModules") boolean includeModules);
 
-  void selectForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler<ComponentDto> handler);
+  void scrollForIndexing(@Param("projectUuid") @Nullable String projectUuid, ResultHandler<ComponentDto> handler);
 
   void insert(ComponentDto componentDto);
 

@@ -30,6 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.TestProjectIndexers;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.i18n.I18nRule;
@@ -57,13 +58,13 @@ public class ComponentUpdaterTest {
   @Rule
   public I18nRule i18n = new I18nRule().put("qualifier.TRK", "Project");
 
-  private ProjectIndexer projectIndexer = mock(ProjectIndexer.class);
+  private TestProjectIndexers projectIndexers = new TestProjectIndexers();
   private PermissionTemplateService permissionTemplateService = mock(PermissionTemplateService.class);
 
   private ComponentUpdater underTest = new ComponentUpdater(db.getDbClient(), i18n, system2,
     permissionTemplateService,
     new FavoriteUpdater(db.getDbClient()),
-    projectIndexer);
+    projectIndexers);
 
   @Test
   public void should_persist_and_index_when_creating_project() throws Exception {
@@ -91,7 +92,7 @@ public class ComponentUpdaterTest {
     assertThat(loaded.getCreatedAt()).isNotNull();
     assertThat(db.getDbClient().componentDao().selectOrFailByKey(db.getSession(), DEFAULT_PROJECT_KEY)).isNotNull();
 
-    verify(projectIndexer).indexProject(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
   }
 
   @Test
@@ -283,7 +284,7 @@ public class ComponentUpdaterTest {
     assertThat(loaded.getKey()).isEqualTo("view-key");
     assertThat(loaded.name()).isEqualTo("view-name");
     assertThat(loaded.qualifier()).isEqualTo("VW");
-    verify(projectIndexer).indexProject(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+    assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
   }
 
 }

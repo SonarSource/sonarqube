@@ -80,7 +80,7 @@ public class AssignActionTest {
   public DbTester db = DbTester.create(system2);
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(db.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private AssignAction underTest = new AssignAction(system2, userSession, db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new IssueFieldsSetter(),
     new IssueUpdater(db.getDbClient(),

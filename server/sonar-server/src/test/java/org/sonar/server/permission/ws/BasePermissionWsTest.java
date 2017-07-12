@@ -30,10 +30,13 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.es.ProjectIndexersImpl;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.UserPermissionChanger;
+import org.sonar.server.permission.index.FooIndexDefinition;
 import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.usergroups.DefaultGroupFinder;
@@ -41,7 +44,6 @@ import org.sonar.server.usergroups.ws.GroupWsSupport;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.template.PermissionTemplateTesting.newPermissionTemplateDto;
 
@@ -49,6 +51,9 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   @Rule
   public DbTester db = DbTester.create(new AlwaysIncreasingSystem2());
+
+  @Rule
+  public EsTester esTester = new EsTester(new FooIndexDefinition());
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -78,7 +83,7 @@ public abstract class BasePermissionWsTest<A extends PermissionsWsAction> {
 
   protected PermissionUpdater newPermissionUpdater() {
     return new PermissionUpdater(db.getDbClient(),
-      mock(PermissionIndexer.class),
+      new ProjectIndexersImpl(new PermissionIndexer(db.getDbClient(), esTester.client())),
       new UserPermissionChanger(db.getDbClient()),
       new GroupPermissionChanger(db.getDbClient()));
   }

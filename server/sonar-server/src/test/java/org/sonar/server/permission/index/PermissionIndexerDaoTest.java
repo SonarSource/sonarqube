@@ -114,7 +114,7 @@ public class PermissionIndexerDaoTest {
   }
 
   @Test
-  public void selectByUuids() throws Exception {
+  public void selectByUuids() {
     insertTestDataForProjectsAndViews();
 
     Map<String, PermissionIndexerDao.Dto> dtos = underTest
@@ -145,6 +145,14 @@ public class PermissionIndexerDaoTest {
 
     PermissionIndexerDao.Dto view2Authorization = dtos.get(view2.uuid());
     isPublic(view2Authorization, VIEW);
+  }
+
+  @Test
+  public void selectByUuids_returns_empty_list_when_project_does_not_exist() {
+    insertTestDataForProjectsAndViews();
+
+    List<PermissionIndexerDao.Dto> dtos = underTest.selectByUuids(dbClient, dbSession, asList("missing"));
+    assertThat(dtos).isEmpty();
   }
 
   @Test

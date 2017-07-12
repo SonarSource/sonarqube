@@ -19,6 +19,10 @@
  */
 package org.sonar.server.es;
 
+import java.util.Collection;
+import org.sonar.db.DbSession;
+import org.sonar.db.es.EsQueueDto;
+
 /**
  * A {@link ProjectIndexer} populates an Elasticsearch index
  * containing project-related documents, for instance issues
@@ -29,10 +33,14 @@ package org.sonar.server.es;
  * then the implementation of {@link ProjectIndexer} must
  * also implement {@link org.sonar.server.permission.index.NeedAuthorizationIndexer}
  */
-public interface ProjectIndexer {
+public interface ProjectIndexer extends ResilientIndexer {
 
   enum Cause {
-    PROJECT_CREATION, PROJECT_KEY_UPDATE, NEW_ANALYSIS, PROJECT_TAGS_UPDATE
+    PROJECT_CREATION,
+    PROJECT_DELETION,
+    PROJECT_KEY_UPDATE,
+    PROJECT_TAGS_UPDATE,
+    PERMISSION_CHANGE
   }
 
   /**
@@ -40,19 +48,8 @@ public interface ProjectIndexer {
    * for example when project is created or when a new analysis
    * is being processed.
    * @param projectUuid non-null UUID of project
-   * @param cause the reason why indexing is triggered. That
-   *              allows some implementations to ignore
-   *              re-indexing in some cases. For example
-   *              there is no need to index measures when
-   *              a project is being created because they
-   *              are not computed yet.
    */
-  void indexProject(String projectUuid, Cause cause);
+  void indexOnAnalysis(String projectUuid);
 
-  /**
-   * This method is called when a project is deleted.
-   * @param projectUuid non-null UUID of project
-   */
-  void deleteProject(String projectUuid);
-
+  Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, ProjectIndexer.Cause cause);
 }

@@ -27,7 +27,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.permission.index.PermissionIndexer;
+import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.ProjectIndexers;
 
 /**
  * Add or remove global/project permissions to a group. This class
@@ -37,14 +38,14 @@ import org.sonar.server.permission.index.PermissionIndexer;
 public class PermissionUpdater {
 
   private final DbClient dbClient;
-  private final PermissionIndexer permissionIndexer;
+  private final ProjectIndexers projectIndexers;
   private final UserPermissionChanger userPermissionChanger;
   private final GroupPermissionChanger groupPermissionChanger;
 
-  public PermissionUpdater(DbClient dbClient, PermissionIndexer permissionIndexer,
+  public PermissionUpdater(DbClient dbClient, ProjectIndexers projectIndexers,
                            UserPermissionChanger userPermissionChanger, GroupPermissionChanger groupPermissionChanger) {
     this.dbClient = dbClient;
-    this.permissionIndexer = permissionIndexer;
+    this.projectIndexers = projectIndexers;
     this.userPermissionChanger = userPermissionChanger;
     this.groupPermissionChanger = groupPermissionChanger;
   }
@@ -63,11 +64,8 @@ public class PermissionUpdater {
     for (Long projectId : projectIds) {
       dbClient.resourceDao().updateAuthorizationDate(projectId, dbSession);
     }
-    dbSession.commit();
 
-    if (!projectIds.isEmpty()) {
-      permissionIndexer.indexProjectsByUuids(dbSession, projectOrViewUuids);
-    }
+    projectIndexers.commitAndIndex(dbSession, projectOrViewUuids, ProjectIndexer.Cause.PERMISSION_CHANGE);
   }
 
   private boolean doApply(DbSession dbSession, PermissionChange change) {

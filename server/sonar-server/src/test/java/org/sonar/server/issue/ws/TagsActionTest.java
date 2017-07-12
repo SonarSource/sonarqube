@@ -64,7 +64,7 @@ public class TagsActionTest {
   @Rule
   public EsTester esTester = new EsTester(new IssueIndexDefinition(settings.asConfig()), new RuleIndexDefinition(settings.asConfig()));
 
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), new IssueIteratorFactory(dbTester.getDbClient()));
+  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbTester.getDbClient(), new IssueIteratorFactory(dbTester.getDbClient()));
   private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbTester.getDbClient());
   private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(esTester, issueIndexer);
   private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
@@ -233,7 +233,7 @@ public class TagsActionTest {
     IssueDto issue = dbTester.issues().insertIssue(organization, i -> i.setRule(rule).setTags(asList(tags)));
     ComponentDto project = dbTester.getDbClient().componentDao().selectByUuid(dbTester.getSession(), issue.getProjectUuid()).get();
     userSession.addProjectPermission(USER, project);
-    issueIndexer.index(Collections.singletonList(issue.getKey()));
+    issueIndexer.commitAndIndexIssues(dbTester.getSession(), Collections.singletonList(issue));
     return issue;
   }
 

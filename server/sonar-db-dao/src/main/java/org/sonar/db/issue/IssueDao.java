@@ -95,7 +95,7 @@ public class IssueDao implements Dao {
   }
 
   public void scrollNonClosedByComponentUuid(DbSession dbSession, String componentUuid, ResultHandler<IssueDto> handler) {
-    mapper(dbSession).selectNonClosedByComponentUuid(componentUuid, handler);
+    mapper(dbSession).scrollNonClosedByComponentUuid(componentUuid, handler);
   }
 
   public void scrollNonClosedByModuleOrProject(DbSession dbSession, ComponentDto module, ResultHandler<IssueDto> handler) {

@@ -62,8 +62,8 @@ public class ServerIssueStorage extends IssueStorage {
   }
 
   @Override
-  protected void doAfterSave(Collection<String> issueKeys) {
-    indexer.index(issueKeys);
+  protected void doAfterSave(DbSession dbSession, Collection<IssueDto> issues) {
+    indexer.commitAndIndexIssues(dbSession, issues);
   }
 
   protected ComponentDto component(DbSession session, DefaultIssue issue) {

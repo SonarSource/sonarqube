@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
@@ -57,16 +58,18 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT
 
 public class IssueIndexDebtTest {
 
+  private System2 system2 = System2.INSTANCE;
+
   @Rule
   public EsTester es = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()), new ViewIndexDefinition(new MapSettings().asConfig()));
-
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create(system2);
 
-  private System2 system2 = System2.INSTANCE;
-  private IssueIndex underTest;
-  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), new IssueIteratorFactory(null));
+  private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
+  private IssueIndex underTest;
 
   @Before
   public void setUp() {

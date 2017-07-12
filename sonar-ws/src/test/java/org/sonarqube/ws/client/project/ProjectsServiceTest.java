@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.project;
 
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.WsProjects;
@@ -128,6 +129,15 @@ public class ProjectsServiceTest {
 
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/delete");
     assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("key", "project_key"));
+  }
+
+  @Test
+  public void bulk_delete() {
+    BulkDeleteRequest request = BulkDeleteRequest.builder().setProjectKeys(Arrays.asList("p1", "p2")).setOrganization("my-org").build();
+    underTest.bulkDelete(request);
+
+    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/bulk_delete");
+    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("organization", "my-org"), entry("projects", "p1,p2"));
   }
 
   @Test

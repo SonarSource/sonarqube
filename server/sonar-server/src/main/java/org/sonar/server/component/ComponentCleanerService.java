@@ -19,9 +19,7 @@
  */
 package org.sonar.server.component;
 
-import java.util.Collection;
 import java.util.List;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
@@ -30,21 +28,21 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer;
+import org.sonar.server.es.ProjectIndexers;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 @ServerSide
-@ComputeEngineSide
 public class ComponentCleanerService {
 
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
-  private final Collection<ProjectIndexer> projectIndexers;
+  private final ProjectIndexers projectIndexers;
 
-  public ComponentCleanerService(DbClient dbClient, ResourceTypes resourceTypes, ProjectIndexer... projectIndexers) {
+  public ComponentCleanerService(DbClient dbClient, ResourceTypes resourceTypes, ProjectIndexers projectIndexers) {
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
-    this.projectIndexers = asList(projectIndexers);
+    this.projectIndexers = projectIndexers;
   }
 
   public void delete(DbSession dbSession, List<ComponentDto> projects) {
@@ -58,13 +56,7 @@ public class ComponentCleanerService {
       throw new IllegalArgumentException("Only projects can be deleted");
     }
     dbClient.purgeDao().deleteRootComponent(dbSession, project.uuid());
-    dbSession.commit();
-
-    deleteFromIndices(project.uuid());
-  }
-
-  private void deleteFromIndices(String projectUuid) {
-    projectIndexers.forEach(i -> i.deleteProject(projectUuid));
+    projectIndexers.commitAndIndex(dbSession, singletonList(project.uuid()), ProjectIndexer.Cause.PROJECT_DELETION);
   }
 
   private static boolean hasNotProjectScope(ComponentDto project) {

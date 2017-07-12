@@ -19,28 +19,38 @@
  */
 package org.sonar.server.test.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.es.EsQueueDto;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.BulkIndexer.Size;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexType;
+import org.sonar.server.es.IndexingListener;
+import org.sonar.server.es.IndexingResult;
+import org.sonar.server.es.OneToManyResilientIndexingListener;
 import org.sonar.server.es.ProjectIndexer;
 import org.sonar.server.es.StartupIndexer;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
  * db table FILE_SOURCES of type TEST that are not indexed yet
+ *
+ * This indexer is not resilient by itself since it's called by Compute Engine
  */
 public class TestIndexer implements ProjectIndexer, StartupIndexer {
 
@@ -53,73 +63,106 @@ public class TestIndexer implements ProjectIndexer, StartupIndexer {
   }
 
   @Override
-  public void indexProject(String projectUuid, Cause cause) {
-    switch (cause) {
-      case PROJECT_CREATION:
-        // no need to index, not tests at that time
-      case PROJECT_KEY_UPDATE:
-      case PROJECT_TAGS_UPDATE:
-        // no need to index, project key and tags are not used
-        break;
-      case NEW_ANALYSIS:
-        deleteProject(projectUuid);
-        doIndex(projectUuid, Size.REGULAR);
-        break;
-      default:
-        // defensive case
-        throw new IllegalStateException("Unsupported cause: " + cause);
-    }
-  }
-
-  @Override
   public Set<IndexType> getIndexTypes() {
     return ImmutableSet.of(INDEX_TYPE_TEST);
   }
 
   @Override
   public void indexOnStartup(Set<IndexType> uninitializedIndexTypes) {
-    doIndex(null, Size.LARGE);
-  }
+    try (DbSession dbSession = dbClient.openSession(false);
+      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, null)) {
 
-  public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex(), Size.REGULAR);
-    return doIndex(bulk, dbRows);
-  }
-
-  private long doIndex(@Nullable String projectUuid, Size bulkSize) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST.getIndex(), bulkSize);
-
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid);
-      long maxUpdatedAt = doIndex(bulk, rowIt);
-      rowIt.close();
-      return maxUpdatedAt;
+      BulkIndexer bulkIndexer = new BulkIndexer(esClient, TestIndexDefinition.INDEX_TYPE_TEST, Size.LARGE);
+      bulkIndexer.start();
+      addTestsToBulkIndexer(rowIt, bulkIndexer);
+      bulkIndexer.stop();
     }
   }
 
-  private static long doIndex(BulkIndexer bulk, Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
-    long maxUpdatedAt = 0L;
+  @Override
+  public void indexOnAnalysis(String projectUuid) {
+    BulkIndexer bulkIndexer = new BulkIndexer(esClient, TestIndexDefinition.INDEX_TYPE_TEST, Size.REGULAR);
+    bulkIndexer.start();
+    addProjectDeletionToBulkIndexer(bulkIndexer, projectUuid);
+    try (DbSession dbSession = dbClient.openSession(false);
+      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid)) {
+      addTestsToBulkIndexer(rowIt, bulkIndexer);
+    }
+    bulkIndexer.stop();
+  }
+
+  @Override
+  public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, Cause cause) {
+    switch (cause) {
+      case PROJECT_CREATION:
+        // no tests at that time
+        return emptyList();
+
+      case PROJECT_KEY_UPDATE:
+      case PROJECT_TAGS_UPDATE:
+      case PERMISSION_CHANGE:
+        // project key, tags and permissions are not part of tests/test
+        return emptyList();
+
+      case PROJECT_DELETION:
+        List<EsQueueDto> items = projectUuids.stream()
+          .map(projectUuid -> EsQueueDto.create(INDEX_TYPE_TEST.format(), projectUuid, null, projectUuid))
+          .collect(MoreCollectors.toArrayList(projectUuids.size()));
+        return dbClient.esQueueDao().insert(dbSession, items);
+
+      default:
+        // defensive case
+        throw new IllegalStateException("Unsupported cause: " + cause);
+    }
+  }
+
+  @VisibleForTesting
+  protected IndexingResult doIndex(Iterator<FileSourcesUpdaterHelper.Row> dbRows, Size bulkSize, IndexingListener listener) {
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX_TYPE_TEST, bulkSize, listener);
     bulk.start();
     while (dbRows.hasNext()) {
       FileSourcesUpdaterHelper.Row row = dbRows.next();
       row.getUpdateRequests().forEach(bulk::add);
-      maxUpdatedAt = Math.max(maxUpdatedAt, row.getUpdatedAt());
     }
-    bulk.stop();
-    return maxUpdatedAt;
+    return bulk.stop();
   }
 
   public void deleteByFile(String fileUuid) {
     SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX_TYPE_TEST)
-      .setQuery(QueryBuilders.termsQuery(FIELD_FILE_UUID, fileUuid));
-    BulkIndexer.delete(esClient, INDEX_TYPE_TEST.getIndex(), searchRequest);
+      .setQuery(QueryBuilders.termQuery(FIELD_FILE_UUID, fileUuid));
+    BulkIndexer.delete(esClient, INDEX_TYPE_TEST, searchRequest);
   }
 
   @Override
-  public void deleteProject(String projectUuid) {
+  public IndexingResult index(DbSession dbSession, Collection<EsQueueDto> items) {
+    if (items.isEmpty()) {
+      return new IndexingResult();
+    }
+
+    IndexingListener listener = new OneToManyResilientIndexingListener(dbClient, dbSession, items);
+    BulkIndexer bulkIndexer = new BulkIndexer(esClient, TestIndexDefinition.INDEX_TYPE_TEST, Size.REGULAR, listener);
+    bulkIndexer.start();
+    items.forEach(i -> {
+      String projectUuid = i.getDocId();
+      addProjectDeletionToBulkIndexer(bulkIndexer, projectUuid);
+      try (TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, projectUuid)) {
+        addTestsToBulkIndexer(rowIt, bulkIndexer);
+      }
+    });
+
+    return bulkIndexer.stop();
+  }
+
+  private void addProjectDeletionToBulkIndexer(BulkIndexer bulkIndexer, String projectUuid) {
     SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX_TYPE_TEST)
-      .setTypes(INDEX_TYPE_TEST.getType())
       .setQuery(QueryBuilders.termQuery(TestIndexDefinition.FIELD_PROJECT_UUID, projectUuid));
-    BulkIndexer.delete(esClient, INDEX_TYPE_TEST.getIndex(), searchRequest);
+    bulkIndexer.addDeletion(searchRequest);
+  }
+
+  private void addTestsToBulkIndexer(TestResultSetIterator rowIt, BulkIndexer bulkIndexer) {
+    while (rowIt.hasNext()) {
+      FileSourcesUpdaterHelper.Row row = rowIt.next();
+      row.getUpdateRequests().forEach(bulkIndexer::add);
+    }
   }
 }
