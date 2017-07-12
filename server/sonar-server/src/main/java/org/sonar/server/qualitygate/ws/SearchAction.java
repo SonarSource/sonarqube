@@ -77,14 +77,14 @@ public class SearchAction implements QualityGatesWsAction {
       .pageIndex(request.paramAsInt(QualityGatesWsParameters.PARAM_PAGE))
       .pageSize(request.paramAsInt(QualityGatesWsParameters.PARAM_PAGE_SIZE))
       .build());
-    JsonWriter writer = response.newJsonWriter();
-    writer.beginObject().prop("more", associations.hasMoreResults());
-    writer.name("results").beginArray();
-
-    for (ProjectQgateAssociation project : associations.projects()) {
-      writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop(Param.SELECTED, project.isMember()).endObject();
+    try (JsonWriter writer = response.newJsonWriter()) {
+      writer.beginObject().prop("more", associations.hasMoreResults());
+      writer.name("results").beginArray();
+      for (ProjectQgateAssociation project : associations.projects()) {
+        writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop(Param.SELECTED, project.isMember()).endObject();
+      }
+      writer.endArray().endObject().close();
     }
-    writer.endArray().endObject().close();
   }
 
 }

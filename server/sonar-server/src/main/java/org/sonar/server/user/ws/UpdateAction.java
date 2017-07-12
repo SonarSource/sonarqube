@@ -122,13 +122,15 @@ public class UpdateAction implements UsersWsAction {
   }
 
   private void writeUser(DbSession dbSession, Response response, String login) {
-    JsonWriter json = response.newJsonWriter().beginObject();
-    json.name("user");
-    Set<String> groups = Sets.newHashSet();
-    UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' doesn't exist", login);
-    groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
-    userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
-    json.endObject().close();
+    try (JsonWriter json = response.newJsonWriter()) {
+      json.beginObject();
+      json.name("user");
+      Set<String> groups = Sets.newHashSet();
+      UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' doesn't exist", login);
+      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
+      userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
+      json.endObject().close();
+    }
   }
 
   private static UpdateRequest toWsRequest(Request request) {

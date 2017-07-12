@@ -105,9 +105,11 @@ public class ScmAction implements SourcesWsAction {
       ComponentDto file = componentFinder.getByKey(dbSession, fileKey);
       userSession.checkComponentPermission(UserRole.CODEVIEWER, file);
       Iterable<DbFileSources.Line> sourceLines = checkFoundWithOptional(sourceService.getLines(dbSession, file.uuid(), from, to), "File '%s' has no sources", fileKey);
-      JsonWriter json = response.newJsonWriter().beginObject();
-      writeSource(sourceLines, commitsByLine, json);
-      json.endObject().close();
+      try (JsonWriter json = response.newJsonWriter()) {
+        json.beginObject();
+        writeSource(sourceLines, commitsByLine, json);
+        json.endObject().close();
+      }
     }
   }
 
