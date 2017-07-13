@@ -209,7 +209,7 @@ public class ActiveRuleIndexer implements StartupIndexer, ResilientIndexer {
   }
 
   private static IndexRequest newIndexRequest(IndexedActiveRuleDto dto) {
-    ActiveRuleDoc doc = new ActiveRuleDoc(String.valueOf(dto.getId()));
+    ActiveRuleDoc doc = new ActiveRuleDoc(dto.getId());
     doc.setRuleProfileUuid(dto.getRuleProfileUuid());
     doc.setSeverity(SeverityUtil.getSeverityFromOrdinal(dto.getSeverity()));
     doc.setRuleKey(RuleKey.of(dto.getRepository(), dto.getKey()));
