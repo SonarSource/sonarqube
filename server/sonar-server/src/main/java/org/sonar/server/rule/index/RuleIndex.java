@@ -323,7 +323,8 @@ public class RuleIndex {
       QProfileDto compareToQProfile = query.getCompareToQProfile();
       if (compareToQProfile != null) {
         filters.put("comparison",
-          QueryBuilders.hasChildQuery(INDEX_TYPE_ACTIVE_RULE.getType(),
+          QueryBuilders.hasChildQuery(
+            INDEX_TYPE_ACTIVE_RULE.getType(),
             boolQuery().must(QueryBuilders.termQuery(FIELD_ACTIVE_RULE_PROFILE_UUID, compareToQProfile.getRulesProfileUuid())),
             ScoreMode.None));
       }
