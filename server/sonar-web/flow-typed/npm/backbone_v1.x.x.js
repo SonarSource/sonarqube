@@ -1,5 +1,5 @@
-// flow-typed signature: 86547335f85946dbef9c3913c3b16416
-// flow-typed version: c80fa24011/backbone_v1.x.x/flow_>=v0.25.x
+// flow-typed signature: d94730953f5a16ea863cdff3e9a1e239
+// flow-typed version: b43dff3e0e/backbone_v1.x.x/flow_>=v0.20.x
 
 declare module 'backbone' {
   declare var $: any; // @TODO this is no correct, but it is difficult to require another definition from here.

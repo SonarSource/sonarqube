@@ -1,8 +1,8 @@
-// flow-typed signature: a66d63ce84b8c546ae8bc484f7b4c4bc
-// flow-typed version: 778b20e026/enzyme_v2.3.x/flow_>=v0.28.x
+// flow-typed signature: 67cf88555a22019251c4870d6e78a462
+// flow-typed version: 60d0f06df5/enzyme_v2.3.x/flow_>=v0.28.x
 
 declare module 'enzyme' {
-  declare type PredicateFunction<T: Wrapper> = (wrapper: T) => boolean;
+  declare type PredicateFunction<T: Wrapper> = (wrapper: T, index: number) => boolean;
   declare type NodeOrNodes = React$Element<any> | Array<React$Element<any>>;
   declare type EnzymeSelector = string | ReactClass<any> | Object;
 
@@ -25,7 +25,7 @@ declare module 'enzyme' {
     hasClass(className: string): boolean;
     is(selector: EnzymeSelector): boolean;
     isEmpty(): boolean;
-    not(selector: EnzymeSelector): boolean;
+    not(selector: EnzymeSelector): this;
     children(selector?: EnzymeSelector): this;
     childAt(index: number): this;
     parents(selector?: EnzymeSelector): this;
@@ -38,6 +38,7 @@ declare module 'enzyme' {
     get(index: number): React$Element<any>;
     getNode(): React$Element<any>;
     getNodes(): Array<React$Element<any>>;
+    getDOMNode(): HTMLElement | HTMLInputElement;
     at(index: number): this;
     first(): this;
     last(): this;
@@ -47,16 +48,16 @@ declare module 'enzyme' {
     prop(key: string): any;
     key(): string;
     simulate(event: string, ...args: Array<any>): this;
-    setState(state: Object, callback?: Function): this,
-    setProps(props: Object): this;
+    setState(state: {}, callback?: Function): this,
+    setProps(props: {}): this;
     setContext(context: Object): this;
-    instance(): React$Component<any, any, any>;
+    instance(): React$Component<*, *, *>;
     update(): this;
     debug(): string;
     type(): string | Function | null;
     name(): string;
-    forEach(fn: (node: this) => any): this;
-    map<T>(fn: (node: this) => T): Array<T>;
+    forEach(fn: (node: this, index: number) => mixed): this;
+    map<T>(fn: (node: this, index: number) => T): Array<T>;
     reduce<T>(fn: (value: T, node: this, index: number) => T, initialValue?: T): Array<T>;
     reduceRight<T>(fn: (value: T, node: this, index: number) => T, initialValue?: T): Array<T>;
     some(selector: EnzymeSelector): boolean;
@@ -67,6 +68,7 @@ declare module 'enzyme' {
   }
 
   declare export class ReactWrapper extends Wrapper {
+    constructor(nodes: NodeOrNodes, root: any, options?: ?Object): ReactWrapper;
     mount(): this;
     ref(refName: string): this;
     detach(): void;
