@@ -48,7 +48,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
+import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION;
 
@@ -138,14 +138,14 @@ public class RuleIndexer implements StartupIndexer, ResilientIndexer {
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, new ResiliencyIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
 
-    List<RuleKey> ruleKeys = items
+    Set<RuleKey> ruleKeys = items
       .stream()
       .filter(i -> {
         requireNonNull(i.getDocId(), () -> "BUG - " + i + " has not been persisted before indexing");
         return i.getDocType() == EsQueueDto.Type.RULE;
       })
       .map(i -> RuleKey.parse(i.getDocId()))
-      .collect(toArrayList(items.size()));
+      .collect(toHashSet(items.size()));
 
     dbClient.ruleDao().scrollIndexingRulesByKeys(dbSession, ruleKeys,
       // only index requests, no deletion requests.
@@ -158,8 +158,10 @@ public class RuleIndexer implements StartupIndexer, ResilientIndexer {
 
     // the remaining items reference rows that don't exist in db. They must
     // be deleted from index.
-    ruleKeys.forEach(r -> bulkIndexer.addDeletion(RuleIndexDefinition.INDEX_TYPE_RULE, r.toString(), r.toString()));
-    ruleKeys.forEach(r -> bulkIndexer.addDeletion(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION, RuleExtensionDoc.idOf(r, RuleExtensionScope.system()), r.toString()));
+    ruleKeys.forEach(r -> {
+      bulkIndexer.addDeletion(RuleIndexDefinition.INDEX_TYPE_RULE, r.toString(), r.toString());
+      bulkIndexer.addDeletion(RuleIndexDefinition.INDEX_TYPE_RULE_EXTENSION, RuleExtensionDoc.idOf(r, RuleExtensionScope.system()), r.toString());
+    });
 
     return bulkIndexer.stop();
   }
@@ -168,14 +170,14 @@ public class RuleIndexer implements StartupIndexer, ResilientIndexer {
     BulkIndexer bulkIndexer = createBulkIndexer(Size.REGULAR, new ResiliencyIndexingListener(dbClient, dbSession, items));
     bulkIndexer.start();
 
-    List<RuleExtensionId> docIds = items
+    Set<RuleExtensionId> docIds = items
       .stream()
       .filter(i -> {
         requireNonNull(i.getDocId(), () -> "BUG - " + i + " has not been persisted before indexing");
         return i.getDocType() == EsQueueDto.Type.RULE_EXTENSION;
       })
       .map(RuleIndexer::explodeRuleExtensionDocId)
-      .collect(toArrayList(items.size()));
+      .collect(toHashSet(items.size()));
 
     dbClient.ruleDao().scrollIndexingRuleExtensionsByIds(dbSession, docIds,
       // only index requests, no deletion requests.
