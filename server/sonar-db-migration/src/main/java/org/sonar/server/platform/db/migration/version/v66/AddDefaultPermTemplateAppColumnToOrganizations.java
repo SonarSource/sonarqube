@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v63;
+package org.sonar.server.platform.db.migration.version.v66;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
@@ -27,9 +27,9 @@ import org.sonar.server.platform.db.migration.step.DdlChange;
 
 import static org.sonar.server.platform.db.migration.def.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AddDefaultPermTemplateColumnsToOrganizations extends DdlChange {
+public class AddDefaultPermTemplateAppColumnToOrganizations extends DdlChange {
 
-  public AddDefaultPermTemplateColumnsToOrganizations(Database db) {
+  public AddDefaultPermTemplateAppColumnToOrganizations(Database db) {
     super(db);
   }
 
@@ -39,13 +39,7 @@ public class AddDefaultPermTemplateColumnsToOrganizations extends DdlChange {
       new AddColumnsBuilder(getDialect(), "organizations")
         .addColumn(
           newVarcharColumnDefBuilder()
-            .setColumnName("default_perm_template_project")
-            .setLimit(VarcharColumnDef.UUID_SIZE)
-            .setIsNullable(true)
-            .build())
-        .addColumn(
-          newVarcharColumnDefBuilder()
-            .setColumnName("default_perm_template_view")
+            .setColumnName("default_perm_template_app")
             .setLimit(VarcharColumnDef.UUID_SIZE)
             .setIsNullable(true)
             .build())

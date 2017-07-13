@@ -515,15 +515,15 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_1);
     underTest.setDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid(), new DefaultTemplates().setProjectUuid(PERMISSION_1));
 
-    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, PERMISSION_1, null);
+    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, PERMISSION_1, null, null);
   }
 
   @Test
-  public void getDefaultTemplates_returns_data_when_project_and_view_default_template_column_are_not_null() {
+  public void getDefaultTemplates_returns_data_when_project_and_view_and_application_default_template_column_are_not_null() {
     insertOrganization(ORGANIZATION_DTO_1);
-    setDefaultTemplate(ORGANIZATION_DTO_1, PERMISSION_1, PERMISSION_2);
+    setDefaultTemplate(ORGANIZATION_DTO_1, PERMISSION_1, PERMISSION_2, "app_permission");
 
-    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, PERMISSION_1, PERMISSION_2);
+    verifyGetDefaultTemplates(ORGANIZATION_DTO_1, PERMISSION_1, PERMISSION_2, "app_permission");
   }
 
   @Test
@@ -924,8 +924,9 @@ public class OrganizationDaoTest {
     }
   }
 
-  private void setDefaultTemplate(OrganizationDto organizationDto1, @Nullable String project, @Nullable String view) {
-    underTest.setDefaultTemplates(dbSession, organizationDto1.getUuid(), new DefaultTemplates().setProjectUuid(project).setViewUuid(view));
+  private void setDefaultTemplate(OrganizationDto organizationDto1, @Nullable String project, @Nullable String view, @Nullable String application) {
+    underTest.setDefaultTemplates(dbSession, organizationDto1.getUuid(),
+      new DefaultTemplates().setProjectUuid(project).setViewUuid(view).setApplicationUuid(application));
     dbSession.commit();
   }
 
@@ -987,12 +988,13 @@ public class OrganizationDaoTest {
   }
 
   private void verifyGetDefaultTemplates(OrganizationDto organizationDto,
-    @Nullable String expectedProject, @Nullable String expectedView) {
+    @Nullable String expectedProject, @Nullable String expectedView, @Nullable String expectedApplication) {
     Optional<DefaultTemplates> optional = underTest.getDefaultTemplates(dbSession, organizationDto.getUuid());
     assertThat(optional).isNotEmpty();
     DefaultTemplates defaultTemplates = optional.get();
     assertThat(defaultTemplates.getProjectUuid()).isEqualTo(expectedProject);
     assertThat(defaultTemplates.getViewUuid()).isEqualTo(expectedView);
+    assertThat(defaultTemplates.getApplicationUuid()).isEqualTo(expectedApplication);
   }
 
   private void verifyOrganizationUpdatedAt(String organization, Long updatedAt) {

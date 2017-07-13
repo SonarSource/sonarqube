@@ -27,6 +27,7 @@ import static java.util.Objects.requireNonNull;
 public class DefaultTemplates {
   private String projectUuid;
   private String viewUuid;
+  private String applicationUuid;
 
   public String getProjectUuid() {
     checkProjectNotNull(this.projectUuid);
@@ -53,11 +54,22 @@ public class DefaultTemplates {
     return this;
   }
 
+  @CheckForNull
+  public String getApplicationUuid() {
+    return applicationUuid;
+  }
+
+  public DefaultTemplates setApplicationUuid(@Nullable String applicationUuid) {
+    this.applicationUuid = applicationUuid;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "DefaultTemplates{" +
       "projectUuid='" + projectUuid + '\'' +
       ", viewUuid='" + viewUuid + '\'' +
+      ", applicationUuid='" + applicationUuid + '\'' +
       '}';
   }
 }

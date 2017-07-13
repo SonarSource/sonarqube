@@ -54,10 +54,8 @@ public class DefaultTemplatesTest {
 
   @Test
   public void check_toString() {
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='null', viewUuid='null'}");
-    underTest
-        .setProjectUuid("a project")
-        .setViewUuid("a view");
-    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='a project', viewUuid='a view'}");
+    assertThat(underTest.toString()).isEqualTo("DefaultTemplates{projectUuid='null', viewUuid='null', applicationUuid='null'}");
+    assertThat(underTest.setProjectUuid("a project").setViewUuid("a view").setApplicationUuid("an application").toString())
+      .isEqualTo("DefaultTemplates{projectUuid='a project', viewUuid='a view', applicationUuid='an application'}");
   }
 }
