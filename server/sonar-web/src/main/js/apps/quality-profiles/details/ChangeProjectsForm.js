@@ -22,6 +22,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import escapeHtml from 'escape-html';
 import type { Profile } from '../propTypes';
+import SelectList from '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
 
 type Props = {
@@ -49,7 +50,7 @@ export default class ChangeProjectsForm extends React.PureComponent {
     const searchUrl =
       window.baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key);
 
-    new window.SelectList({
+    new SelectList({
       searchUrl,
       el: this.container,
       width: '100%',
