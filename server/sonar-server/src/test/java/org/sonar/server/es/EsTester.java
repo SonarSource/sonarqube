@@ -37,11 +37,11 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.cluster.node.DiscoveryNode;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.node.NodeValidationException;
 import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.config.internal.MapSettings;
@@ -108,7 +108,7 @@ public class EsTester extends ExternalResource {
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
     try {
       BulkRequestBuilder bulk = client.prepareBulk()
-        .setRefresh(REFRESH_IMMEDIATE); // ES 5: change to setRefreshPolicy
+        .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (BaseDoc doc : docs) {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
           .parent(doc.getParent())
@@ -201,37 +201,44 @@ public class EsTester extends ExternalResource {
     private final Node node;
 
     private NodeHolder() {
+      String nodeName = "tmp-es-" + RandomUtils.nextInt();
+      Path tmpDir;
       try {
-        String nodeName = "tmp-es-" + RandomUtils.nextInt();
-        Path tmpDir = Files.createTempDirectory("tmp-es");
-        tmpDir.toFile().deleteOnExit();
-
-        node = NodeBuilder.nodeBuilder().local(true).data(true).settings(org.elasticsearch.common.settings.Settings.builder()
-          .put("cluster.name", nodeName)
-          .put("node.name", nodeName)
-          // the two following properties are probably not used because they are
-          // declared on indices too
-          .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
-          .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
-          // limit the number of threads created (see org.elasticsearch.common.util.concurrent.EsExecutors)
-          .put("processors", 1)
-          .put("http.enabled", false)
-          .put("config.ignore_system_properties", true)
-          .put("path.home", tmpDir))
-          .build();
-        node.start();
-        checkState(DiscoveryNode.localNode(node.settings()));
-        checkState(!node.isClosed());
-
-        // wait for node to be ready
-        node.client().admin().cluster().prepareHealth().setWaitForGreenStatus().get();
-
-        // delete the indices (should not exist)
-        DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
-        checkState(response.isAcknowledged());
+        tmpDir = Files.createTempDirectory("tmp-es");
       } catch (IOException e) {
-        throw Throwables.propagate(e);
+        throw new RuntimeException("Cannot create elasticsearch temporary directory", e);
       }
+
+      tmpDir.toFile().deleteOnExit();
+
+      Settings.Builder settings = Settings.builder()
+        .put("transport.type", "local")
+        .put("node.data", true)
+        .put("cluster.name", nodeName)
+        .put("node.name", nodeName)
+        // the two following properties are probably not used because they are
+        // declared on indices too
+        .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+        .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
+        // limit the number of threads created (see org.elasticsearch.common.util.concurrent.EsExecutors)
+        .put("processors", 1)
+        .put("http.enabled", false)
+        .put("config.ignore_system_properties", true)
+        .put("path.home", tmpDir);
+      node = new Node(settings.build());
+      try {
+        node.start();
+      } catch (NodeValidationException e) {
+        throw new RuntimeException("Cannot start Elasticsearch node", e);
+      }
+      checkState(!node.isClosed());
+
+      // wait for node to be ready
+      node.client().admin().cluster().prepareHealth().setWaitForGreenStatus().get();
+
+      // delete the indices (should not exist)
+      DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
+      checkState(response.isAcknowledged());
     }
   }
 }

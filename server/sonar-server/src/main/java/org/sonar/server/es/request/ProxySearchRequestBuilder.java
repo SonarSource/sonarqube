@@ -19,7 +19,6 @@
  */
 package org.sonar.server.es.request;
 
-import java.io.IOException;
 import java.util.Arrays;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchAction;
@@ -27,9 +26,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.ToXContent;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.es.EsClient;
 
@@ -71,7 +67,7 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
   @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
-    message.append(String.format("ES search request '%s'", xContentToString(super.internalBuilder())));
+    message.append(String.format("ES search request '%s'", super.request));
     if (request.indices().length > 0) {
       message.append(String.format(" on indices '%s'", Arrays.toString(request.indices())));
     }
@@ -80,15 +76,4 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
     }
     return message.toString();
   }
-
-  private static String xContentToString(ToXContent toXContent) {
-    try {
-      XContentBuilder builder = XContentFactory.jsonBuilder();
-      toXContent.toXContent(builder, ToXContent.EMPTY_PARAMS);
-      return builder.string();
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to convert request to string", e);
-    }
-  }
-
 }

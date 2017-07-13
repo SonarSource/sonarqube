@@ -184,7 +184,7 @@ public class TestIndexerTest {
       .setId(uuid)
       .setRouting(projectUuid)
       .setSource(IOUtils.toString(getClass().getResource(format("%s/%s_%s_%s.json", getClass().getSimpleName(), projectUuid, fileUuid, testName))))
-      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get();
   }
 

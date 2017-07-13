@@ -128,7 +128,7 @@ public class PermissionIndexer implements ProjectIndexer, StartupIndexer {
     authorizationScopes.forEach(scope -> esClient
       .prepareDelete(scope.getIndexType(), projectUuid)
       .setRouting(projectUuid)
-      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get());
   }
 

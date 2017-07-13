@@ -31,6 +31,7 @@ import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.action.support.WriteRequest.RefreshPolicy.IMMEDIATE;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -128,7 +129,7 @@ public class IndexCreatorTest {
 
     IndexType fakeIndexType = new IndexType("fakes", "fake");
     String id = "1";
-    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefresh(true).get();
+    es.client().prepareIndex(fakeIndexType).setId(id).setSource(new FakeDoc().getFields()).setRefreshPolicy(IMMEDIATE).get();
     assertThat(es.client().prepareGet(fakeIndexType, id).get().isExists()).isTrue();
 
     // v1
