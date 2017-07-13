@@ -96,7 +96,7 @@
     "format-css": "prettier-css \"src/main/js/**/*.css\"",
     "lint": "eslint src/main/js",
     "typecheck": "flow src/main/js",
-    "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest --runInBand"
+    "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest"
   },
   "engines": {
     "node": ">=6"
