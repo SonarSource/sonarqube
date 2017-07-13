@@ -707,8 +707,8 @@ public class RuleDaoTest {
     underTest.scrollIndexingRulesByKeys(db.getSession(), Arrays.asList(r1.getKey(), r2.getKey()), accumulator);
 
     assertThat(accumulator.list).hasSize(2);
-    RuleForIndexingDto firstRule = accumulator.list.get(0);
-    RuleForIndexingDto secondRule = accumulator.list.get(1);
+    RuleForIndexingDto firstRule = accumulator.list.stream().filter(t -> t.getId().equals(r1.getId())).findFirst().get();
+    RuleForIndexingDto secondRule = accumulator.list.stream().filter(t -> t.getId().equals(r2.getId())).findFirst().get();
 
     assertRuleDefinitionFieldsAreEquals(r1, firstRule);
     assertThat(firstRule.getTemplateRuleKey()).isNull();
