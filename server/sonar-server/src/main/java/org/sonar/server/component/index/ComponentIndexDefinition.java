@@ -62,7 +62,7 @@ public class ComponentIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_PROJECT_UUID).disableNorms().build();
     mapping.keywordFieldBuilder(FIELD_KEY).addSubFields(SORTABLE_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_NAME)
-      .termVectorWithPositionOffsets()
+      .termVectorWithPositionOffsetsForAllSubfields()
       .addSubFields(NAME_ANALYZERS)
       .build();
 

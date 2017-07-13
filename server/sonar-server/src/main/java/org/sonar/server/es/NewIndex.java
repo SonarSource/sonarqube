@@ -241,7 +241,7 @@ public class NewIndex {
     /**
      * Position offset term vectors are required for the fast_vector_highlighter (fvh).
      */
-    public KeywordFieldBuilder termVectorWithPositionOffsets() {
+    public KeywordFieldBuilder termVectorWithPositionOffsetsForAllSubfields() {
       this.termVectorWithPositionOffsets = true;
       return this;
     }
@@ -283,9 +283,7 @@ public class NewIndex {
         multiFields.put(fieldName, ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
             "index", INDEX_SEARCHABLE,
-            "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
-            "norms",
-            "false"
+            "norms", "false"
         ));
 
         hash.put("fields", multiFields);
