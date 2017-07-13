@@ -32,8 +32,8 @@ public interface DefaultTemplatesResolver {
    * Resolve the effective default templates uuid for the specified {@link DefaultTemplates}.
    * <ul>
    *   <li>{@link ResolvedDefaultTemplates#project} is always the same as {@link DefaultTemplates#projectUuid}</li>
-   *   <li>when Governance is not installed, {@link ResolvedDefaultTemplates#view} is always {@code null}</li>
-   *   <li>when Governance is not installed, {@link ResolvedDefaultTemplates#view} is  {@link DefaultTemplates#viewUuid}
+   *   <li>when Governance is not installed, {@link ResolvedDefaultTemplates#view}, {@link ResolvedDefaultTemplates#application} are always {@code null}</li>
+   *   <li>when Governance is installed, {@link ResolvedDefaultTemplates#view} is {@link DefaultTemplates#viewUuid}
    *       when it is non {@code null}, otherwise it is {@link DefaultTemplates#projectUuid}</li>
    * </ul>
    */
@@ -43,10 +43,12 @@ public interface DefaultTemplatesResolver {
   final class ResolvedDefaultTemplates {
     private final String project;
     private final String view;
+    private final String application;
 
-    ResolvedDefaultTemplates(String project, @Nullable String view) {
+    ResolvedDefaultTemplates(String project, @Nullable String view, @Nullable String application) {
       this.project = requireNonNull(project, "project can't be null");
       this.view = view;
+      this.application = application;
     }
 
     public String getProject() {
@@ -55,6 +57,10 @@ public interface DefaultTemplatesResolver {
 
     public Optional<String> getView() {
       return ofNullable(view);
+    }
+
+    public Optional<String> getApplication() {
+      return ofNullable(application);
     }
   }
 }

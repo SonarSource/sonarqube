@@ -102,7 +102,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     addGroupToTemplate(viewsTemplate.getId(), group2.getId(), UserRole.ISSUE_ADMIN);
     addGroupToTemplate(viewsTemplate.getId(), group3.getId(), UserRole.ISSUE_ADMIN);
 
-    db.organizations().setDefaultTemplates(projectTemplate, viewsTemplate);
+    db.organizations().setDefaultTemplates(projectTemplate, viewsTemplate, null);
 
     String result = newRequest().execute().getInput();
 
@@ -113,7 +113,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void empty_result_with_views() {
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz");
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz", "AU-TpxcA-iU5OvuD2FLa");
     String result = newRequest(wsTester).execute().getInput();
 
     assertJson(result)
@@ -136,7 +136,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void empty_result_without_views() {
-    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz");
+    db.organizations().setDefaultTemplates(db.getDefaultOrganization(), "AU-Tpxb--iU5OvuD2FLy", "AU-TpxcA-iU5OvuD2FLz", "AU-TpxcA-iU5OvuD2FLa");
     String result = newRequest(underTestWithoutViews).execute().getInput();
 
     assertJson(result)
@@ -155,7 +155,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void search_by_name_in_default_organization() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null, null);
     insertProjectTemplate(db.getDefaultOrganization());
     insertViewsTemplate(db.getDefaultOrganization());
 
@@ -173,7 +173,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   public void search_in_organization() throws Exception {
     OrganizationDto org = db.organizations().insert();
     PermissionTemplateDto projectDefaultTemplate = db.permissionTemplates().insertTemplate(org);
-    db.organizations().setDefaultTemplates(projectDefaultTemplate, null);
+    db.organizations().setDefaultTemplates(projectDefaultTemplate, null, null);
     PermissionTemplateDto templateInOrg = insertProjectTemplate(org);
     insertProjectTemplate(db.getDefaultOrganization());
     db.commit();
@@ -199,7 +199,7 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
 
   @Test
   public void display_all_project_permissions() {
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(db.getDefaultOrganization()), null, null);
 
     String result = newRequest().execute().getInput();
 

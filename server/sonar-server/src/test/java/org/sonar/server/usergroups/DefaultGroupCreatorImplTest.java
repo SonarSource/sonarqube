@@ -58,7 +58,7 @@ public class DefaultGroupCreatorImplTest {
   public void fail_with_IAE_when_default_group_already_exist() throws Exception {
     OrganizationDto organizationDto = db.organizations().insert();
     PermissionTemplateDto permissionTemplate = db.permissionTemplates().insertTemplate();
-    db.organizations().setDefaultTemplates(organizationDto, permissionTemplate.getUuid(), null);
+    db.organizations().setDefaultTemplates(organizationDto, permissionTemplate.getUuid(), null, null);
     db.users().insertGroup(organizationDto, "Members");
 
     expectedException.expect(IllegalArgumentException.class);

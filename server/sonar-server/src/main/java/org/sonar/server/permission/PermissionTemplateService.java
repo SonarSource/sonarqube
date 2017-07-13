@@ -213,14 +213,19 @@ public class PermissionTemplateService {
 
     String qualifier = component.qualifier();
     DefaultTemplatesResolverImpl.ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
-    if (Qualifiers.PROJECT.equals(qualifier)) {
-      return dbClient.permissionTemplateDao().selectByUuid(dbSession, resolvedDefaultTemplates.getProject());
-    } else if (Qualifiers.VIEW.equals(qualifier)) {
-      String viewDefaultTemplateUuid = resolvedDefaultTemplates.getView().orElseThrow(
-        () -> new IllegalStateException("Attempt to create a view when Governance plugin is not installed"));
-      return dbClient.permissionTemplateDao().selectByUuid(dbSession, viewDefaultTemplateUuid);
-    } else {
-      throw new IllegalArgumentException(format("Qualifier '%s' is not supported", qualifier));
+    switch (qualifier) {
+      case Qualifiers.PROJECT:
+        return dbClient.permissionTemplateDao().selectByUuid(dbSession, resolvedDefaultTemplates.getProject());
+      case Qualifiers.VIEW:
+        String viewDefaultTemplateUuid = resolvedDefaultTemplates.getView().orElseThrow(
+          () -> new IllegalStateException("Attempt to create a view when Governance plugin is not installed"));
+        return dbClient.permissionTemplateDao().selectByUuid(dbSession, viewDefaultTemplateUuid);
+      case Qualifiers.APP:
+        String applicationDefaultTemplateUuid = resolvedDefaultTemplates.getApplication().orElseThrow(
+          () -> new IllegalStateException("Attempt to create an application when Governance plugin is not installed"));
+        return dbClient.permissionTemplateDao().selectByUuid(dbSession, applicationDefaultTemplateUuid);
+      default:
+        throw new IllegalArgumentException(format("Qualifier '%s' is not supported", qualifier));
     }
   }
 

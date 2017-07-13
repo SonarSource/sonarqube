@@ -94,6 +94,7 @@ public class DeleteTemplateActionTest {
       PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
       db.organizations().setDefaultTemplates(
         db.permissionTemplates().insertTemplate(organization),
+        db.permissionTemplates().insertTemplate(organization),
         db.permissionTemplates().insertTemplate(organization));
       loginAsAdmin(organization);
 
@@ -110,6 +111,7 @@ public class DeleteTemplateActionTest {
       OrganizationDto organization = db.organizations().insert();
       db.organizations().setDefaultTemplates(
         db.permissionTemplates().insertTemplate(organization),
+        db.permissionTemplates().insertTemplate(organization),
         db.permissionTemplates().insertTemplate(organization));
       PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
       loginAsAdmin(organization);
@@ -123,6 +125,7 @@ public class DeleteTemplateActionTest {
   public void delete_template_by_name_returns_empty_when_no_organization_is_provided_and_templates_does_not_belong_to_default_organization() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setDefaultTemplates(
+      db.permissionTemplates().insertTemplate(organization),
       db.permissionTemplates().insertTemplate(organization),
       db.permissionTemplates().insertTemplate(organization));
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
@@ -143,6 +146,7 @@ public class DeleteTemplateActionTest {
   public void delete_template_by_name_returns_empty_when_wrong_organization_is_provided() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     db.organizations().setDefaultTemplates(
+      db.permissionTemplates().insertTemplate(organization),
       db.permissionTemplates().insertTemplate(organization),
       db.permissionTemplates().insertTemplate(organization));
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
@@ -192,6 +196,7 @@ public class DeleteTemplateActionTest {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto projectTemplate = insertTemplateAndAssociatedPermissions(organization);
     db.organizations().setDefaultTemplates(projectTemplate,
+      db.permissionTemplates().insertTemplate(organization),
       db.permissionTemplates().insertTemplate(organization));
     loginAsAdmin(organization);
 
@@ -214,7 +219,8 @@ public class DeleteTemplateActionTest {
   private void fail_to_delete_by_name_if_template_is_default_template_for_project(WsActionTester underTest) throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto projectTemplate = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(projectTemplate, db.permissionTemplates().insertTemplate(organization));
+    db.organizations().setDefaultTemplates(projectTemplate, db.permissionTemplates().insertTemplate(organization),
+      db.permissionTemplates().insertTemplate(organization));
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
@@ -227,7 +233,7 @@ public class DeleteTemplateActionTest {
   public void fail_to_delete_by_uuid_if_template_is_default_template_for_view_with_views() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto template = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization), template);
+    db.organizations().setDefaultTemplates(db.permissionTemplates().insertTemplate(organization), template, null);
     loginAsAdmin(organization);
 
     expectedException.expect(BadRequestException.class);
@@ -241,7 +247,7 @@ public class DeleteTemplateActionTest {
     OrganizationDto organization = db.organizations().insert();
     PermissionTemplateDto projectTemplate = db.permissionTemplates().insertTemplate(organization);
     PermissionTemplateDto viewTemplate = insertTemplateAndAssociatedPermissions(organization);
-    db.organizations().setDefaultTemplates(projectTemplate, viewTemplate);
+    db.organizations().setDefaultTemplates(projectTemplate, viewTemplate, null);
     loginAsAdmin(organization);
 
     newRequestByUuid(this.underTestWithoutViews, viewTemplate.getUuid());

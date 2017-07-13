@@ -21,22 +21,25 @@ package org.sonar.server.permission.ws.template;
 
 import java.util.stream.Stream;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.organization.DefaultTemplates;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 
 public class DefaultTemplatesResolverImplTest {
 
   private static final ResourceTypes RESOURCE_TYPES_WITHOUT_VIEWS = new ResourceTypes(new ResourceTypeTree[] {
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build()
+    ResourceTypeTree.builder().addType(ResourceType.builder(PROJECT).build()).build()
   });
   private static final ResourceTypes RESOURCE_TYPES_WITH_VIEWS = new ResourceTypes(new ResourceTypeTree[] {
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.PROJECT).build()).build(),
-    ResourceTypeTree.builder().addType(ResourceType.builder(Qualifiers.VIEW).build()).build()
+    ResourceTypeTree.builder().addType(ResourceType.builder(PROJECT).build()).build(),
+    ResourceTypeTree.builder().addType(ResourceType.builder(VIEW).build()).build(),
+    ResourceTypeTree.builder().addType(ResourceType.builder(APP).build()).build()
   });
   private DefaultTemplatesResolverImpl underTestWithoutViews = new DefaultTemplatesResolverImpl(RESOURCE_TYPES_WITHOUT_VIEWS);
   private DefaultTemplatesResolverImpl underTestWithViews = new DefaultTemplatesResolverImpl(RESOURCE_TYPES_WITH_VIEWS);
@@ -73,5 +76,28 @@ public class DefaultTemplatesResolverImplTest {
     DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setViewUuid("bar");
 
     assertThat(underTestWithViews.resolve(defaultTemplates).getView()).contains("bar");
+  }
+
+  @Test
+  public void application_is_empty_no_matter_application_in_DefaultTemplates_if_gov_is_not_installed() {
+    DefaultTemplates defaultTemplatesNoView = new DefaultTemplates().setProjectUuid("foo").setApplicationUuid(null);
+    DefaultTemplates defaultTemplatesView = new DefaultTemplates().setProjectUuid("foo").setApplicationUuid("bar");
+
+    assertThat(underTestWithoutViews.resolve(defaultTemplatesNoView).getApplication()).isEmpty();
+    assertThat(underTestWithoutViews.resolve(defaultTemplatesView).getApplication()).isEmpty();
+  }
+
+  @Test
+  public void application_is_project_of_DefaultTemplates_if_application_in_DefaultTemplates_is_null_and_gov_is_installed() {
+    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setApplicationUuid(null);
+
+    assertThat(underTestWithViews.resolve(defaultTemplates).getApplication()).contains("foo");
+  }
+
+  @Test
+  public void application_is_application_of_DefaultTemplates_if_application_in_DefaultTemplates_is_not_null_and_gov_is_installed() {
+    DefaultTemplates defaultTemplates = new DefaultTemplates().setProjectUuid("foo").setApplicationUuid("bar");
+
+    assertThat(underTestWithViews.resolve(defaultTemplates).getApplication()).contains("bar");
   }
 }

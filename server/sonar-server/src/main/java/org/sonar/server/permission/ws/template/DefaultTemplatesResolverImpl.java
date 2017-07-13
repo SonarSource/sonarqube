@@ -19,12 +19,13 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.organization.DefaultTemplates;
 
 import static java.util.Optional.ofNullable;
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.VIEW;
 
 public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
   private final ResourceTypes resourceTypes;
@@ -39,14 +40,22 @@ public class DefaultTemplatesResolverImpl implements DefaultTemplatesResolver {
 
     return new ResolvedDefaultTemplates(
       projectDefaultTemplate,
-      isViewsEnabled(resourceTypes) ? ofNullable(defaultTemplates.getViewUuid()).orElse(projectDefaultTemplate) : null);
+      isViewsAvailable(resourceTypes) ? ofNullable(defaultTemplates.getViewUuid()).orElse(projectDefaultTemplate) : null,
+      isApplicationsAvailable(resourceTypes) ? ofNullable(defaultTemplates.getApplicationUuid()).orElse(projectDefaultTemplate) : null);
   }
 
-  private static boolean isViewsEnabled(ResourceTypes resourceTypes) {
+  private static boolean isViewsAvailable(ResourceTypes resourceTypes) {
     return resourceTypes.getRoots()
       .stream()
       .map(ResourceType::getQualifier)
-      .anyMatch(Qualifiers.VIEW::equals);
+      .anyMatch(VIEW::equals);
+  }
+
+  private static boolean isApplicationsAvailable(ResourceTypes resourceTypes) {
+    return resourceTypes.getRoots()
+      .stream()
+      .map(ResourceType::getQualifier)
+      .anyMatch(APP::equals);
   }
 
 }

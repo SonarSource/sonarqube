@@ -32,7 +32,7 @@ public class SearchTemplatesDataTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   SearchTemplatesData.Builder underTest = SearchTemplatesData.builder()
-    .defaultTemplates(new DefaultTemplatesResolverImpl.ResolvedDefaultTemplates("template_uuid", null))
+    .defaultTemplates(new DefaultTemplatesResolverImpl.ResolvedDefaultTemplates("template_uuid", null, null))
     .templates(singletonList(newPermissionTemplateDto()))
     .userCountByTemplateIdAndPermission(HashBasedTable.create())
     .groupCountByTemplateIdAndPermission(HashBasedTable.create())

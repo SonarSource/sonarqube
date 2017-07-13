@@ -66,24 +66,32 @@ public class OrganizationDbTester {
     return dto;
   }
 
-  public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto viewDefaultTemplate) {
+  public void setDefaultTemplates(PermissionTemplateDto projectDefaultTemplate, @Nullable PermissionTemplateDto viewDefaultTemplate,
+    @Nullable PermissionTemplateDto applicationDefaultTemplate) {
     checkArgument(viewDefaultTemplate == null
       || viewDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
       "default template for project and view must belong to the same organization");
+    checkArgument(applicationDefaultTemplate == null
+      || applicationDefaultTemplate.getOrganizationUuid().equals(projectDefaultTemplate.getOrganizationUuid()),
+      "default template for project and application must belong to the same organization");
 
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, projectDefaultTemplate.getOrganizationUuid(),
       new DefaultTemplates()
         .setProjectUuid(projectDefaultTemplate.getUuid())
-        .setViewUuid(viewDefaultTemplate == null ? null : viewDefaultTemplate.getUuid()));
+        .setViewUuid(viewDefaultTemplate == null ? null : viewDefaultTemplate.getUuid())
+        .setApplicationUuid(applicationDefaultTemplate == null ? null : applicationDefaultTemplate.getUuid()));
     dbSession.commit();
   }
 
   public void setDefaultTemplates(OrganizationDto defaultOrganization,
-    String projectDefaultTemplateUuid, @Nullable String viewDefaultTemplateUuid) {
+    String projectDefaultTemplateUuid, @Nullable String viewDefaultTemplateUuid, @Nullable String applicationDefaultTemplateUuid) {
     DbSession dbSession = dbTester.getSession();
     dbTester.getDbClient().organizationDao().setDefaultTemplates(dbSession, defaultOrganization.getUuid(),
-      new DefaultTemplates().setProjectUuid(projectDefaultTemplateUuid).setViewUuid(viewDefaultTemplateUuid));
+      new DefaultTemplates()
+        .setProjectUuid(projectDefaultTemplateUuid)
+        .setViewUuid(viewDefaultTemplateUuid)
+        .setApplicationUuid(applicationDefaultTemplateUuid));
     dbSession.commit();
   }
 
