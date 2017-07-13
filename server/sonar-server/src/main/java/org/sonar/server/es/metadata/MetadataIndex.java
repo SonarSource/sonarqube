@@ -61,7 +61,8 @@ public class MetadataIndex {
   }
 
   private Optional<String> getMetadata(String id) {
-    GetRequestBuilder request = esClient.prepareGet(MetadataIndexDefinition.INDEX_TYPE_METADATA, id).setFields(MetadataIndexDefinition.FIELD_VALUE);
+    GetRequestBuilder request = esClient.prepareGet(MetadataIndexDefinition.INDEX_TYPE_METADATA, id)
+      .setStoredFields(MetadataIndexDefinition.FIELD_VALUE);
     GetResponse response = request.get();
     if (response.isExists()) {
       GetField field = response.getField(MetadataIndexDefinition.FIELD_VALUE);
@@ -75,7 +76,7 @@ public class MetadataIndex {
     esClient.prepareIndex(MetadataIndexDefinition.INDEX_TYPE_METADATA)
       .setId(id)
       .setSource(MetadataIndexDefinition.FIELD_VALUE, hash)
-      .setRefresh(REFRESH_IMMEDIATE) // ES 5: change to setRefreshPolicy
+      .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get();
   }
 }

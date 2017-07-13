@@ -26,7 +26,7 @@ import org.sonar.server.es.IndexType;
 import org.sonar.server.es.NewIndex;
 
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_KEYWORD;
-import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_KEYWORD;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE;
 
 public class TestIndexDefinition implements IndexDefinition {
 
@@ -68,7 +68,7 @@ public class TestIndexDefinition implements IndexDefinition {
     mapping.keywordFieldBuilder(FIELD_MESSAGE).disableNorms().disableSearch().build();
     mapping.keywordFieldBuilder(FIELD_STACKTRACE).disableNorms().disableSearch().build();
     mapping.setProperty(FIELD_COVERED_FILES, ImmutableMap.of("type", "nested", "properties", ImmutableMap.of(
-      FIELD_COVERED_FILE_UUID, ImmutableMap.of("type", FIELD_TYPE_KEYWORD, "index", INDEX_SEARCHABLE_FOR_KEYWORD),
+      FIELD_COVERED_FILE_UUID, ImmutableMap.of("type", FIELD_TYPE_KEYWORD, "index", INDEX_SEARCHABLE),
       FIELD_COVERED_FILE_LINES, ImmutableMap.of("type", "integer"))));
     mapping.createDateTimeField(FIELD_UPDATED_AT);
   }
