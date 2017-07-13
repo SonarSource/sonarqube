@@ -370,8 +370,8 @@ const SelectListView = Backbone.View.extend({
  * SelectList Entry Point
  */
 
-window.SelectList = function(options) {
-  this.settings = $.extend(window.SelectList.defaults, options);
+const SelectList = function(options) {
+  this.settings = $.extend(this.defaults, options);
 
   this.collection = new SelectListCollection({
     parse: this.settings.parse
@@ -392,12 +392,12 @@ window.SelectList = function(options) {
  * SelectList API Methods
  */
 
-window.SelectList.prototype.filter = function(filter) {
+SelectList.prototype.filter = function(filter) {
   this.view.filterBySelection(filter);
   return this;
 };
 
-window.SelectList.prototype.search = function(query) {
+SelectList.prototype.search = function(query) {
   this.view.searchByQuery(query);
   return this;
 };
@@ -406,7 +406,7 @@ window.SelectList.prototype.search = function(query) {
  * SelectList Defaults
  */
 
-window.SelectList.defaults = {
+SelectList.prototype.defaults = {
   width: '50%',
   height: 400,
 
@@ -438,3 +438,5 @@ window.SelectList.defaults = {
 
   errorMessage: 'Something gone wrong, try to reload the page and try again.'
 };
+
+export default SelectList;
