@@ -19,7 +19,7 @@
  */
 import escapeHtml from 'escape-html';
 import Modal from '../../components/common/modals';
-import '../../components/SelectList';
+import SelectList from '../../components/SelectList';
 import Template from './templates/groups-users.hbs';
 
 export default Modal.extend({
@@ -39,7 +39,7 @@ export default Modal.extend({
       extra.organization = this.organization.key;
     }
 
-    new window.SelectList({
+    new SelectList({
       el: this.$('#groups-users'),
       width: '100%',
       readOnly: false,

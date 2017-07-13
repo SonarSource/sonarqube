@@ -19,7 +19,7 @@
  */
 import Marionette from 'backbone.marionette';
 import escapeHtml from 'escape-html';
-import '../../../components/SelectList';
+import SelectList from '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
 
 export default Marionette.ItemView.extend({
@@ -28,7 +28,7 @@ export default Marionette.ItemView.extend({
   onRender() {
     const { qualityGate } = this.options;
 
-    new window.SelectList({
+    new SelectList({
       el: this.options.container,
       width: '100%',
       readOnly: !this.options.edit,
