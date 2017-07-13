@@ -63,7 +63,7 @@ public class ProxySearchRequestBuilderTest {
   @Test
   public void fail_to_search_bad_query() {
     try {
-      esTester.client().prepareSearch(FakeIndexDefinition.INDEX).setQuery("bad query").get();
+      esTester.client().prepareSearch("non-existing-index").get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);

@@ -19,12 +19,13 @@
  */
 package org.sonar.search;
 
+import java.io.IOException;
 import org.apache.lucene.util.StringHelper;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.node.NodeValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Jmx;
@@ -56,11 +57,14 @@ public class SearchServer implements Monitored {
     if (esSettings.getAsInt(MIMINUM_MASTER_NODES, 1) >= 2) {
       LOGGER.info("Elasticsearch is waiting {} for {} node(s) to be up to start.",
         esSettings.get(INITIAL_STATE_TIMEOUT),
-        esSettings.get(MIMINUM_MASTER_NODES)
-      );
+        esSettings.get(MIMINUM_MASTER_NODES));
     }
-    node = NodeBuilder.nodeBuilder().settings(esSettings).build();
-    node.start();
+    node = new Node(settings.build());
+    try {
+      node.start();
+    } catch (NodeValidationException e) {
+      throw new RuntimeException("Failed to start ES", e);
+    }
   }
 
   // copied from https://github.com/elastic/elasticsearch/blob/v2.3.3/core/src/main/java/org/elasticsearch/bootstrap/Bootstrap.java
@@ -72,10 +76,10 @@ public class SearchServer implements Monitored {
   @Override
   public Status getStatus() {
     boolean esStatus = node != null && node.client().admin().cluster().prepareHealth()
-        .setWaitForYellowStatus()
-        .setTimeout(TimeValue.timeValueSeconds(30L))
-        .get()
-        .getStatus() != ClusterHealthStatus.RED;
+      .setWaitForYellowStatus()
+      .setTimeout(TimeValue.timeValueSeconds(30L))
+      .get()
+      .getStatus() != ClusterHealthStatus.RED;
     if (esStatus) {
       return Status.OPERATIONAL;
     }
@@ -97,7 +101,11 @@ public class SearchServer implements Monitored {
   @Override
   public void stop() {
     if (node != null && !node.isClosed()) {
-      node.close();
+      try {
+        node.close();
+      } catch (IOException e) {
+        LOGGER.error("Failed to stop ES cleanly", e);
+      }
     }
     Jmx.unregister(EsSettingsMBean.OBJECT_NAME);
   }

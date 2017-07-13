@@ -117,7 +117,9 @@ public class AuthorizationTypeSupport {
       .map(GroupDto::getId)
       .forEach(groupId -> filter.should(termQuery(FIELD_GROUP_IDS, groupId)));
 
-    return QueryBuilders.hasParentQuery(TYPE_AUTHORIZATION,
-      QueryBuilders.boolQuery().filter(filter));
+    return QueryBuilders.hasParentQuery(
+      TYPE_AUTHORIZATION,
+      QueryBuilders.boolQuery().filter(filter),
+      false);
   }
 }

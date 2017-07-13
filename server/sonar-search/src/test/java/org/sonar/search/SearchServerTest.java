@@ -21,6 +21,8 @@ package org.sonar.search;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
@@ -28,6 +30,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.plugins.Plugin;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -86,6 +89,7 @@ public class SearchServerTest {
     Logger logger = mock(Logger.class);
     underTest.LOGGER = logger;
     underTest.start();
+    System.out.println(org.apache.logging.log4j.Logger.class);
     verify(logger).info(eq("Elasticsearch is waiting {} for {} node(s) to be up to start."), eq("1s"), eq("2"));
   }
 
@@ -109,8 +113,10 @@ public class SearchServerTest {
     assertThat(underTest.getStatus()).isEqualTo(Monitored.Status.OPERATIONAL);
 
     Settings settings = Settings.builder().put("cluster.name", A_CLUSTER_NAME).build();
-    client = TransportClient.builder().settings(settings).build()
-      .addTransportAddress(new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), port));
+    Collection<Class<? extends Plugin>> plugins = Collections.emptyList();
+    client = new TransportClient(settings, plugins) {
+
+    }.addTransportAddress(new InetSocketTransportAddress(InetAddress.getLoopbackAddress(), port));
     assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 
     underTest.stop();

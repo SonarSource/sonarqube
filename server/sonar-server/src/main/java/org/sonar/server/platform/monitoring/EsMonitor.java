@@ -111,13 +111,13 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
       nodes.put(node.getName(), nodeAttributes);
       nodeAttributes.put("Address", node.getAddress().toString());
       nodeAttributes.put("Type", node.isMasterNode() ? "Master" : "Slave");
-      nodeAttributes.put("Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().bytes()));
+      nodeAttributes.put("Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().getBytes()));
       nodeAttributes.put("Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
       nodeAttributes.put("Open Files", stats.getProcess().getOpenFileDescriptors());
       nodeAttributes.put("JVM Heap Usage", formatPercent(stats.getJvm().getMem().getHeapUsedPercent()));
-      nodeAttributes.put("JVM Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getHeapUsed().bytes()));
-      nodeAttributes.put("JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().bytes()));
-      nodeAttributes.put("JVM Non Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getNonHeapUsed().bytes()));
+      nodeAttributes.put("JVM Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getHeapUsed().getBytes()));
+      nodeAttributes.put("JVM Heap Max", byteCountToDisplaySize(stats.getJvm().getMem().getHeapMax().getBytes()));
+      nodeAttributes.put("JVM Non Heap Used", byteCountToDisplaySize(stats.getJvm().getMem().getNonHeapUsed().getBytes()));
       nodeAttributes.put("JVM Threads", stats.getJvm().getThreads().getCount());
       nodeAttributes.put("Field Data Memory", byteCountToDisplaySize(stats.getIndices().getFieldData().getMemorySizeInBytes()));
       nodeAttributes.put("Field Data Circuit Breaker Limit", byteCountToDisplaySize(stats.getBreaker().getStats(CircuitBreaker.FIELDDATA).getLimit()));

@@ -43,8 +43,7 @@ import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_KEYWORD;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX_NOT_SEARCHABLE;
-import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_KEYWORD;
-import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE_FOR_TEXT;
+import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.DefaultIndexSettingsElement.UUID_MODULE_ANALYZER;
 
@@ -180,7 +179,7 @@ public class NewIndex {
     public NewIndexType createUuidPathField(String fieldName) {
       return setProperty(fieldName, ImmutableSortedMap.of(
         TYPE, FIELD_TYPE_TEXT,
-        INDEX, INDEX_SEARCHABLE_FOR_TEXT,
+        INDEX, DefaultIndexSettings.INDEX_SEARCHABLE,
         ANALYZER, UUID_MODULE_ANALYZER.getName()));
     }
 
@@ -248,12 +247,6 @@ public class NewIndex {
     }
 
     /**
-     * "index: no" -> Don’t index this field at all. This field will not be searchable.
-     * By default field is "not_analyzed": it is searchable, but index the value exactly
-     * as specified.
-     */
-    // ES 5: update javadoc to:
-    /*
      * "index: false" -> Make this field not searchable.
      * By default field is "true": it is searchable, but index the value exactly
      * as specified.
@@ -268,10 +261,8 @@ public class NewIndex {
       if (subFields.isEmpty()) {
         hash.putAll(ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
-            "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE_FOR_KEYWORD,
-            "norms",
-            ImmutableMap.of("enabled", String.valueOf(!disableNorms)) // ES 5: replace with String.valueOf(!disableNorms)
-        ));
+            "index", disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE,
+            "norms", String.valueOf(!disableNorms)));
       } else {
         hash.put("type", "multi_field");
 
@@ -291,10 +282,10 @@ public class NewIndex {
 
         multiFields.put(fieldName, ImmutableMap.of(
             "type", FIELD_TYPE_KEYWORD,
-            "index", INDEX_SEARCHABLE_FOR_KEYWORD,
+            "index", INDEX_SEARCHABLE,
             "term_vector", termVectorWithPositionOffsets ? "with_positions_offsets" : "no",
             "norms",
-            ImmutableMap.of("enabled", "false") // ES 5: replace with "false"
+            "false"
         ));
 
         hash.put("fields", multiFields);
@@ -329,7 +320,7 @@ public class NewIndex {
     public NestedFieldBuilder addKeywordField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of(
         "type", FIELD_TYPE_KEYWORD,
-        "index", INDEX_SEARCHABLE_FOR_KEYWORD));
+        "index", INDEX_SEARCHABLE));
     }
 
     public NestedFieldBuilder addDoubleField(String fieldName) {
