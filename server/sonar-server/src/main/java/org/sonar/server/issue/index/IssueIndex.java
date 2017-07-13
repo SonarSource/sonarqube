@@ -32,6 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
@@ -48,8 +50,10 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInter
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
+import org.elasticsearch.search.aggregations.metrics.max.InternalMax;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.sum.SumBuilder;
+import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
 import org.joda.time.Duration;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -65,10 +69,12 @@ import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonar.server.es.EsUtils.escapeSpecialRegexChars;
@@ -635,5 +641,43 @@ public class IssueIndex {
       }
     }
     return boolQuery;
+  }
+
+  public List<ProjectStatistics> searchProjectStatistics(List<String> projectUuids, List<Long> froms, String assignee) {
+    checkState(projectUuids.size() == froms.size(),
+      "Expected same size for projectUuids (had size %s) and froms (had size %s)", projectUuids.size(), froms.size());
+    if (projectUuids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    SearchRequestBuilder request = client.prepareSearch(IssueIndexDefinition.INDEX_TYPE_ISSUE)
+      .setQuery(
+        boolQuery()
+          .mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION))
+          .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, assignee))
+      )
+      .setSize(0);
+    IntStream.range(0, projectUuids.size()).forEach(i -> {
+      String projectUuid = projectUuids.get(i);
+      long from = froms.get(i);
+      request
+        .addAggregation(AggregationBuilders
+          .filter(projectUuid)
+          .filter(boolQuery()
+            .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
+            .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(new Date(from)))
+          )
+          .subAggregation(AggregationBuilders.count(projectUuid + "_count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))
+          .subAggregation(AggregationBuilders.max(projectUuid + "_maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT))
+        );
+    });
+    SearchResponse response = request.get();
+    return response.getAggregations().asList().stream().flatMap(projectBucket -> {
+      long count = ((InternalValueCount) projectBucket.getProperty(projectBucket.getName() + "_count")).getValue();
+      if (count < 1L) {
+        return Stream.empty();
+      }
+      long lastIssueDate = (long) ((InternalMax) projectBucket.getProperty(projectBucket.getName() + "_maxFuncCreatedAt")).getValue();
+      return Stream.of(new ProjectStatistics(projectBucket.getName(), count, lastIssueDate));
+    }).collect(MoreCollectors.toList(projectUuids.size()));
   }
 }
