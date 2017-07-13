@@ -1,5 +1,5 @@
-// flow-typed signature: e060c00e6b194abf3d3e693a69f9bcbf
-// flow-typed version: deeae5cc98/underscore_v1.x.x/flow_>=v0.38.x
+// flow-typed signature: 2a37b992d69aa44091bbce792686c327
+// flow-typed version: 3246e0e09e/underscore_v1.x.x/flow_>=v0.38.x
 
 // @flow
 /* eslint-disable */
@@ -447,7 +447,7 @@ declare module "underscore" {
     invert<K, V>(object: {[keys: K]: V}): {[keys: V]: K};
     // TODO: _.create
     functions(object: Object): Array<string>;
-    findKey(object: Object, predicate: () => boolean, context?: mixed): ?string;
+    findKey(object: Object, predicate: (...args: Array<any>) => boolean, context?: mixed): ?string;
     extend: typeof $underscore$Extend;
     extendOwn: typeof $underscore$Extend;
     pick<K, V>(object: {[keys: K]: V}, predicate?: K): {[keys: K]: V};
@@ -495,7 +495,7 @@ declare module "underscore" {
     invert(): UnderscoreChainedObject<WrappedObj>;
     // TODO: _.create
     functions(): UnderscoreChainedList<string>;
-    findKey(predicate: () => boolean, context?: mixed): UnderscoreChainedValue<?string>;
+    findKey(predicate: (...args: Array<any>) => boolean, context?: mixed): UnderscoreChainedValue<?string>;
     // TODO: Reimplement these when you can get them to return UnderscoreChainedObject
     // extend: ExtendParameterized<{[key: K]: V}>;
     // extendOwn: ExtendParameterized<{[key: K]: V}>>;
@@ -546,7 +546,7 @@ declare module "underscore" {
     // TODO: _.create
     functions(): Array<string>;
     find(predicate: (v: any, k: $Keys<WrappedObj>, obj: WrappedObj) => boolean): ?any;
-    findKey(predicate: () => boolean, context?: mixed): ?string;
+    findKey(predicate: (...args: Array<any>) => boolean, context?: mixed): ?string;
     extend: typeof $underscore$ExtendParameterized;
     extendOwn: typeof $underscore$ExtendParameterized;
     // TODO make these actually remove properties
