@@ -21,7 +21,6 @@ package org.sonar.server.permission;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -61,27 +60,12 @@ public class PermissionTemplateServiceTest {
   private DbSession session = dbTester.getSession();
   private ProjectIndexers projectIndexers = new TestProjectIndexers();
 
-  private OrganizationDto organization;
-  private ComponentDto privateProject;
-  private ComponentDto publicProject;
-  private GroupDto group;
-  private UserDto user;
-  private UserDto creator;
-
   private PermissionTemplateService underTest = new PermissionTemplateService(dbTester.getDbClient(), projectIndexers, userSession, defaultTemplatesResolver);
-
-  @Before
-  public void setUp() throws Exception {
-    organization = dbTester.organizations().insert();
-    privateProject = dbTester.components().insertPrivateProject(organization);
-    publicProject = dbTester.components().insertPublicProject(organization);
-    group = dbTester.users().insertGroup(organization);
-    user = dbTester.users().insertUser();
-    creator = dbTester.users().insertUser();
-  }
 
   @Test
   public void apply_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
 
@@ -92,6 +76,9 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_default_does_not_insert_permission_to_group_AnyOne_when_applying_template_on_private_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
+    UserDto creator = dbTester.users().insertUser();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, "p1");
     dbTester.organizations().setDefaultTemplates(organization, permissionTemplate.getUuid(), null);
@@ -103,6 +90,8 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_inserts_permissions_to_group_AnyOne_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
@@ -116,6 +105,8 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void applyDefault_inserts_permissions_to_group_AnyOne_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addAnyoneToTemplate(permissionTemplate, perm));
@@ -130,6 +121,9 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_inserts_any_permissions_to_group_when_applying_template_on_private_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
+    GroupDto group = dbTester.users().insertGroup(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
@@ -143,6 +137,9 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void applyDefault_inserts_any_permissions_to_group_when_applying_template_on_private_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    GroupDto group = dbTester.users().insertGroup(organization);
+    ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
@@ -157,7 +154,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_inserts_permissions_to_group_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
+    GroupDto group = dbTester.users().insertGroup(organization);
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
@@ -170,7 +170,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void applyDefault_inserts_permissions_to_group_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
+    GroupDto group = dbTester.users().insertGroup(organization);
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, perm));
     dbTester.permissionTemplates().addGroupToTemplate(permissionTemplate, group, "p1");
@@ -184,7 +187,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_inserts_permissions_to_user_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
+    UserDto user = dbTester.users().insertUser();
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
@@ -197,7 +203,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void applyDefault_inserts_permissions_to_user_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
+    UserDto user = dbTester.users().insertUser();
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
@@ -211,7 +220,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_inserts_any_permissions_to_user_when_applying_template_on_private_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
+    UserDto user = dbTester.users().insertUser();
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
@@ -224,7 +236,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void applyDefault_inserts_any_permissions_to_user_when_applying_template_on_private_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
+    UserDto user = dbTester.users().insertUser();
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, perm));
     dbTester.permissionTemplates().addUserToTemplate(permissionTemplate, user, "p1");
@@ -238,7 +253,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void applyDefault_inserts_permissions_to_ProjectCreator_but_USER_and_CODEVIEWER_when_applying_template_on_public_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto publicProject = dbTester.components().insertPublicProject(organization);
+    UserDto user = dbTester.users().insertUser();
     ProjectPermissions.ALL
         .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
@@ -252,7 +270,10 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void applyDefault_inserts_any_permissions_to_ProjectCreator_when_applying_template_on_private_project() {
+    OrganizationDto organization = dbTester.organizations().insert();
     PermissionTemplateDto permissionTemplate = dbTester.permissionTemplates().insertTemplate(organization);
+    ComponentDto privateProject = dbTester.components().insertPrivateProject(organization);
+    UserDto user = dbTester.users().insertUser();
     ProjectPermissions.ALL
       .forEach(perm -> dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, perm));
     dbTester.permissionTemplates().addProjectCreatorToTemplate(permissionTemplate, "p1");
@@ -266,6 +287,8 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void apply_permission_template() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    UserDto user = dbTester.users().insertUser();
     ComponentDto project = dbTester.components().insertPrivateProject(organization);
     GroupDto adminGroup = dbTester.users().insertGroup(organization);
     GroupDto userGroup = dbTester.users().insertGroup(organization);
@@ -306,6 +329,9 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void would_user_have_scan_permission_with_default_permission_template() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    GroupDto group = dbTester.users().insertGroup(organization);
+    UserDto user = dbTester.users().insertUser();
     dbTester.users().insertMember(group, user);
     PermissionTemplateDto template = templateDb.insertTemplate(organization);
     dbTester.organizations().setDefaultTemplates(template, null);
