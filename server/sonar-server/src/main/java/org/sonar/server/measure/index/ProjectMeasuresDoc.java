@@ -43,18 +43,19 @@ import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIEL
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_ORGANIZATION_UUID;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_QUALITY_GATE_STATUS;
 import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_TAGS;
+import static org.sonar.server.measure.index.ProjectMeasuresIndexDefinition.FIELD_UUID;
 
 public class ProjectMeasuresDoc extends BaseDoc {
 
   public static final Map<String, Integer> QUALITY_GATE_STATUS = ImmutableMap.of(OK.name(), 1, WARN.name(), 2, ERROR.name(), 3);
 
   public ProjectMeasuresDoc() {
-    super(new HashMap<>(7));
+    super(new HashMap<>(8));
   }
 
   @Override
   public String getId() {
-    return getField("_id");
+    return getField(FIELD_UUID);
   }
 
   @Override
@@ -68,7 +69,7 @@ public class ProjectMeasuresDoc extends BaseDoc {
   }
 
   public ProjectMeasuresDoc setId(String s) {
-    setField("_id", s);
+    setField(FIELD_UUID, s);
     return this;
   }
 
