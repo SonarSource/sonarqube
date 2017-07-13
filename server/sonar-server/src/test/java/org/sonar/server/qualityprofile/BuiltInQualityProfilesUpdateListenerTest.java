@@ -21,9 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +32,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotification.Profile;
 
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.tuple;
@@ -50,7 +48,6 @@ import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.UPDATED;
 
 public class BuiltInQualityProfilesUpdateListenerTest {
 
-  private static final Random RANDOM = new Random();
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private MapSettings settings = new MapSettings();
 
@@ -133,8 +130,8 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     Multimap<QProfileName, ActiveRuleChange> profiles = ArrayListMultimap.create();
     Languages languages = new Languages();
     addProfile(profiles, languages, ACTIVATED);
-    long startDate = RANDOM.nextInt(5000);
-    long endDate = startDate + RANDOM.nextInt(5000);
+    long startDate = 10_000_000_000L;
+    long endDate = 15_000_000_000L;
 
     BuiltInQualityProfilesUpdateListener underTest = new BuiltInQualityProfilesUpdateListener(notificationManager, languages, settings.asConfig());
     underTest.onChange(profiles, startDate, endDate);
@@ -164,11 +161,9 @@ public class BuiltInQualityProfilesUpdateListenerTest {
     String profileName = randomLowerCaseText();
     Language language = newLanguage(randomLowerCaseText(), randomLowerCaseText());
     languages.add(language);
-    int numberOfChanges = RANDOM.nextInt(1000);
-    profiles.putAll(
-      new QProfileName(language.getKey(), profileName),
-      IntStream.range(0, numberOfChanges).mapToObj(i -> new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule" + i))).collect(Collectors.toSet()));
-    return tuple(profileName, language.getKey(), language.getName(), numberOfChanges);
+    profiles.putAll(new QProfileName(language.getKey(), profileName),
+      asList(new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule1")), new ActiveRuleChange(type, ActiveRuleKey.parse("qp:repo:rule2"))));
+    return tuple(profileName, language.getKey(), language.getName(), 2);
   }
 
   private static String randomLowerCaseText() {
