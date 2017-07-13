@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube</groupId>
     <artifactId>server</artifactId>
-    <version>6.5-M3</version>
+    <version>6.5-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>sonar-server</artifactId>
