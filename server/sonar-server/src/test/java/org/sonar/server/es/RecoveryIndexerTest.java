@@ -307,7 +307,7 @@ public class RecoveryIndexerTest {
       .containsExactlyInAnyOrder(item1.getUuid(), item2.getUuid(), item3.getUuid());
 
     assertThatLogsContain(TRACE, "Elasticsearch recovery - processing 3 USER");
-    assertThatLogsContain(INFO, "Elasticsearch recovery - 3 documents processed [0 failures]");
+    assertThatLogsContain(INFO, "Elasticsearch recovery - 1 documents processed [0 failures]");
   }
 
   private class ProxyUserIndexer extends UserIndexer {

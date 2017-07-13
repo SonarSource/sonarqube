@@ -45,7 +45,7 @@ import org.sonar.server.es.StartupIndexer;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
+import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.user.index.UserIndexDefinition.INDEX_TYPE_USER;
 
 public class UserIndexer implements StartupIndexer, ResilientIndexer {
@@ -113,14 +113,14 @@ public class UserIndexer implements StartupIndexer, ResilientIndexer {
     if (items.isEmpty()) {
       return new IndexingResult();
     }
-    List<String> logins = items
+    Set<String> logins = items
       .stream()
       .filter(i -> {
         requireNonNull(i.getDocId(), () -> "BUG - " + i + " has not been persisted before indexing");
         return i.getDocType() == EsQueueDto.Type.USER;
       })
       .map(EsQueueDto::getDocId)
-      .collect(toArrayList(items.size()));
+      .collect(toHashSet(items.size()));
 
     ListMultimap<String, String> organizationUuidsByLogin = ArrayListMultimap.create();
     dbClient.organizationMemberDao().selectForUserIndexing(dbSession, logins, organizationUuidsByLogin::put);
