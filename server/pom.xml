@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube</groupId>
     <artifactId>sonarqube</artifactId>
-    <version>6.5-SNAPSHOT</version>
+    <version>6.5-RC1</version>
   </parent>
   <artifactId>server</artifactId>
   <packaging>pom</packaging>
