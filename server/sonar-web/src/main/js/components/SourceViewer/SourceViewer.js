@@ -24,9 +24,11 @@ import { receiveFavorites } from '../../store/favorites/duck';
 
 const mapStateToProps = null;
 
-const onReceiveComponent = (
-  component: { key: string, canMarkAsFavorite: boolean, fav: boolean }
-) => dispatch => {
+const onReceiveComponent = (component: {
+  key: string,
+  canMarkAsFavorite: boolean,
+  fav: boolean
+}) => dispatch => {
   if (component.canMarkAsFavorite) {
     const favorites = [];
     const notFavorites = [];

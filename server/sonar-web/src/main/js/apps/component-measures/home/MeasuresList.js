@@ -26,7 +26,7 @@ import IssueTypeIcon from '../../../components/ui/IssueTypeIcon';
 const MeasuresList = ({ measures, component, className = 'domain-measures' }) => {
   return (
     <ul className={className}>
-      {measures.map(measure => (
+      {measures.map(measure =>
         <li key={measure.metric.key} id={`measure-${measure.metric.key}`}>
           <Link
             to={{
@@ -43,7 +43,7 @@ const MeasuresList = ({ measures, component, className = 'domain-measures' }) =>
             <MeasureListValue measure={measure} />
           </Link>
         </li>
-      ))}
+      )}
     </ul>
   );
 };

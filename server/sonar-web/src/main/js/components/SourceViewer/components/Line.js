@@ -59,7 +59,7 @@ type Props = {|
   onIssuesClose: SourceLine => void,
   onLocationSelect?: number => void,
   onSCMClick: (SourceLine, HTMLElement) => void,
-  onSymbolClick: Array<string> => void,
+  onSymbolClick: (Array<string>) => void,
   openIssues: boolean,
   previousLine?: SourceLine,
   scroll?: HTMLElement => void,
@@ -115,7 +115,7 @@ export default class Line extends React.PureComponent {
         {this.props.displayDuplications &&
           <LineDuplications line={line} onClick={this.props.loadDuplications} />}
 
-        {times(duplicationsCount).map(index => (
+        {times(duplicationsCount).map(index =>
           <LineDuplicationBlock
             duplicated={duplications.includes(index)}
             index={index}
@@ -123,7 +123,7 @@ export default class Line extends React.PureComponent {
             line={this.props.line}
             onClick={this.props.onDuplicationClick}
           />
-        ))}
+        )}
 
         {this.props.displayIssues &&
           !this.props.displayAllIssues &&

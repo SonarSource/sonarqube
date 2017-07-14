@@ -101,7 +101,9 @@ class OrganizationEdit extends React.PureComponent {
         <Helmet title={title} />
 
         <header className="page-header">
-          <h1 className="page-title">{title}</h1>
+          <h1 className="page-title">
+            {title}
+          </h1>
         </header>
 
         <form onSubmit={this.handleSubmit}>
@@ -184,7 +186,9 @@ class OrganizationEdit extends React.PureComponent {
             </div>
           </div>
           <div className="modal-field">
-            <button type="submit" disabled={this.state.loading}>{translate('save')}</button>
+            <button type="submit" disabled={this.state.loading}>
+              {translate('save')}
+            </button>
             {this.state.loading && <i className="spinner spacer-left" />}
           </div>
         </form>

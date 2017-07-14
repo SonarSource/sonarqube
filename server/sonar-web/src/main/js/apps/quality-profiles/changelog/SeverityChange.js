@@ -32,8 +32,7 @@ export default class SeverityChange extends React.PureComponent {
   render() {
     return (
       <div>
-        {translate('quality_profiles.severity_set_to')}
-        {' '}
+        {translate('quality_profiles.severity_set_to')}{' '}
         <SeverityHelper severity={this.props.severity} />
       </div>
     );

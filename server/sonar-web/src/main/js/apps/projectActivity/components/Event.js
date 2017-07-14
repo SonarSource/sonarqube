@@ -123,8 +123,8 @@ export default class Event extends React.PureComponent {
             }
             removeEventQuestion={
               'project_activity.' +
-                (isVersion ? 'remove_version' : 'remove_custom_event') +
-                '.question'
+              (isVersion ? 'remove_version' : 'remove_custom_event') +
+              '.question'
             }
           />}
       </div>

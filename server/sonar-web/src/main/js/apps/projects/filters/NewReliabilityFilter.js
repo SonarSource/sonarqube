@@ -29,7 +29,10 @@ export default function NewReliabilityFilter(props) {
       className="leak-facet-box"
       headerDetail={
         <span className="note little-spacer-left">
-          {'('}<BugIcon className="little-spacer-right" />{translate('metric.bugs.name')}{' )'}
+          {'('}
+          <BugIcon className="little-spacer-right" />
+          {translate('metric.bugs.name')}
+          {' )'}
         </span>
       }
       name="Reliability"

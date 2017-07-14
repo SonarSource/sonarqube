@@ -109,7 +109,7 @@ export default class Component extends React.PureComponent {
           />
         </td>
 
-        {columns.map(column => (
+        {columns.map(column =>
           <td key={column.metric} className="thin nowrap text-right">
             <div className="code-components-cell">
               <ComponentMeasure
@@ -119,7 +119,7 @@ export default class Component extends React.PureComponent {
               />
             </div>
           </td>
-        ))}
+        )}
       </tr>
     );
   }

@@ -60,8 +60,7 @@ export default class SimilarIssuesFilter extends React.PureComponent {
           className="js-issue-filter button-link issue-action issue-action-with-options"
           aria-label={translate('issue.filter_similar_issues')}
           onClick={this.handleClick}>
-          <i className="icon-filter icon-half-transparent" />{' '}
-          <i className="icon-dropdown" />
+          <i className="icon-filter icon-half-transparent" /> <i className="icon-dropdown" />
         </button>
       </BubblePopupHelper>
     );

@@ -113,9 +113,8 @@ export default class Filter extends React.PureComponent {
     );
 
     const path = this.getPath(option);
-    const facetValue = facet && getFacetValueForOption
-      ? getFacetValueForOption(facet, option)
-      : null;
+    const facetValue =
+      facet && getFacetValueForOption ? getFacetValueForOption(facet, option) : null;
 
     const isUnderSelectedOption = this.highlightUnder(value) && option > value;
 

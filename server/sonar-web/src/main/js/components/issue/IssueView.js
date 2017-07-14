@@ -102,14 +102,14 @@ export default class IssueView extends React.PureComponent {
         {issue.comments &&
           issue.comments.length > 0 &&
           <div className="issue-comments">
-            {issue.comments.map(comment => (
+            {issue.comments.map(comment =>
               <IssueCommentLine
                 comment={comment}
                 key={comment.key}
                 onEdit={this.editComment}
                 onDelete={this.deleteComment}
               />
-            ))}
+            )}
           </div>}
         <a className="issue-navigate js-issue-navigate">
           <i className="issue-navigate-to-left icon-chevron-left" />

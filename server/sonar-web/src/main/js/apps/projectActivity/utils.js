@@ -179,7 +179,7 @@ export const getDisplayedHistoryMetrics = (
 ): Array<string> => (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS_DISPLAYED[graph]);
 
 export const getHistoryMetrics = (graph: string, customMetrics: Array<string>): Array<string> =>
-  (isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph]);
+  isCustomGraph(graph) ? customMetrics : GRAPHS_METRICS[graph];
 
 const parseGraph = (value?: string): string => {
   const graph = parseAsString(value);

@@ -104,9 +104,8 @@ $.fn.barchart = function(data) {
         })
         .attr('title', (d, i) => {
           const beginning = moment(d.val);
-          const ending = i < data.length - 1
-            ? moment(data[i + 1].val).subtract(1, 'days')
-            : options.endDate;
+          const ending =
+            i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
           if (ending) {
             const isSameDay = ending.diff(beginning, 'days') <= 1;
             return (

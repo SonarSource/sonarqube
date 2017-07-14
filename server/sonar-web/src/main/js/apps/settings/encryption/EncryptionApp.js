@@ -45,7 +45,9 @@ export default class EncryptionApp extends React.PureComponent {
       <div id="encryption-page" className="page page-limited">
         <Helmet title={translate('property.category.security.encryption')} />
         <header className="page-header">
-          <h1 className="page-title">{translate('property.category.security.encryption')}</h1>
+          <h1 className="page-title">
+            {translate('property.category.security.encryption')}
+          </h1>
           {this.props.loading && <i className="spinner" />}
         </header>
 

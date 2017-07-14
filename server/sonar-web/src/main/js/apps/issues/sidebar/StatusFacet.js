@@ -68,9 +68,7 @@ export default class StatusFacet extends React.PureComponent {
   renderStatus(status: string) {
     return (
       <span>
-        <i className={`icon-status-${status.toLowerCase()}`} />
-        {' '}
-        {translate('issue.status', status)}
+        <i className={`icon-status-${status.toLowerCase()}`} /> {translate('issue.status', status)}
       </span>
     );
   }

@@ -148,8 +148,12 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
       return (
         <div className={this.props.className}>
           {this.props.loading
-            ? <div className="text-center"><i className="spinner" /></div>
-            : <span className="note">{translate('no_results')}</span>}
+            ? <div className="text-center">
+                <i className="spinner" />
+              </div>
+            : <span className="note">
+                {translate('no_results')}
+              </span>}
         </div>
       );
     }
@@ -177,7 +181,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                   </span>
                 </div>}
               <ul className="project-activity-days-list">
-                {days.map(day => (
+                {days.map(day =>
                   <li
                     key={day}
                     className="project-activity-day"
@@ -187,7 +191,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                     </div>
                     <ul className="project-activity-analyses-list">
                       {version.byDay[day] != null &&
-                        version.byDay[day].map(analysis => (
+                        version.byDay[day].map(analysis =>
                           <ProjectActivityAnalysis
                             addCustomEvent={this.props.addCustomEvent}
                             addVersion={this.props.addVersion}
@@ -201,15 +205,18 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                             selected={analysis.date.valueOf() === selectedDate}
                             updateSelectedDate={this.updateSelectedDate}
                           />
-                        ))}
+                        )}
                     </ul>
                   </li>
-                ))}
+                )}
               </ul>
             </li>
           );
         })}
-        {this.props.analysesLoading && <li className="text-center"><i className="spinner" /></li>}
+        {this.props.analysesLoading &&
+          <li className="text-center">
+            <i className="spinner" />
+          </li>}
       </ul>
     );
   }

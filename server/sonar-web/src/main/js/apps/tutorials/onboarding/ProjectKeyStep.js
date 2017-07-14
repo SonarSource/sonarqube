@@ -107,7 +107,9 @@ export default class ProjectKeyStep extends React.PureComponent {
 
     const form = done
       ? <form onSubmit={this.handleProjectDelete}>
-          <span className="spacer-right text-middle">{projectKey}</span>
+          <span className="spacer-right text-middle">
+            {projectKey}
+          </span>
           {loading
             ? <i className="spinner" />
             : <button className="button-clean">
@@ -127,7 +129,9 @@ export default class ProjectKeyStep extends React.PureComponent {
           />
           {loading
             ? <i className="spinner" />
-            : <button className="text-middle" disabled={!valid}>{translate('Done')}</button>}
+            : <button className="text-middle" disabled={!valid}>
+                {translate('Done')}
+              </button>}
           <div className="note spacer-top abs-width-300">
             {translate('onboarding.project_key_requirement')}
           </div>

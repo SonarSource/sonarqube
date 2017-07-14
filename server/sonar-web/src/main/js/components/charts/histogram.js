@@ -80,7 +80,11 @@ export const Histogram = React.createClass({
         </text>
       );
     });
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   },
 
   renderValues(xScale, yScale) {
@@ -105,7 +109,11 @@ export const Histogram = React.createClass({
         </text>
       );
     });
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   },
 
   renderBars(xScale, yScale) {
@@ -125,7 +133,11 @@ export const Histogram = React.createClass({
         />
       );
     });
-    return <g>{bars}</g>;
+    return (
+      <g>
+        {bars}
+      </g>
+    );
   },
 
   render() {

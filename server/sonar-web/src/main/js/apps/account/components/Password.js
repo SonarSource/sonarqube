@@ -81,7 +81,12 @@ export default class Password extends Component {
               {translate('my_profile.password.changed')}
             </div>}
 
-          {errors && errors.map((e, i) => <div key={i} className="alert alert-danger">{e}</div>)}
+          {errors &&
+            errors.map((e, i) =>
+              <div key={i} className="alert alert-danger">
+                {e}
+              </div>
+            )}
 
           <div className="modal-field">
             <label htmlFor="old_password">

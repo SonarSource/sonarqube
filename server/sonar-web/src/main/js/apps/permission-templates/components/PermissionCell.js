@@ -38,10 +38,16 @@ export default class PermissionCell extends React.PureComponent {
                 {translate('permission_templates.project_creators')}
               </li>}
             <li className="little-spacer-bottom">
-              <strong>{p.usersCount}</strong>{'  user(s)'}
+              <strong>
+                {p.usersCount}
+              </strong>
+              {'  user(s)'}
             </li>
             <li>
-              <strong>{p.groupsCount}</strong>{' group(s)'}
+              <strong>
+                {p.groupsCount}
+              </strong>
+              {' group(s)'}
             </li>
           </ul>
         </div>

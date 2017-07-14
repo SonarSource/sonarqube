@@ -20,12 +20,15 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
 
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   margin: 0;
-  padding: 0
+  padding: 0;
 }
 
-html, body {
+html,
+body {
   background-color: @baseBackgroundColor;
 }
 
@@ -33,56 +36,80 @@ body {
   overflow-y: scroll;
 }
 
-fieldset, img {
+fieldset,
+img {
   border: 0;
 }
 
-address, caption, cite, code, dfn, em, strong, th, var {
+address,
+caption,
+cite,
+code,
+dfn,
+em,
+strong,
+th,
+var {
   font-style: normal;
   font-weight: normal;
 }
 
-caption, th {
+caption,
+th {
   text-align: left;
 }
 
-q:before, q:after {
+q:before,
+q:after {
   content: '';
 }
 
-abbr, acronym {
+abbr,
+acronym {
   border: 0;
   font-variant: normal;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: inherit;
   font-size: inherit;
   font-weight: inherit;
 }
 
-select, input, button, textarea {
+select,
+input,
+button,
+textarea {
   font-size: inherit;
   font-family: inherit;
 }
 
 /*Remove button padding in FF*/
-select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
+select::-moz-focus-inner,
+input::-moz-focus-inner,
+button::-moz-focus-inner {
   border: 0;
   padding: 0;
 }
 
 legend {
-  color: #000
+  color: #000;
 }
 
-pre, code, kbd, samp, tt {
+pre,
+code,
+kbd,
+samp,
+tt {
   font-family: @monoFontFamily;
   font-size: @monoFontSize;
   line-height: @monoLineHeight;
 }
 
-svg, img {
+svg,
+img {
   vertical-align: top;
 }
 

@@ -99,37 +99,38 @@ export default class RestoreProfileForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <form
           id="restore-profile-form"
           onSubmit={this.handleFormSubmit}
           ref={node => (this.form = node)}>
-
           <div className="modal-head">
-            <h2>{header}</h2>
+            <h2>
+              {header}
+            </h2>
           </div>
 
           <div className="modal-body">
             {profile != null && ruleSuccesses != null
               ? ruleFailures
-                  ? <div className="alert alert-warning">
-                      {translateWithParameters(
-                        'quality_profiles.restore_profile.warning',
-                        profile.name,
-                        ruleSuccesses,
-                        ruleFailures
-                      )}
-                    </div>
-                  : <div className="alert alert-success">
-                      {translateWithParameters(
-                        'quality_profiles.restore_profile.success',
-                        profile.name,
-                        ruleSuccesses
-                      )}
-                    </div>
+                ? <div className="alert alert-warning">
+                    {translateWithParameters(
+                      'quality_profiles.restore_profile.warning',
+                      profile.name,
+                      ruleSuccesses,
+                      ruleFailures
+                    )}
+                  </div>
+                : <div className="alert alert-success">
+                    {translateWithParameters(
+                      'quality_profiles.restore_profile.success',
+                      profile.name,
+                      ruleSuccesses
+                    )}
+                  </div>
               : <div className="modal-field">
                   <label htmlFor="restore-profile-backup">
-                    {translate('backup')}<em className="mandatory">*</em>
+                    {translate('backup')}
+                    <em className="mandatory">*</em>
                   </label>
                   <input id="restore-profile-backup" name="backup" required={true} type="file" />
                 </div>}
@@ -150,9 +151,7 @@ export default class RestoreProfileForm extends React.PureComponent {
                   {translate('close')}
                 </a>
               </div>}
-
         </form>
-
       </Modal>
     );
   }

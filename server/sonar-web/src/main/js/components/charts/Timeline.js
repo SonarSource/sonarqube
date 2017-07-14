@@ -114,7 +114,11 @@ const Timeline = React.createClass({
       );
     });
 
-    return <g>{grid}</g>;
+    return (
+      <g>
+        {grid}
+      </g>
+    );
   },
 
   renderTicks(xScale, yScale) {
@@ -133,7 +137,11 @@ const Timeline = React.createClass({
       );
     });
 
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   },
 
   renderLeak(xScale, yScale) {
@@ -191,7 +199,11 @@ const Timeline = React.createClass({
           />
         );
       });
-    return <g>{points}</g>;
+    return (
+      <g>
+        {points}
+      </g>
+    );
   },
   render() {
     if (!this.state.width || !this.state.height) {

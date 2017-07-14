@@ -216,14 +216,12 @@ export default class Template extends React.PureComponent {
           onSelectPermission={this.handleSelectPermission}
           onToggleUser={this.handleToggleUser}
           onToggleGroup={this.handleToggleGroup}>
-
           <SearchForm
             query={this.state.query}
             filter={this.state.filter}
             onSearch={this.handleSearch}
             onFilter={this.handleFilter}
           />
-
         </HoldersList>
       </div>
     );

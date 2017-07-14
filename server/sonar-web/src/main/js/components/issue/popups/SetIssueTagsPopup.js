@@ -27,7 +27,7 @@ type Props = {
   popupPosition?: {},
   onFail: Error => void,
   selectedTags: Array<string>,
-  setTags: Array<string> => void
+  setTags: (Array<string>) => void
 };
 
 type State = {

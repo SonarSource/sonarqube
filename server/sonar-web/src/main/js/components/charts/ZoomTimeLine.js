@@ -159,12 +159,14 @@ export default class ZoomTimeLine extends React.PureComponent {
 
   handleZoomUpdate = (xScale: Scale, xArray: Array<number>) => {
     const xRange = xScale.range();
-    const startDate = xArray[0] > xRange[0] && xArray[0] < xRange[xRange.length - 1]
-      ? xScale.invert(xArray[0])
-      : null;
-    const endDate = xArray[1] > xRange[0] && xArray[1] < xRange[xRange.length - 1]
-      ? xScale.invert(xArray[1])
-      : null;
+    const startDate =
+      xArray[0] > xRange[0] && xArray[0] < xRange[xRange.length - 1]
+        ? xScale.invert(xArray[0])
+        : null;
+    const endDate =
+      xArray[1] > xRange[0] && xArray[1] < xRange[xRange.length - 1]
+        ? xScale.invert(xArray[1])
+        : null;
     if (this.props.startDate !== startDate || this.props.endDate !== endDate) {
       this.props.updateZoom(startDate, endDate);
     }
@@ -227,13 +229,13 @@ export default class ZoomTimeLine extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) => (
+        {this.props.series.map((serie, idx) =>
           <path
             key={`${idx}-${serie.name}`}
             className={classNames('line-chart-path', 'line-chart-path-' + serie.style)}
             d={lineGenerator(serie.data)}
           />
-        ))}
+        )}
       </g>
     );
   };
@@ -249,27 +251,25 @@ export default class ZoomTimeLine extends React.PureComponent {
     }
     return (
       <g>
-        {this.props.series.map((serie, idx) => (
+        {this.props.series.map((serie, idx) =>
           <path
             key={`${idx}-${serie.name}`}
             className={classNames('line-chart-area', 'line-chart-area-' + serie.style)}
             d={areaGenerator(serie.data)}
           />
-        ))}
+        )}
       </g>
     );
   };
 
-  renderZoomHandle = (
-    options: {
-      xScale: Scale,
-      xPos: number,
-      fixedPos: number,
-      yDim: Array<number>,
-      xDim: Array<number>,
-      direction: string
-    }
-  ) => (
+  renderZoomHandle = (options: {
+    xScale: Scale,
+    xPos: number,
+    fixedPos: number,
+    yDim: Array<number>,
+    xDim: Array<number>,
+    direction: string
+  }) =>
     <Draggable
       axis="x"
       bounds={{ left: options.xDim[0], right: options.xDim[1] }}
@@ -294,8 +294,7 @@ export default class ZoomTimeLine extends React.PureComponent {
         height={options.yDim[0] - options.yDim[1]}
         width={6}
       />
-    </Draggable>
-  );
+    </Draggable>;
 
   renderZoom = (xScale: Scale, yScale: Scale) => {
     const xRange = xScale.range();

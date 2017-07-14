@@ -54,7 +54,9 @@ export default class CoverageFilter extends React.PureComponent {
         <span className="spacer-left">
           {option < 6
             ? getCoverageRatingLabel(option)
-            : <span className="big-spacer-left">{translate('no_data')}</span>}
+            : <span className="big-spacer-left">
+                {translate('no_data')}
+              </span>}
         </span>
       </span>
     );

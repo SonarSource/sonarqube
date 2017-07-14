@@ -77,7 +77,9 @@ export default class SearchResults extends React.PureComponent {
     });
 
     return renderedComponents.length > 0
-      ? <ul className="menu">{renderedComponents}</ul>
+      ? <ul className="menu">
+          {renderedComponents}
+        </ul>
       : this.props.renderNoResults();
   }
 }

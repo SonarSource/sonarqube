@@ -37,7 +37,7 @@ export default class LineIssuesList extends React.PureComponent {
 
     return (
       <div className="issue-list">
-        {issues.map(issue => (
+        {issues.map(issue =>
           <Issue
             issue={issue}
             key={issue.key}
@@ -45,7 +45,7 @@ export default class LineIssuesList extends React.PureComponent {
             onClick={onIssueClick}
             selected={selectedIssue === issue.key}
           />
-        ))}
+        )}
       </div>
     );
   }

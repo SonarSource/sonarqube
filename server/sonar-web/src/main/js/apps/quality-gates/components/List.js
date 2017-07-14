@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 export default function List({ qualityGates }) {
   return (
     <div className="list-group">
-      {qualityGates.map(qualityGate => (
+      {qualityGates.map(qualityGate =>
         <Link
           key={qualityGate.id}
           to={`/quality_gates/show/${qualityGate.id}`}
@@ -39,13 +39,15 @@ export default function List({ qualityGates }) {
                 </td>
                 <td className="text-top thin nowrap spacer-left">
                   {qualityGate.isDefault &&
-                    <span className="badge pull-right">{translate('default')}</span>}
+                    <span className="badge pull-right">
+                      {translate('default')}
+                    </span>}
                 </td>
               </tr>
             </tbody>
           </table>
         </Link>
-      ))}
+      )}
     </div>
   );
 }

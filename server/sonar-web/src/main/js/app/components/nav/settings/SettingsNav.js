@@ -52,7 +52,9 @@ class SettingsNav extends React.PureComponent {
   renderExtension = ({ key, name }) => {
     return (
       <li key={key}>
-        <Link to={`/admin/extension/${key}`} activeClassName="active">{name}</Link>
+        <Link to={`/admin/extension/${key}`} activeClassName="active">
+          {name}
+        </Link>
       </li>
     );
   };

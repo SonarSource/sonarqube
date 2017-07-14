@@ -50,7 +50,9 @@ class EmailForm extends React.PureComponent {
   render() {
     return (
       <div className="huge-spacer-top">
-        <h3 className="spacer-bottom">{translate('email_configuration.test.title')}</h3>
+        <h3 className="spacer-bottom">
+          {translate('email_configuration.test.title')}
+        </h3>
 
         <form style={{ marginLeft: 201 }} onSubmit={e => this.handleFormSubmit(e)}>
           {this.state.success &&

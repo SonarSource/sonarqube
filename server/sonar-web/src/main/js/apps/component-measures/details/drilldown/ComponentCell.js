@@ -51,7 +51,10 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
     <span title={component.refKey || component.key}>
       <QualifierIcon qualifier={component.qualifier} />
       &nbsp;
-      {head.length > 0 && <span className="note">{head}/</span>}
+      {head.length > 0 &&
+        <span className="note">
+          {head}/
+        </span>}
       <span>{tail}</span>
     </span>
   );

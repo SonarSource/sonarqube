@@ -80,7 +80,11 @@ export const BarChart = React.createClass({
         </text>
       );
     });
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   },
 
   renderXValues(xScale, yScale) {
@@ -111,7 +115,11 @@ export const BarChart = React.createClass({
         </text>
       );
     });
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   },
 
   renderBars(xScale, yScale) {
@@ -139,7 +147,11 @@ export const BarChart = React.createClass({
         />
       );
     });
-    return <g>{bars}</g>;
+    return (
+      <g>
+        {bars}
+      </g>
+    );
   },
 
   render() {

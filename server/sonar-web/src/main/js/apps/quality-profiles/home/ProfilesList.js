@@ -40,7 +40,7 @@ export default class ProfilesList extends React.PureComponent {
   props: Props;
 
   renderProfiles(profiles: Array<Profile>) {
-    return profiles.map(profile => (
+    return profiles.map(profile =>
       <ProfilesListRow
         canAdmin={this.props.canAdmin}
         key={profile.key}
@@ -49,7 +49,7 @@ export default class ProfilesList extends React.PureComponent {
         profile={profile}
         updateProfiles={this.props.updateProfiles}
       />
-    ));
+    );
   }
 
   renderHeader(languageKey: string, profilesCount: number) {
@@ -107,10 +107,9 @@ export default class ProfilesList extends React.PureComponent {
             {translate('no_results')}
           </div>}
 
-        {languagesToShow.map(languageKey => (
+        {languagesToShow.map(languageKey =>
           <div key={languageKey} className="quality-profile-box quality-profiles-table">
             <table data-language={languageKey} className="data zebra zebra-hover">
-
               {profilesToShow[languageKey] != null &&
                 this.renderHeader(languageKey, profilesToShow[languageKey].length)}
 
@@ -120,11 +119,9 @@ export default class ProfilesList extends React.PureComponent {
                     this.renderProfiles(profilesToShow[languageKey])}
                 </tbody>
               </TooltipsContainer>
-
             </table>
           </div>
-        ))}
-
+        )}
       </div>
     );
   }

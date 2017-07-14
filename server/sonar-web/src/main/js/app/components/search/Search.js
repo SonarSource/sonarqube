@@ -294,7 +294,7 @@ export default class Search extends React.PureComponent {
     this.nodes[component] = node;
   };
 
-  renderResult = (component: Component) => (
+  renderResult = (component: Component) =>
     <SearchResult
       appState={this.props.appState}
       component={component}
@@ -305,14 +305,12 @@ export default class Search extends React.PureComponent {
       organizations={this.state.organizations}
       projects={this.state.projects}
       selected={this.state.selected === component.key}
-    />
-  );
+    />;
 
-  renderNoResults = () => (
+  renderNoResults = () =>
     <div className="navbar-search-no-results">
       {translateWithParameters('no_results_for_x', this.state.query)}
-    </div>
-  );
+    </div>;
 
   render() {
     const dropdownClassName = classNames('dropdown', 'navbar-search', { open: this.state.open });

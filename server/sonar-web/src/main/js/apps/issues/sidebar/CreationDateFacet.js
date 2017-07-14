@@ -84,7 +84,10 @@ export default class CreationDateFacet extends React.PureComponent {
   handleBarClick = ({
     createdAfter,
     createdBefore
-  }: { createdAfter: Object, createdBefore?: Object }) => {
+  }: {
+    createdAfter: Object,
+    createdBefore?: Object
+  }) => {
     this.resetTo({
       createdAfter: createdAfter.format(DATE_FORMAT),
       createdBefore: createdBefore && createdBefore.format(DATE_FORMAT)
@@ -123,9 +126,10 @@ export default class CreationDateFacet extends React.PureComponent {
 
     const data = periods.map((startDate, index) => {
       const startMoment = moment(startDate);
-      const nextStartMoment = index < periods.length - 1
-        ? moment(periods[index + 1])
-        : createdBefore ? moment(createdBefore) : undefined;
+      const nextStartMoment =
+        index < periods.length - 1
+          ? moment(periods[index + 1])
+          : createdBefore ? moment(createdBefore) : undefined;
       const endMoment = nextStartMoment && nextStartMoment.clone().subtract(1, 'days');
 
       let tooltip =
@@ -174,7 +178,9 @@ export default class CreationDateFacet extends React.PureComponent {
       <div className="search-navigator-facet-container">
         {m.format('LLL')}
         <br />
-        <span className="note">({m.fromNow()})</span>
+        <span className="note">
+          ({m.fromNow()})
+        </span>
       </div>
     );
   }

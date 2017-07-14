@@ -132,8 +132,12 @@ const startReactApp = () => {
         <Route component={DefaultHelmetContainer}>
           <Route component={LocalizationContainer}>
             <Route component={SimpleContainer}>
-              <Route path="maintenance">{maintenanceRoutes}</Route>
-              <Route path="setup">{setupRoutes}</Route>
+              <Route path="maintenance">
+                {maintenanceRoutes}
+              </Route>
+              <Route path="setup">
+                {setupRoutes}
+              </Route>
             </Route>
 
             <Route component={MigrationContainer}>
@@ -142,7 +146,6 @@ const startReactApp = () => {
               </Route>
 
               <Route path="/" component={App}>
-
                 <IndexRoute component={Landing} />
 
                 <Route component={GlobalContainer}>

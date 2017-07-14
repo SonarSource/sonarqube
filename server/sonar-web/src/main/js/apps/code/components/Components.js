@@ -39,7 +39,7 @@ export default function Components({ rootComponent, baseComponent, components, s
         </tbody>}
       <tbody>
         {components.length
-          ? components.map((component, index, list) => (
+          ? components.map((component, index, list) =>
               <Component
                 key={component.key}
                 rootComponent={rootComponent}
@@ -48,7 +48,7 @@ export default function Components({ rootComponent, baseComponent, components, s
                 previous={index > 0 ? list[index - 1] : null}
                 canBrowse={true}
               />
-            ))
+            )
           : <ComponentsEmpty />}
       </tbody>
     </table>

@@ -26,9 +26,13 @@ const link = 'https://redirect.sonarsource.com/doc/issues.html';
 export default function AboutCleanCode() {
   return (
     <div className="boxed-group">
-      <h2>{translate('about_page.clean_code')}</h2>
+      <h2>
+        {translate('about_page.clean_code')}
+      </h2>
       <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.clean_code.text')}</p>
+        <p className="about-page-text">
+          {translate('about_page.clean_code.text')}
+        </p>
         <ReadMore link={link} />
       </div>
     </div>

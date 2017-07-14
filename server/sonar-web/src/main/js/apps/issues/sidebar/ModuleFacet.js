@@ -90,7 +90,7 @@ export default class ModuleFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {modules.map(module => (
+        {modules.map(module =>
           <FacetItem
             active={this.props.modules.includes(module)}
             facetMode={this.props.facetMode}
@@ -100,7 +100,7 @@ export default class ModuleFacet extends React.PureComponent {
             stat={this.getStat(module)}
             value={module}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

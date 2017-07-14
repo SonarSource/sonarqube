@@ -30,8 +30,12 @@ type Props = {
 export default function GraphsTooltipsContentEvents({ events }: Props) {
   return (
     <tbody>
-      <tr><td className="project-activity-graph-tooltip-separator" colSpan="3"><hr /></td></tr>
-      {events.map(event => (
+      <tr>
+        <td className="project-activity-graph-tooltip-separator" colSpan="3">
+          <hr />
+        </td>
+      </tr>
+      {events.map(event =>
         <tr key={event.key} className="project-activity-graph-tooltip-line">
           <td className="text-top spacer-right thin">
             <ProjectEventIcon
@@ -45,7 +49,7 @@ export default function GraphsTooltipsContentEvents({ events }: Props) {
             {event.name}
           </td>
         </tr>
-      ))}
+      )}
     </tbody>
   );
 }

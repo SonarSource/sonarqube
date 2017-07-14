@@ -52,7 +52,6 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <header className="modal-head">
           <h2>
             {translateWithParameters('projects_role.turn_x_to_public', this.props.component.name)}
@@ -60,7 +59,9 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
         </header>
 
         <div className="modal-body">
-          <p>{translate('projects_role.are_you_sure_to_turn_project_to_public')}</p>
+          <p>
+            {translate('projects_role.are_you_sure_to_turn_project_to_public')}
+          </p>
           <p className="spacer-top">
             {translate('projects_role.are_you_sure_to_turn_project_to_public.2')}
           </p>
@@ -70,9 +71,10 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
           <button id="confirm-turn-to-public" onClick={this.handleConfirmClick}>
             {translate('projects_role.turn_project_to_public')}
           </button>
-          <a href="#" onClick={this.handleCancelClick}>{translate('cancel')}</a>
+          <a href="#" onClick={this.handleCancelClick}>
+            {translate('cancel')}
+          </a>
         </footer>
-
       </Modal>
     );
   }

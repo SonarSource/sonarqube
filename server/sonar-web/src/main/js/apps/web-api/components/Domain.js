@@ -44,7 +44,9 @@ export default class Domain extends React.PureComponent {
     return (
       <div className="web-api-domain">
         <header className="web-api-domain-header">
-          <h2 className="web-api-domain-title">{domain.path}</h2>
+          <h2 className="web-api-domain-title">
+            {domain.path}
+          </h2>
 
           {domain.deprecated &&
             <span className="spacer-left">
@@ -64,7 +66,7 @@ export default class Domain extends React.PureComponent {
           />}
 
         <div className="web-api-domain-actions">
-          {filteredActions.map(action => (
+          {filteredActions.map(action =>
             <Action
               key={getActionKey(domain.path, action.key)}
               action={action}
@@ -72,7 +74,7 @@ export default class Domain extends React.PureComponent {
               showDeprecated={showDeprecated}
               showInternal={showInternal}
             />
-          ))}
+          )}
         </div>
       </div>
     );

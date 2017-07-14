@@ -71,7 +71,7 @@ export function isStagnant(profile: Profile) {
 }
 
 export const getProfilesPath = (organization: ?string) =>
-  (organization ? `/organizations/${organization}/quality_profiles` : '/profiles');
+  organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
 
 export const getProfilesForLanguagePath = (language: string, organization: ?string) => ({
   pathname: getProfilesPath(organization),

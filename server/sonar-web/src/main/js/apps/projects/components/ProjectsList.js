@@ -55,14 +55,14 @@ export default class ProjectsList extends React.PureComponent {
     return (
       <div className="projects-list">
         {projects.length > 0
-          ? projects.map(projectKey => (
+          ? projects.map(projectKey =>
               <ProjectCardContainer
                 key={projectKey}
                 projectKey={projectKey}
                 organization={this.props.organization}
                 type={this.props.cardType}
               />
-            ))
+            )
           : this.renderNoProjects()}
       </div>
     );

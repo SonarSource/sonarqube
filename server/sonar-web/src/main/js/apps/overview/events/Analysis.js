@@ -49,7 +49,9 @@ export default function Analysis(props: { analysis: AnalysisType }) {
           ? <div className="project-activity-events">
               {sortedEvents.map(event => <Event event={event} key={event.key} />)}
             </div>
-          : <span className="note">{translate('project_activity.project_analyzed')}</span>}
+          : <span className="note">
+              {translate('project_activity.project_analyzed')}
+            </span>}
       </li>
     </TooltipsContainer>
   );

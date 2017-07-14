@@ -76,7 +76,7 @@ export default class AuthorFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {authors.map(author => (
+        {authors.map(author =>
           <FacetItem
             active={this.props.authors.includes(author)}
             facetMode={this.props.facetMode}
@@ -86,7 +86,7 @@ export default class AuthorFacet extends React.PureComponent {
             stat={this.getStat(author)}
             value={author}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

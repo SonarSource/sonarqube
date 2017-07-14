@@ -43,11 +43,15 @@ class PageHeader extends React.PureComponent {
 
     return (
       <header className="page-header">
-        <h1 className="page-title">{title}</h1>
+        <h1 className="page-title">
+          {title}
+        </h1>
 
         {this.props.loading && <i className="spinner" />}
 
-        <div className="page-description">{description}</div>
+        <div className="page-description">
+          {description}
+        </div>
       </header>
     );
   }

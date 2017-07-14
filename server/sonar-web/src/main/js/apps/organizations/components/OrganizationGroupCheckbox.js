@@ -51,8 +51,7 @@ export default class OrganizationGroupCheckbox extends React.PureComponent {
         tabIndex={0}
         role="listitem"
         disabled={group.default}>
-        <Checkbox checked={this.props.checked} onCheck={this.onCheck} />
-        {' '}{group.name}
+        <Checkbox checked={this.props.checked} onCheck={this.onCheck} /> {group.name}
       </li>
     );
   }

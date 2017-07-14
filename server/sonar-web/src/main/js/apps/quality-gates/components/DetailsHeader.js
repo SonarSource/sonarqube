@@ -50,7 +50,9 @@ export default function DetailsHeader({
 
   return (
     <div className="search-navigator-workspace-header" style={{ top: 30 }}>
-      <h2 className="search-navigator-header-component">{qualityGate.name}</h2>
+      <h2 className="search-navigator-header-component">
+        {qualityGate.name}
+      </h2>
       {edit &&
         <div className="search-navigator-header-actions">
           <div className="button-group">

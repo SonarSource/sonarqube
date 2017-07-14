@@ -114,22 +114,25 @@ export default class CreateProfileForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <form
           id="create-profile-form"
           onSubmit={this.handleFormSubmit}
           ref={node => (this.form = node)}>
-
           <div className="modal-head">
-            <h2>{header}</h2>
+            <h2>
+              {header}
+            </h2>
           </div>
 
           {this.state.preloading
-            ? <div className="modal-body"><i className="spinner" /></div>
+            ? <div className="modal-body">
+                <i className="spinner" />
+              </div>
             : <div className="modal-body">
                 <div className="modal-field">
                   <label htmlFor="create-profile-name">
-                    {translate('name')}<em className="mandatory">*</em>
+                    {translate('name')}
+                    <em className="mandatory">*</em>
                   </label>
                   <input
                     autoFocus={true}
@@ -145,7 +148,8 @@ export default class CreateProfileForm extends React.PureComponent {
                 </div>
                 <div className="modal-field spacer-bottom">
                   <label htmlFor="create-profile-language">
-                    {translate('language')}<em className="mandatory">*</em>
+                    {translate('language')}
+                    <em className="mandatory">*</em>
                   </label>
                   <Select
                     clearable={false}
@@ -159,7 +163,7 @@ export default class CreateProfileForm extends React.PureComponent {
                     value={selectedLanguage}
                   />
                 </div>
-                {importers.map(importer => (
+                {importers.map(importer =>
                   <div
                     className="modal-field spacer-bottom js-importer"
                     data-key={importer.key}
@@ -176,7 +180,7 @@ export default class CreateProfileForm extends React.PureComponent {
                       {translate('quality_profiles.optional_configuration_file')}
                     </p>
                   </div>
-                ))}
+                )}
               </div>}
 
           <div className="modal-foot">
@@ -190,7 +194,6 @@ export default class CreateProfileForm extends React.PureComponent {
             </a>
           </div>
         </form>
-
       </Modal>
     );
   }

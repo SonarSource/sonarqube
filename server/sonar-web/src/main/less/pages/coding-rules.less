@@ -25,7 +25,6 @@
 @facetsHeight: 36px;
 
 .coding-rules-page {
-
   .navigator-facets {
     min-height: 3 * @facetsHeight;
   }
@@ -52,7 +51,6 @@
   .navigator-results-list .line-small {
     color: @secondFontColor;
   }
-
 }
 
 .navigator-filter-query {
@@ -67,7 +65,6 @@
     vertical-align: -webkit-baseline-middle;
   }
 }
-
 
 /*
  * Detail
@@ -98,7 +95,9 @@
   border: 1px solid @contextBorder;
   background-color: @contextBackground;
 
-  .coding-rules-detail-quality-profile { margin-left: 0; }
+  .coding-rules-detail-quality-profile {
+    margin-left: 0;
+  }
   .coding-rules-detail-quality-profile-name,
   .coding-rules-detail-quality-profile-severity,
   .coding-rules-detail-quality-profile-parameters,
@@ -123,7 +122,9 @@
   padding-top: 0;
   padding-right: @navigatorPadding;
 
-  .key, .value, .sep {
+  .key,
+  .value,
+  .sep {
     display: inline;
     vertical-align: top;
   }
@@ -139,10 +140,11 @@
     font-family: @monoFontFamily;
   }
 }
-.coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter { margin-top: 0; }
+.coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter {
+  margin-top: 0;
+}
 
 .coding-rules-detail-context-actions {
-
   padding: @navigatorPadding / 2;
   background-color: @contextBackground;
   border: 1px solid @contextBorder;
@@ -193,7 +195,9 @@
   height: 22px;
   line-height: 18px;
 
-  .select2-search-field { line-height: 1; }
+  .select2-search-field {
+    line-height: 1;
+  }
 }
 
 .coding-rules-subcharacteristic {
@@ -202,7 +206,7 @@
 
 .coding-rules-debt-popup {
   h3 {
-    display: inline
+    display: inline;
   }
 }
 
@@ -214,7 +218,9 @@
   cursor: pointer;
 
   &:hover {
-    span { text-decoration: underline; }
+    span {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -244,7 +250,6 @@
 }
 
 .coding-rules-detail-parameter {
-
 }
 
 .coding-rules-detail-parameter-name {
@@ -275,10 +280,8 @@
   font-size: @smallFontSize;
 }
 
-
 // Quality Profiles
 .coding-rules-detail-quality-profiles-section {
-
 }
 
 .coding-rules-detail-quality-profiles-header {
@@ -380,7 +383,9 @@
   .link-no-underline;
   transition: all 0.2s ease;
 
-  &:hover { background-color: @barBackgroundColor; }
+  &:hover {
+    background-color: @barBackgroundColor;
+  }
 
   strong {
     font-weight: bold;
@@ -397,7 +402,8 @@ textarea.coding-rules-markdown-description {
 }
 
 .coding-rules-modal .property {
-  input, textarea {
+  input,
+  textarea {
     width: 100%;
   }
 }
@@ -414,11 +420,12 @@ textarea.coding-rules-markdown-description {
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  .icon-tags:before { font-size: 12px; }
+  .icon-tags:before {
+    font-size: 12px;
+  }
 }
 
 .coding-rules-most-violated-projects {
-
   td {
     border-top-color: transparent;
   }

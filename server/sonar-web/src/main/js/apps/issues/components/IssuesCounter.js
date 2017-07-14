@@ -27,15 +27,16 @@ type Props = {
   total: number
 };
 
-const IssuesCounter = (props: Props) => (
+const IssuesCounter = (props: Props) =>
   <span>
     <strong>
-      {props.current != null && <span>{formatMeasure(props.current + 1, 'INT')} / </span>}
+      {props.current != null &&
+        <span>
+          {formatMeasure(props.current + 1, 'INT')} /{' '}
+        </span>}
       {formatMeasure(props.total, 'INT')}
-    </strong>
-    {' '}
+    </strong>{' '}
     {translate('issues.issues')}
-  </span>
-);
+  </span>;
 
 export default IssuesCounter;

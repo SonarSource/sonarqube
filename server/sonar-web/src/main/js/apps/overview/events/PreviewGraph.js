@@ -129,7 +129,7 @@ export default class PreviewGraph extends React.PureComponent {
         tabIndex={0}
         role="link">
         <AutoSizer disableHeight={true}>
-          {({ width }) => (
+          {({ width }) =>
             <div>
               <AdvancedTimeline
                 endDate={null}
@@ -158,8 +158,7 @@ export default class PreviewGraph extends React.PureComponent {
                   tooltipIdx={tooltipIdx}
                   tooltipPos={tooltipXPos}
                 />}
-            </div>
-          )}
+            </div>}
         </AutoSizer>
       </div>
     );

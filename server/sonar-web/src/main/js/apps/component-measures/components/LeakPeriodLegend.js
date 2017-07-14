@@ -37,5 +37,9 @@ export default function LeakPeriodLegend({ period }) {
   const date = getPeriodDate(period);
   const fromNow = moment(date).fromNow();
   const tooltip = fromNow + ', ' + moment(date).format('LL');
-  return <Tooltip placement="bottom" overlay={tooltip}>{label}</Tooltip>;
+  return (
+    <Tooltip placement="bottom" overlay={tooltip}>
+      {label}
+    </Tooltip>
+  );
 }

@@ -56,7 +56,9 @@ export default class IssueChangelog extends React.PureComponent {
           className="button-link issue-action issue-action-with-options js-issue-show-changelog"
           title={momentCreationDate.format('LLL')}
           onClick={this.handleClick}>
-          <span className="issue-meta-label">{momentCreationDate.fromNow()}</span>
+          <span className="issue-meta-label">
+            {momentCreationDate.fromNow()}
+          </span>
           <i className="icon-dropdown little-spacer-left" />
         </button>
       </BubblePopupHelper>

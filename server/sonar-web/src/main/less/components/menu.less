@@ -60,7 +60,8 @@
   }
 
   > li > a {
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       text-decoration: none;
       color: @baseFontColor;
       background-color: @barBackgroundColor;
@@ -69,7 +70,9 @@
 
   > .active > a,
   > li > .active {
-    &, &:hover, &:focus {
+    &,
+    &:hover,
+    &:focus {
       color: @baseFontColor;
       text-decoration: none;
       outline: 0;
@@ -96,9 +99,13 @@
   position: relative;
   padding: 4px 16px 0;
 
-  .search-box-input { font-size: @smallFontSize; }
+  .search-box-input {
+    font-size: @smallFontSize;
+  }
 
-  .search-box-submit { vertical-align: baseline; }
+  .search-box-submit {
+    vertical-align: baseline;
+  }
 }
 
 .menu-search-full-width {
@@ -113,14 +120,17 @@
 
 .menu-search ~ .menu {
   > li > a {
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       background-color: transparent;
     }
   }
 
   > .active > a,
   > li > .active {
-    &, &:hover, &:focus {
+    &,
+    &:hover,
+    &:focus {
       background-color: @barBackgroundColor;
     }
   }

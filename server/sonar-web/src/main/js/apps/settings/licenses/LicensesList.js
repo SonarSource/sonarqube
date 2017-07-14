@@ -39,18 +39,28 @@ export default class LicensesList extends React.PureComponent {
         <thead>
           <tr>
             <th width={40}>&nbsp;</th>
-            <th>{translate('licenses.list.product')}</th>
-            <th width={150}>{translate('licenses.list.organization')}</th>
-            <th width={150}>{translate('licenses.list.expiration')}</th>
-            <th width={150}>{translate('licenses.list.type')}</th>
-            <th width={150}>{translate('licenses.list.server')}</th>
+            <th>
+              {translate('licenses.list.product')}
+            </th>
+            <th width={150}>
+              {translate('licenses.list.organization')}
+            </th>
+            <th width={150}>
+              {translate('licenses.list.expiration')}
+            </th>
+            <th width={150}>
+              {translate('licenses.list.type')}
+            </th>
+            <th width={150}>
+              {translate('licenses.list.server')}
+            </th>
             <th width={80}>&nbsp;</th>
           </tr>
         </thead>
         <tbody>
-          {this.props.licenses.map(licenseKey => (
+          {this.props.licenses.map(licenseKey =>
             <LicenseRowContainer key={licenseKey} licenseKey={licenseKey} />
-          ))}
+          )}
         </tbody>
       </table>
     );

@@ -38,8 +38,12 @@ export default function JavaMaven(props: Props) {
 
   return (
     <div>
-      <h4 className="spacer-bottom">{translate('onboarding.analysis.java.maven.header')}</h4>
-      <p className="spacer-bottom markdown">{translate('onboarding.analysis.java.maven.text')}</p>
+      <h4 className="spacer-bottom">
+        {translate('onboarding.analysis.java.maven.header')}
+      </h4>
+      <p className="spacer-bottom markdown">
+        {translate('onboarding.analysis.java.maven.text')}
+      </p>
       <Command command={command} />
       <p
         className="big-spacer-top markdown"

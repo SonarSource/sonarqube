@@ -83,7 +83,9 @@ export default class ProjectsSortingSelect extends React.PureComponent {
 
     return (
       <div className={this.props.className}>
-        <label>{translate('projects.sort_by')}:</label>
+        <label>
+          {translate('projects.sort_by')}:
+        </label>
         <Select
           className="little-spacer-left input-medium"
           clearable={false}

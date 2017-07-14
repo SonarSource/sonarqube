@@ -46,12 +46,12 @@ export default class SetTypePopup extends React.PureComponent {
           items={TYPES}
           currentItem={this.props.issue.type}
           onSelect={this.props.onSelect}>
-          {TYPES.map(type => (
+          {TYPES.map(type =>
             <SelectListItem key={type} item={type}>
               <IssueTypeIcon className="little-spacer-right" query={type} />
               {translate('issue.type', type)}
             </SelectListItem>
-          ))}
+          )}
         </SelectList>
       </BubblePopup>
     );

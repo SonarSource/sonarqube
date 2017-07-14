@@ -68,7 +68,7 @@ export default class GlobalHelp extends React.PureComponent {
     }
   };
 
-  renderMenuItem = (section: string) => (
+  renderMenuItem = (section: string) =>
     <li key={section}>
       <a
         className={classNames({ active: section === this.state.section })}
@@ -77,16 +77,14 @@ export default class GlobalHelp extends React.PureComponent {
         onClick={this.handleSectionClick}>
         {translate('help.section', section)}
       </a>
-    </li>
-  );
+    </li>;
 
-  renderMenu = () => (
+  renderMenu = () =>
     <ul className="side-tabs-menu">
       {(this.props.currentUser.isLoggedIn
         ? ['shortcuts', 'tutorials', 'links']
         : ['shortcuts', 'links']).map(this.renderMenuItem)}
-    </ul>
-  );
+    </ul>;
 
   render() {
     return (
@@ -96,9 +94,10 @@ export default class GlobalHelp extends React.PureComponent {
         className="modal modal-medium"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <div className="modal-head">
-          <h2>{translate('help')}</h2>
+          <h2>
+            {translate('help')}
+          </h2>
         </div>
 
         <div className="side-tabs-layout">
@@ -115,7 +114,6 @@ export default class GlobalHelp extends React.PureComponent {
             {translate('close')}
           </a>
         </div>
-
       </Modal>
     );
   }

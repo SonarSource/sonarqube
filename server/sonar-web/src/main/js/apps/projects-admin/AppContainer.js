@@ -66,8 +66,8 @@ class AppContainer extends React.PureComponent {
 
 const mapStateToProps = (state, ownProps) => ({
   appState: getAppState(state),
-  organization: ownProps.organization ||
-    getOrganizationByKey(state, getAppState(state).defaultOrganization)
+  organization:
+    ownProps.organization || getOrganizationByKey(state, getAppState(state).defaultOrganization)
 });
 
 const onVisibilityChange = (organization, visibility) => dispatch => {

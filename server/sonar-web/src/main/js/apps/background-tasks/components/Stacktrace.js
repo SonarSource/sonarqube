@@ -74,7 +74,6 @@ export default class Stacktrace extends React.PureComponent {
         className="modal modal-large"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <div className="modal-head">
           <h2>
             {translate('background_tasks.error_stacktrace')}
@@ -90,16 +89,22 @@ export default class Stacktrace extends React.PureComponent {
           {loading
             ? <i className="spinner" />
             : stacktrace
-                ? <div>
-                    <h4 className="spacer-bottom">
-                      {translate('background_tasks.error_stacktrace')}
-                    </h4>
-                    <pre className="js-task-stacktrace">{stacktrace}</pre>
-                  </div>
-                : <div>
-                    <h4 className="spacer-bottom">{translate('background_tasks.error_message')}</h4>
-                    <pre className="js-task-error-message">{task.errorMessage}</pre>
-                  </div>}
+              ? <div>
+                  <h4 className="spacer-bottom">
+                    {translate('background_tasks.error_stacktrace')}
+                  </h4>
+                  <pre className="js-task-stacktrace">
+                    {stacktrace}
+                  </pre>
+                </div>
+              : <div>
+                  <h4 className="spacer-bottom">
+                    {translate('background_tasks.error_message')}
+                  </h4>
+                  <pre className="js-task-error-message">
+                    {task.errorMessage}
+                  </pre>
+                </div>}
         </div>
 
         <div className="modal-foot">
@@ -107,7 +112,6 @@ export default class Stacktrace extends React.PureComponent {
             {translate('close')}
           </a>
         </div>
-
       </Modal>
     );
   }

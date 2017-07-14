@@ -57,7 +57,9 @@ export default class DuplicationsFilter extends React.PureComponent {
         <span className="spacer-left">
           {option < 6
             ? getDuplicationsRatingLabel(option)
-            : <span className="big-spacer-left">{translate('no_data')}</span>}
+            : <span className="big-spacer-left">
+                {translate('no_data')}
+              </span>}
         </span>
       </span>
     );

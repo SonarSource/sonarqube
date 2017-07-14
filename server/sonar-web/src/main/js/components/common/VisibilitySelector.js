@@ -57,7 +57,9 @@ export default class VisibilitySelector extends React.PureComponent {
               'is-checked': this.props.visibility === 'public'
             })}
           />
-          <span className="spacer-left">{translate('visibility.public')}</span>
+          <span className="spacer-left">
+            {translate('visibility.public')}
+          </span>
         </a>
 
         {this.props.canTurnToPrivate
@@ -71,7 +73,9 @@ export default class VisibilitySelector extends React.PureComponent {
                   'is-checked': this.props.visibility === 'private'
                 })}
               />
-              <span className="spacer-left">{translate('visibility.private')}</span>
+              <span className="spacer-left">
+                {translate('visibility.private')}
+              </span>
             </a>
           : <span
               className="huge-spacer-left text-muted cursor-not-allowed"
@@ -81,7 +85,9 @@ export default class VisibilitySelector extends React.PureComponent {
                   'is-checked': this.props.visibility === 'private'
                 })}
               />
-              <span className="spacer-left">{translate('visibility.private')}</span>
+              <span className="spacer-left">
+                {translate('visibility.private')}
+              </span>
             </span>}
       </div>
     );

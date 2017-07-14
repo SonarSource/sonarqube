@@ -35,9 +35,15 @@ export default class MarkdownTips extends React.PureComponent {
           {translate('markdown.helplink')}
         </a>
         {':'}
-        <span className="spacer-left">*{translate('bold')}*</span>
-        <span className="spacer-left">``{translate('code')}``</span>
-        <span className="spacer-left">* {translate('bulleted_point')}</span>
+        <span className="spacer-left">
+          *{translate('bold')}*
+        </span>
+        <span className="spacer-left">
+          ``{translate('code')}``
+        </span>
+        <span className="spacer-left">
+          * {translate('bulleted_point')}
+        </span>
       </div>
     );
   }

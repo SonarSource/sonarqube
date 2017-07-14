@@ -2,7 +2,8 @@
   line-height: 24px;
 }
 
-.concise-issues-list-header, .concise-issues-list-header-inner {
+.concise-issues-list-header,
+.concise-issues-list-header-inner {
 }
 
 .concise-issues-list-header {
@@ -114,7 +115,8 @@
   text-align: right;
 }
 
-.issues .search-navigator-facet-header, .issues .search-navigator-facet-list {
+.issues .search-navigator-facet-header,
+.issues .search-navigator-facet-list {
   padding-left: 0;
   padding-right: 0;
 }

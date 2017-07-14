@@ -38,7 +38,7 @@ export default class UserHolder extends React.PureComponent {
 
   render() {
     const { selectedPermission } = this.props;
-    const permissionCells = this.props.permissionsOrder.map(p => (
+    const permissionCells = this.props.permissionsOrder.map(p =>
       <td
         key={p.key}
         className="text-center text-middle"
@@ -49,7 +49,7 @@ export default class UserHolder extends React.PureComponent {
             : <i className="icon-checkbox" />}
         </button>
       </td>
-    ));
+    );
 
     const { user } = this.props;
 
@@ -67,10 +67,18 @@ export default class UserHolder extends React.PureComponent {
             />}
           <div className="display-inline-block text-middle">
             <div>
-              <strong>{user.name}</strong>
-              {!isCreator && <span className="note spacer-left">{user.login}</span>}
+              <strong>
+                {user.name}
+              </strong>
+              {!isCreator &&
+                <span className="note spacer-left">
+                  {user.login}
+                </span>}
             </div>
-            {!isCreator && <div className="little-spacer-top">{user.email}</div>}
+            {!isCreator &&
+              <div className="little-spacer-top">
+                {user.email}
+              </div>}
             {isCreator &&
               <div className="little-spacer-top" style={{ whiteSpace: 'normal' }}>
                 {translate('permission_templates.project_creators.explanation')}

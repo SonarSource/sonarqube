@@ -27,7 +27,11 @@ const TypesFilter = ({
   value,
   onChange,
   types
-}: { value: string, onChange: Function, types: string[] }) => {
+}: {
+  value: string,
+  onChange: Function,
+  types: string[]
+}) => {
   const options = types.map(t => {
     return {
       value: t,

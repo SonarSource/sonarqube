@@ -114,7 +114,6 @@ class CodeSmells extends React.PureComponent {
     return (
       <div className="overview-domain-nutshell">
         <div className="overview-domain-measures">
-
           <div className="overview-domain-measure">
             <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
               <div className="overview-domain-measure-value">

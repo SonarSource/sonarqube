@@ -54,7 +54,8 @@ export default Marionette.ItemView.extend({
         return {
           ...project,
           name: projectBase != null ? projectBase.longName : '',
-          issuesUrl: projectBase != null &&
+          issuesUrl:
+            projectBase != null &&
             getComponentIssuesUrlAsString(projectBase.key, {
               resolved: 'false',
               rules: this.model.id

@@ -117,9 +117,10 @@ const setProjectGateAction = (projectKey, gateId) => ({
 });
 
 export const setProjectGate = (projectKey, oldId, newId) => dispatch => {
-  const request = newId != null
-    ? associateGateWithProject(newId, projectKey)
-    : dissociateGateWithProject(oldId, projectKey);
+  const request =
+    newId != null
+      ? associateGateWithProject(newId, projectKey)
+      : dissociateGateWithProject(oldId, projectKey);
 
   request.then(() => {
     dispatch(setProjectGateAction(projectKey, newId));

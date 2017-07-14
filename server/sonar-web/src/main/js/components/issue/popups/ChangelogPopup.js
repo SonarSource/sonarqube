@@ -87,7 +87,7 @@ export default class ChangelogPopup extends React.PureComponent {
                 </td>
               </tr>
 
-              {this.state.changelogs.map((item, idx) => (
+              {this.state.changelogs.map((item, idx) =>
                 <tr key={idx}>
                   <td className="thin text-left text-top nowrap">
                     {moment(item.creationDate).format('LLL')}
@@ -106,7 +106,7 @@ export default class ChangelogPopup extends React.PureComponent {
                     {item.diffs.map(diff => <IssueChangelogDiff key={diff.key} diff={diff} />)}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

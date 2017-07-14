@@ -134,7 +134,7 @@ export default class ProjectFacet extends React.PureComponent {
 
     return (
       <FacetItemsList>
-        {projects.map(project => (
+        {projects.map(project =>
           <FacetItem
             active={this.props.projects.includes(project)}
             facetMode={this.props.facetMode}
@@ -144,7 +144,7 @@ export default class ProjectFacet extends React.PureComponent {
             stat={this.getStat(project)}
             value={project}
           />
-        ))}
+        )}
       </FacetItemsList>
     );
   }

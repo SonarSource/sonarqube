@@ -25,7 +25,7 @@ import { RATING_COLORS } from '../../../helpers/constants';
 export default function RatingsLegend() {
   return (
     <div className="projects-visualizations-ratings">
-      {[1, 2, 3, 4, 5].map(rating => (
+      {[1, 2, 3, 4, 5].map(rating =>
         <div key={rating}>
           <span
             className="projects-visualizations-ratings-rect"
@@ -37,7 +37,7 @@ export default function RatingsLegend() {
           </span>
           {formatMeasure(rating, 'RATING')}
         </div>
-      ))}
+      )}
     </div>
   );
 }

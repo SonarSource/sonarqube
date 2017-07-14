@@ -54,7 +54,9 @@ export class TreemapBreadcrumbs extends React.PureComponent {
       <span key={b.key} className="treemap-breadcrumbs-item" title={b.name}>
         <i className="icon-chevron-right" />
         <QualifierIcon qualifier={b.qualifier} />
-        <a onClick={this.handleItemClick.bind(this, b)} href="#">{b.name}</a>
+        <a onClick={this.handleItemClick.bind(this, b)} href="#">
+          {b.name}
+        </a>
       </span>
     );
   };

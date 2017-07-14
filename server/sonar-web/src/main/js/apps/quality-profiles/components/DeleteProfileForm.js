@@ -75,10 +75,11 @@ export default class DeleteProfileForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
-
         <form id="delete-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
-            <h2>{header}</h2>
+            <h2>
+              {header}
+            </h2>
           </div>
           <div className="modal-body">
             <div className="js-modal-messages" />
@@ -113,7 +114,6 @@ export default class DeleteProfileForm extends React.PureComponent {
             </a>
           </div>
         </form>
-
       </Modal>
     );
   }

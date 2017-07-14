@@ -26,24 +26,37 @@ export default function GlobalFooterForSonarQubeDotCom() {
   return (
     <div id="footer" className="page-footer page-container">
       <div>
-        © 2008-2017, SonarCloud.io by
-        {' '}
-        <a href="http://www.sonarsource.com" title="SonarSource SA">SonarSource SA</a>
+        © 2008-2017, SonarCloud.io by{' '}
+        <a href="http://www.sonarsource.com" title="SonarSource SA">
+          SonarSource SA
+        </a>
         . All rights reserved.
       </div>
 
       <div>
-        <a href="https://about.sonarcloud.io/news/">{translate('footer.news')}</a>
+        <a href="https://about.sonarcloud.io/news/">
+          {translate('footer.news')}
+        </a>
         {' - '}
-        <a href="https://about.sonarcloud.io/terms.pdf">{translate('footer.terms')}</a>
+        <a href="https://about.sonarcloud.io/terms.pdf">
+          {translate('footer.terms')}
+        </a>
         {' - '}
-        <a href="https://twitter.com/sonarqube">{translate('footer.twitter')}</a>
+        <a href="https://twitter.com/sonarqube">
+          {translate('footer.twitter')}
+        </a>
         {' - '}
-        <a href="https://about.sonarcloud.io/get-started/">{translate('footer.get_started')}</a>
+        <a href="https://about.sonarcloud.io/get-started/">
+          {translate('footer.get_started')}
+        </a>
         {' - '}
-        <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
+        <a href="https://about.sonarcloud.io/contact/">
+          {translate('footer.help')}
+        </a>
         {' - '}
-        <Link to="/about">{translate('footer.about')}</Link>
+        <Link to="/about">
+          {translate('footer.about')}
+        </Link>
       </div>
     </div>
   );

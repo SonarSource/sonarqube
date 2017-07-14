@@ -62,7 +62,9 @@ export default class ProjectActivityEventSelectOption extends React.PureComponen
         onMouseMove={this.handleMouseMove}
         title={option.label}>
         <ProjectEventIcon className={'project-activity-event-icon ' + option.value} />
-        <span className="little-spacer-left">{this.props.children}</span>
+        <span className="little-spacer-left">
+          {this.props.children}
+        </span>
       </div>
     );
   }

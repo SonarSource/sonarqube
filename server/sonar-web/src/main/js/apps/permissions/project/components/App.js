@@ -103,23 +103,25 @@ export default class App extends React.PureComponent {
       const { component } = this.props;
       const { filter, query, selectedPermission } = this.state;
 
-      const getUsers = filter !== 'groups'
-        ? api.getPermissionsUsersForComponent(
-            component.key,
-            query,
-            selectedPermission,
-            component.organization
-          )
-        : Promise.resolve([]);
+      const getUsers =
+        filter !== 'groups'
+          ? api.getPermissionsUsersForComponent(
+              component.key,
+              query,
+              selectedPermission,
+              component.organization
+            )
+          : Promise.resolve([]);
 
-      const getGroups = filter !== 'users'
-        ? api.getPermissionsGroupsForComponent(
-            component.key,
-            query,
-            selectedPermission,
-            component.organization
-          )
-        : Promise.resolve([]);
+      const getGroups =
+        filter !== 'users'
+          ? api.getPermissionsGroupsForComponent(
+              component.key,
+              query,
+              selectedPermission,
+              component.organization
+            )
+          : Promise.resolve([]);
 
       Promise.all([getUsers, getGroups]).then(
         responses => {
@@ -157,9 +159,8 @@ export default class App extends React.PureComponent {
     if (this.mounted) {
       this.setState(
         (state: State) => ({
-          selectedPermission: state.selectedPermission === selectedPermission
-            ? undefined
-            : selectedPermission
+          selectedPermission:
+            state.selectedPermission === selectedPermission ? undefined : selectedPermission
         }),
         this.loadHolders
       );
@@ -169,33 +170,33 @@ export default class App extends React.PureComponent {
   addPermissionToGroup = (group: string, permission: string) =>
     this.state.groups.map(
       candidate =>
-        (candidate.name === group
+        candidate.name === group
           ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate)
+          : candidate
     );
 
   addPermissionToUser = (user: string, permission: string) =>
     this.state.users.map(
       candidate =>
-        (candidate.login === user
+        candidate.login === user
           ? { ...candidate, permissions: [...candidate.permissions, permission] }
-          : candidate)
+          : candidate
     );
 
   removePermissionFromGroup = (group: string, permission: string) =>
     this.state.groups.map(
       candidate =>
-        (candidate.name === group
+        candidate.name === group
           ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate)
+          : candidate
     );
 
   removePermissionFromUser = (user: string, permission: string) =>
     this.state.users.map(
       candidate =>
-        (candidate.login === user
+        candidate.login === user
           ? { ...candidate, permissions: without(candidate.permissions, permission) }
-          : candidate)
+          : candidate
     );
 
   grantPermissionToGroup = (group: string, permission: string) => {

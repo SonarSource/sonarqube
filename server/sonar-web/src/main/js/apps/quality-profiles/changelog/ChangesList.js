@@ -34,13 +34,13 @@ export default class ChangesList extends React.PureComponent {
 
     return (
       <ul>
-        {Object.keys(changes).map(key => (
+        {Object.keys(changes).map(key =>
           <li key={key}>
             {key === 'severity'
               ? <SeverityChange severity={changes[key]} />
               : <ParameterChange name={key} value={changes[key]} />}
           </li>
-        ))}
+        )}
       </ul>
     );
   }

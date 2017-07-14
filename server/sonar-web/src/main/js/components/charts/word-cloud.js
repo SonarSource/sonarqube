@@ -71,7 +71,7 @@ export const WordCloud = React.createClass({
     const sizeScale = scaleLinear()
       .domain([0, max(this.props.items, d => d.size)])
       .range(this.props.sizeRange);
-    const words = sortedItems.map((item, index) => (
+    const words = sortedItems.map((item, index) =>
       <Word
         key={index}
         text={item.text}
@@ -79,7 +79,11 @@ export const WordCloud = React.createClass({
         link={item.link}
         tooltip={item.tooltip}
       />
-    ));
-    return <div className="word-cloud">{words}</div>;
+    );
+    return (
+      <div className="word-cloud">
+        {words}
+      </div>
+    );
   }
 });

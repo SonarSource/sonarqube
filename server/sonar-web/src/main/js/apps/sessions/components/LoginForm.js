@@ -64,12 +64,14 @@ export default class LoginForm extends React.PureComponent {
   render() {
     return (
       <div id="login_form">
-        <h1 className="maintenance-title text-center">{translate('login.login_to_sonarqube')}</h1>
+        <h1 className="maintenance-title text-center">
+          {translate('login.login_to_sonarqube')}
+        </h1>
 
         {this.props.identityProviders.length > 0 &&
           <section className="oauth-providers">
             <ul>
-              {this.props.identityProviders.map(identityProvider => (
+              {this.props.identityProviders.map(identityProvider =>
                 <li key={identityProvider.key}>
                   <a
                     href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
@@ -81,10 +83,12 @@ export default class LoginForm extends React.PureComponent {
                       height="20"
                       src={window.baseUrl + identityProvider.iconPath}
                     />
-                    <span>Log in with {identityProvider.name}</span>
+                    <span>
+                      Log in with {identityProvider.name}
+                    </span>
                   </a>
                 </li>
-              ))}
+              )}
             </ul>
           </section>}
 
@@ -101,7 +105,9 @@ export default class LoginForm extends React.PureComponent {
               <GlobalMessagesContainer />
 
               <div className="big-spacer-bottom">
-                <label htmlFor="login" className="login-label">{translate('login')}</label>
+                <label htmlFor="login" className="login-label">
+                  {translate('login')}
+                </label>
                 <input
                   type="text"
                   id="login"
@@ -117,7 +123,9 @@ export default class LoginForm extends React.PureComponent {
               </div>
 
               <div className="big-spacer-bottom">
-                <label htmlFor="password" className="login-label">{translate('password')}</label>
+                <label htmlFor="password" className="login-label">
+                  {translate('password')}
+                </label>
                 <input
                   type="password"
                   id="password"
@@ -132,8 +140,12 @@ export default class LoginForm extends React.PureComponent {
 
               <div>
                 <div className="text-right overflow-hidden">
-                  <button name="commit" type="submit">{translate('sessions.log_in')}</button>
-                  <a className="spacer-left" href={window.baseUrl + '/'}>{translate('cancel')}</a>
+                  <button name="commit" type="submit">
+                    {translate('sessions.log_in')}
+                  </button>
+                  <a className="spacer-left" href={window.baseUrl + '/'}>
+                    {translate('cancel')}
+                  </a>
                 </div>
               </div>
             </form>}

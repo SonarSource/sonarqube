@@ -50,7 +50,9 @@ export default function OrganizationCard(props: Props) {
         </OrganizationLink>
       </h3>
 
-      <div className="account-project-key">{organization.key}</div>
+      <div className="account-project-key">
+        {organization.key}
+      </div>
 
       {!!organization.description &&
         <div className="account-project-description">

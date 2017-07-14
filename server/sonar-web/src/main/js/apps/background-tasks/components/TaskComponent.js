@@ -36,7 +36,9 @@ export default function TaskComponent(props: Props) {
   if (!task.componentKey) {
     return (
       <td>
-        <span className="note">{task.id}</span>
+        <span className="note">
+          {task.id}
+        </span>
         {types.length > 1 && <TaskType task={task} />}
       </td>
     );

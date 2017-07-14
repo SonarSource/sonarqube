@@ -34,8 +34,12 @@ export default class Table extends React.PureComponent {
     return (
       <thead>
         <tr>
-          <th className="thin nowrap">{translate('language')}</th>
-          <th className="thin nowrap">{translate('quality_profile')}</th>
+          <th className="thin nowrap">
+            {translate('language')}
+          </th>
+          <th className="thin nowrap">
+            {translate('quality_profile')}
+          </th>
           <th>&nbsp;</th>
         </tr>
       </thead>
@@ -47,19 +51,21 @@ export default class Table extends React.PureComponent {
     const orderedProfiles = orderBy(this.props.profiles, 'languageName');
 
     // set key to language to avoid destroying of component
-    const profileRows = orderedProfiles.map(profile => (
+    const profileRows = orderedProfiles.map(profile =>
       <ProfileRow
         key={profile.language}
         profile={profile}
         possibleProfiles={profilesByLanguage[profile.language]}
         onChangeProfile={this.props.onChangeProfile}
       />
-    ));
+    );
 
     return (
       <table className="data zebra">
         {this.renderHeader()}
-        <tbody>{profileRows}</tbody>
+        <tbody>
+          {profileRows}
+        </tbody>
       </table>
     );
   }

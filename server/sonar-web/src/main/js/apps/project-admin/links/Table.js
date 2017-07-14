@@ -52,14 +52,16 @@ export default class Table extends React.PureComponent {
   render() {
     const orderedLinks = orderLinks(this.props.links);
 
-    const linkRows = orderedLinks.map(link => (
+    const linkRows = orderedLinks.map(link =>
       <LinkRow key={link.id} link={link} onDelete={this.handleDeleteLink.bind(this, link)} />
-    ));
+    );
 
     return (
       <table id="project-links" className="data zebra">
         {this.renderHeader()}
-        <tbody>{linkRows}</tbody>
+        <tbody>
+          {linkRows}
+        </tbody>
       </table>
     );
   }

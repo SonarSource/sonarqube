@@ -65,7 +65,7 @@ export default class ProjectCard extends React.PureComponent {
         {links.length > 0 &&
           <div className="account-project-links">
             <ul className="list-inline">
-              {links.map(link => (
+              {links.map(link =>
                 <li key={link.type}>
                   <a
                     className="link-with-icon"
@@ -76,11 +76,13 @@ export default class ProjectCard extends React.PureComponent {
                     <i className={`icon-color-link icon-${link.type}`} />
                   </a>
                 </li>
-              ))}
+              )}
             </ul>
           </div>}
 
-        <div className="account-project-key">{project.key}</div>
+        <div className="account-project-key">
+          {project.key}
+        </div>
 
         {!!project.description &&
           <div className="account-project-description">

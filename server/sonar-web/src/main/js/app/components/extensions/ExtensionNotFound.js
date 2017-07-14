@@ -44,7 +44,9 @@ export default class ExtensionNotFound extends React.PureComponent {
           <p className="spacer-bottom">
             You may have mistyped the address or the page may have moved.
           </p>
-          <p><Link to="/">Go back to the homepage</Link></p>
+          <p>
+            <Link to="/">Go back to the homepage</Link>
+          </p>
         </div>
       </div>
     );

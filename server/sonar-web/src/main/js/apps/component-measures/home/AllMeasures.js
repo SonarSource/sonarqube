@@ -27,14 +27,14 @@ export default function AllMeasures(props) {
 
   return (
     <ul className="measures-domains">
-      {domains.map(domain => (
+      {domains.map(domain =>
         <AllMeasuresDomain
           key={domain.name}
           domain={domain}
           component={component}
           leakPeriodLabel={leakPeriodLabel}
         />
-      ))}
+      )}
     </ul>
   );
 }

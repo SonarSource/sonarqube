@@ -21,15 +21,17 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-export default function OrganizationLink(
-  props: {
-    children?: React.Element<*>,
-    organization: {
-      key: string
-    }
+export default function OrganizationLink(props: {
+  children?: React.Element<*>,
+  organization: {
+    key: string
   }
-) {
+}) {
   const { children, organization, ...other } = props;
 
-  return <Link to={`/organizations/${organization.key}`} {...other}>{children}</Link>;
+  return (
+    <Link to={`/organizations/${organization.key}`} {...other}>
+      {children}
+    </Link>
+  );
 }

@@ -147,7 +147,7 @@ export default class GraphsHistory extends React.PureComponent {
           : <GraphsLegendStatic series={series} />}
         <div className="project-activity-graph">
           <AutoSizer>
-            {({ height, width }) => (
+            {({ height, width }) =>
               <div>
                 <AdvancedTimeline
                   endDate={this.props.graphEndDate}
@@ -179,8 +179,7 @@ export default class GraphsHistory extends React.PureComponent {
                     tooltipIdx={tooltipIdx}
                     tooltipPos={tooltipXPos}
                   />}
-              </div>
-            )}
+              </div>}
           </AutoSizer>
         </div>
       </div>

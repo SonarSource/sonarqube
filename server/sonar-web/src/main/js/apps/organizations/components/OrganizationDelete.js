@@ -68,9 +68,10 @@ class OrganizationDelete extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.handleCloseModal}>
-
         <header className="modal-head">
-          <h2>{translate('organization.delete')}</h2>
+          <h2>
+            {translate('organization.delete')}
+          </h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>
@@ -82,14 +83,15 @@ class OrganizationDelete extends React.PureComponent {
             {this.state.loading
               ? <i className="spinner" />
               : <div>
-                  <button type="submit" className="button-red">{translate('delete')}</button>
+                  <button type="submit" className="button-red">
+                    {translate('delete')}
+                  </button>
                   <button type="reset" className="button-link" onClick={this.handleCloseModal}>
                     {translate('cancel')}
                   </button>
                 </div>}
           </footer>
         </form>
-
       </Modal>
     );
   }
@@ -101,8 +103,12 @@ class OrganizationDelete extends React.PureComponent {
         <Helmet title={title} />
 
         <header className="page-header">
-          <h1 className="page-title">{title}</h1>
-          <div className="page-description">{translate('organization.delete.description')}</div>
+          <h1 className="page-title">
+            {title}
+          </h1>
+          <div className="page-description">
+            {translate('organization.delete.description')}
+          </div>
         </header>
 
         <div>

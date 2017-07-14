@@ -22,9 +22,11 @@ import React from 'react';
 import StatusIcon from './StatusIcon';
 import { translate } from '../../helpers/l10n';
 
-export default function StatusHelper(
-  props: { resolution?: string, status: string, className?: string }
-) {
+export default function StatusHelper(props: {
+  resolution?: string,
+  status: string,
+  className?: string
+}) {
   const resolution =
     props.resolution != null && ` (${translate('issue.resolution', props.resolution)})`;
   return (

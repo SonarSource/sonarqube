@@ -58,16 +58,18 @@ export default class ProfileExporters extends React.PureComponent {
     return (
       <div className="quality-profile-box quality-profile-exporters">
         <header className="big-spacer-bottom">
-          <h2>{translate('quality_profiles.exporters')}</h2>
+          <h2>
+            {translate('quality_profiles.exporters')}
+          </h2>
         </header>
         <ul>
-          {exportersForLanguage.map(exporter => (
+          {exportersForLanguage.map(exporter =>
             <li key={exporter.key} data-key={exporter.key} className="spacer-top">
               <a href={this.getExportUrl(exporter)} target="_blank">
                 {exporter.name}
               </a>
             </li>
-          ))}
+          )}
         </ul>
       </div>
     );

@@ -85,7 +85,9 @@ export default class Form extends React.PureComponent {
             onRequestClose={this.closeModal}>
             <form onSubmit={this.handleSubmit}>
               <div className="modal-head">
-                <h2>{translate('qualifiers.delete.TRK')}</h2>
+                <h2>
+                  {translate('qualifiers.delete.TRK')}
+                </h2>
               </div>
               <div className="modal-body">
                 <div className="js-modal-messages" />

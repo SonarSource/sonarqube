@@ -96,14 +96,13 @@ export default class EvolutionRules extends React.PureComponent {
           </strong>
         </div>
         <ul>
-          {this.state.latestRules.map(rule => (
+          {this.state.latestRules.map(rule =>
             <li key={rule.key} className="spacer-top">
               <div className="text-ellipsis">
                 <Link
                   to={getRulesUrl({ rule_key: rule.key }, this.props.organization)}
                   className="link-no-underline">
-                  {' '}
-                  {rule.name}
+                  {' '}{rule.name}
                 </Link>
                 <div className="note">
                   {rule.activations
@@ -119,14 +118,12 @@ export default class EvolutionRules extends React.PureComponent {
                 </div>
               </div>
             </li>
-          ))}
+          )}
         </ul>
         {this.state.latestRulesTotal > RULES_LIMIT &&
           <div className="spacer-top">
             <Link to={newRulesUrl} className="small">
-              {translate('see_all')}
-              {' '}
-              {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT')}
+              {translate('see_all')} {formatMeasure(this.state.latestRulesTotal, 'SHORT_INT')}
             </Link>
           </div>}
       </div>

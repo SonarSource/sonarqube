@@ -48,9 +48,7 @@ export default class ProfileHeader extends React.PureComponent {
     const { profile } = this.props;
     let inner = (
       <span>
-        {translate('quality_profiles.updated_')}
-        {' '}
-        <ProfileDate date={profile.userUpdatedAt} />
+        {translate('quality_profiles.updated_')} <ProfileDate date={profile.userUpdatedAt} />
       </span>
     );
     if (isStagnant(profile)) {
@@ -71,9 +69,7 @@ export default class ProfileHeader extends React.PureComponent {
     const { profile } = this.props;
     let inner = (
       <span>
-        {translate('quality_profiles.used_')}
-        {' '}
-        <ProfileDate date={profile.lastUsed} />
+        {translate('quality_profiles.used_')} <ProfileDate date={profile.lastUsed} />
       </span>
     );
     if (!profile.lastUsed) {
@@ -114,7 +110,9 @@ export default class ProfileHeader extends React.PureComponent {
             language={profile.language}
             name={profile.name}
             organization={organization}>
-            <span>{profile.name}</span>
+            <span>
+              {profile.name}
+            </span>
           </ProfileLink>
           {profile.isBuiltIn && <BuiltInBadge className="spacer-left" tooltip={false} />}
         </h1>
@@ -133,9 +131,7 @@ export default class ProfileHeader extends React.PureComponent {
             <li>
               <div className="pull-left dropdown">
                 <button className="dropdown-toggle" data-toggle="dropdown">
-                  {translate('actions')}
-                  {' '}
-                  <i className="icon-dropdown" />
+                  {translate('actions')} <i className="icon-dropdown" />
                 </button>
                 <ProfileActions
                   canAdmin={this.props.canAdmin}

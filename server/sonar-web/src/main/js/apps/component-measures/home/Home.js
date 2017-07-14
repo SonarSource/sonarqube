@@ -55,7 +55,7 @@ export default class Home extends React.PureComponent {
                   {translate('all')}
                 </IndexLink>
               </li>
-              {domains.map(domain => (
+              {domains.map(domain =>
                 <li key={domain.name}>
                   <Link
                     to={{
@@ -66,7 +66,7 @@ export default class Home extends React.PureComponent {
                     {getLocalizedMetricDomain(domain.name)}
                   </Link>
                 </li>
-              ))}
+              )}
             </ul>
           </nav>
 

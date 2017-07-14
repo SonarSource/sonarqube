@@ -84,7 +84,9 @@ export default class IssueCommentLine extends React.PureComponent {
           className="issue-comment-text markdown"
           dangerouslySetInnerHTML={{ __html: comment.htmlText }}
         />
-        <div className="issue-comment-age">({moment(comment.createdAt).fromNow()})</div>
+        <div className="issue-comment-age">
+          ({moment(comment.createdAt).fromNow()})
+        </div>
         <div className="issue-comment-actions">
           {comment.updatable &&
             <BubblePopupHelper

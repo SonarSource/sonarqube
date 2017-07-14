@@ -44,16 +44,16 @@ export const queriesEqual = <T>(a: T, b: T): boolean => {
 
   return keysA.every(
     key =>
-      (Array.isArray(a[key]) && Array.isArray(b[key])
+      Array.isArray(a[key]) && Array.isArray(b[key])
         ? arraysEqual(a[key], b[key])
-        : a[key] === b[key])
+        : a[key] === b[key]
   );
 };
 
 export const cleanQuery = (query: { [string]: ?string }): RawQuery => omitBy(query, isNil);
 
 export const parseAsBoolean = (value: ?string, defaultValue: boolean = true): boolean =>
-  (value === 'false' ? false : value === 'true' ? true : defaultValue);
+  value === 'false' ? false : value === 'true' ? true : defaultValue;
 
 export const parseAsDate = (value: ?string): ?Date => {
   const date = moment(value);
@@ -63,12 +63,12 @@ export const parseAsDate = (value: ?string): ?Date => {
 };
 
 export const parseAsFacetMode = (facetMode: string) =>
-  (facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count');
+  facetMode === 'debt' || facetMode === 'effort' ? 'effort' : 'count';
 
 export const parseAsString = (value: ?string): string => value || '';
 
 export const parseAsArray = <T>(value: ?string, itemParser: string => T): Array<T> =>
-  (value ? value.split(',').map(itemParser) : []);
+  value ? value.split(',').map(itemParser) : [];
 
 export const serializeDate = (value: ?Date): ?string => {
   if (value != null && value.toISOString) {
@@ -79,4 +79,4 @@ export const serializeDate = (value: ?Date): ?string => {
 export const serializeString = (value: string): ?string => value || undefined;
 
 export const serializeStringArray = (value: ?Array<string>): ?string =>
-  (value && value.length ? value.join() : undefined);
+  value && value.length ? value.join() : undefined;

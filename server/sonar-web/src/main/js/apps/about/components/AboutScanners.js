@@ -50,11 +50,15 @@ const scanners = [
 export default function AboutScanners() {
   return (
     <div className="boxed-group">
-      <h2>{translate('about_page.scanners')}</h2>
+      <h2>
+        {translate('about_page.scanners')}
+      </h2>
       <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.scanners.text')}</p>
+        <p className="about-page-text">
+          {translate('about_page.scanners.text')}
+        </p>
         <div className="about-page-analyzers">
-          {scanners.map(scanner => (
+          {scanners.map(scanner =>
             <a key={scanner.key} className="about-page-analyzer-box" href={scanner.link}>
               <img
                 src={`${window.baseUrl}/images/scanner-logos/${scanner.key}.svg`}
@@ -62,7 +66,7 @@ export default function AboutScanners() {
                 alt={translate('about_page.scanners', scanner.key)}
               />
             </a>
-          ))}
+          )}
         </div>
       </div>
     </div>

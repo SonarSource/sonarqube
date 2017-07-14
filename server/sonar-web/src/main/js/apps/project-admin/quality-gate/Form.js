@@ -66,7 +66,9 @@ export default class Form extends React.PureComponent {
     if (gateOption.isDefault) {
       return (
         <span>
-          <strong>{translate('default')}</strong>
+          <strong>
+            {translate('default')}
+          </strong>
           {': '}
           {gateOption.label}
         </span>

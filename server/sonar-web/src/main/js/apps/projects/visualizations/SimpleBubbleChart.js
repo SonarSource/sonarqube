@@ -53,9 +53,10 @@ export default class SimpleBubbleChart extends React.PureComponent {
   }
 
   getTooltip(project: Project, x: ?number, y: ?number, size: ?number, color?: number) {
-    const fullProjectName = this.props.displayOrganizations && project.organization
-      ? `${project.organization.name} / <strong>${project.name}</strong>`
-      : `<strong>${project.name}</strong>`;
+    const fullProjectName =
+      this.props.displayOrganizations && project.organization
+        ? `${project.organization.name} / <strong>${project.name}</strong>`
+        : `<strong>${project.name}</strong>`;
 
     const inner = [
       `<div class="little-spacer-bottom">${fullProjectName}</div>`,
@@ -78,15 +79,14 @@ export default class SimpleBubbleChart extends React.PureComponent {
     const items = this.props.projects
       .filter(project => colorMetric == null || project.measures[colorMetric] !== null)
       .map(project => {
-        const x = project.measures[xMetric.key] != null
-          ? Number(project.measures[xMetric.key])
-          : null;
-        const y = project.measures[yMetric.key] != null
-          ? Number(project.measures[yMetric.key])
-          : null;
-        const size = project.measures[sizeMetric.key] != null
-          ? Number(project.measures[sizeMetric.key])
-          : null;
+        const x =
+          project.measures[xMetric.key] != null ? Number(project.measures[xMetric.key]) : null;
+        const y =
+          project.measures[yMetric.key] != null ? Number(project.measures[yMetric.key]) : null;
+        const size =
+          project.measures[sizeMetric.key] != null
+            ? Number(project.measures[sizeMetric.key])
+            : null;
         const color = colorMetric ? Number(project.measures[colorMetric]) : undefined;
         return {
           x: x || 0,

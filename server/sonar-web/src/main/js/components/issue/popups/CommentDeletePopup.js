@@ -31,8 +31,12 @@ export default function CommentDeletePopup(props: Props) {
   return (
     <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom-right">
       <div className="text-right">
-        <div className="spacer-bottom">{translate('issue.comment.delete_confirm_message')}</div>
-        <button className="button-red" onClick={props.onDelete}>{translate('delete')}</button>
+        <div className="spacer-bottom">
+          {translate('issue.comment.delete_confirm_message')}
+        </div>
+        <button className="button-red" onClick={props.onDelete}>
+          {translate('delete')}
+        </button>
       </div>
     </BubblePopup>
   );

@@ -234,13 +234,23 @@
 
 .source-line-partially-covered {
   background-color: @orange !important;
-  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .5) 4px, transparent 4px, transparent 8px, rgba(255, 255, 255, .5) 8px, rgba(255, 255, 255, .5) 12px, transparent 12px, transparent 16px, rgba(255, 255, 255, .5) 16px, rgba(255, 255, 255, .5) 20px) !important;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, .5) 4px,
+    transparent 4px,
+    transparent 8px,
+    rgba(255, 255, 255, .5) 8px,
+    rgba(255, 255, 255, .5) 12px,
+    transparent 12px,
+    transparent 16px,
+    rgba(255, 255, 255, .5) 16px,
+    rgba(255, 255, 255, .5) 20px
+  ) !important;
 }
 
 .source-line-duplicated {
   background-color: @duplicationColor !important;
 }
-
 
 // Header
 
@@ -421,7 +431,6 @@
   max-height: 36vh;
   overflow-y: scroll;
 }
-
 
 //.source-viewer-measures-section + .source-viewer-measures-section {
 //  border-left: 1px solid @barBorderColor;

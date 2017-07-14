@@ -48,8 +48,12 @@ export default function EmptyOverview({ component }: Props) {
       </div>
 
       <div className="big-spacer-top">
-        <h4>{translate('key')}</h4>
-        <code>{component.key}</code>
+        <h4>
+          {translate('key')}
+        </h4>
+        <code>
+          {component.key}
+        </code>
       </div>
     </div>
   );

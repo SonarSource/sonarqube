@@ -123,7 +123,9 @@ class CreateOrganizationForm extends React.PureComponent {
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate('my_account.create_organization')}</h2>
+          <h2>
+            {translate('my_account.create_organization')}
+          </h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>

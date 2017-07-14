@@ -55,9 +55,8 @@ export const selectLocation = (nextIndex: ?number) => (state: State) => {
 export const selectNextLocation = (state: State) => {
   const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
-    const locations = selectedFlowIndex != null
-      ? openIssue.flows[selectedFlowIndex]
-      : openIssue.secondaryLocations;
+    const locations =
+      selectedFlowIndex != null ? openIssue.flows[selectedFlowIndex] : openIssue.secondaryLocations;
     return {
       selectedLocationIndex: index != null && locations.length > index + 1 ? index + 1 : index
     };

@@ -48,8 +48,12 @@ export default class MembersListItem extends React.PureComponent {
           <Avatar hash={member.avatar} email={member.email} name={member.name} size={AVATAR_SIZE} />
         </td>
         <td className="nowrap text-middle">
-          <strong>{member.name}</strong>
-          <span className="note little-spacer-left">{member.login}</span>
+          <strong>
+            {member.name}
+          </strong>
+          <span className="note little-spacer-left">
+            {member.login}
+          </span>
         </td>
         {organization.canAdmin &&
           <td className="text-right text-middle">
@@ -64,9 +68,7 @@ export default class MembersListItem extends React.PureComponent {
               <button
                 className="dropdown-toggle little-spacer-right button-compact"
                 data-toggle="dropdown">
-                <i className="icon-settings" />
-                {' '}
-                <i className="icon-dropdown" />
+                <i className="icon-settings" /> <i className="icon-dropdown" />
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 <li>

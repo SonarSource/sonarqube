@@ -38,7 +38,7 @@ export class Bubble extends React.PureComponent {
   props: {
     color?: string,
     link?: string,
-    onClick: ?string => void,
+    onClick: (?string) => void,
     r: number,
     tooltip?: string,
     x: number,
@@ -74,10 +74,20 @@ export class Bubble extends React.PureComponent {
     );
 
     if (this.props.link && !this.props.onClick) {
-      circle = <Link to={this.props.link}>{circle}</Link>;
+      circle = (
+        <Link to={this.props.link}>
+          {circle}
+        </Link>
+      );
     }
 
-    return this.props.tooltip ? <TooltipsContainer><g>{circle}</g></TooltipsContainer> : circle;
+    return this.props.tooltip
+      ? <TooltipsContainer>
+          <g>
+            {circle}
+          </g>
+        </TooltipsContainer>
+      : circle;
   }
 }
 
@@ -101,7 +111,7 @@ export default class BubbleChart extends React.PureComponent {
     padding: [number, number, number, number],
     formatXTick: number => string,
     formatYTick: number => string,
-    onBubbleClick?: ?string => void,
+    onBubbleClick?: (?string) => void,
     xDomain?: [number, number],
     yDomain?: [number, number]
   |};
@@ -152,7 +162,11 @@ export default class BubbleChart extends React.PureComponent {
       return <line key={index} x1={x} x2={x} y1={y1} y2={y2} className="bubble-chart-grid" />;
     });
 
-    return <g ref="xGrid">{lines}</g>;
+    return (
+      <g ref="xGrid">
+        {lines}
+      </g>
+    );
   }
 
   renderYGrid(ticks: Array<number>, xScale: Scale, yScale: Scale) {
@@ -167,7 +181,11 @@ export default class BubbleChart extends React.PureComponent {
       return <line key={index} x1={x1} x2={x2} y1={y} y2={y} className="bubble-chart-grid" />;
     });
 
-    return <g ref="yGrid">{lines}</g>;
+    return (
+      <g ref="yGrid">
+        {lines}
+      </g>
+    );
   }
 
   renderXTicks(xTicks: Array<number>, xScale: Scale, yScale: Scale) {
@@ -186,7 +204,11 @@ export default class BubbleChart extends React.PureComponent {
       );
     });
 
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   }
 
   renderYTicks(yTicks: Array<number>, xScale: Scale, yScale: Scale) {
@@ -211,7 +233,11 @@ export default class BubbleChart extends React.PureComponent {
       );
     });
 
-    return <g>{ticks}</g>;
+    return (
+      <g>
+        {ticks}
+      </g>
+    );
   }
 
   renderChart(width: number) {

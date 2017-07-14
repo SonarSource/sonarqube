@@ -43,9 +43,13 @@ export default function AboutStandards(props: Props) {
 
   return (
     <div className="boxed-group">
-      <h2>{translate('about_page.standards')}</h2>
+      <h2>
+        {translate('about_page.standards')}
+      </h2>
       <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.standards.text')}</p>
+        <p className="about-page-text">
+          {translate('about_page.standards.text')}
+        </p>
 
         <div className="spacer-top">
           <ul className="list-inline">

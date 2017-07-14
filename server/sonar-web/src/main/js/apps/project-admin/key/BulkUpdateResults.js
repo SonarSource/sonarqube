@@ -60,12 +60,16 @@ export default class BulkUpdateResults extends React.PureComponent {
           <table id="bulk-update-results" className="data zebra zebra-hover">
             <thead>
               <tr>
-                <th>{translate('update_key.old_key')}</th>
-                <th>{translate('update_key.new_key')}</th>
+                <th>
+                  {translate('update_key.old_key')}
+                </th>
+                <th>
+                  {translate('update_key.new_key')}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {results.map(result => (
+              {results.map(result =>
                 <tr key={result.key} data-key={result.key}>
                   <td className="js-old-key">
                     {result.key}
@@ -78,7 +82,7 @@ export default class BulkUpdateResults extends React.PureComponent {
                     {result.newKey}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>}
 

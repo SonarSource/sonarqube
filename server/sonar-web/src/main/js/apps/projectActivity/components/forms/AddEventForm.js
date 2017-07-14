@@ -100,15 +100,18 @@ export default class AddEventForm extends React.PureComponent {
         className="modal"
         overlayClassName="modal-overlay"
         onRequestClose={this.closeForm}>
-
         <header className="modal-head">
-          <h2>{translate(this.props.addEventButtonText)}</h2>
+          <h2>
+            {translate(this.props.addEventButtonText)}
+          </h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
             <div className="modal-field">
-              <label>{translate('name')}</label>
+              <label>
+                {translate('name')}
+              </label>
               <input
                 value={this.state.name}
                 autoFocus={true}
@@ -124,7 +127,9 @@ export default class AddEventForm extends React.PureComponent {
             {this.state.processing
               ? <i className="spinner" />
               : <div>
-                  <button type="submit">{translate('save')}</button>
+                  <button type="submit">
+                    {translate('save')}
+                  </button>
                   <button type="reset" className="button-link" onClick={this.closeForm}>
                     {translate('cancel')}
                   </button>

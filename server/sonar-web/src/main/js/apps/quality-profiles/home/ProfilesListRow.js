@@ -117,7 +117,11 @@ export default class ProfilesListRow extends React.PureComponent {
   renderUpdateDate() {
     const date = <ProfileDate date={this.props.profile.userUpdatedAt} />;
     if (isStagnant(this.props.profile)) {
-      return <span className="badge badge-normal-size badge-focus">{date}</span>;
+      return (
+        <span className="badge badge-normal-size badge-focus">
+          {date}
+        </span>
+      );
     } else {
       return date;
     }
@@ -127,7 +131,11 @@ export default class ProfilesListRow extends React.PureComponent {
     const { lastUsed } = this.props.profile;
     const date = <ProfileDate date={lastUsed} />;
     if (!lastUsed) {
-      return <span className="badge badge-normal-size badge-focus">{date}</span>;
+      return (
+        <span className="badge badge-normal-size badge-focus">
+          {date}
+        </span>
+      );
     } else {
       return date;
     }

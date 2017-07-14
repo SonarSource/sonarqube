@@ -27,7 +27,9 @@
 @navbarLineHeight: 20px;
 @navbarTopPadding: (@navbarGlobalHeight - @navbarLineHeight) / 2;
 
-.navbar, [class^="navbar-"], [class*=" navbar-"] {
+.navbar,
+[class^="navbar-"],
+[class*=" navbar-"] {
   box-sizing: border-box;
 }
 
@@ -251,7 +253,7 @@
 
   .navbar-nav > li > a:hover,
   .navbar-nav > .active > a,
-  .navbar-nav > li> a.active,
+  .navbar-nav > li > a.active,
   .navbar-nav > .dropdown.open > a {
     background-color: @blue;
   }
@@ -271,7 +273,6 @@
   margin-top: 3px;
   margin-right: 4px;
 }
-
 
 .navbar-context {
   position: static;
@@ -346,13 +347,11 @@
   box-sizing: border-box;
 }
 
-
 .navbar-side {
   padding: 10px;
   border-bottom: 1px solid @barBorderColor;
   background-color: #e5f1f9;
 }
-
 
 .global-navbar-search-dropdown {
   max-height: 80vh;

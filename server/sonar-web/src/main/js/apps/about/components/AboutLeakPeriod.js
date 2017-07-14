@@ -26,9 +26,13 @@ const link = 'https://redirect.sonarsource.com/doc/fix-the-leak.html';
 export default function AboutLeakPeriod() {
   return (
     <div className="boxed-group">
-      <h2>{translate('about_page.fix_the_leak')}</h2>
+      <h2>
+        {translate('about_page.fix_the_leak')}
+      </h2>
       <div className="boxed-group-inner">
-        <p className="about-page-text">{translate('about_page.fix_the_leak.text')}</p>
+        <p className="about-page-text">
+          {translate('about_page.fix_the_leak.text')}
+        </p>
         <ReadMore link={link} />
       </div>
     </div>

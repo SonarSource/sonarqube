@@ -42,11 +42,11 @@ it('should render correctly with children', () => {
   expect(
     shallow(
       <SelectList items={items} currentItem="seconditem" onSelect={onSelect}>
-        {items.map(item => (
+        {items.map(item =>
           <SelectListItem key={item} item={item}>
             <i className="myicon" />item
           </SelectListItem>
-        ))}
+        )}
       </SelectList>
     )
   ).toMatchSnapshot();
@@ -57,11 +57,11 @@ it('should correclty handle user actions', () => {
   const items = ['item', 'seconditem', 'third'];
   const list = mount(
     <SelectList items={items} currentItem="seconditem" onSelect={onSelect}>
-      {items.map(item => (
+      {items.map(item =>
         <SelectListItem key={item} item={item}>
           <i className="myicon" />item
         </SelectListItem>
-      ))}
+      )}
     </SelectList>
   );
   keydown(40);

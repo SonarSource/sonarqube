@@ -48,7 +48,7 @@ export default class FacetMode extends React.PureComponent {
         <FacetHeader name={translate('issues.facet.mode')} />
 
         <FacetItemsList>
-          {modes.map(mode => (
+          {modes.map(mode =>
             <FacetItem
               active={facetMode === mode}
               facetMode={this.props.facetMode}
@@ -59,7 +59,7 @@ export default class FacetMode extends React.PureComponent {
               stat={null}
               value={mode}
             />
-          ))}
+          )}
         </FacetItemsList>
       </FacetBox>
     );

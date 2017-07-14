@@ -27,6 +27,10 @@ const props = {
 };
 
 it('should render popup', () => {
-  const popup = shallow(<BubblePopup {...props}><span>test</span></BubblePopup>);
+  const popup = shallow(
+    <BubblePopup {...props}>
+      <span>test</span>
+    </BubblePopup>
+  );
   expect(popup).toMatchSnapshot();
 });

@@ -28,7 +28,7 @@ export const getOrganizationMembersLogins = (state, organization) => {
 };
 
 export const getOrganizationMembersState = (state, organization) =>
-  (organization && state[organization] ? state[organization] : {});
+  organization && state[organization] ? state[organization] : {};
 
 const organizationMembers = (state = {}, action = {}) => {
   const members = state.members || [];

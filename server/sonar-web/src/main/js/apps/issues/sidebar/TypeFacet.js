@@ -76,7 +76,11 @@ export default class TypeFacet extends React.PureComponent {
         disabled={stat === 0 && !active}
         facetMode={this.props.facetMode}
         key={type}
-        name={<span><IssueTypeIcon query={type} /> {translate('issue.type', type)}</span>}
+        name={
+          <span>
+            <IssueTypeIcon query={type} /> {translate('issue.type', type)}
+          </span>
+        }
         onClick={this.handleItemClick}
         stat={stat}
         value={type}

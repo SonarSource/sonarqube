@@ -33,7 +33,11 @@ export default class ProfileDate extends React.PureComponent {
     const { date } = this.props;
 
     if (!date) {
-      return <span>{translate('never')}</span>;
+      return (
+        <span>
+          {translate('never')}
+        </span>
+      );
     }
 
     return (

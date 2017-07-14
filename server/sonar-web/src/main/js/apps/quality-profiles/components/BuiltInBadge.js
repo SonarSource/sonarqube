@@ -37,13 +37,16 @@ export default function BuiltInBadge(props: Props) {
 
   const overlay = (
     <span>
-      {translate('quality_profiles.built_in.description.1')}
-      {' '}
+      {translate('quality_profiles.built_in.description.1')}{' '}
       {translate('quality_profiles.built_in.description.2')}
     </span>
   );
 
-  return props.tooltip ? <Tooltip overlay={overlay}>{badge}</Tooltip> : badge;
+  return props.tooltip
+    ? <Tooltip overlay={overlay}>
+        {badge}
+      </Tooltip>
+    : badge;
 }
 
 BuiltInBadge.defaultProps = {

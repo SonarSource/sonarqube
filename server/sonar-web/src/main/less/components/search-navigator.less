@@ -24,9 +24,7 @@
 @sideWidth: 300px;
 
 .search-navigator {
-
   &.sticky {
-
     .search-navigator-workspace-header {
       position: fixed;
       z-index: @search-navigator-sticky-workspace-header-z-index;
@@ -46,7 +44,6 @@
       bottom: 0;
       overflow-y: auto;
     }
-
   }
 }
 
@@ -81,7 +78,8 @@
   }
 }
 
-.search-navigator-facet-box:not(.hidden):not(.leak-facet-box) + .search-navigator-facet-box:not(.leak-facet-box) {
+.search-navigator-facet-box:not(.hidden):not(.leak-facet-box)
+  + .search-navigator-facet-box:not(.leak-facet-box) {
   border-top: 1px solid @barBorderColor;
 }
 
@@ -102,7 +100,9 @@
     color: @secondFontColor;
     font-weight: 400;
 
-    &:hover { color: @blue; }
+    &:hover {
+      color: @blue;
+    }
   }
 }
 
@@ -113,7 +113,9 @@
   .search-navigator-facet-header {
     cursor: default;
 
-    &:hover { color: @secondFontColor; }
+    &:hover {
+      color: @secondFontColor;
+    }
   }
 }
 
@@ -142,7 +144,8 @@
       color: @baseFontColor;
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       border: 1px solid @blue;
       padding: 3px 5px;
 
@@ -178,7 +181,11 @@
       bottom: 0;
       right: 100%;
       width: 10px;
-      background-image: linear-gradient(to right, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
+      background-image: linear-gradient(
+        to right,
+        fade(@barBackgroundColor, 0%),
+        @barBackgroundColor 75%
+      );
     }
   }
 
@@ -218,7 +225,11 @@
     background-color: @leakBackgroundColor;
 
     &:before {
-      background-image: linear-gradient(to right, fade(@leakBackgroundColor, 0%), @leakBackgroundColor 75%);
+      background-image: linear-gradient(
+        to right,
+        fade(@leakBackgroundColor, 0%),
+        @leakBackgroundColor 75%
+      );
     }
   }
 }
@@ -284,7 +295,8 @@
   .search-navigator-facet {
     margin-bottom: 0;
 
-    &:hover, &.active {
+    &:hover,
+    &.active {
       border-bottom: none;
       padding-bottom: 4px;
       border-radius: 2px 2px 0 0;
@@ -339,7 +351,8 @@
     &.active ~ .search-navigator-facet {
       .selectFacet(@lightBlue);
 
-      &:hover, &:hover ~ .search-navigator-facet {
+      &:hover,
+      &:hover ~ .search-navigator-facet {
         .selectFacet(darken(@lightBlue, 10%));
       }
     }
@@ -384,16 +397,21 @@
 }
 
 .search-navigator-facet-list-align-right {
-
   .facet-name {
     float: right;
 
     &:before {
       content: " ";
       position: absolute;
-      top: 0; bottom: 0; left: 0;
+      top: 0;
+      bottom: 0;
+      left: 0;
       width: 10px;
-      background-image: linear-gradient(to left, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
+      background-image: linear-gradient(
+        to left,
+        fade(@barBackgroundColor, 0%),
+        @barBackgroundColor 75%
+      );
     }
   }
 
@@ -404,7 +422,6 @@
   .facet.active .facet-name:before {
     background-image: linear-gradient(to left, fade(@lightBlue, 0%), @lightBlue 75%);
   }
-
 }
 
 .search-navigator-facet-container {
@@ -449,12 +466,15 @@
     .link-no-underline;
     transition: none;
 
-    &:hover, &:focus,
-    &:hover .search-navigator-facet-histogram-bar-inner, &:focus .search-navigator-facet-histogram-bar-inner {
+    &:hover,
+    &:focus,
+    &:hover .search-navigator-facet-histogram-bar-inner,
+    &:focus .search-navigator-facet-histogram-bar-inner {
       background-color: @barBorderColor;
     }
 
-    &:hover .search-navigator-facet-histogram-bar, &:focus .search-navigator-facet-histogram-bar {
+    &:hover .search-navigator-facet-histogram-bar,
+    &:focus .search-navigator-facet-histogram-bar {
       background-color: @blue;
     }
   }
@@ -514,7 +534,6 @@
   visibility: hidden;
 }
 
-
 .search-navigator-filters {
   position: relative;
   .clearfix;
@@ -552,7 +571,6 @@
 }
 
 .search-navigator-filters-filter {
-
 }
 
 .search-navigator-filters-header {
@@ -628,9 +646,15 @@
   &:before {
     content: " ";
     position: absolute;
-    top: 0; bottom: 0; right: 100%;
+    top: 0;
+    bottom: 0;
+    right: 100%;
     width: 10px;
-    background-image: linear-gradient(to right, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
+    background-image: linear-gradient(
+      to right,
+      fade(@barBackgroundColor, 0%),
+      @barBackgroundColor 75%
+    );
   }
 }
 
@@ -673,7 +697,6 @@
 }
 
 .search-navigator-extended-view {
-
   .search-navigator-workspace-list {
     display: none;
   }

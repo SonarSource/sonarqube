@@ -36,9 +36,10 @@ export default function EventInner(props: { event: EventType }) {
           />
         </div>
         <span className="project-activity-event-inner-text">
-          <span className="note">{translate('event.category', event.category)}:</span>
-          {' '}
-          <strong title={event.description} data-toggle="tooltip">{event.name}</strong>
+          <span className="note">{translate('event.category', event.category)}:</span>{' '}
+          <strong title={event.description} data-toggle="tooltip">
+            {event.name}
+          </strong>
         </span>
       </div>
     </TooltipsContainer>

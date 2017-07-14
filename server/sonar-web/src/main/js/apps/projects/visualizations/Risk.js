@@ -63,9 +63,10 @@ export default class Risk extends React.PureComponent {
     color1: ?number,
     color2: ?number
   ) {
-    const fullProjectName = this.props.displayOrganizations && project.organization
-      ? `${project.organization.name} / <strong>${project.name}</strong>`
-      : `<strong>${project.name}</strong>`;
+    const fullProjectName =
+      this.props.displayOrganizations && project.organization
+        ? `${project.organization.name} / <strong>${project.name}</strong>`
+        : `<strong>${project.name}</strong>`;
     const inner = [
       `<div class="little-spacer-bottom">${fullProjectName}</div>`,
       this.getMetricTooltip({ key: COLOR_METRIC_1, type: COLOR_METRIC_TYPE }, color1),
@@ -81,22 +82,20 @@ export default class Risk extends React.PureComponent {
     const items = this.props.projects.map(project => {
       const x = project.measures[X_METRIC] != null ? Number(project.measures[X_METRIC]) : null;
       const y = project.measures[Y_METRIC] != null ? Number(project.measures[Y_METRIC]) : null;
-      const size = project.measures[SIZE_METRIC] != null
-        ? Number(project.measures[SIZE_METRIC])
-        : null;
-      const color1 = project.measures[COLOR_METRIC_1] != null
-        ? Number(project.measures[COLOR_METRIC_1])
-        : null;
-      const color2 = project.measures[COLOR_METRIC_2] != null
-        ? Number(project.measures[COLOR_METRIC_2])
-        : null;
+      const size =
+        project.measures[SIZE_METRIC] != null ? Number(project.measures[SIZE_METRIC]) : null;
+      const color1 =
+        project.measures[COLOR_METRIC_1] != null ? Number(project.measures[COLOR_METRIC_1]) : null;
+      const color2 =
+        project.measures[COLOR_METRIC_2] != null ? Number(project.measures[COLOR_METRIC_2]) : null;
       return {
         x: x || 0,
         y: y || 0,
         size: size || 0,
-        color: color1 != null && color2 != null
-          ? RATING_COLORS[Math.max(color1, color2) - 1]
-          : undefined,
+        color:
+          color1 != null && color2 != null
+            ? RATING_COLORS[Math.max(color1, color2) - 1]
+            : undefined,
         key: project.key,
         tooltip: this.getTooltip(project, x, y, size, color1, color2),
         link: getProjectUrl(project.key)

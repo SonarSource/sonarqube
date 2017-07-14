@@ -99,11 +99,13 @@
   margin-bottom: 8px;
 }
 
-.project-activity-graph-tooltip-title, .project-activity-graph-tooltip-value {
+.project-activity-graph-tooltip-title,
+.project-activity-graph-tooltip-value {
   font-weight: bold;
 }
 
-.project-activity-days-list {}
+.project-activity-days-list {
+}
 
 .project-activity-day {
   margin-top: 8px;
@@ -120,7 +122,8 @@
   font-weight: bold;
 }
 
-.project-activity-analyses-list {}
+.project-activity-analyses-list {
+}
 
 .project-activity-analysis {
   position: relative;
@@ -238,7 +241,8 @@
   background-color: white;
 }
 
-.project-activity-version-badge.sticky, .project-activity-version-badge.first {
+.project-activity-version-badge.sticky,
+.project-activity-version-badge.first {
   position: absolute;
   top: 0;
   left: 12px;
