@@ -32,7 +32,8 @@ const IssuesCounter = (props: Props) =>
     <strong>
       {props.current != null &&
         <span>
-          {formatMeasure(props.current + 1, 'INT')} /{' '}
+          {formatMeasure(props.current + 1, 'INT')}
+          {' / '}
         </span>}
       {formatMeasure(props.total, 'INT')}
     </strong>{' '}
