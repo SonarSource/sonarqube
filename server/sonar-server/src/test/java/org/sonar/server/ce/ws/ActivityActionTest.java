@@ -394,7 +394,7 @@ public class ActivityActionTest {
     activityDto.setExecutionTimeMs(500L);
     activityDto.setExecutedAt(EXECUTED_AT);
     activityDto.setAnalysisUuid("U1");
-    dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
+    dbTester.getDbClient().ceActivityDao(). insert(dbTester.getSession(), activityDto);
     dbTester.commit();
     return activityDto;
   }

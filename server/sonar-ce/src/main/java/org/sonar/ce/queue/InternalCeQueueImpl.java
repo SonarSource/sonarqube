@@ -43,7 +43,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 @ComputeEngineSide
@@ -99,14 +98,14 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
   public void remove(CeTask task, CeActivityDto.Status status, @Nullable CeTaskResult taskResult, @Nullable Throwable error) {
     checkArgument(error == null || status == CeActivityDto.Status.FAILED, "Error can be provided only when status is FAILED");
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid());
-      checkState(queueDto.isPresent(), "Task does not exist anymore: %s", task);
-      CeActivityDto activityDto = new CeActivityDto(queueDto.get());
+      CeQueueDto queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, task.getUuid())
+      .orElseThrow(() -> new IllegalStateException("Task does not exist anymore: " + task));
+      CeActivityDto activityDto = new CeActivityDto(queueDto);
       activityDto.setStatus(status);
       updateQueueStatus(status, activityDto);
       updateTaskResult(activityDto, taskResult);
       updateError(activityDto, error);
-      remove(dbSession, queueDto.get(), activityDto);
+      remove(dbSession, queueDto, activityDto);
     }
   }
 
