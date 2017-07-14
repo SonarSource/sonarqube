@@ -23,15 +23,21 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeActivityDto.Status;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class SnapshotDao implements Dao {
@@ -91,6 +97,20 @@ public class SnapshotDao implements Dao {
     return snapshotDtos.isEmpty() ? null : snapshotDtos.get(0);
   }
 
+  /**
+   *
+   */
+  public List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(DbSession dbSession, List<String> componentUuids, List<Long> fromDates) {
+    checkArgument(componentUuids.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.",
+      String.valueOf(componentUuids.size()),
+      String.valueOf(fromDates.size()));
+    List<ComponentUuidFromDatePair> componentUuidFromDatePairs = IntStream.range(0, componentUuids.size())
+      .mapToObj(i -> new ComponentUuidFromDatePair(componentUuids.get(i), fromDates.get(i)))
+      .collect(MoreCollectors.toList(componentUuids.size()));
+
+    return executeLargeInputs(componentUuidFromDatePairs, partition -> mapper(dbSession).selectFinishedByComponentUuidsAndFromDates(partition, Status.SUCCESS), i -> i / 2);
+  }
+
   public void switchIsLastFlagAndSetProcessedStatus(DbSession dbSession, String componentUuid, String analysisUuid) {
     SnapshotMapper mapper = mapper(dbSession);
     mapper.unsetIsLastFlagForComponentUuid(componentUuid);
@@ -128,5 +148,48 @@ public class SnapshotDao implements Dao {
 
   private static SnapshotMapper mapper(DbSession session) {
     return session.getMapper(SnapshotMapper.class);
+  }
+
+  static class ComponentUuidFromDatePair implements Comparable<ComponentUuidFromDatePair> {
+    private final String componentUuid;
+    private final long from;
+
+    ComponentUuidFromDatePair(String componentUuid, long from) {
+      this.componentUuid = requireNonNull(componentUuid);
+      this.from = from;
+    }
+
+    @Override
+    public int compareTo(ComponentUuidFromDatePair other) {
+      if (this == other) {
+        return 0;
+      }
+
+      int c = componentUuid.compareTo(other.componentUuid);
+      if (c == 0) {
+        c = Long.compare(from, other.from);
+      }
+
+      return c;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      ComponentUuidFromDatePair other = (ComponentUuidFromDatePair) o;
+      return componentUuid.equals(other.componentUuid)
+        && from == other.from;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(componentUuid, from);
+    }
   }
 }
