@@ -35,7 +35,7 @@ const ANALYSES = [
       {
         key: 'AVxZtC-N7841nF4RNEMJ',
         category: 'QUALITY_PROFILE',
-        name: 'Changes in \'Default - SonarSource conventions\' (Java)'
+        name: "Changes in 'Default - SonarSource conventions' (Java)"
       }
     ]
   },
@@ -48,7 +48,7 @@ const ANALYSES = [
       {
         key: 'AVwQF7zXl-nNFgFWOJ3W',
         category: 'QUALITY_PROFILE',
-        name: 'Changes in \'Default - SonarSource conventions\' (Java)'
+        name: "Changes in 'Default - SonarSource conventions' (Java)"
       }
     ]
   },

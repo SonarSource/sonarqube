@@ -57,7 +57,7 @@
     "css-loader": "0.28.4",
     "enzyme": "^2.6.0",
     "enzyme-to-json": "^1.4.5",
-    "eslint": "^3.12.2",
+    "eslint": "3.14.1",
     "eslint-loader": "1.8.0",
     "eslint-plugin-flowtype": "^2.29.1",
     "eslint-plugin-import": "^2.2.0",
@@ -74,8 +74,6 @@
     "less-loader": "4.0.4",
     "postcss-loader": "2.0.6",
     "prettier": "1.5.2",
-    "prettier-eslint": "6.4.2",
-    "prettier-eslint-cli": "4.1.1",
     "react-addons-test-utils": "15.4.2",
     "react-dev-utils": "3.0.0",
     "react-error-overlay": "1.0.7",
@@ -91,7 +89,7 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "coverage": "npm test -- --coverage",
-    "format": "prettier-eslint --write 'src/main/{js,less}/!(libs)/**/*.{js,css,less}'",
+    "format": "prettier --write --single-quote --jsx-bracket-same-line --print-width 100 'src/main/{js,less}/!(libs)/**/*.{js,css,less}'",
     "lint": "eslint src/main/js",
     "typecheck": "flow src/main/js",
     "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest"
@@ -108,15 +106,8 @@
   ],
   "jest": {
     "coverageDirectory": "<rootDir>/target/coverage",
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/node_modules",
-      "<rootDir>/tests"
-    ],
-    "moduleFileExtensions": [
-      "jsx",
-      "js",
-      "json"
-    ],
+    "coveragePathIgnorePatterns": ["<rootDir>/node_modules", "<rootDir>/tests"],
+    "moduleFileExtensions": ["jsx", "js", "json"],
     "moduleNameMapper": {
       "^.+\\.(hbs|jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/jest/FileStub.js",
       "^.+\\.css$": "<rootDir>/config/jest/CSSStub.js"
@@ -125,9 +116,7 @@
       "<rootDir>/config/polyfills.js",
       "<rootDir>/config/jest/SetupTestEnvironment.js"
     ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
+    "snapshotSerializers": ["enzyme-to-json/serializer"],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules",
       "<rootDir>/src/main/webapp",

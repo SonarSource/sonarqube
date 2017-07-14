@@ -23,13 +23,14 @@ import React from 'react';
 export default function GlobalFooterBranding() {
   return (
     <div>
-      This application is based on
-      {' '}
-      <a href="http://www.sonarqube.org/" title="SonarQube™">SonarQube™</a>
-      {' '}
-      but is <strong>not</strong> an official version provided by
-      {' '}
-      <a href="http://www.sonarsource.com" title="SonarSource SA">SonarSource SA</a>.
+      This application is based on{' '}
+      <a href="http://www.sonarqube.org/" title="SonarQube™">
+        SonarQube™
+      </a>{' '}
+      but is <strong>not</strong> an official version provided by{' '}
+      <a href="http://www.sonarsource.com" title="SonarSource SA">
+        SonarSource SA
+      </a>.
     </div>
   );
 }
