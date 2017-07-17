@@ -119,6 +119,21 @@ public class ComponentImplTest {
   }
 
   @Test
+  public void getViewAttributes_throws_ISE_if_component_is_not_have_type_VIEW() {
+    Arrays.stream(Component.Type.values())
+      .filter(type -> type != FILE)
+      .forEach((componentType) -> {
+        ComponentImpl component = buildSimpleComponent(componentType, componentType.name()).build();
+        try {
+          component.getViewAttributes();
+          fail("A IllegalStateException should have been raised");
+        } catch (IllegalStateException e) {
+          assertThat(e).hasMessage("Only component of type VIEW have a ViewAttributes object");
+        }
+      });
+  }
+
+  @Test
   public void isUnitTest_returns_true_if_IsTest_is_set_in_BatchComponent() {
     ComponentImpl component = buildSimpleComponent(FILE, "file").setFileAttributes(new FileAttributes(true, null, 1)).build();
 
