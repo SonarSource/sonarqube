@@ -219,6 +219,7 @@ public class EsTester extends ExternalResource {
           .put("processors", 1)
           .put("http.enabled", false)
           .put("config.ignore_system_properties", true)
+          .put("action.auto_create_index", false)
           .put("path.home", tmpDir))
           .build();
         node.start();

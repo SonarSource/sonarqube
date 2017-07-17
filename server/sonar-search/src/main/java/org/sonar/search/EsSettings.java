@@ -154,7 +154,8 @@ public class EsSettings implements EsSettingsMBean {
       .put("index.number_of_shards", "1")
       .put("index.refresh_interval", "30s")
       .put("action.auto_create_index", false)
-      .put("index.mapper.dynamic", false);
+      .put("index.mapper.dynamic", false)
+      .put("action.auto_create_index", false);
   }
 
   private void configureCluster(Settings.Builder builder) {
