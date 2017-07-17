@@ -60,21 +60,11 @@ const SERIES = [
   {
     name: 'bugs',
     translatedName: 'metric.bugs.name',
-    style: 0,
     data: [
       { x: new Date('2016-10-27T16:33:50+0200'), y: 5 },
       { x: new Date('2016-10-27T12:21:15+0200'), y: 16 },
       { x: new Date('2016-10-26T12:17:29+0200'), y: 12 }
     ]
-  }
-];
-
-const EMPTY_SERIES = [
-  {
-    name: 'bugs',
-    translatedName: 'metric.bugs.name',
-    style: 0,
-    data: []
   }
 ];
 
@@ -85,9 +75,7 @@ const DEFAULT_PROPS = {
   graphEndDate: null,
   graphStartDate: null,
   leakPeriodDate: '2017-05-16T13:50:02+0200',
-  loading: false,
   measuresHistory: [],
-  metrics: [],
   metricsType: 'INT',
   removeCustomMetric: () => {},
   selectedDate: null,
@@ -95,14 +83,6 @@ const DEFAULT_PROPS = {
   updateGraphZoom: () => {},
   updateSelectedDate: () => {}
 };
-
-it('should show a loading view', () => {
-  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} loading={true} />)).toMatchSnapshot();
-});
-
-it('should show that there is no data', () => {
-  expect(shallow(<GraphsHistory {...DEFAULT_PROPS} series={EMPTY_SERIES} />)).toMatchSnapshot();
-});
 
 it('should correctly render a graph', () => {
   expect(shallow(<GraphsHistory {...DEFAULT_PROPS} />)).toMatchSnapshot();

@@ -14,44 +14,26 @@ exports[`should render correctly 1`] = `
     className="project-activity-graph-tooltip-line"
   >
     <td
-      className="text-top spacer-right thin"
+      colSpan="3"
     >
-      <ProjectEventIcon
-        className="project-activity-event-icon margin-align VERSION"
-      />
-    </td>
-    <td
-      colSpan="2"
-    >
-      <span
-        className="little-spacer-right"
-      >
-        event.category.VERSION
+      <span>
+        events
         :
       </span>
-      6.5
-    </td>
-  </tr>
-  <tr
-    className="project-activity-graph-tooltip-line"
-  >
-    <td
-      className="text-top spacer-right thin"
-    >
-      <ProjectEventIcon
-        className="project-activity-event-icon margin-align OTHER"
-      />
-    </td>
-    <td
-      colSpan="2"
-    >
       <span
-        className="little-spacer-right"
+        className="spacer-left"
       >
-        event.category.OTHER
-        :
+        <ProjectEventIcon
+          className="project-activity-event-icon VERSION"
+        />
       </span>
-      Foo
+      <span
+        className="spacer-left"
+      >
+        <ProjectEventIcon
+          className="project-activity-event-icon OTHER"
+        />
+      </span>
     </td>
   </tr>
 </tbody>

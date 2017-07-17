@@ -231,8 +231,8 @@ export default class ZoomTimeLine extends React.PureComponent {
       <g>
         {this.props.series.map((serie, idx) =>
           <path
-            key={`${idx}-${serie.name}`}
-            className={classNames('line-chart-path', 'line-chart-path-' + serie.style)}
+            key={serie.name}
+            className={classNames('line-chart-path', 'line-chart-path-' + idx)}
             d={lineGenerator(serie.data)}
           />
         )}
@@ -253,8 +253,8 @@ export default class ZoomTimeLine extends React.PureComponent {
       <g>
         {this.props.series.map((serie, idx) =>
           <path
-            key={`${idx}-${serie.name}`}
-            className={classNames('line-chart-area', 'line-chart-area-' + serie.style)}
+            key={serie.name}
+            className={classNames('line-chart-area', 'line-chart-area-' + idx)}
             d={areaGenerator(serie.data)}
           />
         )}

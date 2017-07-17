@@ -12,7 +12,7 @@ exports[`should render correctly the list of series 1`] = `
       name="Bugs"
       removeMetric={[Function]}
       showWarning={false}
-      style="2"
+      style="0"
     />
   </span>
   <span
@@ -38,7 +38,7 @@ exports[`should render correctly the list of series 1`] = `
         name="Foo"
         removeMetric={[Function]}
         showWarning={true}
-        style="0"
+        style="2"
       />
     </span>
   </Tooltip>

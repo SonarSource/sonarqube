@@ -8,7 +8,7 @@ exports[`should render correctly the list of series 1`] = `
     className="big-spacer-left big-spacer-right"
     metric="bugs"
     name="Bugs"
-    style="2"
+    style="0"
   />
   <GraphsLegendItem
     className="big-spacer-left big-spacer-right"

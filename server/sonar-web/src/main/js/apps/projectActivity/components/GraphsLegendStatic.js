@@ -17,23 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+// @flow
 import React from 'react';
 import GraphsLegendItem from './GraphsLegendItem';
 
 type Props = {
-  series: Array<{ name: string, translatedName: string, style: string }>
+  series: Array<{ name: string, translatedName: string }>
 };
 
 export default function GraphsLegendStatic({ series }: Props) {
   return (
     <div className="project-activity-graph-legends">
-      {series.map(serie =>
+      {series.map((serie, idx) =>
         <GraphsLegendItem
           className="big-spacer-left big-spacer-right"
           key={serie.name}
           metric={serie.name}
           name={serie.translatedName}
-          style={serie.style}
+          style={idx.toString()}
         />
       )}
     </div>

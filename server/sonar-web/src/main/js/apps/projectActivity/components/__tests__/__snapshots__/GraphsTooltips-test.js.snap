@@ -6,7 +6,7 @@ exports[`should render correctly for overview graphs 1`] = `
   position={
     Object {
       "left": 476,
-      "top": 50,
+      "top": 30,
       "width": 250,
     }
   }
@@ -28,68 +28,26 @@ exports[`should render correctly for overview graphs 1`] = `
       <tbody>
         <GraphsTooltipsContentOverview
           measuresHistory={Array []}
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 18,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 15,
-                },
-              ],
-              "name": "code_smells",
-              "style": 1,
-              "translatedName": "metric.code_smells.name",
-            }
-          }
+          name="bugs"
+          style="0"
           tooltipIdx={0}
-          value="Formated.18"
-        />
-        <GraphsTooltipsContentOverview
-          measuresHistory={Array []}
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 3,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 0,
-                },
-              ],
-              "name": "bugs",
-              "style": 0,
-              "translatedName": "metric.bugs.name",
-            }
-          }
-          tooltipIdx={0}
+          translatedName="Bugs"
           value="Formated.3"
         />
         <GraphsTooltipsContentOverview
           measuresHistory={Array []}
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 0,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 1,
-                },
-              ],
-              "name": "vulnerabilities",
-              "style": 2,
-              "translatedName": "metric.vulnerabilities.name",
-            }
-          }
+          name="code_smells"
+          style="1"
           tooltipIdx={0}
+          translatedName="Code Smells"
+          value="Formated.18"
+        />
+        <GraphsTooltipsContentOverview
+          measuresHistory={Array []}
+          name="vulnerabilities"
+          style="2"
+          tooltipIdx={0}
+          translatedName="Vulnerabilities"
           value="Formated.0"
         />
       </tbody>
@@ -104,7 +62,7 @@ exports[`should render correctly for random graphs 1`] = `
   position={
     Object {
       "left": 476,
-      "top": 50,
+      "top": 30,
       "width": 250,
     }
   }
@@ -125,65 +83,20 @@ exports[`should render correctly for random graphs 1`] = `
     >
       <tbody>
         <GraphsTooltipsContent
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 18,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 15,
-                },
-              ],
-              "name": "code_smells",
-              "style": 1,
-              "translatedName": "metric.code_smells.name",
-            }
-          }
-          translatedName="metric.code_smells.name"
-          value="Formated.15"
-        />
-        <GraphsTooltipsContent
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 3,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 0,
-                },
-              ],
-              "name": "bugs",
-              "style": 0,
-              "translatedName": "metric.bugs.name",
-            }
-          }
+          name="bugs"
+          style="0"
           translatedName="Bugs"
           value="Formated.0"
         />
         <GraphsTooltipsContent
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 0,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 1,
-                },
-              ],
-              "name": "vulnerabilities",
-              "style": 2,
-              "translatedName": "metric.vulnerabilities.name",
-            }
-          }
+          name="code_smells"
+          style="1"
+          translatedName="Code Smells"
+          value="Formated.15"
+        />
+        <GraphsTooltipsContent
+          name="vulnerabilities"
+          style="2"
           translatedName="Vulnerabilities"
           value="Formated.1"
         />

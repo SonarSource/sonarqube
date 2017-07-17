@@ -76,12 +76,18 @@
 
 .project-activity-graph-tooltip {
   padding: 8px;
-  pointer-events: none;
 }
 
 .project-activity-graph-tooltip-line {
   height: 20px;
-  padding-bottom: 4px;
+}
+
+.project-activity-graph-tooltip-line + .project-activity-graph-tooltip-line {
+  padding-top: 4px;
+}
+
+.project-activity-graph-tooltip-line .project-activity-event-icon {
+  margin-top: 1px;
 }
 
 .project-activity-graph-tooltip-overview-line {
@@ -214,7 +220,7 @@
   margin-left: 4px;
 }
 
-.project-activity-event-icon.margin-align {
+.project-activity-event-inner-icon .project-activity-event-icon {
   margin-top: 3px;
 }
 
@@ -258,7 +264,7 @@
 .project-activity-version-badge .badge {
   vertical-align: middle;
   padding: 4px 14px 4px 14px;
-  border-radius: 2px;
+  border-radius: 0 2px 2px 0;
   font-weight: bold;
   font-size: 12px;
   letter-spacing: 0;

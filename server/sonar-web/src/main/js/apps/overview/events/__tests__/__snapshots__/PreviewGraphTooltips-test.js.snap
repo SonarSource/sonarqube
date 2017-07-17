@@ -27,62 +27,17 @@ exports[`should render correctly 1`] = `
     >
       <tbody>
         <PreviewGraphTooltipsContent
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 18,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 15,
-                },
-              ],
-              "name": "code_smells",
-              "style": 1,
-            }
-          }
+          style="0"
           translatedName="Code Smells"
           value="Formated.15"
         />
         <PreviewGraphTooltipsContent
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 3,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 0,
-                },
-              ],
-              "name": "bugs",
-              "style": 0,
-            }
-          }
+          style="1"
           translatedName="Bugs"
           value="Formated.0"
         />
         <PreviewGraphTooltipsContent
-          serie={
-            Object {
-              "data": Array [
-                Object {
-                  "x": "2011-10-01T22:01:00.000Z",
-                  "y": 0,
-                },
-                Object {
-                  "x": "2011-10-25T10:27:41.000Z",
-                  "y": 1,
-                },
-              ],
-              "name": "vulnerabilities",
-              "style": 2,
-            }
-          }
+          style="2"
           translatedName="Vulnerabilities"
           value="Formated.1"
         />

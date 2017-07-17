@@ -65,7 +65,7 @@ const emptyState = {
   analyses: [],
   analysesLoading: false,
   graphLoading: false,
-  loading: false,
+  initialized: true,
   measuresHistory: [],
   measures: [],
   metrics: [],

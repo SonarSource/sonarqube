@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import { debounce, findLast, maxBy, minBy, sortBy } from 'lodash';
+import { debounce, findLast, maxBy, minBy, sortBy, groupBy, flatMap, chunk } from 'lodash';
 import ProjectActivityGraphsHeader from './ProjectActivityGraphsHeader';
 import GraphsZoom from './GraphsZoom';
 import GraphsHistory from './GraphsHistory';
@@ -29,8 +29,11 @@ import {
   isCustomGraph,
   generateSeries,
   getDisplayedHistoryMetrics,
+  getSeriesMetricType,
+  hasHistoryData,
   historyQueryChanged
 } from '../utils';
+import { translate } from '../../../helpers/l10n';
 import type { RawQuery } from '../../../helpers/query';
 import type { Analysis, MeasureHistory, Metric, Query } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
@@ -41,7 +44,6 @@ type Props = {
   loading: boolean,
   measuresHistory: Array<MeasureHistory>,
   metrics: Array<Metric>,
-  metricsType: string,
   query: Query,
   updateQuery: RawQuery => void
 };
@@ -49,8 +51,12 @@ type Props = {
 type State = {
   graphStartDate: ?Date,
   graphEndDate: ?Date,
-  series: Array<Serie>
+  series: Array<Serie>,
+  graphs: Array<Array<Serie>>
 };
+
+const MAX_GRAPH_NB = 2;
+const MAX_SERIES_PER_GRAPH = 3;
 
 export default class ProjectActivityGraphs extends React.PureComponent {
   props: Props;
@@ -61,15 +67,20 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     const series = generateSeries(
       props.measuresHistory,
       props.query.graph,
-      props.metricsType,
+      props.metrics,
       getDisplayedHistoryMetrics(props.query.graph, props.query.customMetrics)
     );
-    this.state = { series, ...this.getStateZoomDates(null, props, series) };
+    this.state = {
+      series,
+      graphs: this.splitSeriesInGraphs(series),
+      ...this.getStateZoomDates(null, props, series)
+    };
     this.updateQueryDateRange = debounce(this.updateQueryDateRange, 500);
   }
 
   componentWillReceiveProps(nextProps: Props) {
     let newSeries;
+    let newGraphs;
     if (
       nextProps.measuresHistory !== this.props.measuresHistory ||
       historyQueryChanged(this.props.query, nextProps.query)
@@ -77,9 +88,10 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       newSeries = generateSeries(
         nextProps.measuresHistory,
         nextProps.query.graph,
-        nextProps.metricsType,
+        nextProps.metrics,
         getDisplayedHistoryMetrics(nextProps.query.graph, nextProps.query.customMetrics)
       );
+      newGraphs = this.splitSeriesInGraphs(newSeries);
     }
 
     const newDates = this.getStateZoomDates(this.props, nextProps, newSeries);
@@ -88,6 +100,7 @@ export default class ProjectActivityGraphs extends React.PureComponent {
       let newState = {};
       if (newSeries) {
         newState.series = newSeries;
+        newState.graphs = newGraphs;
       }
       if (newDates) {
         newState = { ...newState, ...newDates };
@@ -120,6 +133,15 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     }
   };
 
+  getMetricsTypeFilter = (): ?Array<string> => {
+    if (this.state.graphs.length < MAX_GRAPH_NB) {
+      return null;
+    }
+    return this.state.graphs
+      .filter(graph => graph.length < MAX_SERIES_PER_GRAPH)
+      .map(graph => graph[0].type);
+  };
+
   addCustomMetric = (metric: string) => {
     const customMetrics = [...this.props.query.customMetrics, metric];
     saveCustomGraph(customMetrics);
@@ -131,6 +153,11 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     saveCustomGraph(customMetrics);
     this.props.updateQuery({ customMetrics });
   };
+
+  splitSeriesInGraphs = (series: Array<Serie>): Array<Array<Serie>> =>
+    flatMap(groupBy(series, serie => serie.type), groupType =>
+      chunk(groupType, MAX_SERIES_PER_GRAPH)
+    ).slice(0, MAX_GRAPH_NB);
 
   updateGraph = (graph: string) => {
     saveGraph(graph);
@@ -165,41 +192,76 @@ export default class ProjectActivityGraphs extends React.PureComponent {
     }
   };
 
+  renderGraphs() {
+    const { leakPeriodDate, loading, query } = this.props;
+    const { graphEndDate, graphs, graphStartDate, series } = this.state;
+    const isCustom = isCustomGraph(query.graph);
+
+    if (loading) {
+      return (
+        <div className="project-activity-graph-container">
+          <div className="text-center">
+            <i className="spinner" />
+          </div>
+        </div>
+      );
+    }
+
+    if (!hasHistoryData(series)) {
+      return (
+        <div className="project-activity-graph-container">
+          <div className="note text-center">
+            {translate(
+              isCustom
+                ? 'project_activity.graphs.custom.no_history'
+                : 'component_measures.no_history'
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return graphs.map((series, idx) =>
+      <GraphsHistory
+        key={idx}
+        analyses={this.props.analyses}
+        eventFilter={query.category}
+        graph={query.graph}
+        graphEndDate={graphEndDate}
+        graphStartDate={graphStartDate}
+        leakPeriodDate={leakPeriodDate}
+        measuresHistory={this.props.measuresHistory}
+        metricsType={getSeriesMetricType(series)}
+        removeCustomMetric={this.removeCustomMetric}
+        selectedDate={this.props.query.selectedDate}
+        series={series}
+        updateGraphZoom={this.updateGraphZoom}
+        updateSelectedDate={this.updateSelectedDate}
+      />
+    );
+  }
+
   render() {
-    const { leakPeriodDate, loading, metrics, metricsType, query } = this.props;
-    const { series } = this.state;
+    const { leakPeriodDate, loading, metrics, query } = this.props;
+    const { graphEndDate, graphStartDate, series } = this.state;
+
     return (
       <div className="project-activity-layout-page-main-inner boxed-group boxed-group-inner">
         <ProjectActivityGraphsHeader
           addCustomMetric={this.addCustomMetric}
           graph={query.graph}
           metrics={metrics}
+          metricsTypeFilter={this.getMetricsTypeFilter()}
           selectedMetrics={this.props.query.customMetrics}
           updateGraph={this.updateGraph}
         />
-        <GraphsHistory
-          analyses={this.props.analyses}
-          eventFilter={query.category}
-          graph={query.graph}
-          graphEndDate={this.state.graphEndDate}
-          graphStartDate={this.state.graphStartDate}
-          leakPeriodDate={leakPeriodDate}
-          loading={loading}
-          measuresHistory={this.props.measuresHistory}
-          metrics={metrics}
-          metricsType={metricsType}
-          removeCustomMetric={this.removeCustomMetric}
-          selectedDate={this.props.query.selectedDate}
-          series={series}
-          updateGraphZoom={this.updateGraphZoom}
-          updateSelectedDate={this.updateSelectedDate}
-        />
+        {this.renderGraphs()}
         <GraphsZoom
-          graphEndDate={this.state.graphEndDate}
-          graphStartDate={this.state.graphStartDate}
+          graphEndDate={graphEndDate}
+          graphStartDate={graphStartDate}
           leakPeriodDate={leakPeriodDate}
           loading={loading}
-          metricsType={metricsType}
+          metricsType={getSeriesMetricType(series)}
           series={series}
           showAreas={['coverage', 'duplications'].includes(query.graph)}
           updateGraphZoom={this.updateGraphZoom}

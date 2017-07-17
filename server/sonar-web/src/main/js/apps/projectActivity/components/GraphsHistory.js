@@ -26,9 +26,8 @@ import GraphsTooltips from './GraphsTooltips';
 import GraphsLegendCustom from './GraphsLegendCustom';
 import GraphsLegendStatic from './GraphsLegendStatic';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
-import { EVENT_TYPES, hasHistoryData, isCustomGraph } from '../utils';
-import { translate } from '../../../helpers/l10n';
-import type { Analysis, MeasureHistory, Metric } from '../types';
+import { EVENT_TYPES, isCustomGraph } from '../utils';
+import type { Analysis, MeasureHistory } from '../types';
 import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
@@ -38,9 +37,7 @@ type Props = {
   graphEndDate: ?Date,
   graphStartDate: ?Date,
   leakPeriodDate: Date,
-  loading: boolean,
   measuresHistory: Array<MeasureHistory>,
-  metrics: Array<Metric>,
   metricsType: string,
   removeCustomMetric: (metric: string) => void,
   selectedDate: ?Date,
@@ -107,43 +104,13 @@ export default class GraphsHistory extends React.PureComponent {
     this.setState({ selectedDate, tooltipXPos, tooltipIdx });
 
   render() {
-    const { loading } = this.props;
     const { graph, series } = this.props;
     const isCustom = isCustomGraph(graph);
-
-    if (loading) {
-      return (
-        <div className="project-activity-graph-container">
-          <div className="text-center">
-            <i className="spinner" />
-          </div>
-        </div>
-      );
-    }
-
-    if (!hasHistoryData(series)) {
-      return (
-        <div className="project-activity-graph-container">
-          <div className="note text-center">
-            {translate(
-              isCustom
-                ? 'project_activity.graphs.custom.no_history'
-                : 'component_measures.no_history'
-            )}
-          </div>
-        </div>
-      );
-    }
-
     const { selectedDate, tooltipIdx, tooltipXPos } = this.state;
     return (
       <div className="project-activity-graph-container">
         {isCustom
-          ? <GraphsLegendCustom
-              series={series}
-              metrics={this.props.metrics}
-              removeMetric={this.props.removeCustomMetric}
-            />
+          ? <GraphsLegendCustom series={series} removeMetric={this.props.removeCustomMetric} />
           : <GraphsLegendStatic series={series} />}
         <div className="project-activity-graph">
           <AutoSizer>
@@ -173,7 +140,6 @@ export default class GraphsHistory extends React.PureComponent {
                     graph={graph}
                     graphWidth={width}
                     measuresHistory={this.props.measuresHistory}
-                    metrics={this.props.metrics}
                     selectedDate={selectedDate}
                     series={series}
                     tooltipIdx={tooltipIdx}

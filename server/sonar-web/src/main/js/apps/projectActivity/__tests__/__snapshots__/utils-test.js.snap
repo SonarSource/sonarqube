@@ -13,28 +13,13 @@ Object {
     },
   ],
   "name": "covered_lines",
-  "style": "style",
   "translatedName": "project_activity.custom_metric.covered_lines",
+  "type": "INT",
 }
 `;
 
 exports[`generateSeries should correctly generate the series 1`] = `
 Array [
-  Object {
-    "data": Array [
-      Object {
-        "x": 2017-04-27T06:21:32.000Z,
-        "y": 100,
-      },
-      Object {
-        "x": 2017-04-30T21:06:24.000Z,
-        "y": 100,
-      },
-    ],
-    "name": "lines_to_cover",
-    "style": "0",
-    "translatedName": "metric.lines_to_cover.name",
-  },
   Object {
     "data": Array [
       Object {
@@ -47,8 +32,23 @@ Array [
       },
     ],
     "name": "covered_lines",
-    "style": "1",
     "translatedName": "project_activity.custom_metric.covered_lines",
+    "type": "INT",
+  },
+  Object {
+    "data": Array [
+      Object {
+        "x": 2017-04-27T06:21:32.000Z,
+        "y": 100,
+      },
+      Object {
+        "x": 2017-04-30T21:06:24.000Z,
+        "y": 100,
+      },
+    ],
+    "name": "lines_to_cover",
+    "translatedName": "Line to Cover",
+    "type": "PERCENT",
   },
 ]
 `;

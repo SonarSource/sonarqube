@@ -24,7 +24,6 @@ import PreviewGraphTooltips from '../PreviewGraphTooltips';
 const SERIES_OVERVIEW = [
   {
     name: 'code_smells',
-    style: 1,
     data: [
       {
         x: '2011-10-01T22:01:00.000Z',
@@ -34,11 +33,11 @@ const SERIES_OVERVIEW = [
         x: '2011-10-25T10:27:41.000Z',
         y: 15
       }
-    ]
+    ],
+    translatedName: 'Code Smells'
   },
   {
     name: 'bugs',
-    style: 0,
     data: [
       {
         x: '2011-10-01T22:01:00.000Z',
@@ -48,11 +47,11 @@ const SERIES_OVERVIEW = [
         x: '2011-10-25T10:27:41.000Z',
         y: 0
       }
-    ]
+    ],
+    translatedName: 'Bugs'
   },
   {
     name: 'vulnerabilities',
-    style: 2,
     data: [
       {
         x: '2011-10-01T22:01:00.000Z',
@@ -62,7 +61,8 @@ const SERIES_OVERVIEW = [
         x: '2011-10-25T10:27:41.000Z',
         y: 1
       }
-    ]
+    ],
+    translatedName: 'Vulnerabilities'
   }
 ];
 

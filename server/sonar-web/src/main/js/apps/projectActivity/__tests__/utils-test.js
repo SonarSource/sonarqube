@@ -72,6 +72,11 @@ const HISTORY = [
   }
 ];
 
+const METRICS = [
+  { key: 'uncovered_lines', name: 'Uncovered Lines', type: 'INT' },
+  { key: 'lines_to_cover', name: 'Line to Cover', type: 'PERCENT' }
+];
+
 const QUERY = {
   category: '',
   from: new Date('2017-04-27T08:21:32+0200'),
@@ -94,14 +99,14 @@ jest.mock('moment', () => date => ({
 
 describe('generateCoveredLinesMetric', () => {
   it('should correctly generate covered lines metric', () => {
-    expect(utils.generateCoveredLinesMetric(HISTORY[1], HISTORY, 'style')).toMatchSnapshot();
+    expect(utils.generateCoveredLinesMetric(HISTORY[1], HISTORY)).toMatchSnapshot();
   });
 });
 
 describe('generateSeries', () => {
   it('should correctly generate the series', () => {
     expect(
-      utils.generateSeries(HISTORY, 'coverage', 'INT', ['lines_to_cover', 'uncovered_lines'])
+      utils.generateSeries(HISTORY, 'coverage', METRICS, ['uncovered_lines', 'lines_to_cover'])
     ).toMatchSnapshot();
   });
 });

@@ -54,7 +54,7 @@ export type State = {
   analyses: Array<Analysis>,
   analysesLoading: boolean,
   graphLoading: boolean,
-  loading: boolean,
+  initialized: boolean,
   metrics: Array<Metric>,
   measuresHistory: Array<MeasureHistory>,
   paging?: Paging,
@@ -72,7 +72,7 @@ class ProjectActivityAppContainer extends React.PureComponent {
       analyses: [],
       analysesLoading: false,
       graphLoading: true,
-      loading: true,
+      initialized: false,
       measuresHistory: [],
       metrics: [],
       query: parseQuery(props.location.query)
@@ -92,16 +92,22 @@ class ProjectActivityAppContainer extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    this.firstLoadData();
     const elem = document.querySelector('html');
     elem && elem.classList.add('dashboard-page');
+    if (!this.shouldRedirect()) {
+      this.firstLoadData(this.state.query);
+    }
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (nextProps.location.query !== this.props.location.query) {
       const query = parseQuery(nextProps.location.query);
       if (query.graph !== this.state.query.graph || customMetricsChanged(this.state.query, query)) {
-        this.updateGraphData(query.graph, query.customMetrics);
+        if (this.state.initialized) {
+          this.updateGraphData(query.graph, query.customMetrics);
+        } else {
+          this.firstLoadData(query);
+        }
       }
       this.setState({ query });
     }
@@ -203,32 +209,23 @@ class ProjectActivityAppContainer extends React.PureComponent {
     });
   };
 
-  firstLoadData() {
-    const { query } = this.state;
+  firstLoadData(query: Query) {
     const graphMetrics = getHistoryMetrics(query.graph, query.customMetrics);
-    const ignoreHistory = this.shouldRedirect();
     Promise.all([
       this.fetchActivity(query.project, 1, 100, serializeQuery(query)),
       this.fetchMetrics(),
-      ignoreHistory ? Promise.resolve() : this.fetchMeasuresHistory(graphMetrics)
+      this.fetchMeasuresHistory(graphMetrics)
     ]).then(response => {
       if (this.mounted) {
-        const newState = {
+        this.setState({
           analyses: response[0].analyses,
           analysesLoading: true,
-          loading: false,
+          graphLoading: false,
+          initialized: true,
+          measuresHistory: response[2],
           metrics: response[1],
           paging: response[0].paging
-        };
-        if (ignoreHistory) {
-          this.setState(newState);
-        } else {
-          this.setState({
-            ...newState,
-            graphLoading: false,
-            measuresHistory: response[2]
-          });
-        }
+        });
 
         this.loadAllActivities(query.project).then(({ analyses, paging }) => {
           if (this.mounted) {
@@ -288,8 +285,8 @@ class ProjectActivityAppContainer extends React.PureComponent {
         changeEvent={this.changeEvent}
         deleteAnalysis={this.deleteAnalysis}
         deleteEvent={this.deleteEvent}
-        graphLoading={this.state.loading || this.state.graphLoading}
-        loading={this.state.loading}
+        graphLoading={!this.state.initialized || this.state.graphLoading}
+        loading={!this.state.initialized}
         metrics={this.state.metrics}
         measuresHistory={this.state.measuresHistory}
         project={this.props.project}

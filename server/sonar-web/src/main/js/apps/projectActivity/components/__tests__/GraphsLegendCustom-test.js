@@ -22,23 +22,15 @@ import { shallow } from 'enzyme';
 import GraphsLegendCustom from '../GraphsLegendCustom';
 
 const SERIES = [
-  { name: 'bugs', translatedName: 'Bugs', style: '2', data: [{ x: 1, y: 1 }] },
+  { name: 'bugs', translatedName: 'Bugs', data: [{ x: 1, y: 1 }] },
   {
     name: 'my_metric',
-    translatedName: 'metric.my_metric.name',
-    style: '1',
+    translatedName: 'My Metric',
     data: [{ x: 1, y: 1 }]
   },
-  { name: 'foo', translatedName: 'Foo', style: '0', data: [] }
-];
-
-const METRICS = [
-  { key: 'bugs', name: 'Bugs' },
-  { key: 'my_metric', name: 'My Metric', custom: true }
+  { name: 'foo', translatedName: 'Foo', data: [] }
 ];
 
 it('should render correctly the list of series', () => {
-  expect(
-    shallow(<GraphsLegendCustom metrics={METRICS} removeMetric={() => {}} series={SERIES} />)
-  ).toMatchSnapshot();
+  expect(shallow(<GraphsLegendCustom removeMetric={() => {}} series={SERIES} />)).toMatchSnapshot();
 });

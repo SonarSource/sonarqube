@@ -21,23 +21,20 @@
 import React from 'react';
 import classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
 
 type Props = {
-  serie: Serie,
+  name: string,
+  style: string,
   translatedName: string,
   value: string
 };
 
-export default function GraphsTooltipsContent({ serie, translatedName, value }: Props) {
+export default function GraphsTooltipsContent({ name, style, translatedName, value }: Props) {
   return (
-    <tr key={serie.name} className="project-activity-graph-tooltip-line">
+    <tr key={name} className="project-activity-graph-tooltip-line">
       <td className="thin">
         <ChartLegendIcon
-          className={classNames(
-            'spacer-right line-chart-legend',
-            'line-chart-legend-' + serie.style
-          )}
+          className={classNames('spacer-right line-chart-legend', 'line-chart-legend-' + style)}
         />
       </td>
       <td className="project-activity-graph-tooltip-value text-right spacer-right thin">

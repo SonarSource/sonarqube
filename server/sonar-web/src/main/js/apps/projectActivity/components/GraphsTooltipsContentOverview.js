@@ -22,13 +22,14 @@ import React from 'react';
 import classNames from 'classnames';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
 import Rating from '../../../components/ui/Rating';
-import type { Serie } from '../../../components/charts/AdvancedTimeline';
 import type { MeasureHistory } from '../types';
 
 type Props = {
   measuresHistory: Array<MeasureHistory>,
-  serie: Serie & { translatedName: string },
+  name: string,
+  style: string,
   tooltipIdx: number,
+  translatedName: string,
   value: string
 };
 
@@ -40,19 +41,19 @@ const METRIC_RATING = {
 
 export default function GraphsTooltipsContentOverview(props: Props) {
   const rating = props.measuresHistory.find(
-    measure => measure.metric === METRIC_RATING[props.serie.name]
+    measure => measure.metric === METRIC_RATING[props.name]
   );
   if (!rating || !rating.history[props.tooltipIdx]) {
     return null;
   }
   const ratingValue = rating.history[props.tooltipIdx].value;
   return (
-    <tr key={props.serie.name} className="project-activity-graph-tooltip-overview-line">
+    <tr key={props.name} className="project-activity-graph-tooltip-overview-line">
       <td className="thin">
         <ChartLegendIcon
           className={classNames(
             'spacer-right line-chart-legend',
-            'line-chart-legend-' + props.serie.style
+            'line-chart-legend-' + props.style
           )}
         />
       </td>
@@ -63,7 +64,7 @@ export default function GraphsTooltipsContentOverview(props: Props) {
         {ratingValue && <Rating className="spacer-left" small={true} value={ratingValue} />}
       </td>
       <td>
-        {props.serie.translatedName}
+        {props.translatedName}
       </td>
     </tr>
   );
