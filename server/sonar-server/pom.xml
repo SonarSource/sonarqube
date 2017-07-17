@@ -167,6 +167,13 @@
       <artifactId>framework</artifactId>
       <version>${elasticsearch.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <!--should be excluded to avoid ES go into "test mode" and require to run EsTester-based UTs with RandomizedRunner-->
+        <exclusion>
+          <groupId>com.carrotsearch.randomizedtesting</groupId>
+          <artifactId>randomizedtesting-runner</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>net.java.dev.jna</groupId>
