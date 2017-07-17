@@ -153,6 +153,11 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.VIEW);
   }
 
+  public static ComponentDto newApplication(OrganizationDto organizationDto) {
+    return newView(organizationDto.getUuid(), Uuids.createFast())
+      .setQualifier(Qualifiers.APP);
+  }
+
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
     return newChildComponent(uuid, view, view)
