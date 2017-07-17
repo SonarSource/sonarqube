@@ -41,6 +41,7 @@ import static java.lang.String.format;
 import static org.sonar.server.es.DefaultIndexSettings.ANALYZER;
 import static org.sonar.server.es.DefaultIndexSettings.FIELDDATA_ENABLED;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_FIELDDATA;
+import static org.sonar.server.es.DefaultIndexSettings.FIELD_TERM_VECTOR;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_KEYWORD;
 import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
@@ -248,7 +249,7 @@ public class NewIndex {
     /**
      * Position offset term vectors are required for the fast_vector_highlighter (fvh).
      */
-    public StringFieldBuilder termVectorWithPositionOffsetsForAllSubfields() {
+    public StringFieldBuilder termVectorWithPositionOffsets() {
       this.termVectorWithPositionOffsets = true;
       return this;
     }
@@ -289,11 +290,12 @@ public class NewIndex {
             Object subFieldMapping = entry.getValue();
             if (subFieldMapping instanceof Map) {
               entry.setValue(
-                  addFieldToMapping(
-                      (Map<String, String>) subFieldMapping,
-                      "term_vector", "with_positions_offsets"));
+                addFieldToMapping(
+                  (Map<String, String>) subFieldMapping,
+                  FIELD_TERM_VECTOR, "with_positions_offsets"));
             }
           });
+          hash.put(FIELD_TERM_VECTOR, "with_positions_offsets");
         }
         if (getFieldData()) {
           multiFields.entrySet().forEach(entry -> {

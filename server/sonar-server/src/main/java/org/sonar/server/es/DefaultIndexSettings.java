@@ -50,6 +50,7 @@ public class DefaultIndexSettings {
   public static final String FIELD_TYPE_KEYWORD = "keyword";
   public static final String FIELD_FIELDDATA = "fielddata";
   public static final String FIELDDATA_ENABLED = "true";
+  public static final String FIELD_TERM_VECTOR = "term_vector";
   public static final String STANDARD = "standard";
   public static final String PATTERN = "pattern";
   public static final String CUSTOM = "custom";
