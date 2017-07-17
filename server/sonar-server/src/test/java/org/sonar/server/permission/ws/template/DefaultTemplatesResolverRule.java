@@ -20,24 +20,31 @@
 package org.sonar.server.permission.ws.template;
 
 import org.junit.rules.ExternalResource;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.db.organization.DefaultTemplates;
 
+import static org.sonar.api.resources.Qualifiers.APP;
+import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.api.resources.Qualifiers.VIEW;
+
 public class DefaultTemplatesResolverRule extends ExternalResource implements DefaultTemplatesResolver {
-  private static final DefaultTemplatesResolver WITH_VIEWS = new DefaultTemplatesResolverImpl(
+  private static final DefaultTemplatesResolver WITH_GOV = new DefaultTemplatesResolverImpl(
     new ResourceTypes(new ResourceTypeTree[] {
       ResourceTypeTree.builder()
-        .addType(ResourceType.builder(Qualifiers.PROJECT).build())
+        .addType(ResourceType.builder(PROJECT).build())
         .build(),
       ResourceTypeTree.builder()
-        .addType(ResourceType.builder(Qualifiers.VIEW).build())
-        .build()}));
-  private static final DefaultTemplatesResolver WITHOUT_VIEWS = new DefaultTemplatesResolverImpl(
+        .addType(ResourceType.builder(VIEW).build())
+        .build(),
+      ResourceTypeTree.builder()
+        .addType(ResourceType.builder(APP).build())
+        .build()
+    }));
+  private static final DefaultTemplatesResolver WITHOUT_GOV = new DefaultTemplatesResolverImpl(
     new ResourceTypes(new ResourceTypeTree[] {ResourceTypeTree.builder()
-      .addType(ResourceType.builder(Qualifiers.PROJECT).build())
+      .addType(ResourceType.builder(PROJECT).build())
       .build()}));
 
   private final boolean governanceInitiallyInstalled;
@@ -72,8 +79,8 @@ public class DefaultTemplatesResolverRule extends ExternalResource implements De
   @Override
   public DefaultTemplatesResolverImpl.ResolvedDefaultTemplates resolve(DefaultTemplates defaultTemplates) {
     if (governanceInstalled) {
-      return WITH_VIEWS.resolve(defaultTemplates);
+      return WITH_GOV.resolve(defaultTemplates);
     }
-    return WITHOUT_VIEWS.resolve(defaultTemplates);
+    return WITHOUT_GOV.resolve(defaultTemplates);
   }
 }

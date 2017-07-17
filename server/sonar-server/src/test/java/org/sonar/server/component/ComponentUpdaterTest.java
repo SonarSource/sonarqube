@@ -42,6 +42,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 
 public class ComponentUpdaterTest {
@@ -67,7 +68,7 @@ public class ComponentUpdaterTest {
     projectIndexers);
 
   @Test
-  public void should_persist_and_index_when_creating_project() throws Exception {
+  public void persist_and_index_when_creating_project() throws Exception {
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
       .setName(DEFAULT_PROJECT_NAME)
@@ -96,7 +97,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void should_persist_private_flag_true_when_creating_project() throws Exception {
+  public void persist_private_flag_true_when_creating_project() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -110,7 +111,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void should_persist_private_flag_false_when_creating_project() throws Exception {
+  public void persist_private_flag_false_when_creating_project() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -138,7 +139,43 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void should_apply_default_permission_template() throws Exception {
+  public void persist_and_index_when_creating_view() {
+    NewComponent view = NewComponent.newComponentBuilder()
+      .setKey("view-key")
+      .setName("view-name")
+      .setQualifier(VIEW)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
+
+    ComponentDto returned = underTest.create(db.getSession(), view, null);
+
+    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
+    assertThat(loaded.getKey()).isEqualTo("view-key");
+    assertThat(loaded.name()).isEqualTo("view-name");
+    assertThat(loaded.qualifier()).isEqualTo("VW");
+    verify(projectIndexers).hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+  }
+
+  @Test
+  public void create_application() {
+    NewComponent view = NewComponent.newComponentBuilder()
+      .setKey("app-key")
+      .setName("app-name")
+      .setQualifier(APP)
+      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
+      .build();
+
+    ComponentDto returned = underTest.create(db.getSession(), view, null);
+
+    ComponentDto loaded = db.getDbClient().componentDao().selectByKey(db.getSession(), returned.key()).get();
+    assertThat(loaded.getKey()).isEqualTo("app-key");
+    assertThat(loaded.name()).isEqualTo("app-name");
+    assertThat(loaded.qualifier()).isEqualTo("APP");
+    verify(projectIndexers).hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION);
+  }
+
+  @Test
+  public void apply_default_permission_template() throws Exception {
     int userId = 42;
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -151,7 +188,7 @@ public class ComponentUpdaterTest {
   }
 
   @Test
-  public void should_add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() throws Exception {
+  public void add_project_to_user_favorites_if_project_creator_is_defined_in_permission_template() throws Exception {
     UserDto userDto = db.users().insertUser();
     NewComponent project = NewComponent.newComponentBuilder()
       .setKey(DEFAULT_PROJECT_KEY)
@@ -268,23 +305,4 @@ public class ComponentUpdaterTest {
         .build(),
       null);
   }
-
-  @Test
-  public void persist_and_index_when_creating_view() {
-    NewComponent view = NewComponent.newComponentBuilder()
-      .setKey("view-key")
-      .setName("view-name")
-      .setQualifier(VIEW)
-      .setOrganizationUuid(db.getDefaultOrganization().getUuid())
-      .build();
-
-    ComponentDto returned = underTest.create(db.getSession(), view, null);
-
-    ComponentDto loaded = db.getDbClient().componentDao().selectOrFailByUuid(db.getSession(), returned.uuid());
-    assertThat(loaded.getKey()).isEqualTo("view-key");
-    assertThat(loaded.name()).isEqualTo("view-name");
-    assertThat(loaded.qualifier()).isEqualTo("VW");
-    assertThat(projectIndexers.hasBeenCalled(loaded.uuid(), ProjectIndexer.Cause.PROJECT_CREATION)).isTrue();
-  }
-
 }

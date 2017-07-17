@@ -29,6 +29,7 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static org.sonar.db.component.ComponentTesting.newApplication;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -131,6 +132,14 @@ public class ComponentDbTester {
 
   public ComponentDto insertView(OrganizationDto organizationDto, String uuid) {
     return insertComponentImpl(newView(organizationDto, uuid), false, noExtraConfiguration());
+  }
+
+  public ComponentDto insertApplication(OrganizationDto organizationDto) {
+    return insertComponentImpl(newApplication(organizationDto), false, noExtraConfiguration());
+  }
+
+  public ComponentDto insertApplication(OrganizationDto organizationDto, Consumer<ComponentDto> dtoPopulator) {
+    return insertComponentImpl(newApplication(organizationDto), false, dtoPopulator);
   }
 
   private static <T> Consumer<T> noExtraConfiguration() {
