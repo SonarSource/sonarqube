@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -33,7 +34,7 @@ import static org.junit.Assert.fail;
 public class ProxyDeleteRequestBuilderTest {
 
   @ClassRule
-  public static EsTester esTester = new EsTester();
+  public static EsTester esTester = new EsTester(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();

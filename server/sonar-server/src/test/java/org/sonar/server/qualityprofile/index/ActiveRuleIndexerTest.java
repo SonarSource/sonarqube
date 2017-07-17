@@ -120,8 +120,7 @@ public class ActiveRuleIndexerTest {
   @Test
   public void commitAndIndex_keeps_elements_to_recover_in_ES_QUEUE_on_errors() {
     ActiveRuleDto ar = db.qualityProfiles().activateRule(profile1, rule1);
-    // force error by deleting the index
-    deleteRulesIndex();
+    es.lockWrites(INDEX_TYPE_ACTIVE_RULE);
 
     commitAndIndex(ar);
 
@@ -175,11 +174,6 @@ public class ActiveRuleIndexerTest {
     underTest.commitDeletionOfProfiles(db.getSession(), singletonList(profile2));
 
     assertThat(es.countDocuments(INDEX_TYPE_ACTIVE_RULE)).isEqualTo(1);
-  }
-
-
-  private void deleteRulesIndex() {
-    es.deleteIndex(RuleIndexDefinition.INDEX_TYPE_RULE.getIndex());
   }
 
   private void assertThatEsQueueTableIsEmpty() {
