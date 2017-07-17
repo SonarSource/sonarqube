@@ -82,6 +82,10 @@ public class EsClient implements Closeable {
     this.nativeClient = requireNonNull(nativeClient);
   }
 
+  public EsClient() {
+    this.nativeClient = null;
+  }
+
   public RefreshRequestBuilder prepareRefresh(String... indices) {
     return new ProxyRefreshRequestBuilder(nativeClient()).setIndices(indices);
   }
