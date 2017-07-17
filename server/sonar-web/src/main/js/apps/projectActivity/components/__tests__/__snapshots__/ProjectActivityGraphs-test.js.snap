@@ -60,7 +60,33 @@ exports[`should render correctly the graph and legends 1`] = `
     graph="overview"
     graphEndDate={null}
     graphStartDate={null}
+    graphs={
+      Array [
+        Array [
+          Object {
+            "data": Array [
+              Object {
+                "x": 2016-10-26T10:17:29.000Z,
+                "y": 2286,
+              },
+              Object {
+                "x": 2016-10-27T10:21:15.000Z,
+                "y": 1749,
+              },
+              Object {
+                "x": 2016-10-27T14:33:50.000Z,
+                "y": 500,
+              },
+            ],
+            "name": "code_smells",
+            "translatedName": "Code Smells",
+            "type": "INT",
+          },
+        ],
+      ]
+    }
     leakPeriodDate="2017-05-16T13:50:02+0200"
+    loading={false}
     measuresHistory={
       Array [
         Object {
@@ -82,7 +108,6 @@ exports[`should render correctly the graph and legends 1`] = `
         },
       ]
     }
-    metricsType="INT"
     removeCustomMetric={[Function]}
     series={
       Array [
@@ -194,114 +219,4 @@ Object {
     },
   ],
 }
-`;
-
-exports[`should show that there is no history data 1`] = `
-<div
-  className="project-activity-layout-page-main-inner boxed-group boxed-group-inner"
->
-  <ProjectActivityGraphsHeader
-    addCustomMetric={[Function]}
-    graph="overview"
-    metrics={
-      Array [
-        Object {
-          "key": "code_smells",
-          "name": "Code Smells",
-          "type": "INT",
-        },
-      ]
-    }
-    metricsTypeFilter={null}
-    updateGraph={[Function]}
-  />
-  <div
-    className="project-activity-graph-container"
-  >
-    <div
-      className="note text-center"
-    >
-      component_measures.no_history
-    </div>
-  </div>
-  <GraphsZoom
-    graphEndDate={null}
-    graphStartDate={null}
-    leakPeriodDate="2017-05-16T13:50:02+0200"
-    loading={false}
-    metricsType="INT"
-    series={
-      Array [
-        Object {
-          "data": Array [],
-          "name": "code_smells",
-          "translatedName": "Code Smells",
-          "type": "INT",
-        },
-      ]
-    }
-    showAreas={false}
-    updateGraphZoom={[Function]}
-  />
-</div>
-`;
-
-exports[`should show that there is no history data 2`] = `
-<div
-  className="project-activity-layout-page-main-inner boxed-group boxed-group-inner"
->
-  <ProjectActivityGraphsHeader
-    addCustomMetric={[Function]}
-    graph="custom"
-    metrics={
-      Array [
-        Object {
-          "key": "code_smells",
-          "name": "Code Smells",
-          "type": "INT",
-        },
-      ]
-    }
-    metricsTypeFilter={null}
-    selectedMetrics={
-      Array [
-        "code_smells",
-      ]
-    }
-    updateGraph={[Function]}
-  />
-  <div
-    className="project-activity-graph-container"
-  >
-    <div
-      className="note text-center"
-    >
-      project_activity.graphs.custom.no_history
-    </div>
-  </div>
-  <GraphsZoom
-    graphEndDate={null}
-    graphStartDate={null}
-    leakPeriodDate="2017-05-16T13:50:02+0200"
-    loading={false}
-    metricsType="INT"
-    series={
-      Array [
-        Object {
-          "data": Array [
-            Object {
-              "x": 2016-10-26T10:17:29.000Z,
-              "y": NaN,
-            },
-          ],
-          "name": "code_smells",
-          "translatedName": "Code Smells",
-          "type": "INT",
-        },
-      ]
-    }
-    showAreas={false}
-    updateGraphZoom={[Function]}
-  />
-</div>
 `;

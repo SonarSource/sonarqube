@@ -90,39 +90,3 @@ it('should render correctly with filter history on dates', () => {
   );
   expect(wrapper.state()).toMatchSnapshot();
 });
-
-it('should show a loading view instead of the graph', () => {
-  expect(
-    shallow(<ProjectActivityGraphs {...DEFAULT_PROPS} loading={true} />).find('.spinner')
-  ).toHaveLength(1);
-});
-
-it('should show that there is no history data', () => {
-  expect(
-    shallow(
-      <ProjectActivityGraphs
-        {...DEFAULT_PROPS}
-        measuresHistory={[{ metric: 'code_smells', history: [] }]}
-      />
-    )
-  ).toMatchSnapshot();
-  expect(
-    shallow(
-      <ProjectActivityGraphs
-        {...DEFAULT_PROPS}
-        measuresHistory={[
-          {
-            metric: 'code_smells',
-            history: [{ date: new Date('2016-10-26T12:17:29+0200'), value: undefined }]
-          }
-        ]}
-        query={{
-          category: '',
-          graph: 'custom',
-          project: 'org.sonarsource.sonarqube:sonarqube',
-          customMetrics: ['code_smells']
-        }}
-      />
-    )
-  ).toMatchSnapshot();
-});

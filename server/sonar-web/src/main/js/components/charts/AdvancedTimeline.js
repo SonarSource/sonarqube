@@ -168,7 +168,7 @@ export default class AdvancedTimeline extends React.PureComponent {
         // $FlowFixMe selectedDate can't be null there
         p => p.x.valueOf() === selectedDate.valueOf()
       );
-      const xRange = xScale.range();
+      const xRange = xScale.range().sort();
       const xPos = xScale(selectedDate);
       if (idx >= 0 && xPos >= xRange[0] && xPos <= xRange[1]) {
         return {
