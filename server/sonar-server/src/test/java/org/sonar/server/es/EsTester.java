@@ -27,7 +27,13 @@ import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
@@ -36,69 +42,257 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.MetaData;
+import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.discovery.DiscoveryModule;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeValidationException;
+import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.search.MockSearchService;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.test.NodeConfigurationSource;
+import org.elasticsearch.test.transport.AssertingLocalTransport;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.ConfigurationProvider;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.elasticsearch.test.EsTestCluster;
 import org.sonar.server.es.metadata.MetadataIndex;
 import org.sonar.server.es.metadata.MetadataIndexDefinition;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static junit.framework.TestCase.assertNull;
+import static org.elasticsearch.test.XContentTestUtils.convertToMap;
+import static org.elasticsearch.test.XContentTestUtils.differenceBetweenMapsIgnoringArrayOrder;
+import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertNoTimeout;
+import static org.junit.Assert.assertEquals;
 import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 
 public class EsTester extends ExternalResource {
 
+  private static EsTestCluster cluster;
   private final List<IndexDefinition> indexDefinitions;
-  private final EsClient client = new EsClient(NodeHolder.INSTANCE.node.client());
-  private ComponentContainer container;
 
   public EsTester(IndexDefinition... defs) {
     this.indexDefinitions = asList(defs);
   }
 
+  public void init() {
+    Path tempDirectory;
+    try {
+      tempDirectory = Files.createTempDirectory("es-unit-test");
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    try {
+      cluster = new EsTestCluster(0L, tempDirectory, false, 1, "test cluster",
+        getNodeConfigSource(), 0, "node-prefix", singletonList(AssertingLocalTransport.TestPlugin.class), i -> i);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+    try {
+      cluster.beforeTest(new Random(), 1L);
+      cluster.wipe(Collections.emptySet());
+      // randomIndexTemplate();
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @Override
-  protected void before() throws Throwable {
-    deleteIndices();
+  public void before() throws Throwable {
+    if (cluster == null) {
+      init();
+    }
 
     if (!indexDefinitions.isEmpty()) {
-      container = new ComponentContainer();
+      EsClient esClient = new MyEsClient(cluster.client());
+      ComponentContainer container = new ComponentContainer();
       container.addSingleton(new MapSettings());
       container.addSingleton(new ConfigurationProvider());
       container.addSingletons(indexDefinitions);
-      container.addSingleton(client);
+      container.addSingleton(esClient);
       container.addSingleton(IndexDefinitions.class);
       container.addSingleton(IndexCreator.class);
       container.addSingleton(MetadataIndex.class);
       container.addSingleton(MetadataIndexDefinition.class);
       container.startComponents();
+      container.stopComponents();
+      client().close();
+    }
+  }
+
+  public static class MyEsClient extends EsClient {
+    public MyEsClient(Client nativeClient) {
+      super(nativeClient);
+    }
+
+    @Override
+    public void close() {
+      // do nothing
     }
   }
 
   @Override
-  protected void after() {
-    if (container != null) {
-      container.stopComponents();
+  public void after() {
+    try {
+      assertBusy(MockSearchService::assertNoInFlightContext);
+      afterTest();
+      assertBusy(MockSearchService::assertNoInFlightContext);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-    if (client != null) {
-      client.close();
+  }
+
+  private void afterTest() throws Exception {
+    if (cluster != null) {
+      MetaData metaData = cluster.client().admin().cluster().prepareState().execute().actionGet().getState().getMetaData();
+      assertEquals("test leaves persistent cluster metadata behind: " + metaData.persistentSettings().getAsMap(), metaData
+          .persistentSettings().getAsMap().size(), 0);
+      assertEquals("test leaves transient cluster metadata behind: " + metaData.transientSettings().getAsMap(), metaData
+          .transientSettings().getAsMap().size(), 0);
+      ensureClusterSizeConsistency();
+      ensureClusterStateConsistency();
+      cluster.beforeIndexDeletion();
+      cluster.wipe(Collections.emptySet()); // wipe after to make sure we fail in the test that didn't ack the delete
+      cluster.assertAfterTest();
     }
+  }
+
+  /**
+   * Runs the code block for 10 seconds waiting for no assertion to trip.
+   */
+  public static void assertBusy(Runnable codeBlock) throws Exception {
+    assertBusy(codeBlock, 10, TimeUnit.SECONDS);
+  }
+
+  /**
+   * Runs the code block for the provided interval, waiting for no assertions to trip.
+   */
+  public static void assertBusy(Runnable codeBlock, long maxWaitTime, TimeUnit unit) throws Exception {
+    long maxTimeInMillis = TimeUnit.MILLISECONDS.convert(maxWaitTime, unit);
+    long iterations = Math.max(Math.round(Math.log10(maxTimeInMillis) / Math.log10(2)), 1);
+    long timeInMillis = 1;
+    long sum = 0;
+    List<AssertionError> failures = new ArrayList<>();
+    for (int i = 0; i < iterations; i++) {
+      try {
+        codeBlock.run();
+        return;
+      } catch (AssertionError e) {
+        failures.add(e);
+      }
+      sum += timeInMillis;
+      Thread.sleep(timeInMillis);
+      timeInMillis *= 2;
+    }
+    timeInMillis = maxTimeInMillis - sum;
+    Thread.sleep(Math.max(timeInMillis, 0));
+    try {
+      codeBlock.run();
+    } catch (AssertionError e) {
+      for (AssertionError failure : failures) {
+        e.addSuppressed(failure);
+      }
+      throw e;
+    }
+  }
+
+  protected NodeConfigurationSource getNodeConfigSource() {
+    Settings.Builder networkSettings = Settings.builder();
+    networkSettings.put(NetworkModule.TRANSPORT_TYPE_KEY, "local");
+
+    return new NodeConfigurationSource() {
+      @Override
+      public Settings nodeSettings(int nodeOrdinal) {
+        return Settings.builder()
+          .put(NetworkModule.HTTP_ENABLED.getKey(), false)
+          .put(DiscoveryModule.DISCOVERY_TYPE_SETTING.getKey(), "local")
+          .put(networkSettings.build())
+          .build();
+      }
+
+      @Override
+      public Collection<Class<? extends Plugin>> nodePlugins() {
+        return Collections.emptyList();
+      }
+
+      @Override
+      public Settings transportClientSettings() {
+        return Settings.builder().put(networkSettings.build()).build();
+      }
+
+      @Override
+      public Collection<Class<? extends Plugin>> transportClientPlugins() {
+        return singleton(AssertingLocalTransport.TestPlugin.class);
+      }
+    };
+  }
+
+  private void ensureClusterSizeConsistency() {
+    if (cluster != null) { // if static init fails the cluster can be null
+      // logger.trace("Check consistency for [{}] nodes", cluster().size());
+      assertNoTimeout(cluster.client().admin().cluster().prepareHealth().setWaitForNodes(Integer.toString(cluster.size())).get());
+    }
+  }
+
+  /**
+   * Verifies that all nodes that have the same version of the cluster state as master have same cluster state
+   */
+  private void ensureClusterStateConsistency() throws IOException {
+    if (cluster != null) {
+      ClusterState masterClusterState = cluster.client().admin().cluster().prepareState().all().get().getState();
+      byte[] masterClusterStateBytes = ClusterState.Builder.toBytes(masterClusterState);
+      // remove local node reference
+      masterClusterState = ClusterState.Builder.fromBytes(masterClusterStateBytes, null);
+      Map<String, Object> masterStateMap = convertToMap(masterClusterState);
+      int masterClusterStateSize = ClusterState.Builder.toBytes(masterClusterState).length;
+      String masterId = masterClusterState.nodes().getMasterNodeId();
+      for (Client client : cluster.getClients()) {
+        ClusterState localClusterState = client.admin().cluster().prepareState().all().setLocal(true).get().getState();
+        byte[] localClusterStateBytes = ClusterState.Builder.toBytes(localClusterState);
+        // remove local node reference
+        localClusterState = ClusterState.Builder.fromBytes(localClusterStateBytes, null);
+        final Map<String, Object> localStateMap = convertToMap(localClusterState);
+        final int localClusterStateSize = ClusterState.Builder.toBytes(localClusterState).length;
+        // Check that the non-master node has the same version of the cluster state as the master and
+        // that the master node matches the master (otherwise there is no requirement for the cluster state to match)
+        if (masterClusterState.version() == localClusterState.version() && masterId.equals(localClusterState.nodes().getMasterNodeId())) {
+          try {
+            assertEquals("clusterstate UUID does not match", masterClusterState.stateUUID(), localClusterState.stateUUID());
+            // We cannot compare serialization bytes since serialization order of maps is not guaranteed
+            // but we can compare serialization sizes - they should be the same
+            assertEquals("clusterstate size does not match", masterClusterStateSize, localClusterStateSize);
+            // Compare JSON serialization
+            assertNull("clusterstate JSON serialization does not match", differenceBetweenMapsIgnoringArrayOrder(masterStateMap, localStateMap));
+          } catch (AssertionError error) {
+            // logger.error("Cluster state from master:\n{}\nLocal cluster state:\n{}", masterClusterState.toString(), localClusterState.toString());
+            throw error;
+          }
+        }
+      }
+    }
+
   }
 
   private void deleteIndices() {
-    client.nativeClient().admin().indices().prepareDelete("_all").get();
+    cluster.client().admin().indices().prepareDelete("_all").get();
   }
 
   public void deleteIndex(String indexName) {
-    client.nativeClient().admin().indices().prepareDelete(indexName).get();
+    cluster.client().admin().indices().prepareDelete(indexName).get();
   }
 
   public void putDocuments(String index, String type, BaseDoc... docs) {
@@ -107,7 +301,7 @@ public class EsTester extends ExternalResource {
 
   public void putDocuments(IndexType indexType, BaseDoc... docs) {
     try {
-      BulkRequestBuilder bulk = client.prepareBulk()
+      BulkRequestBuilder bulk = cluster.client().prepareBulk()
         .setRefreshPolicy(REFRESH_IMMEDIATE);
       for (BaseDoc doc : docs) {
         bulk.add(new IndexRequest(indexType.getIndex(), indexType.getType(), doc.getId())
@@ -148,7 +342,8 @@ public class EsTester extends ExternalResource {
    * Get all the indexed documents (no paginated results). Results are not sorted.
    */
   public List<SearchHit> getDocuments(IndexType indexType) {
-    SearchRequestBuilder req = client.nativeClient().prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(QueryBuilders.matchAllQuery());
+    Client client = cluster.client();
+    SearchRequestBuilder req = client.prepareSearch(indexType.getIndex()).setTypes(indexType.getType()).setQuery(QueryBuilders.matchAllQuery());
     EsUtils.optimizeScrollRequest(req);
     req.setScroll(new TimeValue(60000))
       .setSize(100);
@@ -157,7 +352,7 @@ public class EsTester extends ExternalResource {
     List<SearchHit> result = newArrayList();
     while (true) {
       Iterables.addAll(result, response.getHits());
-      response = client.nativeClient().prepareSearchScroll(response.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
+      response = client.prepareSearchScroll(response.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
       // Break condition: No hits are returned
       if (response.getHits().getHits().length == 0) {
         break;
@@ -183,7 +378,17 @@ public class EsTester extends ExternalResource {
   }
 
   public EsClient client() {
-    return client;
+    return new EsClient() {
+      @Override
+      public Client nativeClient() {
+        return cluster.client();
+      }
+
+      @Override
+      public void close() {
+        // do nothing
+      }
+    };
   }
 
   private enum SearchHitToId implements Function<SearchHit, String> {
